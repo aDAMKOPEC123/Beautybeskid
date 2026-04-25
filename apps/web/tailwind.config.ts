@@ -56,13 +56,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Editorial palette — fixed values
-        ivory: '#FAF7F2',
-        cream: '#F0EBE3',
-        caramel: '#C4A882',
-        walnut: '#8C6A4A',    // deep accent — used in service card shadows and deep hover states
-        espresso: '#1C1510',
-        mink: '#6B5A4E',
+        // Editorial palette — fixed values (botanical refresh)
+        ivory: '#F4F9F5',
+        cream: '#E8F3EA',
+        caramel: '#3D7A54',    // forest green — primary action
+        walnut: '#2A5C3E',     // deep forest accent
+        espresso: '#1A3828',   // near-black text
+        mink: '#5A7A62',       // muted green-gray
+        oak: '#C4965A',        // warm oak accent (new token)
       },
       borderRadius: {
         lg: "var(--radius)",

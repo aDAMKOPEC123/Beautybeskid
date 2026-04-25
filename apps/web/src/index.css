@@ -16,57 +16,57 @@
      tailwind.config.ts first, then update the corresponding HSL approximations here. */
   :root {
     color-scheme: light;
-    --background: 38 44% 97%;        /* #FAF7F2 ivory */
-    --foreground: 25 27% 9%;         /* #1C1510 espresso */
+    --background: 130 30% 97%;       /* #F4F9F5 ivory */
+    --foreground: 150 37% 16%;       /* #1A3828 espresso */
 
     --card: 0 0% 100%;
-    --card-foreground: 25 27% 9%;
+    --card-foreground: 150 37% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 25 27% 9%;
+    --popover-foreground: 150 37% 16%;
 
-    --primary: 33 35% 65%;           /* #C4A882 caramel */
-    --primary-foreground: 25 27% 9%;
+    --primary: 142 33% 36%;          /* #3D7A54 caramel (forest green) */
+    --primary-foreground: 130 30% 97%; /* light text on green button — intentional */
 
-    --secondary: 30 28% 91%;         /* #F0EBE3 cream */
-    --secondary-foreground: 25 27% 9%;
+    --secondary: 128 28% 93%;        /* #E8F3EA cream */
+    --secondary-foreground: 150 37% 16%;
 
-    --muted: 30 28% 91%;
-    --muted-foreground: 25 16% 36%;  /* #6B5A4E mink */
+    --muted: 128 28% 93%;
+    --muted-foreground: 135 15% 42%; /* #5A7A62 mink */
 
-    --accent: 30 28% 91%;
-    --accent-foreground: 25 27% 9%;
+    --accent: 128 28% 93%;
+    --accent-foreground: 150 37% 16%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 38 44% 97%;
+    --destructive-foreground: 130 30% 97%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 33 35% 65%;
+    --border: 128 20% 88%;
+    --input: 128 20% 88%;
+    --ring: 142 33% 36%;
 
-    --radius: 0rem;                   /* editorial: no radius by default */
+    --radius: 0.5rem;                /* was 0rem — organic rounding */
   }
 
   .dark {
-    --background: 22 20% 15%;
-    --foreground: 34 30% 96%;
-    --card: 22 15% 20%;
-    --card-foreground: 34 30% 96%;
-    --popover: 22 15% 20%;
-    --popover-foreground: 34 30% 96%;
-    --primary: 33 35% 65%;
-    --primary-foreground: 22 20% 15%;
-    --secondary: 22 10% 30%;
-    --secondary-foreground: 34 30% 96%;
-    --muted: 22 10% 25%;
-    --muted-foreground: 22 10% 65%;
-    --accent: 22 10% 30%;
-    --accent-foreground: 34 30% 96%;
+    --background: 140 20% 15%;
+    --foreground: 130 30% 96%;
+    --card: 140 15% 20%;
+    --card-foreground: 130 30% 96%;
+    --popover: 140 15% 20%;
+    --popover-foreground: 130 30% 96%;
+    --primary: 142 33% 36%;
+    --primary-foreground: 140 20% 97%;
+    --secondary: 140 10% 30%;
+    --secondary-foreground: 130 30% 96%;
+    --muted: 140 10% 25%;
+    --muted-foreground: 140 10% 65%;
+    --accent: 140 10% 30%;
+    --accent-foreground: 130 30% 96%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 34 30% 96%;
-    --border: 22 10% 25%;
-    --input: 22 10% 25%;
-    --ring: 33 35% 65%;
+    --destructive-foreground: 130 30% 96%;
+    --border: 140 10% 25%;
+    --input: 140 10% 25%;
+    --ring: 142 33% 36%;
   }
 }
 
@@ -99,7 +99,7 @@
   .glass-dark {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    background: rgba(28, 21, 16, 0.88);
+    background: rgba(26, 56, 40, 0.88);
   }
 }
 
