@@ -147,9 +147,9 @@
 .skeleton-caramel {
   background: linear-gradient(
     90deg,
-    rgba(196,168,130,0.05) 25%,
-    rgba(196,168,130,0.15) 50%,
-    rgba(196,168,130,0.05) 75%
+    rgba(61,122,84,0.05) 25%,
+    rgba(61,122,84,0.15) 50%,
+    rgba(61,122,84,0.05) 75%
   );
   background-size: 800px 100%;
   animation: caramel-shimmer 1.5s infinite linear;
