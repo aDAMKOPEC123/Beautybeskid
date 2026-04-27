@@ -92,7 +92,7 @@ export const Navbar = () => {
           <Link
             to="/"
             className="font-display text-[13px] uppercase"
-            style={{ color: '#1C1510', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.08em' }}
+            style={{ color: '#1A3828', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.08em' }}
           >
             Cosmo
           </Link>
@@ -106,7 +106,7 @@ export const Navbar = () => {
                 className={({ isActive }) =>
                   `text-[11px] tracking-[0.2em] uppercase transition-colors hover:text-caramel${isActive ? ' border-b border-caramel pb-px' : ''}`
                 }
-                style={{ color: '#6B5A4E' }}
+                style={{ color: '#5A7A62' }}
               >
                 {label}
               </NavLink>
@@ -123,14 +123,14 @@ export const Navbar = () => {
                 <Link
                   to={panelLink}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#6B5A4E' }}
+                  style={{ color: '#5A7A62' }}
                 >
                   {panelLabel}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#6B5A4E' }}
+                  style={{ color: '#5A7A62' }}
                 >
                   Wyloguj
                 </button>
@@ -140,7 +140,7 @@ export const Navbar = () => {
                 <Link
                   to="/auth/login"
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#6B5A4E' }}
+                  style={{ color: '#5A7A62' }}
                 >
                   Zaloguj
                 </Link>
@@ -159,11 +159,11 @@ export const Navbar = () => {
           >
             <span
               className="block h-px w-[22px] transition-all duration-300"
-              style={{ background: '#1C1510' }}
+              style={{ background: '#1A3828' }}
             />
             <span
               className="block h-px w-[14px] transition-all duration-300"
-              style={{ background: '#1C1510' }}
+              style={{ background: '#1A3828' }}
             />
           </button>
         </div>
@@ -178,7 +178,7 @@ export const Navbar = () => {
             exit={{ clipPath: 'inset(0 0 100% 0)' }}
             transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
             className="fixed inset-0 z-50 flex flex-col"
-            style={{ background: '#1C1510' }}
+            style={{ background: '#1A3828' }}
           >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>

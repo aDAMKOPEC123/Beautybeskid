@@ -187,7 +187,7 @@ const UserLayoutInner = () => {
           <Link
             to="/user"
             className="font-display text-[13px] tracking-[0.45em] uppercase"
-            style={{ color: '#1C1510', fontStyle: 'normal', fontWeight: 300 }}
+            style={{ color: '#1A3828', fontStyle: 'normal', fontWeight: 300 }}
           >
             Cosmo
           </Link>
@@ -214,14 +214,14 @@ const UserLayoutInner = () => {
             <Link
               to="/"
               className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-              style={{ color: '#6B5A4E' }}
+              style={{ color: '#5A7A62' }}
             >
               ← Wizytówka
             </Link>
             <button
               onClick={handleLogout}
               className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-              style={{ color: '#6B5A4E' }}
+              style={{ color: '#5A7A62' }}
             >
               Wyloguj
             </button>
