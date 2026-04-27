@@ -12,7 +12,7 @@ export const ServiceList = () => {
   const { ref: headerRef, revealed: headerRevealed } = useClipReveal<HTMLDivElement>({ threshold: 0.1 });
 
   if (isLoading) return (
-    <section className="py-16" style={{ background: '#FAF7F2' }}>
+    <section className="py-16" style={{ background: '#F4F9F5' }}>
       <div className="container"><ServiceListSkeleton count={6} /></div>
     </section>
   );
@@ -26,7 +26,7 @@ export const ServiceList = () => {
       />
 
       {/* Hero */}
-      <section className="py-24 text-center relative" style={{ background: '#F0EBE3' }}>
+      <section className="py-24 text-center relative" style={{ background: '#E8F3EA' }}>
         <GeoArc size={120} opacity={0.2} className="top-4 right-4" />
         <div className="container">
           <p className="eyebrow mb-5">Nasza Oferta</p>
@@ -43,7 +43,7 @@ export const ServiceList = () => {
       </section>
 
       {/* Sticky layout: header left, cards right */}
-      <section data-tour="services-list" style={{ background: '#FAF7F2' }}>
+      <section data-tour="services-list" style={{ background: '#F4F9F5' }}>
         <div className="container py-16">
           <div className="flex gap-16 items-start">
             {/* Sticky sidebar header */}

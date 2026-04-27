@@ -154,7 +154,7 @@ export const Home = () => {
         .testimonial-col:not(:last-child) {
           @media (max-width: 767px) {
             border-right: none !important;
-            border-bottom: 1px solid rgba(196,168,130,0.25);
+            border-bottom: 1px solid rgba(61,122,84,0.25);
             padding: 0 0 40px 0 !important;
             margin-bottom: 40px;
           }
@@ -191,7 +191,7 @@ export const Home = () => {
               {/* Floating badge */}
               <div
                 className="hidden md:flex absolute top-8 right-6 z-10 w-[72px] h-[72px] rounded-full flex-col items-center justify-center text-center leading-snug"
-                style={{ border: '1px solid rgba(196,168,130,0.4)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#C4A882', background: 'rgba(245,240,235,0.9)' }}
+                style={{ border: '1px solid rgba(61,122,84,0.4)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#3D7A54', background: 'rgba(232,243,234,0.9)' }}
                 aria-hidden="true"
               >
                 Salon<br />od 2018
@@ -328,7 +328,7 @@ export const Home = () => {
         {/* ── 2. TICKER ── */}
         <section
           className="overflow-hidden py-4"
-          style={{ backgroundColor: '#1C1510', transform: 'translateZ(0)' }}
+          style={{ backgroundColor: '#1A3828', transform: 'translateZ(0)' }}
         >
           <div className="flex whitespace-nowrap ticker-track">
             {[...tickerItems, ...tickerItems].map((item, i) => (
@@ -488,7 +488,7 @@ export const Home = () => {
         )}
 
         {/* ── TESTIMONIALS (editorial) ── */}
-        <section style={{ background: '#F0EBE3', padding: '112px 0' }}>
+        <section style={{ background: '#E8F3EA', padding: '112px 0' }}>
           <div className="container">
 
             {/* Section header */}
@@ -505,7 +505,7 @@ export const Home = () => {
               <span
                 className="absolute right-4 top-[-10px] font-heading italic pointer-events-none select-none"
                 aria-hidden="true"
-                style={{ fontSize: 120, lineHeight: 1, color: 'rgba(196,168,130,0.08)' }}
+                style={{ fontSize: 120, lineHeight: 1, color: 'rgba(61,122,84,0.08)' }}
               >
                 &ldquo;
               </span>
@@ -523,14 +523,14 @@ export const Home = () => {
                   transition={{ duration: 0.7, delay: i * 0.15, ease: [0.76, 0, 0.24, 1] }}
                   style={{
                     padding: i === 0 ? '0 40px 0 0' : i === 2 ? '0 0 0 40px' : '0 40px',
-                    borderRight: i < 2 ? '1px solid rgba(196,168,130,0.25)' : 'none',
+                    borderRight: i < 2 ? '1px solid rgba(61,122,84,0.25)' : 'none',
                   }}
                 >
                   {/* Rating bars */}
                   <div className="flex gap-1 mb-3">
                     {[1,2,3,4,5].map((star) => (
                       <span key={star} className="inline-block rounded-sm" style={{
-                        width: 14, height: 2, background: '#C4A882'
+                        width: 14, height: 2, background: '#3D7A54'
                       }} />
                     ))}
                   </div>
@@ -542,7 +542,7 @@ export const Home = () => {
                       fontFamily: 'Cormorant Garamond, Georgia, serif',
                       fontSize: '96px',
                       lineHeight: 1,
-                      color: '#C4A882',
+                      color: '#3D7A54',
                       opacity: 0.5,
                       display: 'block',
                       marginBottom: '-8px',
@@ -562,7 +562,7 @@ export const Home = () => {
                       fontStyle: 'italic',
                       fontWeight: 300,
                       lineHeight: 1.7,
-                      color: '#1C1510',
+                      color: '#1A3828',
                       marginBottom: '32px',
                       textAlign: 'left',
                     }}
@@ -572,14 +572,14 @@ export const Home = () => {
 
                   {/* Atrybucja */}
                   <div style={{ marginTop: 'auto' }}>
-                    <div style={{ width: '24px', height: '1px', background: '#C4A882', marginBottom: '14px' }} />
+                    <div style={{ width: '24px', height: '1px', background: '#3D7A54', marginBottom: '14px' }} />
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif',
                       fontSize: '12px',
                       fontWeight: 600,
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
-                      color: '#1C1510',
+                      color: '#1A3828',
                       marginBottom: '4px',
                     }}>
                       {t.author}
@@ -590,7 +590,7 @@ export const Home = () => {
                       fontWeight: 400,
                       letterSpacing: '0.3em',
                       textTransform: 'uppercase',
-                      color: '#6B5A4E',
+                      color: '#5A7A62',
                     }}>
                       {t.label}
                     </p>
