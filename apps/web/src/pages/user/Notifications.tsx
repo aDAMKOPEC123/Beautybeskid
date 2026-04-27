@@ -41,7 +41,7 @@ function getIconConfig(type: Notification['type']): { icon: React.ReactNode; dot
     case 'LOYALTY_POINTS':
     case 'LOYALTY_TIER_UP':
       return {
-        icon: <Star size={18} style={{ color: '#B8913A' }} />,
+        icon: <Star size={18} style={{ color: '#C4965A' }} />,
         dot: 'bg-yellow-600',
       };
     case 'SERIES_REMINDER':
@@ -171,7 +171,7 @@ export const UserNotifications = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Bell size={24} style={{ color: '#B8913A' }} />
+          <Bell size={24} style={{ color: '#C4965A' }} />
           <h1
             className="font-heading text-2xl font-semibold"
             style={{ color: '#1A1208' }}
@@ -185,9 +185,9 @@ export const UserNotifications = () => {
             disabled={markAllReadMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
             style={{
-              background: 'rgba(184,145,58,0.08)',
-              color: '#B8913A',
-              border: '1px solid rgba(184,145,58,0.2)',
+              background: 'rgba(196,150,90,0.08)',
+              color: '#C4965A',
+              border: '1px solid rgba(196,150,90,0.2)',
             }}
           >
             <CheckCheck size={16} />
@@ -211,9 +211,9 @@ export const UserNotifications = () => {
           <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(184,145,58,0.08)' }}
+              style={{ background: 'rgba(196,150,90,0.08)' }}
             >
-              <Bell size={28} style={{ color: '#B8913A' }} />
+              <Bell size={28} style={{ color: '#C4965A' }} />
             </div>
             <p className="text-gray-500 text-sm">
               Nie masz jeszcze żadnych powiadomień
@@ -223,7 +223,7 @@ export const UserNotifications = () => {
           <div className="space-y-4">
             {groupByDate(notifications).map(({ label, items }) => (
               <div key={label}>
-                <p className="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(26,18,8,0.4)' }}>
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(20,40,28,0.4)' }}>
                   {label}
                 </p>
                 <div className="space-y-1">
@@ -238,7 +238,7 @@ export const UserNotifications = () => {
                         className="flex gap-3 p-4 rounded-xl cursor-pointer transition-colors hover:bg-gray-50 relative min-h-[64px]"
                         style={
                           isUnread
-                            ? { background: 'rgba(184,145,58,0.04)' }
+                            ? { background: 'rgba(196,150,90,0.04)' }
                             : { background: '#fff' }
                         }
                       >
@@ -246,7 +246,7 @@ export const UserNotifications = () => {
                         {isUnread && (
                           <div
                             className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-r-full"
-                            style={{ background: '#B8913A' }}
+                            style={{ background: '#C4965A' }}
                           />
                         )}
 
@@ -266,10 +266,10 @@ export const UserNotifications = () => {
                           >
                             {notification.title}
                           </p>
-                          <p className="text-[12px] mt-0.5 leading-relaxed" style={{ color: '#6B5A4E' }}>
+                          <p className="text-[12px] mt-0.5 leading-relaxed" style={{ color: '#5A7A62' }}>
                             {notification.body}
                           </p>
-                          <p className="text-[11px] mt-1" style={{ color: '#B8913A' }}>
+                          <p className="text-[11px] mt-1" style={{ color: '#C4965A' }}>
                             {formatDate(notification.createdAt)}
                           </p>
                         </div>
@@ -278,7 +278,7 @@ export const UserNotifications = () => {
                         <span
                           className="shrink-0 whitespace-nowrap self-start mt-1 text-xs font-bold rounded-full px-2.5 py-0.5"
                           style={{
-                            background: isUnread ? '#B8913A' : 'rgba(0,0,0,0.06)',
+                            background: isUnread ? '#C4965A' : 'rgba(0,0,0,0.06)',
                             color: isUnread ? '#000' : '#888',
                           }}
                         >

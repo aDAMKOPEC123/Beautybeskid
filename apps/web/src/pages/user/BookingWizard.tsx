@@ -106,7 +106,7 @@ function MiniCalendar({
       </div>
       <div className="grid grid-cols-7 mb-1">
         {DAY_NAMES.map((d) => (
-          <div key={d} className="text-center text-xs font-medium py-1" style={{ color: 'rgba(26,18,8,0.4)' }}>
+          <div key={d} className="text-center text-xs font-medium py-1" style={{ color: 'rgba(20,40,28,0.4)' }}>
             {d}
           </div>
         ))}
@@ -133,9 +133,9 @@ function MiniCalendar({
                 isSelected
                   ? { background: '#1A1208', color: '#fff' }
                   : isToday
-                  ? { border: '1.5px solid #B8913A', color: '#B8913A', fontWeight: 700 }
+                  ? { border: '1.5px solid #C4965A', color: '#C4965A', fontWeight: 700 }
                   : isPast
-                  ? { color: 'rgba(26,18,8,0.25)', cursor: 'not-allowed' }
+                  ? { color: 'rgba(20,40,28,0.25)', cursor: 'not-allowed' }
                   : isRed
                   ? { background: 'rgba(239,68,68,0.08)', color: '#DC2626', cursor: 'not-allowed' }
                   : isGreen
@@ -201,7 +201,7 @@ function StepService({
 
   if (isLoading)
     return (
-      <div className="text-center py-12 animate-pulse" style={{ color: 'rgba(26,18,8,0.4)' }}>
+      <div className="text-center py-12 animate-pulse" style={{ color: 'rgba(20,40,28,0.4)' }}>
         Ładowanie usług...
       </div>
     );
@@ -212,10 +212,10 @@ function StepService({
       <button
         onClick={() => setQuizOpen(true)}
         className="w-full border border-dashed rounded-xl p-3 text-sm text-center transition-colors hover:bg-amber-50"
-        style={{ borderColor: 'rgba(184,145,58,0.4)', color: 'rgba(26,18,8,0.6)' }}
+        style={{ borderColor: 'rgba(196,150,90,0.4)', color: 'rgba(20,40,28,0.6)' }}
       >
         Nie wiesz, jaki zabieg wybrać?{' '}
-        <span className="font-semibold" style={{ color: '#B8913A' }}>
+        <span className="font-semibold" style={{ color: '#C4965A' }}>
           Odpowiedz na 6 pytań →
         </span>
       </button>
@@ -224,16 +224,16 @@ function StepService({
       {recommendation && (
         <div
           className="rounded-xl p-4 flex items-start justify-between gap-3"
-          style={{ background: 'rgba(184,145,58,0.08)', border: '1px solid rgba(184,145,58,0.3)' }}
+          style={{ background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.3)' }}
         >
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#B8913A' }}>
+            <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#C4965A' }}>
               Rekomendacja dla Ciebie
             </p>
             <p className="font-semibold mt-0.5" style={{ color: '#1A1208' }}>{recommendation.title}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(26,18,8,0.6)' }}>{recommendation.subtitle}</p>
+            <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.6)' }}>{recommendation.subtitle}</p>
           </div>
-          <button onClick={() => setRecommendation(null)} style={{ color: 'rgba(26,18,8,0.4)' }}>
+          <button onClick={() => setRecommendation(null)} style={{ color: 'rgba(20,40,28,0.4)' }}>
             <X size={16} />
           </button>
         </div>
@@ -255,7 +255,7 @@ function StepService({
             style={
               filterCategory === cat
                 ? { background: '#1A1208', color: '#fff', borderColor: '#1A1208' }
-                : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(26,18,8,0.7)' }
+                : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }
             }
           >
             {cat || 'Wszystkie'}
@@ -275,10 +275,10 @@ function StepService({
               style={{
                 background: '#fff',
                 border: isSelected
-                  ? '1.5px solid #B8913A'
+                  ? '1.5px solid #C4965A'
                   : '1px solid rgba(0,0,0,0.08)',
                 boxShadow: isSelected
-                  ? '0 0 0 3px rgba(184,145,58,0.12)'
+                  ? '0 0 0 3px rgba(196,150,90,0.12)'
                   : '0 1px 3px rgba(0,0,0,0.04)',
               }}
             >
@@ -296,16 +296,16 @@ function StepService({
                   <h3 className="font-semibold leading-tight" style={{ color: '#1A1208' }}>
                     {service.name}
                   </h3>
-                  {isSelected && <CheckCircle2 size={18} style={{ color: '#B8913A', flexShrink: 0, marginTop: 2 }} />}
+                  {isSelected && <CheckCircle2 size={18} style={{ color: '#C4965A', flexShrink: 0, marginTop: 2 }} />}
                 </div>
-                <p className="text-xs line-clamp-2" style={{ color: 'rgba(26,18,8,0.5)' }}>
+                <p className="text-xs line-clamp-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
                   {service.description}
                 </p>
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center gap-2">
                     <span
                       className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                      style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                     >
                       <Clock size={11} />
                       {service.durationMinutes} min
@@ -348,15 +348,15 @@ function StepEmployee({
 
   if (isLoading)
     return (
-      <div className="text-center py-12 animate-pulse" style={{ color: 'rgba(26,18,8,0.4)' }}>
+      <div className="text-center py-12 animate-pulse" style={{ color: 'rgba(20,40,28,0.4)' }}>
         Ładowanie pracowników...
       </div>
     );
 
   const cardStyle = (isSelected: boolean) => ({
     background: '#fff',
-    border: isSelected ? '1.5px solid #B8913A' : '1px solid rgba(0,0,0,0.08)',
-    boxShadow: isSelected ? '0 0 0 3px rgba(184,145,58,0.12)' : '0 1px 3px rgba(0,0,0,0.04)',
+    border: isSelected ? '1.5px solid #C4965A' : '1px solid rgba(0,0,0,0.08)',
+    boxShadow: isSelected ? '0 0 0 3px rgba(196,150,90,0.12)' : '0 1px 3px rgba(0,0,0,0.04)',
     borderRadius: 16,
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -365,7 +365,7 @@ function StepEmployee({
   return (
     <div className="space-y-4">
       {filteredEmployees.length === 0 && !isLoading && (
-        <div className="text-center py-12 text-sm" style={{ color: 'rgba(26,18,8,0.45)' }}>
+        <div className="text-center py-12 text-sm" style={{ color: 'rgba(20,40,28,0.45)' }}>
           Brak dostępnych pracowników dla tej usługi.
         </div>
       )}
@@ -379,11 +379,11 @@ function StepEmployee({
               className="p-4 flex gap-4 items-start"
               style={cardStyle(isSelected)}
             >
-              <div className="w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: 'rgba(184,145,58,0.1)' }}>
+              <div className="w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: 'rgba(196,150,90,0.1)' }}>
                 {emp.avatarPath ? (
                   <img src={emp.avatarPath} alt={emp.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xl font-bold" style={{ color: '#B8913A' }}>
+                  <div className="w-full h-full flex items-center justify-center text-xl font-bold" style={{ color: '#C4965A' }}>
                     {emp.name?.charAt(0)}
                   </div>
                 )}
@@ -391,10 +391,10 @@ function StepEmployee({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold" style={{ color: '#1A1208' }}>{emp.name}</p>
-                  {isSelected && <CheckCircle2 size={16} style={{ color: '#B8913A', flexShrink: 0 }} />}
+                  {isSelected && <CheckCircle2 size={16} style={{ color: '#C4965A', flexShrink: 0 }} />}
                 </div>
                 {emp.bio && (
-                  <p className="text-sm mt-1 line-clamp-2" style={{ color: 'rgba(26,18,8,0.5)' }}>{emp.bio}</p>
+                  <p className="text-sm mt-1 line-clamp-2" style={{ color: 'rgba(20,40,28,0.5)' }}>{emp.bio}</p>
                 )}
                 {emp.specialties?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
@@ -402,7 +402,7 @@ function StepEmployee({
                       <span
                         key={s}
                         className="text-[10px] px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                        style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                       >
                         {s}
                       </span>
@@ -503,25 +503,25 @@ function StepDate({
         {!selectedDate ? (
           <div
             className="flex items-center justify-center h-full text-sm"
-            style={{ color: 'rgba(26,18,8,0.45)' }}
+            style={{ color: 'rgba(20,40,28,0.45)' }}
           >
             Wybierz dzień, aby zobaczyć dostępne godziny
           </div>
         ) : isFetching ? (
-          <div className="text-center animate-pulse py-8" style={{ color: 'rgba(26,18,8,0.45)' }}>
+          <div className="text-center animate-pulse py-8" style={{ color: 'rgba(20,40,28,0.45)' }}>
             Sprawdzanie dostępności...
           </div>
         ) : slots.length === 0 ? (
           <div
             className="text-center py-8 rounded-xl"
-            style={{ border: '2px dashed rgba(0,0,0,0.1)', color: 'rgba(26,18,8,0.45)' }}
+            style={{ border: '2px dashed rgba(0,0,0,0.1)', color: 'rgba(20,40,28,0.45)' }}
           >
             Brak wolnych terminów w tym dniu.<br />
             <span className="text-sm">Wybierz inny dzień.</span>
           </div>
         ) : (
           <div>
-            <p className="text-sm font-medium mb-3" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-sm font-medium mb-3" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Dostępne godziny — {format(selectedDate, 'EEEE, d MMMM', { locale: pl })}
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -631,7 +631,7 @@ function StepNotes({
             rows={rows}
             placeholder={placeholder}
             style={textareaStyle}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#B8913A'; }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
             onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
           />
         </div>
@@ -652,8 +652,8 @@ function StepNotes({
           onClick={() => !photo && fileRef.current?.click()}
           className="rounded-xl p-6 text-center transition-colors"
           style={{
-            border: `2px dashed ${dragOver ? '#B8913A' : 'rgba(184,145,58,0.3)'}`,
-            background: dragOver ? 'rgba(184,145,58,0.05)' : 'transparent',
+            border: `2px dashed ${dragOver ? '#C4965A' : 'rgba(196,150,90,0.3)'}`,
+            background: dragOver ? 'rgba(196,150,90,0.05)' : 'transparent',
             cursor: photo ? 'default' : 'pointer',
           }}
         >
@@ -667,7 +667,7 @@ function StepNotes({
               />
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium" style={{ color: '#1A1208' }}>{photo.name}</p>
-                <p className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>{(photo.size / 1024).toFixed(0)} KB</p>
+                <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>{(photo.size / 1024).toFixed(0)} KB</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); onChange('photo', null); }}
@@ -679,12 +679,12 @@ function StepNotes({
             </div>
           ) : (
             <div className="space-y-2">
-              <Upload size={24} className="mx-auto" style={{ color: 'rgba(26,18,8,0.35)' }} />
-              <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <Upload size={24} className="mx-auto" style={{ color: 'rgba(20,40,28,0.35)' }} />
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 Przeciągnij zdjęcie lub{' '}
-                <span style={{ color: '#B8913A', textDecoration: 'underline' }}>kliknij tutaj</span>
+                <span style={{ color: '#C4965A', textDecoration: 'underline' }}>kliknij tutaj</span>
               </p>
-              <p className="text-xs" style={{ color: 'rgba(26,18,8,0.4)' }}>JPG, PNG, WebP — max 5 MB</p>
+              <p className="text-xs" style={{ color: 'rgba(20,40,28,0.4)' }}>JPG, PNG, WebP — max 5 MB</p>
             </div>
           )}
         </div>
@@ -803,7 +803,7 @@ function StepConfirm({
           <h3 className="font-heading font-semibold text-lg mb-4" style={{ color: '#1A1208' }}>
             Podsumowanie rezerwacji
           </h3>
-          <div className="text-sm" style={{ borderTop: '1px solid rgba(184,145,58,0.15)' }}>
+          <div className="text-sm" style={{ borderTop: '1px solid rgba(196,150,90,0.15)' }}>
             {[
               { label: 'Usługa', value: state.service?.name },
               { label: 'Czas trwania', value: state.service?.durationMinutes ? `${state.service.durationMinutes} min` : undefined },
@@ -811,7 +811,7 @@ function StepConfirm({
                 label: 'Cena',
                 valueNode: hasDiscount ? (
                   <>
-                    <span className="line-through text-xs mr-2" style={{ color: 'rgba(26,18,8,0.4)' }}>
+                    <span className="line-through text-xs mr-2" style={{ color: 'rgba(20,40,28,0.4)' }}>
                       {basePrice.toFixed(2)} zł
                     </span>
                     <span className="font-bold" style={{ color: '#15803D' }}>{discountedPrice.toFixed(2)} zł</span>
@@ -828,14 +828,14 @@ function StepConfirm({
                   : '—',
               },
               ...(state.notes ? [{ label: 'Uwagi', value: state.notes }] : []),
-              ...(state.photo ? [{ label: 'Zdjęcie', valueNode: <span style={{ color: '#B8913A' }}>✓ Dodano</span> }] : []),
+              ...(state.photo ? [{ label: 'Zdjęcie', valueNode: <span style={{ color: '#C4965A' }}>✓ Dodano</span> }] : []),
             ].map(({ label, value, valueNode }) => (
               <div
                 key={label}
                 className="py-2.5 flex justify-between items-center"
                 style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}
               >
-                <span style={{ color: 'rgba(26,18,8,0.5)' }}>{label}</span>
+                <span style={{ color: 'rgba(20,40,28,0.5)' }}>{label}</span>
                 {valueNode ?? <span style={{ color: '#1A1208' }}>{value}</span>}
               </div>
             ))}
@@ -861,7 +861,7 @@ function StepConfirm({
                   : `-${Number(state.voucherData.discountValue).toFixed(2)} zł`}
               </span>
               {' '}
-              <span className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <span className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 ({state.voucherData.type === 'COUPON' ? 'kupon lojalnościowy' : 'kod rabatowy'})
               </span>
             </span>
@@ -895,7 +895,7 @@ function StepConfirm({
             <button
               onClick={() => setShowInput(false)}
               className="text-xs hover:underline"
-              style={{ color: 'rgba(26,18,8,0.5)' }}
+              style={{ color: 'rgba(20,40,28,0.5)' }}
             >
               Anuluj
             </button>
@@ -904,7 +904,7 @@ function StepConfirm({
           <button
             onClick={() => setShowInput(true)}
             className="text-sm hover:underline flex items-center gap-1"
-            style={{ color: '#B8913A' }}
+            style={{ color: '#C4965A' }}
           >
             🎟️ Masz kupon z punktów lojalnościowych lub kod rabatowy? Kliknij tutaj
           </button>
@@ -915,18 +915,18 @@ function StepConfirm({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold" style={{ color: '#1A1208' }}>Program lojalnościowy</h3>
-          <span className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <span className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
             Twoje punkty:{' '}
-            <strong style={{ color: '#B8913A' }}>{user?.loyaltyPoints ?? 0}</strong>
+            <strong style={{ color: '#C4965A' }}>{user?.loyaltyPoints ?? 0}</strong>
           </span>
         </div>
 
         <div
           className="p-3 rounded-lg text-sm"
-          style={{ background: 'rgba(184,145,58,0.08)', border: '1px solid rgba(184,145,58,0.2)' }}
+          style={{ background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.2)' }}
         >
           Po zakończeniu wizyty otrzymasz:{' '}
-          <strong style={{ color: '#B8913A' }}>+{earnedPoints} pkt</strong>
+          <strong style={{ color: '#C4965A' }}>+{earnedPoints} pkt</strong>
         </div>
 
         {otherRewards.length > 0 && (
@@ -943,19 +943,19 @@ function StepConfirm({
                   className="w-full text-left p-3 rounded-lg border transition-all text-sm"
                   style={
                     isChosen
-                      ? { border: '1.5px solid #B8913A', background: 'rgba(184,145,58,0.05)', boxShadow: '0 0 0 3px rgba(184,145,58,0.1)' }
+                      ? { border: '1.5px solid #C4965A', background: 'rgba(196,150,90,0.05)', boxShadow: '0 0 0 3px rgba(196,150,90,0.1)' }
                       : { borderColor: 'rgba(0,0,0,0.12)' }
                   }
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-medium" style={{ color: '#1A1208' }}>{reward.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'rgba(26,18,8,0.5)' }}>{reward.description}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>{reward.description}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-bold" style={{ color: '#B8913A' }}>{reward.pointsCost} pkt</p>
+                      <p className="font-bold" style={{ color: '#C4965A' }}>{reward.pointsCost} pkt</p>
                       {isChosen && (
-                        <p className="text-[10px]" style={{ color: '#B8913A' }}>✓ Wybrano</p>
+                        <p className="text-[10px]" style={{ color: '#C4965A' }}>✓ Wybrano</p>
                       )}
                     </div>
                   </div>
@@ -1103,7 +1103,7 @@ export const BookingWizard = () => {
         <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A1208' }}>
           Umów wizytę
         </h1>
-        <p className="mt-1" style={{ color: 'rgba(26,18,8,0.5)' }}>Wypełnij formularz krok po kroku</p>
+        <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>
       </div>
 
       {/* Step progress dots */}

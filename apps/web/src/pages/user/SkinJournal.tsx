@@ -60,21 +60,21 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
           alignItems: 'center',
           justifyContent: 'space-between',
           width: '100%',
-          background: unread > 0 ? 'rgba(184,145,58,0.1)' : 'rgba(0,0,0,0.04)',
-          border: `1px solid ${unread > 0 ? 'rgba(184,145,58,0.25)' : 'rgba(0,0,0,0.1)'}`,
+          background: unread > 0 ? 'rgba(196,150,90,0.1)' : 'rgba(0,0,0,0.04)',
+          border: `1px solid ${unread > 0 ? 'rgba(196,150,90,0.25)' : 'rgba(0,0,0,0.1)'}`,
           borderRadius: 10,
           padding: '10px 12px',
           cursor: 'pointer',
           fontSize: 11,
           fontWeight: 600,
-          color: unread > 0 ? '#B8913A' : '#6B6560',
+          color: unread > 0 ? '#C4965A' : '#6B6560',
           minHeight: 44,
         }}
       >
         <span>
           💬 Komentarz kosmetologa
           {unread > 0 && (
-            <span style={{ background: '#B8913A', color: '#fff', borderRadius: 20, padding: '1px 6px', fontSize: 10, marginLeft: 6 }}>
+            <span style={{ background: '#C4965A', color: '#fff', borderRadius: 20, padding: '1px 6px', fontSize: 10, marginLeft: 6 }}>
               {unread} {unread === 1 ? 'nowy' : 'nowych'}
             </span>
           )}
@@ -83,7 +83,7 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
       </button>
 
       {open && (
-        <div style={{ marginTop: 6, background: 'rgba(26,18,8,0.03)', borderRadius: 10, padding: '10px 12px' }}>
+        <div style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10, padding: '10px 12px' }}>
           {entry.comments.map((c) => (
             <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               <div style={{ width: 26, height: 26, minWidth: 26, borderRadius: '50%', background: '#1A1208', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700 }}>
@@ -119,7 +119,7 @@ function AdminEntryCard({ entry }: { entry: SkinJournalEntry }) {
           {entry.tags.map((tag) => {
             const cat = JOURNAL_CATEGORIES.find((c) => c.slug === tag);
             return (
-              <span key={tag} style={{ fontSize: 11, fontWeight: 700, color: '#4B4036' }}>
+              <span key={tag} style={{ fontSize: 11, fontWeight: 700, color: '#C4965A' }}>
                 {cat ? cat.label : `#${tag}`}
               </span>
             );
@@ -148,7 +148,7 @@ function EntryCard({ entry, userId, onDelete }: { entry: SkinJournalEntry; userI
                 <span key={bar} className="inline-block rounded-sm transition-all" style={{
                   width: 10,
                   height: bar <= (entry.mood ?? 0) ? 12 : 6,
-                  background: bar <= (entry.mood ?? 0) ? '#C4A882' : 'rgba(196,168,130,0.2)',
+                  background: bar <= (entry.mood ?? 0) ? '#3D7A54' : 'rgba(61,122,84,0.2)',
                 }} />
               ))}
             </div>
@@ -173,7 +173,7 @@ function EntryCard({ entry, userId, onDelete }: { entry: SkinJournalEntry; userI
           {entry.tags.map((tag) => {
             const cat = JOURNAL_CATEGORIES.find((c) => c.slug === tag);
             return (
-              <span key={tag} style={{ fontSize: 12, fontWeight: 700, color: '#B8913A' }}>
+              <span key={tag} style={{ fontSize: 12, fontWeight: 700, color: '#C4965A' }}>
                 {cat ? cat.label : `#${tag}`}
               </span>
             );
@@ -235,7 +235,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
             const val = idx + 1;
             const selected = mood === val;
             return (
-              <button key={val} onClick={() => setMood(val)} style={{ flex: 1, padding: '10px 4px', fontSize: 22, border: selected ? '2px solid #B8913A' : '2px solid #e5e0d8', borderRadius: 10, background: selected ? '#fdf6ec' : '#faf9f7', cursor: 'pointer', lineHeight: 1 }}>{emoji}</button>
+              <button key={val} onClick={() => setMood(val)} style={{ flex: 1, padding: '10px 4px', fontSize: 22, border: selected ? '2px solid #C4965A' : '2px solid #e5e0d8', borderRadius: 10, background: selected ? '#fdf6ec' : '#faf9f7', cursor: 'pointer', lineHeight: 1 }}>{emoji}</button>
             );
           })}
         </div>
@@ -263,10 +263,10 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
                 }
                 style={{
                   padding: '8px 14px',
-                  border: active ? '2px solid #B8913A' : '2px solid #e5e0d8',
+                  border: active ? '2px solid #C4965A' : '2px solid #e5e0d8',
                   borderRadius: 20,
                   background: active ? '#fdf6ec' : '#faf9f7',
-                  color: active ? '#B8913A' : '#888',
+                  color: active ? '#C4965A' : '#888',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -358,7 +358,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
             >
               ×
             </button>
-            <p style={{ fontSize: 11, color: '#B8913A', margin: '4px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <p style={{ fontSize: 11, color: '#C4965A', margin: '4px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {photo.name}
             </p>
           </div>
@@ -367,7 +367,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
 
       <div className="journal-form-actions">
         <button onClick={onClose} style={{ padding: '10px 20px', border: '1px solid #e5e0d8', borderRadius: 8, background: '#fff', color: '#666', cursor: 'pointer', fontSize: 14 }}>Anuluj</button>
-        <button onClick={() => mutation.mutate()} disabled={mutation.isPending} style={{ padding: '10px 20px', border: 'none', borderRadius: 8, background: '#B8913A', color: '#fff', cursor: mutation.isPending ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600, opacity: mutation.isPending ? 0.7 : 1 }}>
+        <button onClick={() => mutation.mutate()} disabled={mutation.isPending} style={{ padding: '10px 20px', border: 'none', borderRadius: 8, background: '#C4965A', color: '#fff', cursor: mutation.isPending ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600, opacity: mutation.isPending ? 0.7 : 1 }}>
           {mutation.isPending ? 'Dodawanie...' : 'Dodaj wpis'}
         </button>
       </div>
@@ -411,7 +411,7 @@ export function UserSkinJournal() {
       {/* Header */}
       <div className="journal-header">
         <div className="journal-header-left" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #B8913A, #d4a84b)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #C4965A, #d4a84b)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <BookOpen size={22} color="#fff" />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -421,7 +421,7 @@ export function UserSkinJournal() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <p style={{ fontSize: 13, color: '#999', margin: 0 }}>Twój osobisty dziennik pielęgnacji</p>
               {streak > 0 && (
-                <span className="journal-streak" style={{ background: streak >= 7 ? '#fef3c7' : '#fdf6ec', border: `1px solid ${streak >= 7 ? '#fcd34d' : '#e8d5a0'}`, color: streak >= 7 ? '#d97706' : '#B8913A' }}>
+                <span className="journal-streak" style={{ background: streak >= 7 ? '#fef3c7' : '#fdf6ec', border: `1px solid ${streak >= 7 ? '#fcd34d' : '#e8d5a0'}`, color: streak >= 7 ? '#d97706' : '#C4965A' }}>
                   🔥 {streak} {streak === 1 ? 'dzień' : 'dni'}
                 </span>
               )}
@@ -432,11 +432,11 @@ export function UserSkinJournal() {
           <div className="journal-header-buttons">
             <button
               onClick={() => setShowSummary(true)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 16px', background: '#fdf6ec', color: '#B8913A', border: '1px solid #e8d5a0', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 16px', background: '#fdf6ec', color: '#C4965A', border: '1px solid #e8d5a0', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
             >
               Podsumowanie
             </button>
-            <button onClick={() => setShowForm(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 16px', background: '#B8913A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            <button onClick={() => setShowForm(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 16px', background: '#C4965A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
               <Plus size={16} /> Nowy wpis
             </button>
           </div>
@@ -447,20 +447,20 @@ export function UserSkinJournal() {
 
       {isLoading && (
         <div style={{ textAlign: 'center', padding: '40px 0' }}>
-          <div style={{ width: 36, height: 36, border: '3px solid #e5e0d8', borderTopColor: '#B8913A', borderRadius: '50%', margin: '0 auto', animation: 'spin 0.8s linear infinite' }} />
+          <div style={{ width: 36, height: 36, border: '3px solid #e5e0d8', borderTopColor: '#C4965A', borderRadius: '50%', margin: '0 auto', animation: 'spin 0.8s linear infinite' }} />
         </div>
       )}
 
       {!isLoading && data?.entries.length === 0 && !showForm && (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 16, border: '1px solid #e5e0d8' }}>
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="mx-auto mb-3 opacity-40">
-            <rect x="10" y="6" width="28" height="36" rx="3" stroke="#C4A882" strokeWidth="1.5"/>
-            <path d="M16 16h16M16 22h16M16 28h10" stroke="#C4A882" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M10 12h4V6" stroke="#C4A882" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="10" y="6" width="28" height="36" rx="3" stroke="#3D7A54" strokeWidth="1.5"/>
+            <path d="M16 16h16M16 22h16M16 28h10" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M10 12h4V6" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A1208', margin: '0 0 8px' }}>Zacznij prowadzić dziennik</h3>
           <p style={{ fontSize: 14, color: '#999', margin: '0 0 24px', lineHeight: 1.6 }}>Dokumentuj efekty zabiegów, samopoczucie i postępy</p>
-          <button onClick={() => setShowForm(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 24px', background: '#B8913A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+          <button onClick={() => setShowForm(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 24px', background: '#C4965A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
             <Plus size={16} /> Dodaj pierwszy wpis
           </button>
         </div>
@@ -523,7 +523,7 @@ export function UserSkinJournal() {
         }
         .journal-admin-card {
           background: #fff;
-          border: 2px solid rgba(26,18,8,0.15);
+          border: 2px solid rgba(20,40,28,0.15);
           border-radius: 14px;
           padding: 18px 20px;
         }

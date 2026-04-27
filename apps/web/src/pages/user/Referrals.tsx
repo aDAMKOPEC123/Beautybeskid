@@ -63,9 +63,9 @@ export const UserReferrals = () => {
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(184,145,58,0.12)' }}
+          style={{ background: 'rgba(196,150,90,0.12)' }}
         >
-          <Users size={20} style={{ color: '#B8913A' }} />
+          <Users size={20} style={{ color: '#C4965A' }} />
         </div>
         <div>
           <h1 className="font-heading text-2xl font-bold" style={{ color: '#1A1208' }}>
@@ -89,7 +89,7 @@ export const UserReferrals = () => {
           <>
             <div
               className="font-mono text-2xl font-bold tracking-widest mb-4 px-4 py-3 rounded-xl border"
-              style={{ color: '#B8913A', background: '#FAF7F2', borderColor: 'rgba(184,145,58,0.3)', letterSpacing: '0.2em' }}
+              style={{ color: '#C4965A', background: '#F4F9F5', borderColor: 'rgba(196,150,90,0.3)', letterSpacing: '0.2em' }}
             >
               {data.ambassadorCode}
             </div>
@@ -98,9 +98,9 @@ export const UserReferrals = () => {
                 onClick={handleCopy}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-colors min-h-[44px]"
                 style={{
-                  background: 'rgba(184,145,58,0.1)',
-                  color: '#B8913A',
-                  border: '1px solid rgba(184,145,58,0.2)',
+                  background: 'rgba(196,150,90,0.1)',
+                  color: '#C4965A',
+                  border: '1px solid rgba(196,150,90,0.2)',
                 }}
               >
                 <Copy size={15} />
@@ -111,7 +111,7 @@ export const UserReferrals = () => {
                   onClick={handleShare}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-colors min-h-[44px]"
                   style={{
-                    background: '#B8913A',
+                    background: '#C4965A',
                     color: '#fff',
                   }}
                 >
@@ -140,7 +140,7 @@ export const UserReferrals = () => {
           {data?.count ?? 0} poleconych znajomych
         </p>
         {data?.nextMilestone && (
-          <p className="text-sm mb-3" style={{ color: '#B8913A' }}>
+          <p className="text-sm mb-3" style={{ color: '#C4965A' }}>
             Do nagrody: {data.nextMilestone.reward}
           </p>
         )}
@@ -148,13 +148,13 @@ export const UserReferrals = () => {
         {/* Progress bar */}
         <div
           className="w-full rounded-full overflow-hidden mb-5"
-          style={{ height: 8, background: 'rgba(184,145,58,0.12)' }}
+          style={{ height: 8, background: 'rgba(196,150,90,0.12)' }}
         >
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${data?.progressToNext ?? 0}%`,
-              background: '#B8913A',
+              background: '#C4965A',
             }}
           />
         </div>
@@ -166,7 +166,7 @@ export const UserReferrals = () => {
             return (
               <div key={m.at} className="flex items-center gap-3">
                 {reached ? (
-                  <CheckCircle2 size={18} style={{ color: '#B8913A', flexShrink: 0 }} />
+                  <CheckCircle2 size={18} style={{ color: '#C4965A', flexShrink: 0 }} />
                 ) : (
                   <Circle size={18} style={{ color: 'rgba(107,101,96,0.4)', flexShrink: 0 }} />
                 )}
@@ -180,8 +180,8 @@ export const UserReferrals = () => {
                   <span
                     className="text-xs px-2 py-0.5 rounded-full"
                     style={{
-                      background: reached ? 'rgba(184,145,58,0.12)' : 'rgba(0,0,0,0.05)',
-                      color: reached ? '#B8913A' : '#9B9690',
+                      background: reached ? 'rgba(196,150,90,0.12)' : 'rgba(0,0,0,0.05)',
+                      color: reached ? '#C4965A' : '#9B9690',
                     }}
                   >
                     {m.at} osób
@@ -220,7 +220,7 @@ export const UserReferrals = () => {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                    style={{ background: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                    style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                   >
                     {idx + 1}
                   </div>
@@ -228,7 +228,7 @@ export const UserReferrals = () => {
                     Zarejestrował/a się {formatDate(r.registeredAt)}
                   </span>
                 </div>
-                <CheckCircle2 size={16} style={{ color: '#B8913A', flexShrink: 0 }} />
+                <CheckCircle2 size={16} style={{ color: '#C4965A', flexShrink: 0 }} />
               </li>
             ))}
           </ul>

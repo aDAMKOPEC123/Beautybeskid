@@ -22,10 +22,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, { background: string; color: string; borderLeft: string }> = {
-  PENDING:   { background: 'rgba(184,145,58,0.12)',  color: '#92400E', borderLeft: '3px solid #92400E' },
+  PENDING:   { background: 'rgba(196,150,90,0.12)',  color: '#92400E', borderLeft: '3px solid #92400E' },
   CONFIRMED: { background: 'rgba(34,197,94,0.12)',   color: '#15803D', borderLeft: '3px solid #15803D' },
   CANCELLED: { background: 'rgba(239,68,68,0.12)',   color: '#DC2626', borderLeft: '3px solid #DC2626' },
-  COMPLETED: { background: 'rgba(184,145,58,0.1)',   color: '#B8913A', borderLeft: '3px solid #B8913A' },
+  COMPLETED: { background: 'rgba(196,150,90,0.1)',   color: '#C4965A', borderLeft: '3px solid #C4965A' },
 };
 
 function calcDiscountedPrice(price: number, reward: any): number {
@@ -98,21 +98,21 @@ export const UserAppointments = () => {
         >
           <div
             className="w-20 h-20 rounded-full mx-auto flex items-center justify-center"
-            style={{ background: 'rgba(184,145,58,0.1)' }}
+            style={{ background: 'rgba(196,150,90,0.1)' }}
           >
-            <CalendarDays size={36} style={{ color: '#B8913A' }} />
+            <CalendarDays size={36} style={{ color: '#C4965A' }} />
           </div>
           <div>
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="mx-auto mb-3 opacity-40">
-              <rect x="8" y="12" width="32" height="28" rx="3" stroke="#C4A882" strokeWidth="1.5"/>
-              <path d="M8 20h32" stroke="#C4A882" strokeWidth="1.5"/>
-              <path d="M16 8v8M32 8v8" stroke="#C4A882" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M17 30h4M27 30h4M17 36h4" stroke="#C4A882" strokeWidth="1.5" strokeLinecap="round"/>
+              <rect x="8" y="12" width="32" height="28" rx="3" stroke="#3D7A54" strokeWidth="1.5"/>
+              <path d="M8 20h32" stroke="#3D7A54" strokeWidth="1.5"/>
+              <path d="M16 8v8M32 8v8" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M17 30h4M27 30h4M17 36h4" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <h3 className="font-heading font-bold text-xl mb-2" style={{ color: '#1A1208' }}>
               Twoja historia zaczyna się teraz
             </h3>
-            <p className="text-sm" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Umów pierwszą wizytę i odkryj pełne możliwości COSMO — śledzenie serii zabiegowych, punkty lojalnościowe i wiele więcej.
             </p>
           </div>
@@ -139,7 +139,7 @@ export const UserAppointments = () => {
 
       {past.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold" style={{ color: 'rgba(26,18,8,0.5)' }}>Historia</h2>
+          <h2 className="text-lg font-semibold" style={{ color: 'rgba(20,40,28,0.5)' }}>Historia</h2>
           <div className="grid gap-4 opacity-75">
             {past.map((a: any) => (
               <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
@@ -155,7 +155,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const canReschedule = a.status === 'PENDING' || a.status === 'CONFIRMED';
-  const statusStyle = STATUS_STYLES[a.status] ?? { background: 'rgba(0,0,0,0.06)', color: 'rgba(26,18,8,0.6)' };
+  const statusStyle = STATUS_STYLES[a.status] ?? { background: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.6)' };
 
   return (
     <>
@@ -166,7 +166,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
         {/* Header */}
         <div className="p-5 flex flex-row justify-between items-start gap-4">
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#B8913A' }}>
+            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#C4965A' }}>
               {canReschedule ? 'Nadchodząca wizyta' : 'Przeszła wizyta'}
             </p>
             <h3 className="text-[15px] font-heading font-bold" style={{ color: '#1A1208' }}>
@@ -181,7 +181,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
                 <div className="flex items-center gap-2 flex-wrap">
                   {hasDiscount ? (
                     <>
-                      <span className="line-through text-sm" style={{ color: 'rgba(26,18,8,0.4)' }}>
+                      <span className="line-through text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>
                         {base.toFixed(2)} zł
                       </span>
                       <span className="font-bold text-sm" style={{ color: '#15803D' }}>
@@ -197,18 +197,18 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
                       </span>
                     </>
                   ) : (
-                    <span className="font-bold text-sm" style={{ color: '#B8913A' }}>
+                    <span className="font-bold text-sm" style={{ color: '#C4965A' }}>
                       {base.toFixed(2)} zł
                     </span>
                   )}
                 </div>
               );
             })()}
-            <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+            <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
               {format(new Date(a.date), "EEEE, d MMMM yyyy 'o' HH:mm", { locale: pl })}
             </p>
             {a.employee && (
-              <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 Pracownik:{' '}
                 <span className="font-medium" style={{ color: '#1A1208' }}>{a.employee.name}</span>
               </p>
@@ -253,7 +253,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
                   <button
                     onClick={() => setReviewOpen(true)}
                     className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold border transition-opacity hover:opacity-80"
-                    style={{ borderColor: '#B8913A', color: '#B8913A' }}
+                    style={{ borderColor: '#C4965A', color: '#C4965A' }}
                   >
                     ★ Oceń wizytę
                   </button>
@@ -289,7 +289,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
               </p>
             )}
             {a.notes && (
-              <p className="border-t pt-3 italic" style={{ color: 'rgba(26,18,8,0.55)', borderColor: 'rgba(0,0,0,0.06)' }}>
+              <p className="border-t pt-3 italic" style={{ color: 'rgba(20,40,28,0.55)', borderColor: 'rgba(0,0,0,0.06)' }}>
                 Uwagi: {a.notes}
               </p>
             )}
@@ -297,10 +297,10 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
               <p style={{ color: '#D97706' }}>⚠ Alergie: {a.allergies}</p>
             )}
             {a.problemDescription && (
-              <p style={{ color: 'rgba(26,18,8,0.6)' }}>Opis: {a.problemDescription}</p>
+              <p style={{ color: 'rgba(20,40,28,0.6)' }}>Opis: {a.problemDescription}</p>
             )}
             {a.staffNote && (
-              <p className="border-t pt-3" style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'rgba(26,18,8,0.55)' }}>
+              <p className="border-t pt-3" style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.55)' }}>
                 Notatka po wizycie:{' '}
                 <span style={{ color: '#1A1208' }}>{a.staffNote}</span>
               </p>
@@ -421,7 +421,7 @@ function RescheduleCalendar({
                   isSelected
                     ? { background: '#1A1208', color: '#fff' }
                     : isDisabled
-                    ? { color: 'rgba(26,18,8,0.25)', cursor: 'not-allowed' }
+                    ? { color: 'rgba(20,40,28,0.25)', cursor: 'not-allowed' }
                     : { cursor: 'pointer' }
                 }
                 onMouseEnter={(e) => {
@@ -511,13 +511,13 @@ function RescheduleModal({
           <button
             onClick={onClose}
             className="p-1 rounded-lg transition-colors hover:opacity-70"
-            style={{ color: 'rgba(26,18,8,0.5)' }}
+            style={{ color: 'rgba(20,40,28,0.5)' }}
           >
             <X size={16} />
           </button>
         </div>
 
-        <p className="text-sm" style={{ color: 'rgba(26,18,8,0.55)' }}>
+        <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
           Aktualny termin:{' '}
           <strong style={{ color: '#1A1208' }}>
             {format(new Date(appointment.date), "d MMMM yyyy 'o' HH:mm", { locale: pl })}
@@ -525,7 +525,7 @@ function RescheduleModal({
         </p>
 
         <div>
-          <label className="text-xs block mb-2" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <label className="text-xs block mb-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
             Wybierz nową datę
           </label>
           <RescheduleCalendar
@@ -541,15 +541,15 @@ function RescheduleModal({
 
         {selectedDate && (
           <div>
-            <label className="text-xs block mb-2" style={{ color: 'rgba(26,18,8,0.5)' }}>
+            <label className="text-xs block mb-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
               Dostępne godziny
               {isFetching && <span className="ml-2 opacity-60">Ładowanie...</span>}
             </label>
             {!isFetching && slots.length === 0 && (
-              <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>Brak godzin pracy w tym dniu.</p>
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>Brak godzin pracy w tym dniu.</p>
             )}
             {!isFetching && slots.length > 0 && slots.every((s) => !s.available) && (
-              <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>Wszystkie terminy w tym dniu są zajęte.</p>
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>Wszystkie terminy w tym dniu są zajęte.</p>
             )}
             <div className="flex flex-wrap gap-2">
               {slots.map((s) => (
