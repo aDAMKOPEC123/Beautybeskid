@@ -83,7 +83,7 @@ export const HomecareRoutinePage = () => {
       </div>
 
       {/* Active routine */}
-      <div className="rounded-2xl border p-6 space-y-5" style={{ borderColor: 'rgba(184,145,58,0.2)', background: 'rgba(184,145,58,0.03)' }}>
+      <div className="rounded-2xl border p-6 space-y-5" style={{ borderColor: 'rgba(196,150,90,0.2)', background: 'rgba(196,150,90,0.03)' }}>
         <div className="flex items-start justify-between gap-2">
           <div>
             <h2 className="text-[15px] font-bold text-primary">{active.appointment.service.name}</h2>
@@ -156,7 +156,7 @@ function RoutineSection({ icon, label, content }: { icon: React.ReactNode; label
   if (!content) return null;
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#B8913A' }}>
+      <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#C4965A' }}>
         {icon}
         <span>{label}</span>
       </div>

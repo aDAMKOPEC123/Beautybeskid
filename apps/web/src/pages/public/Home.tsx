@@ -113,8 +113,8 @@ const formatNextSlot = (date: string, time: string) => {
 function getSlotsUrgency(count: number | undefined): { text: string; color: string } | null {
   if (count === undefined || count === 0) return null;
   if (count <= 2) return { text: `🔴 Ostatnie ${count} miejsce w tym tygodniu!`, color: '#DC2626' };
-  if (count <= 5) return { text: `⚡ Zostało tylko ${count} wolnych terminów!`, color: '#B8913A' };
-  return { text: `Wolnych terminów w tym tygodniu: ${count}`, color: 'rgba(26,18,8,0.5)' };
+  if (count <= 5) return { text: `⚡ Zostało tylko ${count} wolnych terminów!`, color: '#C4965A' };
+  return { text: `Wolnych terminów w tym tygodniu: ${count}`, color: 'rgba(20,40,28,0.5)' };
 }
 
 export const Home = () => {
@@ -179,7 +179,7 @@ export const Home = () => {
         <HeroSlider />
 
         {/* ── 1. HERO ── */}
-        <section className="py-16 md:py-24 grain-overlay" style={{ backgroundColor: '#F5F0EB' }}>
+        <section className="py-16 md:py-24 grain-overlay" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container max-w-6xl mx-auto px-6">
             <div className="grid md:grid-cols-2 gap-12 items-center relative">
 
@@ -206,12 +206,12 @@ export const Home = () => {
                   </span>
                 </div>
 
-                <h1 className="font-heading text-5xl md:text-6xl font-bold leading-tight mb-6" style={{ color: '#1A1208' }}>
+                <h1 className="font-heading text-5xl md:text-6xl font-bold leading-tight mb-6" style={{ color: '#1A3828' }}>
                   Twoja pielęgnacja,{' '}
-                  <em className="font-heading italic" style={{ color: '#B8913A' }}>nasza pasja</em>
+                  <em className="font-heading italic" style={{ color: '#C4965A' }}>nasza pasja</em>
                 </h1>
 
-                <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(26,18,8,0.65)' }}>
+                <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(20,40,28,0.65)' }}>
                   Gabinet Cosmo w Limanowej — profesjonalne zabiegi kosmetologiczne
                   i podologiczne w przyjaznej atmosferze. Dbamy o Twój komfort i efekty.
                 </p>
@@ -230,7 +230,7 @@ export const Home = () => {
                   </Button>
                 </div>
 
-                <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+                <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
                   ★ Bezpłatna konsultacja dla nowych klientów
                 </p>
               </div>
@@ -245,25 +245,25 @@ export const Home = () => {
                   {/* Avatar */}
                   <div
                     className="w-16 h-16 flex-shrink-0 flex items-center justify-center text-white font-heading font-bold text-xl"
-                    style={{ borderRadius: '50%', backgroundColor: '#B8913A' }}
+                    style={{ borderRadius: '50%', backgroundColor: '#C4965A' }}
                   >
                     WĆ
                   </div>
                   <div className="flex-1">
-                    <p className="font-heading font-bold text-lg" style={{ color: '#1A1208' }}>
+                    <p className="font-heading font-bold text-lg" style={{ color: '#1A3828' }}>
                       Wiktoria Ćwik
                     </p>
-                    <p className="text-sm mb-3" style={{ color: 'rgba(26,18,8,0.55)' }}>
+                    <p className="text-sm mb-3" style={{ color: 'rgba(20,40,28,0.55)' }}>
                       Kosmetolożka &amp; Podolożka
                     </p>
                     <div className="flex gap-6">
                       <div>
-                        <p className="font-bold text-lg" style={{ color: '#B8913A' }}>5+</p>
-                        <p className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>lat doświadczenia</p>
+                        <p className="font-bold text-lg" style={{ color: '#C4965A' }}>5+</p>
+                        <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>lat doświadczenia</p>
                       </div>
                       <div>
-                        <p className="font-bold text-lg" style={{ color: '#B8913A' }}>200+</p>
-                        <p className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>zadowolonych klientek</p>
+                        <p className="font-bold text-lg" style={{ color: '#C4965A' }}>200+</p>
+                        <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>zadowolonych klientek</p>
                       </div>
                     </div>
                   </div>
@@ -275,17 +275,17 @@ export const Home = () => {
                     className="bg-white p-4 shadow-sm flex flex-col gap-2"
                     style={{ borderRadius: '16px' }}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(26,18,8,0.4)' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(20,40,28,0.4)' }}>
                       Najbliższy termin
                     </p>
                     {nextSlotLoading ? (
-                      <p className="font-heading font-bold text-sm" style={{ color: '#1A1208' }}>Sprawdzam…</p>
+                      <p className="font-heading font-bold text-sm" style={{ color: '#1A3828' }}>Sprawdzam…</p>
                     ) : nextSlot ? (
                       <>
-                        <p className="font-heading font-bold leading-tight" style={{ color: '#1A1208' }}>
+                        <p className="font-heading font-bold leading-tight" style={{ color: '#1A3828' }}>
                           {formattedSlot?.day}
                         </p>
-                        <p className="text-sm font-semibold" style={{ color: '#B8913A' }}>
+                        <p className="text-sm font-semibold" style={{ color: '#C4965A' }}>
                           {formattedSlot?.time}
                         </p>
                         {(() => {
@@ -300,23 +300,23 @@ export const Home = () => {
                           <Button
                             size="sm"
                             className="w-full mt-1 rounded-full text-xs font-semibold"
-                            style={{ backgroundColor: '#1A1208', color: '#fff' }}
+                            style={{ backgroundColor: '#1A3828', color: '#fff' }}
                           >
                             {isAuthenticated ? 'Umów wizytę' : 'Zarejestruj się'}
                           </Button>
                         </Link>
                       </>
                     ) : (
-                      <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>Brak wolnych terminów</p>
+                      <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>Brak wolnych terminów</p>
                     )}
                   </div>
                   <div
                     className="bg-white p-4 shadow-sm text-center"
                     style={{ borderRadius: '16px' }}
                   >
-                    <p className="font-heading font-bold text-3xl" style={{ color: '#B8913A' }}>4.9</p>
-                    <p className="text-sm" style={{ color: '#B8913A' }}>★★★★★</p>
-                    <p className="text-xs mt-1" style={{ color: 'rgba(26,18,8,0.5)' }}>Ocena Google</p>
+                    <p className="font-heading font-bold text-3xl" style={{ color: '#C4965A' }}>4.9</p>
+                    <p className="text-sm" style={{ color: '#C4965A' }}>★★★★★</p>
+                    <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Ocena Google</p>
                   </div>
                 </div>
               </div>
@@ -344,13 +344,13 @@ export const Home = () => {
         </section>
 
         {/* ── 3. BENTO GRID ── */}
-        <section className="py-20" style={{ backgroundColor: '#F5F0EB' }}>
+        <section className="py-20" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container max-w-6xl mx-auto px-6">
             <div className="mb-12 text-center">
-              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#B8913A' }}>
+              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#C4965A' }}>
                 Nasze zabiegi
               </p>
-              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A1208' }}>
+              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A3828' }}>
                 Co robimy najlepiej
               </h2>
             </div>
@@ -365,19 +365,19 @@ export const Home = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <span
                       className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
-                      style={{ backgroundColor: '#B8913A', color: '#fff' }}
+                      style={{ backgroundColor: '#C4965A', color: '#fff' }}
                     >
                       Bestseller
                     </span>
                   </div>
-                  <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#1A1208' }}>
+                  <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#1A3828' }}>
                     Laminowanie rzęs
                   </h3>
-                  <p className="text-base leading-relaxed" style={{ color: 'rgba(26,18,8,0.6)' }}>
+                  <p className="text-base leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
                     Spektakularny efekt uniesionych, zagęszczonych rzęs bez konieczności nakładania tuszu — trwa do 6 tygodni.
                   </p>
                 </div>
-                <p className="font-heading font-bold text-2xl mt-6" style={{ color: '#B8913A' }}>od 149 zł</p>
+                <p className="font-heading font-bold text-2xl mt-6" style={{ color: '#C4965A' }}>od 149 zł</p>
               </div>
 
               {/* Stats card */}
@@ -385,9 +385,9 @@ export const Home = () => {
                 className="bg-white p-8 flex flex-col justify-center items-center text-center shadow-sm"
                 style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
               >
-                <p className="font-heading font-bold text-6xl mb-2" style={{ color: '#B8913A' }}>98%</p>
-                <p className="font-semibold text-lg" style={{ color: '#1A1208' }}>zadowolonych klientek</p>
-                <p className="text-sm mt-2" style={{ color: 'rgba(26,18,8,0.5)' }}>na podstawie opinii Google</p>
+                <p className="font-heading font-bold text-6xl mb-2" style={{ color: '#C4965A' }}>98%</p>
+                <p className="font-semibold text-lg" style={{ color: '#1A3828' }}>zadowolonych klientek</p>
+                <p className="text-sm mt-2" style={{ color: 'rgba(20,40,28,0.5)' }}>na podstawie opinii Google</p>
               </div>
 
               {/* Podologia */}
@@ -396,14 +396,14 @@ export const Home = () => {
                 style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
               >
                 <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <path d="M18 4C18 4 8 10 8 20C8 25.5 12.5 30 18 30C23.5 30 28 25.5 28 20C28 10 18 4 18 4Z" stroke="#B8913A" strokeWidth="2" fill="none"/>
-                  <circle cx="18" cy="20" r="3" fill="#B8913A"/>
+                  <path d="M18 4C18 4 8 10 8 20C8 25.5 12.5 30 18 30C23.5 30 28 25.5 28 20C28 10 18 4 18 4Z" stroke="#C4965A" strokeWidth="2" fill="none"/>
+                  <circle cx="18" cy="20" r="3" fill="#C4965A"/>
                 </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A1208' }}>Podologia</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(26,18,8,0.6)' }}>
+                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Podologia</h3>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
                   Leczenie wrastających paznokci, odcisków i grzybicy metodami podologicznymi.
                 </p>
-                <p className="font-bold" style={{ color: '#B8913A' }}>od 120 zł</p>
+                <p className="font-bold" style={{ color: '#C4965A' }}>od 120 zł</p>
               </div>
 
               {/* Manicure */}
@@ -412,15 +412,15 @@ export const Home = () => {
                 style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
               >
                 <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <rect x="10" y="6" width="6" height="16" rx="3" stroke="#B8913A" strokeWidth="2" fill="none"/>
-                  <rect x="20" y="8" width="6" height="14" rx="3" stroke="#B8913A" strokeWidth="2" fill="none"/>
-                  <line x1="8" y1="26" x2="28" y2="26" stroke="#B8913A" strokeWidth="2"/>
+                  <rect x="10" y="6" width="6" height="16" rx="3" stroke="#C4965A" strokeWidth="2" fill="none"/>
+                  <rect x="20" y="8" width="6" height="14" rx="3" stroke="#C4965A" strokeWidth="2" fill="none"/>
+                  <line x1="8" y1="26" x2="28" y2="26" stroke="#C4965A" strokeWidth="2"/>
                 </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A1208' }}>Manicure hybrydowy</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(26,18,8,0.6)' }}>
+                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Manicure hybrydowy</h3>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
                   Trwały lakier hybrydowy do 3 tygodni. Szeroka paleta kolorów, perfekcyjne wykończenie.
                 </p>
-                <p className="font-bold" style={{ color: '#B8913A' }}>od 89 zł</p>
+                <p className="font-bold" style={{ color: '#C4965A' }}>od 89 zł</p>
               </div>
 
               {/* Zabiegi na twarz */}
@@ -429,16 +429,16 @@ export const Home = () => {
                 style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
               >
                 <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <circle cx="18" cy="18" r="12" stroke="#B8913A" strokeWidth="2" fill="none"/>
-                  <path d="M13 22C14.5 24 21.5 24 23 22" stroke="#B8913A" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="14" cy="16" r="1.5" fill="#B8913A"/>
-                  <circle cx="22" cy="16" r="1.5" fill="#B8913A"/>
+                  <circle cx="18" cy="18" r="12" stroke="#C4965A" strokeWidth="2" fill="none"/>
+                  <path d="M13 22C14.5 24 21.5 24 23 22" stroke="#C4965A" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="14" cy="16" r="1.5" fill="#C4965A"/>
+                  <circle cx="22" cy="16" r="1.5" fill="#C4965A"/>
                 </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A1208' }}>Zabiegi na twarz</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(26,18,8,0.6)' }}>
+                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Zabiegi na twarz</h3>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
                   Peeling chemiczny, oczyszczanie, nawilżenie — dobieramy zabieg do potrzeb skóry.
                 </p>
-                <p className="font-bold" style={{ color: '#B8913A' }}>od 199 zł</p>
+                <p className="font-bold" style={{ color: '#C4965A' }}>od 199 zł</p>
               </div>
 
             </div>
@@ -456,7 +456,7 @@ export const Home = () => {
                     Polecane zabiegi
                   </span>
                 </div>
-                <h2 className="font-heading text-3xl font-bold" style={{ color: '#1A1208' }}>
+                <h2 className="font-heading text-3xl font-bold" style={{ color: '#1A3828' }}>
                   {SEASON_LABELS[currentSeason]} — na ten sezon
                 </h2>
                 <SectionNumber n={2} opacity={0.12} className="right-0 bottom-[-8px]" />
@@ -469,12 +469,12 @@ export const Home = () => {
                     style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
                   >
                     <div>
-                      <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A1208' }}>{s.name}</h3>
-                      <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(26,18,8,0.6)' }}>{s.description}</p>
+                      <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>{s.name}</h3>
+                      <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>{s.description}</p>
                     </div>
                     <div className="flex items-center justify-between mt-2">
-                      <p className="font-bold" style={{ color: '#B8913A' }}>od {Number(s.price).toFixed(0)} zł</p>
-                      <Button size="sm" className="rounded-full text-xs font-semibold gap-1" style={{ backgroundColor: '#1A1208', color: '#fff' }} asChild>
+                      <p className="font-bold" style={{ color: '#C4965A' }}>od {Number(s.price).toFixed(0)} zł</p>
+                      <Button size="sm" className="rounded-full text-xs font-semibold gap-1" style={{ backgroundColor: '#1A3828', color: '#fff' }} asChild>
                         <Link to={`/rezerwacja?serviceId=${s.id}`}>
                           Zarezerwuj <ArrowRight size={11} />
                         </Link>
@@ -603,13 +603,13 @@ export const Home = () => {
         </section>
 
         {/* ── 4. PROCESS ── */}
-        <section className="py-20" style={{ backgroundColor: '#FDFAF6' }}>
+        <section className="py-20" style={{ backgroundColor: '#F4F9F5' }}>
           <div className="container max-w-6xl mx-auto px-6">
             <div className="mb-12 text-center">
-              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#B8913A' }}>
+              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#C4965A' }}>
                 Jak działamy
               </p>
-              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A1208' }}>
+              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A3828' }}>
                 Twoja wizyta krok po kroku
               </h2>
             </div>
@@ -622,9 +622,9 @@ export const Home = () => {
                 { num: '04', title: 'Opieka po', desc: 'Otrzymujesz wskazówki do pielęgnacji domowej i propozycję kolejnej wizyty.' },
               ].map(({ num, title, desc }) => (
                 <div key={num} className="text-center">
-                  <p className="font-heading font-bold text-6xl mb-4" style={{ color: '#B8913A' }}>{num}</p>
-                  <h3 className="font-heading font-bold text-xl mb-3" style={{ color: '#1A1208' }}>{title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(26,18,8,0.6)' }}>{desc}</p>
+                  <p className="font-heading font-bold text-6xl mb-4" style={{ color: '#C4965A' }}>{num}</p>
+                  <h3 className="font-heading font-bold text-xl mb-3" style={{ color: '#1A3828' }}>{title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>{desc}</p>
                 </div>
               ))}
             </div>
@@ -632,11 +632,11 @@ export const Home = () => {
         </section>
 
         {/* ── 6. CTA ── */}
-        <section className="py-20" style={{ backgroundColor: '#FDFAF6' }}>
+        <section className="py-20" style={{ backgroundColor: '#F4F9F5' }}>
           <div className="container max-w-6xl mx-auto px-6">
             <div
               className="px-10 py-14"
-              style={{ backgroundColor: '#1A1208', borderRadius: '28px' }}
+              style={{ backgroundColor: '#1A3828', borderRadius: '28px' }}
             >
               <div className="grid md:grid-cols-2 gap-12 items-center">
 
@@ -655,7 +655,7 @@ export const Home = () => {
                       'Odpowiedź w ciągu 24 godzin',
                     ].map((item) => (
                       <li key={item} className="flex items-center gap-3 text-white/80 text-sm">
-                        <span style={{ color: '#B8913A' }}>✓</span> {item}
+                        <span style={{ color: '#C4965A' }}>✓</span> {item}
                       </li>
                     ))}
                   </ul>
@@ -702,7 +702,7 @@ export const Home = () => {
                   <button
                     onClick={() => setConsultationOpen(true)}
                     className="w-full py-4 rounded-xl font-semibold text-base transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: '#B8913A', color: '#fff' }}
+                    style={{ backgroundColor: '#C4965A', color: '#fff' }}
                   >
                     Umów konsultację
                   </button>
@@ -714,14 +714,14 @@ export const Home = () => {
         </section>
 
         {/* ── 7. FAQ ── */}
-        <section className="py-24" style={{ backgroundColor: '#F5F0EB' }} aria-labelledby="faq-heading">
+        <section className="py-24" style={{ backgroundColor: '#F0F7F1' }} aria-labelledby="faq-heading">
           <div className="container max-w-3xl mx-auto px-6">
             <div className="relative mb-12 text-center">
               <SectionNumber n={4} opacity={0.07} className="top-[-10px] right-0" />
               <h2
                 id="faq-heading"
                 className="font-heading text-4xl font-bold text-center"
-                style={{ color: '#1A1208' }}
+                style={{ color: '#1A3828' }}
               >
                 Najczęściej zadawane pytania
               </h2>
@@ -735,18 +735,18 @@ export const Home = () => {
                 >
                   <summary
                     className="flex items-center justify-between px-6 py-5 font-semibold text-base cursor-pointer list-none select-none transition-colors hover:bg-black/[0.02]"
-                    style={{ color: '#1A1208' }}
+                    style={{ color: '#1A3828' }}
                   >
                     {item.name}
                     <ChevronDown
                       size={18}
                       className="shrink-0 transition-transform duration-200 group-open:rotate-180"
-                      style={{ color: '#B8913A' }}
+                      style={{ color: '#C4965A' }}
                     />
                   </summary>
                   <dd
                     className="px-6 pb-5 pt-1 text-sm leading-relaxed border-t"
-                    style={{ color: 'rgba(26,18,8,0.65)', borderColor: 'rgba(0,0,0,0.06)' }}
+                    style={{ color: 'rgba(20,40,28,0.65)', borderColor: 'rgba(0,0,0,0.06)' }}
                   >
                     {item.acceptedAnswer.text}
                   </dd>
@@ -757,16 +757,16 @@ export const Home = () => {
         </section>
 
         {/* ── 8. OBSŁUGIWANE MIEJSCOWOŚCI ── */}
-        <section className="py-16" style={{ backgroundColor: '#FDFAF6' }} aria-labelledby="area-heading">
+        <section className="py-16" style={{ backgroundColor: '#F4F9F5' }} aria-labelledby="area-heading">
           <div className="container max-w-3xl mx-auto px-6 text-center">
             <h2
               id="area-heading"
               className="font-heading text-2xl font-bold mb-6"
-              style={{ color: '#1A1208' }}
+              style={{ color: '#1A3828' }}
             >
               Obsługiwane miejscowości
             </h2>
-            <p className="leading-relaxed text-sm" style={{ color: 'rgba(26,18,8,0.65)' }}>
+            <p className="leading-relaxed text-sm" style={{ color: 'rgba(20,40,28,0.65)' }}>
               Nasz salon kosmetologiczny w <strong>Limanowej</strong> przyjmuje klientów z całego powiatu
               limanowskiego i okolic. Regularnie odwiedzają nas osoby z{' '}
               <strong>Mordarki</strong>, <strong>Laskowej</strong>, <strong>Słopnic</strong>,{' '}

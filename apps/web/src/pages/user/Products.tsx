@@ -24,7 +24,7 @@ function RecommendationCard({ rec, appointmentId }: { rec: AppointmentRecommenda
   });
 
   return (
-    <div className="bg-white border border-[#B8913A]/20 rounded-xl p-4 flex gap-3 min-h-[72px]">
+    <div className="bg-white border border-[#C4965A]/20 rounded-xl p-4 flex gap-3 min-h-[72px]">
       {/* Product image */}
       <div className="w-16 h-16 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
         {rec.product?.imagePath ? (
@@ -37,7 +37,7 @@ function RecommendationCard({ rec, appointmentId }: { rec: AppointmentRecommenda
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[#1A1208] text-sm leading-snug">{rec.name}</p>
+            <p className="font-semibold text-[#1A3828] text-sm leading-snug">{rec.name}</p>
             {rec.product?.brand && (
               <p className="eyebrow mt-0.5">{rec.product.brand}</p>
             )}
@@ -58,7 +58,7 @@ function RecommendationCard({ rec, appointmentId }: { rec: AppointmentRecommenda
         <div className="flex items-center justify-between mt-2">
           <p className="text-xs text-gray-400">Spec: {rec.addedBy.name}</p>
           {rec.pickedUp ? (
-            <span className="inline-flex items-center gap-1 text-xs text-[#B8913A] font-semibold">
+            <span className="inline-flex items-center gap-1 text-xs text-[#C4965A] font-semibold">
               <CheckCircle size={12} /> Odebrano
             </span>
           ) : (
@@ -76,11 +76,11 @@ function AppointmentGroup({ group }: { group: RecommendationGroup }) {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-full bg-[#B8913A]/10 flex items-center justify-center flex-shrink-0">
-          <Calendar size={14} className="text-[#B8913A]" />
+        <div className="w-7 h-7 rounded-full bg-[#C4965A]/10 flex items-center justify-center flex-shrink-0">
+          <Calendar size={14} className="text-[#C4965A]" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-[#1A1208]">{group.serviceName}</p>
+          <p className="text-sm font-semibold text-[#1A3828]">{group.serviceName}</p>
           <p className="text-xs text-gray-500">{formatDate(group.appointmentDate)}</p>
         </div>
       </div>
@@ -122,10 +122,10 @@ export function UserProducts() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-4 pt-6 pb-5">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-[#B8913A]/10 flex items-center justify-center">
-            <ShoppingBag size={18} className="text-[#B8913A]" />
+          <div className="w-9 h-9 rounded-xl bg-[#C4965A]/10 flex items-center justify-center">
+            <ShoppingBag size={18} className="text-[#C4965A]" />
           </div>
-          <h1 className="font-heading text-xl font-bold text-[#1A1208]">Moje Produkty</h1>
+          <h1 className="font-heading text-xl font-bold text-[#1A3828]">Moje Produkty</h1>
         </div>
         <p className="text-sm text-gray-500 ml-12">
           Rekomendacje od specjalistów po Twoich wizytach
@@ -141,16 +141,16 @@ export function UserProducts() {
           </>
         ) : !groups || groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#B8913A]/10 flex items-center justify-center mb-4">
-              <ShoppingBag size={28} className="text-[#B8913A]/60" />
+            <div className="w-16 h-16 rounded-2xl bg-[#C4965A]/10 flex items-center justify-center mb-4">
+              <ShoppingBag size={28} className="text-[#C4965A]/60" />
             </div>
-            <h3 className="font-heading text-base font-semibold text-[#1A1208] mb-2">
+            <h3 className="font-heading text-base font-semibold text-[#1A3828] mb-2">
               Brak rekomendacji
             </h3>
             <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
               Po Twojej wizycie specjalista może dodać rekomendacje produktów do pielęgnacji domowej
             </p>
-            <div className="mt-6 flex items-center gap-2 text-xs text-[#B8913A]">
+            <div className="mt-6 flex items-center gap-2 text-xs text-[#C4965A]">
               <Sparkles size={14} />
               <span>Zadbaj o siebie między wizytami</span>
             </div>

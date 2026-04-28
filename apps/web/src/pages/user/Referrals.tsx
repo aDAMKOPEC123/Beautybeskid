@@ -68,10 +68,10 @@ export const UserReferrals = () => {
           <Users size={20} style={{ color: '#C4965A' }} />
         </div>
         <div>
-          <h1 className="font-heading text-2xl font-bold" style={{ color: '#1A1208' }}>
+          <h1 className="font-heading text-2xl font-bold" style={{ color: '#1A3828' }}>
             Program Poleceń
           </h1>
-          <p className="text-sm" style={{ color: '#6B6560' }}>
+          <p className="text-sm" style={{ color: '#5A7A62' }}>
             Zarabiaj nagrody, polecając COSMO znajomym
           </p>
         </div>
@@ -82,7 +82,7 @@ export const UserReferrals = () => {
         className="rounded-[20px] p-6 bg-white"
         style={{ border: '1px solid rgba(0,0,0,0.07)' }}
       >
-        <p className="text-sm font-medium mb-3" style={{ color: '#6B6560' }}>
+        <p className="text-sm font-medium mb-3" style={{ color: '#5A7A62' }}>
           Twój kod polecenia
         </p>
         {data?.ambassadorCode ? (
@@ -122,7 +122,7 @@ export const UserReferrals = () => {
             </div>
           </>
         ) : (
-          <p className="text-sm" style={{ color: '#6B6560' }}>
+          <p className="text-sm" style={{ color: '#5A7A62' }}>
             Brak kodu — skontaktuj się z nami.
           </p>
         )}
@@ -133,10 +133,10 @@ export const UserReferrals = () => {
         className="rounded-[20px] p-6 bg-white"
         style={{ border: '1px solid rgba(0,0,0,0.07)' }}
       >
-        <p className="text-sm font-medium mb-1" style={{ color: '#6B6560' }}>
+        <p className="text-sm font-medium mb-1" style={{ color: '#5A7A62' }}>
           Twoje postępy
         </p>
-        <p className="font-heading text-xl font-bold mb-1" style={{ color: '#1A1208' }}>
+        <p className="font-heading text-xl font-bold mb-1" style={{ color: '#1A3828' }}>
           {data?.count ?? 0} poleconych znajomych
         </p>
         {data?.nextMilestone && (
@@ -173,7 +173,7 @@ export const UserReferrals = () => {
                 <div className="flex-1 flex items-center justify-between">
                   <span
                     className="text-sm font-semibold"
-                    style={{ color: reached ? '#1A1208' : '#6B6560' }}
+                    style={{ color: reached ? '#1A3828' : '#5A7A62' }}
                   >
                     {m.reward}
                   </span>
@@ -198,7 +198,7 @@ export const UserReferrals = () => {
         className="rounded-[20px] p-6 bg-white"
         style={{ border: '1px solid rgba(0,0,0,0.07)' }}
       >
-        <p className="text-sm font-medium mb-4" style={{ color: '#6B6560' }}>
+        <p className="text-sm font-medium mb-4" style={{ color: '#5A7A62' }}>
           Zaproszeni znajomi
         </p>
         {!data?.referrals.length ? (
@@ -224,7 +224,7 @@ export const UserReferrals = () => {
                   >
                     {idx + 1}
                   </div>
-                  <span className="text-sm" style={{ color: '#1A1208' }}>
+                  <span className="text-sm" style={{ color: '#1A3828' }}>
                     Zarejestrował/a się {formatDate(r.registeredAt)}
                   </span>
                 </div>

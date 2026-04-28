@@ -16,7 +16,7 @@ export function GeoCircle({ size = 240, opacity = 0.18, className }: GeoCirclePr
         width: size,
         height: size,
         borderRadius: '50%',
-        background: `radial-gradient(circle, rgba(196,168,130,${opacity}) 0%, transparent 70%)`,
+        background: `radial-gradient(circle, rgba(196,150,90,${opacity}) 0%, transparent 70%)`,
       }}
     />
   );
@@ -38,7 +38,7 @@ export function GeoArc({ size = 100, opacity = 0.25, className }: GeoArcProps) {
         width: size,
         height: size,
         borderRadius: '50%',
-        border: `1px solid rgba(196,168,130,${opacity})`,
+        border: `1px solid rgba(196,150,90,${opacity})`,
       }}
     />
   );
@@ -62,7 +62,7 @@ export function SectionNumber({ n, opacity = 0.07, className }: SectionNumberPro
       style={{
         fontSize: 130,
         fontWeight: 700,
-        color: `rgba(196,168,130,${opacity})`,
+        color: `rgba(196,150,90,${opacity})`,
         letterSpacing: '-0.04em',
         lineHeight: 1,
       }}

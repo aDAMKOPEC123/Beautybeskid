@@ -1,0 +1,259 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock, Camera } from 'lucide-react';
+import { PageSEO } from '@/components/shared/SEO';
+import { SEO } from '@/lib/seo-config';
+import { useAuth } from '@/hooks/useAuth';
+
+const TikTokIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="h-6 w-6"
+    aria-hidden="true"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+  </svg>
+);
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BeautySalon',
+  name: SEO.siteName,
+  telephone: SEO.phone,
+  email: SEO.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: SEO.address.street,
+    addressLocality: SEO.address.city,
+    postalCode: SEO.address.postalCode,
+    addressRegion: SEO.address.region,
+    addressCountry: 'PL',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: SEO.lat,
+    longitude: SEO.lon,
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Saturday'],
+      opens: '09:00',
+      closes: '14:00',
+    },
+  ],
+  sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
+  url: `${SEO.domain}/kontakt`,
+};
+
+const cardStyle = {
+  borderRadius: '20px',
+  border: '1px solid rgba(0,0,0,0.07)',
+  backgroundColor: '#fff',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+};
+
+export const Contact = () => {
+  const { isAuthenticated } = useAuth();
+  const [imgError, setImgError] = useState(false);
+
+  const phoneDisplay = '532 128 227';
+
+  return (
+    <>
+      <PageSEO
+        title="Kontakt — Kosmetolog Limanowa"
+        description="Skontaktuj się z salonem kosmetologicznym Cosmo w Limanowej. Obsługujemy klientów z Limanowej, Laskowej, Mordarki, Dobrej, Tymbarku i okolic. Zadzwoń, napisz SMS lub wyślij wiadomość przez czat."
+        canonical="/kontakt"
+        schema={localBusinessSchema}
+      />
+
+      {/* Hero */}
+      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
+        <div className="container">
+          <div
+            className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
+            style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
+          >
+            Jesteśmy tu dla Ciebie
+          </div>
+          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A3828' }}>
+            Kontakt
+          </h1>
+          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
+            Salon kosmetologiczny w Limanowej — obsługujemy klientów z Laskowej, Mordarki, Dobrej,
+            Tymbarku i całej okolicy.
+          </p>
+        </div>
+      </section>
+
+      {/* Main grid */}
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+        <div className="container">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            {/* Left column */}
+            <div className="flex flex-col gap-6">
+              {/* Phone card */}
+              <div className="p-7" style={cardStyle}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Phone className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Telefon</h2>
+                </div>
+                <p className="text-3xl font-bold tracking-wide mb-5" style={{ color: '#1A3828' }}>{phoneDisplay}</p>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={`tel:${SEO.phone}`}
+                    className="text-sm font-semibold px-6 py-2.5 rounded-full text-white transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: '#1A3828' }}
+                  >
+                    Zadzwoń
+                  </a>
+                  <a
+                    href={`sms:${SEO.phone}`}
+                    className="text-sm font-semibold px-6 py-2.5 rounded-full transition-colors"
+                    style={{ border: '1px solid rgba(0,0,0,0.15)', color: '#1A3828' }}
+                  >
+                    Wyślij SMS
+                  </a>
+                </div>
+              </div>
+
+              {/* Chat card */}
+              <div className="p-7" style={cardStyle}>
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageCircle className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Czat z salonem</h2>
+                </div>
+                <p className="text-sm mb-5" style={{ color: 'rgba(20,40,28,0.55)' }}>
+                  Napisz do nas bezpośrednio przez wbudowany czat — odpowiadamy najszybciej jak możemy.
+                </p>
+                <Link
+                  to={isAuthenticated ? '/user/chat' : '/auth/login'}
+                  className="inline-block text-sm font-semibold px-6 py-2.5 rounded-full text-white transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: '#1A3828' }}
+                >
+                  Przejdź do czatu
+                </Link>
+              </div>
+
+              {/* Social media */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { href: SEO.fbProfile, label: 'Facebook', Icon: Facebook, color: '#1877F2' },
+                  { href: SEO.igProfile, label: 'Instagram', Icon: Instagram, color: '#E1306C' },
+                  { href: SEO.ttProfile, label: 'TikTok', Icon: null, color: '#1A3828' },
+                ].map(({ href, label, Icon, color }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col items-center gap-3 p-5 transition-all"
+                    style={cardStyle}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C4965A')}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.07)')}
+                  >
+                    <span style={{ color }} className="transition-transform group-hover:scale-110 block">
+                      {Icon ? <Icon className="h-7 w-7" /> : <TikTokIcon />}
+                    </span>
+                    <span className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</span>
+                  </a>
+                ))}
+              </div>
+
+              {/* Address & hours */}
+              <div className="p-7" style={cardStyle}>
+                <div className="flex items-center gap-2 mb-5">
+                  <MapPin className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Adres i godziny</h2>
+                </div>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium mb-1" style={{ color: '#1A3828' }}>{SEO.address.street}</p>
+                    <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
+                      {SEO.address.postalCode} {SEO.address.city}
+                    </p>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Clock className="h-4 w-4" style={{ color: '#C4965A' }} />
+                      <span className="text-sm font-medium" style={{ color: '#1A3828' }}>Godziny pracy</span>
+                    </div>
+                    <dl className="space-y-1.5">
+                      {SEO.openingHours.map(({ days, hours }) => (
+                        <div key={days} className="flex justify-between gap-2 text-sm">
+                          <dt style={{ color: 'rgba(20,40,28,0.55)' }}>{days}</dt>
+                          <dd
+                            style={{
+                              fontWeight: 500,
+                              color: hours === 'Nieczynne' ? 'rgb(239,68,68)' : '#1A3828',
+                            }}
+                          >
+                            {hours}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column — photo + map */}
+            <div className="flex flex-col gap-6">
+              {/* Photo */}
+              <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
+                {!imgError ? (
+                  <img
+                    src="/images/kontakt.jpg"
+                    alt="Salon kosmetologiczny Cosmo — Limanowa"
+                    className="h-64 w-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div
+                    className="flex h-64 w-full flex-col items-center justify-center gap-3"
+                    style={{ backgroundColor: '#F0F7F1', color: 'rgba(20,40,28,0.35)' }}
+                  >
+                    <Camera className="h-10 w-10 opacity-40" />
+                    <span className="text-sm">Zdjęcie salonu</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Google Maps */}
+              <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
+                <iframe
+                  title="Lokalizacja salonu Cosmo — Limanowa"
+                  src={`https://maps.google.com/maps?q=${SEO.lat},${SEO.lon}&z=15&output=embed`}
+                  width="100%"
+                  height="400"
+                  style={{ border: 0, display: 'block' }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Local SEO text */}
+          <p className="mt-10 text-center text-sm" style={{ color: 'rgba(20,40,28,0.45)' }}>
+            Obsługujemy klientów z <strong style={{ color: '#1A3828' }}>Limanowej</strong>,{' '}
+            <strong style={{ color: '#1A3828' }}>Laskowej</strong>,{' '}
+            <strong style={{ color: '#1A3828' }}>Mordarki</strong>,{' '}
+            <strong style={{ color: '#1A3828' }}>Dobrej</strong>,{' '}
+            <strong style={{ color: '#1A3828' }}>Tymbarku</strong> i okolic.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+};

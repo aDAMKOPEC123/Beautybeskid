@@ -81,7 +81,7 @@ export const Navbar = () => {
           background: 'rgba(250,247,242,0.92)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(28,21,16,0.08)',
+          borderBottom: '1px solid rgba(26,56,40,0.08)',
           transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
           transition: 'transform 0.3s ease, background 0.3s ease, border-color 0.3s ease',
           willChange: 'transform',

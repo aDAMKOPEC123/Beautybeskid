@@ -53,15 +53,15 @@ export default function AdminQuizzes() {
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#1A1208' }}>Quizy dopasowania</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <h1 className="text-2xl font-bold" style={{ color: '#1A3828' }}>Quizy dopasowania</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>
             Zarządzaj quizami dla każdej części ciała
           </p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-          style={{ background: '#1A1208', color: '#FDFAF6' }}
+          style={{ background: '#1A3828', color: '#F4F9F5' }}
         >
           <Plus size={16} /> Nowy quiz
         </button>
@@ -76,8 +76,8 @@ export default function AdminQuizzes() {
             className="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
             style={
               filter === bp.value
-                ? { background: '#1A1208', color: '#fff', borderColor: '#1A1208' }
-                : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(26,18,8,0.7)' }
+                ? { background: '#1A3828', color: '#fff', borderColor: '#1A3828' }
+                : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }
             }
           >
             {bp.emoji} {bp.label}
@@ -87,9 +87,9 @@ export default function AdminQuizzes() {
 
       {/* List */}
       {isLoading ? (
-        <p className="text-sm" style={{ color: 'rgba(26,18,8,0.4)' }}>Ładowanie...</p>
+        <p className="text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>Ładowanie...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-sm" style={{ color: 'rgba(26,18,8,0.4)' }}>Brak quizów. Utwórz pierwszy.</p>
+        <p className="text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>Brak quizów. Utwórz pierwszy.</p>
       ) : (
         <div className="space-y-3">
           {filtered.map((quiz) => (
@@ -100,8 +100,8 @@ export default function AdminQuizzes() {
             >
               <span className="text-2xl">{bodyPartEmoji(quiz.bodyPart)}</span>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate" style={{ color: '#1A1208' }}>{quiz.title}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(26,18,8,0.4)' }}>
+                <p className="font-semibold truncate" style={{ color: '#1A3828' }}>{quiz.title}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.4)' }}>
                   {quiz.nodeCount} węzłów
                 </p>
               </div>
@@ -121,7 +121,7 @@ export default function AdminQuizzes() {
                 <button
                   onClick={() => navigate(`/admin/quizy/${quiz.id}/edytor`)}
                   className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border"
-                  style={{ borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(26,18,8,0.7)' }}
+                  style={{ borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }}
                 >
                   <Edit2 size={13} /> Edytuj drzewo
                 </button>
@@ -142,9 +142,9 @@ export default function AdminQuizzes() {
             className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-bold text-lg" style={{ color: '#1A1208' }}>Nowy quiz</h2>
+            <h2 className="font-bold text-lg" style={{ color: '#1A3828' }}>Nowy quiz</h2>
             <div>
-              <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(26,18,8,0.6)' }}>Nazwa</label>
+              <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(20,40,28,0.6)' }}>Nazwa</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm outline-none"
                 style={{ borderColor: 'rgba(0,0,0,0.15)' }}
@@ -154,7 +154,7 @@ export default function AdminQuizzes() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(26,18,8,0.6)' }}>Część ciała</label>
+              <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(20,40,28,0.6)' }}>Część ciała</label>
               <select
                 className="w-full border rounded-lg px-3 py-2 text-sm outline-none"
                 style={{ borderColor: 'rgba(0,0,0,0.15)' }}
@@ -171,7 +171,7 @@ export default function AdminQuizzes() {
                 onClick={() => createMutation.mutate()}
                 disabled={!newTitle.trim() || createMutation.isPending}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: '#1A1208', color: '#FDFAF6', opacity: !newTitle.trim() ? 0.5 : 1 }}
+                style={{ background: '#1A3828', color: '#F4F9F5', opacity: !newTitle.trim() ? 0.5 : 1 }}
               >
                 {createMutation.isPending ? 'Tworzenie...' : 'Utwórz i edytuj'}
               </button>

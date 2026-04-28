@@ -42,7 +42,7 @@ export const UserChat = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center" style={{ color: 'rgba(26,18,8,0.5)' }}>
+      <div className="p-8 text-center" style={{ color: 'rgba(20,40,28,0.5)' }}>
         Ładowanie czatu...
       </div>
     );
@@ -68,10 +68,10 @@ export const UserChat = () => {
         className="p-4"
         style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <h2 className="font-heading font-bold text-xl" style={{ color: '#1A1208' }}>
+        <h2 className="font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
           Czat z konsultantem
         </h2>
-        <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+        <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
           Odpowiemy najszybciej jak to możliwe
         </p>
       </div>
@@ -80,20 +80,20 @@ export const UserChat = () => {
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto min-h-0 p-4 flex flex-col gap-3"
-        style={{ background: 'rgba(245,240,235,0.5)' }}
+        style={{ background: 'rgba(232,243,234,0.5)' }}
       >
         {/* Privacy notice */}
         <div className="flex flex-col items-center gap-3 py-4 px-2 text-center select-none">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(184,145,58,0.1)' }}
+            style={{ background: 'rgba(196,150,90,0.1)' }}
           >
-            <ShieldCheck size={24} style={{ color: '#B8913A' }} />
+            <ShieldCheck size={24} style={{ color: '#C4965A' }} />
           </div>
-          <p className="text-xs font-semibold" style={{ color: '#1A1208' }}>
+          <p className="text-xs font-semibold" style={{ color: '#1A3828' }}>
             Twoja prywatność jest chroniona
           </p>
-          <div className="flex flex-col gap-1.5 text-xs max-w-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <div className="flex flex-col gap-1.5 text-xs max-w-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
             <span className="flex items-center gap-1.5 justify-center">
               <Lock size={11} className="shrink-0" />
               Wiadomości są szyfrowane i widoczne wyłącznie dla Ciebie oraz konsultanta.
@@ -109,7 +109,7 @@ export const UserChat = () => {
         {messages.length === 0 && (
           <div
             className="flex-1 flex items-center justify-center text-sm"
-            style={{ color: 'rgba(26,18,8,0.4)' }}
+            style={{ color: 'rgba(20,40,28,0.4)' }}
           >
             Napisz pierwszą wiadomość, aby rozpocząć rozmowę
           </div>

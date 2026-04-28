@@ -1,0 +1,133 @@
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { recommendedSlidesApi, RecommendedSlide } from '@/api/recommended-slides.api';
+
+const AUTOPLAY_MS = 5000;
+
+export const RecommendedSlider = () => {
+  const { data: slides = [] } = useQuery({
+    queryKey: ['recommended-slides'],
+    queryFn: recommendedSlidesApi.getSlides,
+    staleTime: 60_000,
+  });
+
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const count = slides.length;
+
+  useEffect(() => {
+    setCurrent(0);
+  }, [count]);
+
+  useEffect(() => {
+    if (paused || count <= 1) return;
+    timerRef.current = setTimeout(() => {
+      setCurrent((c) => (c + 1) % count);
+    }, AUTOPLAY_MS);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [current, paused, count]);
+
+  if (count === 0) return null;
+
+  const slide: RecommendedSlide = slides[current];
+
+  const prev = () => setCurrent((c) => (c - 1 + count) % count);
+  const next = () => setCurrent((c) => (c + 1) % count);
+
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden"
+      style={{ aspectRatio: '16/9' }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Background image */}
+      <img
+        key={slide.id}
+        src={slide.imagePath}
+        alt={slide.service.name}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      />
+
+      {/* Dark gradient overlay */}
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)' }}
+      />
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-between p-4">
+        <div>
+          <p
+            className="text-[10px] font-semibold uppercase tracking-widest mb-1.5"
+            style={{ color: '#C4965A' }}
+          >
+            ✨ Polecany zabieg
+          </p>
+          <h3 className="text-white font-bold text-[17px] leading-tight mb-1.5">
+            {slide.service.name}
+          </h3>
+          <p className="text-white/80 text-[12px] leading-relaxed line-clamp-2">
+            {slide.description}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-[14px] font-bold" style={{ color: '#C4965A' }}>
+              od {Number(slide.service.price).toFixed(0)} zł
+            </span>
+            <Link
+              to={`/rezerwacja?service=${slide.service.slug}`}
+              className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+              style={{ background: '#C4965A', color: '#1A3828' }}
+            >
+              Zarezerwuj →
+            </Link>
+          </div>
+
+          {/* Dots */}
+          {count > 1 && (
+            <div className="flex gap-1.5 items-center">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className="transition-all"
+                  style={{
+                    width: i === current ? 16 : 6,
+                    height: 4,
+                    borderRadius: 2,
+                    background: i === current ? '#C4965A' : 'rgba(255,255,255,0.4)',
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Prev/Next arrows — only when multiple slides */}
+      {count > 1 && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+};

@@ -32,7 +32,7 @@ const STEP_STYLES = {
   locked: {
     background: 'rgba(107,101,96,0.08)',
     border: '1px solid rgba(107,101,96,0.15)',
-    color: '#6B6560',
+    color: '#5A7A62',
     label: 'Oczekuje',
   },
 };
@@ -71,10 +71,10 @@ export const UserTimeline = () => {
   return (
     <div className="space-y-6 animate-enter">
       <div>
-        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A1208' }}>
+        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Twoja historia
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'rgba(26,18,8,0.55)' }}>
+        <p className="text-sm mt-1" style={{ color: 'rgba(20,40,28,0.55)' }}>
           Postep wizyt, serii zabiegowych i osiagniec w COSMO
         </p>
       </div>
@@ -94,21 +94,21 @@ export const UserTimeline = () => {
       >
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h2 className="font-heading font-bold text-lg" style={{ color: '#1A1208' }}>
+            <h2 className="font-heading font-bold text-lg" style={{ color: '#1A3828' }}>
               Aktywne serie zabiegowe
             </h2>
-            <p className="text-sm mt-1" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-sm mt-1" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Os czasu dla zabiegow, ktore wymagaja kilku wizyt.
             </p>
           </div>
         </div>
 
         {remindersLoading ? (
-          <div className="animate-pulse h-24 rounded-2xl mt-4" style={{ background: '#F5F0EB' }} />
+          <div className="animate-pulse h-24 rounded-2xl mt-4" style={{ background: '#F0F7F1' }} />
         ) : activeSeries.length === 0 ? (
           <div
             className="mt-4 rounded-2xl p-6 text-center text-sm"
-            style={{ border: '1px dashed rgba(0,0,0,0.1)', color: '#6B6560' }}
+            style={{ border: '1px dashed rgba(0,0,0,0.1)', color: '#5A7A62' }}
           >
             Brak aktywnych serii wielowizytowych.
           </div>
@@ -118,22 +118,22 @@ export const UserTimeline = () => {
               <div
                 key={series.id}
                 className="rounded-2xl p-5"
-                style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#FDFAF6' }}
+                style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#F4F9F5' }}
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold" style={{ color: '#1A1208' }}>
+                      <h3 className="font-semibold" style={{ color: '#1A3828' }}>
                         {series.serviceName}
                       </h3>
                       <span
                         className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                        style={{ background: 'rgba(184,145,58,0.12)', color: '#8C6040' }}
+                        style={{ background: 'rgba(196,150,90,0.12)', color: '#8C6040' }}
                       >
                         {series.completedVisits}/{series.totalVisits}
                       </span>
                     </div>
-                    <p className="text-sm mt-1" style={{ color: '#6B6560' }}>
+                    <p className="text-sm mt-1" style={{ color: '#5A7A62' }}>
                       {series.nextAppointment
                         ? `Kolejny etap ${series.nextAppointment.step}/${series.totalVisits} jest juz umowiony na ${new Date(
                             series.nextAppointment.date,
@@ -157,8 +157,8 @@ export const UserTimeline = () => {
                     className="px-4 py-2 rounded-full text-sm font-semibold"
                     style={
                       series.nextAppointment
-                        ? { background: 'transparent', color: '#1A1208', border: '1px solid #E8DDD2' }
-                        : { background: '#1A1208', color: '#fff' }
+                        ? { background: 'transparent', color: '#1A3828', border: '1px solid #E8F3EA' }
+                        : { background: '#1A3828', color: '#fff' }
                     }
                   >
                     {series.nextAppointment ? 'Zobacz wizyte' : 'Umow sie teraz'}
@@ -216,8 +216,8 @@ export const UserTimeline = () => {
             className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
             style={
               filter === entry
-                ? { background: '#1A1208', color: '#fff' }
-                : { background: 'transparent', border: '1px solid #E8DDD2', color: '#6B6560' }
+                ? { background: '#1A3828', color: '#fff' }
+                : { background: 'transparent', border: '1px solid #E8F3EA', color: '#5A7A62' }
             }
           >
             {entry === 'all' ? 'Wszystko' : entry === 'visits' ? 'Wizyty' : 'Osiagniecia'}
@@ -237,10 +237,10 @@ export const UserTimeline = () => {
           <div className="space-y-6">
             {[1, 2, 3].map((entry) => (
               <div key={entry} className="animate-pulse flex gap-4">
-                <div className="w-3 h-3 rounded-full bg-[#E8DDD2] mt-1.5" />
+                <div className="w-3 h-3 rounded-full bg-[#E8F3EA] mt-1.5" />
                 <div className="flex-1">
-                  <div className="h-3 w-24 rounded bg-[#E8DDD2] mb-2" />
-                  <div className="h-16 rounded-xl bg-[#F5F0EB]" />
+                  <div className="h-3 w-24 rounded bg-[#E8F3EA] mb-2" />
+                  <div className="h-16 rounded-xl bg-[#F0F7F1]" />
                 </div>
               </div>
             ))}
@@ -249,7 +249,7 @@ export const UserTimeline = () => {
           <div className="relative pl-8">
             <div
               className="absolute left-[11px] top-2 bottom-2 w-0.5"
-              style={{ background: 'linear-gradient(to bottom, #B8913A, #E8DDD2)' }}
+              style={{ background: 'linear-gradient(to bottom, #C4965A, #E8F3EA)' }}
             />
 
             <div className="space-y-6">
@@ -260,22 +260,22 @@ export const UserTimeline = () => {
                 <div className="py-12 text-center space-y-4">
                   <div
                     className="w-16 h-16 rounded-full mx-auto flex items-center justify-center"
-                    style={{ background: 'rgba(184,145,58,0.1)' }}
+                    style={{ background: 'rgba(196,150,90,0.1)' }}
                   >
-                    <Sparkles size={28} style={{ color: '#B8913A' }} />
+                    <Sparkles size={28} style={{ color: '#C4965A' }} />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm" style={{ color: '#1A1208' }}>
+                    <p className="font-semibold text-sm" style={{ color: '#1A3828' }}>
                       Zacznij dokumentować swoją drogę do piękna
                     </p>
-                    <p className="text-xs mt-1" style={{ color: '#6B6560' }}>
+                    <p className="text-xs mt-1" style={{ color: '#5A7A62' }}>
                       Twoje wizyty i osiągnięcia pojawią się tutaj.
                     </p>
                   </div>
                   <Link
                     to="/rezerwacja"
                     className="inline-flex items-center gap-1.5 py-2 px-5 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
-                    style={{ background: '#1A1208', color: '#fff' }}
+                    style={{ background: '#1A3828', color: '#fff' }}
                   >
                     Umów pierwszą wizytę
                   </Link>
@@ -302,10 +302,10 @@ const StatCard = ({
     className="rounded-2xl p-4 text-center min-h-[80px] flex flex-col items-center justify-center"
     style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)' }}
   >
-    <div className={`font-bold font-heading ${isText ? 'text-2xl' : 'text-3xl'}`} style={{ color: '#B8913A' }}>
+    <div className={`font-bold font-heading ${isText ? 'text-2xl' : 'text-3xl'}`} style={{ color: '#C4965A' }}>
       {value}
     </div>
-    <div className="text-xs mt-1" style={{ color: '#6B6560' }}>
+    <div className="text-xs mt-1" style={{ color: '#5A7A62' }}>
       {label}
     </div>
   </div>
@@ -324,17 +324,17 @@ const TimelineEntry = ({ item }: { item: TimelineItem }) => {
                 width: 16,
                 height: 16,
                 left: -27,
-                background: 'linear-gradient(135deg, #B8913A, #D99B68)',
-                borderColor: '#FDFAF6',
-                boxShadow: '0 0 0 2px #B8913A, 0 0 12px rgba(184,145,58,0.3)',
+                background: 'linear-gradient(135deg, #C4965A, #D99B68)',
+                borderColor: '#F4F9F5',
+                boxShadow: '0 0 0 2px #C4965A, 0 0 12px rgba(196,150,90,0.3)',
               }
             : {
                 width: 12,
                 height: 12,
                 left: -25,
-                background: '#B8913A',
-                borderColor: '#FDFAF6',
-                boxShadow: '0 0 0 2px #B8913A',
+                background: '#C4965A',
+                borderColor: '#F4F9F5',
+                boxShadow: '0 0 0 2px #C4965A',
               }
         }
       />
@@ -351,18 +351,18 @@ const TimelineEntry = ({ item }: { item: TimelineItem }) => {
         className="rounded-[14px] p-4"
         style={
           isMilestone
-            ? { background: 'rgba(184,145,58,0.08)', border: '1px solid rgba(184,145,58,0.2)' }
-            : { background: '#F5F0EB' }
+            ? { background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.2)' }
+            : { background: '#F0F7F1' }
         }
       >
         {item.type === 'visit' && (
           <>
-            <h4 className="font-semibold text-sm" style={{ color: '#1A1208' }}>
+            <h4 className="font-semibold text-sm" style={{ color: '#1A3828' }}>
               {item.data.serviceName}
             </h4>
             <div className="flex flex-wrap gap-2 mt-2">
               {item.data.employeeName && (
-                <Badge label={`Specjalista: ${item.data.employeeName}`} bg="rgba(107,101,96,0.1)" color="#6B6560" />
+                <Badge label={`Specjalista: ${item.data.employeeName}`} bg="rgba(107,101,96,0.1)" color="#5A7A62" />
               )}
               {item.data.rating && (
                 <span className="inline-flex items-center gap-1">
@@ -378,27 +378,27 @@ const TimelineEntry = ({ item }: { item: TimelineItem }) => {
 
         {item.type === 'achievement' && (
           <>
-            <h4 className="font-semibold text-sm" style={{ color: '#1A1208' }}>
+            <h4 className="font-semibold text-sm" style={{ color: '#1A3828' }}>
               {item.data.icon} {item.data.name}
             </h4>
-            <p className="text-xs mt-1" style={{ color: '#6B6560' }}>
+            <p className="text-xs mt-1" style={{ color: '#5A7A62' }}>
               {item.data.description}
             </p>
             {item.data.pointsBonus && item.data.pointsBonus > 0 && (
-              <Badge label={`+${item.data.pointsBonus} pkt bonusowych`} bg="rgba(184,145,58,0.2)" color="#8C6040" />
+              <Badge label={`+${item.data.pointsBonus} pkt bonusowych`} bg="rgba(196,150,90,0.2)" color="#8C6040" />
             )}
           </>
         )}
 
         {item.type === 'loyalty' && (
           <>
-            <h4 className="font-semibold text-sm" style={{ color: '#1A1208' }}>
+            <h4 className="font-semibold text-sm" style={{ color: '#1A3828' }}>
               {item.data.description}
             </h4>
             {item.data.points && (
               <Badge
                 label={`${item.data.points > 0 ? '+' : ''}${item.data.points} pkt`}
-                bg="rgba(184,145,58,0.2)"
+                bg="rgba(196,150,90,0.2)"
                 color="#8C6040"
               />
             )}

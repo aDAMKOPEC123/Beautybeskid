@@ -89,17 +89,17 @@ function MiniCalendar({
         <button
           onClick={() => setViewMonth((m) => subMonths(m, 1))}
           className="p-1 rounded-lg hover:opacity-60 transition-opacity"
-          style={{ color: '#1A1208' }}
+          style={{ color: '#1A3828' }}
         >
           <ChevronLeft size={18} />
         </button>
-        <span className="font-semibold capitalize" style={{ color: '#1A1208' }}>
+        <span className="font-semibold capitalize" style={{ color: '#1A3828' }}>
           {format(viewMonth, 'LLLL yyyy', { locale: pl })}
         </span>
         <button
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
           className="p-1 rounded-lg hover:opacity-60 transition-opacity"
-          style={{ color: '#1A1208' }}
+          style={{ color: '#1A3828' }}
         >
           <ChevronRight size={18} />
         </button>
@@ -131,7 +131,7 @@ function MiniCalendar({
               className="text-sm rounded-full w-8 h-8 mx-auto flex items-center justify-center transition-colors"
               style={
                 isSelected
-                  ? { background: '#1A1208', color: '#fff' }
+                  ? { background: '#1A3828', color: '#fff' }
                   : isToday
                   ? { border: '1.5px solid #C4965A', color: '#C4965A', fontWeight: 700 }
                   : isPast
@@ -140,7 +140,7 @@ function MiniCalendar({
                   ? { background: 'rgba(239,68,68,0.08)', color: '#DC2626', cursor: 'not-allowed' }
                   : isGreen
                   ? { background: 'rgba(34,197,94,0.1)', color: '#15803d', cursor: 'pointer' }
-                  : { color: '#1A1208', cursor: 'pointer' }
+                  : { color: '#1A3828', cursor: 'pointer' }
               }
             >
               {format(day, 'd')}
@@ -230,7 +230,7 @@ function StepService({
             <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#C4965A' }}>
               Rekomendacja dla Ciebie
             </p>
-            <p className="font-semibold mt-0.5" style={{ color: '#1A1208' }}>{recommendation.title}</p>
+            <p className="font-semibold mt-0.5" style={{ color: '#1A3828' }}>{recommendation.title}</p>
             <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.6)' }}>{recommendation.subtitle}</p>
           </div>
           <button onClick={() => setRecommendation(null)} style={{ color: 'rgba(20,40,28,0.4)' }}>
@@ -254,7 +254,7 @@ function StepService({
             className="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
             style={
               filterCategory === cat
-                ? { background: '#1A1208', color: '#fff', borderColor: '#1A1208' }
+                ? { background: '#1A3828', color: '#fff', borderColor: '#1A3828' }
                 : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }
             }
           >
@@ -293,7 +293,7 @@ function StepService({
               )}
               <div className="p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold leading-tight" style={{ color: '#1A1208' }}>
+                  <h3 className="font-semibold leading-tight" style={{ color: '#1A3828' }}>
                     {service.name}
                   </h3>
                   {isSelected && <CheckCircle2 size={18} style={{ color: '#C4965A', flexShrink: 0, marginTop: 2 }} />}
@@ -312,7 +312,7 @@ function StepService({
                     </span>
                     <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
                   </div>
-                  <span className="font-bold" style={{ color: '#1A1208' }}>
+                  <span className="font-bold" style={{ color: '#1A3828' }}>
                     {Number(service.price).toFixed(2)} zł
                   </span>
                 </div>
@@ -390,7 +390,7 @@ function StepEmployee({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold" style={{ color: '#1A1208' }}>{emp.name}</p>
+                  <p className="font-semibold" style={{ color: '#1A3828' }}>{emp.name}</p>
                   {isSelected && <CheckCircle2 size={16} style={{ color: '#C4965A', flexShrink: 0 }} />}
                 </div>
                 {emp.bio && (
@@ -541,10 +541,10 @@ function StepDate({
                       !slot.available
                         ? { background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.2)', color: '#DC2626', cursor: 'not-allowed' }
                         : selectedTime === slot.time
-                        ? { background: '#1A1208', color: '#fff', borderColor: '#1A1208' }
+                        ? { background: '#1A3828', color: '#fff', borderColor: '#1A3828' }
                         : isHot
                         ? { background: 'rgba(217,119,6,0.08)', borderColor: '#D97706', color: '#92400E' }
-                        : { borderColor: 'rgba(0,0,0,0.15)', color: '#1A1208' }
+                        : { borderColor: 'rgba(0,0,0,0.15)', color: '#1A3828' }
                     }
                   >
                     {isHot ? (
@@ -607,7 +607,7 @@ function StepNotes({
   const textareaStyle = {
     border: '1px solid rgba(0,0,0,0.1)',
     borderRadius: 12,
-    background: '#FDFAF6',
+    background: '#F4F9F5',
     outline: 'none',
     width: '100%',
     padding: '8px 12px',
@@ -624,7 +624,7 @@ function StepNotes({
         { label: 'Opis problemu / oczekiwania', value: problemDescription, field: 'problemDescription', rows: 3, placeholder: 'Opisz co chcesz osiągnąć lub co Cię niepokoi...' },
       ].map(({ label, value, field, rows, placeholder }) => (
         <div key={field} className="space-y-1">
-          <label className="text-sm font-medium" style={{ color: '#1A1208' }}>{label}</label>
+          <label className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
           <textarea
             value={value}
             onChange={(e) => onChange(field, e.target.value)}
@@ -639,7 +639,7 @@ function StepNotes({
 
       {/* Photo upload */}
       <div className="space-y-2">
-        <label className="text-sm font-medium" style={{ color: '#1A1208' }}>Zdjęcie (opcjonalnie)</label>
+        <label className="text-sm font-medium" style={{ color: '#1A3828' }}>Zdjęcie (opcjonalnie)</label>
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -666,7 +666,7 @@ function StepNotes({
                 style={{ border: '1px solid rgba(0,0,0,0.1)' }}
               />
               <div className="flex-1 text-left">
-                <p className="text-sm font-medium" style={{ color: '#1A1208' }}>{photo.name}</p>
+                <p className="text-sm font-medium" style={{ color: '#1A3828' }}>{photo.name}</p>
                 <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>{(photo.size / 1024).toFixed(0)} KB</p>
               </div>
               <button
@@ -800,7 +800,7 @@ function StepConfirm({
         style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="p-6">
-          <h3 className="font-heading font-semibold text-lg mb-4" style={{ color: '#1A1208' }}>
+          <h3 className="font-heading font-semibold text-lg mb-4" style={{ color: '#1A3828' }}>
             Podsumowanie rezerwacji
           </h3>
           <div className="text-sm" style={{ borderTop: '1px solid rgba(196,150,90,0.15)' }}>
@@ -817,7 +817,7 @@ function StepConfirm({
                     <span className="font-bold" style={{ color: '#15803D' }}>{discountedPrice.toFixed(2)} zł</span>
                   </>
                 ) : (
-                  <span className="font-bold" style={{ color: '#1A1208' }}>{basePrice.toFixed(2)} zł</span>
+                  <span className="font-bold" style={{ color: '#1A3828' }}>{basePrice.toFixed(2)} zł</span>
                 ),
               },
               { label: 'Pracownik', value: state.employeeId ? '(wybrany)' : 'Bez preferencji' },
@@ -836,7 +836,7 @@ function StepConfirm({
                 style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}
               >
                 <span style={{ color: 'rgba(20,40,28,0.5)' }}>{label}</span>
-                {valueNode ?? <span style={{ color: '#1A1208' }}>{value}</span>}
+                {valueNode ?? <span style={{ color: '#1A3828' }}>{value}</span>}
               </div>
             ))}
           </div>
@@ -851,7 +851,7 @@ function StepConfirm({
             style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}
           >
             <span>
-              <strong className="font-mono tracking-wider" style={{ color: '#1A1208' }}>
+              <strong className="font-mono tracking-wider" style={{ color: '#1A3828' }}>
                 {state.voucherData.code}
               </strong>
               {' — '}
@@ -914,7 +914,7 @@ function StepConfirm({
       {/* Loyalty section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold" style={{ color: '#1A1208' }}>Program lojalnościowy</h3>
+          <h3 className="font-semibold" style={{ color: '#1A3828' }}>Program lojalnościowy</h3>
           <span className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
             Twoje punkty:{' '}
             <strong style={{ color: '#C4965A' }}>{user?.loyaltyPoints ?? 0}</strong>
@@ -931,7 +931,7 @@ function StepConfirm({
 
         {otherRewards.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium" style={{ color: '#1A1208' }}>
+            <p className="text-sm font-medium" style={{ color: '#1A3828' }}>
               Nagrody specjalne (aktywowane przy rezerwacji):
             </p>
             {otherRewards.map((reward: any) => {
@@ -949,7 +949,7 @@ function StepConfirm({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-medium" style={{ color: '#1A1208' }}>{reward.name}</p>
+                      <p className="font-medium" style={{ color: '#1A3828' }}>{reward.name}</p>
                       <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>{reward.description}</p>
                     </div>
                     <div className="text-right shrink-0">
@@ -1100,7 +1100,7 @@ export const BookingWizard = () => {
   return (
     <div data-tour="booking-wizard" className="max-w-4xl mx-auto space-y-8 animate-enter">
       <div>
-        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A1208' }}>
+        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Umów wizytę
         </h1>
         <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>

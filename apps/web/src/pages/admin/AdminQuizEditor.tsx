@@ -49,7 +49,7 @@ function quizToFlow(quiz: any): { nodes: Node[]; edges: Edge[] } {
     target: e.targetNodeId,
     sourceHandle: e.sourceHandle,
     animated: false,
-    style: { stroke: '#B8913A' },
+    style: { stroke: '#C4965A' },
   }));
   return { nodes, edges };
 }
@@ -123,7 +123,7 @@ export default function AdminQuizEditor() {
   });
 
   const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge({ ...connection, style: { stroke: '#B8913A' } } as Edge, eds)),
+    (connection: Connection) => setEdges((eds) => addEdge({ ...connection, style: { stroke: '#C4965A' } } as Edge, eds)),
     [setEdges],
   );
 
@@ -156,17 +156,17 @@ export default function AdminQuizEditor() {
     setSelectedNode((prev) => prev ? { ...prev, data: { ...prev.data, ...patch } } : null);
   }
 
-  if (isLoading) return <div className="p-8 text-sm" style={{ color: 'rgba(26,18,8,0.4)' }}>Ładowanie...</div>;
+  if (isLoading) return <div className="p-8 text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>Ładowanie...</div>;
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 bg-white border-b" style={{ borderColor: '#e0d8ce' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/admin/quizy')} className="flex items-center gap-1 text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <button onClick={() => navigate('/admin/quizy')} className="flex items-center gap-1 text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
             <ChevronLeft size={16} /> Quizy
           </button>
-          <span className="font-semibold text-sm" style={{ color: '#1A1208' }}>{quiz?.title}</span>
+          <span className="font-semibold text-sm" style={{ color: '#1A3828' }}>{quiz?.title}</span>
           <span
             className="text-xs font-semibold px-2 py-0.5 rounded-full"
             style={quiz?.isActive ? { background: '#e8f5e9', color: '#2e7d32' } : { background: '#fff3e0', color: '#e65100' }}
@@ -190,7 +190,7 @@ export default function AdminQuizEditor() {
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending}
             className="flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-lg font-semibold"
-            style={{ background: '#B8913A', color: 'white' }}
+            style={{ background: '#C4965A', color: 'white' }}
           >
             <Save size={13} /> {saveMutation.isPending ? 'Zapisywanie...' : 'Zapisz'}
           </button>
@@ -221,7 +221,7 @@ export default function AdminQuizEditor() {
         {selectedNode && (
           <div className="w-64 bg-white border-l overflow-y-auto p-4 space-y-3 text-sm" style={{ borderColor: '#e0d8ce' }}>
             <div className="flex items-center justify-between">
-              <p className="font-bold text-xs uppercase tracking-wide" style={{ color: '#B8913A' }}>
+              <p className="font-bold text-xs uppercase tracking-wide" style={{ color: '#C4965A' }}>
                 {selectedNode.type === 'QUESTION' ? 'Pytanie' : selectedNode.type === 'RESULT' ? 'Wynik' : 'START'}
               </p>
               <button
@@ -256,7 +256,7 @@ function QuestionPanel({ data, onChange }: { data: any; onChange: (p: Record<str
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(26,18,8,0.6)' }}>Treść pytania</label>
+        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(20,40,28,0.6)' }}>Treść pytania</label>
         <textarea
           className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none resize-none"
           style={{ borderColor: 'rgba(0,0,0,0.15)' }}
@@ -266,10 +266,10 @@ function QuestionPanel({ data, onChange }: { data: any; onChange: (p: Record<str
         />
       </div>
       <div>
-        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(26,18,8,0.6)' }}>Opcje odpowiedzi</label>
+        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(20,40,28,0.6)' }}>Opcje odpowiedzi</label>
         {(data.options ?? []).map((opt: any, i: number) => (
           <div key={opt.key} className="flex gap-1.5 mb-1.5">
-            <span className="text-[10px] font-bold w-4 flex-shrink-0 mt-1.5" style={{ color: '#B8913A' }}>{opt.key}</span>
+            <span className="text-[10px] font-bold w-4 flex-shrink-0 mt-1.5" style={{ color: '#C4965A' }}>{opt.key}</span>
             <input
               className="flex-1 border rounded px-2 py-1 text-xs outline-none"
               style={{ borderColor: 'rgba(0,0,0,0.15)' }}
@@ -284,7 +284,7 @@ function QuestionPanel({ data, onChange }: { data: any; onChange: (p: Record<str
         ))}
         <button
           className="text-xs mt-1"
-          style={{ color: '#B8913A' }}
+          style={{ color: '#C4965A' }}
           onClick={() => {
             const keys = ['A', 'B', 'C', 'D', 'E', 'F'];
             const nextKey = keys[(data.options ?? []).length] ?? String.fromCharCode(65 + (data.options ?? []).length);
@@ -305,7 +305,7 @@ function ResultPanel({ data, services, onChange }: { data: any; services: any[];
     <div className="space-y-3">
       {(['title', 'subtitle', 'description', 'extras'] as const).map((field) => (
         <div key={field}>
-          <label className="text-xs font-medium block mb-1 capitalize" style={{ color: 'rgba(26,18,8,0.6)' }}>{field}</label>
+          <label className="text-xs font-medium block mb-1 capitalize" style={{ color: 'rgba(20,40,28,0.6)' }}>{field}</label>
           <textarea
             className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none resize-none"
             style={{ borderColor: 'rgba(0,0,0,0.15)' }}
@@ -316,7 +316,7 @@ function ResultPanel({ data, services, onChange }: { data: any; services: any[];
         </div>
       ))}
       <div>
-        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(26,18,8,0.6)' }}>Główny zabieg</label>
+        <label className="text-xs font-medium block mb-1" style={{ color: 'rgba(20,40,28,0.6)' }}>Główny zabieg</label>
         <select
           className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none"
           style={{ borderColor: 'rgba(0,0,0,0.15)' }}

@@ -41,14 +41,14 @@ export const ServiceDetail = () => {
         <Link
           to="/uslugi"
           className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
-          style={{ color: 'rgba(26,18,8,0.5)' }}
+          style={{ color: 'rgba(20,40,28,0.5)' }}
         >
           <ArrowLeft size={15} /> Wróć do usług
         </Link>
       </div>
 
       {/* Hero */}
-      <section className="py-14" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-14" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container text-center max-w-3xl mx-auto">
           {service.imagePath && (
             <div
@@ -70,19 +70,19 @@ export const ServiceDetail = () => {
             {service.name}
           </h1>
           <div className="flex items-center justify-center gap-4 mb-8">
-            <span className="text-3xl font-bold" style={{ color: '#B8913A' }}>
+            <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
               {formatPrice(service.price)}
             </span>
             <span
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-full"
-              style={{ backgroundColor: 'rgba(26,18,8,0.07)', color: '#1A1208' }}
+              style={{ backgroundColor: 'rgba(20,40,28,0.07)', color: '#1A3828' }}
             >
               <Clock size={15} /> {service.durationMinutes} min
             </span>
           </div>
           <button
             className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#1A1208' }}
+            style={{ backgroundColor: '#1A3828' }}
             onClick={() =>
               navigate(isAuthenticated ? `/rezerwacja?serviceId=${service.id}` : '/auth/login')
             }
@@ -93,9 +93,9 @@ export const ServiceDetail = () => {
       </section>
 
       {/* Content */}
-      <section className="py-14" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl mx-auto">
-          <p className="text-lg leading-relaxed mb-10 text-center" style={{ color: 'rgba(26,18,8,0.6)' }}>
+          <p className="text-lg leading-relaxed mb-10 text-center" style={{ color: 'rgba(20,40,28,0.6)' }}>
             {service.description}
           </p>
           {service.detailedContent && (
@@ -107,9 +107,9 @@ export const ServiceDetail = () => {
       </section>
 
       {/* Reviews */}
-      <section className="py-14" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl mx-auto">
-          <h2 className="text-2xl font-heading font-bold mb-6 text-center" style={{ color: '#1A1208' }}>
+          <h2 className="text-2xl font-heading font-bold mb-6 text-center" style={{ color: '#1A3828' }}>
             Opinie klientek
           </h2>
           <ReviewsList serviceId={service.id} />

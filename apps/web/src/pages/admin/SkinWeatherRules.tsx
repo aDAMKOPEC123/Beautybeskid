@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, X, Loader2, Cloud, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Loader2, Cloud, RefreshCw, ChevronDown, ChevronUp, Save, Sparkles, FlaskConical, Ban, Scissors, Sun, Droplets } from 'lucide-react';
 import { isAxiosError } from 'axios';
 import { skinWeatherApi } from '@/api/skin-weather.api';
 
@@ -210,31 +210,221 @@ function RuleCard({ rule, onEdit, onDelete }: { rule: SkinWeatherRule; onEdit: (
 // --- SkinTypeAdviceTab
 
 const SKIN_TYPE_ADVICE_META = [
-  { key: 'SUCHA',    label: 'Sucha',    emoji: '🌵', desc: 'Łuszczy się, ciągnie, potrzebuje nawilżenia' },
-  { key: 'TLUSTA',   label: 'Tłusta',   emoji: '✨', desc: 'Połysk, rozszerzone pory, przetłuszczanie' },
-  { key: 'MIESZANA', label: 'Mieszana', emoji: '⚖️', desc: 'Strefa T tłusta, reszta normalna lub sucha' },
-  { key: 'NORMALNA', label: 'Normalna', emoji: '🌸', desc: 'Zrównoważona, bez problemów' },
-  { key: 'WRAZLIWA', label: 'Wrażliwa', emoji: '🌹', desc: 'Reaktywna, łatwo się czerwieni, podrażniona' },
+  { key: 'SUCHA',    label: 'Sucha',    emoji: '🌵', color: 'text-amber-600 dark:text-amber-400',    bg: 'bg-amber-50 dark:bg-amber-900/20',    border: 'border-amber-200 dark:border-amber-800',    accent: 'bg-amber-500',    desc: 'Łuszczy się, ciągnie, potrzebuje nawilżenia' },
+  { key: 'TLUSTA',   label: 'Tłusta',   emoji: '✨', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-200 dark:border-emerald-800', accent: 'bg-emerald-500', desc: 'Połysk, rozszerzone pory, przetłuszczanie' },
+  { key: 'MIESZANA', label: 'Mieszana', emoji: '⚖️', color: 'text-violet-600 dark:text-violet-400',  bg: 'bg-violet-50 dark:bg-violet-900/20',  border: 'border-violet-200 dark:border-violet-800',  accent: 'bg-violet-500',  desc: 'Strefa T tłusta, reszta normalna lub sucha' },
+  { key: 'NORMALNA', label: 'Normalna', emoji: '🌸', color: 'text-rose-600 dark:text-rose-400',      bg: 'bg-rose-50 dark:bg-rose-900/20',      border: 'border-rose-200 dark:border-rose-800',      accent: 'bg-rose-500',    desc: 'Zrównoważona, bez problemów' },
+  { key: 'WRAZLIWA', label: 'Wrażliwa', emoji: '🌹', color: 'text-pink-600 dark:text-pink-400',      bg: 'bg-pink-50 dark:bg-pink-900/20',      border: 'border-pink-200 dark:border-pink-800',      accent: 'bg-pink-500',    desc: 'Reaktywna, łatwo się czerwieni, podrażniona' },
 ];
+
+interface SkinAdviceData {
+  charakterystyka: string;
+  pielegnacja: string;
+  skladniki: string;
+  unikaj: string;
+  zabiegi: string;
+  sezonowe: string;
+}
+
+const EMPTY_ADVICE: SkinAdviceData = {
+  charakterystyka: '',
+  pielegnacja: '',
+  skladniki: '',
+  unikaj: '',
+  zabiegi: '',
+  sezonowe: '',
+};
+
+const ADVICE_CATEGORIES: { key: keyof SkinAdviceData; label: string; placeholder: string; icon: React.ReactNode; hint: string }[] = [
+  {
+    key: 'charakterystyka',
+    label: 'Charakterystyka skóry',
+    placeholder: 'Opisz cechy charakterystyczne tego typu skóry, objawy, wygląd, odczucia klientki...',
+    icon: <Sparkles className="h-4 w-4" />,
+    hint: 'Opis ogólny dla klientki — co czuje, co widzi'
+  },
+  {
+    key: 'pielegnacja',
+    label: 'Podstawowa pielęgnacja',
+    placeholder: 'Krok po kroku: oczyszczanie, tonizacja, serum, krem... Porady dotyczące rutyny pielęgnacyjnej.',
+    icon: <Droplets className="h-4 w-4" />,
+    hint: 'Rutyna dzienna i wieczorna — co stosować i w jakiej kolejności'
+  },
+  {
+    key: 'skladniki',
+    label: 'Polecane składniki aktywne',
+    placeholder: 'Np. kwas hialuronowy, ceramidy, niacynamid, retinol — jakie składniki działają najlepiej i dlaczego.',
+    icon: <FlaskConical className="h-4 w-4" />,
+    hint: 'Składniki INCI, które warto szukać w kosmetykach'
+  },
+  {
+    key: 'unikaj',
+    label: 'Czego unikać',
+    placeholder: 'Składniki drażniące, nieodpowiednie tekstury, błędy pielęgnacyjne, których klientka powinna się wystrzegać...',
+    icon: <Ban className="h-4 w-4" />,
+    hint: 'Składniki i nawyki, które mogą zaszkodzić'
+  },
+  {
+    key: 'zabiegi',
+    label: 'Polecane zabiegi salonowe',
+    placeholder: 'Np. mikrodermabrazja, mezoterapia, peeling chemiczny, oczyszczanie manualne — które zabiegi z oferty salonu są najodpowiedniejsze.',
+    icon: <Scissors className="h-4 w-4" />,
+    hint: 'Zabiegi z oferty salonu dedykowane temu typowi skóry'
+  },
+  {
+    key: 'sezonowe',
+    label: 'Porady sezonowe',
+    placeholder: 'Jak zmienia się pielęgnacja latem vs zimą, jak reaguje skóra na słońce, mróz, wiatr, klimatyzację...',
+    icon: <Sun className="h-4 w-4" />,
+    hint: 'Zmiany rutyny w zależności od pory roku i pogody'
+  },
+];
+
+function parseAdviceContent(raw: string): SkinAdviceData {
+  if (!raw) return { ...EMPTY_ADVICE };
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null && 'charakterystyka' in parsed) {
+      return { ...EMPTY_ADVICE, ...parsed };
+    }
+    // Legacy plain text — put into charakterystyka
+    return { ...EMPTY_ADVICE, charakterystyka: raw };
+  } catch {
+    return { ...EMPTY_ADVICE, charakterystyka: raw };
+  }
+}
+
+function SkinTypeCard({ meta, adviceList, onSave, isSaving }: {
+  meta: typeof SKIN_TYPE_ADVICE_META[0];
+  adviceList: Array<{ skinType: string; content: string; updatedAt: string }>;
+  onSave: (skinType: string, content: string) => void;
+  isSaving: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [advice, setAdvice] = useState<SkinAdviceData>({ ...EMPTY_ADVICE });
+  const [dirty, setDirty] = useState(false);
+
+  const raw = adviceList.find(i => i.skinType === meta.key)?.content ?? '';
+  const updatedAt = adviceList.find(i => i.skinType === meta.key)?.updatedAt ?? null;
+
+  useEffect(() => {
+    setAdvice(parseAdviceContent(raw));
+    setDirty(false);
+  }, [raw]);
+
+  const setField = (key: keyof SkinAdviceData, value: string) => {
+    setAdvice(prev => ({ ...prev, [key]: value }));
+    setDirty(true);
+  };
+
+  const filledCount = Object.values(advice).filter(v => v.trim().length > 0).length;
+
+  const handleSave = () => {
+    onSave(meta.key, JSON.stringify(advice));
+    setDirty(false);
+  };
+
+  return (
+    <div className={`rounded-xl border ${meta.border} overflow-hidden transition-all`}>
+      {/* Header */}
+      <button
+        type="button"
+        onClick={() => setExpanded(e => !e)}
+        className={`w-full flex items-center gap-3 px-5 py-4 ${meta.bg} text-left transition-colors hover:opacity-90`}
+      >
+        <span className="text-2xl leading-none">{meta.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-sm font-semibold ${meta.color}`}>Skóra {meta.label}</span>
+            {dirty && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/30">
+                Niezapisane zmiany
+              </span>
+            )}
+            {!dirty && filledCount > 0 && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-foreground/8 text-muted-foreground border border-border/40">
+                {filledCount}/{ADVICE_CATEGORIES.length} kategorii
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{meta.desc}</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {updatedAt && !expanded && (
+            <span className="text-[11px] text-muted-foreground hidden sm:block">
+              {new Date(updatedAt).toLocaleDateString('pl-PL')}
+            </span>
+          )}
+          {/* Progress dots */}
+          <div className="hidden sm:flex items-center gap-0.5">
+            {ADVICE_CATEGORIES.map((cat) => (
+              <span
+                key={cat.key}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${advice[cat.key]?.trim() ? meta.accent : 'bg-border'}`}
+              />
+            ))}
+          </div>
+          {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
+      </button>
+
+      {/* Expanded Content */}
+      {expanded && (
+        <div className="bg-card">
+          <div className="px-5 pt-4 pb-2 border-t border-border/40">
+            <p className="text-xs text-muted-foreground">
+              Wypełnij poniższe kategorie porad kosmetologicznych dla skóry {meta.label.toLowerCase()}.
+              Porady są widoczne dla klientek w panelu użytkownika w zakładce &ldquo;Twoja Skóra&rdquo;.
+            </p>
+          </div>
+          <div className="divide-y divide-border/30">
+            {ADVICE_CATEGORIES.map(cat => (
+              <div key={cat.key} className="px-5 py-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`${meta.color} opacity-80`}>{cat.icon}</span>
+                  <label className="text-xs font-semibold text-foreground">{cat.label}</label>
+                  <span className="ml-auto text-[10px] text-muted-foreground">{cat.hint}</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={advice[cat.key]}
+                  onChange={e => setField(cat.key, e.target.value)}
+                  placeholder={cat.placeholder}
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-foreground/20 resize-none transition-colors placeholder:text-muted-foreground/50"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between px-5 py-3 bg-muted/20 border-t border-border/40">
+            {updatedAt ? (
+              <span className="text-xs text-muted-foreground">
+                Ostatni zapis: {new Date(updatedAt).toLocaleString('pl-PL')}
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Brak zapisanych porad</span>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !dirty}
+              className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-40"
+            >
+              {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {isSaving ? 'Zapisywanie...' : 'Zapisz porady'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function SkinTypeAdviceTab() {
   const qc = useQueryClient();
-  const [contents, setContents] = useState<Record<string, string>>({});
 
-  const { data: adviceList = [] } = useQuery({
+  const { data: adviceList = [], isLoading } = useQuery({
     queryKey: ['admin', 'skin-type-advice'],
     queryFn: skinWeatherApi.getSkinTypeAdvice,
   });
-
-  useEffect(() => {
-    if (adviceList && adviceList.length > 0) {
-      const map: Record<string, string> = {};
-      adviceList.forEach((item: { skinType: string; content: string }) => {
-        map[item.skinType] = item.content;
-      });
-      setContents(map);
-    }
-  }, [adviceList]);
 
   const saveMutation = useMutation({
     mutationFn: ({ skinType, content }: { skinType: string; content: string }) =>
@@ -246,51 +436,51 @@ function SkinTypeAdviceTab() {
     onError: () => toast.error('Błąd zapisu'),
   });
 
-  const getUpdatedAt = (skinType: string): string | null => {
-    const item = adviceList?.find((i: { skinType: string; updatedAt?: string }) => i.skinType === skinType);
-    return item?.updatedAt ?? null;
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-muted-foreground py-8">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span className="text-sm">Ładowanie porad...</span>
+      </div>
+    );
+  }
+
+  const filledTotal = adviceList.filter((item: { content: string }) => {
+    try {
+      const p = JSON.parse(item.content);
+      return Object.values(p).some((v: unknown) => typeof v === 'string' && v.trim().length > 0);
+    } catch {
+      return item.content?.trim().length > 0;
+    }
+  }).length;
 
   return (
-    <div className="space-y-4">
-      {SKIN_TYPE_ADVICE_META.map(meta => {
-        const updatedAt = getUpdatedAt(meta.key);
-        return (
-          <div key={meta.key} className="p-5 rounded-xl border border-border/50 bg-card">
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-2xl leading-none">{meta.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-semibold">{meta.label}</span>
-                  {updatedAt && (
-                    <span className="text-xs text-muted-foreground">
-                      Zaktualizowano: {new Date(updatedAt).toLocaleDateString('pl-PL')}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{meta.desc}</p>
-              </div>
-            </div>
-            <textarea
-              rows={4}
-              value={contents[meta.key] ?? ''}
-              onChange={e => setContents(prev => ({ ...prev, [meta.key]: e.target.value }))}
-              placeholder={`Wpisz porady dla skóry ${meta.label.toLowerCase()}...`}
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 resize-none mb-3"
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={() => saveMutation.mutate({ skinType: meta.key, content: contents[meta.key] ?? '' })}
-                disabled={saveMutation.isPending}
-                className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-40"
-              >
-                {saveMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Zapisz
-              </button>
-            </div>
-          </div>
-        );
-      })}
+    <div className="space-y-3">
+      {/* Summary bar */}
+      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-muted/30 border border-border/40">
+        <div className="flex-1">
+          <p className="text-xs font-medium text-foreground">Porady kosmetologiczne dla typów skóry</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Rozwiń każdy typ skóry, aby edytować porady w 6 kategoriach. Porady są wyświetlane klientkom w panelu &ldquo;Twoja Skóra&rdquo;.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <span className="text-lg font-bold text-foreground">{filledTotal}</span>
+          <span className="text-xs text-muted-foreground">/{SKIN_TYPE_ADVICE_META.length}</span>
+          <p className="text-[10px] text-muted-foreground">uzupełnionych</p>
+        </div>
+      </div>
+
+      {/* Cards */}
+      {SKIN_TYPE_ADVICE_META.map(meta => (
+        <SkinTypeCard
+          key={meta.key}
+          meta={meta}
+          adviceList={adviceList as Array<{ skinType: string; content: string; updatedAt: string }>}
+          onSave={(skinType, content) => saveMutation.mutate({ skinType, content })}
+          isSaving={saveMutation.isPending}
+        />
+      ))}
     </div>
   );
 }

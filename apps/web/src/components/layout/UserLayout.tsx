@@ -179,7 +179,7 @@ const UserLayoutInner = () => {
         className="sticky top-0 z-50 flex items-center"
         style={{
           height: '64px',
-          background: '#FDFAF6',
+          background: '#F4F9F5',
           borderBottom: '1px solid rgba(0,0,0,0.07)',
         }}
       >
@@ -197,7 +197,7 @@ const UserLayoutInner = () => {
               <Link
                 to="/admin"
                 className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                style={{ color: '#B8913A', fontWeight: 600 }}
+                style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Admina
               </Link>
@@ -206,7 +206,7 @@ const UserLayoutInner = () => {
               <Link
                 to="/employee"
                 className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                style={{ color: '#B8913A', fontWeight: 600 }}
+                style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Pracownika
               </Link>
@@ -233,13 +233,13 @@ const UserLayoutInner = () => {
         <div
           className="text-center py-2.5 px-4 text-sm border-b"
           style={{
-            background: 'rgba(184,145,58,0.08)',
-            borderColor: 'rgba(184,145,58,0.2)',
-            color: 'rgba(26,18,8,0.7)',
+            background: 'rgba(196,150,90,0.08)',
+            borderColor: 'rgba(196,150,90,0.2)',
+            color: 'rgba(20,40,28,0.7)',
           }}
         >
           Masz kod rabatowy dla nowego użytkownika:{' '}
-          <strong className="font-mono tracking-wider" style={{ color: '#B8913A' }}>
+          <strong className="font-mono tracking-wider" style={{ color: '#C4965A' }}>
             {welcomeCoupon.code}
           </strong>
           {' — '}
@@ -263,8 +263,8 @@ const UserLayoutInner = () => {
                 className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-3 justify-between"
                 style={
                   isActive(to)
-                    ? { color: '#B8913A', background: 'rgba(184,145,58,0.08)', fontWeight: 600 }
-                    : { color: 'rgba(26,18,8,0.6)' }
+                    ? { color: '#C4965A', background: 'rgba(196,150,90,0.08)', fontWeight: 600 }
+                    : { color: 'rgba(20,40,28,0.6)' }
                 }
               >
                 <span className="flex items-center gap-3">
@@ -272,17 +272,17 @@ const UserLayoutInner = () => {
                   <span>{label}</span>
                 </span>
                 {to === '/user/dziennik' && journalUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#B8913A', color: '#fff' }}>
+                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
                     {journalUnread > 9 ? '9+' : journalUnread}
                   </span>
                 )}
                 {to === '/user/rutyna' && routineUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#B8913A', color: '#fff' }}>
+                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
                     {routineUnread > 9 ? '9+' : routineUnread}
                   </span>
                 )}
                 {to === '/user/powiadomienia' && notifUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#B8913A', color: '#fff' }}>
+                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
                     {notifUnread > 9 ? '9+' : notifUnread}
                   </span>
                 )}
@@ -295,12 +295,12 @@ const UserLayoutInner = () => {
               style={
                 isActive('/user/chat')
                   ? {
-                      color: '#B8913A',
-                      background: 'rgba(184,145,58,0.08)',
+                      color: '#C4965A',
+                      background: 'rgba(196,150,90,0.08)',
                       fontWeight: 600,
                     }
                   : {
-                      color: 'rgba(26,18,8,0.6)',
+                      color: 'rgba(20,40,28,0.6)',
                     }
               }
             >
@@ -311,7 +311,7 @@ const UserLayoutInner = () => {
               {unreadCount > 0 && (
                 <span
                   className="text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
-                  style={{ background: '#B8913A', color: '#fff' }}
+                  style={{ background: '#C4965A', color: '#fff' }}
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
@@ -323,7 +323,7 @@ const UserLayoutInner = () => {
             <Link
               to="/rezerwacja"
               className="block w-full text-center py-2.5 px-4 rounded-full text-sm font-semibold transition-all"
-              style={{ background: '#1A1208', color: '#fff' }}
+              style={{ background: '#1A3828', color: '#fff' }}
             >
               + Umów wizytę
             </Link>

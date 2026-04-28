@@ -77,13 +77,13 @@ export const UserAppointments = () => {
   return (
     <div className="space-y-8 animate-enter" data-tour="appointments-list">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A1208' }}>
+        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Moje Wizyty
         </h1>
         <Link
           to="/rezerwacja"
           className="inline-flex items-center gap-1.5 py-2.5 px-5 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
-          style={{ background: '#1A1208', color: '#fff' }}
+          style={{ background: '#1A3828', color: '#fff' }}
         >
           <Plus size={16} /> Umów wizytę
         </Link>
@@ -109,7 +109,7 @@ export const UserAppointments = () => {
               <path d="M16 8v8M32 8v8" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
               <path d="M17 30h4M27 30h4M17 36h4" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
-            <h3 className="font-heading font-bold text-xl mb-2" style={{ color: '#1A1208' }}>
+            <h3 className="font-heading font-bold text-xl mb-2" style={{ color: '#1A3828' }}>
               Twoja historia zaczyna się teraz
             </h3>
             <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
@@ -119,7 +119,7 @@ export const UserAppointments = () => {
           <Link
             to="/rezerwacja"
             className="inline-flex items-center gap-2 py-3 px-8 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
-            style={{ background: '#1A1208', color: '#fff' }}
+            style={{ background: '#1A3828', color: '#fff' }}
           >
             <Plus size={16} /> Umów pierwszą wizytę
           </Link>
@@ -128,7 +128,7 @@ export const UserAppointments = () => {
 
       {upcoming.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold" style={{ color: '#1A1208' }}>Nadchodzące wizyty</h2>
+          <h2 className="text-lg font-semibold" style={{ color: '#1A3828' }}>Nadchodzące wizyty</h2>
           <div className="grid gap-4">
             {upcoming.map((a: any) => (
               <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
@@ -169,7 +169,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
             <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#C4965A' }}>
               {canReschedule ? 'Nadchodząca wizyta' : 'Przeszła wizyta'}
             </p>
-            <h3 className="text-[15px] font-heading font-bold" style={{ color: '#1A1208' }}>
+            <h3 className="text-[15px] font-heading font-bold" style={{ color: '#1A3828' }}>
               {a.service?.name}
             </h3>
             {a.service?.price && (() => {
@@ -210,7 +210,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
             {a.employee && (
               <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 Pracownik:{' '}
-                <span className="font-medium" style={{ color: '#1A1208' }}>{a.employee.name}</span>
+                <span className="font-medium" style={{ color: '#1A3828' }}>{a.employee.name}</span>
               </p>
             )}
           </div>
@@ -224,7 +224,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
             {canReschedule && (
               <button
                 className="text-sm px-4 py-2.5 rounded-xl border transition-colors hover:opacity-80"
-                style={{ borderColor: 'rgba(0,0,0,0.15)', color: '#1A1208' }}
+                style={{ borderColor: 'rgba(0,0,0,0.15)', color: '#1A3828' }}
                 onClick={() => setRescheduleOpen(true)}
                 disabled={a.rescheduleStatus === 'PENDING'}
               >
@@ -261,7 +261,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
                 <Link
                   to="/rezerwacja"
                   className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-80"
-                  style={{ background: '#1A1208', color: '#fff' }}
+                  style={{ background: '#1A3828', color: '#fff' }}
                 >
                   Rezerwuj znowu
                 </Link>
@@ -302,7 +302,7 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
             {a.staffNote && (
               <p className="border-t pt-3" style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.55)' }}>
                 Notatka po wizycie:{' '}
-                <span style={{ color: '#1A1208' }}>{a.staffNote}</span>
+                <span style={{ color: '#1A3828' }}>{a.staffNote}</span>
               </p>
             )}
             {a.photoPath && (
@@ -419,7 +419,7 @@ function RescheduleCalendar({
                 className="relative flex flex-col items-center justify-center w-9 h-9 rounded-full text-sm transition-colors"
                 style={
                   isSelected
-                    ? { background: '#1A1208', color: '#fff' }
+                    ? { background: '#1A3828', color: '#fff' }
                     : isDisabled
                     ? { color: 'rgba(20,40,28,0.25)', cursor: 'not-allowed' }
                     : { cursor: 'pointer' }
@@ -498,14 +498,14 @@ function RescheduleModal({
       <div
         className="w-full max-w-md p-6 space-y-5"
         style={{
-          background: '#FDFAF6',
+          background: '#F4F9F5',
           borderRadius: 24,
           boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-heading font-bold text-lg" style={{ color: '#1A1208' }}>
+          <h2 className="font-heading font-bold text-lg" style={{ color: '#1A3828' }}>
             Zmień termin wizyty
           </h2>
           <button
@@ -519,7 +519,7 @@ function RescheduleModal({
 
         <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
           Aktualny termin:{' '}
-          <strong style={{ color: '#1A1208' }}>
+          <strong style={{ color: '#1A3828' }}>
             {format(new Date(appointment.date), "d MMMM yyyy 'o' HH:mm", { locale: pl })}
           </strong>
         </p>
@@ -562,8 +562,8 @@ function RescheduleModal({
                     !s.available
                       ? { background: 'rgba(239,68,68,0.06)', color: '#DC2626', borderColor: 'rgba(239,68,68,0.2)', cursor: 'not-allowed', opacity: 0.7 }
                       : selectedTime === s.time
-                      ? { background: '#1A1208', color: '#fff', borderColor: '#1A1208' }
-                      : { borderColor: 'rgba(0,0,0,0.15)', color: '#1A1208' }
+                      ? { background: '#1A3828', color: '#fff', borderColor: '#1A3828' }
+                      : { borderColor: 'rgba(0,0,0,0.15)', color: '#1A3828' }
                   }
                 >
                   {s.time}
@@ -581,7 +581,7 @@ function RescheduleModal({
             size="sm"
             disabled={!selectedDate || !selectedTime || isPending}
             onClick={() => mutate()}
-            style={{ background: '#1A1208', color: '#fff', borderRadius: 20 }}
+            style={{ background: '#1A3828', color: '#fff', borderRadius: 20 }}
           >
             {isPending ? 'Wysyłam...' : 'Potwierdź zmianę'}
           </Button>

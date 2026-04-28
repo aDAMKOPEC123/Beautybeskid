@@ -29,7 +29,7 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
       style={{ animationDelay: `${delay}ms` }}
     >
       <div
-        className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] shadow-[0_8px_32px_rgba(28,21,16,0.12)] hover:shadow-[0_16px_48px_rgba(28,21,16,0.18)]"
+        className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] shadow-[0_8px_32px_rgba(26,56,40,0.12)] hover:shadow-[0_16px_48px_rgba(26,56,40,0.18)]"
         style={{
           borderRadius: '4px',
         }}
@@ -48,7 +48,7 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
           {/* Dark gradient + glassmorphism label */}
           <div
             className="absolute inset-0"
-            style={{ background: 'linear-gradient(to bottom, transparent 35%, rgba(28,21,16,0.72) 100%)' }}
+            style={{ background: 'linear-gradient(to bottom, transparent 35%, rgba(26,56,40,0.72) 100%)' }}
           />
           <div
             className="absolute bottom-0 left-0 right-0 p-4 glass"
@@ -58,7 +58,7 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
             }}
           >
             {service.category && (
-              <p className="eyebrow mb-1" style={{ color: '#C4A882' }}>
+              <p className="eyebrow mb-1" style={{ color: '#3D7A54' }}>
                 {service.category} · {service.durationMinutes} min
               </p>
             )}
@@ -74,7 +74,7 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
         {/* Bottom bar */}
         <div
           className="flex items-center justify-between px-5 py-4 bg-ivory"
-          style={{ borderTop: '1px solid rgba(28,21,16,0.06)' }}
+          style={{ borderTop: '1px solid rgba(26,56,40,0.06)' }}
         >
           <div>
             <span className="font-display text-[20px] text-espresso" style={{ fontWeight: 300 }}>

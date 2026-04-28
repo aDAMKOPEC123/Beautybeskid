@@ -55,15 +55,15 @@ export const BlogCommentsSection = ({ slug }: Props) => {
   });
 
   return (
-    <section className="py-14" style={{ backgroundColor: '#F5F0EB' }}>
+    <section className="py-14" style={{ backgroundColor: '#F0F7F1' }}>
       <style>{`
         @keyframes slideInFade {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes borderFade {
-          0%   { border-left-color: #B8913A; }
-          70%  { border-left-color: #B8913A; }
+          0%   { border-left-color: #C4965A; }
+          70%  { border-left-color: #C4965A; }
           100% { border-left-color: transparent; }
         }
         .comment-new {
@@ -75,7 +75,7 @@ export const BlogCommentsSection = ({ slug }: Props) => {
       <div className="container max-w-3xl mx-auto">
         <h2
           className="text-2xl font-heading font-bold mb-8 flex items-center gap-2"
-          style={{ color: '#1A1208' }}
+          style={{ color: '#1A3828' }}
         >
           <MessageSquare size={22} />
           Komentarze

@@ -25,7 +25,7 @@ export const FloatingBookingCTA = () => {
           exit={{ y: '100%' }}
           transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
           className="fixed bottom-0 left-0 right-0 z-40 glass-dark border-t border-caramel/30"
-          style={{ borderTop: '1px solid rgba(196,168,130,0.3)' }}
+          style={{ borderTop: '1px solid rgba(196,150,90,0.3)' }}
         >
           <div className="container flex items-center justify-between py-3">
             <div>

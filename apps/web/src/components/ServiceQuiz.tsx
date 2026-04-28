@@ -96,10 +96,10 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#B8913A' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
             Quiz dopasowania zabiegu
           </p>
-          <button onClick={onClose} className="p-1 rounded-lg hover:opacity-60 transition-opacity" style={{ color: 'rgba(26,18,8,0.4)' }}>
+          <button onClick={onClose} className="p-1 rounded-lg hover:opacity-60 transition-opacity" style={{ color: 'rgba(20,40,28,0.4)' }}>
             <X size={18} />
           </button>
         </div>
@@ -108,18 +108,18 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
         <div className="w-full h-1.5 rounded-full" style={{ background: '#F0ECE4' }}>
           <div
             className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${progressPct}%`, background: '#B8913A' }}
+            style={{ width: `${progressPct}%`, background: '#C4965A' }}
           />
         </div>
 
         {loading && (
-          <p className="text-sm text-center py-4" style={{ color: 'rgba(26,18,8,0.4)' }}>Ładowanie...</p>
+          <p className="text-sm text-center py-4" style={{ color: 'rgba(20,40,28,0.4)' }}>Ładowanie...</p>
         )}
 
         {/* Body part selection */}
         {!loading && bodyPart === null && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold" style={{ color: '#1A1208' }}>Jakiej części ciała dotyczy zabieg?</h2>
+            <h2 className="text-lg font-semibold" style={{ color: '#1A3828' }}>Jakiej części ciała dotyczy zabieg?</h2>
             <div className="grid grid-cols-2 gap-3">
               {BODY_PARTS.map(({ key, label, emoji, available }) => (
                 <div key={key} className="relative">
@@ -127,15 +127,15 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                     onClick={() => available ? setBodyPart(key) : undefined}
                     disabled={!available}
                     className="w-full rounded-xl border p-4 flex flex-col items-center gap-2 text-sm font-medium transition-all"
-                    style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A1208', opacity: available ? 1 : 0.5, cursor: available ? 'pointer' : 'not-allowed' }}
-                    onMouseEnter={(e) => { if (!available) return; (e.currentTarget as HTMLButtonElement).style.borderColor = '#B8913A'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(184,145,58,0.06)'; }}
+                    style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A3828', opacity: available ? 1 : 0.5, cursor: available ? 'pointer' : 'not-allowed' }}
+                    onMouseEnter={(e) => { if (!available) return; (e.currentTarget as HTMLButtonElement).style.borderColor = '#C4965A'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(196,150,90,0.06)'; }}
                     onMouseLeave={(e) => { if (!available) return; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,0,0,0.1)'; (e.currentTarget as HTMLButtonElement).style.background = ''; }}
                   >
                     <span className="text-2xl">{emoji}</span>
                     {label}
                   </button>
                   {!available && (
-                    <span className="absolute top-2 right-2 text-xs font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(184,145,58,0.15)', color: '#B8913A' }}>
+                    <span className="absolute top-2 right-2 text-xs font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(196,150,90,0.15)', color: '#C4965A' }}>
                       Wkrótce
                     </span>
                   )}
@@ -148,13 +148,13 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
         {/* Quiz selection (multiple quizzes for body part) */}
         {!loading && bodyPart !== null && !selectedQuizId && quizList.length > 1 && (
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold" style={{ color: '#1A1208' }}>Wybierz quiz</h2>
+            <h2 className="text-lg font-semibold" style={{ color: '#1A3828' }}>Wybierz quiz</h2>
             {quizList.map((q) => (
               <button
                 key={q.id}
                 onClick={() => setSelectedQuizId(q.id)}
                 className="w-full text-left px-4 py-3 rounded-xl border text-sm font-medium"
-                style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A1208' }}
+                style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A3828' }}
               >
                 {q.title}
               </button>
@@ -166,8 +166,8 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
         {!loading && currentNode?.type === 'QUESTION' && (
           <div className="space-y-4">
             <div>
-              <p className="text-xs" style={{ color: 'rgba(26,18,8,0.4)' }}>Pytanie {depth + 1}</p>
-              <h2 className="text-lg font-semibold mt-1 leading-snug" style={{ color: '#1A1208' }}>
+              <p className="text-xs" style={{ color: 'rgba(20,40,28,0.4)' }}>Pytanie {depth + 1}</p>
+              <h2 className="text-lg font-semibold mt-1 leading-snug" style={{ color: '#1A3828' }}>
                 {(currentNode.data as any).question}
               </h2>
             </div>
@@ -177,11 +177,11 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                   key={key}
                   onClick={() => handleAnswer(key)}
                   className="w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all"
-                  style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A1208' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(184,145,58,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#B8913A'; }}
+                  style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#1A3828' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(196,150,90,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#C4965A'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = ''; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,0,0,0.1)'; }}
                 >
-                  <span className="font-bold mr-2" style={{ color: '#B8913A' }}>{key}.</span>{label}
+                  <span className="font-bold mr-2" style={{ color: '#C4965A' }}>{key}.</span>{label}
                 </button>
               ))}
             </div>
@@ -195,13 +195,13 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
             <div className="space-y-4">
               <div className="text-center space-y-1">
                 <div className="text-3xl">✨</div>
-                <h2 className="text-xl font-bold" style={{ color: '#1A1208' }}>{result.title}</h2>
-                <p className="text-sm font-medium" style={{ color: '#B8913A' }}>{result.subtitle}</p>
+                <h2 className="text-xl font-bold" style={{ color: '#1A3828' }}>{result.title}</h2>
+                <p className="text-sm font-medium" style={{ color: '#C4965A' }}>{result.subtitle}</p>
               </div>
-              <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(184,145,58,0.06)', border: '1px solid rgba(184,145,58,0.2)' }}>
-                <p className="text-sm" style={{ color: 'rgba(26,18,8,0.8)' }}>{result.description}</p>
+              <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(196,150,90,0.06)', border: '1px solid rgba(196,150,90,0.2)' }}>
+                <p className="text-sm" style={{ color: 'rgba(20,40,28,0.8)' }}>{result.description}</p>
                 {result.extras && (
-                  <p className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>
+                  <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
                     <span className="font-semibold">Polecamy dodatkowo: </span>{result.extras}
                   </p>
                 )}
@@ -210,14 +210,14 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                 <button
                   onClick={() => onAccept(result)}
                   className="w-full py-3 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
-                  style={{ background: '#1A1208', color: '#FDFAF6' }}
+                  style={{ background: '#1A3828', color: '#F4F9F5' }}
                 >
                   Zarezerwuj ten zabieg
                 </button>
                 <button
                   onClick={onClose}
                   className="w-full py-3 rounded-xl text-sm font-medium border transition-opacity hover:opacity-70"
-                  style={{ borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(26,18,8,0.7)' }}
+                  style={{ borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }}
                 >
                   Wróć do listy usług
                 </button>

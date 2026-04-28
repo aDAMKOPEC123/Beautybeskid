@@ -99,13 +99,15 @@ export const UserDashboard = () => {
       {/* Header */}
       <div>
         <DecoLine width={40} className="mb-3" />
-        <h1 className="text-2xl font-heading font-bold" style={{ color: '#1A1208' }}>
+        <h1 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Cześć, {user?.name?.split(' ')[0]}!
         </h1>
-        <p className="text-[13px] mt-0.5" style={{ color: 'rgba(26,18,8,0.5)' }}>
+        <p className="text-[13px] mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>
           {new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
       </div>
+
+      <DashboardNewsBanner />
 
       {/* Status tiles 2x2 */}
       <div className="grid grid-cols-2 gap-3">
@@ -114,11 +116,11 @@ export const UserDashboard = () => {
           className="rounded-2xl p-4 flex flex-col gap-1.5"
           style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <Calendar size={20} style={{ color: '#B8913A' }} />
-          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A1208' }}>
+          <Calendar size={20} style={{ color: '#C4965A' }} />
+          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A3828' }}>
             {upcoming.length}
           </span>
-          <span className="text-[12px]" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <span className="text-[12px]" style={{ color: 'rgba(20,40,28,0.5)' }}>
             {upcoming.length === 1 ? 'nadchodząca wizyta' : 'nadchodzące wizyty'}
           </span>
         </Link>
@@ -128,11 +130,11 @@ export const UserDashboard = () => {
           className="rounded-2xl p-4 flex flex-col gap-1.5"
           style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <Trophy size={20} style={{ color: '#B8913A' }} />
-          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A1208' }}>
+          <Trophy size={20} style={{ color: '#C4965A' }} />
+          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A3828' }}>
             {user?.loyaltyPoints ?? 0}
           </span>
-          <span className="text-[12px]" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <span className="text-[12px]" style={{ color: 'rgba(20,40,28,0.5)' }}>
             pkt · {user?.loyaltyTier ?? 'BRONZE'}
           </span>
           {(() => {
@@ -167,11 +169,11 @@ export const UserDashboard = () => {
           className="rounded-2xl p-4 flex flex-col gap-1.5 relative"
           style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <MessageCircle size={20} style={{ color: '#B8913A' }} />
-          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A1208' }}>
+          <MessageCircle size={20} style={{ color: '#C4965A' }} />
+          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A3828' }}>
             {chatUnread}
           </span>
-          <span className="text-[12px]" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <span className="text-[12px]" style={{ color: 'rgba(20,40,28,0.5)' }}>
             {chatUnread === 0 ? 'brak nowych' : chatUnread === 1 ? 'nowa wiadomość' : 'nowe wiadomości'}
           </span>
         </Link>
@@ -181,11 +183,11 @@ export const UserDashboard = () => {
           className="rounded-2xl p-4 flex flex-col gap-1.5"
           style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <Bell size={20} style={{ color: '#B8913A' }} />
-          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A1208' }}>
+          <Bell size={20} style={{ color: '#C4965A' }} />
+          <span className="text-[22px] font-bold leading-none" style={{ color: '#1A3828' }}>
             {notifUnread}
           </span>
-          <span className="text-[12px]" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <span className="text-[12px]" style={{ color: 'rgba(20,40,28,0.5)' }}>
             {notifUnread === 0 ? 'brak nowych' : 'nowe powiadomienia'}
           </span>
         </Link>
@@ -201,7 +203,7 @@ export const UserDashboard = () => {
       <Link
         to="/rezerwacja"
         className="block w-full text-center py-3 rounded-full text-[15px] font-semibold transition-opacity hover:opacity-80"
-        style={{ background: '#1A1208', color: '#fff' }}
+        style={{ background: '#1A3828', color: '#fff' }}
       >
         + Umów wizytę
       </Link>
@@ -210,19 +212,19 @@ export const UserDashboard = () => {
       {recentCompleted && !dismissedCompleted && (
         <div
           className="rounded-2xl p-4 relative"
-          style={{ background: 'rgba(184,145,58,0.06)', border: '1px solid rgba(184,145,58,0.2)' }}
+          style={{ background: 'rgba(196,150,90,0.06)', border: '1px solid rgba(196,150,90,0.2)' }}
         >
           <button
             onClick={() => setDismissedCompleted(true)}
             className="absolute top-3 right-3 p-0.5 rounded-full hover:opacity-60 transition-opacity"
-            style={{ color: 'rgba(26,18,8,0.4)' }}
+            style={{ color: 'rgba(20,40,28,0.4)' }}
           >
             <X size={15} />
           </button>
-          <p className="text-[13px] font-semibold mb-1" style={{ color: '#1A1208' }}>
+          <p className="text-[13px] font-semibold mb-1" style={{ color: '#1A3828' }}>
             ✓ Wizyta zakończona
           </p>
-          <p className="text-[12px] mb-3" style={{ color: 'rgba(26,18,8,0.6)' }}>
+          <p className="text-[12px] mb-3" style={{ color: 'rgba(20,40,28,0.6)' }}>
             {recentCompleted.service?.name} — jak minęło?
           </p>
           <div className="flex gap-2 items-stretch">
@@ -230,7 +232,7 @@ export const UserDashboard = () => {
               <Link
                 to="/user/chat"
                 className="flex-1 flex items-center justify-center text-center py-2.5 rounded-full text-[12px] font-semibold border"
-                style={{ borderColor: '#B8913A', color: '#B8913A' }}
+                style={{ borderColor: '#C4965A', color: '#C4965A' }}
               >
                 💬 Napisz na czacie
               </Link>
@@ -238,7 +240,7 @@ export const UserDashboard = () => {
               <Link
                 to="/user/wizyty"
                 className="flex-1 flex items-center justify-center text-center py-2.5 rounded-full text-[13px] font-semibold border"
-                style={{ borderColor: '#B8913A', color: '#B8913A' }}
+                style={{ borderColor: '#C4965A', color: '#C4965A' }}
               >
                 ★ Oceń wizytę
               </Link>
@@ -246,7 +248,7 @@ export const UserDashboard = () => {
             <Link
               to="/rezerwacja"
               className="flex-1 flex items-center justify-center text-center py-2.5 rounded-full text-[13px] font-semibold"
-              style={{ background: '#1A1208', color: '#fff' }}
+              style={{ background: '#1A3828', color: '#fff' }}
             >
               Rezerwuj znowu
             </Link>
@@ -257,7 +259,7 @@ export const UserDashboard = () => {
       {nearTier && (
         <div
           className="rounded-2xl p-4"
-          style={{ background: 'rgba(184,145,58,0.08)', border: '1px solid rgba(184,145,58,0.25)' }}
+          style={{ background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.25)' }}
         >
           <p className="text-[13px] font-semibold" style={{ color: '#92400E' }}>
             🎯 Blisko {nextTierInfo.name}! Zostały Ci {nextTierInfo.visitsLeft}{' '}
@@ -268,44 +270,35 @@ export const UserDashboard = () => {
 
       {showReEngagement && (
         <div
-          className="rounded-2xl p-4 flex items-center justify-between gap-3"
+          className="rounded-2xl p-4"
           style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <p className="text-[13px]" style={{ color: 'rgba(26,18,8,0.7)' }}>
+          <p className="text-[13px]" style={{ color: 'rgba(20,40,28,0.7)' }}>
             Minęło trochę czasu — zadbaj o siebie 💆‍♀️
           </p>
-          <Link
-            to="/rezerwacja"
-            className="shrink-0 py-2 px-4 rounded-full text-[12px] font-semibold"
-            style={{ background: '#1A1208', color: '#fff' }}
-          >
-            Umów
-          </Link>
         </div>
       )}
-
-      <DashboardNewsBanner />
 
       {/* Welcome coupon */}
       {welcomeCoupon && (
         <div
           className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
           style={{
-            border: '1px solid rgba(184,145,58,0.25)',
-            background: 'rgba(184,145,58,0.05)',
+            border: '1px solid rgba(196,150,90,0.25)',
+            background: 'rgba(196,150,90,0.05)',
           }}
         >
           <div className="flex-1">
-            <p className="font-semibold mb-1" style={{ color: '#1A1208' }}>
+            <p className="font-semibold mb-1" style={{ color: '#1A3828' }}>
               Masz powitalny kod rabatowy
             </p>
             <p
               className="font-mono text-2xl font-bold tracking-widest mb-1"
-              style={{ color: '#B8913A' }}
+              style={{ color: '#C4965A' }}
             >
               {welcomeCoupon.code}
             </p>
-            <p className="text-sm" style={{ color: 'rgba(26,18,8,0.6)' }}>
+            <p className="text-sm" style={{ color: 'rgba(20,40,28,0.6)' }}>
               Zniżka:{' '}
               <strong>
                 {welcomeCoupon.discountType === 'PERCENTAGE'
@@ -318,7 +311,7 @@ export const UserDashboard = () => {
           <Link
             to="/rezerwacja"
             className="py-2.5 px-5 rounded-full text-sm font-semibold shrink-0 transition-opacity hover:opacity-80"
-            style={{ background: '#1A1208', color: '#fff' }}
+            style={{ background: '#1A3828', color: '#fff' }}
           >
             Umów wizytę
           </Link>
@@ -339,22 +332,22 @@ export const UserDashboard = () => {
         >
           <div
             className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(184,145,58,0.1)' }}
+            style={{ background: 'rgba(196,150,90,0.1)' }}
           >
-            <BellRing size={22} style={{ color: '#B8913A' }} />
+            <BellRing size={22} style={{ color: '#C4965A' }} />
           </div>
           <div className="flex-1">
-            <p className="font-semibold" style={{ color: '#1A1208' }}>
+            <p className="font-semibold" style={{ color: '#1A3828' }}>
               Włącz przypomnienia push o kolejnych etapach
             </p>
-            <p className="text-sm mt-1" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-sm mt-1" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Otrzymasz sygnał 3 dni przed terminem, w dniu terminu i co 7 dni po terminie.
             </p>
           </div>
           <button
             onClick={() => void subscribe()}
             className="px-4 py-2 rounded-full text-sm font-semibold shrink-0"
-            style={{ background: '#1A1208', color: '#fff' }}
+            style={{ background: '#1A3828', color: '#fff' }}
           >
             Włącz push
           </button>
@@ -370,29 +363,29 @@ export const UserDashboard = () => {
           onClick={() => setAmbassadorOpen((v) => !v)}
           className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-gray-50"
         >
-          <span className="font-heading font-bold text-base" style={{ color: '#1A1208' }}>
+          <span className="font-heading font-bold text-base" style={{ color: '#1A3828' }}>
             Twój kod ambasadorski
           </span>
           {ambassadorOpen ? (
-            <ChevronUp size={18} style={{ color: 'rgba(26,18,8,0.4)' }} />
+            <ChevronUp size={18} style={{ color: 'rgba(20,40,28,0.4)' }} />
           ) : (
-            <ChevronDown size={18} style={{ color: 'rgba(26,18,8,0.4)' }} />
+            <ChevronDown size={18} style={{ color: 'rgba(20,40,28,0.4)' }} />
           )}
         </button>
         {ambassadorOpen && (
           <div className="px-5 pb-5 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
             <p
               className="font-mono text-2xl font-bold tracking-widest mt-4 mb-2"
-              style={{ color: '#B8913A' }}
+              style={{ color: '#C4965A' }}
             >
               {user?.ambassadorCode ?? '-'}
             </p>
-            <p className="text-sm mb-2" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-sm mb-2" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Udostępnij go znajomym — przy rejestracji otrzymają kod rabatowy.
             </p>
-            <p className="text-sm" style={{ color: 'rgba(26,18,8,0.7)' }}>
+            <p className="text-sm" style={{ color: 'rgba(20,40,28,0.7)' }}>
               Rejestracje z Twojego kodu:{' '}
-              <span className="font-bold" style={{ color: '#1A1208' }}>
+              <span className="font-bold" style={{ color: '#1A3828' }}>
                 {user?.referralCount ?? 0}
               </span>
             </p>
@@ -408,14 +401,14 @@ export const UserDashboard = () => {
             className="w-full flex items-center justify-between p-4 rounded-2xl transition-colors"
             style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
           >
-            <span className="font-heading font-bold text-base flex items-center gap-2" style={{ color: '#1A1208' }}>
-              <Star size={16} style={{ color: '#B8913A' }} />
+            <span className="font-heading font-bold text-base flex items-center gap-2" style={{ color: '#1A3828' }}>
+              <Star size={16} style={{ color: '#C4965A' }} />
               Pokaż osiągnięcia
             </span>
             {badgesOpen ? (
-              <ChevronUp size={18} style={{ color: 'rgba(26,18,8,0.4)' }} />
+              <ChevronUp size={18} style={{ color: 'rgba(20,40,28,0.4)' }} />
             ) : (
-              <ChevronDown size={18} style={{ color: 'rgba(26,18,8,0.4)' }} />
+              <ChevronDown size={18} style={{ color: 'rgba(20,40,28,0.4)' }} />
             )}
           </button>
           {badgesOpen && (

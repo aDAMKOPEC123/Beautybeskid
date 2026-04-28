@@ -5,7 +5,7 @@ import { isAxiosError } from 'axios';
 import {
   Cloud, Sun, MapPin, Bell, BellOff,
   ChevronDown, ChevronUp, Loader2, RefreshCw,
-  Settings, Pencil, X,
+  Settings, Pencil, X, Sparkles, Droplets, FlaskConical, Ban, Scissors,
 } from 'lucide-react';
 import { skinWeatherApi } from '@/api/skin-weather.api';
 import { useSkinWeatherLocation } from '@/hooks/useSkinWeatherLocation';
@@ -33,6 +33,84 @@ const SKIN_CONCERNS = [
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ─── Skin Advice Section ──────────────────────────────────────────────────────
+
+interface SkinAdviceData {
+  charakterystyka?: string;
+  pielegnacja?: string;
+  skladniki?: string;
+  unikaj?: string;
+  zabiegi?: string;
+  sezonowe?: string;
+}
+
+const ADVICE_DISPLAY_CATEGORIES: { key: keyof SkinAdviceData; label: string; icon: React.ReactNode }[] = [
+  { key: 'charakterystyka', label: 'Charakterystyka skóry', icon: <Sparkles className="h-3.5 w-3.5" /> },
+  { key: 'pielegnacja',     label: 'Podstawowa pielęgnacja', icon: <Droplets className="h-3.5 w-3.5" /> },
+  { key: 'skladniki',       label: 'Polecane składniki aktywne', icon: <FlaskConical className="h-3.5 w-3.5" /> },
+  { key: 'unikaj',          label: 'Czego unikać', icon: <Ban className="h-3.5 w-3.5" /> },
+  { key: 'zabiegi',         label: 'Polecane zabiegi salonowe', icon: <Scissors className="h-3.5 w-3.5" /> },
+  { key: 'sezonowe',        label: 'Porady sezonowe', icon: <Sun className="h-3.5 w-3.5" /> },
+];
+
+function parseSkinAdvice(raw?: string): SkinAdviceData | null {
+  if (!raw?.trim()) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null && 'charakterystyka' in parsed) return parsed;
+    return { charakterystyka: raw };
+  } catch {
+    return { charakterystyka: raw };
+  }
+}
+
+function SkinAdviceSection({ content }: { content?: string }) {
+  const [openKey, setOpenKey] = useState<keyof SkinAdviceData | null>(null);
+  const advice = parseSkinAdvice(content);
+  const filled = advice ? ADVICE_DISPLAY_CATEGORIES.filter(c => advice[c.key]?.trim()) : [];
+
+  if (!advice || filled.length === 0) {
+    return (
+      <div className="p-3 bg-muted/20 rounded-xl border border-border/40">
+        <p className="text-sm text-muted-foreground italic">
+          Administrator nie dodał jeszcze porad dla tego typu skóry.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-muted-foreground mb-2">Porady kosmetologiczne</p>
+      {ADVICE_DISPLAY_CATEGORIES.filter(c => advice[c.key]?.trim()).map(cat => {
+        const isOpen = openKey === cat.key;
+        return (
+          <div key={cat.key} className="rounded-xl border border-border/40 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setOpenKey(isOpen ? null : cat.key)}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors text-left"
+            >
+              <span className="text-muted-foreground">{cat.icon}</span>
+              <span className="text-xs font-medium text-foreground flex-1">{cat.label}</span>
+              {isOpen
+                ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
+            </button>
+            {isOpen && (
+              <div className="px-3.5 py-3 border-t border-border/30 bg-card">
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                  {advice[cat.key]}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // ─── Section Card ─────────────────────────────────────────────────────────────
@@ -459,15 +537,7 @@ export const SkinWeatherProfile = () => {
         )}
 
         {/* Admin advice */}
-        <div className="p-3 bg-muted/20 rounded-xl border border-border/40">
-          {advice?.content ? (
-            <p className="text-sm text-foreground leading-relaxed">{advice.content}</p>
-          ) : (
-            <p className="text-sm text-muted-foreground italic">
-              Administrator nie dodał jeszcze porad dla tego typu skóry.
-            </p>
-          )}
-        </div>
+        <SkinAdviceSection content={advice?.content} />
 
         {/* "Zmień" inline panel */}
         {changeMode === 'inline' && (

@@ -30,7 +30,7 @@ function getIconConfig(type: Notification['type']): React.ReactNode {
     case 'NEW_CONSULTATION':
       return <Star size={18} className="text-blue-500" />;
     case 'NEW_REVIEW':
-      return <Star size={18} style={{ color: '#B8913A' }} />;
+      return <Star size={18} style={{ color: '#C4965A' }} />;
     case 'CHAT_MESSAGE':
       return <MessageSquare size={18} className="text-purple-500" />;
     default:
@@ -250,13 +250,13 @@ export const AdminNotifications = () => {
                     key={notification.id}
                     onClick={() => handleClick(notification)}
                     className="flex gap-3 p-4 rounded-xl cursor-pointer transition-colors hover:bg-accent relative"
-                    style={isUnread ? { background: 'rgba(184,145,58,0.04)' } : undefined}
+                    style={isUnread ? { background: 'rgba(196,150,90,0.04)' } : undefined}
                   >
                     {/* Unread indicator bar */}
                     {isUnread && (
                       <div
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-r-full"
-                        style={{ background: '#B8913A' }}
+                        style={{ background: '#C4965A' }}
                       />
                     )}
 
@@ -282,7 +282,7 @@ export const AdminNotifications = () => {
                     <span
                       className="shrink-0 whitespace-nowrap self-start mt-1 text-xs font-bold rounded-full px-2.5 py-0.5"
                       style={{
-                        background: notification.readAt ? 'rgba(0,0,0,0.06)' : '#B8913A',
+                        background: notification.readAt ? 'rgba(0,0,0,0.06)' : '#C4965A',
                         color: notification.readAt ? '#888' : '#000',
                       }}
                     >

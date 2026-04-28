@@ -96,14 +96,14 @@ const LikeButton = ({
           isLoggedIn ? 'hover:scale-105 active:scale-95' : ''
         }`}
         style={{
-          color: isLiked ? '#B8913A' : 'rgba(26,18,8,0.6)',
-          backgroundColor: isLiked ? 'rgba(184,145,58,0.12)' : 'rgba(26,18,8,0.05)',
+          color: isLiked ? '#C4965A' : 'rgba(20,40,28,0.6)',
+          backgroundColor: isLiked ? 'rgba(196,150,90,0.12)' : 'rgba(20,40,28,0.05)',
         }}
       >
         <Heart
           size={24}
-          fill={isLiked ? '#B8913A' : 'none'}
-          stroke={isLiked ? '#B8913A' : 'currentColor'}
+          fill={isLiked ? '#C4965A' : 'none'}
+          stroke={isLiked ? '#C4965A' : 'currentColor'}
           style={{
             animation: animate ? 'heartPop 0.3s ease' : 'none',
             transition: 'fill 0.3s, stroke 0.3s',
@@ -121,13 +121,13 @@ const LikeButton = ({
       {showHint && (
         <div
           className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 text-sm font-medium rounded-xl whitespace-nowrap z-10 shadow-lg"
-          style={{ backgroundColor: '#1A1208', color: '#fff' }}
+          style={{ backgroundColor: '#1A3828', color: '#fff' }}
         >
           <div className="text-center">
             <div>Zaloguj się, aby polubić artykuł</div>
             <div className="text-xs mt-1 opacity-70">To tylko chwila — dołącz do nas!</div>
           </div>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1" style={{ border: '8px solid transparent', borderTopColor: '#1A1208' }} />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1" style={{ border: '8px solid transparent', borderTopColor: '#1A3828' }} />
         </div>
       )}
     </div>
@@ -223,22 +223,22 @@ export const BlogPost = () => {
         <Link
           to="/blog"
           className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
-          style={{ color: 'rgba(26,18,8,0.5)' }}
+          style={{ color: 'rgba(20,40,28,0.5)' }}
         >
           <ArrowLeft size={15} /> Powrót na blog
         </Link>
       </div>
 
       {/* Hero */}
-      <section className="py-14 text-center" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-14 text-center" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container max-w-3xl mx-auto">
-          <div className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: '#B8913A' }}>
+          <div className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: '#C4965A' }}>
             {format(new Date(post.createdAt), 'dd MMMM yyyy')}
           </div>
-          <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight mb-6" style={{ color: '#1A1208' }}>
+          <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight mb-6" style={{ color: '#1A3828' }}>
             {post.title}
           </h1>
-          <div className="flex justify-center items-center gap-4 mb-6 text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>
+          <div className="flex justify-center items-center gap-4 mb-6 text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
             {post.readingTime && (
               <span className="flex items-center gap-1">
                 <Clock size={14} /> {post.readingTime} min czytania
@@ -261,7 +261,7 @@ export const BlogPost = () => {
                 <span
                   key={tag.id}
                   className="text-xs font-semibold px-4 py-1.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(184,145,58,0.12)', color: '#B8913A' }}
+                  style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
                 >
                   #{tag.name}
                 </span>
@@ -285,7 +285,7 @@ export const BlogPost = () => {
       )}
 
       {/* Content */}
-      <section className="py-14" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl mx-auto">
           <article className="prose prose-lg max-w-none">
             <ContentRenderer content={post.content} />

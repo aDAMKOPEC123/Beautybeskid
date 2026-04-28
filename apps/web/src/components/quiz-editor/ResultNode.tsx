@@ -17,12 +17,12 @@ export default function ResultNode({ data, selected }: NodeProps) {
   return (
     <div
       className="bg-white rounded-xl shadow-sm min-w-[160px] max-w-[200px]"
-      style={{ border: `2px solid ${selected ? '#B8913A' : '#4caf50'}`, background: '#f1f8e9' }}
+      style={{ border: `2px solid ${selected ? '#C4965A' : '#4caf50'}`, background: '#f1f8e9' }}
     >
       <Handle type="target" position={Position.Left} style={{ background: '#4caf50' }} />
       <div className="px-3 py-2.5">
         <p className="text-[9px] font-bold uppercase tracking-wide mb-1" style={{ color: '#2e7d32' }}>🏁 Wynik</p>
-        <p className="text-[10px] font-semibold leading-snug" style={{ color: '#1A1208' }}>
+        <p className="text-[10px] font-semibold leading-snug" style={{ color: '#1A3828' }}>
           {d.title || <span style={{ color: '#aaa' }}>Brak tytułu</span>}
         </p>
         {d.result?.mainServiceName && (

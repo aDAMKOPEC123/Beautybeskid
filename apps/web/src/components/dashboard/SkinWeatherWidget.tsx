@@ -46,7 +46,7 @@ export const SkinWeatherWidget = () => {
   }
 
   const sections: any[] = (report?.reportData as any)?.sections ?? [];
-  const topSections = sections.slice(0, 2);
+  const topSections = sections;
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-5">
@@ -87,9 +87,6 @@ export const SkinWeatherWidget = () => {
               </div>
             </div>
           ))}
-          {sections.length > 2 && (
-            <p className="text-xs text-muted-foreground pl-1">+{sections.length - 2} więcej wskazówek</p>
-          )}
         </div>
       )}
     </div>

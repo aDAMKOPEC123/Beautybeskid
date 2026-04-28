@@ -54,7 +54,7 @@ function AdminCommentForm({ entryId, userId, onDone }: { entryId: string; userId
         <button
           onClick={() => content.trim() && add.mutate()}
           disabled={!content.trim() || add.isPending}
-          style={{ padding: '8px 12px', background: '#1A1208', color: '#fff', border: 'none', borderRadius: 8, cursor: content.trim() ? 'pointer' : 'not-allowed', opacity: content.trim() ? 1 : 0.5 }}
+          style={{ padding: '8px 12px', background: '#1A3828', color: '#fff', border: 'none', borderRadius: 8, cursor: content.trim() ? 'pointer' : 'not-allowed', opacity: content.trim() ? 1 : 0.5 }}
         >
           <Send size={14} />
         </button>
@@ -87,10 +87,10 @@ function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: st
 
   if (entry.isAdminEntry) {
     return (
-      <div style={{ background: '#fff', border: '2px solid rgba(26,18,8,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 10 }}>
+      <div style={{ background: '#fff', border: '2px solid rgba(20,40,28,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#1A1208', color: '#fff' }}>👩‍⚕️ Moja notatka</span>
-          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#6B6560' }}>{formatDate(entry.date)}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#1A3828', color: '#fff' }}>👩‍⚕️ Moja notatka</span>
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#5A7A62' }}>{formatDate(entry.date)}</span>
         </div>
         {entry.notes && <p style={{ color: '#4B4036', margin: '0 0 10px', fontSize: 13, lineHeight: 1.6 }}>{entry.notes}</p>}
         {entry.tags.length > 0 && (
@@ -129,7 +129,7 @@ function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: st
             </div>
           )}
         </div>
-        <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 6px', borderRadius: 20, background: 'rgba(0,0,0,0.06)', color: '#6B6560' }}>wpis klientki</span>
+        <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 6px', borderRadius: 20, background: 'rgba(0,0,0,0.06)', color: '#5A7A62' }}>wpis klientki</span>
       </div>
 
       {entry.photoPath && (
@@ -143,7 +143,7 @@ function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: st
           {entry.tags.map((tag) => {
             const cat = JOURNAL_CATEGORIES.find((c) => c.slug === tag);
             return (
-              <span key={tag} style={{ fontSize: 12, fontWeight: 700, color: '#B8913A' }}>
+              <span key={tag} style={{ fontSize: 12, fontWeight: 700, color: '#C4965A' }}>
                 {cat ? cat.label : `#${tag}`}
               </span>
             );
@@ -156,20 +156,20 @@ function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: st
         <div style={{ marginBottom: 8 }}>
           <button
             onClick={() => setShowComments((v) => !v)}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#6B6560', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#5A7A62', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             💬 {entry.comments.length} {entry.comments.length === 1 ? 'komentarz' : 'komentarzy'}
             {showComments ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>
           {showComments && (
-            <div style={{ marginTop: 6, background: 'rgba(26,18,8,0.03)', borderRadius: 10, padding: '8px 12px' }}>
+            <div style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10, padding: '8px 12px' }}>
               {entry.comments.map((c) => (
                 <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '50%', background: '#1A1208', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>
+                  <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>
                     {c.author.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1208' }}>{c.author.name}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1A3828' }}>{c.author.name}</span>
                     <p style={{ fontSize: 12, color: '#4B4036', margin: '2px 0 1px' }}>{c.content}</p>
                     <span style={{ fontSize: 10, color: '#B0A89E' }}>{formatTime(c.createdAt)}</span>
                   </div>
@@ -183,7 +183,7 @@ function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: st
       <div style={{ display: 'flex', gap: 6 }}>
         <button
           onClick={() => setShowComment((v) => !v)}
-          style={{ flex: 1, background: 'rgba(184,145,58,0.1)', border: '1px solid rgba(184,145,58,0.3)', borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 600, color: '#B8913A', cursor: 'pointer' }}
+          style={{ flex: 1, background: 'rgba(196,150,90,0.1)', border: '1px solid rgba(196,150,90,0.3)', borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 600, color: '#C4965A', cursor: 'pointer' }}
         >
           💬 Komentuj
         </button>
@@ -218,19 +218,19 @@ function AddNoteForm({ userId, onClose }: { userId: string; onClose: () => void 
   });
 
   return (
-    <div style={{ background: '#fff', border: '2px solid rgba(26,18,8,0.15)', borderRadius: 14, padding: 16, marginBottom: 12 }}>
+    <div style={{ background: '#fff', border: '2px solid rgba(20,40,28,0.15)', borderRadius: 14, padding: 16, marginBottom: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontWeight: 700, color: '#1A1208', fontSize: 13 }}>👩‍⚕️ Nowa notatka kosmetologa</span>
+        <span style={{ fontWeight: 700, color: '#1A3828', fontSize: 13 }}>👩‍⚕️ Nowa notatka kosmetologa</span>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0A89E' }}><X size={16} /></button>
       </div>
 
-      <label style={{ fontSize: 11, color: '#6B6560', display: 'block', marginBottom: 4 }}>Data wizyty</label>
+      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 4 }}>Data wizyty</label>
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #e5e0d8', borderRadius: 8, marginBottom: 10, fontSize: 13, boxSizing: 'border-box' }} />
 
-      <label style={{ fontSize: 11, color: '#6B6560', display: 'block', marginBottom: 4 }}>Notatka</label>
+      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 4 }}>Notatka</label>
       <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Wykonane zabiegi, zalecenia, obserwacje..." style={{ width: '100%', padding: '8px 10px', border: '1px solid #e5e0d8', borderRadius: 8, marginBottom: 10, fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
 
-      <label style={{ fontSize: 11, color: '#6B6560', display: 'block', marginBottom: 6 }}>Kategoria</label>
+      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 6 }}>Kategoria</label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
         {JOURNAL_CATEGORIES.map((cat) => {
           const active = selectedCategories.includes(cat.slug);
@@ -245,9 +245,9 @@ function AddNoteForm({ userId, onClose }: { userId: string; onClose: () => void 
               }
               style={{
                 padding: '6px 12px',
-                border: active ? '2px solid #1A1208' : '2px solid #e5e0d8',
+                border: active ? '2px solid #1A3828' : '2px solid #e5e0d8',
                 borderRadius: 20,
-                background: active ? '#1A1208' : '#faf9f7',
+                background: active ? '#1A3828' : '#faf9f7',
                 color: active ? '#fff' : '#888',
                 fontSize: 12,
                 fontWeight: 700,
@@ -262,7 +262,7 @@ function AddNoteForm({ userId, onClose }: { userId: string; onClose: () => void 
 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <button onClick={onClose} style={{ padding: '8px 16px', border: '1px solid #e5e0d8', borderRadius: 8, background: '#fff', color: '#666', cursor: 'pointer', fontSize: 13 }}>Anuluj</button>
-        <button onClick={() => create.mutate()} disabled={create.isPending} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: '#1A1208', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, opacity: create.isPending ? 0.7 : 1 }}>
+        <button onClick={() => create.mutate()} disabled={create.isPending} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: '#1A3828', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, opacity: create.isPending ? 0.7 : 1 }}>
           {create.isPending ? 'Zapisuję...' : 'Dodaj notatkę'}
         </button>
       </div>
@@ -305,12 +305,12 @@ export const UserJournal = ({ userId, userName }: UserJournalProps) => {
     <div>
       {/* User info header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: 12, background: '#fff', borderRadius: 12, border: '1px solid #e5e0d8' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1A1208', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
           {userName.charAt(0).toUpperCase()}
         </div>
         <div>
-          <div style={{ fontWeight: 600, color: '#1A1208', fontSize: 13 }}>{userName}</div>
-          <div style={{ fontSize: 11, color: '#6B6560' }}>
+          <div style={{ fontWeight: 600, color: '#1A3828', fontSize: 13 }}>{userName}</div>
+          <div style={{ fontSize: 11, color: '#5A7A62' }}>
             {total} {total === 1 ? 'wpis' : total < 5 ? 'wpisy' : 'wpisów'} w dzienniku
           </div>
         </div>
@@ -318,13 +318,13 @@ export const UserJournal = ({ userId, userName }: UserJournalProps) => {
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
             <button
               onClick={() => setShowSummary(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fdf6ec', color: '#B8913A', border: '1px solid #e8d5a0', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fdf6ec', color: '#C4965A', border: '1px solid #e8d5a0', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
             >
               Podsumowanie
             </button>
             <button
               onClick={() => setShowAddNote(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#1A1208', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#1A3828', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
             >
               <Plus size={12} /> Dodaj notatkę
             </button>
@@ -337,7 +337,7 @@ export const UserJournal = ({ userId, userName }: UserJournalProps) => {
       {entries.length === 0 && !showAddNote && (
         <div style={{ textAlign: 'center', padding: '30px 20px', background: '#fff', border: '1px solid #e5e0d8', borderRadius: 14 }}>
           <p style={{ fontSize: 24, marginBottom: 8 }}>📓</p>
-          <p style={{ fontSize: 13, color: '#6B6560', margin: 0 }}>Brak wpisów w dzienniku</p>
+          <p style={{ fontSize: 13, color: '#5A7A62', margin: 0 }}>Brak wpisów w dzienniku</p>
         </div>
       )}
 

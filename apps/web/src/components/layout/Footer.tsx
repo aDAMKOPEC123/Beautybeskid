@@ -35,12 +35,12 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
           src={employee.avatarPath}
           alt={employee.name}
           className="h-16 w-16 rounded-full object-cover"
-          style={{ border: '2px solid #B8913A' }}
+          style={{ border: '2px solid #C4965A' }}
         />
       ) : (
         <div
           className="flex h-16 w-16 items-center justify-center rounded-full text-xl font-semibold"
-          style={{ backgroundColor: 'rgba(184,145,58,0.2)', color: '#B8913A' }}
+          style={{ backgroundColor: 'rgba(196,150,90,0.2)', color: '#C4965A' }}
         >
           {initial}
         </div>
@@ -65,7 +65,7 @@ export const Footer = () => {
   const activeEmployees = employees?.filter((e) => e.isActive) ?? [];
 
   return (
-    <footer style={{ backgroundColor: '#1A1208' }}>
+    <footer style={{ backgroundColor: '#1A3828' }}>
       {/* Main grid */}
       <div className="container py-14">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
@@ -74,7 +74,7 @@ export const Footer = () => {
             <Link
               to="/"
               className="font-heading font-bold text-2xl"
-              style={{ color: '#FDFAF6', letterSpacing: '-0.02em' }}
+              style={{ color: '#F4F9F5', letterSpacing: '-0.02em' }}
             >
               Cosmo
             </Link>
@@ -94,7 +94,7 @@ export const Footer = () => {
                   aria-label={label}
                   className="transition-colors"
                   style={{ color: 'rgba(255,255,255,0.4)' }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#B8913A')}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
                 >
                   <Icon className="h-5 w-5" />
@@ -107,7 +107,7 @@ export const Footer = () => {
                 aria-label="TikTok"
                 className="transition-colors"
                 style={{ color: 'rgba(255,255,255,0.4)' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#B8913A')}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
               >
                 <TikTokIcon />
@@ -117,11 +117,11 @@ export const Footer = () => {
 
           {/* Column 2 — Address & contact */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#B8913A' }}>
+            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Kontakt
             </h3>
             <div className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#B8913A' }} />
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               <span>
                 {SEO.address.street}<br />
                 {SEO.address.postalCode} {SEO.address.city}
@@ -131,27 +131,27 @@ export const Footer = () => {
               href={`tel:${SEO.phone}`}
               className="flex items-center gap-2 text-sm transition-colors"
               style={{ color: 'rgba(255,255,255,0.55)' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#B8913A')}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
             >
-              <Phone className="h-4 w-4 shrink-0" style={{ color: '#B8913A' }} />
+              <Phone className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               {SEO.phone}
             </a>
             <a
               href={`mailto:${SEO.email}`}
               className="flex items-center gap-2 text-sm transition-colors"
               style={{ color: 'rgba(255,255,255,0.55)' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#B8913A')}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
             >
-              <Mail className="h-4 w-4 shrink-0" style={{ color: '#B8913A' }} />
+              <Mail className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               {SEO.email}
             </a>
           </div>
 
           {/* Column 3 — Opening hours */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#B8913A' }}>
+            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Godziny pracy
             </h3>
             <dl className="space-y-1.5">
@@ -175,7 +175,7 @@ export const Footer = () => {
         {/* Team section */}
         {activeEmployees.length > 0 && (
           <div className="mt-12" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '2.5rem' }}>
-            <h3 className="mb-8 text-xs font-semibold uppercase tracking-widest" style={{ color: '#B8913A' }}>
+            <h3 className="mb-8 text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Nasz Zespół
             </h3>
             <div className="flex flex-wrap gap-10">
@@ -214,7 +214,7 @@ export const Footer = () => {
             to="/privacy"
             className="transition-colors"
             style={{ color: 'rgba(255,255,255,0.35)' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#B8913A')}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)')}
           >
             Polityka prywatności

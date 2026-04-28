@@ -111,7 +111,7 @@ export const UserProfile = () => {
           </span>
         </div>
         {subtitle && (
-          <p className="text-xs mt-1" style={{ color: 'rgba(26,18,8,0.5)' }}>{subtitle}</p>
+          <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>{subtitle}</p>
         )}
       </div>
       {children}
@@ -120,7 +120,7 @@ export const UserProfile = () => {
 
   return (
     <div className="space-y-8 animate-enter" data-tour="profile-form">
-      <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A1208' }}>Twój Profil</h1>
+      <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>Twój Profil</h1>
 
       {/* Avatar */}
       <div className="flex flex-col items-center gap-3">
@@ -132,12 +132,12 @@ export const UserProfile = () => {
             <img
               src={user.avatarPath}
               alt={user.name}
-              className="w-24 h-24 rounded-full object-cover ring-2 ring-caramel/40 shadow-[0_0_20px_rgba(196,168,130,0.2)]"
+              className="w-24 h-24 rounded-full object-cover ring-2 ring-caramel/40 shadow-[0_0_20px_rgba(196,150,90,0.2)]"
             />
           ) : (
             <div
-              className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold ring-2 ring-caramel/40 shadow-[0_0_20px_rgba(196,168,130,0.2)]"
-              style={{ background: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+              className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold ring-2 ring-caramel/40 shadow-[0_0_20px_rgba(196,150,90,0.2)]"
+              style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
             >
               {user?.name?.charAt(0).toUpperCase()}
             </div>
@@ -156,7 +156,7 @@ export const UserProfile = () => {
           )}
         </div>
 
-        <p className="text-xs" style={{ color: 'rgba(26,18,8,0.5)' }}>Kliknij, aby zmienić zdjęcie profilowe</p>
+        <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>Kliknij, aby zmienić zdjęcie profilowe</p>
         {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
 
         <input
@@ -185,15 +185,15 @@ export const UserProfile = () => {
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0.02)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = ''; }}
             >
-              <span className="font-medium flex items-center" style={{ color: 'rgba(26,18,8,0.5)' }}>{label}</span>
-              <span className="col-span-2 font-semibold text-lg" style={{ color: '#1A1208' }}>{value}</span>
+              <span className="font-medium flex items-center" style={{ color: 'rgba(20,40,28,0.5)' }}>{label}</span>
+              <span className="col-span-2 font-semibold text-lg" style={{ color: '#1A3828' }}>{value}</span>
             </div>
           ))}
         </div>
       )}
 
       <div className="max-w-xl">
-        <p className="text-xs italic text-center" style={{ color: 'rgba(26,18,8,0.45)' }}>
+        <p className="text-xs italic text-center" style={{ color: 'rgba(20,40,28,0.45)' }}>
           Aby zmienić swoje dane skontaktuj się z obsługą gabinetu.
         </p>
       </div>
@@ -209,15 +209,15 @@ export const UserProfile = () => {
             { label: 'Upodobania', value: cardPreferences, setter: setCardPreferences, placeholder: 'Np. preferuję zabiegi bez perfum...' },
           ].map(({ label, value, setter, placeholder }) => (
             <div key={label} className="space-y-1.5">
-              <label className="text-sm font-medium" style={{ color: '#1A1208' }}>{label}</label>
+              <label className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
               <textarea
                 className="w-full rounded-xl px-3 py-3 text-sm resize-none outline-none transition-colors"
-                style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#FDFAF6', minHeight: '48px' }}
+                style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5', minHeight: '48px' }}
                 rows={2}
                 placeholder={placeholder}
                 value={value}
                 onChange={e => setter(e.target.value)}
-                onFocus={e => { e.currentTarget.style.borderColor = '#B8913A'; }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#C4965A'; }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
               />
             </div>
@@ -227,7 +227,7 @@ export const UserProfile = () => {
               onClick={() => saveCard()}
               disabled={savingCard}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
-              style={{ background: '#1A1208', color: '#fff' }}
+              style={{ background: '#1A3828', color: '#fff' }}
             >
               {savingCard && <Loader2 className="w-4 h-4 animate-spin" />}
               Zapisz kartotekę
@@ -261,11 +261,11 @@ export const UserProfile = () => {
                 checked={checked}
                 onChange={e => setter(e.target.checked)}
                 className="mt-1 w-4 h-4"
-                style={{ accentColor: '#B8913A' }}
+                style={{ accentColor: '#C4965A' }}
               />
               <div>
-                <p className="text-sm font-medium" style={{ color: '#1A1208' }}>{title}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(26,18,8,0.5)' }}>{desc}</p>
+                <p className="text-sm font-medium" style={{ color: '#1A3828' }}>{title}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>{desc}</p>
               </div>
             </label>
           ))}
@@ -274,7 +274,7 @@ export const UserProfile = () => {
               onClick={() => saveConsents({ marketingConsent, photoConsent })}
               disabled={savingConsents}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
-              style={{ background: '#1A1208', color: '#fff' }}
+              style={{ background: '#1A3828', color: '#fff' }}
             >
               {savingConsents && <Loader2 className="w-4 h-4 animate-spin" />}
               Zapisz zgody
@@ -291,7 +291,7 @@ export const UserProfile = () => {
           <div className="max-h-96 overflow-y-auto pr-1">
             <pre
               className="whitespace-pre-wrap text-xs leading-relaxed font-sans"
-              style={{ color: 'rgba(26,18,8,0.55)' }}
+              style={{ color: 'rgba(20,40,28,0.55)' }}
             >
               {terms.content}
             </pre>

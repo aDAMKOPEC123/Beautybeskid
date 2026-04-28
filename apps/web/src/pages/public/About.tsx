@@ -79,22 +79,22 @@ export const About = () => {
       />
 
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div
             className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
-            style={{ backgroundColor: 'rgba(184,145,58,0.12)', color: '#B8913A' }}
+            style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Poznaj nas
           </div>
           <h1
             className="text-4xl font-heading font-display tracking-tight sm:text-5xl"
-            style={{ color: '#1A1208', fontStyle: 'italic', fontWeight: 300 }}
+            style={{ color: '#1A3828', fontStyle: 'italic', fontWeight: 300 }}
           >
             O nas
           </h1>
           {about?.salonTagline && (
-            <p className="mt-4 text-lg max-w-2xl mx-auto" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="mt-4 text-lg max-w-2xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
               {about.salonTagline}
             </p>
           )}
@@ -102,7 +102,7 @@ export const About = () => {
       </section>
 
       {/* Salon info */}
-      <section className="py-16" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
             {/* Cover image */}
@@ -121,7 +121,7 @@ export const About = () => {
               ) : (
                 <div
                   className="flex h-72 lg:h-96 w-full flex-col items-center justify-center gap-3"
-                  style={{ backgroundColor: '#F5F0EB', color: 'rgba(26,18,8,0.35)' }}
+                  style={{ backgroundColor: '#F0F7F1', color: 'rgba(20,40,28,0.35)' }}
                 >
                   <Camera className="h-12 w-12 opacity-30" />
                   <span className="text-sm">Zdjęcie salonu</span>
@@ -130,7 +130,7 @@ export const About = () => {
             </div>
             {/* Description */}
             <div>
-              <h2 className="text-2xl font-heading font-bold mb-5" style={{ color: '#1A1208' }}>
+              <h2 className="text-2xl font-heading font-bold mb-5" style={{ color: '#1A3828' }}>
                 {SEO.siteName}
               </h2>
               {about?.salonDescription ? (
@@ -139,7 +139,7 @@ export const About = () => {
                   className="prose prose-sm max-w-none text-muted-foreground [&_.ProseMirror]:outline-none"
                 />
               ) : (
-                <p style={{ color: 'rgba(26,18,8,0.55)' }}>Opis salonu zostanie wkrótce uzupełniony.</p>
+                <p style={{ color: 'rgba(20,40,28,0.55)' }}>Opis salonu zostanie wkrótce uzupełniony.</p>
               )}
             </div>
           </div>
@@ -147,31 +147,31 @@ export const About = () => {
       </section>
 
       {/* Owner */}
-      <section className="py-16" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
             {/* Bio */}
             <div className="order-2 lg:order-1">
               <span
                 className="text-xs font-semibold uppercase tracking-widest mb-3 block"
-                style={{ color: '#B8913A' }}
+                style={{ color: '#C4965A' }}
               >
                 Właścicielka
               </span>
-              <h2 className="text-2xl font-heading font-bold mb-1" style={{ color: '#1A1208' }}>
+              <h2 className="text-2xl font-heading font-bold mb-1" style={{ color: '#1A3828' }}>
                 {about?.ownerName ?? 'Wiktoria Ćwik'}
               </h2>
-              <p className="text-sm mb-5" style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <p className="text-sm mb-5" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 {about?.ownerTitle ?? 'Właścicielka & Kosmetolożka'}
               </p>
-              <div className="w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: '#B8913A' }} />
+              <div className="w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: '#C4965A' }} />
               {about?.ownerBio ? (
                 <RichTextViewer
                   content={about.ownerBio}
                   className="prose prose-sm max-w-none text-muted-foreground [&_.ProseMirror]:outline-none"
                 />
               ) : (
-                <p style={{ color: 'rgba(26,18,8,0.55)' }}>Bio zostanie wkrótce uzupełnione.</p>
+                <p style={{ color: 'rgba(20,40,28,0.55)' }}>Bio zostanie wkrótce uzupełnione.</p>
               )}
             </div>
             {/* Photo */}
@@ -180,11 +180,11 @@ export const About = () => {
                 <div className="relative">
                   <div
                     className="absolute -inset-3 rounded-full opacity-30 blur-md"
-                    style={{ backgroundColor: '#B8913A' }}
+                    style={{ backgroundColor: '#C4965A' }}
                   />
                   <div
                     className="relative h-64 w-64 rounded-full shadow-xl"
-                    style={{ border: '4px solid #fff', outline: '2px solid #B8913A' }}
+                    style={{ border: '4px solid #fff', outline: '2px solid #C4965A' }}
                   >
                     <ClipRevealImage
                       src={about.ownerPhoto}
@@ -198,14 +198,14 @@ export const About = () => {
               ) : (
                 <div
                   className="flex h-64 w-64 items-center justify-center rounded-full shadow-xl"
-                  style={{ backgroundColor: '#F5F0EB', border: '4px solid #fff' }}
+                  style={{ backgroundColor: '#F0F7F1', border: '4px solid #fff' }}
                 >
-                  <User className="h-16 w-16 opacity-30" style={{ color: '#B8913A' }} />
+                  <User className="h-16 w-16 opacity-30" style={{ color: '#C4965A' }} />
                 </div>
               )}
               <div className="text-center">
-                <p className="font-semibold" style={{ color: '#1A1208' }}>{about?.ownerName ?? 'Wiktoria Ćwik'}</p>
-                <p className="text-sm" style={{ color: 'rgba(26,18,8,0.5)' }}>{about?.ownerTitle ?? 'Właścicielka & Kosmetolożka'}</p>
+                <p className="font-semibold" style={{ color: '#1A3828' }}>{about?.ownerName ?? 'Wiktoria Ćwik'}</p>
+                <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>{about?.ownerTitle ?? 'Właścicielka & Kosmetolożka'}</p>
               </div>
             </div>
           </div>
@@ -214,12 +214,12 @@ export const About = () => {
 
       {/* Employees */}
       {activeEmployees.length > 0 && (
-        <section className="py-16" style={{ backgroundColor: '#FDFAF6' }}>
+        <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
           <div className="container">
-            <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A1208' }}>
+            <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
               Nasz Zespół
             </h2>
-            <p className="text-center text-sm mb-12" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-center text-sm mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Poznaj specjalistów, którzy zadbają o Twój wygląd i samopoczucie.
             </p>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -237,7 +237,7 @@ export const About = () => {
                   {emp.avatarPath && !empImgErrors.has(emp.id) ? (
                     <div
                       className="h-24 w-24 rounded-full"
-                      style={{ border: '3px solid rgba(184,145,58,0.3)' }}
+                      style={{ border: '3px solid rgba(196,150,90,0.3)' }}
                     >
                       <ClipRevealImage
                         src={emp.avatarPath}
@@ -250,20 +250,20 @@ export const About = () => {
                   ) : (
                     <div
                       className="flex h-24 w-24 items-center justify-center rounded-full text-3xl font-bold"
-                      style={{ backgroundColor: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                      style={{ backgroundColor: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                     >
                       {emp.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold" style={{ color: '#1A1208' }}>{emp.name}</p>
+                    <p className="font-semibold" style={{ color: '#1A3828' }}>{emp.name}</p>
                     {emp.specialties?.length > 0 && (
                       <div className="flex flex-wrap justify-center gap-1 mt-2">
                         {emp.specialties.slice(0, 3).map((s: string) => (
                           <span
                             key={s}
                             className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                            style={{ backgroundColor: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                            style={{ backgroundColor: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                           >
                             {s}
                           </span>
@@ -271,7 +271,7 @@ export const About = () => {
                       </div>
                     )}
                     {emp.bio && (
-                      <p className="mt-3 text-sm line-clamp-3" style={{ color: 'rgba(26,18,8,0.55)' }}>{emp.bio}</p>
+                      <p className="mt-3 text-sm line-clamp-3" style={{ color: 'rgba(20,40,28,0.55)' }}>{emp.bio}</p>
                     )}
                   </div>
                 </div>
@@ -283,12 +283,12 @@ export const About = () => {
 
       {/* Features / App */}
       {about && ((about.features?.length ?? 0) > 0 || about.appDescription) && (
-        <section className="py-16" style={{ backgroundColor: '#F5F0EB' }}>
+        <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container">
-            <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A1208' }}>
+            <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
               {about.featuresTitle || 'Dlaczego warto wybrać Cosmo?'}
             </h2>
-            <p className="text-center text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(26,18,8,0.55)' }}>
+            <p className="text-center text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Nowoczesna aplikacja to więcej niż rezerwacje — to pełne doświadczenie klienta.
             </p>
 
@@ -309,12 +309,12 @@ export const About = () => {
                     >
                       <div
                         className="flex h-11 w-11 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: 'rgba(184,145,58,0.1)' }}
+                        style={{ backgroundColor: 'rgba(196,150,90,0.1)' }}
                       >
-                        <Icon className="h-5 w-5" style={{ color: '#B8913A' }} />
+                        <Icon className="h-5 w-5" style={{ color: '#C4965A' }} />
                       </div>
-                      <p className="font-semibold" style={{ color: '#1A1208' }}>{f.title}</p>
-                      <p className="text-sm" style={{ color: 'rgba(26,18,8,0.55)' }}>{f.description}</p>
+                      <p className="font-semibold" style={{ color: '#1A3828' }}>{f.title}</p>
+                      <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>{f.description}</p>
                     </div>
                   );
                 })}

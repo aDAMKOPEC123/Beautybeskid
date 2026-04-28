@@ -49,7 +49,7 @@ export const UserLoyalty = () => {
     <div className="space-y-12 animate-enter">
       {/* Header + PointsBar */}
       <div>
-        <h1 className="text-3xl font-heading font-bold mb-6 flex items-center gap-3" style={{ color: '#1A1208' }}>
+        <h1 className="text-3xl font-heading font-bold mb-6 flex items-center gap-3" style={{ color: '#1A3828' }}>
           Mój Portfel Lojalnościowy <LoyaltyBadge tier={user?.loyaltyTier as any} />
         </h1>
 
@@ -119,7 +119,7 @@ export const UserLoyalty = () => {
       <div>
         <h2
           className="text-2xl font-heading font-bold mb-6 pb-4"
-          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A1208' }}
+          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A3828' }}
         >
           Moje aktywne kupony
         </h2>
@@ -137,7 +137,7 @@ export const UserLoyalty = () => {
               <Gift size={24} style={{ color: '#C4965A' }} />
             </div>
             <div>
-              <p className="font-semibold text-sm mb-1" style={{ color: '#1A1208' }}>
+              <p className="font-semibold text-sm mb-1" style={{ color: '#1A3828' }}>
                 Odbierz nagrodę za lojalność
               </p>
               <p className="text-xs" style={{ color: 'rgba(20,40,28,0.55)' }}>
@@ -157,7 +157,7 @@ export const UserLoyalty = () => {
                 }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold" style={{ color: '#1A1208' }}>{coupon.reward.name}</p>
+                  <p className="font-semibold" style={{ color: '#1A3828' }}>{coupon.reward.name}</p>
                   <span
                     className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                     style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
@@ -201,7 +201,7 @@ export const UserLoyalty = () => {
       <div>
         <h2
           className="text-2xl font-heading font-bold mb-2 pb-4"
-          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A1208' }}
+          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A3828' }}
         >
           Katalog nagród
         </h2>
@@ -238,7 +238,7 @@ export const UserLoyalty = () => {
       <div>
         <h2
           className="text-2xl font-heading font-bold mb-6 pb-4"
-          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A1208' }}
+          style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', color: '#1A3828' }}
         >
           Historia Punktów
         </h2>
@@ -261,7 +261,7 @@ export const UserLoyalty = () => {
                   style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}
                 >
                   <div>
-                    <p className="font-semibold text-[15px]" style={{ color: '#1A1208' }}>{t.description}</p>
+                    <p className="font-semibold text-[15px]" style={{ color: '#1A3828' }}>{t.description}</p>
                     <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.45)' }}>
                       {new Date(t.createdAt).toLocaleString('pl-PL')}
                     </p>

@@ -23,25 +23,25 @@ export const MetamorphosesGallery = () => {
       />
 
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container max-w-3xl mx-auto">
           <div
             className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
-            style={{ backgroundColor: 'rgba(184,145,58,0.12)', color: '#B8913A' }}
+            style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Galeria metamorfoz
           </div>
-          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl mb-5" style={{ color: '#1A1208' }}>
+          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl mb-5" style={{ color: '#1A3828' }}>
             Metamorfozy i Efekty
           </h1>
-          <p className="text-lg leading-relaxed" style={{ color: 'rgba(26,18,8,0.55)' }}>
+          <p className="text-lg leading-relaxed" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Zobacz prawdziwe efekty naszych zabiegów na osobach, które nam zaufały. Przed i po zabiegach w naszym gabinecie.
           </p>
         </div>
       </section>
 
       {/* Gallery */}
-      <section className="py-16" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container">
           {metamorphoses?.length === 0 ? (
             <div
@@ -49,7 +49,7 @@ export const MetamorphosesGallery = () => {
               style={{
                 borderRadius: '24px',
                 border: '2px dashed rgba(0,0,0,0.1)',
-                color: 'rgba(26,18,8,0.4)',
+                color: 'rgba(20,40,28,0.4)',
               }}
             >
               Brak dostępnych zdjęć do wyświetlenia w galerii.

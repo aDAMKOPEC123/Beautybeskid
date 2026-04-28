@@ -48,7 +48,7 @@ export const PointsBar = ({
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="rgba(184,145,58,0.12)"
+              stroke="rgba(196,150,90,0.12)"
               strokeWidth={strokeWidth}
             />
             {/* Progress arc */}
@@ -58,7 +58,7 @@ export const PointsBar = ({
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="#B8913A"
+              stroke="#C4965A"
               strokeWidth={strokeWidth}
               strokeLinecap="round"
               strokeDasharray={circumference}
@@ -76,29 +76,29 @@ export const PointsBar = ({
               justifyContent: 'center',
             }}
           >
-            <span style={{ fontSize: '1.75rem', fontWeight: 700, color: '#B8913A', lineHeight: 1 }}>
+            <span style={{ fontSize: '1.75rem', fontWeight: 700, color: '#C4965A', lineHeight: 1 }}>
               {completedVisits}
             </span>
-            <span style={{ fontSize: '0.65rem', color: 'rgba(26,18,8,0.5)', marginTop: 2 }}>wizyt</span>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(20,40,28,0.5)', marginTop: 2 }}>wizyt</span>
           </div>
         </div>
 
         {/* Right side info */}
         <div className="flex-1">
-          <p className="font-heading font-bold text-xl" style={{ color: '#1A1208' }}>
+          <p className="font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
             {currentTierName}
           </p>
           {!isMaxTier ? (
             <>
-              <p className="text-sm mt-1" style={{ color: 'rgba(26,18,8,0.6)' }}>
-                Poziom: <strong style={{ color: '#1A1208' }}>{currentTierName}</strong>
+              <p className="text-sm mt-1" style={{ color: 'rgba(20,40,28,0.6)' }}>
+                Poziom: <strong style={{ color: '#1A3828' }}>{currentTierName}</strong>
               </p>
-              <p className="text-sm mt-0.5" style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <p className="text-sm mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 {Math.round(percentage)}% do {nextTierName}
               </p>
             </>
           ) : (
-            <p className="text-sm mt-1" style={{ color: '#B8913A' }}>Najwyższy poziom!</p>
+            <p className="text-sm mt-1" style={{ color: '#C4965A' }}>Najwyższy poziom!</p>
           )}
         </div>
       </div>
@@ -107,14 +107,14 @@ export const PointsBar = ({
       {!isMaxTier ? (
         <div
           className="rounded-xl px-4 py-3 text-sm font-semibold"
-          style={{ background: 'rgba(184,145,58,0.1)', color: '#92400E' }}
+          style={{ background: 'rgba(196,150,90,0.1)', color: '#92400E' }}
         >
           ✦ Zostało Ci <strong>{visitsLeft} {visitsLeft === 1 ? 'wizyta' : visitsLeft < 5 ? 'wizyty' : 'wizyt'}</strong> do poziomu <strong>{nextTierName}</strong>!
         </div>
       ) : (
         <div
           className="rounded-xl px-4 py-3 text-sm font-semibold"
-          style={{ background: 'rgba(184,145,58,0.1)', color: '#92400E' }}
+          style={{ background: 'rgba(196,150,90,0.1)', color: '#92400E' }}
         >
           🏆 Osiągnąłeś/aś najwyższy poziom lojalnościowy!
         </div>

@@ -4,7 +4,7 @@
   border: 1px solid rgba(184, 145, 58, 0.2) !important;
   border-radius: 16px !important;
   padding: 20px 24px !important;
-  box-shadow: 0 8px 32px rgba(26, 18, 8, 0.12) !important;
+  box-shadow: 0 8px 32px rgba(20, 40, 28, 0.12) !important;
   font-family: inherit !important;
   max-width: 320px !important;
 }
@@ -13,13 +13,13 @@
   font-family: inherit !important;
   font-size: 16px !important;
   font-weight: 700 !important;
-  color: #1A1208 !important;
+  color: #1A3828 !important;
   margin-bottom: 8px !important;
 }
 
 .cosmo-tour-popover .driver-popover-description {
   font-size: 14px !important;
-  color: rgba(26, 18, 8, 0.7) !important;
+  color: rgba(20, 40, 28, 0.7) !important;
   line-height: 1.6 !important;
 }
 
@@ -31,7 +31,7 @@
 }
 
 .cosmo-tour-popover .driver-popover-next-btn {
-  background: #1A1208 !important;
+  background: #1A3828 !important;
   color: #FAF7F4 !important;
   border: none !important;
   border-radius: 999px !important;
@@ -50,7 +50,7 @@
 .cosmo-tour-popover .driver-popover-prev-btn {
   background: transparent !important;
   border: none !important;
-  color: rgba(26, 18, 8, 0.5) !important;
+  color: rgba(20, 40, 28, 0.5) !important;
   font-size: 13px !important;
   cursor: pointer !important;
   padding: 8px 12px !important;
@@ -58,14 +58,14 @@
 
 .cosmo-tour-popover .driver-popover-progress-text {
   font-size: 12px !important;
-  color: rgba(26, 18, 8, 0.4) !important;
+  color: rgba(20, 40, 28, 0.4) !important;
   margin-left: auto !important;
 }
 
 /* COSMO brand label above title */
 .cosmo-tour-popover .driver-popover-title::before {
   content: 'COSMO · ';
-  color: #B8913A;
+  color: #C4965A;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;

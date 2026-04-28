@@ -174,7 +174,7 @@ export const UserNotifications = () => {
           <Bell size={24} style={{ color: '#C4965A' }} />
           <h1
             className="font-heading text-2xl font-semibold"
-            style={{ color: '#1A1208' }}
+            style={{ color: '#1A3828' }}
           >
             Powiadomienia
           </h1>
@@ -262,7 +262,7 @@ export const UserNotifications = () => {
                         <div className="flex-1 min-w-0">
                           <p
                             className={`text-[14px] leading-snug ${isUnread ? 'font-semibold' : 'font-normal'}`}
-                            style={{ color: '#1A1208' }}
+                            style={{ color: '#1A3828' }}
                           >
                             {notification.title}
                           </p>

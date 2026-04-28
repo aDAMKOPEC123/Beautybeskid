@@ -11,7 +11,7 @@ const SlideButtonLink = ({ btn }: { btn: SlideButton }) => {
   const isInternal = btn.href.startsWith('/');
   const baseStyle: React.CSSProperties =
     btn.variant === 'default'
-      ? { background: '#B8913A', color: '#fff' }
+      ? { background: '#C4965A', color: '#fff' }
       : { border: '1px solid rgba(255,255,255,0.4)', color: 'rgba(255,255,255,0.9)' };
   const className =
     'px-4 py-2 rounded-full text-[9px] font-bold tracking-[0.08em] uppercase transition-opacity hover:opacity-80';
@@ -54,7 +54,7 @@ const SlideLayer = ({ slide, active }: { slide: HeroSlide; active: boolean }) =>
       <div className="absolute inset-0 flex flex-col justify-end p-[14px_16px]">
         <p
           className="text-[8px] font-bold uppercase mb-1"
-          style={{ color: '#B8913A', letterSpacing: '0.22em', fontFamily: 'sans-serif' }}
+          style={{ color: '#C4965A', letterSpacing: '0.22em', fontFamily: 'sans-serif' }}
         >
           ✦ Nowości &amp; Aktualności
         </p>
@@ -193,7 +193,7 @@ export const DashboardNewsBanner = () => {
                 style={{
                   width: '6px',
                   height: '6px',
-                  background: i === current ? '#B8913A' : 'rgba(255,255,255,0.28)',
+                  background: i === current ? '#C4965A' : 'rgba(255,255,255,0.28)',
                   border: 'none',
                   padding: 0,
                   cursor: 'pointer',

@@ -102,7 +102,7 @@ export const MobileBottomNav = () => {
                   key="menu"
                   onClick={() => setMenuOpen(true)}
                   className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium min-h-[44px]"
-                  style={{ color: menuOpen ? '#B8913A' : '#6B6560' }}
+                  style={{ color: menuOpen ? '#C4965A' : '#5A7A62' }}
                 >
                   <span className={cn('block h-0.5 rounded-full mx-auto mb-0.5 transition-all duration-200', menuOpen ? 'w-4 bg-caramel' : 'w-0 bg-transparent')} />
                   <Icon size={20} />
@@ -112,7 +112,7 @@ export const MobileBottomNav = () => {
             }
             const { to } = tab;
             const active = isActive(to);
-            const color = active ? '#B8913A' : '#6B6560';
+            const color = active ? '#C4965A' : '#5A7A62';
             return (
               <Link
                 key={to}
@@ -126,7 +126,7 @@ export const MobileBottomNav = () => {
                   {to === '/user/dziennik' && journalUnread > 0 && (
                     <span
                       className="absolute -top-1 -right-1 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                      style={{ background: '#B8913A', color: '#fff' }}
+                      style={{ background: '#C4965A', color: '#fff' }}
                     >
                       {journalUnread > 9 ? '9+' : journalUnread}
                     </span>
@@ -134,7 +134,7 @@ export const MobileBottomNav = () => {
                   {to === '/user/powiadomienia' && notifUnread > 0 && (
                     <span
                       className="absolute -top-1 -right-1 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                      style={{ background: '#B8913A', color: '#fff' }}
+                      style={{ background: '#C4965A', color: '#fff' }}
                     >
                       {notifUnread > 9 ? '9+' : notifUnread}
                     </span>
@@ -142,7 +142,7 @@ export const MobileBottomNav = () => {
                   {to === '/user/chat' && unreadCount > 0 && (
                     <span
                       className="absolute -top-1 -right-1 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                      style={{ background: '#B8913A', color: '#fff' }}
+                      style={{ background: '#C4965A', color: '#fff' }}
                     >
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
@@ -176,8 +176,8 @@ export const MobileBottomNav = () => {
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3">
-              <span className="text-base font-semibold" style={{ color: '#1A1208' }}>Menu</span>
-              <button onClick={() => setMenuOpen(false)} style={{ color: 'rgba(26,18,8,0.5)' }}>
+              <span className="text-base font-semibold" style={{ color: '#1A3828' }}>Menu</span>
+              <button onClick={() => setMenuOpen(false)} style={{ color: 'rgba(20,40,28,0.5)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -194,33 +194,33 @@ export const MobileBottomNav = () => {
                     className="flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm font-medium transition-all relative"
                     style={
                       active
-                        ? { background: 'rgba(184,145,58,0.08)', borderColor: 'rgba(184,145,58,0.3)', color: '#B8913A' }
-                        : { background: '#FAFAF9', borderColor: 'rgba(0,0,0,0.07)', color: '#1A1208' }
+                        ? { background: 'rgba(196,150,90,0.08)', borderColor: 'rgba(196,150,90,0.3)', color: '#C4965A' }
+                        : { background: '#FAFAF9', borderColor: 'rgba(0,0,0,0.07)', color: '#1A3828' }
                     }
                   >
                     <Icon size={20} />
                     <span>{label}</span>
                     {to === '/user/dziennik' && journalUnread > 0 && (
                       <span className="absolute top-2 right-2 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                        style={{ background: '#B8913A', color: '#fff' }}>
+                        style={{ background: '#C4965A', color: '#fff' }}>
                         {journalUnread > 9 ? '9+' : journalUnread}
                       </span>
                     )}
                     {to === '/user/rutyna' && routineUnread > 0 && (
                       <span className="absolute top-2 right-2 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                        style={{ background: '#B8913A', color: '#fff' }}>
+                        style={{ background: '#C4965A', color: '#fff' }}>
                         {routineUnread > 9 ? '9+' : routineUnread}
                       </span>
                     )}
                     {to === '/user/chat' && unreadCount > 0 && (
                       <span className="absolute top-2 right-2 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                        style={{ background: '#B8913A', color: '#fff' }}>
+                        style={{ background: '#C4965A', color: '#fff' }}>
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}
                     {to === '/user/powiadomienia' && notifUnread > 0 && (
                       <span className="absolute top-2 right-2 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
-                        style={{ background: '#B8913A', color: '#fff' }}>
+                        style={{ background: '#C4965A', color: '#fff' }}>
                         {notifUnread > 9 ? '9+' : notifUnread}
                       </span>
                     )}
@@ -235,7 +235,7 @@ export const MobileBottomNav = () => {
                 to="/rezerwacja"
                 onClick={() => setMenuOpen(false)}
                 className="block w-full text-center py-3 px-4 rounded-full text-sm font-semibold"
-                style={{ background: '#1A1208', color: '#fff' }}
+                style={{ background: '#1A3828', color: '#fff' }}
               >
                 + Umów wizytę
               </Link>

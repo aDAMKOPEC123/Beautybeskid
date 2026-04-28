@@ -70,7 +70,7 @@ export function DrawerJournalTab({ userId }: Props) {
               {entry.tags.map((t: string) => {
                 const cat = JOURNAL_CATEGORIES.find((c) => c.slug === t);
                 return (
-                  <span key={t} style={{ fontSize: 10, fontWeight: 700, color: '#B8913A' }}>
+                  <span key={t} style={{ fontSize: 10, fontWeight: 700, color: '#C4965A' }}>
                     {cat ? cat.label : `#${t}`}
                   </span>
                 );

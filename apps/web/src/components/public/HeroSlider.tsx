@@ -88,7 +88,7 @@ export const HeroSlider = () => {
             <div
               aria-hidden="true"
               className="absolute top-4 right-4 pointer-events-none z-10"
-              style={{ width: 80, height: 80, borderRadius: '50%', border: '1px solid rgba(196,168,130,0.2)' }}
+              style={{ width: 80, height: 80, borderRadius: '50%', border: '1px solid rgba(196,150,90,0.2)' }}
             />
             <img
               src={slide.imagePath}
@@ -103,7 +103,7 @@ export const HeroSlider = () => {
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(to bottom, transparent 40%, rgba(28,21,16,0.7) 100%)',
+                background: 'linear-gradient(to bottom, transparent 40%, rgba(26,56,40,0.7) 100%)',
               }}
             />
             {(slide.heading || slide.subtitle || slide.buttons?.length) && (

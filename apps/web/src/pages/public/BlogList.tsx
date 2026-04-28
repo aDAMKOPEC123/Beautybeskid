@@ -73,14 +73,14 @@ const LikeButton = ({
           isLoggedIn ? 'hover:scale-105 active:scale-95' : ''
         }`}
         style={{
-          color: isLiked ? '#B8913A' : 'rgba(26,18,8,0.6)',
-          backgroundColor: isLiked ? 'rgba(184,145,58,0.1)' : 'rgba(26,18,8,0.05)',
+          color: isLiked ? '#C4965A' : 'rgba(20,40,28,0.6)',
+          backgroundColor: isLiked ? 'rgba(196,150,90,0.1)' : 'rgba(20,40,28,0.05)',
         }}
       >
         <Heart
           size={22}
-          fill={isLiked ? '#B8913A' : 'none'}
-          stroke={isLiked ? '#B8913A' : 'currentColor'}
+          fill={isLiked ? '#C4965A' : 'none'}
+          stroke={isLiked ? '#C4965A' : 'currentColor'}
           style={{
             animation: animate ? 'heartPop 0.3s ease' : 'none',
             transition: 'fill 0.3s, stroke 0.3s',
@@ -98,13 +98,13 @@ const LikeButton = ({
       {showHint && (
         <div
           className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 text-sm font-medium rounded-xl whitespace-nowrap z-10 shadow-lg"
-          style={{ backgroundColor: '#1A1208', color: '#fff' }}
+          style={{ backgroundColor: '#1A3828', color: '#fff' }}
         >
           <div className="text-center">
             <div>Zaloguj się, aby polubić artykuł</div>
             <div className="text-xs mt-1 opacity-70">To tylko chwila — dołącz do nas!</div>
           </div>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1" style={{ border: '8px solid transparent', borderTopColor: '#1A1208' }} />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1" style={{ border: '8px solid transparent', borderTopColor: '#1A3828' }} />
         </div>
       )}
     </div>
@@ -170,23 +170,23 @@ export const BlogList = () => {
   if (isLoading) return (
     <>
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div
             className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
-            style={{ backgroundColor: 'rgba(184,145,58,0.12)', color: '#B8913A' }}
+            style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Wiedza i Inspiracje
           </div>
-          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A1208' }}>
+          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A3828' }}>
             Blog Kosmetologiczny
           </h1>
-          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(26,18,8,0.55)' }}>
+          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Artykuły o pielęgnacji skóry, zabiegach i podologii — porady eksperta z Limanowej.
           </p>
         </div>
       </section>
-      <section className="py-16" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-4xl mx-auto">
           <BlogListSkeleton count={5} />
         </div>
@@ -221,25 +221,25 @@ export const BlogList = () => {
       />
 
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F5F0EB' }}>
+      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div
             className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
-            style={{ backgroundColor: 'rgba(184,145,58,0.12)', color: '#B8913A' }}
+            style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Wiedza i Inspiracje
           </div>
-          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A1208' }}>
+          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A3828' }}>
             Blog Kosmetologiczny
           </h1>
-          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(26,18,8,0.55)' }}>
+          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Artykuły o pielęgnacji skóry, zabiegach i podologii — porady eksperta z Limanowej.
           </p>
         </div>
       </section>
 
       {/* List */}
-      <section className="py-16" style={{ backgroundColor: '#FDFAF6' }}>
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-4xl mx-auto">
           <div className="flex flex-col gap-4">
             {posts?.filter((p: any) => p.isPublished).map((post: any) => (
@@ -261,7 +261,7 @@ export const BlogList = () => {
                       className="absolute pointer-events-none select-none"
                       style={{
                         fontSize: 48,
-                        color: 'rgba(196,168,130,0.07)',
+                        color: 'rgba(196,150,90,0.07)',
                         fontFamily: 'Playfair Display, Georgia, serif',
                         right: 12,
                         top: 8,
@@ -285,7 +285,7 @@ export const BlogList = () => {
                         style={{ minHeight: '100px' }}
                       />
                     ) : (
-                      <div className="w-full h-full" style={{ background: 'rgba(184,145,58,0.08)', minHeight: '100px' }} />
+                      <div className="w-full h-full" style={{ background: 'rgba(196,150,90,0.08)', minHeight: '100px' }} />
                     )}
                   </div>
 
@@ -304,13 +304,13 @@ export const BlogList = () => {
                   <div className="relative z-[1] flex flex-col flex-1 px-5 py-4 min-w-0">
                     <h2
                       className="text-lg font-heading font-bold leading-snug mb-1 line-clamp-2"
-                      style={{ color: '#1A1208' }}
+                      style={{ color: '#1A3828' }}
                     >
                       {post.title}
                     </h2>
                     <p
                       className="text-sm leading-relaxed mb-3 line-clamp-2"
-                      style={{ color: 'rgba(26,18,8,0.55)' }}
+                      style={{ color: 'rgba(20,40,28,0.55)' }}
                     >
                       {post.excerpt}
                     </p>
@@ -319,12 +319,12 @@ export const BlogList = () => {
                         <span
                           key={tag.id}
                           className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                          style={{ backgroundColor: 'rgba(184,145,58,0.1)', color: '#B8913A' }}
+                          style={{ backgroundColor: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                         >
                           <DecoLine width={8} />#{tag.name}
                         </span>
                       ))}
-                      <div className="flex items-center gap-3 ml-auto text-xs" style={{ color: 'rgba(26,18,8,0.45)' }}>
+                      <div className="flex items-center gap-3 ml-auto text-xs" style={{ color: 'rgba(20,40,28,0.45)' }}>
                         {post.readingTime && (
                           <span className="flex items-center gap-1">
                             <Clock size={12} /> {post.readingTime} min

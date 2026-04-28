@@ -67,7 +67,7 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
           cursor: 'pointer',
           fontSize: 11,
           fontWeight: 600,
-          color: unread > 0 ? '#C4965A' : '#6B6560',
+          color: unread > 0 ? '#C4965A' : '#5A7A62',
           minHeight: 44,
         }}
       >
@@ -86,11 +86,11 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
         <div style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10, padding: '10px 12px' }}>
           {entry.comments.map((c) => (
             <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 26, height: 26, minWidth: 26, borderRadius: '50%', background: '#1A1208', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700 }}>
+              <div style={{ width: 26, height: 26, minWidth: 26, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700 }}>
                 {c.author.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1208' }}>{c.author.name} (kosmetolog)</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#1A3828' }}>{c.author.name} (kosmetolog)</span>
                 <p style={{ fontSize: 12, color: '#4B4036', margin: '3px 0 2px' }}>{c.content}</p>
                 <span style={{ fontSize: 10, color: '#B0A89E' }}>{formatTime(c.createdAt)}</span>
               </div>
@@ -108,10 +108,10 @@ function AdminEntryCard({ entry }: { entry: SkinJournalEntry }) {
   return (
     <div className="journal-admin-card">
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, rowGap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#1A1208', color: '#fff', whiteSpace: 'nowrap', flexShrink: 0 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#1A3828', color: '#fff', whiteSpace: 'nowrap', flexShrink: 0 }}>
           👩‍⚕️ Notatka kosmetologa
         </span>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#6B6560', flexShrink: 0 }}>{formatDate(entry.date)}</span>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#5A7A62', flexShrink: 0 }}>{formatDate(entry.date)}</span>
       </div>
       {entry.notes && <p style={{ fontSize: 14, color: '#4B4036', lineHeight: 1.6, margin: 0 }}>{entry.notes}</p>}
       {entry.tags.length > 0 && (
@@ -219,13 +219,13 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
   return (
     <div style={{ background: '#fff', border: '1px solid #e5e0d8', borderRadius: 16, padding: 24, marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A1208', margin: 0 }}>Nowy wpis</h3>
+        <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A3828', margin: 0 }}>Nowy wpis</h3>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}><X size={20} /></button>
       </div>
 
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Data</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A1208', background: '#faf9f7', boxSizing: 'border-box' }} />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', boxSizing: 'border-box' }} />
       </div>
 
       <div style={{ marginBottom: 16 }}>
@@ -244,7 +244,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
 
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Notatki (opcjonalnie)</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Jak wygląda skóra dziś? Czy zabiegi przynoszą efekty?" rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A1208', background: '#faf9f7', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Jak wygląda skóra dziś? Czy zabiegi przynoszą efekty?" rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
       </div>
 
       <div style={{ marginBottom: 16 }}>
@@ -415,7 +415,7 @@ export function UserSkinJournal() {
             <BookOpen size={22} color="#fff" />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 20, color: '#1A1208', margin: 0, fontWeight: 700 }}>
+            <h1 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 20, color: '#1A3828', margin: 0, fontWeight: 700 }}>
               Dziennik Kosmetologa
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -458,7 +458,7 @@ export function UserSkinJournal() {
             <path d="M16 16h16M16 22h16M16 28h10" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round"/>
             <path d="M10 12h4V6" stroke="#3D7A54" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A1208', margin: '0 0 8px' }}>Zacznij prowadzić dziennik</h3>
+          <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A3828', margin: '0 0 8px' }}>Zacznij prowadzić dziennik</h3>
           <p style={{ fontSize: 14, color: '#999', margin: '0 0 24px', lineHeight: 1.6 }}>Dokumentuj efekty zabiegów, samopoczucie i postępy</p>
           <button onClick={() => setShowForm(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 24px', background: '#C4965A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
             <Plus size={16} /> Dodaj pierwszy wpis
