@@ -1,7 +1,7 @@
 // filepath: apps/web/src/components/layout/AdminLayout.tsx
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, Bell, ShoppingBag, Cloud } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
 import { useSocket } from '@/hooks/useSocket';
@@ -17,24 +17,26 @@ export const AdminLayout = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const [pagesOpen, setPagesOpen] = useState(
-    () =>
-      location.pathname.startsWith('/admin/hero') ||
-      location.pathname.startsWith('/admin/o-nas') ||
-      location.pathname.startsWith('/admin/polecane-zabiegi') ||
-      location.pathname.startsWith('/admin/uslugi') ||
-      location.pathname.startsWith('/admin/blog') ||
-      location.pathname.startsWith('/admin/metamorfozy')
+  const [komunikacjaOpen, setKomunikacjaOpen] = useState(
+    () => ['/admin/powiadomienia', '/admin/chat'].some(p => location.pathname.startsWith(p))
   );
-  const [discountsOpen, setDiscountsOpen] = useState(
-    () => location.pathname.startsWith('/admin/kody-rabatowe') || location.pathname.startsWith('/admin/lojalnosc')
+  const [wizytyOpen, setWizytyOpen] = useState(
+    () => ['/admin/wizyty', '/admin/konsultacje', '/admin/pracownicy', '/admin/praca'].some(p => location.pathname.startsWith(p))
   );
-  const [staffOpen, setStaffOpen] = useState(
-    () =>
-      location.pathname.startsWith('/admin/wizyty') ||
-      location.pathname.startsWith('/admin/konsultacje') ||
-      location.pathname.startsWith('/admin/praca') ||
-      location.pathname.startsWith('/admin/pracownicy')
+  const [klienciOpen, setKlienciOpen] = useState(
+    () => ['/admin/uzytkownicy', '/admin/recenzje'].some(p => location.pathname.startsWith(p))
+  );
+  const [tresciOpen, setTresciOpen] = useState(
+    () => ['/admin/hero', '/admin/polecane-zabiegi', '/admin/o-nas', '/admin/uslugi', '/admin/blog', '/admin/metamorfozy'].some(p => location.pathname.startsWith(p))
+  );
+  const [diagnostykaOpen, setDiagnostykaOpen] = useState(
+    () => ['/admin/quizy', '/admin/pogoda-skory'].some(p => location.pathname.startsWith(p))
+  );
+  const [sprzedazOpen, setSprzedazOpen] = useState(
+    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment'].some(p => location.pathname.startsWith(p))
+  );
+  const [ustawieniaOpen, setUstawieniaOpen] = useState(
+    () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
   );
   const { socket, isConnected } = useSocket();
   const { staffUnreadTotal, setStaffUnreadTotal } = useChatStore();
@@ -116,7 +118,8 @@ export const AdminLayout = () => {
     };
   }, [isConnected, socket, setStaffUnreadTotal, addNotification, queryClient]);
 
-  const totalStaffBadge = unreadCount + newLeadsCount;
+  const komunikacjaBadge = adminNotifUnread + staffUnreadTotal;
+  const wizytyBadge = unreadCount + newLeadsCount;
 
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
   if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
@@ -128,35 +131,71 @@ export const AdminLayout = () => {
         <aside className="w-64 bg-card border-r flex flex-col hidden md:flex">
           <div className="p-6 font-heading font-semibold text-lg border-b">Administracja</div>
           <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
-            <Link to="/admin" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">Dashboard</Link>
-            <Link
-              to="/admin/powiadomienia"
-              className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium flex items-center gap-2"
-            >
-              <Bell className="h-4 w-4" />
-              <span>Powiadomienia</span>
-              {adminNotifUnread > 0 && (
-                <span className="ml-auto bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                  {adminNotifUnread > 9 ? '9+' : adminNotifUnread}
-                </span>
-              )}
+            <Link to="/admin" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">
+              Dashboard
             </Link>
+
+            {/* Komunikacja */}
             <div>
               <button
-                onClick={() => setStaffOpen(o => !o)}
+                onClick={() => setKomunikacjaOpen(o => !o)}
                 className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
               >
-                <span>Pracownik</span>
+                <span>Komunikacja</span>
                 <div className="flex items-center gap-1.5">
-                  {!staffOpen && totalStaffBadge > 0 && (
+                  {!komunikacjaOpen && komunikacjaBadge > 0 && (
                     <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                      {totalStaffBadge > 9 ? '9+' : totalStaffBadge}
+                      {komunikacjaBadge > 9 ? '9+' : komunikacjaBadge}
                     </span>
                   )}
-                  <ChevronDown size={14} className={staffOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                  <ChevronDown size={14} className={komunikacjaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
                 </div>
               </button>
-              {staffOpen && (
+              {komunikacjaOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link
+                    to="/admin/powiadomienia"
+                    className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <span>Powiadomienia</span>
+                    {adminNotifUnread > 0 && (
+                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
+                        {adminNotifUnread > 9 ? '9+' : adminNotifUnread}
+                      </span>
+                    )}
+                  </Link>
+                  <Link
+                    to="/admin/chat"
+                    className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <span>Chat</span>
+                    {staffUnreadTotal > 0 && (
+                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 animate-pulse">
+                        {staffUnreadTotal > 9 ? '9+' : staffUnreadTotal}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Wizyty i personel */}
+            <div>
+              <button
+                onClick={() => setWizytyOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Wizyty i personel</span>
+                <div className="flex items-center gap-1.5">
+                  {!wizytyOpen && wizytyBadge > 0 && (
+                    <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
+                      {wizytyBadge > 9 ? '9+' : wizytyBadge}
+                    </span>
+                  )}
+                  <ChevronDown size={14} className={wizytyOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                </div>
+              </button>
+              {wizytyOpen && (
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link
                     to="/admin/wizyty"
@@ -185,25 +224,47 @@ export const AdminLayout = () => {
                       </span>
                     )}
                   </Link>
-                  <Link to="/admin/praca" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Praca
-                  </Link>
                   <Link to="/admin/pracownicy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Pracownicy
+                  </Link>
+                  <Link to="/admin/praca" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Praca
                   </Link>
                 </div>
               )}
             </div>
-            <Link to="/admin/uzytkownicy" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">Użytkownicy</Link>
+
+            {/* Klienci */}
             <div>
               <button
-                onClick={() => setPagesOpen(o => !o)}
+                onClick={() => setKlienciOpen(o => !o)}
                 className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
               >
-                <span>Edycja stron</span>
-                <ChevronDown size={14} className={pagesOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                <span>Klienci</span>
+                <ChevronDown size={14} className={klienciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
               </button>
-              {pagesOpen && (
+              {klienciOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link to="/admin/uzytkownicy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Użytkownicy
+                  </Link>
+                  <Link to="/admin/recenzje" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Recenzje
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Treści */}
+            <div>
+              <button
+                onClick={() => setTresciOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Treści</span>
+                <ChevronDown size={14} className={tresciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+              {tresciOpen && (
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/hero" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Slider strony głównej
@@ -226,15 +287,38 @@ export const AdminLayout = () => {
                 </div>
               )}
             </div>
+
+            {/* Diagnostyka */}
             <div>
               <button
-                onClick={() => setDiscountsOpen(o => !o)}
+                onClick={() => setDiagnostykaOpen(o => !o)}
                 className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
               >
-                <span>Zniżki</span>
-                <ChevronDown size={14} className={discountsOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                <span>Diagnostyka</span>
+                <ChevronDown size={14} className={diagnostykaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
               </button>
-              {discountsOpen && (
+              {diagnostykaOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link to="/admin/quizy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Quizy
+                  </Link>
+                  <Link to="/admin/pogoda-skory" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Twoja Skóra
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Sprzedaż */}
+            <div>
+              <button
+                onClick={() => setSprzedazOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Sprzedaż</span>
+                <ChevronDown size={14} className={sprzedazOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+              {sprzedazOpen && (
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/kody-rabatowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Kody Rabatowe
@@ -242,34 +326,30 @@ export const AdminLayout = () => {
                   <Link to="/admin/lojalnosc" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Program Lojalnościowy
                   </Link>
+                  <Link to="/admin/asortyment" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Asortyment
+                  </Link>
                 </div>
               )}
             </div>
-            <Link
-              to="/admin/asortyment"
-              className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium flex items-center gap-2"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span>Asortyment</span>
-            </Link>
-            <Link to="/admin/regulamin" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">Regulamin</Link>
-            <Link to="/admin/quizy" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">Quizy</Link>
-            <Link to="/admin/recenzje" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">Recenzje</Link>
-            <Link
-              to="/admin/pogoda-skory"
-              className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium flex items-center gap-2"
-            >
-              <Cloud className="h-4 w-4" />
-              <span>Twoja Skóra</span>
-            </Link>
-            <Link to="/admin/chat" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium flex items-center justify-between">
-              <span>Wiadomości (Chat)</span>
-              {staffUnreadTotal > 0 && (
-                <span className="bg-destructive text-white text-xs rounded-full px-1.5 animate-pulse">
-                  {staffUnreadTotal > 9 ? '9+' : staffUnreadTotal}
-                </span>
+
+            {/* Ustawienia */}
+            <div>
+              <button
+                onClick={() => setUstawieniaOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Ustawienia</span>
+                <ChevronDown size={14} className={ustawieniaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+              {ustawieniaOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link to="/admin/regulamin" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Regulamin
+                  </Link>
+                </div>
               )}
-            </Link>
+            </div>
           </nav>
           {isSupported && !isSubscribed && permission !== 'denied' && (
             <div className="p-4 border-t">
