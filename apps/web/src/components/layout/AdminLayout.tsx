@@ -170,7 +170,7 @@ export const AdminLayout = () => {
                   >
                     <span>Chat</span>
                     {staffUnreadTotal > 0 && (
-                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 animate-pulse">
+                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
                         {staffUnreadTotal > 9 ? '9+' : staffUnreadTotal}
                       </span>
                     )}
