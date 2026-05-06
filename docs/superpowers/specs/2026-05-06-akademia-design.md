@@ -38,10 +38,10 @@ apps/server/src/modules/academy/
 │   ├── progress.controller.ts
 │   ├── progress.router.ts
 │   └── progress.service.ts
-├── quiz/
-│   ├── quiz.controller.ts
-│   ├── quiz.router.ts
-│   └── quiz.service.ts
+├── assessments/             # lesson quizzes (named to avoid confusion with existing quiz/ module)
+│   ├── assessments.controller.ts
+│   ├── assessments.router.ts
+│   └── assessments.service.ts
 ├── certificates/
 │   ├── certificates.controller.ts
 │   ├── certificates.router.ts
@@ -70,9 +70,9 @@ apps/web/src/
 │   │   ├── Certificates.tsx
 │   │   └── NoAccess.tsx
 │   └── admin/academy/
-│       ├── AdminAcademyDashboard.tsx
+│       ├── AdminAcademyDashboard.tsx   # tabbed: overview + stats
 │       ├── AdminCourses.tsx
-│       ├── AdminCourseEditor.tsx   # module/lesson/quiz builder
+│       ├── AdminCourseEditor.tsx       # module/lesson/quiz builder
 │       ├── AdminLessonEditor.tsx
 │       └── AdminAcademyAccess.tsx
 ├── components/
@@ -104,17 +104,19 @@ hasAcademyAccess       Boolean   @default(false)
 academyAccessExpiresAt DateTime?
 academyGrantedById     String?
 academyGrantedAt       DateTime?
-academyGrantedBy       User?     @relation("AcademyGrants", fields: [academyGrantedById], references: [id])
-academyGrantsGiven     User[]    @relation("AcademyGrants")
+academyGrantedBy       User?          @relation("AcademyGrants", fields: [academyGrantedById], references: [id])
+academyGrantsGiven     User[]         @relation("AcademyGrants")
 courseProgress         UserCourseProgress[]
 lessonProgress         UserLessonProgress[]
-quizAttempts           QuizAttempt[]
+lessonQuizAttempts     LessonQuizAttempt[]
 certificates           Certificate[]
 favorites              CourseFavorite[]
 lessonNotes            LessonNote[]
 ```
 
 ### New models
+
+**Note on naming:** The existing schema has a `Quiz` model (booking decision-tree) and a `Tag` model (blog tags). New academy models use prefixed names `LessonQuiz`, `LessonQuizQuestion`, `LessonQuizAttempt`, and `CourseTag` to avoid Prisma name collisions.
 
 ```prisma
 model Course {
@@ -130,9 +132,9 @@ model Course {
   status       CourseStatus @default(DRAFT)
   isFeatured   Boolean      @default(false)
   categoryId   String?
-  category     Category?    @relation(fields: [categoryId], references: [id])
-  tags         Tag[]        @relation("CourseTags")
-  modules      Module[]
+  category     CourseCategory? @relation(fields: [categoryId], references: [id])
+  tags         CourseTag[]  @relation("CourseTags")
+  modules      CourseModule[]
   progress     UserCourseProgress[]
   certificates Certificate[]
   favorites    CourseFavorite[]
@@ -143,7 +145,7 @@ model Course {
   @@index([slug])
 }
 
-model Module {
+model CourseModule {
   id          String   @id @default(cuid())
   courseId    String
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -157,63 +159,63 @@ model Module {
 }
 
 model Lesson {
-  id            String         @id @default(cuid())
+  id            String          @id @default(cuid())
   moduleId      String
-  module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module        CourseModule    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   slug          String
   title         String
-  type          LessonType     @default(VIDEO)
-  content       String?        @db.Text
+  type          LessonType      @default(VIDEO)
+  content       String?         @db.Text
   videoUrl      String?
   videoProvider VideoProvider?
-  durationMin   Int            @default(0)
+  durationMin   Int             @default(0)
   order         Int
-  isFreePreview Boolean        @default(false)
-  quiz          Quiz?
+  isFreePreview Boolean         @default(false)
+  quiz          LessonQuiz?
   progress      UserLessonProgress[]
   notes         LessonNote[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   @@unique([moduleId, slug])
   @@index([moduleId, order])
 }
 
-model Quiz {
-  id           String         @id @default(cuid())
-  lessonId     String         @unique
-  lesson       Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+model LessonQuiz {
+  id           String              @id @default(cuid())
+  lessonId     String              @unique
+  lesson       Lesson              @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   title        String
-  passingScore Int            @default(70)
+  passingScore Int                 @default(70)
   timeLimit    Int?
-  questions    QuizQuestion[]
-  attempts     QuizAttempt[]
-  createdAt    DateTime       @default(now())
+  questions    LessonQuizQuestion[]
+  attempts     LessonQuizAttempt[]
+  createdAt    DateTime            @default(now())
 }
 
-model QuizQuestion {
+model LessonQuizQuestion {
   id          String       @id @default(cuid())
   quizId      String
-  quiz        Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz        LessonQuiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
   text        String       @db.Text
   type        QuestionType @default(SINGLE_CHOICE)
-  options     Json
+  options     Json         // [{ id: string, text: string, isCorrect: boolean }]
   explanation String?      @db.Text
   points      Int          @default(1)
   order       Int
   @@index([quizId, order])
 }
 
-model QuizAttempt {
-  id         String   @id @default(cuid())
+model LessonQuizAttempt {
+  id         String     @id @default(cuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   quizId     String
-  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz       LessonQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
   score      Int
   passed     Boolean
-  answers    Json
+  answers    Json       // [{ questionId: string, selectedOptionIds: string[] }]
   startedAt  DateTime
-  finishedAt DateTime @default(now())
+  finishedAt DateTime   @default(now())
   @@index([userId, quizId])
 }
 
@@ -274,13 +276,13 @@ model LessonNote {
   lessonId  String
   lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   content   String   @db.Text
-  timestamp Int?
+  timestamp Int?     // video second when note was taken
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId, lessonId])
 }
 
-model Category {
+model CourseCategory {
   id        String   @id @default(cuid())
   slug      String   @unique
   name      String
@@ -289,7 +291,7 @@ model Category {
   createdAt DateTime @default(now())
 }
 
-model Tag {
+model CourseTag {
   id      String   @id @default(cuid())
   slug    String   @unique
   name    String
@@ -325,13 +327,13 @@ Migration command: `pnpm prisma:migrate` (from `apps/server/`) with name `add_ac
 
 New `requireAcademyAccess` middleware in `apps/server/src/middleware/academy.middleware.ts`:
 
-1. Verify JWT (reuse existing `requireAuth`)
+1. Verify JWT (chain after existing `authenticate` from `auth.middleware.ts`)
 2. Query `user.hasAcademyAccess` and `user.academyAccessExpiresAt`
-3. If `expiresAt` is set and in the past: auto-update `hasAcademyAccess = false`, write `AcademyAccessLog`, return 403
+3. If `expiresAt` is set and in the past: auto-update `hasAcademyAccess = false`, write `AcademyAccessLog` entry with `action: EXPIRED`, return 403
 4. If `hasAcademyAccess = false`: return 403
 5. Call `next()`
 
-Applied to all `/api/academy/*` routes. Admin routes use existing `requireAdmin`.
+Route registration pattern: `router.use(authenticate, requireAcademyAccess)` for all `/api/academy/*` routes. Admin routes use `router.use(authenticate, requireAdmin)`.
 
 ### Frontend guard
 
@@ -340,6 +342,8 @@ Applied to all `/api/academy/*` routes. Admin routes use existing `requireAdmin`
 - No access: redirect to `/akademia/brak-dostepu`
 - Not logged in: redirect to `/auth/login`
 - Result cached for the session (not re-fetched on each navigation)
+
+`/akademia/brak-dostepu` is a **sibling route outside the guard** — it must be placed in `router.tsx` as a plain route, not as a child of the guarded `/akademia` group, otherwise the redirect would loop.
 
 ---
 
@@ -363,11 +367,11 @@ GET /api/academy/lessons/:id          # lesson detail: content / videoUrl
 ### Quiz flow
 
 ```
-POST /api/academy/quiz/:quizId/submit  { answers: [{ questionId, selectedOptionIds }] }
-→ gradeQuiz() in quiz.service.ts
-→ returns { score, passed, details: [{ questionId, correct, explanation }] }
-→ if passed: triggers lesson completion
-→ max 3 attempts per quiz per 24h enforced in service layer
+POST /api/academy/assessments/:quizId/submit
+  body: { answers: [{ questionId: string, selectedOptionIds: string[] }], startedAt: string }
+  returns: { score: number, passed: boolean, details: [{ questionId, correct, explanation }] }
+  → if passed: triggers lesson completion
+  → max 3 attempts per LessonQuiz per 24h enforced in service layer
 ```
 
 ### Certificate generation
@@ -408,7 +412,17 @@ Bulk select: grant access to multiple users at once.
 
 All actions write to `AcademyAccessLog`.
 
-API: `POST /api/admin/academy/access` with body `{ userId, action, durationDays?, reason? }`.
+API: `POST /api/admin/academy/access` with body `{ userId, action: "GRANT" | "REVOKE" | "EXTEND", durationDays?: number, reason?: string }`.
+
+**Bulk grant:** The UI allows selecting multiple users and granting access. This fires the single-user endpoint once per selected user (client-side loop). No batch endpoint needed.
+
+### Admin dashboard (`/admin/akademia`)
+
+Single `AdminAcademyDashboard` component with two tabs:
+- **Przegląd** (default tab): quick stats cards (total courses, active users, completions this month)
+- **Statystyki**: detailed charts (per-course completion rates, active learners over time)
+
+Both tabs are rendered within one route `/admin/akademia`. There is no separate `/admin/akademia/statystyki` route — the stats tab is a UI tab within the same page.
 
 ---
 
@@ -417,8 +431,8 @@ API: `POST /api/admin/academy/access` with body `{ userId, action, durationDays?
 ### Frontend (`apps/web`)
 - `react-player` — YouTube + Vimeo embed
 - `@dnd-kit/core` + `@dnd-kit/sortable` — drag-and-drop in builder
-- `sonner` — toast notifications (verify not already installed)
-- `date-fns` — date formatting (verify not already installed)
+- `sonner` — already installed (v1.4.41), no action needed
+- `date-fns` — already installed (v3.6.0), no action needed
 
 ### Backend (`apps/server`)
 - `pdf-lib` — certificate PDF generation
@@ -436,7 +450,7 @@ Existing packages reused: `zod`, `multer`, `sharp`, existing `RichTextViewer` fo
 | Admin endpoints without role | Existing `requireAdmin` middleware |
 | XSS in Markdown content | `rehype-sanitize` in RichTextViewer (verify/add) |
 | Input injection | Zod validation schemas on all POST/PUT endpoints |
-| Quiz brute-force | Max 3 attempts per quiz per 24h in service layer |
+| Quiz brute-force | Max 3 attempts per LessonQuiz per 24h in service layer |
 | Forged certificates | Public verification endpoint by `verificationCode` |
 
 ---
@@ -454,12 +468,11 @@ Existing packages reused: `zod`, `multer`, `sharp`, existing `RichTextViewer` fo
 /akademia/kurs/:slug                       CourseDetail
 /akademia/kurs/:slug/lekcja/:lessonSlug    LessonPlayer
 
-/admin/akademia                            AdminAcademyDashboard
+/admin/akademia                            AdminAcademyDashboard (tabbed: overview + stats)
 /admin/akademia/kursy                      AdminCourses
 /admin/akademia/kursy/nowy                 AdminCourseEditor (new)
 /admin/akademia/kursy/:id/edytuj           AdminCourseEditor (edit)
 /admin/akademia/dostepy                    AdminAcademyAccess
-/admin/akademia/statystyki                 AdminAcademyDashboard (stats tab)
 ```
 
 ### Backend API
@@ -470,7 +483,7 @@ GET    /api/academy/courses
 GET    /api/academy/courses/:slug
 GET    /api/academy/lessons/:id
 PATCH  /api/academy/progress/lesson
-POST   /api/academy/quiz/:quizId/submit
+POST   /api/academy/assessments/:quizId/submit
 GET    /api/academy/certificates
 GET    /api/academy/certificates/verify/:code   (no auth)
 POST   /api/academy/favorites
@@ -487,18 +500,22 @@ POST   /api/admin/academy/courses
 PUT    /api/admin/academy/courses/:id
 DELETE /api/admin/academy/courses/:id
 POST   /api/admin/academy/modules
+PATCH  /api/admin/academy/modules/reorder    # MUST be registered before /:id route
+                                              # body: { items: [{ id: string, order: number }] }
 PUT    /api/admin/academy/modules/:id
 DELETE /api/admin/academy/modules/:id
-PUT    /api/admin/academy/modules/reorder
 POST   /api/admin/academy/lessons
+PATCH  /api/admin/academy/lessons/reorder    # MUST be registered before /:id route
+                                              # body: { moduleId: string, items: [{ id: string, order: number }] }
 PUT    /api/admin/academy/lessons/:id
 DELETE /api/admin/academy/lessons/:id
-PUT    /api/admin/academy/lessons/reorder
 POST   /api/admin/academy/quizzes
 PUT    /api/admin/academy/quizzes/:id
 DELETE /api/admin/academy/quizzes/:id
 GET    /api/admin/academy/stats
 ```
+
+**Note on reorder routes:** Static path segments (`/reorder`) must be registered in Express **before** parameterized segments (`/:id`) in each router file to prevent Express from matching `"reorder"` as an `:id` value.
 
 ---
 
@@ -510,8 +527,8 @@ GET    /api/admin/academy/stats
 4. Frontend: `AcademyLayout`, `AcademyGuard`, `/akademia/brak-dostepu`
 5. Frontend: `/akademia` catalog + `/akademia/kurs/:slug` course detail page
 6. Frontend + backend: `/akademia/kurs/:slug/lekcja/:lessonSlug` — VideoPlayer + progress tracking
-7. Backend: quiz grading + Frontend: QuizRunner
+7. Backend: quiz grading (`assessments/`) + Frontend: QuizRunner
 8. Backend: certificate PDF generation + Frontend: Certificates page
 9. Admin: AdminCourseEditor (CRUD + drag-and-drop)
 10. Frontend: MyCourses, Favorites, Notes, search/filters
-11. Admin: statistics dashboard
+11. Admin: statistics tab in AdminAcademyDashboard
