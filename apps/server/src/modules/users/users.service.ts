@@ -179,7 +179,7 @@ export const getUserDetails = async (id: string) => {
 
   // --- Financial stats (computed in JS, no extra DB queries) ---
   const completedAppointments = user.appointments.filter((a) => a.status === 'COMPLETED');
-  const totalSpent = completedAppointments.reduce((sum, a) => sum + (a.service?.price ?? 0), 0);
+  const totalSpent = completedAppointments.reduce((sum, a) => sum + Number(a.service?.price ?? 0), 0);
   const completedCount = completedAppointments.length;
   const avgPerVisit = completedCount > 0 ? Math.round(totalSpent / completedCount) : 0;
 
