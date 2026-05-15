@@ -299,12 +299,12 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                             {STATUS_LABELS[a.status]}
                           </span>
                         </div>
-                        {/* Detail sub-row — COMPLETED visits only */}
-                        {a.status === 'COMPLETED' && (
+                        {/* Detail sub-row — COMPLETED visits only, when at least one value is present */}
+                        {a.status === 'COMPLETED' && (a.service?.price != null || a.pointsEarned != null) && (
                           <div className="flex items-center gap-4 px-3 py-2 bg-muted/5 border-t border-border/30">
                             {a.service?.price != null && (
-                              <span className="text-xs font-bold text-green-700">
-                                Cena: {a.service.price} zł
+                              <span className="text-xs font-bold text-green-600">
+                                Cena: {Number(a.service.price).toFixed(2)} zł
                               </span>
                             )}
                             {a.pointsEarned != null && (
