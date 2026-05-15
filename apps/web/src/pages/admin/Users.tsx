@@ -112,7 +112,7 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
               </div>
 
               {/* Stats grid — 3 columns, 2 rows + optional 3rd row */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Row 1: Financial */}
                 <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
                   <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Wydano łącznie</p>
@@ -278,17 +278,46 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
               {data.allAppointments?.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-base border-b pb-2 mb-3">Historia wizyt</h3>
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                     {data.allAppointments.map((a: any) => (
-                      <div key={a.id} className="flex items-center justify-between p-3 bg-muted/10 border border-border/40 rounded-lg">
-                        <div>
-                          <p className="font-semibold text-sm">{a.service?.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatDateTime(a.date)}</p>
-                          {a.notes && <p className="text-xs text-muted-foreground italic mt-0.5">"{a.notes}"</p>}
+                      <div
+                        key={a.id}
+                        className={`border border-border/40 rounded-lg overflow-hidden ${
+                          a.status === 'CANCELLED' ? 'opacity-60' : ''
+                        }`}
+                      >
+                        {/* Header row */}
+                        <div className="flex items-center justify-between p-3 bg-muted/10">
+                          <div>
+                            <p className="font-semibold text-sm">{a.service?.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDateTime(a.date)}
+                              {a.employee?.name && ` · ${a.employee.name}`}
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${STATUS_COLORS[a.status]}`}>
+                            {STATUS_LABELS[a.status]}
+                          </span>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${STATUS_COLORS[a.status]}`}>
-                          {STATUS_LABELS[a.status]}
-                        </span>
+                        {/* Detail sub-row — COMPLETED visits only */}
+                        {a.status === 'COMPLETED' && (
+                          <div className="flex items-center gap-4 px-3 py-2 bg-muted/5 border-t border-border/30">
+                            {a.service?.price != null && (
+                              <span className="text-xs font-bold text-green-700">
+                                Cena: {a.service.price} zł
+                              </span>
+                            )}
+                            {a.pointsEarned != null && (
+                              <span className="text-xs font-bold text-violet-600">
+                                +{a.pointsEarned} pkt
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {/* Notes */}
+                        {a.notes && (
+                          <p className="px-3 pb-2 text-xs text-muted-foreground italic">"{a.notes}"</p>
+                        )}
                       </div>
                     ))}
                   </div>
