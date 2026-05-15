@@ -91,6 +91,9 @@ export const getUserById = async (id: string) => {
       onboardingCompleted: true,
       accountStatus: true,
       mustChangePassword: true,
+      hasAcademyAccess: true,
+      academyAccessExpiresAt: true,
+      academyGrantedAt: true,
     },
   });
 
@@ -142,6 +145,9 @@ export const getUserDetails = async (id: string) => {
               price: true,
             },
           },
+          employee: {
+            select: { id: true, name: true },
+          },
         },
         orderBy: { date: 'desc' },
       },
@@ -154,7 +160,7 @@ export const getUserDetails = async (id: string) => {
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
-        take: 20,
+        // No take limit — all EARN transactions needed for accurate pointsEarned matching
       },
     },
   });
@@ -165,19 +171,62 @@ export const getUserDetails = async (id: string) => {
 
   const now = new Date();
   const lastVisit =
-    user.appointments.find((appointment) => appointment.status === 'COMPLETED' && new Date(appointment.date) < now) ??
-    null;
+    user.appointments.find((a) => a.status === 'COMPLETED' && new Date(a.date) < now) ?? null;
   const upcoming = user.appointments.filter(
-    (appointment) =>
-      (appointment.status === 'PENDING' || appointment.status === 'CONFIRMED') &&
-      new Date(appointment.date) >= now,
+    (a) =>
+      (a.status === 'PENDING' || a.status === 'CONFIRMED') && new Date(a.date) >= now,
   );
+
+  // --- Financial stats (computed in JS, no extra DB queries) ---
+  const completedAppointments = user.appointments.filter((a) => a.status === 'COMPLETED');
+  const totalSpent = completedAppointments.reduce((sum, a) => sum + (a.service?.price ?? 0), 0);
+  const completedCount = completedAppointments.length;
+  const avgPerVisit = completedCount > 0 ? Math.round(totalSpent / completedCount) : 0;
+
+  const serviceCount: Record<string, number> = {};
+  for (const a of completedAppointments) {
+    if (a.service?.name) {
+      serviceCount[a.service.name] = (serviceCount[a.service.name] ?? 0) + 1;
+    }
+  }
+  const mostFrequentService =
+    Object.keys(serviceCount).length > 0
+      ? Object.entries(serviceCount).sort((a, b) => b[1] - a[1])[0][0]
+      : null;
+
+  // --- Points earned per appointment (inline — do not refactor getUserTimeline) ---
+  const earnTransactions = user.loyaltyTransactions.filter(
+    (t) =>
+      t.type === 'EARN' &&
+      VISIT_POINTS_PREFIXES.some((prefix) => t.description.startsWith(prefix)),
+  );
+  const pointsMap = new Map<string, number>();
+  for (const t of earnTransactions) {
+    const serviceName = extractVisitServiceName(t.description);
+    if (!serviceName) continue;
+    for (const a of completedAppointments) {
+      if (a.service?.name === serviceName && !pointsMap.has(a.id)) {
+        pointsMap.set(a.id, t.points);
+        break;
+      }
+    }
+  }
+
+  const allAppointments = user.appointments.map((a) => ({
+    ...a,
+    pointsEarned: pointsMap.get(a.id) ?? null,
+  }));
 
   return {
     ...user,
     lastVisit,
     upcoming,
-    allAppointments: user.appointments,
+    allAppointments,
+    stats: {
+      totalSpent,
+      avgPerVisit,
+      mostFrequentService,
+    },
   };
 };
 
@@ -441,3 +490,28 @@ export const changeUserPassword = async (userId: string, currentPassword: string
   });
   return updated;
 };;
+
+export const searchUsersByName = async (query: string) => {
+  const q = query.trim();
+  if (!q) return [];
+
+  return prisma.user.findMany({
+    where: {
+      OR: [
+        { name: { contains: q, mode: 'insensitive' } },
+        { email: { contains: q, mode: 'insensitive' } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatarPath: true,
+      hasAcademyAccess: true,
+      academyAccessExpiresAt: true,
+      academyGrantedAt: true,
+    },
+    take: 20,
+    orderBy: { name: 'asc' },
+  });
+};
