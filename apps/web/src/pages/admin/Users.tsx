@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { usersApi } from '@/api/users.api';
 import { authApi } from '@/api/auth.api';
 import { toast } from 'sonner';
-import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X } from 'lucide-react';
+import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star } from 'lucide-react';
 import { UserJournal } from './UserJournal';
 
 const TIER_LABELS: Record<string, string> = { BRONZE: 'Brąz', SILVER: 'Srebro', GOLD: 'Złoto' };
@@ -111,14 +111,32 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                 </div>
               </div>
 
-              {/* Stats grid */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Stats grid — 3 columns, 2 rows + optional 3rd row */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Row 1: Financial */}
                 <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Konto założono</p>
-                  <p className="font-bold text-foreground">{formatDate(data.createdAt)}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">({accountAge(data.createdAt)} temu)</p>
+                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Wydano łącznie</p>
+                  <p className="font-bold text-2xl text-green-600">{data.stats?.totalSpent ?? 0} zł</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">za wszystkie wizyty</p>
+                </div>
+                <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
+                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Wizyty łącznie</p>
+                  <p className="font-bold text-2xl text-foreground">{data.allAppointments?.length ?? 0}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {data.upcoming?.length > 0 ? `${data.upcoming.length} zaplanowane` : 'Brak zaplanowanych'}
+                  </p>
+                </div>
+                <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
+                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Średnia za wizytę</p>
+                  {(data.stats?.avgPerVisit ?? 0) > 0 ? (
+                    <p className="font-bold text-2xl text-foreground">{data.stats.avgPerVisit} zł</p>
+                  ) : (
+                    <p className="font-bold text-2xl text-muted-foreground">—</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-0.5">tylko zakończone</p>
                 </div>
 
+                {/* Row 2: Meta */}
                 <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
                   <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Ostatnia wizyta</p>
                   {data.lastVisit ? (
@@ -130,7 +148,11 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                     <p className="font-bold text-muted-foreground">Brak wizyt</p>
                   )}
                 </div>
-
+                <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
+                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Konto założono</p>
+                  <p className="font-bold text-foreground">{formatDate(data.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">({accountAge(data.createdAt)} temu)</p>
+                </div>
                 <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
                   <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Program lojalnościowy</p>
                   <span className={`inline-block px-2 py-1 rounded-md text-xs font-black ${TIER_COLORS[data.loyaltyTier] || 'bg-muted'}`}>
@@ -138,15 +160,20 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                   </span>
                   <p className="text-sm font-bold mt-1">{data.loyaltyPoints} pkt</p>
                 </div>
-
-                <div className="bg-muted/20 rounded-xl p-4 border border-border/50">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Wizyty łącznie</p>
-                  <p className="font-bold text-2xl text-foreground">{data.allAppointments?.length ?? 0}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {data.upcoming?.length > 0 ? `${data.upcoming.length} zaplanowane` : 'Brak zaplanowanych'}
-                  </p>
-                </div>
               </div>
+
+              {/* Row 3: Most frequent service (full width, only if present) */}
+              {data.stats?.mostFrequentService && (
+                <div className="bg-muted/20 rounded-xl p-4 border border-border/50 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                    <Star size={14} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-muted-foreground">Najczęstsza usługa</p>
+                    <p className="font-bold text-foreground">{data.stats.mostFrequentService}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Zgody */}
               <div>
