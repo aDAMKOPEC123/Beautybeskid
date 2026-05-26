@@ -149,6 +149,16 @@ export const Navbar = () => {
             Cosmo
           </Link>
 
+          {/* Mobile center: Panel klienta */}
+          <div className="md:hidden flex-1 flex justify-center">
+            <Link
+              to={appDest}
+              style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none' }}
+            >
+              {appLine1}
+            </Link>
+          </div>
+
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(({ to, label }) => (
