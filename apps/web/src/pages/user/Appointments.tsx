@@ -148,7 +148,7 @@ export const UserAppointments = () => {
             style={{ color: 'rgba(20,40,28,0.5)' }}
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold">Historia</h2>
+              <span className="text-lg font-semibold">Historia</span>
               <span
                 className="text-xs px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.5)' }}
