@@ -15,6 +15,55 @@ const NAV_LINKS = [
   { to: '/program-lojalnosciowy', label: 'Lojalność', num: '06' },
 ];
 
+const PanelLink = ({
+  dest,
+  line1,
+  line2,
+  mobile = false,
+  onClick,
+}: {
+  dest: string;
+  line1: string;
+  line2: string;
+  mobile?: boolean;
+  onClick?: () => void;
+}) => (
+  <Link
+    to={dest}
+    onClick={onClick}
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: mobile ? 'flex-start' : 'flex-end',
+      gap: '2px',
+      textDecoration: 'none',
+    }}
+  >
+    <span
+      style={{
+        color: '#C8956C',
+        fontSize: mobile ? '12px' : '10px',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        borderBottom: '1px solid #C8956C',
+        paddingBottom: '1px',
+      }}
+    >
+      {line1}
+    </span>
+    <span
+      style={{
+        color: mobile ? 'rgba(255,255,255,0.4)' : '#9A9A8A',
+        fontSize: mobile ? '9px' : '8px',
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+      }}
+    >
+      {line2}
+    </span>
+  </Link>
+);
+
 export const Navbar = () => {
   const { isAuthenticated, isAdmin, isEmployee, logout } = useAuth();
   const navigate = useNavigate();
@@ -69,9 +118,10 @@ export const Navbar = () => {
     setMobileOpen(false);
   };
 
+  // isAdmin checked before isEmployee because useAuth sets isEmployee=true for ADMIN role too
   const appLink = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
-  const appLine1 = isAdmin ? 'Panel admina \u2192' : isEmployee ? 'Panel pracownika \u2192' : 'Panel klienta \u2192';
-  const appLine2 = isAdmin ? 'panel administracyjny' : isEmployee ? 'panel pracownika' : (isAuthenticated ? 'moje konto' : 'zaloguj lub zarejestruj si\u0119');
+  const appLine1 = isAdmin ? 'Panel admina →' : isEmployee ? 'Panel pracownika →' : 'Panel klienta →';
+  const appLine2 = isAdmin ? 'panel administracyjny' : isEmployee ? 'panel pracownika' : (isAuthenticated ? 'moje konto' : 'zaloguj lub zarejestruj się');
   const appDest = isAuthenticated ? appLink : '/auth/login';
 
   return (
@@ -122,17 +172,7 @@ export const Navbar = () => {
                 <Button variant="ghost-underline" size="sm" asChild data-tour="navbar-booking-btn">
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
-                <Link
-                  to={appDest}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', textDecoration: 'none' }}
-                >
-                  <span style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
-                    {appLine1}
-                  </span>
-                  <span style={{ color: '#9A9A8A', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    {appLine2}
-                  </span>
-                </Link>
+                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} />
                 <button
                   onClick={handleLogout}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
@@ -143,17 +183,7 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Link
-                  to={appDest}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', textDecoration: 'none' }}
-                >
-                  <span style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
-                    {appLine1}
-                  </span>
-                  <span style={{ color: '#9A9A8A', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    {appLine2}
-                  </span>
-                </Link>
+                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} />
                 <Button variant="ghost-underline" size="sm" asChild>
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
@@ -233,18 +263,7 @@ export const Navbar = () => {
             <div className="container pb-8 flex flex-col gap-3 border-t border-ivory/10 pt-6">
               {isAuthenticated ? (
                 <>
-                  <Link
-                    to={appDest}
-                    onClick={() => setMobileOpen(false)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none', paddingTop: '8px', paddingBottom: '8px' }}
-                  >
-                    <span style={{ color: '#C8956C', fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
-                      {appLine1}
-                    </span>
-                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                      {appLine2}
-                    </span>
-                  </Link>
+                  <PanelLink dest={appDest} line1={appLine1} line2={appLine2} mobile onClick={() => setMobileOpen(false)} />
                   <button
                     onClick={handleLogout}
                     className="text-[10px] tracking-[0.3em] uppercase text-ivory/60 hover:text-ivory transition-colors text-left py-2"
@@ -253,18 +272,7 @@ export const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <Link
-                  to={appDest}
-                  onClick={() => setMobileOpen(false)}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none', paddingTop: '8px', paddingBottom: '8px' }}
-                >
-                  <span style={{ color: '#C8956C', fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
-                    {appLine1}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    {appLine2}
-                  </span>
-                </Link>
+                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} mobile onClick={() => setMobileOpen(false)} />
               )}
               <Link
                 to="/rezerwacja"
