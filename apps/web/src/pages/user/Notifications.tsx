@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, Calendar, Star, Clock, CheckCheck } from 'lucide-react';
+import { Bell, Calendar, Star, Clock, CheckCheck, MessageCircle, Trophy, BookOpen, ShoppingBag, Megaphone, Info } from 'lucide-react';
 import { notificationsApi, type Notification } from '@/api/notifications.api';
 import { toast } from 'sonner';
 import { useSocket } from '@/hooks/useSocket';
@@ -49,9 +49,34 @@ function getIconConfig(type: Notification['type']): { icon: React.ReactNode; dot
         icon: <Clock size={18} className="text-blue-500" />,
         dot: 'bg-blue-500',
       };
+    case 'CHAT_MESSAGE':
+      return {
+        icon: <MessageCircle size={18} className="text-blue-400" />,
+        dot: 'bg-blue-400',
+      };
+    case 'ACHIEVEMENT_UNLOCKED':
+      return {
+        icon: <Trophy size={18} style={{ color: '#C4965A' }} />,
+        dot: 'bg-yellow-500',
+      };
+    case 'JOURNAL_COMMENT':
+      return {
+        icon: <BookOpen size={18} className="text-purple-400" />,
+        dot: 'bg-purple-400',
+      };
+    case 'RECOMMENDATION_ADDED':
+      return {
+        icon: <ShoppingBag size={18} className="text-green-500" />,
+        dot: 'bg-green-500',
+      };
+    case 'BROADCAST':
+      return {
+        icon: <Megaphone size={18} style={{ color: '#C4965A' }} />,
+        dot: 'bg-yellow-500',
+      };
     default:
       return {
-        icon: <Bell size={18} className="text-gray-400" />,
+        icon: <Info size={18} className="text-gray-400" />,
         dot: 'bg-gray-400',
       };
   }
