@@ -69,8 +69,10 @@ export const Navbar = () => {
     setMobileOpen(false);
   };
 
-  const panelLink = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
-  const panelLabel = isAdmin ? 'Panel Admina' : isEmployee ? 'Panel Pracownika' : 'Moje Konto';
+  const appLink = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
+  const appLine1 = isAdmin ? 'Panel admina \u2192' : isEmployee ? 'Panel pracownika \u2192' : 'Panel klienta \u2192';
+  const appLine2 = isAdmin ? 'panel administracyjny' : isEmployee ? 'panel pracownika' : (isAuthenticated ? 'moje konto' : 'zaloguj lub zarejestruj si\u0119');
+  const appDest = isAuthenticated ? appLink : '/auth/login';
 
   return (
     <>
@@ -121,11 +123,15 @@ export const Navbar = () => {
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
                 <Link
-                  to={panelLink}
-                  className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#5A7A62' }}
+                  to={appDest}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', textDecoration: 'none' }}
                 >
-                  {panelLabel}
+                  <span style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
+                    {appLine1}
+                  </span>
+                  <span style={{ color: '#9A9A8A', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    {appLine2}
+                  </span>
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -138,11 +144,15 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link
-                  to="/auth/login"
-                  className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#5A7A62' }}
+                  to={appDest}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', textDecoration: 'none' }}
                 >
-                  Zaloguj
+                  <span style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
+                    {appLine1}
+                  </span>
+                  <span style={{ color: '#9A9A8A', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    {appLine2}
+                  </span>
                 </Link>
                 <Button variant="ghost-underline" size="sm" asChild>
                   <Link to="/rezerwacja">Rezerwacja</Link>
@@ -224,11 +234,16 @@ export const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   <Link
-                    to={panelLink}
+                    to={appDest}
                     onClick={() => setMobileOpen(false)}
-                    className="text-[10px] tracking-[0.3em] uppercase text-ivory/60 hover:text-ivory transition-colors py-2"
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none', paddingTop: '8px', paddingBottom: '8px' }}
                   >
-                    {panelLabel}
+                    <span style={{ color: '#C8956C', fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
+                      {appLine1}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      {appLine2}
+                    </span>
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -239,11 +254,16 @@ export const Navbar = () => {
                 </>
               ) : (
                 <Link
-                  to="/auth/login"
+                  to={appDest}
                   onClick={() => setMobileOpen(false)}
-                  className="text-[10px] tracking-[0.3em] uppercase text-ivory/60 hover:text-ivory transition-colors py-2"
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none', paddingTop: '8px', paddingBottom: '8px' }}
                 >
-                  Zaloguj się
+                  <span style={{ color: '#C8956C', fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid #C8956C', paddingBottom: '1px' }}>
+                    {appLine1}
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    {appLine2}
+                  </span>
                 </Link>
               )}
               <Link
