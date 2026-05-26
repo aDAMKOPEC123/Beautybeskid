@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { format, addDays, startOfMonth, addMonths, subMonths, getDaysInMonth, getDay, isBefore, startOfDay } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Plus, X, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight, CalendarDays, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { appointmentsApi } from '@/api/appointments.api';
 import { employeesApi } from '@/api/employees.api';
@@ -64,6 +64,8 @@ export const UserAppointments = () => {
       socket.off('appointment:deleted', handler);
     };
   }, [socket, queryClient]);
+
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const upcoming = appointments.filter(
     (a: any) => a.status === 'PENDING' || a.status === 'CONFIRMED'
@@ -139,12 +141,33 @@ export const UserAppointments = () => {
 
       {past.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold" style={{ color: 'rgba(20,40,28,0.5)' }}>Historia</h2>
-          <div className="grid gap-4 opacity-75">
-            {past.map((a: any) => (
-              <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => setHistoryOpen((v) => !v)}
+            className="w-full flex items-center justify-between"
+            style={{ color: 'rgba(20,40,28,0.5)' }}
+          >
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">Historia</h2>
+              <span
+                className="text-xs px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.5)' }}
+              >
+                {past.length}
+              </span>
+            </div>
+            <ChevronDown
+              size={18}
+              className={`transition-transform duration-200 ${historyOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {historyOpen && (
+            <div className="grid gap-4 opacity-75">
+              {past.map((a: any) => (
+                <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
+              ))}
+            </div>
+          )}
         </section>
       )}
     </div>
