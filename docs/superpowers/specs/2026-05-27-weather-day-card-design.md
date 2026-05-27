@@ -8,155 +8,215 @@
 
 ## Problem
 
-Raport skórny generowany o 6:00 używa prognozy na 13:00, ale użytkownik nie widzi żadnych surowych danych pogodowych — tylko dopasowane reguły tekstowe. Nie może stwierdzić, dlaczego dostał daną rekomendację ani jaki jest przewidywany przebieg UV i temperatury przez cały dzień.
+Raport skórny generowany o 6:00 używa prognozy na 13:00, ale użytkownik nie widzi żadnych surowych danych pogodowych — tylko dopasowane reguły tekstowe.
 
 ---
 
 ## Cel
 
-Dodać kartę `WeatherDayCard` nad sekcją "Prognoza na 13:00", która pokazuje:
-- Godzinowy przebieg temperatury i UV (06–21h)
-- Zachmurzenie i opady
-- Animowane wejście elementów
+Dodać kartę `WeatherDayCard` wewnątrz komponentu `TodayReport`, przed listą sekcji reguł, która pokazuje godzinowy przebieg temperatury, UV i zachmurzenia z animacjami.
 
 ---
 
 ## Zakres
 
 ### W zakresie
-- Nowy komponent frontendowy `WeatherDayCard`
+- Nowy komponent `WeatherDayCard` (Tailwind CSS, bez osobnych plików CSS)
 - Rozszerzenie backendowego fetcha o `cloud_cover`
-- Renderowanie na stronie `/user/pogoda-skory`
+- Renderowanie na `/user/pogoda-skory`
 
 ### Poza zakresem
-- Widget na dashboardzie (za mały)
+- Widget na dashboardzie
 - Wykres historyczny
-- Powiadomienia push ze zmianą danych
 
 ---
 
 ## Backend
 
-### Zmiana w `skin-weather.service.ts`
-
-Funkcja `fetchWeatherForecastAt13` otrzymuje `cloud_cover` w parametrach godzinowych:
+### Zmiana w `skin-weather.service.ts` — tylko `fetchWeatherForecastAt13`
 
 ```
 &hourly=temperature_2m,relative_humidity_2m,precipitation_probability,uv_index,cloud_cover
 ```
 
-Pole `cloud_cover` (0–100%) jest przechowywane w `report.weatherData.hourly.cloud_cover[]` automatycznie — bez migracji schematu (pole `weatherData` to `Json` w Prisma).
-
-Nie zmienia się struktura `current` (używana przez `matchRulesToWeather`) — tylko hourly dostaje nowe pole.
+`cloud_cover` ląduje w `report.weatherData.hourly.cloud_cover[]`. Syntetyczny obiekt `current` celowo nie jest rozszerzany (służy tylko `matchRulesToWeather`, które nie potrzebuje `cloud_cover`). `fetchWeather` (bieżąca pogoda) pozostaje bez zmian.
 
 ---
 
 ## Frontend
 
-### Nowy plik
+### Nowy plik: `apps/web/src/components/skin-weather/WeatherDayCard.tsx`
 
-`apps/web/src/components/skin-weather/WeatherDayCard.tsx`
-
-### Interfejs propsów
+### Interfejsy
 
 ```ts
+interface HourlyWeather {
+  time: string[];                    // "2026-05-27T06:00" — lokalny czas bez strefy
+  temperature_2m: number[];
+  uv_index: number[];
+  precipitation_probability: number[];
+  cloud_cover?: number[];            // brak w starych raportach
+}
+
 interface WeatherDayCardProps {
-  weatherData: any; // report.weatherData z API
+  weatherData: { hourly?: HourlyWeather } | null | undefined;
   cityName?: string;
 }
 ```
 
-### Struktura wizualna (układ C z animacjami C)
+### Fallback
 
+Jeśli `weatherData` lub `weatherData.hourly` jest null/undefined → komponent zwraca `null`.
+
+### Wyświetlane godziny
+
+Dokładnie 9 kolumn: **06, 08, 10, 12, 13, 15, 17, 19, 21**
+
+#### Ekstrakcja indeksów
+
+```ts
+const DISPLAY_HOURS = [6, 8, 10, 12, 13, 15, 17, 19, 21];
+
+const columns = DISPLAY_HOURS.map(hour => {
+  const suffix = `T${String(hour).padStart(2, '0')}:00`;
+  const idx = hourly.time.findIndex(t => t.includes(suffix));
+  if (idx === -1) return null; // brak danych dla tej godziny → pomiń kolumnę
+  return {
+    hour,
+    temp: hourly.temperature_2m[idx] ?? null,
+    uv: hourly.uv_index[idx] ?? null,
+    precip: hourly.precipitation_probability[idx] ?? 0,
+    cloud: hourly.cloud_cover?.[idx],   // może być undefined w starych raportach
+  };
+}).filter(Boolean);
 ```
-┌─────────────────────────────────────────────────────┐
-│  [emoji]  23°  max 26°                              │
-│  Częściowe zachmurzenie · Warszawa                  │
-│  [☁ 40% chmur]  [UV max 7 — Wysoki]                │
-│                                                     │
-│  ▁▂▄▆█▇▅▃▁  ← mini słupki temperatury (06–21h)    │
-│  06 08 10 12 [13] 15 17 19 21                       │
-│  🌤 ☀  ☀  ⛅  🌞  ⛅  🌥  🌆  🌙              │
-│  17° 19° 22° 25° 26° 25° 22° 20° 18°              │
-│  UV1 UV3 UV5 UV6 UV7 UV5 UV2 —  —                 │
-└─────────────────────────────────────────────────────┘
+
+Godzina wyciągana ze stałej `hour` (nie parsowana ze stringa), co eliminuje problemy z timezone.
+
+Jeśli `idx === -1` dla danej godziny — ta kolumna jest pomijana (nie renderowana). Nie powoduje błędu.
+
+### Logika emoji
+
+`const isNight = (hour: number) => hour >= 21 || hour < 6`
+
+Reguły w kolejności (pierwsze pasujące wygrywa):
+
+| # | Warunek | Emoji |
+|---|---------|-------|
+| 1 | `hour === 13 && uv !== null && uv >= 6` | 🌞 |
+| 2 | `isNight(hour)` | 🌙 |
+| 3 | `cloud === undefined` (stary raport) | 🌥 |
+| 4 | `cloud < 20` | ☀️ |
+| 5 | `cloud < 50 && precip < 30` | 🌤 |
+| 6 | `cloud < 50` (precip >= 30) | 🌦 |
+| 7 | `cloud < 80 && precip >= 30` | 🌦 |
+| 8 | `cloud < 80` | ⛅ |
+| 9 | `precip >= 50` | 🌧 |
+| 10 | fallback | 🌥 |
+
+Uwaga: reguła 2 (`isNight`) jest niedosięgalna dla godziny 13, ponieważ reguła 1 wyłapuje ją pierwsza. Dla godziny 06 `isNight` jest fałszywy (06 >= 6), więc reguła 2 odpala się tylko dla kolumny 21. Reguła dla `hour < 6` jest zachowana dla potencjalnych przyszłych zmian zakresu godzin.
+
+### Mini słupki temperatury
+
+Renderowane nad kolumnami scroll w tym samym flex-container (wyrównane pozycją).
+
+```ts
+const temps = columns.map(c => c.temp).filter((t): t is number => t !== null);
+const minTemp = Math.min(...temps);
+const maxTemp = Math.max(...temps);
+const getBarHeight = (temp: number | null) => {
+  if (temp === null) return 4; // minimum
+  return 4 + ((temp - minTemp) / Math.max(maxTemp - minTemp, 1)) * 24;
+};
 ```
 
-### Dane źródłowe
+Zakres wysokości: 4px (min) – 28px (max).
 
-Z `weatherData.hourly`:
-- `time[]` — tablica ISO timestamps (np. `"2026-05-27T13:00"`)
-- `temperature_2m[]` — temperatura °C
-- `uv_index[]` — UV 0–11
-- `precipitation_probability[]` — % szans na deszcz
-- `cloud_cover[]` — % zachmurzenia (nowe)
+Kolor słupka (Tailwind):
 
-Wyświetlane godziny: co 2h od 06:00 do 21:00 + zawsze godzina 13:00 (łącznie 9 kolumn: 06,08,10,12,13,15,17,19,21).
-
-### Logika emoji pogody
-
-| Warunek | Emoji |
-|---------|-------|
-| godzina nocna (≥21 lub <6) | 🌙 |
-| `cloud_cover` < 20% | ☀️ |
-| `cloud_cover` < 50% i `precip` < 30% | 🌤 |
-| `cloud_cover` < 50% i `precip` >= 30% | 🌦 |
-| `cloud_cover` < 80% | ⛅ |
-| `cloud_cover` >= 80% i `precip` >= 50% | 🌧 |
-| `cloud_cover` >= 80% | 🌥 |
-| godzina 13:00 i UV >= 6 | 🌞 (override) |
-
-### Kolor słupków temperatury
-
-Miniaturowe słupki nad kolumnami (wysokość proporcjonalna do temp w przedziale min–max dnia):
-
-| Temperatura | Kolor |
+| Temperatura | Klasa |
 |-------------|-------|
-| < 10°C | `#818cf8` (indigo) |
-| 10–18°C | `#a78bfa` (violet) |
-| 18–25°C | `#f59e0b` (amber) |
-| > 25°C | `#ef4444` (red) + box-shadow glow |
+| < 10°C | `bg-indigo-400` |
+| 10–17°C | `bg-violet-400` |
+| 18–24°C | `bg-amber-400` |
+| >= 25°C | `bg-red-500` |
 
-Godzina 13:00 zawsze wyróżniona: kolumna z gradientem `#6366f1→#8b5cf6`, emoji pulsuje.
+Kolumna 13:00 (słupek + wrapper): zawsze `bg-red-500` + `shadow-[0_0_8px_rgba(239,68,68,0.5)]`.
 
 ### Etykieta UV
 
-| Wartość | Kolor tekstu |
-|---------|-------------|
-| 0–2 | `text-green-400` |
-| 3–5 | `text-yellow-400` |
-| 6–7 | `text-orange-400` |
-| 8+ | `text-red-400` |
+```ts
+const uvColor = (uv: number | null) => {
+  if (uv === null) return '';
+  if (uv <= 2) return 'text-green-400';
+  if (uv <= 5) return 'text-yellow-400';
+  if (uv <= 7) return 'text-orange-400';
+  return 'text-red-400';
+};
+const uvLabel = (uv: number | null, hour: number) => {
+  if (uv === null || (uv === 0 && isNight(hour))) return '—';
+  return `UV ${uv}`;
+};
+```
 
-### Animacje CSS
+### Animacje (Tailwind + inline style)
 
-1. **Slide-in kaskadowy** — kolumny wjeżdżają z prawej (translateX + opacity), opóźnienie rośnie o 50ms na kolumnę
-2. **Bar-grow** — mini słupki temperatury wyrastają z dołu (scaleY 0→1, transform-origin bottom)
-3. **Pulse-glow** — godzina 13:00 pulsuje (drop-shadow na emoji)
+Wszystkie animacje przez Tailwind arbitrary CSS z `style={{ animationDelay }}`.
 
-Wszystkie animacje: `animation-fill-mode: both`, respektują `prefers-reduced-motion` (wyłączają się).
+1. **Slide-in** — każda kolumna (`div`): `animate-[slideIn_0.4s_ease_both]` z `style={{ animationDelay: \`${idx * 50}ms\` }}`
+   ```css
+   @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+   ```
 
-### Fallback
+2. **Bar-grow** — element słupka: `animate-[barGrow_0.5s_ease_both]` z tym samym delay
+   ```css
+   @keyframes barGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+   /* transform-origin: bottom — inline style na elemencie */
+   ```
 
-Jeśli `weatherData` jest null/brak godzinowych danych → komponent nie renderuje się (zwraca `null`). Raporty stare (sprzed dodania `cloud_cover`) wyświetlą się poprawnie — emoji logic obsługuje `cloud_cover = undefined` jako `> 80%` (zachowawcze).
+3. **Pulse-glow** — **wrapper kolumny** (nie element słupka!) dla godziny 13: `animate-[pulseGlow_2s_ease-in-out_infinite]`
+   ```css
+   @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 6px rgba(99,102,241,.4); } 50% { box-shadow: 0 0 14px rgba(99,102,241,.7); } }
+   ```
+   Pulse-glow na wrapperze kolumny, NIE na elemencie słupka (unikanie konfliktu z `scaleY` transform).
+
+`prefers-reduced-motion` — przez Tailwind `motion-reduce:animate-none` na każdym animowanym elemencie.
 
 ---
 
 ## Integracja w SkinWeatherProfile
 
-W sekcji B (Today's Report):
+### Zmiana podpisu `TodayReport`
 
 ```tsx
-{/* Nowa karta pogodowa NAD sekcjami reguł */}
-{report?.weatherData && (
-  <WeatherDayCard
-    weatherData={report.weatherData}
-    cityName={profile?.cityName}
-  />
-)}
+// Przed:
+function TodayReport({ hasProfile }: { hasProfile: boolean })
+
+// Po:
+function TodayReport({ hasProfile, cityName }: { hasProfile: boolean; cityName?: string })
 ```
 
-Karta dodana **wewnątrz** `TodayReport`, przed listą `sections`.
+### Renderowanie wewnątrz `TodayReport`, po strażnikach błędów, przed `<div className="space-y-3">`
+
+```tsx
+import { WeatherDayCard } from '@/components/skin-weather/WeatherDayCard';
+
+// Po: const sections = (report.reportData as any)?.sections ?? [];
+<WeatherDayCard
+  weatherData={report.weatherData as any}
+  cityName={cityName}
+/>
+```
+
+### Wywołanie `TodayReport` w `SkinWeatherProfile` (~linia 598)
+
+```tsx
+// Przed:
+<TodayReport hasProfile={hasProfile} />
+
+// Po:
+<TodayReport hasProfile={hasProfile} cityName={profile?.cityName} />
+```
 
 ---
 
@@ -164,15 +224,6 @@ Karta dodana **wewnątrz** `TodayReport`, przed listą `sections`.
 
 | Plik | Zmiana |
 |------|--------|
-| `apps/server/src/modules/skin-weather/skin-weather.service.ts` | Dodanie `cloud_cover` do URL hourly |
-| `apps/web/src/components/skin-weather/WeatherDayCard.tsx` | Nowy komponent (create) |
-| `apps/web/src/pages/user/SkinWeatherProfile.tsx` | Import i renderowanie `WeatherDayCard` |
-
----
-
-## Testowanie
-
-- Stary raport (bez `cloud_cover` w `weatherData`) → fallback emoji działa, karta się wyświetla
-- Nowy raport → wszystkie 9 kolumn z poprawnymi danymi
-- `prefers-reduced-motion: reduce` → animacje wyłączone
-- Mobile (320px) → horizontal scroll działa, karty nie uciekają
+| `apps/server/src/modules/skin-weather/skin-weather.service.ts` | Dodać `cloud_cover` do hourly URL w `fetchWeatherForecastAt13` |
+| `apps/web/src/components/skin-weather/WeatherDayCard.tsx` | Nowy plik — cały komponent |
+| `apps/web/src/pages/user/SkinWeatherProfile.tsx` | (1) Nowy prop `cityName` w `TodayReport`, (2) renderowanie `<WeatherDayCard>` wewnątrz, (3) aktualizacja call-site `<TodayReport cityName={profile?.cityName}>` |
