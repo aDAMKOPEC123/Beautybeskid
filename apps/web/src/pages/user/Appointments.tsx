@@ -187,74 +187,107 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
         style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
       >
         {/* Header */}
-        <div className="p-5 flex flex-row justify-between items-start gap-4">
-          <div className="space-y-1">
+        <div className="p-5">
+          {/* Mobile top row: label left, status badge right */}
+          <div className="flex items-center justify-between mb-3 sm:hidden">
             <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#C4965A' }}>
               {canReschedule ? 'Nadchodząca wizyta' : 'Przeszła wizyta'}
             </p>
-            <h3 className="text-[15px] font-heading font-bold" style={{ color: '#1A3828' }}>
-              {a.service?.name}
-            </h3>
-            {a.service?.price && (() => {
-              const base = Number(a.service.price);
-              const reward = a.coupon?.reward;
-              const discounted = reward ? calcDiscountedPrice(base, reward) : base;
-              const hasDiscount = reward && discounted < base;
-              return (
-                <div className="flex items-center gap-2 flex-wrap">
-                  {hasDiscount ? (
-                    <>
-                      <span className="line-through text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>
-                        {base.toFixed(2)} zł
-                      </span>
-                      <span className="font-bold text-sm" style={{ color: '#15803D' }}>
-                        {discounted.toFixed(2)} zł
-                      </span>
-                      <span
-                        className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                        style={{ background: 'rgba(34,197,94,0.12)', color: '#15803D', border: '1px solid rgba(34,197,94,0.2)' }}
-                      >
-                        {reward.discountType === 'PERCENTAGE'
-                          ? `-${Number(reward.discountValue)}%`
-                          : `-${Number(reward.discountValue).toFixed(2)} zł`}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="font-bold text-sm" style={{ color: '#C4965A' }}>
-                      {base.toFixed(2)} zł
-                    </span>
-                  )}
-                </div>
-              );
-            })()}
-            <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
-              {format(new Date(a.date), "EEEE, d MMMM yyyy 'o' HH:mm", { locale: pl })}
-            </p>
-            {a.employee && (
-              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                Pracownik:{' '}
-                <span className="font-medium" style={{ color: '#1A3828' }}>{a.employee.name}</span>
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
             <span
               className="text-[11px] font-bold px-3 py-1.5 rounded-full"
               style={statusStyle}
             >
               {STATUS_LABELS[a.status] ?? a.status}
             </span>
-            {canReschedule && (
+          </div>
+
+          {/* Desktop: flex-row layout; Mobile: info column only */}
+          <div className="sm:flex sm:flex-row sm:justify-between sm:items-start sm:gap-4">
+            {/* Info column — full width on mobile */}
+            <div className="space-y-1 min-w-0">
+              <p className="hidden sm:block text-[10px] font-bold uppercase tracking-wider" style={{ color: '#C4965A' }}>
+                {canReschedule ? 'Nadchodząca wizyta' : 'Przeszła wizyta'}
+              </p>
+              <h3 className="text-[15px] font-heading font-bold" style={{ color: '#1A3828' }}>
+                {a.service?.name}
+              </h3>
+              {a.service?.price && (() => {
+                const base = Number(a.service.price);
+                const reward = a.coupon?.reward;
+                const discounted = reward ? calcDiscountedPrice(base, reward) : base;
+                const hasDiscount = reward && discounted < base;
+                return (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {hasDiscount ? (
+                      <>
+                        <span className="line-through text-sm" style={{ color: 'rgba(20,40,28,0.4)' }}>
+                          {base.toFixed(2)} zł
+                        </span>
+                        <span className="font-bold text-sm" style={{ color: '#15803D' }}>
+                          {discounted.toFixed(2)} zł
+                        </span>
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                          style={{ background: 'rgba(34,197,94,0.12)', color: '#15803D', border: '1px solid rgba(34,197,94,0.2)' }}
+                        >
+                          {reward.discountType === 'PERCENTAGE'
+                            ? `-${Number(reward.discountValue)}%`
+                            : `-${Number(reward.discountValue).toFixed(2)} zł`}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-bold text-sm" style={{ color: '#C4965A' }}>
+                        {base.toFixed(2)} zł
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                {format(new Date(a.date), "EEEE, d MMMM yyyy 'o' HH:mm", { locale: pl })}
+              </p>
+              {a.employee && (
+                <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                  Pracownik:{' '}
+                  <span className="font-medium" style={{ color: '#1A3828' }}>{a.employee.name}</span>
+                </p>
+              )}
+            </div>
+
+            {/* Desktop only: status badge + reschedule button */}
+            <div className="hidden sm:flex flex-col items-end gap-2 shrink-0">
+              <span
+                className="text-[11px] font-bold px-3 py-1.5 rounded-full"
+                style={statusStyle}
+              >
+                {STATUS_LABELS[a.status] ?? a.status}
+              </span>
+              {canReschedule && (
+                <button
+                  className="text-sm px-4 py-2.5 rounded-xl border transition-colors hover:opacity-80"
+                  style={{ borderColor: 'rgba(0,0,0,0.15)', color: '#1A3828' }}
+                  onClick={() => setRescheduleOpen(true)}
+                  disabled={a.rescheduleStatus === 'PENDING'}
+                >
+                  {a.rescheduleStatus === 'PENDING' ? 'Zmiana w toku...' : 'Zmień termin'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile only: full-width reschedule button */}
+          {canReschedule && (
+            <div className="mt-3 sm:hidden">
               <button
-                className="text-sm px-4 py-2.5 rounded-xl border transition-colors hover:opacity-80"
+                className="w-full text-sm px-4 py-2.5 rounded-xl border transition-colors hover:opacity-80"
                 style={{ borderColor: 'rgba(0,0,0,0.15)', color: '#1A3828' }}
                 onClick={() => setRescheduleOpen(true)}
                 disabled={a.rescheduleStatus === 'PENDING'}
               >
                 {a.rescheduleStatus === 'PENDING' ? 'Zmiana w toku...' : 'Zmień termin'}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Post-visit CTA */}
