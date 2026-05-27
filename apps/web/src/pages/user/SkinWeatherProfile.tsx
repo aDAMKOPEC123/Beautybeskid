@@ -8,6 +8,7 @@ import {
   Settings, Pencil, X, Sparkles, Droplets, FlaskConical, Ban, Scissors,
 } from 'lucide-react';
 import { skinWeatherApi } from '@/api/skin-weather.api';
+import { WeatherDayCard } from '@/components/skin-weather/WeatherDayCard';
 import { useSkinWeatherLocation } from '@/hooks/useSkinWeatherLocation';
 import { SkinTypeQuiz, SKIN_TYPE_INFO } from '@/components/skin-weather/SkinTypeQuiz';
 
@@ -131,7 +132,7 @@ function SectionCard({ section }: { section: any }) {
 
 // ─── Today's Report ───────────────────────────────────────────────────────────
 
-function TodayReport({ hasProfile }: { hasProfile: boolean }) {
+function TodayReport({ hasProfile, cityName }: { hasProfile: boolean; cityName?: string }) {
   const qc = useQueryClient();
   const { data: report, isLoading, isError } = useQuery<any>({
     queryKey: ['skin-weather', 'today'],
@@ -184,7 +185,7 @@ function TodayReport({ hasProfile }: { hasProfile: boolean }) {
           <div className="text-5xl mb-3 leading-none">🌥️</div>
           <p className="text-sm font-semibold text-foreground mb-1">Brak raportu na dziś</p>
           <p className="text-xs text-muted-foreground leading-relaxed mb-5">
-            Raport generowany automatycznie o 6:00.<br />Możesz też wygenerować go teraz.
+            Prognoza na 13:00 generowana automatycznie o 6:00.<br />Możesz też wygenerować ją teraz.
           </p>
           <button
             onClick={() => generateMutation.mutate(undefined)}
@@ -207,6 +208,7 @@ function TodayReport({ hasProfile }: { hasProfile: boolean }) {
 
   return (
     <div className="space-y-3">
+      <WeatherDayCard weatherData={report.weatherData as any} cityName={cityName} />
       {sections.length === 0 ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground py-1">
@@ -593,9 +595,9 @@ export const SkinWeatherProfile = () => {
       <section className="bg-card border border-border rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-5">
           <Sun className="h-4 w-4 text-amber-500" />
-          <h2 className="font-heading text-base font-semibold">Raport na dziś</h2>
+          <h2 className="font-heading text-base font-semibold">Prognoza na 13:00</h2>
         </div>
-        <TodayReport hasProfile={hasProfile} />
+        <TodayReport hasProfile={hasProfile} cityName={profile?.cityName} />
       </section>
 
       {/* Section C: History */}
@@ -658,7 +660,7 @@ export const SkinWeatherProfile = () => {
                   : <BellOff className="h-4 w-4 text-muted-foreground" />}
                 <div>
                   <p className="text-sm font-medium">Powiadomienia push</p>
-                  <p className="text-xs text-muted-foreground">Codzienny raport o 6:00</p>
+                  <p className="text-xs text-muted-foreground">Prognoza na 13:00, wysyłana o 6:00</p>
                 </div>
               </div>
               <button
