@@ -95,6 +95,18 @@ export default {
           from: { clipPath: "inset(0 0 100% 0)" },
           to: { clipPath: "inset(0 0 0% 0)" }
         },
+        "slideIn": {
+          from: { opacity: "0", transform: "translateX(12px)" },
+          to:   { opacity: "1", transform: "translateX(0)" },
+        },
+        "barGrow": {
+          from: { transform: "scaleY(0)" },
+          to:   { transform: "scaleY(1)" },
+        },
+        "pulseGlow": {
+          "0%, 100%": { boxShadow: "0 0 6px rgba(99,102,241,.4)" },
+          "50%":      { boxShadow: "0 0 14px rgba(99,102,241,.7)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -103,8 +115,16 @@ export default {
         "slide-up": "slide-up 0.6s cubic-bezier(0.76,0,0.24,1) forwards",
         "clip-reveal": "clip-reveal 0.7s cubic-bezier(0.76,0,0.24,1) forwards",
         "overlay-in": "overlay-in 0.4s ease-in-out forwards",
+        "slideIn":    "slideIn 0.4s ease both",
+        "barGrow":    "barGrow 0.5s ease both",
+        "pulseGlow":  "pulseGlow 2s ease-in-out infinite",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography")({
+      target: 'legacy',
+    }),
+  ],
 }
