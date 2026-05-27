@@ -152,7 +152,11 @@ export const generateReportForUser = async (userId: string, force = false) => {
   const lat = Number(profile.locationLat);
   const lng = Number(profile.locationLng);
 
-  const [weather, airQuality] = await Promise.all([fetchWeather(lat, lng), fetchAirQuality(lat, lng)]);
+  // Use 13:00 forecast so on-demand reports match scheduled ones
+  const [weather, airQuality] = await Promise.all([
+    fetchWeatherForecastAt13(lat, lng),
+    fetchAirQualityForecastAt13(lat, lng),
+  ]);
   const sections = matchRulesToWeather(rules, weather, airQuality);
 
   return prisma.skinWeatherReport.create({
@@ -190,6 +194,46 @@ const fetchAirQuality = async (lat: number, lng: number) => {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Open-Meteo AQI fetch failed: ${res.status}`);
   return res.json();
+};
+
+// Fetch hourly forecast and return data shaped like the current-weather response,
+// but with values for 13:00 local time (Europe/Warsaw).
+const fetchWeatherForecastAt13 = async (lat: number, lng: number) => {
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
+    `&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,uv_index,cloud_cover` +
+    `&timezone=Europe/Warsaw&forecast_days=1`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Open-Meteo hourly forecast fetch failed: ${res.status}`);
+  const data = await res.json();
+  const idx = (data.hourly?.time ?? []).findIndex((t: string) => t.endsWith('T13:00'));
+  if (idx === -1) return data; // fallback — buildWeatherData will use defaults
+  return {
+    ...data,
+    current: {
+      temperature_2m:           data.hourly.temperature_2m?.[idx] ?? 20,
+      relative_humidity_2m:     data.hourly.relative_humidity_2m?.[idx] ?? 50,
+      precipitation_probability: data.hourly.precipitation_probability?.[idx] ?? 0,
+      uv_index:                  data.hourly.uv_index?.[idx] ?? 0,
+    },
+  };
+};
+
+const fetchAirQualityForecastAt13 = async (lat: number, lng: number) => {
+  const url =
+    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}` +
+    `&hourly=european_aqi&timezone=Europe/Warsaw&forecast_days=1`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Open-Meteo hourly AQI forecast fetch failed: ${res.status}`);
+  const data = await res.json();
+  const idx = (data.hourly?.time ?? []).findIndex((t: string) => t.endsWith('T13:00'));
+  if (idx === -1) return data;
+  return {
+    ...data,
+    current: {
+      european_aqi: data.hourly.european_aqi?.[idx] ?? 0,
+    },
+  };
 };
 
 function buildWeatherData(weather: any, airQuality: any): WeatherData {
@@ -260,7 +304,11 @@ export const processSkinWeatherReports = async () => {
       const lat = Number(profile.locationLat);
       const lng = Number(profile.locationLng);
 
-      const [weather, airQuality] = await Promise.all([fetchWeather(lat, lng), fetchAirQuality(lat, lng)]);
+      // Use 13:00 forecast so the morning report reflects midday conditions
+      const [weather, airQuality] = await Promise.all([
+        fetchWeatherForecastAt13(lat, lng),
+        fetchAirQualityForecastAt13(lat, lng),
+      ]);
 
       const sections = matchRulesToWeather(rules, weather, airQuality);
 
@@ -275,7 +323,7 @@ export const processSkinWeatherReports = async () => {
 
       if (profile.notificationsEnabled && sections.length > 0) {
         await sendPushToUser(profile.userId, {
-          title: 'Pogoda dla Twojej skóry',
+          title: 'Pogoda dla Twojej skóry o 13:00',
           body: sections[0].label,
           url: '/user/pogoda-skory',
         });
