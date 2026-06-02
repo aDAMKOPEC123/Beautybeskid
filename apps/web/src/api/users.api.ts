@@ -58,4 +58,7 @@ export const usersApi = {
     const res = await api.patch('/users/me/change-password', data);
     return res.data.data.user;
   },
+  deleteUser: async (id: string): Promise<void> => {
+    await api.delete(`/users/${id}`);
+  },
 };

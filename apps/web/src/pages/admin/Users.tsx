@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { usersApi } from '@/api/users.api';
 import { authApi } from '@/api/auth.api';
 import { toast } from 'sonner';
-import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star } from 'lucide-react';
+import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star, Trash2 } from 'lucide-react';
 import { UserJournal } from './UserJournal';
 
 const TIER_LABELS: Record<string, string> = { BRONZE: 'Brąz', SILVER: 'Srebro', GOLD: 'Złoto' };
@@ -364,6 +364,7 @@ export const AdminUsers = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createForm, setCreateForm] = useState(EMPTY_CREATE_FORM);
   const [creating, setCreating] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin', 'users'],
@@ -396,6 +397,16 @@ export const AdminUsers = () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (err: any) => toast.error(err.response?.data?.message || 'Nie udało się odrzucić rejestracji.'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => usersApi.deleteUser(id),
+    onSuccess: () => {
+      toast.success('Konto użytkownika zostało trwale usunięte.');
+      setDeleteConfirmId(null);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Nie udało się usunąć konta.'),
   });
 
   const handleAdminCreate = async (e: React.FormEvent) => {
@@ -514,14 +525,26 @@ export const AdminUsers = () => {
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="font-semibold text-primary"
-                          onClick={() => setSelectedUserId(u.id)}
-                        >
-                          Szczegóły
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="font-semibold text-primary"
+                            onClick={() => setSelectedUserId(u.id)}
+                          >
+                            Szczegóły
+                          </Button>
+                          {u.role !== 'ADMIN' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => setDeleteConfirmId(u.id)}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -589,6 +612,40 @@ export const AdminUsers = () => {
 
       {selectedUserId && (
         <UserDetailsModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+      )}
+
+      {deleteConfirmId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setDeleteConfirmId(null)}
+        >
+          <div
+            className="bg-background rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold font-heading text-destructive">Usuń konto</h2>
+            <p className="text-sm text-muted-foreground">
+              Czy na pewno chcesz trwale usunąć to konto? Operacja jest nieodwracalna — wszystkie dane użytkownika zostaną usunięte z bazy danych.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="destructive"
+                className="flex-1"
+                disabled={deleteMutation.isPending}
+                onClick={() => deleteMutation.mutate(deleteConfirmId)}
+              >
+                {deleteMutation.isPending ? 'Usuwanie...' : 'Tak, usuń konto'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteConfirmId(null)}
+                disabled={deleteMutation.isPending}
+              >
+                Anuluj
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Create account modal */}
