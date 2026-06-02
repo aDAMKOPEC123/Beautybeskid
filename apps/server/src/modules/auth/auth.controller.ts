@@ -81,6 +81,9 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     }
 
     if (user.accountStatus === 'PENDING') {
+      if (user.emailVerificationToken) {
+        throw new AppError('Potwierdź swój adres email. Sprawdź skrzynkę pocztową i kliknij link aktywacyjny.', 403);
+      }
       throw new AppError('Konto oczekuje na zatwierdzenie przez administratora', 403);
     }
     if (user.accountStatus === 'REJECTED') {

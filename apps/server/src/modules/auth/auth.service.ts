@@ -85,7 +85,7 @@ export const registerUser = async (data: RegisterInput & {
 
   // Send verification email (fire-and-forget — don't fail registration if email fails)
   if (user.emailVerificationToken) {
-    const verifyUrl = `${env.CLIENT_URL}/auth/verify-email?token=${user.emailVerificationToken}`;
+    const verifyUrl = `${env.CLIENT_URL}/api/auth/verify-email?token=${user.emailVerificationToken}`;
     sendEmail(
       user.email,
       'Aktywuj swoje konto w COSMO',
