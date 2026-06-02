@@ -1,0 +1,28 @@
+// filepath: apps/server/src/config/env.ts
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().default(3001),
+  DATABASE_URL: z.string().url(),
+  CLIENT_URL: z.string().url().default('http://localhost:5173'),
+  JWT_SECRET: z.string().min(32),
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_SECRET: z.string().min(32),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  RESEND_API_KEY: z.string().min(1),
+  RESEND_FROM: z.string().email(),
+  VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+  VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+  VAPID_EMAIL: z.string().min(1).optional(),
+  GOOGLE_CLIENT_ID: z.string().min(10),
+});
+
+const _env = envSchema.safeParse(process.env);
+
+if (!_env.success) {
+  console.error('❌ Invalid environment variables:', _env.error.format());
+  throw new Error('Invalid environment variables');
+}
+
+export const env = _env.data;
