@@ -174,3 +174,22 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const searchUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const q = String(req.query.q ?? '');
+    const users = await usersService.searchUsersByName(q);
+    res.json({ data: users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await usersService.deleteUser(req.params.id);
+    res.json({ status: 'success', message: 'Konto użytkownika zostało usunięte' });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -28,6 +28,8 @@ router.post('/admin-create', requireAdmin, usersController.adminCreateUser);
 // Change password (authenticated user, no admin required)
 router.patch('/me/change-password', usersController.changePassword);
 
+router.get('/search', requireAdmin, usersController.searchUsers);
+
 // Admin: approve/reject
 router.post('/:id/approve', requireAdmin, usersController.approveUser);
 router.post('/:id/reject', requireAdmin, usersController.rejectUser);
@@ -35,5 +37,6 @@ router.post('/:id/reject', requireAdmin, usersController.rejectUser);
 router.patch('/:id/card', usersController.updateUserCard);
 router.get('/:id/recommendations', requireAdmin, recommendationsController.getByUser);
 router.get('/:id', requireAdmin, usersController.getUserDetails);
+router.delete('/:id', requireAdmin, usersController.deleteUser);
 
 export default router;

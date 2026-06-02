@@ -471,13 +471,14 @@ export const changeUserPassword = async (userId: string, currentPassword: string
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError('Użytkownik nie istnieje', 404);
 
+  if (!user.passwordHash) throw new AppError('To konto używa logowania przez Google. Zmiana hasła niedostępna.', 400);
   const valid = await bcrypt.compare(currentPassword, user.passwordHash);
   if (!valid) throw new AppError('Nieprawidłowe obecne hasło', 400);
 
   const newHash = await bcrypt.hash(newPassword, 10);
   const updated = await prisma.user.update({
     where: { id: userId },
-    data: { passwordHash: newHash, mustChangePassword: false },
+    data: { passwordHash: newHash, mustChangePassword: false, passwordChangedAt: new Date() },
     select: {
       id: true, email: true, name: true, phone: true, role: true,
       avatarPath: true, loyaltyPoints: true, loyaltyTier: true,
@@ -513,5 +514,58 @@ export const searchUsersByName = async (query: string) => {
     },
     take: 20,
     orderBy: { name: 'asc' },
+  });
+};
+
+export const deleteUser = async (id: string): Promise<void> => {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new AppError('Użytkownik nie istnieje', 404);
+  if (user.role === 'ADMIN') throw new AppError('Nie można usunąć konta administratora', 403);
+
+  await prisma.$transaction(async (tx) => {
+    // Blog comments have onDelete: Restrict — must delete first
+    await tx.blogComment.deleteMany({ where: { authorId: id } });
+
+    // Skin journal comments by this user (no cascade)
+    await tx.skinJournalComment.deleteMany({ where: { authorId: id } });
+
+    // Appointment recommendations where this user is the adder (addedById is required String)
+    await tx.appointmentRecommendation.deleteMany({ where: { addedById: id } });
+
+    // Chat messages and rooms (no cascade)
+    await tx.chatMessage.deleteMany({ where: { OR: [{ senderId: id }, { receiverId: id }] } });
+    await tx.chatRoom.deleteMany({ where: { userId: id } });
+
+    // Reviews, achievements, service reminders (no cascade)
+    await tx.review.deleteMany({ where: { userId: id } });
+    await tx.userAchievement.deleteMany({ where: { userId: id } });
+    await tx.serviceReminder.deleteMany({ where: { userId: id } });
+
+    // Loyalty data (no cascade)
+    await tx.loyaltyTransaction.deleteMany({ where: { userId: id } });
+    await tx.userCoupon.deleteMany({ where: { userId: id } });
+
+    // Discount codes usage and unlock codes locked to this user
+    await tx.discountCodeUsage.deleteMany({ where: { userId: id } });
+    await tx.discountCode.updateMany({ where: { lockedToUserId: id }, data: { lockedToUserId: null } });
+
+    // Blog posts by this user (no cascade)
+    await tx.blogPost.deleteMany({ where: { authorId: id } });
+
+    // Employee record if this user is staff (no cascade)
+    await tx.employee.deleteMany({ where: { userId: id } });
+
+    // Appointments (no cascade)
+    await tx.appointment.deleteMany({ where: { userId: id } });
+
+    // Nullify referredById for users referred by this user
+    await tx.user.updateMany({ where: { referredById: id }, data: { referredById: null } });
+
+    // Delete user — Prisma cascades handle: PushSubscription, BlogPostLike,
+    // BlogCommentReaction, TreatmentSeries, Notification, AppointmentRecommendation(userId),
+    // SkinJournalEntry(userId), SkinWeatherProfile, SkinWeatherReport,
+    // UserCourseProgress, UserLessonProgress, AcademyCertificate,
+    // AcademyQuizAttempt, CourseFavorite, LessonNote, AcademyAccessLog
+    await tx.user.delete({ where: { id } });
   });
 };
