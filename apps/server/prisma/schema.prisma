@@ -80,21 +80,64 @@ enum SkinType {
   WRAZLIWA
 }
 
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+}
+
+enum VideoProvider {
+  YOUTUBE
+  VIMEO
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
+enum AccessAction {
+  GRANTED
+  REVOKED
+  EXTENDED
+  EXPIRED
+}
+
 
 model User {
   id             String    @id @default(cuid())
   email          String    @unique
-  passwordHash   String
+  passwordHash   String?
+  googleId       String?  @unique
+  emailVerificationToken  String?  @unique
   name           String
   phone          String?
   role           Role      @default(USER)
   avatarPath     String?
   loyaltyPoints  Int       @default(0)
   loyaltyTier    LoyaltyTier @default(BRONZE)
-  resetToken     String?
-  resetTokenExp  DateTime?
-  createdAt      DateTime  @default(now())
+  resetToken        String?
+  resetTokenExp     DateTime?
+  passwordChangedAt DateTime?
+  createdAt         DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  hasAcademyAccess       Boolean   @default(false)
+  academyAccessExpiresAt DateTime?
+  academyGrantedById     String?
+  academyGrantedAt       DateTime?
   termsAcceptedAt  DateTime?
   marketingConsent Boolean   @default(false)
   photoConsent     Boolean   @default(false)
@@ -140,6 +183,13 @@ model User {
   blogPostLikes                BlogPostLike[]
   skinWeatherProfile           SkinWeatherProfile?
   skinWeatherReports           SkinWeatherReport[]
+  academyProgress        UserCourseProgress[]
+  academyLessonProgress  UserLessonProgress[]
+  academyCertificates    AcademyCertificate[]
+  academyQuizAttempts    AcademyQuizAttempt[]
+  courseFavorites        CourseFavorite[]
+  lessonNotes            LessonNote[]
+  academyAccessLogs      AcademyAccessLog[]
 }
 
 model PushSubscription {
@@ -197,6 +247,7 @@ model BlogPost {
   readingTime     Int?
   metaTitle       String?
   metaDescription String?
+  category        String?
   authorId        String
   author          User     @relation(fields: [authorId], references: [id])
   tags            Tag[]    @relation("PostTags")
@@ -425,10 +476,12 @@ model DiscountCodeUsage {
 }
 
 model AmbassadorConfig {
-  id            String       @id @default(cuid())
-  discountType  DiscountType @default(PERCENTAGE)
-  discountValue Decimal      @db.Decimal(10, 2) @default(10)
-  updatedAt     DateTime     @updatedAt
+  id                    String       @id @default(cuid())
+  discountType          DiscountType @default(PERCENTAGE)
+  discountValue         Decimal      @db.Decimal(10, 2) @default(10)
+  referrerDiscountType  DiscountType @default(PERCENTAGE)
+  referrerDiscountValue Decimal      @db.Decimal(10, 2) @default(10)
+  updatedAt             DateTime     @updatedAt
 }
 
 model SalonTerms {
@@ -896,4 +949,199 @@ model SkinTypeAdvice {
   skinType  SkinType @unique
   content   String   @db.Text
   updatedAt DateTime @updatedAt
+}
+
+// ============ Academy Module ============
+
+model Course {
+  id                 String       @id @default(cuid())
+  title              String
+  slug               String       @unique
+  description        String
+  status             CourseStatus @default(DRAFT)
+  thumbnailUrl       String?
+  difficulty         Difficulty   @default(BEGINNER)
+  estimatedMinutes   Int          @default(0)
+  tags               String[]     @default([])
+  isActive           Boolean      @default(true)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  modules            CourseModule[]
+  progress           UserCourseProgress[]
+  certificates       AcademyCertificate[]
+  favorites          CourseFavorite[]
+}
+
+model CourseModule {
+  id       String   @id @default(cuid())
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title    String
+  order    Int      @default(0)
+
+  lessons  Lesson[]
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id               String         @id @default(cuid())
+  moduleId         String
+  module           CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title            String
+  slug             String
+  type             LessonType
+  videoProvider    VideoProvider?
+  videoId          String?
+  contentHtml      String?
+  thumbnailUrl     String?
+  estimatedMinutes Int            @default(0)
+  order            Int            @default(0)
+  isRequired       Boolean        @default(true)
+
+  progress         UserLessonProgress[]
+  quiz             AcademyQuiz?
+  notes            LessonNote[]
+
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+}
+
+model AcademyQuiz {
+  id                 String   @id @default(cuid())
+  lessonId           String?  @unique
+  lesson             Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  title              String
+  description        String?
+  thumbnailUrl       String?
+  passingScore       Int      @default(70)
+  maxAttempts        Int      @default(3)
+  timeLimitMinutes   Int?
+  isPublished        Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  questions          AcademyQuizQuestion[]
+  attempts           AcademyQuizAttempt[]
+  certificates       AcademyCertificate[]
+}
+
+model AcademyQuizQuestion {
+  id          String       @id @default(cuid())
+  quizId      String
+  quiz        AcademyQuiz  @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text        String
+  type        QuestionType @default(SINGLE_CHOICE)
+  order       Int          @default(0)
+  explanation String?
+
+  options     AcademyQuizOption[]
+
+  @@index([quizId])
+}
+
+model AcademyQuizOption {
+  id         String              @id @default(cuid())
+  questionId String
+  question   AcademyQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean             @default(false)
+  order      Int                 @default(0)
+
+  @@index([questionId])
+}
+
+model AcademyQuizAttempt {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId      String
+  quiz        AcademyQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  score       Int
+  passed      Boolean
+  answers     Json
+  startedAt   DateTime    @default(now())
+  completedAt DateTime?
+
+  @@index([userId, quizId])
+}
+
+model UserCourseProgress {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  percentComplete Float    @default(0)
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  @@unique([userId, courseId])
+  @@index([userId])
+}
+
+model UserLessonProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId       String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  watchedSeconds Int      @default(0)
+  completed      Boolean  @default(false)
+  completedAt    DateTime?
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+model AcademyCertificate {
+  id               String       @id @default(cuid())
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId         String?
+  course           Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  quizId           String?
+  quiz             AcademyQuiz? @relation(fields: [quizId], references: [id], onDelete: SetNull)
+  verificationCode String       @unique
+  issuedAt         DateTime     @default(now())
+
+  @@index([userId])
+  @@index([verificationCode])
+}
+
+model CourseFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model LessonNote {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId       String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  content        String
+  videoTimestamp Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, lessonId])
+}
+
+model AcademyAccessLog {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminId   String
+  action    AccessAction
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+
+  @@index([userId])
 }
