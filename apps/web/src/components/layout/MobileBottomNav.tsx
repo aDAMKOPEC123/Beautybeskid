@@ -22,6 +22,8 @@ import {
   X,
   MessageCircle,
   Sparkles,
+  GraduationCap,
+  Cloud,
 } from 'lucide-react';
 
 const ALL_MENU_ITEMS = [
@@ -33,6 +35,8 @@ const ALL_MENU_ITEMS = [
   { to: '/user/rutyna',        label: 'Moja Rutyna',     icon: Sparkles },
   { to: '/user/produkty',      label: 'Moje Produkty',   icon: ShoppingBag },
   { to: '/user/polecenia',     label: 'Program Poleceń', icon: Users },
+  { to: '/user/pogoda-skory',  label: 'Twoja Skóra',     icon: Cloud },
+  { to: '/akademia',           label: 'Akademia',        icon: GraduationCap },
   { to: '/user/chat',          label: 'Czat',            icon: MessageCircle },
   { to: '/user/powiadomienia', label: 'Powiadomienia',   icon: Bell },
   { to: '/user/profil',        label: 'Mój Profil',      icon: UserIcon },
@@ -83,6 +87,8 @@ export const MobileBottomNav = () => {
 
   if (!isAuthenticated) return null;
 
+  const moreBadge = notifUnread + journalUnread + routineUnread;
+
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
 
@@ -105,7 +111,17 @@ export const MobileBottomNav = () => {
                   style={{ color: menuOpen ? '#C4965A' : '#5A7A62' }}
                 >
                   <span className={cn('block h-0.5 rounded-full mx-auto mb-0.5 transition-all duration-200', menuOpen ? 'w-4 bg-caramel' : 'w-0 bg-transparent')} />
-                  <Icon size={20} />
+                  <div className="relative">
+                    <Icon size={20} />
+                    {!menuOpen && moreBadge > 0 && (
+                      <span
+                        className="absolute -top-1 -right-1 text-[9px] rounded-full px-1 font-bold leading-4 min-w-[14px] text-center"
+                        style={{ background: '#C4965A', color: '#fff' }}
+                      >
+                        {moreBadge > 9 ? '9+' : moreBadge}
+                      </span>
+                    )}
+                  </div>
                   <span>{label}</span>
                 </button>
               );
