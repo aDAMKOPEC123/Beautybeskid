@@ -12,6 +12,7 @@ import { homecareApi } from '@/api/homecare.api';
 import { authApi } from '@/api/auth.api';
 import { Footer } from './Footer';
 import { MobileBottomNav } from './MobileBottomNav';
+import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useChatStore } from '@/store/chat.store';
 import { useSocket } from '@/hooks/useSocket';
 import { useAchievementNotifications } from '@/components/achievements/AchievementToast';
@@ -32,6 +33,7 @@ import {
   Sparkles,
   MessageCircle,
   Cloud,
+  GraduationCap,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -44,6 +46,7 @@ const NAV_LINKS = [
   { to: '/user/produkty', label: 'Moje Produkty', icon: ShoppingBag },
   { to: '/user/polecenia', label: 'Program Poleceń', icon: Users },
   { to: '/user/pogoda-skory', label: 'Twoja Skóra', icon: Cloud },
+  { to: '/akademia', label: 'Akademia', icon: GraduationCap },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Mój Profil', icon: UserIcon },
 ];
@@ -175,6 +178,7 @@ const UserLayoutInner = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <ScrollToTop />
       <header
         className="sticky top-0 z-50 flex items-center"
         style={{
@@ -213,7 +217,7 @@ const UserLayoutInner = () => {
             )}
             <Link
               to="/"
-              className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
+              className="hidden sm:block text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
               style={{ color: '#5A7A62' }}
             >
               ← Wizytówka

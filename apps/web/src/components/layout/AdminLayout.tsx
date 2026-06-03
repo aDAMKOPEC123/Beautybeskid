@@ -4,6 +4,7 @@ import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
+import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useSocket } from '@/hooks/useSocket';
 import { useChatStore } from '@/store/chat.store';
 import { useNotificationStore } from '@/store/notification.store';
@@ -31,6 +32,9 @@ export const AdminLayout = () => {
   );
   const [diagnostykaOpen, setDiagnostykaOpen] = useState(
     () => ['/admin/quizy', '/admin/pogoda-skory'].some(p => location.pathname.startsWith(p))
+  );
+  const [akademiaOpen, setAkademiaOpen] = useState(
+    () => location.pathname.startsWith('/admin/akademia')
   );
   const [sprzedazOpen, setSprzedazOpen] = useState(
     () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment'].some(p => location.pathname.startsWith(p))
@@ -126,7 +130,44 @@ export const AdminLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/20 pt-[72px]">
+      <ScrollToTop />
       <Navbar />
+      {/* Mobile horizontal nav — md:hidden */}
+      <nav className="md:hidden overflow-x-auto border-b bg-card flex gap-1 px-3 py-2 shrink-0" style={{ scrollbarWidth: 'none' }}>
+        {[
+          { to: '/admin', label: 'Dashboard' },
+          { to: '/admin/wizyty', label: 'Wizyty', badge: wizytyBadge },
+          { to: '/admin/konsultacje', label: 'Konsultacje', badge: newLeadsCount },
+          { to: '/admin/pracownicy', label: 'Pracownicy' },
+          { to: '/admin/uzytkownicy', label: 'Użytkownicy' },
+          { to: '/admin/chat', label: 'Chat', badge: staffUnreadTotal },
+          { to: '/admin/powiadomienia', label: 'Powiadomienia', badge: adminNotifUnread },
+          { to: '/admin/uslugi', label: 'Usługi' },
+          { to: '/admin/blog', label: 'Blog' },
+          { to: '/admin/metamorfozy', label: 'Metamorfozy' },
+          { to: '/admin/lojalnosc', label: 'Lojalność' },
+          { to: '/admin/kody-rabatowe', label: 'Kody' },
+          { to: '/admin/recenzje', label: 'Recenzje' },
+          { to: '/admin/quizy', label: 'Quizy' },
+          { to: '/admin/hero', label: 'Slider' },
+          { to: '/admin/o-nas', label: 'O nas' },
+          { to: '/admin/regulamin', label: 'Regulamin' },
+        ].map(({ to, label, badge }) => (
+          <Link
+            key={to}
+            to={to}
+            className="relative shrink-0 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors hover:bg-accent"
+          >
+            {label}
+            {badge != null && badge > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-destructive text-white text-[9px] rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                {badge > 9 ? '9+' : badge}
+              </span>
+            )}
+          </Link>
+        ))}
+      </nav>
+
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 bg-card border-r flex flex-col hidden md:flex">
           <div className="p-6 font-heading font-semibold text-lg border-b">Administracja</div>
@@ -283,6 +324,24 @@ export const AdminLayout = () => {
                   </Link>
                   <Link to="/admin/metamorfozy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Metamorfozy
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Akademia */}
+            <div>
+              <button
+                onClick={() => setAkademiaOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Akademia</span>
+                <ChevronDown size={14} className={akademiaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+              {akademiaOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link to="/admin/akademia" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Kursy i Quizy
                   </Link>
                 </div>
               )}

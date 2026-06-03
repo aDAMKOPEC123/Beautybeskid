@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
+import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { Footer } from './Footer';
 import { useSocket } from '@/hooks/useSocket';
 import { useChatStore } from '@/store/chat.store';
@@ -25,7 +26,31 @@ export const EmployeeLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col pt-[72px]">
+      <ScrollToTop />
       <Navbar />
+      {/* Mobile horizontal nav — md:hidden */}
+      <nav className="md:hidden overflow-x-auto border-b bg-card flex gap-1 px-3 py-2 shrink-0" style={{ scrollbarWidth: 'none' }}>
+        {[
+          { to: '/employee/terminarz', label: 'Terminarz' },
+          { to: '/employee/wizyty', label: 'Wizyty' },
+          { to: '/employee/asortyment', label: 'Asortyment' },
+          { to: '/employee/chat', label: 'Wiadomości', badge: staffUnreadTotal },
+          { to: '/user', label: 'Panel Klienta' },
+        ].map(({ to, label, badge }) => (
+          <Link
+            key={to}
+            to={to}
+            className="relative shrink-0 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors hover:bg-accent"
+          >
+            {label}
+            {badge != null && badge > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-destructive text-white text-[9px] rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                {badge > 9 ? '9+' : badge}
+              </span>
+            )}
+          </Link>
+        ))}
+      </nav>
       <div className="container flex-1 flex py-8 gap-8">
         <aside className="w-64 border-r pr-4 hidden md:block">
           <div className="mb-4 px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
