@@ -1,5 +1,5 @@
 // filepath: apps/web/src/components/layout/UserLayout.tsx
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -22,6 +22,8 @@ import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useTour } from '@/hooks/useTour';
 import { TourProvider } from '@/contexts/TourContext';
 import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
+import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import {
   LayoutDashboard,
   Calendar,
@@ -134,6 +136,9 @@ const UserLayoutInner = () => {
     }
   }, [freshUser]);
 
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
+  const { isSupported, isSubscribed, permission, subscribe } = usePushSubscription();
+
   const { startTour } = useTour();
 
   useEffect(() => {
@@ -141,6 +146,19 @@ const UserLayoutInner = () => {
       startTour();
     }
   }, [isAuthenticated, freshUser, startTour]);
+
+  useEffect(() => {
+    if (
+      isAuthenticated &&
+      isSupported &&
+      !isSubscribed &&
+      permission !== 'denied' &&
+      !localStorage.getItem('push_prompt_shown')
+    ) {
+      const timer = setTimeout(() => setShowPushPrompt(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, isSupported, isSubscribed, permission]);
 
   useEffect(() => {
     if (!isConnected || !socket) return;
@@ -359,6 +377,15 @@ const UserLayoutInner = () => {
       <Footer />
       <ReviewPromptModal />
       <MobileBottomNav />
+      {showPushPrompt && (
+        <PushPermissionPrompt
+          onSubscribe={async () => {
+            await subscribe();
+            setShowPushPrompt(false);
+          }}
+          onDismiss={() => setShowPushPrompt(false)}
+        />
+      )}
     </div>
   );
 };
