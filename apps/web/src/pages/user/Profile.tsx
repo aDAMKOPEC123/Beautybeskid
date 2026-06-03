@@ -4,7 +4,8 @@ import { useAuthStore } from '@/store/auth.store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '@/api/users.api';
 import { api } from '@/lib/axios';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Bell, BellOff } from 'lucide-react';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { toast } from 'sonner';
 import { useTour } from '@/hooks/useTour';
 import { DecoLine } from '@/components/shared/DecoElements';
@@ -13,6 +14,7 @@ export const UserProfile = () => {
   const { user } = useAuth();
   const setUser = useAuthStore((s) => s.setUser);
   const { startTour } = useTour();
+  const { isSupported, isSubscribed, permission, subscribe, unsubscribe } = usePushSubscription();
 
   const handleRestartTour = async () => {
     try {
@@ -297,6 +299,60 @@ export const UserProfile = () => {
             </pre>
           </div>
         </div>
+      )}
+
+      {/* Push notifications */}
+      {isSupported && (
+        <section className="mt-8">
+          <h3
+            className="text-sm font-semibold tracking-widest uppercase mb-4"
+            style={{ color: 'rgba(20,40,28,0.4)', letterSpacing: '0.12em' }}
+          >
+            Powiadomienia push
+          </h3>
+          <div
+            className="flex items-center justify-between p-4 rounded-2xl border"
+            style={{ borderColor: 'rgba(0,0,0,0.07)', background: 'rgba(250,250,249,0.8)' }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(196,150,90,0.1)' }}
+              >
+                {isSubscribed ? (
+                  <Bell size={18} style={{ color: '#C4965A' }} />
+                ) : (
+                  <BellOff size={18} style={{ color: 'rgba(20,40,28,0.35)' }} />
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  {isSubscribed ? 'Powiadomienia aktywne' : 'Powiadomienia wyłączone'}
+                </p>
+                <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                  {permission === 'denied'
+                    ? 'Zablokowane w ustawieniach przeglądarki'
+                    : isSubscribed
+                    ? 'Otrzymujesz powiadomienia o wizytach i promocjach'
+                    : 'Włącz, aby być na bieżąco z wizytami i promocjami'}
+                </p>
+              </div>
+            </div>
+            {permission !== 'denied' && (
+              <button
+                onClick={isSubscribed ? unsubscribe : subscribe}
+                className="text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
+                style={
+                  isSubscribed
+                    ? { background: 'rgba(0,0,0,0.05)', color: 'rgba(20,40,28,0.6)' }
+                    : { background: '#1A3828', color: '#fff' }
+                }
+              >
+                {isSubscribed ? 'Wyłącz' : 'Włącz'}
+              </button>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Restart tour */}
