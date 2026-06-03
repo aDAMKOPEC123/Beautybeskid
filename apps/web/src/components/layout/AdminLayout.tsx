@@ -168,6 +168,17 @@ export const AdminLayout = () => {
         ))}
       </nav>
 
+      {isSupported && !isSubscribed && permission !== 'denied' && (
+        <div className="md:hidden px-3 py-2 border-b bg-card">
+          <button
+            onClick={subscribe}
+            className="w-full text-xs px-3 py-2 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+          >
+            🔔 Włącz powiadomienia push
+          </button>
+        </div>
+      )}
+
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 bg-card border-r flex flex-col hidden md:flex">
           <div className="p-6 font-heading font-semibold text-lg border-b">Administracja</div>
