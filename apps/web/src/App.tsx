@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
@@ -44,10 +45,14 @@ function App() {
           // Reconnect socket with fresh token
           const sock = getSocket();
           sock.auth = { token: res.data.data.accessToken };
-          if (!sock.connected) sock.connect();
+          sock.disconnect();
+          sock.connect();
         })
-        .catch(() => {
-          logout();
+        .catch((err) => {
+          // Only logout on confirmed 401 — network errors/timeouts keep the session alive
+          if (err && err.response && err.response.status === 401) {
+            logout();
+          }
         });
     };
 
@@ -56,12 +61,14 @@ function App() {
   }, []);
 
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" richColors />
-      </QueryClientProvider>
-    </HelmetProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" richColors />
+        </QueryClientProvider>
+      </HelmetProvider>
+    </GoogleOAuthProvider>
   );
 }
 
