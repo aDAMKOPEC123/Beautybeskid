@@ -10,6 +10,8 @@ import { skinJournalApi } from '@/api/skin-journal.api';
 import { notificationsApi } from '@/api/notifications.api';
 import { homecareApi } from '@/api/homecare.api';
 import { authApi } from '@/api/auth.api';
+import { chatApi } from '@/api/chat.api';
+import type { ChatMessagePayload } from '@cosmo/shared';
 import { Footer } from './Footer';
 import { MobileBottomNav } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -62,7 +64,7 @@ const UserLayoutInner = () => {
     logout();
     navigate('/');
   };
-  const { unreadCount, incrementUnread } = useChatStore();
+  const { unreadCount, incrementUnread, setUnreadCount } = useChatStore();
   const queryClient = useQueryClient();
 
   const { data: journalUnread = 0 } = useQuery<number>({
@@ -89,6 +91,21 @@ const UserLayoutInner = () => {
     enabled: isAuthenticated,
     refetchInterval: 30_000,
   });
+  const { data: chatRoom } = useQuery({
+    queryKey: ['chat', 'my-room'],
+    queryFn: chatApi.getMyRoom,
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+
+  useEffect(() => {
+    if (!chatRoom || !storeUser) return;
+    const serverUnread = (chatRoom.messages as ChatMessagePayload[])
+      ?.filter((m) => m.readAt == null && m.senderId !== storeUser.id)
+      .length ?? 0;
+    setUnreadCount(serverUnread);
+  }, [chatRoom?.messages, storeUser?.id, setUnreadCount]);
+
   const { socket, isConnected } = useSocket();
   const location = useLocation();
   useAchievementNotifications();
