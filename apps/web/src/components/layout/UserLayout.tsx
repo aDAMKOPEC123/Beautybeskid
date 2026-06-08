@@ -198,7 +198,7 @@ const UserLayoutInner = () => {
   }, [isConnected, socket, queryClient]);
 
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
-  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
+  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname + location.search }} replace />;
 
   // Force password change for admin-created accounts
   if (storeUser?.mustChangePassword && location.pathname !== '/user/zmien-haslo') {
