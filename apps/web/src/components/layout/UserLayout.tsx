@@ -24,6 +24,7 @@ import { TourProvider } from '@/contexts/TourContext';
 import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
+import { PwaInstallButton } from '@/components/PwaInstallButton';
 import {
   LayoutDashboard,
   Calendar,
@@ -377,6 +378,7 @@ const UserLayoutInner = () => {
       <Footer />
       <ReviewPromptModal />
       <MobileBottomNav />
+      <PwaInstallButton />
       {showPushPrompt && (
         <PushPermissionPrompt
           onSubscribe={async () => {
