@@ -2,7 +2,13 @@
 import { useState } from 'react';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
 
-export function PwaInstallButton() {
+interface Props {
+  /** Override bottom positioning — defaults to 'bottom-20 md:bottom-4' to clear both
+   *  MobileBottomNav (UserLayout) and FloatingBookingCTA (PublicLayout) on mobile. */
+  className?: string;
+}
+
+export function PwaInstallButton({ className }: Props) {
   const { canShow, isIOS, install, dismiss, dismissForever } = usePwaInstall();
   const [cardOpen, setCardOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,7 +38,7 @@ export function PwaInstallButton() {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+    <div className={`fixed right-4 z-50 flex flex-col items-end gap-2 ${className ?? 'bottom-20 md:bottom-4'}`}>
       {cardOpen && (
         <div className="bg-white rounded-[14px] shadow-xl p-3.5 w-56 max-w-[calc(100vw-2rem)] animate-fade-in">
           {isIOS ? (
