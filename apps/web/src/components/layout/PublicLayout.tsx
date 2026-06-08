@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { FloatingBookingCTA } from '@/components/ui/FloatingBookingCTA';
+import { PwaInstallButton } from '@/components/PwaInstallButton';
 
 const pageVariants = {
   initial: { opacity: 0 },
@@ -34,6 +35,7 @@ export const PublicLayout = () => {
       </AnimatePresence>
       <Footer />
       <FloatingBookingCTA />
+      <PwaInstallButton />
       <ScrollRestoration />
     </div>
   );
