@@ -49,6 +49,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}), // session cookie if not remembered
     });
 
+    const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash,
+        userId: result.user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -62,6 +71,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (refreshToken) {
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await prisma.refreshToken.deleteMany({ where: { tokenHash } });
+  }
   res.clearCookie('refreshToken');
   res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
 };
@@ -72,6 +86,13 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     if (!refreshToken) throw new AppError('Brak tokenu odświeżania', 401);
 
     const decoded = verifyToken(refreshToken, env.JWT_REFRESH_SECRET) as { id: string; iat?: number };
+
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const storedToken = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+    if (!storedToken || storedToken.expiresAt < new Date()) {
+      throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
+    }
+
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
     if (!user) throw new AppError('Użytkownik nie istnieje', 401);
@@ -91,6 +112,22 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     }
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
+
+    await prisma.refreshToken.delete({ where: { tokenHash } });
+    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+    const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: newTokenHash,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
 
     res.status(200).json({
       status: 'success',
@@ -178,6 +215,15 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
+    });
+
+    const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash,
+        userId: result.user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
     });
 
     res.status(200).json({
