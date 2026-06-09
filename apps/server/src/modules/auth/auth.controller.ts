@@ -71,13 +71,17 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.cookies?.refreshToken;
-  if (refreshToken) {
-    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    await prisma.refreshToken.deleteMany({ where: { tokenHash } });
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+    if (refreshToken) {
+      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      await prisma.refreshToken.deleteMany({ where: { tokenHash } });
+    }
+    res.clearCookie('refreshToken');
+    res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
+  } catch (error) {
+    next(error);
   }
-  res.clearCookie('refreshToken');
-  res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
 };
 
 export const refresh = async (req: Request, res: Response, next: NextFunction) => {
@@ -113,20 +117,23 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    await prisma.refreshToken.delete({ where: { tokenHash } });
     const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
     const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-    await prisma.refreshToken.create({
-      data: {
-        tokenHash: newTokenHash,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
-    });
+    await prisma.$transaction([
+      prisma.refreshToken.delete({ where: { tokenHash } }),
+      prisma.refreshToken.create({
+        data: {
+          tokenHash: newTokenHash,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      }),
+    ]);
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d — matches JWT_REFRESH_EXPIRES_IN
     });
 
     res.status(200).json({
