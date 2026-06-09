@@ -37,6 +37,11 @@ export const privateUploadMiddleware = async (
     return;
   }
 
+  if (!decoded?.id || !decoded?.role) {
+    res.status(401).json({ status: 'error', message: 'Nieprawidłowy token' });
+    return;
+  }
+
   // Admins and employees can access all private files
   if (decoded.role === 'ADMIN' || decoded.role === 'EMPLOYEE') {
     return next();
@@ -45,23 +50,27 @@ export const privateUploadMiddleware = async (
   // Regular users: verify they own the file
   const filename = path.basename(req.path);
 
-  if (folder === 'journal') {
-    const entry = await prisma.skinJournalEntry.findFirst({
-      where: { photoPath: { endsWith: filename }, userId: decoded.id },
-    });
-    if (!entry) {
-      res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
-      return;
+  try {
+    if (folder === 'journal') {
+      const entry = await prisma.skinJournalEntry.findFirst({
+        where: { photoPath: { endsWith: filename }, userId: decoded.id },
+      });
+      if (!entry) {
+        res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+        return;
+      }
+    } else if (folder === 'appointments') {
+      const appointment = await prisma.appointment.findFirst({
+        where: { photoPath: { endsWith: filename }, userId: decoded.id },
+      });
+      if (!appointment) {
+        res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+        return;
+      }
     }
-  } else if (folder === 'appointments') {
-    const appointment = await prisma.appointment.findFirst({
-      where: { photoPath: { endsWith: filename }, userId: decoded.id },
-    });
-    if (!appointment) {
-      res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
-      return;
-    }
+    next();
+  } catch (error) {
+    next(error);
+    return;
   }
-
-  next();
 };
