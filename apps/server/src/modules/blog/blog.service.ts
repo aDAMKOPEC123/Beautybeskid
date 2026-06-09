@@ -3,6 +3,25 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { CreateBlogPostInput, UpdateBlogPostInput } from '@cosmo/shared';
 import { createSlug } from '../../utils/slug';
+import sanitizeHtml from 'sanitize-html';
+
+const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    'img', 'figure', 'figcaption', 'h1', 'h2', 'iframe',
+  ]),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'width', 'height', 'class'],
+    iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
+    '*': ['class', 'style'],
+  },
+  allowedStyles: {
+    '*': {
+      'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+      'color': [/^#[0-9a-f]{3,6}$/i, /^rgb\(/],
+    },
+  },
+};
 
 export const getAllPosts = async (includeUnpublished = false, userId?: string) => {
   const posts = await prisma.blogPost.findMany({
@@ -65,7 +84,7 @@ export const getPostBySlug = async (slug: string, userId?: string) => {
 
 export const createPost = async (authorId: string, data: CreateBlogPostInput) => {
   let slug = createSlug(data.title);
-  
+
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
   if (existing) slug = `${slug}-${Date.now()}`;
 
@@ -74,6 +93,7 @@ export const createPost = async (authorId: string, data: CreateBlogPostInput) =>
   return await prisma.blogPost.create({
     data: {
       ...rest,
+      content: sanitizeHtml(data.content, BLOG_SANITIZE_OPTIONS),
       slug,
       authorId,
       tags: tags ? {
@@ -102,6 +122,7 @@ export const updatePost = async (id: string, data: UpdateBlogPostInput) => {
     where: { id },
     data: {
       ...rest,
+      ...(data.content !== undefined && { content: sanitizeHtml(data.content, BLOG_SANITIZE_OPTIONS) }),
       ...(slug && { slug }),
       tags: tags ? {
         set: [], // clear existing
