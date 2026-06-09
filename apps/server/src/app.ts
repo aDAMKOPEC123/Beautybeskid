@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import pinoHttp from 'pino-http';
 import { env } from './config/env';
 import { errorMiddleware } from './middleware/error.middleware';
+import { apiRateLimiter } from './middleware/rateLimit.middleware';
+import { privateUploadMiddleware } from './middleware/privateUpload.middleware';
 
 // Routes
 import authRouter from './modules/auth/auth.router';
@@ -35,8 +37,10 @@ import blogCommentsRouter from './modules/blog-comments/blog-comments.router';
 import happyHoursRouter from './modules/happy-hours/happy-hours.router';
 import recommendedSlidesRouter from './modules/recommended-slides/router';
 import skinWeatherRouter from './modules/skin-weather/skin-weather.router';
+import { academyRouter } from './modules/academy/academy.router';
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Middleware
 app.use(helmet());
@@ -50,9 +54,10 @@ app.use(cookieParser());
 app.use(pinoHttp());
 
 // Static files for uploads if needed
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', privateUploadMiddleware, express.static('uploads'));
 
 // API Routes
+app.use('/api', apiRateLimiter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/services', servicesRouter);
@@ -80,6 +85,7 @@ app.use('/api/blog-comments', blogCommentsRouter);
 app.use('/api/happy-hours', happyHoursRouter);
 app.use('/api/recommended-slides', recommendedSlidesRouter);
 app.use('/api/skin-weather', skinWeatherRouter);
+app.use('/api/academy', academyRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
