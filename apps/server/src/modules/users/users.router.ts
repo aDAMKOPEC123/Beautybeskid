@@ -3,7 +3,7 @@ import { Router } from 'express';
 import * as usersController from './users.controller';
 import * as recommendationsController from '../recommendations/recommendations.controller';
 import { authenticate } from '../../middleware/auth.middleware';
-import { requireAdmin } from '../../middleware/admin.middleware';
+import { requireAdmin, requireStaff } from '../../middleware/admin.middleware';
 import { authRateLimiter } from '../../middleware/rateLimit.middleware';
 import { upload } from '../../config/multer';
 
@@ -35,7 +35,7 @@ router.get('/search', requireAdmin, usersController.searchUsers);
 router.post('/:id/approve', requireAdmin, usersController.approveUser);
 router.post('/:id/reject', requireAdmin, usersController.rejectUser);
 
-router.patch('/:id/card', usersController.updateUserCard);
+router.patch('/:id/card', requireStaff, usersController.updateUserCard);
 router.get('/:id/recommendations', requireAdmin, recommendationsController.getByUser);
 router.get('/:id', requireAdmin, usersController.getUserDetails);
 router.delete('/:id', requireAdmin, usersController.deleteUser);

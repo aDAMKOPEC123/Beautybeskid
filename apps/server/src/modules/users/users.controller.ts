@@ -70,9 +70,6 @@ export const updateMyCard = async (req: Request, res: Response, next: NextFuncti
 
 export const updateUserCard = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.user!.role !== 'ADMIN' && req.user!.role !== 'EMPLOYEE') {
-      throw new AppError('Brak uprawnień', 403);
-    }
     const { cardAllergies, cardConditions, cardPreferences, cardStaffNotes } = req.body;
     const data: Record<string, string | null> = {};
     if (cardAllergies !== undefined) data.cardAllergies = cardAllergies?.trim() || null;
