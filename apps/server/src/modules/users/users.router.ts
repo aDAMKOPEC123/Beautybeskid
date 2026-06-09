@@ -4,6 +4,7 @@ import * as usersController from './users.controller';
 import * as recommendationsController from '../recommendations/recommendations.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { requireAdmin } from '../../middleware/admin.middleware';
+import { authRateLimiter } from '../../middleware/rateLimit.middleware';
 import { upload } from '../../config/multer';
 
 const router = Router();
@@ -26,7 +27,7 @@ router.get('/pending', requireAdmin, usersController.getPendingUsers);
 router.post('/admin-create', requireAdmin, usersController.adminCreateUser);
 
 // Change password (authenticated user, no admin required)
-router.patch('/me/change-password', usersController.changePassword);
+router.patch('/me/change-password', authRateLimiter, usersController.changePassword);
 
 router.get('/search', requireAdmin, usersController.searchUsers);
 
