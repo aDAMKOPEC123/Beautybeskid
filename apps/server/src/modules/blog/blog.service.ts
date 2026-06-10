@@ -12,13 +12,14 @@ const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
     img: ['src', 'alt', 'width', 'height', 'class'],
-    iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
+    iframe: ['width', 'height', 'frameborder', 'allowfullscreen'],
     '*': ['class', 'style'],
   },
+  allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com'],
   allowedStyles: {
     '*': {
       'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
-      'color': [/^#[0-9a-f]{3,6}$/i, /^rgb\(/],
+      'color': [/^#[0-9a-f]{3,6}$/i, /^rgb\(\d{1,3},\s*\d{1,3},\s*\d{1,3}\)$/],
     },
   },
 };

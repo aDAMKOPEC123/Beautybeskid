@@ -370,7 +370,7 @@ export const AdminUsers = () => {
     queryKey: ['admin', 'users'],
     queryFn: async () => {
       const res = await api.get('/users');
-      return res.data.data.users;
+      return res.data.data.data;
     }
   });
 

@@ -21,7 +21,7 @@ export const appointmentsApi = {
     limit?: number;
   }) => {
     const res = await api.get('/appointments', { params });
-    return res.data.data.appointments;
+    return res.data.data.data;
   },
   create: async (data: {
     serviceId: string;
@@ -59,6 +59,18 @@ export const appointmentsApi = {
     notes?: string;
   }) => {
     const res = await api.post('/appointments/admin', data);
+    return res.data.data.appointment;
+  },
+  createExternal: async (data: {
+    clientName: string;
+    clientPhone: string;
+    clientEmail?: string;
+    serviceId: string;
+    employeeId?: string;
+    date: string;
+    notes?: string;
+  }) => {
+    const res = await api.post('/appointments/admin/external', data);
     return res.data.data.appointment;
   },
   remove: async (id: string) => {

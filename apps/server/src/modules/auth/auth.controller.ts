@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
 
     const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
-    const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+    const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
     await prisma.refreshToken.create({
       data: {
         tokenHash,
@@ -231,7 +231,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
       data: {
         tokenHash,
         userId: result.user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + parseDurationMs(env.JWT_REFRESH_EXPIRES_IN)),
       },
     });
 
