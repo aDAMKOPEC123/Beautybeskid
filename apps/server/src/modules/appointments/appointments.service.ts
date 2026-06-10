@@ -100,14 +100,11 @@ export const createAppointment = async (userId: string, data: any) => {
   if (discountCodeId) {
     const code = await prisma.discountCode.findUnique({ where: { id: discountCodeId } });
     if (code && code.isActive && (!code.lockedToUserId || code.lockedToUserId === userId)) {
-      const alreadyUsed = await prisma.discountCodeUsage.findUnique({
+      await prisma.discountCodeUsage.upsert({
         where: { discountCodeId_userId: { discountCodeId, userId } },
+        create: { discountCodeId, userId, appointmentId: appointment.id },
+        update: {},
       });
-      if (!alreadyUsed) {
-        await prisma.discountCodeUsage.create({
-          data: { discountCodeId, userId, appointmentId: appointment.id },
-        });
-      }
     }
   }
 
@@ -134,7 +131,10 @@ export const createAppointment = async (userId: string, data: any) => {
   return appointment;
 };
 
-export const uploadAppointmentPhoto = async (id: string, photoPath: string) => {
+export const uploadAppointmentPhoto = async (id: string, userId: string, photoPath: string) => {
+  const existing = await prisma.appointment.findUnique({ where: { id } });
+  if (!existing) throw new AppError('Wizyta nie istnieje', 404);
+  if (existing.userId !== userId) throw new AppError('Brak dostępu', 403);
   return prisma.appointment.update({
     where: { id },
     data: { photoPath },
@@ -193,15 +193,7 @@ export const createAppointmentByAdmin = async (data: {
     user = await prisma.user.findFirst({ where: { phone: data.clientPhone } });
   }
   if (!user) {
-    const email = data.clientEmail || `${data.clientPhone}@noemail.cosmo`;
-    user = await prisma.user.create({
-      data: {
-        name: data.clientName,
-        phone: data.clientPhone,
-        email,
-        passwordHash: '!',
-      },
-    });
+    throw new AppError('Klient nie istnieje w systemie. Najpierw utwórz konto w sekcji Użytkownicy.', 404);
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -267,6 +259,71 @@ export const createAppointmentByAdmin = async (data: {
   } catch (err) {
     console.error('Notification delivery failed (createAppointmentByAdmin):', err);
   }
+
+  return result;
+};
+
+export const createExternalClientAppointment = async (data: {
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  serviceId: string;
+  employeeId?: string;
+  date: string;
+  notes?: string;
+}) => {
+  let user = null;
+
+  if (data.clientEmail) {
+    user = await prisma.user.findUnique({ where: { email: data.clientEmail } });
+  }
+  if (!user) {
+    user = await prisma.user.findFirst({ where: { phone: data.clientPhone } });
+  }
+  if (!user) {
+    const email = data.clientEmail || `${data.clientPhone.replace(/\D/g, '')}@external.cosmo`;
+    user = await prisma.user.create({
+      data: {
+        name: data.clientName,
+        phone: data.clientPhone,
+        email,
+        passwordHash: null,
+      },
+    });
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const appointment = await tx.appointment.create({
+      data: {
+        userId: user!.id,
+        serviceId: data.serviceId,
+        employeeId: data.employeeId || null,
+        date: new Date(data.date),
+        notes: data.notes || null,
+        status: 'CONFIRMED',
+      },
+      include: {
+        service: true,
+        employee: { select: { id: true, name: true, avatarPath: true } },
+        user: { select: { name: true, email: true, phone: true } },
+      },
+    });
+
+    await attachAppointmentToSeries(tx, {
+      appointmentId: appointment.id,
+      userId: user!.id,
+      serviceId: data.serviceId,
+    });
+
+    return tx.appointment.findUniqueOrThrow({
+      where: { id: appointment.id },
+      include: {
+        service: true,
+        employee: { select: { id: true, name: true, avatarPath: true } },
+        user: { select: { name: true, email: true, phone: true } },
+      },
+    });
+  });
 
   return result;
 };
@@ -650,4 +707,14 @@ export const getFollowUpReminders = async (userId: string): Promise<FollowUpRemi
   }));
 
   return computeFollowUpReminders(input, new Date());
+};
+
+export const getUpcomingCount = async (userId: string): Promise<number> => {
+  return prisma.appointment.count({
+    where: {
+      userId,
+      date: { gte: new Date() },
+      status: { notIn: ['CANCELLED'] },
+    },
+  });
 };
