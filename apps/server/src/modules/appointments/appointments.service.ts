@@ -163,16 +163,22 @@ export const getAllAppointments = async (filters?: {
   const take = filters?.limit ?? undefined;
   const skip = take && filters?.page ? (filters.page - 1) * take : undefined;
 
-  return prisma.appointment.findMany({
-    where,
-    orderBy: { date: 'desc' },
-    take,
-    skip,
-    include: {
-      ...appointmentInclude,
-      user: { select: { id: true, name: true, email: true, phone: true } },
-    },
-  });
+  const [data, total] = await prisma.$transaction([
+    prisma.appointment.findMany({
+      where,
+      orderBy: { date: 'desc' },
+      take,
+      skip,
+      include: {
+        ...appointmentInclude,
+        user: { select: { id: true, name: true, email: true, phone: true } },
+      },
+    }),
+    prisma.appointment.count({ where }),
+  ]);
+
+  const totalPages = take ? Math.ceil(total / take) : 1;
+  return { data, total, totalPages };
 };
 
 export const createAppointmentByAdmin = async (data: {

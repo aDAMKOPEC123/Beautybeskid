@@ -27,7 +27,7 @@ export const uploadPhoto = async (req: Request, res: Response, next: NextFunctio
   try {
     if (!req.file) throw new AppError('Brak pliku zdjęcia', 400);
     const photoPath = await processAndSaveImage(req.file.buffer, 'appointments');
-    const appointment = await appointmentsService.uploadAppointmentPhoto(req.params.id, photoPath);
+    const appointment = await appointmentsService.uploadAppointmentPhoto(req.params.id, req.user!.id, photoPath);
     res.json({ status: 'success', data: { appointment } });
   } catch (error) {
     next(error);
@@ -43,16 +43,25 @@ export const getMy = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+export const getUpcomingCount = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const count = await appointmentsService.getUpcomingCount(req.user!.id);
+    res.status(200).json({ status: 'success', data: { count } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, status, page, limit } = req.query as Record<string, string | undefined>;
-    const appointments = await appointmentsService.getAllAppointments({
+    const result = await appointmentsService.getAllAppointments({
       userId,
       status,
       page: page ? parseInt(page, 10) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
     });
-    res.status(200).json({ status: 'success', data: { appointments } });
+    res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     next(error);
   }
@@ -67,6 +76,23 @@ export const createAdmin = async (req: Request, res: Response, next: NextFunctio
     const appt = appointment as any;
     sendPushToAdmins({
       title: 'Nowa wizyta (admin)',
+      body: `${appt.user?.name ?? ''} — ${appt.service?.name ?? ''}, ${format(new Date(appt.date), 'HH:mm')}`,
+      url: '/admin/wizyty',
+    }).catch(() => {});
+    res.status(201).json({ status: 'success', data: { appointment } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createExternal = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const appointment = await appointmentsService.createExternalClientAppointment(req.body);
+    getIO().to('admin:global').emit('appointment:created', appointment as Record<string, unknown>);
+    getIO().to('employee:global').emit('appointment:created', appointment as Record<string, unknown>);
+    const appt = appointment as any;
+    sendPushToAdmins({
+      title: 'Nowa wizyta (zewnętrzna)',
       body: `${appt.user?.name ?? ''} — ${appt.service?.name ?? ''}, ${format(new Date(appt.date), 'HH:mm')}`,
       url: '/admin/wizyty',
     }).catch(() => {});
