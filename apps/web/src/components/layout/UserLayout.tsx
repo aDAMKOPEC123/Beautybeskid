@@ -1,5 +1,5 @@
 // filepath: apps/web/src/components/layout/UserLayout.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -58,6 +58,8 @@ const NAV_LINKS = [
 
 const UserLayoutInner = () => {
   const { isAuthenticated, isLoading, user: storeUser, setUser, logout, isAdmin, isEmployee } = useAuth();
+  const storeUserRef = useRef(storeUser);
+  storeUserRef.current = storeUser;
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -132,10 +134,10 @@ const UserLayoutInner = () => {
   });
 
   useEffect(() => {
-    if (freshUser && storeUser) {
-      setUser({ ...storeUser, ...freshUser });
+    if (freshUser && storeUserRef.current) {
+      setUser({ ...storeUserRef.current, ...freshUser });
     }
-  }, [freshUser]);
+  }, [freshUser, setUser]);
 
   const [showPushPrompt, setShowPushPrompt] = useState(false);
   const { isSupported, isSubscribed, permission, subscribe } = usePushSubscription();
