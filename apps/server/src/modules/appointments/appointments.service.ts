@@ -1,6 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
-import { markCouponUsed, getTierForVisits } from '../loyalty/loyalty.service';
+import { markCouponUsed, getTierForPoints } from '../loyalty/loyalty.service';
 import { getAvailability } from '../employees/employees.service';
 import { AppError } from '../../middleware/error.middleware';
 import { checkAndAward } from '../achievements/achievements.service';
@@ -505,11 +505,9 @@ export const updateStatus = async (
         },
       });
 
-      const completedVisits = await tx.appointment.count({
-        where: { userId: appointment.user.id, status: 'COMPLETED' },
-      });
-
-      const newTier = getTierForVisits(completedVisits);
+      // Tier is based on total loyalty points after this visit
+      const newPointsTotal = (appointment.user.loyaltyPoints ?? 0) + points;
+      const newTier = getTierForPoints(newPointsTotal);
       if (newTier !== existing.user.loyaltyTier) {
         tierChanged = true;
       }

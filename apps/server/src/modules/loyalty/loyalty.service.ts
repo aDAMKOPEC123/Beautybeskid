@@ -8,16 +8,19 @@ import { validateCode as validateDiscountCode } from '../discount-codes/discount
 import { createAndEmitNotification } from '../notifications/notifications.service';
 
 export const TIERS = {
-  BRONZE: { min: 0, max: 29, discount: 0.05 },
-  SILVER: { min: 30, max: 99, discount: 0.10 },
-  GOLD: { min: 100, max: Infinity, discount: 0.15 },
+  BRONZE: { min: 0, max: 499, discount: 0.05 },
+  SILVER: { min: 500, max: 1499, discount: 0.10 },
+  GOLD: { min: 1500, max: Infinity, discount: 0.15 },
 } as const;
 
-export const getTierForVisits = (visits: number): 'BRONZE' | 'SILVER' | 'GOLD' => {
-  if (visits >= 100) return 'GOLD';
-  if (visits >= 30) return 'SILVER';
+export const getTierForPoints = (points: number): 'BRONZE' | 'SILVER' | 'GOLD' => {
+  if (points >= 1500) return 'GOLD';
+  if (points >= 500) return 'SILVER';
   return 'BRONZE';
 };
+
+/** @deprecated Use getTierForPoints */
+export const getTierForVisits = getTierForPoints;
 
 export const getUserStats = async (userId: string) => {
   const completedVisits = await prisma.appointment.count({
