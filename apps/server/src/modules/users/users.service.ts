@@ -34,38 +34,49 @@ const ensureAmbassadorCode = async (userId: string): Promise<string> => {
   }
 };
 
-export const getAllUsers = async () => {
-  return prisma.user.findMany({
-    where: { accountStatus: 'ACTIVE' },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      phone: true,
-      role: true,
-      avatarPath: true,
-      loyaltyPoints: true,
-      loyaltyTier: true,
-      createdAt: true,
-      ambassadorCode: true,
-      referralCount: true,
-      termsAcceptedAt: true,
-      marketingConsent: true,
-      photoConsent: true,
-      cardAllergies: true,
-      cardConditions: true,
-      cardPreferences: true,
-      cardStaffNotes: true,
-      _count: {
-        select: {
-          appointments: {
-            where: { status: 'COMPLETED' },
+export const getAllUsers = async (page = 1, limit = 50) => {
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where: { accountStatus: 'ACTIVE' },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        avatarPath: true,
+        loyaltyPoints: true,
+        loyaltyTier: true,
+        createdAt: true,
+        ambassadorCode: true,
+        referralCount: true,
+        termsAcceptedAt: true,
+        marketingConsent: true,
+        photoConsent: true,
+        cardAllergies: true,
+        cardConditions: true,
+        cardPreferences: true,
+        cardStaffNotes: true,
+        _count: {
+          select: {
+            appointments: {
+              where: { status: 'COMPLETED' },
+            },
           },
         },
       },
-    },
-  });
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.user.count({ where: { accountStatus: 'ACTIVE' } }),
+  ]);
+
+  return { data: users, total, totalPages: Math.ceil(total / limit) };
 };
+
 
 export const getUserById = async (id: string) => {
   const user = await prisma.user.findUnique({

@@ -105,8 +105,10 @@ export const getMyReferrals = async (req: Request, res: Response, next: NextFunc
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = await usersService.getAllUsers();
-    res.status(200).json({ status: 'success', data: { users } });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const result = await usersService.getAllUsers(page, limit);
+    res.json({ status: 'success', data: result });
   } catch (error) {
     next(error);
   }
