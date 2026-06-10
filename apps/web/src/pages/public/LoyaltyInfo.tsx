@@ -8,14 +8,14 @@ const tiers = [
     icon: Crown,
     iconColor: '#92400E',
     label: 'Poziom Brązowy',
-    description: 'Podstawowy poziom od pierwszych punktów. Dostęp do standardowych nagród z katalogu.',
+    description: 'Podstawowy poziom dla nowych klientów. Dostęp do standardowych nagród z katalogu od pierwszej wizyty.',
     featured: false,
   },
   {
     icon: Crown,
     iconColor: '#C4965A',
     label: 'Poziom Srebrny',
-    description: 'Zdobądź więcej punktów aby odblokować lepsze nagrody i 5% stałej zniżki na kosmetyki domowe.',
+    description: 'Odblokuj po 30 wizytach. Lepsze nagrody i 5% stałej zniżki na kosmetyki domowe.',
     featured: true,
     badge: 'Najczęściej wybierany',
   },
@@ -23,7 +23,7 @@ const tiers = [
     icon: Sparkles,
     iconColor: '#C4965A',
     label: 'Poziom Złoty',
-    description: 'Ekskluzywny dostęp. Pierwszeństwo w zapisach i 10% stałej zniżki na wszystkie wybrane zabiegi VIP.',
+    description: 'Ekskluzywny dostęp po 100 wizytach. Pierwszeństwo w zapisach i 10% stałej zniżki na wszystkie wybrane zabiegi VIP.',
     featured: false,
   },
 ];
@@ -56,7 +56,7 @@ export const LoyaltyInfo = () => {
             Program Lojalnościowy
           </h1>
           <p className="text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: 'rgba(20,40,28,0.55)' }}>
-            Doceniamy naszych stałych klientów. Zbieraj punkty podczas każdej wizyty i wymieniaj je na darmowe zabiegi oraz specjalne zniżki.
+            Doceniamy naszych stałych klientów. Im więcej wizyt, tym wyższy poziom i lepsze przywileje — plus punkty do wymiany na darmowe zabiegi i zniżki.
           </p>
         </div>
       </section>
@@ -116,7 +116,7 @@ export const LoyaltyInfo = () => {
             </div>
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4" style={{ color: '#F4F9F5' }}>
-                Zacznij zbierać punkty już dziś!
+                Dołącz i odblokowuj kolejne poziomy!
               </h2>
               <p className="text-xl mb-10 max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 Załóż konto i umów swoją pierwszą wizytę, aby otrzymać darmowy bonus powitalny doliczany na Twój portfel.
