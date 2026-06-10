@@ -18,15 +18,22 @@ api.interceptors.request.use((config) => {
 });
 
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+
+type Subscriber = { resolve: (token: string) => void; reject: (err: unknown) => void };
+let refreshSubscribers: Subscriber[] = [];
 
 function onRefreshed(token: string) {
-  refreshSubscribers.forEach(cb => cb(token));
+  refreshSubscribers.forEach(s => s.resolve(token));
   refreshSubscribers = [];
 }
 
-function addRefreshSubscriber(cb: (token: string) => void) {
-  refreshSubscribers.push(cb);
+function onRefreshFailed(err: unknown) {
+  refreshSubscribers.forEach(s => s.reject(err));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(resolve: (token: string) => void, reject: (err: unknown) => void) {
+  refreshSubscribers.push({ resolve, reject });
 }
 
 api.interceptors.response.use(
@@ -34,15 +41,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && !originalRequest.url?.includes('/auth/login')) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((token: string) => {
-            originalRequest.headers['Authorization'] = `Bearer ${token}`;
-            resolve(api(originalRequest));
-          });
+        return new Promise((resolve, reject) => {
+          addRefreshSubscriber(
+            (token: string) => {
+              originalRequest.headers['Authorization'] = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            (err: unknown) => reject(err),
+          );
         });
       }
 
@@ -65,7 +75,7 @@ api.interceptors.response.use(
         onRefreshed(newToken);
         return api(originalRequest);
       } catch (refreshError) {
-        refreshSubscribers = [];
+        onRefreshFailed(refreshError);
         useAuthStore.getState().logout();
         window.location.href = '/auth/login';
         return Promise.reject(refreshError);
