@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '@cosmo/shared';
 import { AppError } from '../../middleware/error.middleware';
-import { verifyToken, signToken } from '../../utils/jwt';
+import { verifyToken, signToken, parseDurationMs } from '../../utils/jwt';
 import { env } from '../../config/env';
 import { prisma } from '../../config/prisma';
 import { sendEmail } from '../../utils/email';
@@ -120,13 +120,14 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
     const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+    const refreshTokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
     await prisma.$transaction([
       prisma.refreshToken.delete({ where: { tokenHash } }),
       prisma.refreshToken.create({
         data: {
           tokenHash: newTokenHash,
           userId: user.id,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          expiresAt: new Date(Date.now() + refreshTokenTtlMs),
         },
       }),
     ]);
@@ -134,7 +135,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d — matches JWT_REFRESH_EXPIRES_IN
+      maxAge: refreshTokenTtlMs,
     });
 
     res.status(200).json({
