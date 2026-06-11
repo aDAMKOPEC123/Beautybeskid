@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
+import type { Prisma } from '@prisma/client';
 import {
   SocialPlatform,
   ContentFormat,
@@ -50,7 +51,7 @@ export interface IdeaFilters {
 }
 
 export const getPosts = async (filters: PostFilters) => {
-  const where: any = {};
+  const where: Prisma.ContentPostWhereInput = {};
   if (filters.platform) where.platform = filters.platform;
   if (filters.status) where.status = filters.status;
   if (filters.from || filters.to) {
@@ -93,7 +94,7 @@ export const deletePost = async (id: string) => {
 };
 
 export const getIdeas = async (filters: IdeaFilters) => {
-  const where: any = {};
+  const where: Prisma.RolkaIdeaWhereInput = {};
   if (filters.category) where.category = filters.category;
   if (filters.type) where.type = filters.type;
   if (filters.status) where.status = filters.status;
@@ -146,7 +147,7 @@ export const scheduleIdea = async (ideaId: string, data: CreatePostDto) => {
 export const duplicateIdea = async (id: string) => {
   const idea = await prisma.rolkaIdea.findUnique({ where: { id } });
   if (!idea) throw new AppError('Pomysl nie znaleziony', 404);
-  const { id: _id, createdAt: _c, updatedAt: _u, post: _p, plannedDate: _pd, ...rest } = idea as any;
+  const { id: _id, createdAt: _c, updatedAt: _u, plannedDate: _pd, ...rest } = idea;
   return prisma.rolkaIdea.create({
     data: {
       ...rest,

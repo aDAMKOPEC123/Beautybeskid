@@ -23,7 +23,13 @@ vi.mock('../../config/prisma', () => ({
 import { prisma } from '../../config/prisma';
 import {
   getPosts,
+  createPost,
+  updatePost,
+  deletePost,
   getIdeas,
+  createIdea,
+  updateIdea,
+  deleteIdea,
   scheduleIdea,
   duplicateIdea,
 } from './marketing.service';
@@ -107,6 +113,77 @@ describe('scheduleIdea', () => {
     });
     expect(result).toBeDefined();
     expect(prisma.contentPost.create).toHaveBeenCalledOnce();
+  });
+});
+
+describe('createPost', () => {
+  it('tworzy nowy post', async () => {
+    vi.mocked(prisma.contentPost.create).mockResolvedValue(mockPost);
+    const result = await createPost({
+      title: 'Test',
+      platform: 'IG',
+      format: 'ROLKA',
+      scheduledAt: '2026-07-01T18:00:00Z',
+      status: 'POMYSL',
+    });
+    expect(prisma.contentPost.create).toHaveBeenCalledOnce();
+    expect(result.title).toBe('Test post');
+  });
+});
+
+describe('updatePost', () => {
+  it('rzuca 404 gdy post nie istnieje', async () => {
+    vi.mocked(prisma.contentPost.findUnique).mockResolvedValue(null);
+    await expect(updatePost('nonexistent', { title: 'New' })).rejects.toThrow('Publikacja nie znaleziona');
+  });
+
+  it('aktualizuje istniejacy post', async () => {
+    vi.mocked(prisma.contentPost.findUnique).mockResolvedValue(mockPost);
+    const updated = { ...mockPost, title: 'Updated' };
+    vi.mocked(prisma.contentPost.update).mockResolvedValue(updated);
+    const result = await updatePost('post1', { title: 'Updated' });
+    expect(result.title).toBe('Updated');
+  });
+});
+
+describe('deletePost', () => {
+  it('rzuca 404 gdy post nie istnieje', async () => {
+    vi.mocked(prisma.contentPost.findUnique).mockResolvedValue(null);
+    await expect(deletePost('nonexistent')).rejects.toThrow('Publikacja nie znaleziona');
+  });
+
+  it('usuwa istniejacy post', async () => {
+    vi.mocked(prisma.contentPost.findUnique).mockResolvedValue(mockPost);
+    vi.mocked(prisma.contentPost.delete).mockResolvedValue(mockPost);
+    await expect(deletePost('post1')).resolves.not.toThrow();
+  });
+});
+
+describe('createIdea', () => {
+  it('tworzy nowy pomysl', async () => {
+    vi.mocked(prisma.rolkaIdea.create).mockResolvedValue(mockIdea);
+    const result = await createIdea({
+      title: 'Test',
+      category: 'LAMINACJA',
+      type: 'POV',
+      status: 'POMYSL',
+    });
+    expect(prisma.rolkaIdea.create).toHaveBeenCalledOnce();
+    expect(result.title).toBe('Before/after laminacja');
+  });
+});
+
+describe('updateIdea', () => {
+  it('rzuca 404 gdy pomysl nie istnieje', async () => {
+    vi.mocked(prisma.rolkaIdea.findUnique).mockResolvedValue(null);
+    await expect(updateIdea('nonexistent', { title: 'New' })).rejects.toThrow('Pomysl nie znaleziony');
+  });
+});
+
+describe('deleteIdea', () => {
+  it('rzuca 404 gdy pomysl nie istnieje', async () => {
+    vi.mocked(prisma.rolkaIdea.findUnique).mockResolvedValue(null);
+    await expect(deleteIdea('nonexistent')).rejects.toThrow('Pomysl nie znaleziony');
   });
 });
 
