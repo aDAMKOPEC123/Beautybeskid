@@ -1157,3 +1157,81 @@ model AcademyAccessLog {
 
   @@index([userId])
 }
+
+enum SocialPlatform {
+  IG
+  TIKTOK
+  FB
+}
+
+enum ContentFormat {
+  ROLKA
+  KARUZELA
+  STORY
+  POST
+}
+
+enum ContentStatus {
+  POMYSL
+  SCENARIUSZ
+  NAGRANE
+  ZMONTOWANE
+  OPUBLIKOWANE
+}
+
+enum IdeaCategory {
+  LAMINACJA
+  PEDICURE
+  PODOLOGIA
+  TWARZ
+  BRWI
+  INNE
+}
+
+enum IdeaType {
+  POV
+  COMEDY
+  EDUKACYJNA
+  BEFORE_AFTER
+  BLIND_REACTION
+  LOOP
+}
+
+enum IdeaStatus {
+  POMYSL
+  SCENARIUSZ
+  GOTOWA
+  WYKORZYSTANA
+}
+
+model ContentPost {
+  id           String         @id @default(cuid())
+  title        String
+  platform     SocialPlatform
+  format       ContentFormat
+  scheduledAt  DateTime
+  status       ContentStatus
+  thumbnailUrl String?
+  notes        String?
+  ideaId       String?        @unique
+  idea         RolkaIdea?     @relation(fields: [ideaId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model RolkaIdea {
+  id          String       @id @default(cuid())
+  title       String
+  hook        String?
+  sceneDesc   String?
+  category    IdeaCategory
+  type        IdeaType
+  audioName   String?
+  audioUrl    String?
+  props       String?
+  status      IdeaStatus
+  plannedDate DateTime?
+  post        ContentPost?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
