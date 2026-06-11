@@ -38,6 +38,7 @@ import happyHoursRouter from './modules/happy-hours/happy-hours.router';
 import recommendedSlidesRouter from './modules/recommended-slides/router';
 import skinWeatherRouter from './modules/skin-weather/skin-weather.router';
 import { academyRouter } from './modules/academy/academy.router';
+import marketingRouter from './modules/marketing/marketing.router';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -86,6 +87,7 @@ app.use('/api/happy-hours', happyHoursRouter);
 app.use('/api/recommended-slides', recommendedSlidesRouter);
 app.use('/api/skin-weather', skinWeatherRouter);
 app.use('/api/academy', academyRouter);
+app.use('/api/marketing', marketingRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
