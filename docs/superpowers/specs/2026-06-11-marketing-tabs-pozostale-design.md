@@ -27,8 +27,7 @@ model KaruzelaIdea {
   category    IdeaCategory
   status      IdeaStatus
   plannedDate DateTime?
-  postId      String?       @unique
-  post        ContentPost?  @relation(fields: [postId], references: [id])
+  post        ContentPost?
   nagranie    NagranieItem?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -58,9 +57,9 @@ model OpisPost {
 model NagranieItem {
   id         String         @id @default(cuid())
   title      String
-  rolkaId    String?
+  rolkaId    String?        @unique
   rolka      RolkaIdea?     @relation(fields: [rolkaId], references: [id])
-  karuzelaId String?
+  karuzelaId String?        @unique
   karuzela   KaruzelaIdea?  @relation(fields: [karuzelaId], references: [id])
   status     NagranieStatus
   priority   Priority
@@ -110,9 +109,11 @@ enum Priority       { NISKI SREDNI WYSOKI }
 // Do RolkaIdea dodac:
 nagranie NagranieItem?
 
-// Do ContentPost dodac:
-karuzela  KaruzelaIdea?
-wynik     WynikPost?
+// Do ContentPost dodac (FK karuzelaId na ContentPost, analogicznie do ideaId):
+karuzelaId String?       @unique
+karuzela   KaruzelaIdea? @relation(fields: [karuzelaId], references: [id])
+// back-relation tylko (FK postId jest na WynikPost):
+wynik      WynikPost?
 ```
 
 ### Migracja
@@ -189,10 +190,10 @@ DELETE /api/marketing/wyniki/:id
 ### Guard na podwojne schedule (Karuzele)
 
 ```typescript
-async scheduleKaruzela(karuzelaId: string, data: CreatePostDto) {
-  const existing = await prisma.contentPost.findUnique({ where: { karuzelaId } });
+async scheduleKaruzela(id: string, data: CreatePostDto) {
+  const existing = await prisma.contentPost.findUnique({ where: { karuzelaId: id } });
   if (existing) throw new AppError('Pomysl jest juz zaplanowany', 409);
-  // tworzy ContentPost z karuzelaId
+  // tworzy ContentPost z karuzelaId: id
 }
 ```
 
@@ -279,7 +280,7 @@ apps/web/src/pages/admin/Marketing.tsx    - import i renderowanie 6 nowych stron
 
 1. Klik "Zaplanuj" przy pomysle karuzeli
 2. Otwiera ContentPostModal z wstepnie wypelnionymi polami (tytul z pomyslu, format=KARUZELA)
-3. Po zapisie: POST /api/marketing/karuzele/:id/schedule - guard 409, tworzy ContentPost z postId
+3. Po zapisie: POST /api/marketing/karuzele/:id/schedule - guard 409, tworzy ContentPost z karuzelaId
 4. Invalidate queries: ['marketing', 'posts'] i ['marketing', 'karuzele']
 
 ### Kopiuj opis
@@ -296,8 +297,8 @@ apps/web/src/pages/admin/Marketing.tsx    - import i renderowanie 6 nowych stron
 
 ## Uwagi
 
-- `ContentPost` ma juz relacje do `RolkaIdea` (ideaId) - dodajemy analogicznie `karuzelaId` i `wynikId`
-- `WynikPost.postId` ma `@unique` - jeden wynik na jeden post
-- `KaruzelaIdea.postId` ma `@unique` - jeden post na jeden pomysl karuzeli
+- FK kierunek: `ContentPost` ma `ideaId` (RolkaIdea) i `karuzelaId` (KaruzelaIdea) - oba po stronie ContentPost, wzorzec wlasnosci "post nalezy do pomyslu"
+- FK kierunek: `WynikPost` ma `postId` po swojej stronie - wzorzec "wynik nalezy do posta" (odwrotny)
+- `NagranieItem.rolkaId` i `NagranieItem.karuzelaId` maja `@unique` - wymagane przez Prisma dla relacji 1:1
 - Enumeracja `IdeaCategory` jest wspolna dla Rolki, Karuzele i Opisy - bez zmian
 - `SocialPlatform` (IG/TIKTOK/FB) jest wspolna dla Trendy, Kampanie, Wyniki - bez zmian
