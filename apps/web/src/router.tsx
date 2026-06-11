@@ -67,6 +67,20 @@ import { ChangePassword } from './pages/user/ChangePassword';
 import { SkinWeatherProfile } from './pages/user/SkinWeatherProfile';
 import { SkinWeatherRules } from './pages/admin/SkinWeatherRules';
 
+// Academy imports
+import { AcademyLayout } from './pages/academy/AcademyLayout';
+import { NoAccess } from './pages/academy/NoAccess';
+import { AcademyCatalog } from './pages/academy/AcademyCatalog';
+import { MyCourses } from './pages/academy/MyCourses';
+import { Certificates } from './pages/academy/Certificates';
+import { StandaloneQuizPage } from './pages/academy/StandaloneQuizPage';
+import { CourseDetail } from './pages/academy/CourseDetail';
+import { LessonPlayer } from './pages/academy/LessonPlayer';
+import { AdminAkademia } from './pages/admin/academy/AdminAkademia';
+import { AdminCourseEditor } from './pages/admin/academy/AdminCourseEditor';
+import { AdminStandaloneQuizEditor } from './pages/admin/academy/AdminStandaloneQuizEditor';
+import { Marketing } from '@/pages/admin/Marketing';
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -130,6 +144,23 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: '/akademia',
+    children: [
+      { path: 'brak-dostepu', element: <NoAccess /> },
+      {
+        element: <AcademyLayout />,
+        children: [
+          { index: true, element: <AcademyCatalog /> },
+          { path: 'moje-kursy', element: <MyCourses /> },
+          { path: 'certyfikaty', element: <Certificates /> },
+          { path: 'quizy', element: <StandaloneQuizPage /> },
+          { path: 'kurs/:slug', element: <CourseDetail /> },
+          { path: 'kurs/:slug/lekcja/:lessonSlug', element: <LessonPlayer /> },
+        ],
+      },
+    ],
+  },
+  {
     path: '/admin',
     element: <AdminLayout />,
     children: [
@@ -159,6 +190,10 @@ export const router = createBrowserRouter([
       { path: 'powiadomienia', element: <AdminNotifications /> },
       { path: 'asortyment', element: <AdminAssortment /> },
       { path: 'pogoda-skory', element: <SkinWeatherRules /> },
+      { path: 'akademia', element: <AdminAkademia /> },
+      { path: 'akademia/kurs/:id', element: <AdminCourseEditor /> },
+      { path: 'akademia/quiz/:id', element: <AdminStandaloneQuizEditor /> },
+      { path: 'marketing', element: <Marketing /> },
     ],
   },
 ]);

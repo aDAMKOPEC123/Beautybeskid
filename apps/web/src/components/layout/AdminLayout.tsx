@@ -42,6 +42,9 @@ export const AdminLayout = () => {
   const [ustawieniaOpen, setUstawieniaOpen] = useState(
     () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
   );
+  const [marketingOpen, setMarketingOpen] = useState(
+    () => location.pathname.startsWith('/admin/marketing')
+  );
   const { socket, isConnected } = useSocket();
   const { staffUnreadTotal, setStaffUnreadTotal } = useChatStore();
   const { addNotification, unreadCount, markAllRead } = useNotificationStore();
@@ -152,6 +155,7 @@ export const AdminLayout = () => {
           { to: '/admin/hero', label: 'Slider' },
           { to: '/admin/o-nas', label: 'O nas' },
           { to: '/admin/regulamin', label: 'Regulamin' },
+          { to: '/admin/marketing', label: 'Marketing' },
         ].map(({ to, label, badge }) => (
           <Link
             key={to}
@@ -416,6 +420,24 @@ export const AdminLayout = () => {
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/regulamin" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Regulamin
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Marketing */}
+            <div>
+              <button
+                onClick={() => setMarketingOpen(o => !o)}
+                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                <span>Marketing</span>
+                <ChevronDown size={14} className={marketingOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+              {marketingOpen && (
+                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
+                  <Link to="/admin/marketing" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Planowanie contentu
                   </Link>
                 </div>
               )}
