@@ -2,6 +2,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import pinoHttp from 'pino-http';
 import { env } from './config/env';
@@ -45,6 +46,7 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(helmet());
+app.use(compression());
 app.use(cors({
   origin: env.CLIENT_URL,
   credentials: true

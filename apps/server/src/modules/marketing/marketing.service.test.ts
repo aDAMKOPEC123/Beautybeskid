@@ -44,6 +44,7 @@ const mockPost = {
   thumbnailUrl: null,
   notes: null,
   ideaId: null,
+  karuzelaId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
