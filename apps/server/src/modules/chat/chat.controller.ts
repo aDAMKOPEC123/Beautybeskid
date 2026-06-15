@@ -57,7 +57,8 @@ export const sendMessageREST = async (req: Request, res: Response, next: NextFun
         receiverId = room.adminId;
       } else {
         const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
-        receiverId = admin?.id || senderId;
+        if (!admin) throw new AppError('Brak dostępnego administratora', 503);
+        receiverId = admin.id;
       }
     } else {
       receiverId = room.userId;
@@ -141,6 +142,27 @@ export const markAsRead = async (req: Request, res: Response, next: NextFunction
     }
 
     res.status(200).json({ status: 'success', data: { readAt } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteRoom = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const roomId = req.params.id;
+    await chatService.deleteRoom(roomId);
+
+    // Emit room:deleted to the Socket.IO room `room:<roomId>`.
+    // Users join this room via `socket.emit('chat:join_room', roomId)` in useChat.ts.
+    // This notifies any user who currently has their chat page open.
+    try {
+      const io = getIO();
+      io.to(`room:${roomId}`).emit('room:deleted', { roomId });
+    } catch {
+      // Socket not initialized — safe to ignore
+    }
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
