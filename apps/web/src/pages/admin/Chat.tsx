@@ -8,7 +8,7 @@ import { BookingProposalPanel } from '@/components/chat/BookingProposalPanel';
 import { useChat } from '@/hooks/useChat';
 import { useChatStore } from '@/store/chat.store';
 import { useAuth } from '@/hooks/useAuth';
-import { Search, CalendarClock } from 'lucide-react';
+import { Search, CalendarClock, Trash2 } from 'lucide-react';
 
 export const AdminChat = () => {
   const { user } = useAuth();
@@ -42,6 +42,27 @@ export const AdminChat = () => {
     }
   }, [storeMessages]);
 
+  const handleDeleteRoom = async (e: React.MouseEvent, room: any) => {
+    e.stopPropagation(); // Prevents triggering loadRoom on the parent button
+    const confirmed = window.confirm(
+      `Usunąć całą historię czatu z ${room.user.name}? Tej operacji nie można cofnąć.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await chatApi.deleteRoom(room.id);
+      // If the deleted room is currently open, reset the main view
+      if (activeRoom?.id === room.id) {
+        setActiveRoom(null);
+        setMessages([]);
+      }
+      // Refresh the room list to remove the deleted room from the sidebar
+      refetchRooms();
+    } catch {
+      window.alert('Nie udało się usunąć czatu. Spróbuj ponownie.');
+    }
+  };
+
   const loadRoom = async (room: any) => {
     setActiveRoom(room);
     const msgs = await chatApi.getRoomMessages(room.id);
@@ -70,33 +91,41 @@ export const AdminChat = () => {
         </div>
         <div className="flex-1 overflow-y-auto w-full p-2 space-y-1">
           {rooms?.map((room: any) => (
-            <button
-              key={room.id}
-              onClick={() => loadRoom(room)}
-              className={`w-full text-left p-4 rounded-2xl transition-all duration-300 ${
-                activeRoom?.id === room.id
-                  ? 'bg-primary text-primary-foreground shadow-lg scale-[0.98]'
-                  : room.adminUnread > 0
-                  ? 'bg-primary/5 border-l-2 border-primary font-medium hover:bg-primary/10'
-                  : 'hover:bg-background border border-transparent hover:border-border hover:shadow-sm'
-              }`}
-            >
-              <div className="flex justify-between items-start mb-1">
-                <span className="font-bold">{room.user.name}</span>
-                {room.adminUnread > 0 && (
-                  <span className="bg-destructive text-white text-[10px] shadow-sm font-black px-2 py-0.5 rounded-full animate-pulse">
-                    {room.adminUnread} Nowych
-                  </span>
-                )}
-              </div>
-              <span
-                className={`text-xs mt-1 block font-medium ${
-                  activeRoom?.id === room.id ? 'text-primary-foreground/80' : 'text-muted-foreground'
+            <div key={room.id} className="relative group">
+              <button
+                onClick={() => loadRoom(room)}
+                className={`w-full text-left p-4 rounded-2xl transition-all duration-300 pr-10 ${
+                  activeRoom?.id === room.id
+                    ? 'bg-primary text-primary-foreground shadow-lg scale-[0.98]'
+                    : room.adminUnread > 0
+                    ? 'bg-primary/5 border-l-2 border-primary font-medium hover:bg-primary/10'
+                    : 'hover:bg-background border border-transparent hover:border-border hover:shadow-sm'
                 }`}
               >
-                {new Date(room.lastMessageAt).toLocaleString('pl-PL')}
-              </span>
-            </button>
+                <div className="flex justify-between items-start mb-1">
+                  <span className="font-bold">{room.user.name}</span>
+                  {room.adminUnread > 0 && (
+                    <span className="bg-destructive text-white text-[10px] shadow-sm font-black px-2 py-0.5 rounded-full animate-pulse">
+                      {room.adminUnread} Nowych
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-xs mt-1 block font-medium ${
+                    activeRoom?.id === room.id ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                  }`}
+                >
+                  {new Date(room.lastMessageAt).toLocaleString('pl-PL')}
+                </span>
+              </button>
+              <button
+                onClick={(e) => handleDeleteRoom(e, room)}
+                title="Usuń historię czatu"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           ))}
           {rooms?.length === 0 && (
             <div className="p-8 text-center text-muted-foreground text-sm font-medium">
