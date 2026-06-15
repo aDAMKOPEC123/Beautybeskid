@@ -163,7 +163,7 @@ export const MarketingKaruzele = () => {
       <ContentPostModal
         open={scheduleOpen}
         onClose={() => { setScheduleOpen(false); setScheduling(null); }}
-        karuzelaId={scheduling?.id}
+        ideaId={scheduling?.id}
         defaultValues={{
           title: scheduling?.title,
           format: 'KARUZELA',

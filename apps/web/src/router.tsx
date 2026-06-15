@@ -1,3 +1,4 @@
+import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { PublicLayout } from './components/layout/PublicLayout';
@@ -5,104 +6,119 @@ import { UserLayout } from './components/layout/UserLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { EmployeeLayout } from './components/layout/EmployeeLayout';
 
-import { Home } from './pages/public/Home';
-import { ServiceList } from './pages/public/ServiceList';
-import { BlogList } from './pages/public/BlogList';
-import { BlogPost } from './pages/public/BlogPost';
-import { MetamorphosesGallery } from './pages/public/MetamorphosesGallery';
-import { LoyaltyInfo } from './pages/public/LoyaltyInfo';
+// Public pages
+const Home = lazy(() => import('./pages/public/Home').then(m => ({ default: m.Home })));
+const ServiceList = lazy(() => import('./pages/public/ServiceList').then(m => ({ default: m.ServiceList })));
+const BlogList = lazy(() => import('./pages/public/BlogList').then(m => ({ default: m.BlogList })));
+const BlogPost = lazy(() => import('./pages/public/BlogPost').then(m => ({ default: m.BlogPost })));
+const MetamorphosesGallery = lazy(() => import('./pages/public/MetamorphosesGallery').then(m => ({ default: m.MetamorphosesGallery })));
+const LoyaltyInfo = lazy(() => import('./pages/public/LoyaltyInfo').then(m => ({ default: m.LoyaltyInfo })));
+const PublicTerms = lazy(() => import('./pages/public/Terms').then(m => ({ default: m.PublicTerms })));
+const Contact = lazy(() => import('./pages/public/Contact').then(m => ({ default: m.Contact })));
+const About = lazy(() => import('./pages/public/About').then(m => ({ default: m.About })));
+const ServiceDetail = lazy(() => import('./pages/public/ServiceDetail').then(m => ({ default: m.ServiceDetail })));
 
-import { Login } from './pages/auth/Login';
-import { Register } from './pages/auth/Register';
-import { ForgotPassword } from './pages/auth/ForgotPassword';
-import { ResetPassword } from './pages/auth/ResetPassword';
+// Auth pages
+const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
+const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword').then(m => ({ default: m.ResetPassword })));
 
-import { UserDashboard } from './pages/user/Dashboard';
-import { UserAppointments } from './pages/user/Appointments';
-import { BookingWizard } from './pages/user/BookingWizard';
-import { UserLoyalty } from './pages/user/Loyalty';
-import { UserProfile } from './pages/user/Profile';
+// User pages
+const UserDashboard = lazy(() => import('./pages/user/Dashboard').then(m => ({ default: m.UserDashboard })));
+const UserAppointments = lazy(() => import('./pages/user/Appointments').then(m => ({ default: m.UserAppointments })));
+const BookingWizard = lazy(() => import('./pages/user/BookingWizard').then(m => ({ default: m.BookingWizard })));
+const UserLoyalty = lazy(() => import('./pages/user/Loyalty').then(m => ({ default: m.UserLoyalty })));
+const UserProfile = lazy(() => import('./pages/user/Profile').then(m => ({ default: m.UserProfile })));
+const UserChat = lazy(() => import('./pages/user/Chat').then(m => ({ default: m.UserChat })));
+const UserTimeline = lazy(() => import('./pages/user/Timeline').then(m => ({ default: m.UserTimeline })));
+const UserNotifications = lazy(() => import('./pages/user/Notifications').then(m => ({ default: m.UserNotifications })));
+const UserReferrals = lazy(() => import('./pages/user/Referrals').then(m => ({ default: m.UserReferrals })));
+const UserProducts = lazy(() => import('./pages/user/Products').then(m => ({ default: m.UserProducts })));
+const UserSkinJournal = lazy(() => import('./pages/user/SkinJournal').then(m => ({ default: m.UserSkinJournal })));
+const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').then(m => ({ default: m.HomecareRoutinePage })));
+const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
+const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
 
-import { AdminDashboard } from './pages/admin/Dashboard';
-import { AdminAppointments } from './pages/admin/Appointments';
-import { AdminServices } from './pages/admin/Services';
-import { AdminBlog } from './pages/admin/Blog';
-import { AdminBlogForm } from './pages/admin/AdminBlogForm';
-import { AdminMetamorphoses } from './pages/admin/Metamorphoses';
-import { AdminLoyalty } from './pages/admin/Loyalty';
-import { AdminUsers } from './pages/admin/Users';
-import { AdminChat } from './pages/admin/Chat';
-import { AdminEmployees } from './pages/admin/Employees';
-import { AdminWork } from './pages/admin/Work';
-import { AdminHeroSlides } from './pages/admin/HeroSlides';
-import { AdminRecommendedSlides } from './pages/admin/RecommendedSlides';
-import { AdminDiscountCodes } from './pages/admin/DiscountCodes';
-import { AdminTerms } from './pages/admin/AdminTerms';
-import { PublicTerms } from './pages/public/Terms';
-import { Contact } from './pages/public/Contact';
-import { About } from './pages/public/About';
-import { AdminAbout } from './pages/admin/AdminAbout';
-import { AdminConsultations } from './pages/admin/Consultations';
-import { ServiceDetail } from './pages/public/ServiceDetail';
-import { AdminServiceDetail } from './pages/admin/AdminServiceDetail';
-import AdminQuizzes from './pages/admin/AdminQuizzes';
-import AdminQuizEditor from './pages/admin/AdminQuizEditor';
-import { AdminReviews } from './pages/admin/Reviews';
-import { AdminNotifications } from './pages/admin/AdminNotifications';
-import { AdminBlogComments } from './pages/admin/AdminBlogComments';
-import { AdminAssortment } from './pages/admin/AdminAssortment';
+// Admin pages
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminAppointments = lazy(() => import('./pages/admin/Appointments').then(m => ({ default: m.AdminAppointments })));
+const AdminServices = lazy(() => import('./pages/admin/Services').then(m => ({ default: m.AdminServices })));
+const AdminBlog = lazy(() => import('./pages/admin/Blog').then(m => ({ default: m.AdminBlog })));
+const AdminBlogForm = lazy(() => import('./pages/admin/AdminBlogForm').then(m => ({ default: m.AdminBlogForm })));
+const AdminMetamorphoses = lazy(() => import('./pages/admin/Metamorphoses').then(m => ({ default: m.AdminMetamorphoses })));
+const AdminLoyalty = lazy(() => import('./pages/admin/Loyalty').then(m => ({ default: m.AdminLoyalty })));
+const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.AdminUsers })));
+const AdminChat = lazy(() => import('./pages/admin/Chat').then(m => ({ default: m.AdminChat })));
+const AdminEmployees = lazy(() => import('./pages/admin/Employees').then(m => ({ default: m.AdminEmployees })));
+const AdminWork = lazy(() => import('./pages/admin/Work').then(m => ({ default: m.AdminWork })));
+const AdminHeroSlides = lazy(() => import('./pages/admin/HeroSlides').then(m => ({ default: m.AdminHeroSlides })));
+const AdminRecommendedSlides = lazy(() => import('./pages/admin/RecommendedSlides').then(m => ({ default: m.AdminRecommendedSlides })));
+const AdminDiscountCodes = lazy(() => import('./pages/admin/DiscountCodes').then(m => ({ default: m.AdminDiscountCodes })));
+const AdminTerms = lazy(() => import('./pages/admin/AdminTerms').then(m => ({ default: m.AdminTerms })));
+const AdminAbout = lazy(() => import('./pages/admin/AdminAbout').then(m => ({ default: m.AdminAbout })));
+const AdminConsultations = lazy(() => import('./pages/admin/Consultations').then(m => ({ default: m.AdminConsultations })));
+const AdminServiceDetail = lazy(() => import('./pages/admin/AdminServiceDetail').then(m => ({ default: m.AdminServiceDetail })));
+const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes'));
+const AdminQuizEditor = lazy(() => import('./pages/admin/AdminQuizEditor'));
+const AdminReviews = lazy(() => import('./pages/admin/Reviews').then(m => ({ default: m.AdminReviews })));
+const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications').then(m => ({ default: m.AdminNotifications })));
+const AdminBlogComments = lazy(() => import('./pages/admin/AdminBlogComments').then(m => ({ default: m.AdminBlogComments })));
+const AdminAssortment = lazy(() => import('./pages/admin/AdminAssortment').then(m => ({ default: m.AdminAssortment })));
+const SkinWeatherRules = lazy(() => import('./pages/admin/SkinWeatherRules').then(m => ({ default: m.SkinWeatherRules })));
+const AdminAkademia = lazy(() => import('./pages/admin/academy/AdminAkademia').then(m => ({ default: m.AdminAkademia })));
+const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEditor').then(m => ({ default: m.AdminCourseEditor })));
+const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
+const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
 
-import { EmployeeSchedule } from './pages/employee/Schedule';
-import { EmployeeAppointments } from './pages/employee/MyAppointments';
-import { EmployeeChat } from './pages/employee/Chat';
-import { EmployeeAssortment } from './pages/employee/EmployeeAssortment';
-import { UserChat } from './pages/user/Chat';
-import { UserTimeline } from './pages/user/Timeline';
-import { UserNotifications } from './pages/user/Notifications';
-import { UserReferrals } from './pages/user/Referrals';
-import { UserProducts } from './pages/user/Products';
-import { UserSkinJournal } from './pages/user/SkinJournal';
-import { HomecareRoutinePage } from './pages/user/HomecareRoutine';
-import { ChangePassword } from './pages/user/ChangePassword';
-import { SkinWeatherProfile } from './pages/user/SkinWeatherProfile';
-import { SkinWeatherRules } from './pages/admin/SkinWeatherRules';
+// Employee pages
+const EmployeeSchedule = lazy(() => import('./pages/employee/Schedule').then(m => ({ default: m.EmployeeSchedule })));
+const EmployeeAppointments = lazy(() => import('./pages/employee/MyAppointments').then(m => ({ default: m.EmployeeAppointments })));
+const EmployeeChat = lazy(() => import('./pages/employee/Chat').then(m => ({ default: m.EmployeeChat })));
+const EmployeeAssortment = lazy(() => import('./pages/employee/EmployeeAssortment').then(m => ({ default: m.EmployeeAssortment })));
 
-// Academy imports
-import { AcademyLayout } from './pages/academy/AcademyLayout';
-import { NoAccess } from './pages/academy/NoAccess';
-import { AcademyCatalog } from './pages/academy/AcademyCatalog';
-import { MyCourses } from './pages/academy/MyCourses';
-import { Certificates } from './pages/academy/Certificates';
-import { StandaloneQuizPage } from './pages/academy/StandaloneQuizPage';
-import { CourseDetail } from './pages/academy/CourseDetail';
-import { LessonPlayer } from './pages/academy/LessonPlayer';
-import { AdminAkademia } from './pages/admin/academy/AdminAkademia';
-import { AdminCourseEditor } from './pages/admin/academy/AdminCourseEditor';
-import { AdminStandaloneQuizEditor } from './pages/admin/academy/AdminStandaloneQuizEditor';
-import { Marketing } from '@/pages/admin/Marketing';
+// Academy pages
+const AcademyLayout = lazy(() => import('./pages/academy/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
+const NoAccess = lazy(() => import('./pages/academy/NoAccess').then(m => ({ default: m.NoAccess })));
+const AcademyCatalog = lazy(() => import('./pages/academy/AcademyCatalog').then(m => ({ default: m.AcademyCatalog })));
+const MyCourses = lazy(() => import('./pages/academy/MyCourses').then(m => ({ default: m.MyCourses })));
+const Certificates = lazy(() => import('./pages/academy/Certificates').then(m => ({ default: m.Certificates })));
+const StandaloneQuizPage = lazy(() => import('./pages/academy/StandaloneQuizPage').then(m => ({ default: m.StandaloneQuizPage })));
+const CourseDetail = lazy(() => import('./pages/academy/CourseDetail').then(m => ({ default: m.CourseDetail })));
+const LessonPlayer = lazy(() => import('./pages/academy/LessonPlayer').then(m => ({ default: m.LessonPlayer })));
+
+const Spinner = (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  </div>
+);
+
+const S = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={Spinner}>{children}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
     children: [
-      { index: true, element: <Home /> },
-      { path: 'uslugi', element: <ServiceList /> },
-      { path: 'uslugi/:slug', element: <ServiceDetail /> },
-      { path: 'blog', element: <BlogList /> },
-      { path: 'blog/:slug', element: <BlogPost /> },
-      { path: 'metamorfozy', element: <MetamorphosesGallery /> },
-      { path: 'program-lojalnosciowy', element: <LoyaltyInfo /> },
-      { path: 'regulamin', element: <PublicTerms /> },
-      { path: 'kontakt', element: <Contact /> },
-      { path: 'o-nas', element: <About /> },
+      { index: true, element: <S><Home /></S> },
+      { path: 'uslugi', element: <S><ServiceList /></S> },
+      { path: 'uslugi/:slug', element: <S><ServiceDetail /></S> },
+      { path: 'blog', element: <S><BlogList /></S> },
+      { path: 'blog/:slug', element: <S><BlogPost /></S> },
+      { path: 'metamorfozy', element: <S><MetamorphosesGallery /></S> },
+      { path: 'program-lojalnosciowy', element: <S><LoyaltyInfo /></S> },
+      { path: 'regulamin', element: <S><PublicTerms /></S> },
+      { path: 'kontakt', element: <S><Contact /></S> },
+      { path: 'o-nas', element: <S><About /></S> },
       {
         path: 'auth',
         children: [
-          { path: 'login', element: <Login /> },
-          { path: 'register', element: <Register /> },
-          { path: 'forgot-password', element: <ForgotPassword /> },
-          { path: 'reset-password', element: <ResetPassword /> },
+          { path: 'login', element: <S><Login /></S> },
+          { path: 'register', element: <S><Register /></S> },
+          { path: 'forgot-password', element: <S><ForgotPassword /></S> },
+          { path: 'reset-password', element: <S><ResetPassword /></S> },
         ],
       },
     ],
@@ -111,51 +127,51 @@ export const router = createBrowserRouter([
     path: '/user',
     element: <UserLayout />,
     children: [
-      { index: true, element: <UserDashboard /> },
-      { path: 'wizyty', element: <UserAppointments /> },
+      { index: true, element: <S><UserDashboard /></S> },
+      { path: 'wizyty', element: <S><UserAppointments /></S> },
       { path: 'appointments', element: <Navigate to="/user/wizyty" replace /> },
-      { path: 'lojalnosc', element: <UserLoyalty /> },
-      { path: 'profil', element: <UserProfile /> },
-      { path: 'historia', element: <UserTimeline /> },
-      { path: 'chat', element: <UserChat /> },
-      { path: 'powiadomienia', element: <UserNotifications /> },
-      { path: 'polecenia', element: <UserReferrals /> },
-      { path: 'produkty', element: <UserProducts /> },
-      { path: 'dziennik', element: <UserSkinJournal /> },
-      { path: 'rutyna', element: <HomecareRoutinePage /> },
-      { path: 'zmien-haslo', element: <ChangePassword /> },
-      { path: 'pogoda-skory', element: <SkinWeatherProfile /> },
+      { path: 'lojalnosc', element: <S><UserLoyalty /></S> },
+      { path: 'profil', element: <S><UserProfile /></S> },
+      { path: 'historia', element: <S><UserTimeline /></S> },
+      { path: 'chat', element: <S><UserChat /></S> },
+      { path: 'powiadomienia', element: <S><UserNotifications /></S> },
+      { path: 'polecenia', element: <S><UserReferrals /></S> },
+      { path: 'produkty', element: <S><UserProducts /></S> },
+      { path: 'dziennik', element: <S><UserSkinJournal /></S> },
+      { path: 'rutyna', element: <S><HomecareRoutinePage /></S> },
+      { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
+      { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
     ],
   },
   {
     path: '/rezerwacja',
     element: <UserLayout />,
-    children: [{ index: true, element: <BookingWizard /> }],
+    children: [{ index: true, element: <S><BookingWizard /></S> }],
   },
   {
     path: '/employee',
     element: <EmployeeLayout />,
     children: [
-      { index: true, element: <EmployeeSchedule /> },
-      { path: 'terminarz', element: <EmployeeSchedule /> },
-      { path: 'wizyty', element: <EmployeeAppointments /> },
-      { path: 'chat', element: <EmployeeChat /> },
-      { path: 'asortyment', element: <EmployeeAssortment /> },
+      { index: true, element: <S><EmployeeSchedule /></S> },
+      { path: 'terminarz', element: <S><EmployeeSchedule /></S> },
+      { path: 'wizyty', element: <S><EmployeeAppointments /></S> },
+      { path: 'chat', element: <S><EmployeeChat /></S> },
+      { path: 'asortyment', element: <S><EmployeeAssortment /></S> },
     ],
   },
   {
     path: '/akademia',
     children: [
-      { path: 'brak-dostepu', element: <NoAccess /> },
+      { path: 'brak-dostepu', element: <S><NoAccess /></S> },
       {
-        element: <AcademyLayout />,
+        element: <S><AcademyLayout /></S>,
         children: [
-          { index: true, element: <AcademyCatalog /> },
-          { path: 'moje-kursy', element: <MyCourses /> },
-          { path: 'certyfikaty', element: <Certificates /> },
-          { path: 'quizy', element: <StandaloneQuizPage /> },
-          { path: 'kurs/:slug', element: <CourseDetail /> },
-          { path: 'kurs/:slug/lekcja/:lessonSlug', element: <LessonPlayer /> },
+          { index: true, element: <S><AcademyCatalog /></S> },
+          { path: 'moje-kursy', element: <S><MyCourses /></S> },
+          { path: 'certyfikaty', element: <S><Certificates /></S> },
+          { path: 'quizy', element: <S><StandaloneQuizPage /></S> },
+          { path: 'kurs/:slug', element: <S><CourseDetail /></S> },
+          { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
         ],
       },
     ],
@@ -164,36 +180,36 @@ export const router = createBrowserRouter([
     path: '/admin',
     element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'wizyty', element: <AdminAppointments /> },
-      { path: 'pracownicy', element: <AdminEmployees /> },
-      { path: 'uslugi', element: <AdminServices /> },
-      { path: 'uslugi/:slug', element: <AdminServiceDetail /> },
-      { path: 'blog/new', element: <AdminBlogForm /> },
-      { path: 'blog/:id/edit', element: <AdminBlogForm /> },
-      { path: 'blog/:id/comments', element: <AdminBlogComments /> },
-      { path: 'blog', element: <AdminBlog /> },
-      { path: 'metamorfozy', element: <AdminMetamorphoses /> },
-      { path: 'lojalnosc', element: <AdminLoyalty /> },
-      { path: 'uzytkownicy', element: <AdminUsers /> },
-      { path: 'chat', element: <AdminChat /> },
-      { path: 'praca', element: <AdminWork /> },
-      { path: 'hero', element: <AdminHeroSlides /> },
-      { path: 'polecane-zabiegi', element: <AdminRecommendedSlides /> },
-      { path: 'kody-rabatowe', element: <AdminDiscountCodes /> },
-      { path: 'regulamin', element: <AdminTerms /> },
-      { path: 'o-nas', element: <AdminAbout /> },
-      { path: 'konsultacje', element: <AdminConsultations /> },
-      { path: 'quizy', element: <AdminQuizzes /> },
-      { path: 'quizy/:id/edytor', element: <AdminQuizEditor /> },
-      { path: 'recenzje', element: <AdminReviews /> },
-      { path: 'powiadomienia', element: <AdminNotifications /> },
-      { path: 'asortyment', element: <AdminAssortment /> },
-      { path: 'pogoda-skory', element: <SkinWeatherRules /> },
-      { path: 'akademia', element: <AdminAkademia /> },
-      { path: 'akademia/kurs/:id', element: <AdminCourseEditor /> },
-      { path: 'akademia/quiz/:id', element: <AdminStandaloneQuizEditor /> },
-      { path: 'marketing', element: <Marketing /> },
+      { index: true, element: <S><AdminDashboard /></S> },
+      { path: 'wizyty', element: <S><AdminAppointments /></S> },
+      { path: 'pracownicy', element: <S><AdminEmployees /></S> },
+      { path: 'uslugi', element: <S><AdminServices /></S> },
+      { path: 'uslugi/:slug', element: <S><AdminServiceDetail /></S> },
+      { path: 'blog/new', element: <S><AdminBlogForm /></S> },
+      { path: 'blog/:id/edit', element: <S><AdminBlogForm /></S> },
+      { path: 'blog/:id/comments', element: <S><AdminBlogComments /></S> },
+      { path: 'blog', element: <S><AdminBlog /></S> },
+      { path: 'metamorfozy', element: <S><AdminMetamorphoses /></S> },
+      { path: 'lojalnosc', element: <S><AdminLoyalty /></S> },
+      { path: 'uzytkownicy', element: <S><AdminUsers /></S> },
+      { path: 'chat', element: <S><AdminChat /></S> },
+      { path: 'praca', element: <S><AdminWork /></S> },
+      { path: 'hero', element: <S><AdminHeroSlides /></S> },
+      { path: 'polecane-zabiegi', element: <S><AdminRecommendedSlides /></S> },
+      { path: 'kody-rabatowe', element: <S><AdminDiscountCodes /></S> },
+      { path: 'regulamin', element: <S><AdminTerms /></S> },
+      { path: 'o-nas', element: <S><AdminAbout /></S> },
+      { path: 'konsultacje', element: <S><AdminConsultations /></S> },
+      { path: 'quizy', element: <S><AdminQuizzes /></S> },
+      { path: 'quizy/:id/edytor', element: <S><AdminQuizEditor /></S> },
+      { path: 'recenzje', element: <S><AdminReviews /></S> },
+      { path: 'powiadomienia', element: <S><AdminNotifications /></S> },
+      { path: 'asortyment', element: <S><AdminAssortment /></S> },
+      { path: 'pogoda-skory', element: <S><SkinWeatherRules /></S> },
+      { path: 'akademia', element: <S><AdminAkademia /></S> },
+      { path: 'akademia/kurs/:id', element: <S><AdminCourseEditor /></S> },
+      { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },
+      { path: 'marketing', element: <S><Marketing /></S> },
     ],
   },
 ]);
