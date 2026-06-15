@@ -24,4 +24,8 @@ export const chatApi = {
     const res = await api.post(`/chat/rooms/${roomId}/read`);
     return res.data.data;
   },
+  deleteRoom: async (roomId: string): Promise<void> => {
+    await api.delete(`/chat/rooms/${roomId}`);
+    // No return value — server responds with 204 No Content
+  },
 };
