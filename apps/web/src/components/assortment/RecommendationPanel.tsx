@@ -40,7 +40,7 @@ function RecCard({
     <div className="flex items-start gap-3 p-3 border rounded-xl text-sm">
       <div className="w-10 h-10 rounded-lg bg-gray-50 flex-shrink-0 overflow-hidden">
         {rec.product?.imagePath ? (
-          <img src={rec.product.imagePath} alt={rec.name} className="w-full h-full object-cover" />
+          <img src={rec.product.imagePath} alt={rec.name} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <Package size={20} className="text-gray-200 m-2.5" />
         )}

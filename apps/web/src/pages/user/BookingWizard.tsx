@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 interface WizardState {
   service: any | null;
   seriesId: string | null;
+  employee: any | null;
   employeeId: string | null;
   date: Date | null;
   time: string | null;
@@ -288,6 +289,7 @@ function StepService({
                     src={service.imagePath}
                     alt={service.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
               )}
@@ -333,7 +335,7 @@ function StepEmployee({
   service,
 }: {
   selected: string | null;
-  onSelect: (id: string | null) => void;
+  onSelect: (emp: any | null) => void;
   service: any;
 }) {
   const { data: employees = [], isLoading } = useQuery<any[]>({
@@ -365,7 +367,7 @@ function StepEmployee({
   return (
     <div className="space-y-4">
       {filteredEmployees.length === 0 && !isLoading && (
-        <div className="text-center py-12 text-sm" style={{ color: 'rgba(20,40,28,0.45)' }}>
+        <div className="text-center py-8 text-sm" style={{ color: 'rgba(20,40,28,0.45)' }}>
           Brak dostępnych pracowników dla tej usługi.
         </div>
       )}
@@ -375,7 +377,7 @@ function StepEmployee({
           return (
             <div
               key={emp.id}
-              onClick={() => onSelect(emp.id)}
+              onClick={() => onSelect(emp)}
               className="p-4 flex gap-4 items-start"
               style={cardStyle(isSelected)}
             >
@@ -664,6 +666,7 @@ function StepNotes({
                 alt="Preview"
                 className="w-20 h-20 object-cover rounded-lg"
                 style={{ border: '1px solid rgba(0,0,0,0.1)' }}
+                loading="lazy"
               />
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium" style={{ color: '#1A3828' }}>{photo.name}</p>
@@ -680,9 +683,13 @@ function StepNotes({
           ) : (
             <div className="space-y-2">
               <Upload size={24} className="mx-auto" style={{ color: 'rgba(20,40,28,0.35)' }} />
-              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
+              <p className="text-sm hidden md:block" style={{ color: 'rgba(20,40,28,0.5)' }}>
                 Przeciągnij zdjęcie lub{' '}
                 <span style={{ color: '#C4965A', textDecoration: 'underline' }}>kliknij tutaj</span>
+              </p>
+              <p className="text-sm md:hidden" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                <span style={{ color: '#C4965A', textDecoration: 'underline' }}>Dotknij tutaj</span>
+                {' '}aby dodać zdjęcie
               </p>
               <p className="text-xs" style={{ color: 'rgba(20,40,28,0.4)' }}>JPG, PNG, WebP — max 5 MB</p>
             </div>
@@ -820,7 +827,7 @@ function StepConfirm({
                   <span className="font-bold" style={{ color: '#1A3828' }}>{basePrice.toFixed(2)} zł</span>
                 ),
               },
-              { label: 'Pracownik', value: state.employeeId ? '(wybrany)' : 'Bez preferencji' },
+              { label: 'Pracownik', value: state.employee?.name ?? '—' },
               {
                 label: 'Termin',
                 value: state.date
@@ -978,6 +985,10 @@ export const BookingWizard = () => {
   const queryClient = useQueryClient();
   const preselectedServiceId = searchParams.get('serviceId');
   const preselectedSeriesId = searchParams.get('seriesId');
+  const preselectedEmployeeId = searchParams.get('employeeId');
+  const preselectedDate = searchParams.get('date'); // yyyy-MM-dd
+  const preselectedTime = searchParams.get('time'); // HH:mm
+  const isFullyPreselected = !!preselectedDate && !!preselectedTime;
 
   const [step, setStep] = useState(1);
   const [floatingVisible, setFloatingVisible] = useState(false);
@@ -997,6 +1008,7 @@ export const BookingWizard = () => {
   const [state, setState] = useState<WizardState>({
     service: null,
     seriesId: preselectedSeriesId,
+    employee: null,
     employeeId: null,
     date: null,
     time: null,
@@ -1016,6 +1028,21 @@ export const BookingWizard = () => {
     queryFn: happyHoursApi.getActive,
   });
 
+  const { data: allEmployees = [] } = useQuery<any[]>({
+    queryKey: ['employees'],
+    queryFn: employeesApi.getAll,
+    enabled: !!preselectedEmployeeId,
+  });
+
+  // When pre-filling from URL, set full employee object once employees are loaded
+  useEffect(() => {
+    if (!preselectedEmployeeId || allEmployees.length === 0 || !state.service) return;
+    const emp = allEmployees.find((e: any) => e.id === preselectedEmployeeId);
+    if (emp && !state.employee) {
+      setState((prev) => ({ ...prev, employee: emp }));
+    }
+  }, [allEmployees, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const update = useCallback((field: string, value: any) => {
     setState((prev) => ({ ...prev, [field]: value }));
   }, []);
@@ -1025,10 +1052,16 @@ export const BookingWizard = () => {
       ...prev,
       service,
       seriesId: service?.id === preselectedServiceId ? preselectedSeriesId : null,
-      date: null,
-      time: null,
+      employee: null,
+      employeeId: isFullyPreselected ? (preselectedEmployeeId ?? null) : null,
+      date: isFullyPreselected && preselectedDate ? new Date(preselectedDate) : null,
+      time: isFullyPreselected ? (preselectedTime ?? null) : null,
     }));
   };
+
+  const handleServiceAdvance = useCallback(() => {
+    setStep(isFullyPreselected ? 5 : 2);
+  }, [isFullyPreselected]);
 
   const selectDate = (date: Date) => {
     setState((prev) => ({ ...prev, date, time: null, appliedHappyHour: null }));
@@ -1121,14 +1154,14 @@ export const BookingWizard = () => {
           <StepService
             selected={state.service}
             onSelect={selectService}
-            onAdvanceStep={() => setStep(2)}
+            onAdvanceStep={handleServiceAdvance}
             preselectedServiceId={preselectedServiceId}
           />
         )}
         {step === 2 && (
           <StepEmployee
             selected={state.employeeId}
-            onSelect={(id) => update('employeeId', id)}
+            onSelect={(emp) => setState((prev) => ({ ...prev, employee: emp, employeeId: emp?.id ?? null }))}
             service={state.service}
           />
         )}

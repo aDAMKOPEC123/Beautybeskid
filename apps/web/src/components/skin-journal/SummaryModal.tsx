@@ -133,7 +133,7 @@ function PhotosTab({ photos }: { photos: JournalSummary['photos'] }) {
       <div style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>{photos.total} {photos.total === 1 ? 'zdjęcie' : 'zdjęć'} łącznie</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 6 }}>
         {photos.paths.map((path, i) => (
-          <img key={i} src={path} alt="" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8 }} />
+          <img key={i} src={path} alt="" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8 }} loading="lazy" />
         ))}
       </div>
     </div>

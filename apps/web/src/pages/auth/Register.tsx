@@ -86,7 +86,7 @@ export const Register = () => {
             <div className="flex flex-col items-center gap-3 pb-2">
               <div className="w-20 h-20 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+                  <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
                 ) : (
                   <UserRound className="w-8 h-8 text-primary/40" />
                 )}

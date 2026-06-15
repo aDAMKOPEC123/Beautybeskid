@@ -119,3 +119,160 @@ export const TYPE_LABELS: Record<IdeaType, string> = {
   BLIND_REACTION: 'Blind Reaction',
   LOOP: 'Loop',
 };
+
+// ============ Karuzele ============
+
+export interface KaruzelaIdea {
+  id: string;
+  title: string;
+  slideDesc?: string | null;
+  category: IdeaCategory;
+  status: IdeaStatus;
+  plannedDate?: string | null;
+  post?: { id: string; scheduledAt: string; status: ContentStatus } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateKaruzelaDto {
+  title: string;
+  slideDesc?: string;
+  category: IdeaCategory;
+  status: IdeaStatus;
+  plannedDate?: string;
+}
+
+// ============ Trendy ============
+
+export type TrendStatus = 'AKTYWNY' | 'PRZETERMINOWANY';
+
+export interface Trend {
+  id: string;
+  name: string;
+  platform: SocialPlatform;
+  link?: string | null;
+  status: TrendStatus;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTrendDto {
+  name: string;
+  platform: SocialPlatform;
+  link?: string;
+  status: TrendStatus;
+  notes?: string;
+}
+
+export const TREND_STATUS_LABELS: Record<TrendStatus, string> = {
+  AKTYWNY: 'Aktywny',
+  PRZETERMINOWANY: 'Przeterminowany',
+};
+
+// ============ Opisy ============
+
+export interface OpisPost {
+  id: string;
+  title: string;
+  content: string;
+  hashtags?: string | null;
+  category: IdeaCategory;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOpisDto {
+  title: string;
+  content: string;
+  hashtags?: string;
+  category: IdeaCategory;
+}
+
+// ============ Nagrania ============
+
+export type NagranieStatus = 'DO_NAGRANIA' | 'NAGRANE';
+export type Priority = 'NISKI' | 'SREDNI' | 'WYSOKI';
+
+export interface NagranieItem {
+  id: string;
+  title: string;
+  rolkaId?: string | null;
+  rolka?: { id: string; title: string } | null;
+  karuzelaId?: string | null;
+  karuzela?: { id: string; title: string } | null;
+  status: NagranieStatus;
+  priority: Priority;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNagranieDto {
+  title: string;
+  rolkaId?: string;
+  karuzelaId?: string;
+  status: NagranieStatus;
+  priority: Priority;
+}
+
+export const NAGRANIE_STATUS_LABELS: Record<NagranieStatus, string> = {
+  DO_NAGRANIA: 'Do nagrania',
+  NAGRANE: 'Nagrane',
+};
+
+export const PRIORITY_LABELS: Record<Priority, string> = {
+  NISKI: 'Niski',
+  SREDNI: 'Sredni',
+  WYSOKI: 'Wysoki',
+};
+
+// ============ Kampanie ============
+
+export interface Kampania {
+  id: string;
+  name: string;
+  goal?: string | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  platform: SocialPlatform;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateKampaniaDto {
+  name: string;
+  goal?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  platform: SocialPlatform;
+  notes?: string;
+}
+
+// ============ Wyniki ============
+
+export interface WynikPost {
+  id: string;
+  postId?: string | null;
+  post?: { id: string; title: string } | null;
+  title: string;
+  platform: SocialPlatform;
+  publishedAt: string;
+  reach?: number | null;
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateWynikDto {
+  postId?: string;
+  title: string;
+  platform: SocialPlatform;
+  publishedAt: string;
+  reach?: number;
+  views?: number;
+  likes?: number;
+  comments?: number;
+}

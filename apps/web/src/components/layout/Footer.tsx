@@ -211,13 +211,13 @@ export const Footer = () => {
         <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.35)' }}>
           <span>© {new Date().getFullYear()} Cosmo. Wszelkie prawa zastrzeżone.</span>
           <Link
-            to="/privacy"
+            to="/regulamin"
             className="transition-colors"
             style={{ color: 'rgba(255,255,255,0.35)' }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)')}
           >
-            Polityka prywatności
+            Regulamin i polityka prywatności
           </Link>
         </div>
       </div>

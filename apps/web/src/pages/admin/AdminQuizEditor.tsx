@@ -112,6 +112,14 @@ export default function AdminQuizEditor() {
 
   const saveMutation = useMutation({
     mutationFn: () => {
+      const resultNodes = nodes.filter((n) => n.type === 'RESULT');
+      const emptyResult = resultNodes.find((n) => {
+        const result = (n.data as any).result;
+        return !result?.mainServiceId && (!result?.suggestions || result.suggestions.length === 0);
+      });
+      if (emptyResult) {
+        throw new Error('Każdy węzeł wyniku musi mieć wybrany zabieg główny lub co najmniej jedną sugestię.');
+      }
       const { nodes: n, edges: e } = flowToPayload(nodes, edges);
       return quizApi.saveTree(id!, n, e);
     },
@@ -119,7 +127,7 @@ export default function AdminQuizEditor() {
       toast.success('Drzewo zapisane');
       queryClient.invalidateQueries({ queryKey: ['admin-quiz', id] });
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Błąd zapisu'),
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Błąd zapisu'),
   });
 
   const onConnect = useCallback(

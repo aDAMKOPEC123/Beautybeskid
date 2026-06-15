@@ -28,7 +28,7 @@ function RecommendationCard({ rec, appointmentId }: { rec: AppointmentRecommenda
       {/* Product image */}
       <div className="w-16 h-16 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
         {rec.product?.imagePath ? (
-          <img src={rec.product.imagePath} alt={rec.name} className="w-full h-full object-cover" />
+          <img src={rec.product.imagePath} alt={rec.name} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <Package size={24} className="text-gray-200 m-4" />
         )}

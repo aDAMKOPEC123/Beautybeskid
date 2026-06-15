@@ -7,12 +7,12 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'kalendarz', label: 'Kalendarz', available: true },
   { id: 'rolki', label: 'Rolki', available: true },
-  { id: 'karuzele', label: 'Karuzele', available: false },
-  { id: 'trendy', label: 'Trendy', available: false },
-  { id: 'opisy', label: 'Opisy', available: false },
-  { id: 'nagrania', label: 'Lista nagran', available: false },
-  { id: 'kampanie', label: 'Kampanie', available: false },
-  { id: 'wyniki', label: 'Wyniki', available: false },
+  { id: 'karuzele', label: 'Karuzele', available: true },
+  { id: 'trendy', label: 'Trendy', available: true },
+  { id: 'opisy', label: 'Opisy', available: true },
+  { id: 'nagrania', label: 'Lista nagran', available: true },
+  { id: 'kampanie', label: 'Kampanie', available: true },
+  { id: 'wyniki', label: 'Wyniki', available: true },
 ];
 
 interface Props {

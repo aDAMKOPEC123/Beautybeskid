@@ -36,6 +36,11 @@ export const AdminBlog = () => {
                   <span className={`text-xs px-2.5 py-1 rounded-full font-bold shadow-sm ${p.isPublished ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                     {p.isPublished ? 'Opublikowany' : 'Szkic'}
                   </span>
+                  {p.category && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-primary/10 text-primary">
+                      {p.category}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">{new Date(p.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>

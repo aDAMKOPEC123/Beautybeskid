@@ -9,6 +9,12 @@ import { toast } from 'sonner';
 import { queryClient } from '@/lib/queryClient';
 import { Gift } from 'lucide-react';
 
+const TIER_NAMES: Record<string, string> = {
+  BRONZE: 'Brąz',
+  SILVER: 'Srebro',
+  GOLD: 'Złoto',
+};
+
 const getNextTier = (visits: number) => {
   if (visits < 30) return { name: 'Srebro', threshold: 30 };
   if (visits < 100) return { name: 'Złoto', threshold: 100 };
@@ -90,7 +96,7 @@ export const UserLoyalty = () => {
                 className="eyebrow"
                 style={{ color: '#3D7A54' }}
               >
-                {user?.loyaltyTier ?? 'BRONZE'}
+                {TIER_NAMES[user?.loyaltyTier ?? 'BRONZE']}
               </span>
             </div>
           </div>
@@ -99,7 +105,7 @@ export const UserLoyalty = () => {
         <PointsBar
           completedVisits={completedVisits}
           nextTierVisits={nextTier.threshold}
-          currentTierName={user?.loyaltyTier || 'BRONZE'}
+          currentTierName={TIER_NAMES[user?.loyaltyTier || 'BRONZE']}
           nextTierName={nextTier.name}
         />
         {nextTier.name !== 'Maksymalny Poziom' && completedVisits >= nextTier.threshold * 0.8 && completedVisits < nextTier.threshold && (

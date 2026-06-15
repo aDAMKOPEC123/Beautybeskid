@@ -1,4 +1,5 @@
 // filepath: apps/web/src/pages/public/ServiceList.tsx
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { servicesApi } from '@/api/services.api';
 import { PageSEO } from '@/components/shared/SEO';
@@ -10,6 +11,18 @@ import { GeoArc } from '@/components/shared/DecoElements';
 export const ServiceList = () => {
   const { data: services, isLoading } = useQuery({ queryKey: ['services'], queryFn: servicesApi.getAll });
   const { ref: headerRef, revealed: headerRevealed } = useClipReveal<HTMLDivElement>({ threshold: 0.1 });
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const categories = useMemo(() => {
+    if (!services) return [];
+    return Array.from(new Set(services.map((s) => s.category))).sort();
+  }, [services]);
+
+  const filtered = useMemo(() => {
+    if (!services) return [];
+    if (!activeCategory) return services;
+    return services.filter((s) => s.category === activeCategory);
+  }, [services, activeCategory]);
 
   if (isLoading) return (
     <section className="py-16" style={{ background: '#F4F9F5' }}>
@@ -46,7 +59,7 @@ export const ServiceList = () => {
       <section data-tour="services-list" style={{ background: '#F4F9F5' }}>
         <div className="container py-16">
           <div className="flex gap-16 items-start">
-            {/* Sticky sidebar header */}
+            {/* Sticky sidebar header + filters */}
             <div
               ref={headerRef}
               className="hidden lg:block w-56 shrink-0"
@@ -66,16 +79,77 @@ export const ServiceList = () => {
                 Co możemy dla Ciebie zrobić
               </h2>
               <div className="w-8 h-px bg-caramel mt-6 mb-4" />
-              <p className="text-mink text-sm leading-relaxed">
+              <p className="text-mink text-sm leading-relaxed mb-6">
                 Każdy zabieg wykonujemy z pełnym zaangażowaniem i dbałością o detal.
               </p>
+              {categories.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setActiveCategory(null)}
+                    className="text-left text-sm px-3 py-2 rounded-lg transition-colors"
+                    style={{
+                      background: !activeCategory ? '#3D7A54' : 'transparent',
+                      color: !activeCategory ? '#F4F9F5' : '#5A7A62',
+                      fontWeight: !activeCategory ? 600 : 400,
+                    }}
+                  >
+                    Wszystkie
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className="text-left text-sm px-3 py-2 rounded-lg transition-colors"
+                      style={{
+                        background: activeCategory === cat ? '#3D7A54' : 'transparent',
+                        color: activeCategory === cat ? '#F4F9F5' : '#5A7A62',
+                        fontWeight: activeCategory === cat ? 600 : 400,
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Cards grid */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {services?.map((service, i) => (
-                <ServiceCard key={service.id} service={service} index={i} />
-              ))}
+            <div className="flex-1">
+              {/* Mobile category pills */}
+              {categories.length > 0 && (
+                <div className="flex lg:hidden gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+                  <button
+                    onClick={() => setActiveCategory(null)}
+                    className="shrink-0 text-sm px-4 py-2 rounded-full border transition-colors"
+                    style={{
+                      background: !activeCategory ? '#3D7A54' : 'transparent',
+                      borderColor: !activeCategory ? '#3D7A54' : '#C4965A',
+                      color: !activeCategory ? '#F4F9F5' : '#5A7A62',
+                    }}
+                  >
+                    Wszystkie
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className="shrink-0 text-sm px-4 py-2 rounded-full border transition-colors"
+                      style={{
+                        background: activeCategory === cat ? '#3D7A54' : 'transparent',
+                        borderColor: activeCategory === cat ? '#3D7A54' : '#C4965A',
+                        color: activeCategory === cat ? '#F4F9F5' : '#5A7A62',
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filtered.map((service, i) => (
+                  <ServiceCard key={service.id} service={service} index={i} />
+                ))}
+              </div>
             </div>
           </div>
         </div>

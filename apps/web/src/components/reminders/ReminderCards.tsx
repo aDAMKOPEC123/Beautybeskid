@@ -98,69 +98,71 @@ const ReminderCard = ({
 
     return (
       <div
-        className="flex items-center gap-4 p-4 rounded-xl"
+        className="p-4 rounded-xl space-y-3"
         style={{ border: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <div
-          className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
-          style={{ background: style.bg }}
-        >
-          {reminder.nextAppointment ? (
-            <CheckCircle2 size={22} style={{ color: '#15803D' }} />
-          ) : (
-            <Layers3 size={22} style={{ color: style.color }} />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-semibold text-sm" style={{ color: '#1A3828' }}>
-              {reminder.serviceName}
-            </h4>
-            <span
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
-              style={{ background: 'rgba(196,150,90,0.1)', color: '#8C6040' }}
-            >
-              {reminder.completedVisits}/{reminder.totalVisits}
-            </span>
+        <div className="flex items-start gap-3">
+          <div
+            className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+            style={{ background: style.bg }}
+          >
+            {reminder.nextAppointment ? (
+              <CheckCircle2 size={20} style={{ color: '#15803D' }} />
+            ) : (
+              <Layers3 size={20} style={{ color: style.color }} />
+            )}
           </div>
 
-          <p className="text-xs mt-1" style={{ color: '#5A7A62' }}>
-            {getSeriesSummary(reminder)}
-          </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="font-semibold text-sm leading-snug" style={{ color: '#1A3828' }}>
+                {reminder.serviceName}
+              </h4>
+              <span
+                className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                style={{ background: 'rgba(196,150,90,0.1)', color: '#8C6040' }}
+              >
+                {reminder.completedVisits}/{reminder.totalVisits} etapów
+              </span>
+            </div>
 
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            {reminder.urgency !== null && reminder.daysUntilDue !== null && !reminder.nextAppointment && (
-              <span
-                className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-                style={{ background: style.bg, color: style.color }}
-              >
-                <Clock3 size={12} />
-                {style.label(reminder.daysUntilDue)}
-              </span>
-            )}
-            {reminder.nextAppointment && (
-              <span
-                className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-                style={{ background: 'rgba(34,197,94,0.12)', color: '#15803D' }}
-              >
-                <CalendarClock size={12} />
-                {new Date(reminder.nextAppointment.date).toLocaleString('pl-PL')}
-              </span>
-            )}
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#5A7A62' }}>
+              {getSeriesSummary(reminder)}
+            </p>
+
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {reminder.urgency !== null && reminder.daysUntilDue !== null && !reminder.nextAppointment && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                  style={{ background: style.bg, color: style.color }}
+                >
+                  <Clock3 size={11} />
+                  {style.label(reminder.daysUntilDue)}
+                </span>
+              )}
+              {reminder.nextAppointment && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                  style={{ background: 'rgba(34,197,94,0.12)', color: '#15803D' }}
+                >
+                  <CalendarClock size={11} />
+                  {new Date(reminder.nextAppointment.date).toLocaleString('pl-PL')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         <button
           onClick={reminder.nextAppointment ? onOpenAppointment : onBook}
-          className="px-4 py-2 rounded-full text-xs font-semibold flex-shrink-0 transition-opacity hover:opacity-90"
+          className="w-full py-2 rounded-full text-xs font-semibold transition-opacity hover:opacity-90"
           style={
             reminder.nextAppointment
-              ? { background: 'transparent', color: '#1A3828', border: '1px solid #E8F3EA' }
+              ? { background: 'transparent', color: '#1A3828', border: '1px solid rgba(26,56,40,0.2)' }
               : { background: '#1A3828', color: '#fff' }
           }
         >
-          {reminder.nextAppointment ? 'Zobacz wizyte' : 'Umow sie teraz'}
+          {reminder.nextAppointment ? 'Zobacz wizytę' : 'Umów się teraz'}
         </button>
       </div>
     );
@@ -170,39 +172,52 @@ const ReminderCard = ({
 
   return (
     <div
-      className="flex items-center gap-4 p-4 rounded-xl"
+      className="p-4 rounded-xl space-y-3"
       style={{ border: '1px solid rgba(0,0,0,0.06)' }}
     >
-      <div
-        className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
-        style={{ background: style.bg }}
-      >
-        <Clock3 size={22} style={{ color: style.color }} />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-sm" style={{ color: '#1A3828' }}>
-          {reminder.serviceName}
-        </h4>
-        <p className="text-xs mt-1" style={{ color: '#5A7A62' }}>
-          Ostatnia wizyta: {new Date(reminder.lastVisitDate).toLocaleDateString('pl-PL')} · cykl co{' '}
-          {reminder.recommendedIntervalDays} dni
-        </p>
-        <span
-          className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold mt-2"
-          style={{ background: style.bg, color: style.color }}
+      <div className="flex items-start gap-3">
+        <div
+          className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+          style={{ background: style.bg }}
         >
-          <Clock3 size={12} />
-          {style.label(reminder.daysUntilDue)}
-        </span>
+          <Clock3 size={20} style={{ color: style.color }} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-sm leading-snug" style={{ color: '#1A3828' }}>
+            {reminder.serviceName}
+          </h4>
+          <p className="text-xs mt-0.5" style={{ color: '#5A7A62' }}>
+            Ostatnia wizyta: {new Date(reminder.lastVisitDate).toLocaleDateString('pl-PL')}
+          </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <span
+              className="inline-flex items-center gap-1 text-[12px] font-semibold"
+              style={{
+                color: '#C4965A',
+                borderBottom: '2px solid rgba(196,150,90,0.4)',
+                paddingBottom: '1px',
+              }}
+            >
+              Cykl co {reminder.recommendedIntervalDays} dni
+            </span>
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+              style={{ background: style.bg, color: style.color }}
+            >
+              <Clock3 size={11} />
+              {style.label(reminder.daysUntilDue)}
+            </span>
+          </div>
+        </div>
       </div>
 
       <button
         onClick={onBook}
-        className="px-4 py-2 rounded-full text-xs font-semibold flex-shrink-0 transition-opacity hover:opacity-90"
+        className="w-full py-2 rounded-full text-xs font-semibold transition-opacity hover:opacity-90"
         style={{ background: '#1A3828', color: '#fff' }}
       >
-        Umow sie teraz
+        Umów się teraz
       </button>
     </div>
   );

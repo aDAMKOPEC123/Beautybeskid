@@ -14,6 +14,7 @@ import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
 import { AddAppointmentModal } from './AddAppointmentModal';
+import { ExternalClientModal } from './ExternalClientModal';
 import { HappyHourPanel } from './HappyHourPanel';
 
 // Deterministic color per employee index
@@ -77,6 +78,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [zoomedEmployeeId, setZoomedEmployeeId] = useState<string | null>(null);
   const [selectedAppt, setSelectedAppt] = useState<any>(null);
   const [addModal, setAddModal] = useState<{ date?: string; time?: string; employeeId?: string } | null>(null);
+  const [externalModal, setExternalModal] = useState<{ date?: string; time?: string; employeeId?: string } | null>(null);
   const [hhPanelOpen, setHhPanelOpen] = useState(false);
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
@@ -278,6 +280,12 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             + Wizyta
           </button>
           <button
+            onClick={() => setExternalModal({})}
+            className="px-3 py-1.5 text-sm bg-violet-600 text-white rounded hover:bg-violet-700"
+          >
+            + Klientka z zewnątrz
+          </button>
+          <button
             onClick={() => {
               setHhPanelOpen((v) => !v);
               if (hhPanelOpen) setHhPrefill(null);
@@ -392,6 +400,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           prefillDate={addModal.date}
           prefillTime={addModal.time}
           prefillEmployeeId={addModal.employeeId}
+          employees={employees}
+          services={services}
+        />
+      )}
+
+      {/* External Client Modal */}
+      {externalModal !== null && (
+        <ExternalClientModal
+          open
+          onClose={() => { setExternalModal(null); onRefetch(); }}
+          prefillDate={externalModal.date}
+          prefillTime={externalModal.time}
+          prefillEmployeeId={externalModal.employeeId}
           employees={employees}
           services={services}
         />

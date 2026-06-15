@@ -106,9 +106,16 @@ export const skinJournalApi = {
 
   adminCreateEntry: async (
     userId: string,
-    data: { date?: string; notes?: string; tags?: string[] },
+    data: { date?: string; notes?: string; tags?: string[]; photo?: File },
   ): Promise<SkinJournalEntry> => {
-    const res = await api.post(`${BASE}/admin/${userId}`, data);
+    const formData = new FormData();
+    if (data.notes) formData.append('notes', data.notes);
+    if (data.date) formData.append('date', data.date);
+    if (data.tags) data.tags.forEach((t) => formData.append('tags', t));
+    if (data.photo) formData.append('photo', data.photo);
+    const res = await api.post(`${BASE}/admin/${userId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data.data.entry;
   },
 

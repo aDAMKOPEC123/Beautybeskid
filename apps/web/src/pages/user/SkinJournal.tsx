@@ -163,7 +163,7 @@ function EntryCard({ entry, userId, onDelete }: { entry: SkinJournalEntry; userI
       </div>
 
       {entry.photoPath && (
-        <img src={entry.photoPath} alt="Zdjęcie wpisu" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }} />
+        <img src={entry.photoPath} alt="Zdjęcie wpisu" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }} loading="lazy" />
       )}
 
       {entry.notes && <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, margin: '0 0 12px' }}>{entry.notes}</p>}
@@ -330,6 +330,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
                 display: 'block',
                 border: '1px solid #e5e0d8',
               }}
+              loading="lazy"
             />
             <button
               type="button"

@@ -84,7 +84,10 @@ export const ServiceDetail = () => {
             className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
             style={{ backgroundColor: '#1A3828' }}
             onClick={() =>
-              navigate(isAuthenticated ? `/rezerwacja?serviceId=${service.id}` : '/auth/login')
+              navigate(
+                isAuthenticated ? `/rezerwacja?serviceId=${service.id}` : '/auth/login',
+                isAuthenticated ? undefined : { state: { from: `/rezerwacja?serviceId=${service.id}` } }
+              )
             }
           >
             Umów wizytę

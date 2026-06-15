@@ -73,7 +73,7 @@ export const SkinWeatherWidget = () => {
         <div className="flex items-start gap-2.5 py-1">
           <Cloud className="h-4 w-4 text-muted-foreground/50 mt-0.5 shrink-0" />
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Raport zostanie wygenerowany o 6:00. Jeśli to Twoja pierwsza wizyta, wróć jutro.
+            Prognoza na 13:00 zostanie wygenerowana o 6:00. Jeśli to Twoja pierwsza wizyta, wróć jutro.
           </p>
         </div>
       ) : (

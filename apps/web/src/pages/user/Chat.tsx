@@ -25,7 +25,7 @@ export const UserChat = () => {
     if (room?.messages) {
       setMessages(room.messages);
     }
-  }, [room?.id]);
+  }, [room]);
 
   useEffect(() => {
     if (room?.id) {

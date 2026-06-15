@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock, Camera } from 'lucide-react';
+import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
 import { useAuth } from '@/hooks/useAuth';
@@ -63,7 +62,6 @@ const cardStyle = {
 
 export const Contact = () => {
   const { isAuthenticated } = useAuth();
-  const [imgError, setImgError] = useState(false);
 
   const phoneDisplay = '532 128 227';
 
@@ -207,28 +205,8 @@ export const Contact = () => {
               </div>
             </div>
 
-            {/* Right column — photo + map */}
+            {/* Right column — map */}
             <div className="flex flex-col gap-6">
-              {/* Photo */}
-              <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
-                {!imgError ? (
-                  <img
-                    src="/images/kontakt.jpg"
-                    alt="Salon kosmetologiczny Cosmo — Limanowa"
-                    className="h-64 w-full object-cover"
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div
-                    className="flex h-64 w-full flex-col items-center justify-center gap-3"
-                    style={{ backgroundColor: '#F0F7F1', color: 'rgba(20,40,28,0.35)' }}
-                  >
-                    <Camera className="h-10 w-10 opacity-40" />
-                    <span className="text-sm">Zdjęcie salonu</span>
-                  </div>
-                )}
-              </div>
-
               {/* Google Maps */}
               <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <iframe

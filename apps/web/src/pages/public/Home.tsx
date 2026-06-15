@@ -218,7 +218,7 @@ export const Home = () => {
 
                 <div className="flex flex-wrap gap-4 items-center mb-6">
                   <Button size="lg" className="rounded-full gap-2" asChild>
-                    <Link to={isAuthenticated ? '/rezerwacja' : '/auth/login'}>
+                    <Link to={isAuthenticated ? '/rezerwacja' : '/auth/login'} state={isAuthenticated ? undefined : { from: '/rezerwacja' }}>
                       Umów wizytę
                       <span className="w-5 h-5 rounded-full bg-white/15 flex items-center justify-center">
                         <ArrowRight size={12} />
@@ -296,7 +296,7 @@ export const Home = () => {
                             </p>
                           ) : null;
                         })()}
-                        <Link to={isAuthenticated ? '/rezerwacja' : '/auth/register'}>
+                        <Link to={isAuthenticated ? '/rezerwacja' : '/auth/register'} state={isAuthenticated ? undefined : { from: '/rezerwacja' }}>
                           <Button
                             size="sm"
                             className="w-full mt-1 rounded-full text-xs font-semibold"

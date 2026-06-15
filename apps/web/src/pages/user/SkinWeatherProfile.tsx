@@ -32,10 +32,6 @@ const SKIN_CONCERNS = [
   { value: 'ZACZERWIENIENIA', label: 'Zaczerwienienia' },
 ];
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
 // ─── Skin Advice Section ──────────────────────────────────────────────────────
 
 interface SkinAdviceData {
@@ -145,7 +141,6 @@ function TodayReport({ hasProfile, cityName }: { hasProfile: boolean; cityName?:
     mutationFn: skinWeatherApi.generateMyReport,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['skin-weather', 'today'] });
-      qc.invalidateQueries({ queryKey: ['skin-weather', 'history'] });
       toast.success('Raport wygenerowany');
     },
     onError: (err) => {
@@ -158,7 +153,6 @@ function TodayReport({ hasProfile, cityName }: { hasProfile: boolean; cityName?:
     mutationFn: () => skinWeatherApi.generateMyReport(true),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['skin-weather', 'today'] });
-      qc.invalidateQueries({ queryKey: ['skin-weather', 'history'] });
       toast.success('Raport odświeżony');
     },
     onError: (err) => {
@@ -240,87 +234,6 @@ function TodayReport({ hasProfile, cityName }: { hasProfile: boolean; cityName?:
   );
 }
 
-// ─── Report History ───────────────────────────────────────────────────────────
-
-function ReportHistory() {
-  const [page, setPage] = useState(1);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const { data, isLoading } = useQuery<any>({
-    queryKey: ['skin-weather', 'history', page],
-    queryFn: () => skinWeatherApi.getReportHistory(page, 5),
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center gap-2 text-muted-foreground py-4">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span className="text-sm">Ładowanie historii...</span>
-      </div>
-    );
-  }
-
-  const reports: any[] = data?.data ?? [];
-  const totalPages: number = data?.totalPages ?? 1;
-
-  if (reports.length === 0) {
-    return <p className="text-sm text-muted-foreground py-2">Brak poprzednich raportów.</p>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {reports.map((r: any) => {
-        const sections: any[] = (r.reportData as any)?.sections ?? [];
-        const isOpen = expandedId === r.id;
-        return (
-          <div key={r.id} className="border border-border/50 rounded-xl overflow-hidden">
-            <button
-              onClick={() => setExpandedId(isOpen ? null : r.id)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Cloud className="h-4 w-4 text-sky-500" />
-                <span className="text-sm font-medium">{formatDate(r.reportDate)}</span>
-                <span className="text-xs text-muted-foreground">({sections.length} wskazówek)</span>
-              </div>
-              {isOpen
-                ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-            </button>
-            {isOpen && (
-              <div className="px-4 pb-4 space-y-2 border-t border-border/30 pt-3">
-                {sections.length === 0
-                  ? <p className="text-xs text-muted-foreground">Brak wskazówek.</p>
-                  : sections.map((s: any, i: number) => <SectionCard key={i} section={s} />)
-                }
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {totalPages > 1 && (
-        <div className="flex items-center gap-2 pt-2">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-1.5 text-xs rounded-lg border border-border disabled:opacity-40 hover:bg-muted/40 transition-colors"
-          >
-            Poprzednia
-          </button>
-          <span className="text-xs text-muted-foreground">{page} / {totalPages}</span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-3 py-1.5 text-xs rounded-lg border border-border disabled:opacity-40 hover:bg-muted/40 transition-colors"
-          >
-            Następna
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -598,15 +511,6 @@ export const SkinWeatherProfile = () => {
           <h2 className="font-heading text-base font-semibold">Prognoza na 13:00</h2>
         </div>
         <TodayReport hasProfile={hasProfile} cityName={profile?.cityName} />
-      </section>
-
-      {/* Section C: History */}
-      <section className="bg-card border border-border rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Cloud className="h-4 w-4 text-slate-400" />
-          <h2 className="font-heading text-base font-semibold">Historia raportów</h2>
-        </div>
-        <ReportHistory />
       </section>
 
       {/* Collapsible ProfileSettings */}

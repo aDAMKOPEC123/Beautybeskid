@@ -98,7 +98,7 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
               {/* Basic info */}
               <div className="flex items-center gap-4">
                 {data.avatarPath ? (
-                  <img src={data.avatarPath} alt={data.name} className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+                  <img src={data.avatarPath} alt={data.name} className="w-16 h-16 rounded-full object-cover border-2 border-border" loading="lazy" />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
                     {data.name.charAt(0).toUpperCase()}

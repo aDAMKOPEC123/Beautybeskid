@@ -1,4 +1,5 @@
 // filepath: apps/web/src/App.tsx
+import React from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
@@ -10,6 +11,24 @@ import { useAuthStore } from './store/auth.store';
 import { useEffect } from 'react';
 import { api } from './lib/axios';
 import { getSocket } from './lib/socket';
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error) { console.error('App error:', error); }
+  render() {
+    if (this.state.hasError) {
+      return <div style={{ padding: 32, textAlign: 'center' }}>Coś poszło nie tak. <button onClick={() => this.setState({ hasError: false })}>Odśwież</button></div>;
+    }
+    return this.props.children;
+  }
+}
 
 function App() {
   const { hydrate, setAccessToken, logout } = useAuthStore();
@@ -61,14 +80,16 @@ function App() {
   }, []);
 
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <Toaster position="top-right" richColors />
-        </QueryClientProvider>
-      </HelmetProvider>
-    </GoogleOAuthProvider>
+    <ErrorBoundary>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <HelmetProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <Toaster position="top-right" richColors />
+          </QueryClientProvider>
+        </HelmetProvider>
+      </GoogleOAuthProvider>
+    </ErrorBoundary>
   );
 }
 

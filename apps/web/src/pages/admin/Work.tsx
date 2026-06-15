@@ -14,6 +14,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { toast } from 'sonner';
 import { RecommendationPanel } from '@/components/assortment/RecommendationPanel';
 import { HomecareRoutinePanel } from '@/components/homecare/HomecareRoutinePanel';
+import { UserJournal } from '@/pages/admin/UserJournal';
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: 'Oczekująca',
@@ -436,6 +437,14 @@ export const AdminWork = () => {
                     <HomecareRoutinePanel key={selected.id} appointmentId={selected.id} />
                   )}
 
+                  {/* Dziennik kosmetologa */}
+                  {selected.user?.id && (
+                    <div className="border-t pt-4">
+                      <p className="text-sm font-semibold mb-2">Dziennik kosmetologa</p>
+                      <UserJournal userId={selected.user.id} userName={selected.user.name} />
+                    </div>
+                  )}
+
                   {/* Zakończ wizytę */}
                   {selected.status !== 'COMPLETED' && selected.status !== 'CANCELLED' && (
                     <Button
@@ -514,6 +523,7 @@ export const AdminWork = () => {
                   )}
                 </CardContent>
               </Card>
+
             </>
           )}
         </div>

@@ -67,7 +67,10 @@ export function AddAppointmentModal({
       toast.success('Wizyta dodana');
       onClose();
     },
-    onError: () => toast.error('Błąd podczas dodawania wizyty'),
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message;
+      toast.error(msg ?? 'Błąd podczas dodawania wizyty');
+    },
   });
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));

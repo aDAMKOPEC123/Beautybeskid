@@ -17,6 +17,7 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useChatStore } from '@/store/chat.store';
 import { useSocket } from '@/hooks/useSocket';
+import { getSocket } from '@/lib/socket';
 import { useAchievementNotifications } from '@/components/achievements/AchievementToast';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useTour } from '@/hooks/useTour';
@@ -111,7 +112,7 @@ const UserLayoutInner = () => {
     setUnreadCount(serverUnread);
   }, [chatRoom?.messages, storeUser?.id, setUnreadCount]);
 
-  const { socket, isConnected } = useSocket();
+  const { isConnected } = useSocket();
   const location = useLocation();
   useAchievementNotifications();
   useReviewPrompt();
@@ -164,18 +165,20 @@ const UserLayoutInner = () => {
   }, [isAuthenticated, isSupported, isSubscribed, permission]);
 
   useEffect(() => {
-    if (!isConnected || !socket) return;
+    if (!isConnected) return;
+    const sock = getSocket();
     const onMessage = () => {
       if (!location.pathname.startsWith('/user/chat')) {
         incrementUnread();
       }
     };
-    socket.on('chat:message', onMessage);
-    return () => { socket.off('chat:message', onMessage); };
-  }, [isConnected, socket, location.pathname, incrementUnread]);
+    sock.on('chat:message', onMessage);
+    return () => { sock.off('chat:message', onMessage); };
+  }, [isConnected, location.pathname, incrementUnread]);
 
   useEffect(() => {
-    if (!isConnected || !socket) return;
+    if (!isConnected) return;
+    const sock = getSocket();
     const onJournalComment = ({ authorName }: { entryId: string; authorName: string }) => {
       queryClient.invalidateQueries({ queryKey: ['journal', 'unread'] });
       toast('💬 Nowy komentarz kosmetologa', {
@@ -191,13 +194,13 @@ const UserLayoutInner = () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
       queryClient.invalidateQueries({ queryKey: ['homecare-unread'] });
     };
-    socket.on('journal:new-comment', onJournalComment);
-    socket.on('notification:new', onNotificationNew);
+    sock.on('journal:new-comment', onJournalComment);
+    sock.on('notification:new', onNotificationNew);
     return () => {
-      socket.off('journal:new-comment', onJournalComment);
-      socket.off('notification:new', onNotificationNew);
+      sock.off('journal:new-comment', onJournalComment);
+      sock.off('notification:new', onNotificationNew);
     };
-  }, [isConnected, socket, queryClient]);
+  }, [isConnected, queryClient]);
 
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
   if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname + location.search }} replace />;

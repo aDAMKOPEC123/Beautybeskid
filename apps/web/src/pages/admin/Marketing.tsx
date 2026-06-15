@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { MarketingTabs } from '@/components/marketing/MarketingTabs';
 import { MarketingKalendar } from './marketing/MarketingKalendar';
 import { MarketingRolki } from './marketing/MarketingRolki';
-
-const AVAILABLE_TABS = ['kalendarz', 'rolki'];
+import { MarketingKaruzele } from './marketing/MarketingKaruzele';
+import { MarketingTrendy } from './marketing/MarketingTrendy';
+import { MarketingOpisy } from './marketing/MarketingOpisy';
+import { MarketingNagrania } from './marketing/MarketingNagrania';
+import { MarketingKampanie } from './marketing/MarketingKampanie';
+import { MarketingWyniki } from './marketing/MarketingWyniki';
 
 export const Marketing = () => {
   const [activeTab, setActiveTab] = useState('kalendarz');
@@ -21,14 +25,12 @@ export const Marketing = () => {
 
       {activeTab === 'kalendarz' && <MarketingKalendar />}
       {activeTab === 'rolki' && <MarketingRolki />}
-
-      {!AVAILABLE_TABS.includes(activeTab) && (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="text-4xl mb-4">🚧</div>
-          <h3 className="text-lg font-semibold mb-2">Wkrotce</h3>
-          <p className="text-muted-foreground text-sm">Ta sekcja jest w trakcie budowy.</p>
-        </div>
-      )}
+      {activeTab === 'karuzele' && <MarketingKaruzele />}
+      {activeTab === 'trendy' && <MarketingTrendy />}
+      {activeTab === 'opisy' && <MarketingOpisy />}
+      {activeTab === 'nagrania' && <MarketingNagrania />}
+      {activeTab === 'kampanie' && <MarketingKampanie />}
+      {activeTab === 'wyniki' && <MarketingWyniki />}
     </div>
   );
 };

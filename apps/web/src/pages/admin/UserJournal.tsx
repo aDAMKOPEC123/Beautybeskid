@@ -1,363 +1,276 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, X, Send, Trash2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, Send, Trash2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { skinJournalApi, type SkinJournalEntry } from '@/api/skin-journal.api';
-import { SummaryModal } from '@/components/skin-journal/SummaryModal';
 
 const MOODS: string[] = ['😟', '😕', '😐', '🙂', '😊'];
-
-const JOURNAL_CATEGORIES = [
-  { slug: 'stopy',       label: '#stopy' },
-  { slug: 'twarz',       label: '#twarz' },
-  { slug: 'wlosy',       label: '#włosy' },
-  { slug: 'skora_ciala', label: '#skóra ciała' },
-] as const;
-
-type CategorySlug = typeof JOURNAL_CATEGORIES[number]['slug'];
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function formatTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
-
-// ─── Comment Form ───────────────────────────────────────────────────────────
-
-function AdminCommentForm({ entryId, userId, onDone }: { entryId: string; userId: string; onDone: () => void }) {
+function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: string }) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
   const qc = useQueryClient();
-  const [content, setContent] = useState('');
 
-  const add = useMutation({
-    mutationFn: () => skinJournalApi.addComment(entryId, content.trim()),
+  const addComment = useMutation({
+    mutationFn: () => skinJournalApi.addComment(entry.id, text.trim()),
     onSuccess: () => {
+      setText('');
       qc.invalidateQueries({ queryKey: ['admin-journal', userId] });
-      setContent('');
-      onDone();
       toast.success('Komentarz dodany');
     },
-    onError: () => toast.error('Nie udało się dodać komentarza'),
   });
 
   return (
-    <div style={{ marginTop: 10, display: 'flex', gap: 6 }}>
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={2}
-        placeholder="Wpisz komentarz do wpisu..."
-        style={{ flex: 1, padding: '8px 10px', border: '1px solid #e5e0d8', borderRadius: 10, fontSize: 13, resize: 'none', fontFamily: 'inherit', outline: 'none' }}
-      />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <button
-          onClick={() => content.trim() && add.mutate()}
-          disabled={!content.trim() || add.isPending}
-          style={{ padding: '8px 12px', background: '#1A3828', color: '#fff', border: 'none', borderRadius: 8, cursor: content.trim() ? 'pointer' : 'not-allowed', opacity: content.trim() ? 1 : 0.5 }}
-        >
-          <Send size={14} />
-        </button>
-        <button
-          onClick={onDone}
-          style={{ padding: '8px 12px', background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, cursor: 'pointer' }}
-        >
-          <X size={14} />
-        </button>
-      </div>
-    </div>
-  );
-}
+    <div className="mt-2">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        Komentarze ({entry.comments.length})
+      </button>
 
-// ─── Entry Card (Admin view) ────────────────────────────────────────────────
-
-function AdminEntryCard({ entry, userId }: { entry: SkinJournalEntry; userId: string }) {
-  const qc = useQueryClient();
-  const [showComment, setShowComment] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-
-  const deleteEntry = useMutation({
-    mutationFn: () => skinJournalApi.adminDeleteEntry(userId, entry.id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-journal', userId] });
-      toast.success('Wpis usunięty');
-    },
-    onError: () => toast.error('Nie udało się usunąć wpisu'),
-  });
-
-  if (entry.isAdminEntry) {
-    return (
-      <div style={{ background: '#fff', border: '2px solid rgba(20,40,28,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#1A3828', color: '#fff' }}>👩‍⚕️ Moja notatka</span>
-          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#5A7A62' }}>{formatDate(entry.date)}</span>
-        </div>
-        {entry.notes && <p style={{ color: '#4B4036', margin: '0 0 10px', fontSize: 13, lineHeight: 1.6 }}>{entry.notes}</p>}
-        {entry.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-            {entry.tags.map((tag) => {
-              const cat = JOURNAL_CATEGORIES.find((c) => c.slug === tag);
-              return (
-                <span key={tag} style={{ fontSize: 11, fontWeight: 700, color: '#4B4036' }}>
-                  {cat ? cat.label : `#${tag}`}
-                </span>
-              );
-            })}
-          </div>
-        )}
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => { if (window.confirm('Usunąć tę notatkę?')) deleteEntry.mutate(); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '6px 12px', fontSize: 11, color: '#DC2626', cursor: 'pointer' }}
-          >
-            <Trash2 size={12} /> Usuń
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ background: '#fff', border: '1px solid #e5e0d8', borderRadius: 14, padding: '16px 18px', marginBottom: 10 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 10 }}>
-        <div>
-          <p style={{ fontSize: 11, color: '#999', margin: '0 0 4px' }}>{formatDate(entry.date)}</p>
-          {entry.mood !== null && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 20 }}>{MOODS[(entry.mood ?? 3) - 1]}</span>
-              <span style={{ fontSize: 13, color: '#666' }}>Nastrój {entry.mood}/5</span>
+      {open && (
+        <div className="mt-2 space-y-2 pl-2 border-l-2 border-border">
+          {entry.comments.map(c => (
+            <div key={c.id} className="text-xs bg-muted/40 rounded p-2">
+              <span className="font-medium">{c.author?.name ?? 'Admin'}:</span>{' '}
+              <span>{c.content}</span>
             </div>
-          )}
-        </div>
-        <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 6px', borderRadius: 20, background: 'rgba(0,0,0,0.06)', color: '#5A7A62' }}>wpis klientki</span>
-      </div>
-
-      {entry.photoPath && (
-        <img src={entry.photoPath} alt="Zdjęcie" style={{ width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 8, marginBottom: 10 }} />
-      )}
-
-      {entry.notes && <p style={{ color: '#4B4036', margin: '0 0 10px', fontSize: 13, lineHeight: 1.6 }}>{entry.notes}</p>}
-
-      {entry.tags.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-          {entry.tags.map((tag) => {
-            const cat = JOURNAL_CATEGORIES.find((c) => c.slug === tag);
-            return (
-              <span key={tag} style={{ fontSize: 12, fontWeight: 700, color: '#C4965A' }}>
-                {cat ? cat.label : `#${tag}`}
-              </span>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Existing comments toggle */}
-      {entry.comments.length > 0 && (
-        <div style={{ marginBottom: 8 }}>
-          <button
-            onClick={() => setShowComments((v) => !v)}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#5A7A62', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-          >
-            💬 {entry.comments.length} {entry.comments.length === 1 ? 'komentarz' : 'komentarzy'}
-            {showComments ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
-          {showComments && (
-            <div style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10, padding: '8px 12px' }}>
-              {entry.comments.map((c) => (
-                <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>
-                    {c.author.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1A3828' }}>{c.author.name}</span>
-                    <p style={{ fontSize: 12, color: '#4B4036', margin: '2px 0 1px' }}>{c.content}</p>
-                    <span style={{ fontSize: 10, color: '#B0A89E' }}>{formatTime(c.createdAt)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', gap: 6 }}>
-        <button
-          onClick={() => setShowComment((v) => !v)}
-          style={{ flex: 1, background: 'rgba(196,150,90,0.1)', border: '1px solid rgba(196,150,90,0.3)', borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 600, color: '#C4965A', cursor: 'pointer' }}
-        >
-          💬 Komentuj
-        </button>
-      </div>
-
-      {showComment && <AdminCommentForm entryId={entry.id} userId={userId} onDone={() => setShowComment(false)} />}
-    </div>
-  );
-}
-
-// ─── Add Note Form ──────────────────────────────────────────────────────────
-
-function AddNoteForm({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const qc = useQueryClient();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [notes, setNotes] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<CategorySlug[]>([]);
-
-  const create = useMutation({
-    mutationFn: () =>
-      skinJournalApi.adminCreateEntry(userId, {
-        date,
-        notes: notes.trim() || undefined,
-        tags: selectedCategories,
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-journal', userId] });
-      toast.success('Notatka dodana');
-      onClose();
-    },
-    onError: () => toast.error('Nie udało się dodać notatki'),
-  });
-
-  return (
-    <div style={{ background: '#fff', border: '2px solid rgba(20,40,28,0.15)', borderRadius: 14, padding: 16, marginBottom: 12 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontWeight: 700, color: '#1A3828', fontSize: 13 }}>👩‍⚕️ Nowa notatka kosmetologa</span>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0A89E' }}><X size={16} /></button>
-      </div>
-
-      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 4 }}>Data wizyty</label>
-      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #e5e0d8', borderRadius: 8, marginBottom: 10, fontSize: 13, boxSizing: 'border-box' }} />
-
-      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 4 }}>Notatka</label>
-      <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Wykonane zabiegi, zalecenia, obserwacje..." style={{ width: '100%', padding: '8px 10px', border: '1px solid #e5e0d8', borderRadius: 8, marginBottom: 10, fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
-
-      <label style={{ fontSize: 11, color: '#5A7A62', display: 'block', marginBottom: 6 }}>Kategoria</label>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-        {JOURNAL_CATEGORIES.map((cat) => {
-          const active = selectedCategories.includes(cat.slug);
-          return (
+          ))}
+          <div className="flex gap-2 mt-2">
+            <input
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder="Dodaj komentarz..."
+              className="flex-1 text-xs border rounded px-2 py-1 bg-background"
+              onKeyDown={e => { if (e.key === 'Enter' && text.trim()) addComment.mutate(); }}
+            />
             <button
-              key={cat.slug}
-              type="button"
-              onClick={() =>
-                setSelectedCategories((prev) =>
-                  active ? prev.filter((s) => s !== cat.slug) : [...prev, cat.slug]
-                )
-              }
-              style={{
-                padding: '6px 12px',
-                border: active ? '2px solid #1A3828' : '2px solid #e5e0d8',
-                borderRadius: 20,
-                background: active ? '#1A3828' : '#faf9f7',
-                color: active ? '#fff' : '#888',
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              onClick={() => { if (text.trim()) addComment.mutate(); }}
+              disabled={!text.trim() || addComment.isPending}
+              className="p-1 rounded text-primary hover:bg-primary/10 disabled:opacity-40 transition-colors"
             >
-              {cat.label}
+              <Send size={14} />
             </button>
-          );
-        })}
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-        <button onClick={onClose} style={{ padding: '8px 16px', border: '1px solid #e5e0d8', borderRadius: 8, background: '#fff', color: '#666', cursor: 'pointer', fontSize: 13 }}>Anuluj</button>
-        <button onClick={() => create.mutate()} disabled={create.isPending} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: '#1A3828', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, opacity: create.isPending ? 0.7 : 1 }}>
-          {create.isPending ? 'Zapisuję...' : 'Dodaj notatkę'}
-        </button>
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-// ─── Main Export ─────────────────────────────────────────────────────────────
 
 interface UserJournalProps {
   userId: string;
   userName: string;
 }
 
-export const UserJournal = ({ userId, userName }: UserJournalProps) => {
+export function UserJournal({ userId, userName }: UserJournalProps) {
   const [page, setPage] = useState(1);
-  const [showAddNote, setShowAddNote] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [newNotes, setNewNotes] = useState('');
+  const [newTags, setNewTags] = useState('');
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-journal', userId, page],
     queryFn: () => skinJournalApi.adminGetJournal(userId, page),
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {[1, 2].map((i) => (
-          <div key={i} style={{ background: '#fff', border: '1px solid #e5e0d8', borderRadius: 14, padding: 14, height: 80 }} className="animate-pulse" />
-        ))}
-      </div>
-    );
-  }
+  const createEntry = useMutation({
+    mutationFn: () =>
+      skinJournalApi.adminCreateEntry(userId, {
+        notes: newNotes.trim() || undefined,
+        tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
+        photo: newPhoto ?? undefined,
+      }),
+    onSuccess: () => {
+      setNewNotes('');
+      setNewTags('');
+      setNewPhoto(null);
+      setPhotoPreview(null);
+      setAddOpen(false);
+      qc.invalidateQueries({ queryKey: ['admin-journal', userId] });
+      toast.success('Wpis dodany');
+    },
+  });
 
-  const entries = data?.entries ?? [];
-  const total = data?.total ?? 0;
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const removePhoto = () => {
+    setNewPhoto(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const deleteEntry = useMutation({
+    mutationFn: (entryId: string) => skinJournalApi.adminDeleteEntry(userId, entryId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-journal', userId] });
+      toast.success('Wpis usunięty');
+    },
+  });
+
+  const entries: SkinJournalEntry[] = data?.entries ?? [];
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div>
-      {/* User info header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: 12, background: '#fff', borderRadius: 12, border: '1px solid #e5e0d8' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
-          {userName.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <div style={{ fontWeight: 600, color: '#1A3828', fontSize: 13 }}>{userName}</div>
-          <div style={{ fontSize: 11, color: '#5A7A62' }}>
-            {total} {total === 1 ? 'wpis' : total < 5 ? 'wpisy' : 'wpisów'} w dzienniku
-          </div>
-        </div>
-        {!showAddNote && (
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-            <button
-              onClick={() => setShowSummary(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fdf6ec', color: '#C4965A', border: '1px solid #e8d5a0', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
-            >
-              Podsumowanie
-            </button>
-            <button
-              onClick={() => setShowAddNote(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#1A3828', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
-            >
-              <Plus size={12} /> Dodaj notatkę
-            </button>
-          </div>
-        )}
+    <div className="mt-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Dziennik kosmetologa — {userName}
+        </p>
+        <button
+          onClick={() => setAddOpen(v => !v)}
+          className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          {addOpen ? <X size={13} /> : <Plus size={13} />}
+          {addOpen ? 'Anuluj' : 'Dodaj wpis'}
+        </button>
       </div>
 
-      {showAddNote && <AddNoteForm userId={userId} onClose={() => setShowAddNote(false)} />}
-
-      {entries.length === 0 && !showAddNote && (
-        <div style={{ textAlign: 'center', padding: '30px 20px', background: '#fff', border: '1px solid #e5e0d8', borderRadius: 14 }}>
-          <p style={{ fontSize: 24, marginBottom: 8 }}>📓</p>
-          <p style={{ fontSize: 13, color: '#5A7A62', margin: 0 }}>Brak wpisów w dzienniku</p>
+      {addOpen && (
+        <div className="border rounded-lg p-4 bg-muted/20 space-y-3">
+          <textarea
+            value={newNotes}
+            onChange={e => setNewNotes(e.target.value)}
+            placeholder="Notatki kosmetologa..."
+            rows={3}
+            className="w-full text-sm border rounded px-3 py-2 bg-background resize-none"
+          />
+          <input
+            value={newTags}
+            onChange={e => setNewTags(e.target.value)}
+            placeholder="Tagi (np. twarz, stopy) — rozdziel przecinkami"
+            className="w-full text-sm border rounded px-3 py-2 bg-background"
+          />
+          {/* Zdjęcie */}
+          <div className="space-y-2">
+            {photoPreview ? (
+              <div className="relative inline-block">
+                <img src={photoPreview} alt="Podgląd" className="rounded-md max-h-40 object-cover" loading="lazy" />
+                <button
+                  onClick={removePhoto}
+                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground border border-dashed rounded-md px-3 py-2 hover:border-primary hover:text-primary transition-colors"
+              >
+                <ImagePlus size={14} />
+                Dodaj zdjęcie
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
+            />
+          </div>
+          <button
+            onClick={() => createEntry.mutate()}
+            disabled={createEntry.isPending}
+            className="text-xs px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+          >
+            {createEntry.isPending ? 'Zapisywanie...' : 'Zapisz wpis'}
+          </button>
         </div>
       )}
 
-      {entries.map((entry) => (
-        <AdminEntryCard key={entry.id} entry={entry} userId={userId} />
+      {isLoading && (
+        <p className="text-sm text-muted-foreground py-4 text-center">Ładowanie...</p>
+      )}
+
+      {!isLoading && entries.length === 0 && (
+        <p className="text-sm text-muted-foreground py-4 text-center">Brak wpisów w dzienniku.</p>
+      )}
+
+      {entries.map(entry => (
+        <div key={entry.id} className="border rounded-lg p-4 bg-background space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground">{formatDate(entry.date)}</span>
+              {entry.mood != null && (
+                <span className="text-base" title={`Nastrój: ${entry.mood}/5`}>
+                  {MOODS[entry.mood - 1]}
+                </span>
+              )}
+              {entry.isAdminEntry && (
+                <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                  Wpis kosmetologa
+                </span>
+              )}
+              {entry.tags.map(tag => (
+                <span key={tag} className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                if (confirm('Usunąć wpis?')) deleteEntry.mutate(entry.id);
+              }}
+              className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+
+          {entry.photoPath && (
+            <img
+              src={entry.photoPath}
+              alt="Zdjęcie do wpisu"
+              className="rounded-md max-h-40 object-cover"
+              loading="lazy"
+            />
+          )}
+
+          {entry.notes && (
+            <p className="text-sm text-foreground whitespace-pre-wrap">{entry.notes}</p>
+          )}
+
+          <CommentSection entry={entry} userId={userId} />
+        </div>
       ))}
 
       {totalPages > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, paddingTop: 8 }}>
-          <button disabled={page === 1} onClick={() => setPage(page - 1)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', border: '1px solid #e5e0d8', borderRadius: 8, background: '#fff', color: page === 1 ? '#ccc' : '#444', cursor: page === 1 ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-            <ChevronLeft size={12} /> Wcześniejsze
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="p-1 rounded hover:bg-muted disabled:opacity-40 transition-colors"
+          >
+            <ChevronLeft size={16} />
           </button>
-          <span style={{ fontSize: 12, color: '#666' }}>{page} / {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', border: '1px solid #e5e0d8', borderRadius: 8, background: '#fff', color: page >= totalPages ? '#ccc' : '#444', cursor: page >= totalPages ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-            Nowsze <ChevronRight size={12} />
+          <span className="text-sm text-muted-foreground">{page} / {totalPages}</span>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="p-1 rounded hover:bg-muted disabled:opacity-40 transition-colors"
+          >
+            <ChevronRight size={16} />
           </button>
         </div>
       )}
-
-      {showSummary && <SummaryModal userId={userId} onClose={() => setShowSummary(false)} />}
     </div>
   );
-};
+}

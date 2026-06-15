@@ -1,12 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { Users, Copy, Share2, CheckCircle2, Circle } from 'lucide-react';
+import { Users, Copy, Share2, CheckCircle2, Circle, Gift, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { usersApi } from '@/api/users.api';
+import { discountCodesApi } from '@/api/discount-codes.api';
 
 export const UserReferrals = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['referrals'],
     queryFn: usersApi.getReferrals,
+  });
+
+  const { data: benefits } = useQuery({
+    queryKey: ['referral-benefits'],
+    queryFn: discountCodesApi.getReferralBenefits,
   });
 
   const shareText = data?.ambassadorCode
@@ -33,6 +39,11 @@ export const UserReferrals = () => {
       await navigator.clipboard.writeText(shareText);
       toast.success('Skopiowano!');
     }
+  };
+
+  const formatDiscount = (type: 'PERCENTAGE' | 'AMOUNT' | undefined, value: number | undefined) => {
+    if (!type || value === undefined) return '...';
+    return type === 'PERCENTAGE' ? `${value}% rabatu` : `${value.toFixed(2)} zł rabatu`;
   };
 
   const formatDate = (dateStr: string) => {
@@ -126,6 +137,60 @@ export const UserReferrals = () => {
             Brak kodu — skontaktuj się z nami.
           </p>
         )}
+      </div>
+
+
+      {/* Benefits Card */}
+      <div
+        className="rounded-[20px] p-6 bg-white"
+        style={{ border: '1px solid rgba(0,0,0,0.07)' }}
+      >
+        <p className="text-sm font-medium mb-4" style={{ color: '#5A7A62' }}>
+          Benefity za polecenie
+        </p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style={{ background: 'rgba(196,150,90,0.12)' }}
+            >
+              <UserPlus size={18} style={{ color: '#C4965A' }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>
+                Twoja znajoma dostaje
+              </p>
+              <p className="text-sm mt-0.5" style={{ color: '#5A7A62' }}>
+                <span className="font-bold" style={{ color: '#C4965A' }}>
+                  {formatDiscount(benefits?.newUserDiscountType, benefits?.newUserDiscountValue)}
+                </span>{' '}
+                na pierwsze zabiegi — kod rabatowy trafia automatycznie po rejestracji.
+              </p>
+            </div>
+          </div>
+          <div
+            className="flex items-start gap-4 pt-4"
+            style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}
+          >
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style={{ background: 'rgba(196,150,90,0.12)' }}
+            >
+              <Gift size={18} style={{ color: '#C4965A' }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>
+                Ty dostajesz
+              </p>
+              <p className="text-sm mt-0.5" style={{ color: '#5A7A62' }}>
+                <span className="font-bold" style={{ color: '#C4965A' }}>
+                  {formatDiscount(benefits?.referrerDiscountType, benefits?.referrerDiscountValue)}
+                </span>{' '}
+                za każdą skutecznie poleconą osobę — kod rabatowy czeka na Ciebie w koszyku.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Progress Card */}

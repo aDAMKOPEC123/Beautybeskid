@@ -39,7 +39,9 @@ export function TourProvider({ children }: { children: ReactNode }) {
         onDestroyed: () => {
           // Mark onboarding completed when user skips or finishes tour
           import('@/lib/axios').then(({ api }) => {
-            api.patch('/users/me', { onboardingCompleted: true }).catch(() => {});
+            api.patch('/users/me', { onboardingCompleted: true }).catch((err) => {
+              console.warn('Failed to update onboarding status:', err);
+            });
           });
           delete (window as any).__cosmoDriver;
           driverRef.current = null;

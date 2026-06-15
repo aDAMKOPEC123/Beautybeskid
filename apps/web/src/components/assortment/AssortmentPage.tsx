@@ -89,7 +89,7 @@ function ProductModal({
             onClick={() => fileRef.current?.click()}
           >
             {imagePreview ? (
-              <img src={imagePreview} alt="preview" className="h-full w-full object-contain" />
+              <img src={imagePreview} alt="preview" className="h-full w-full object-contain" loading="lazy" />
             ) : (
               <div className="text-center">
                 <Package size={28} className="text-gray-300 mx-auto mb-1" />
@@ -212,7 +212,7 @@ function ProductCard({
       {/* Image */}
       <div className="h-40 bg-gray-50 flex items-center justify-center overflow-hidden">
         {product.imagePath ? (
-          <img src={product.imagePath} alt={product.name} className="h-full w-full object-cover" />
+          <img src={product.imagePath} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
           <Package size={40} className="text-gray-200" />
         )}

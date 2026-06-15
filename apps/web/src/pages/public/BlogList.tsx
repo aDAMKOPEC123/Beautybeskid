@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { blogApi } from '@/api/blog.api';
 import { useAuthStore } from '@/store/auth.store';
-import { Clock, Heart, MessageCircle } from 'lucide-react';
+import { Clock, Heart, MessageCircle, Search, X } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { BlogListSkeleton } from '@/components/skeletons';
 import { DecoLine } from '@/components/shared/DecoElements';
@@ -116,6 +116,9 @@ export const BlogList = () => {
   const { user } = useAuthStore();
   const { data: posts, isLoading } = useQuery({ queryKey: ['blog'], queryFn: blogApi.getAll });
 
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
   const likeMutation = useMutation({
     mutationFn: (slug: string) => blogApi.likePost(slug),
     onMutate: async (slug) => {
@@ -194,6 +197,28 @@ export const BlogList = () => {
     </>
   );
 
+  const allCategories = Array.from(
+    new Set<string>(
+      (posts ?? [])
+        .filter((p: any) => p.isPublished && p.category)
+        .map((p: any) => p.category as string)
+    )
+  ).sort();
+
+  const filteredPosts = (posts ?? [])
+    .filter((p: any) => p.isPublished)
+    .filter((p: any) =>
+      !activeCategory || p.category === activeCategory
+    )
+    .filter((p: any) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        p.title?.toLowerCase().includes(q) ||
+        p.excerpt?.toLowerCase().includes(q)
+      );
+    });
+
   return (
     <>
       <style>{`
@@ -235,6 +260,70 @@ export const BlogList = () => {
           <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Artykuły o pielęgnacji skóry, zabiegach i podologii — porady eksperta z Limanowej.
           </p>
+
+          {/* Search + filters */}
+          <div className="mt-8 max-w-2xl mx-auto space-y-4">
+            {/* Search input */}
+            <div className="relative">
+              <Search
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: 'rgba(20,40,28,0.4)' }}
+              />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Szukaj artykułu..."
+                className="w-full pl-11 pr-4 py-3 rounded-2xl text-sm outline-none transition-all"
+                style={{
+                  backgroundColor: '#fff',
+                  border: '1px solid rgba(20,40,28,0.12)',
+                  color: '#1A3828',
+                }}
+                onFocus={e => (e.currentTarget.style.border = '1px solid #3D7A54')}
+                onBlur={e => (e.currentTarget.style.border = '1px solid rgba(20,40,28,0.12)')}
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/5 transition-colors"
+                  style={{ color: 'rgba(20,40,28,0.4)' }}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Category pills */}
+            {allCategories.length > 0 && (
+              <div className="flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={() => setActiveCategory(null)}
+                  className="text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
+                  style={{
+                    backgroundColor: !activeCategory ? '#1A3828' : 'rgba(20,40,28,0.07)',
+                    color: !activeCategory ? '#fff' : 'rgba(20,40,28,0.6)',
+                  }}
+                >
+                  Wszystkie
+                </button>
+                {allCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                    className="text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
+                    style={{
+                      backgroundColor: activeCategory === cat ? '#3D7A54' : 'rgba(20,40,28,0.07)',
+                      color: activeCategory === cat ? '#fff' : 'rgba(20,40,28,0.6)',
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -242,7 +331,29 @@ export const BlogList = () => {
       <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-4xl mx-auto">
           <div className="flex flex-col gap-4">
-            {posts?.filter((p: any) => p.isPublished).map((post: any) => (
+            {filteredPosts.length === 0 && !isLoading && (
+              <div
+                className="text-center py-16 rounded-2xl"
+                style={{ backgroundColor: '#fff', border: '1px solid rgba(20,40,28,0.07)' }}
+              >
+                <p className="text-base font-medium" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                  {search || activeCategory
+                    ? 'Brak artykułów pasujących do filtrów.'
+                    : 'Brak artykułów.'}
+                </p>
+                {(search || activeCategory) && (
+                  <button
+                    onClick={() => { setSearch(''); setActiveCategory(null); }}
+                    className="mt-3 text-sm font-semibold underline"
+                    style={{ color: '#3D7A54' }}
+                  >
+                    Wyczyść filtry
+                  </button>
+                )}
+              </div>
+            )}
+
+            {filteredPosts.map((post: any) => (
               <Link to={`/blog/${post.slug}`} key={post.id} className="block group">
                 <div
                   className="relative flex flex-col sm:flex-row gap-0 overflow-hidden transition-all duration-300"

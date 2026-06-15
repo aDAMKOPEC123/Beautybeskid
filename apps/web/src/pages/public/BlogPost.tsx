@@ -287,7 +287,22 @@ export const BlogPost = () => {
       {/* Content */}
       <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl mx-auto">
-          <article className="prose prose-lg max-w-none">
+          <article className="
+            prose prose-lg max-w-none
+            prose-headings:font-heading prose-headings:text-espresso prose-headings:leading-snug
+            prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-caramel/20
+            prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-2 prose-h3:text-caramel
+            prose-p:text-espresso/80 prose-p:leading-relaxed prose-p:my-4
+            prose-strong:text-espresso prose-strong:font-semibold
+            prose-a:text-caramel prose-a:no-underline hover:prose-a:underline
+            prose-ul:my-4 prose-li:my-1 prose-li:text-espresso/80
+            prose-ol:my-4
+            prose-blockquote:border-l-4 prose-blockquote:border-oak
+            prose-blockquote:bg-oak/5 prose-blockquote:rounded-r-xl
+            prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:my-8
+            prose-blockquote:text-espresso/70 prose-blockquote:italic prose-blockquote:not-italic
+            prose-blockquote:font-medium prose-blockquote:text-base
+          ">
             <ContentRenderer content={post.content} />
           </article>
         </div>
