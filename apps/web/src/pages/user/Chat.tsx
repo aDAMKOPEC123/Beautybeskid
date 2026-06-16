@@ -1,5 +1,5 @@
 // filepath: apps/web/src/pages/user/Chat.tsx
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '@/api/chat.api';
 import { ChatMessage } from '@/components/chat/ChatMessage';
@@ -20,13 +20,15 @@ export const UserChat = () => {
     queryFn: chatApi.getMyRoom,
   });
 
-  const { sendMessage, markAsRead, notifyTyping } = useChat(room?.id, () => {
+  const onRoomDeleted = useCallback(() => {
     // Admin deleted this room — reset UI and refetch (getMyRoom creates a new room automatically)
     setMessages([]);
     setUnreadCount(0);
     // Query key must match the useQuery above — verified in Step 5.0
     queryClient.invalidateQueries({ queryKey: ['chat', 'my-room'] });
-  });
+  }, [setMessages, setUnreadCount, queryClient]);
+
+  const { sendMessage, markAsRead, notifyTyping } = useChat(room?.id, onRoomDeleted);
 
   useEffect(() => {
     if (room?.messages) {

@@ -122,11 +122,23 @@ export const deleteRoom = async (roomId: string): Promise<void> => {
     select: { attachmentUrl: true },
   });
 
-  // Delete files from disk.
+  // Delete records in a transaction FIRST.
+  // IMPORTANT: messages MUST be deleted before the room.
+  // ChatMessage has no onDelete: Cascade — PostgreSQL will reject deleting
+  // ChatRoom while ChatMessage rows still hold a foreign key reference to it.
+  // Inside $transaction, use the transaction client `tx`, NOT the outer `prisma`.
+  // If this fails, no files are touched — DB remains consistent.
+  await prisma.$transaction(async (tx) => {
+    await tx.chatMessage.deleteMany({ where: { roomId } });
+    await tx.chatRoom.delete({ where: { id: roomId } });
+  });
+
+  // Delete files from disk AFTER the transaction succeeds.
   // path.basename() is REQUIRED here — it strips directory components from the
   // stored URL (e.g. '/uploads/chat/file.jpg' -> 'file.jpg'), preventing path
   // traversal if a DB value is ever malformed.
   // CHAT_UPLOADS_DIR equivalent: process.cwd()/uploads/chat (matches chatUpload.ts)
+  // A failure here leaves orphaned files (storage leak) but DB is consistent.
   for (const msg of messagesWithFiles) {
     if (!msg.attachmentUrl) continue;
     const filename = path.basename(msg.attachmentUrl);
@@ -140,14 +152,4 @@ export const deleteRoom = async (roomId: string): Promise<void> => {
       // ENOENT = file already gone — not an error, continue
     }
   }
-
-  // Delete records in a transaction.
-  // IMPORTANT: messages MUST be deleted before the room.
-  // ChatMessage has no onDelete: Cascade — PostgreSQL will reject deleting
-  // ChatRoom while ChatMessage rows still hold a foreign key reference to it.
-  // Inside $transaction, use the transaction client `tx`, NOT the outer `prisma`.
-  await prisma.$transaction(async (tx) => {
-    await tx.chatMessage.deleteMany({ where: { roomId } });
-    await tx.chatRoom.delete({ where: { id: roomId } });
-  });
 };
