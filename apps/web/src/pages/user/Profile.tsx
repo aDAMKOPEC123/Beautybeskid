@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/auth.store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -68,7 +69,7 @@ export const UserProfile = () => {
       setEditName(user?.name ?? '');
       setEditPhone(user?.phone ?? '');
     }
-  }, [isEditModalOpen]);
+  }, [isEditModalOpen, user]);
 
   useEffect(() => {
     if (!isEditModalOpen) return;
@@ -107,16 +108,16 @@ export const UserProfile = () => {
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
       queryClient.invalidateQueries({ queryKey: ['profile-consents'] });
-      toast.success('Dane zostaly zaktualizowane.');
+      toast.success('Dane zostały zaktualizowane.');
       setIsEditModalOpen(false);
     },
     onError: (e: any) =>
-      toast.error(e.response?.data?.message || 'Nie udalo sie zaktualizowac danych.'),
+      toast.error(e.response?.data?.message || 'Nie udało się zaktualizować danych.'),
   });
 
   const handleSaveProfile = () => {
     if (!editName.trim()) {
-      toast.error('Imie i nazwisko nie moze byc puste.');
+      toast.error('Imię i nazwisko nie może być puste.');
       return;
     }
     saveProfile();
@@ -216,99 +217,6 @@ export const UserProfile = () => {
           onChange={handleFileChange}
         />
       </div>
-
-      {/* Edit personal data modal */}
-      {isEditModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-          onClick={() => setIsEditModalOpen(false)}
-        >
-          <div
-            className="rounded-[20px] bg-white max-w-md w-full mx-4"
-            style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 py-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <DecoLine />
-                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
-                    Edytuj dane
-                  </span>
-                </div>
-                <button
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                  style={{ color: 'rgba(20,40,28,0.4)' }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
-                  Imie i nazwisko
-                </label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
-                  Numer telefonu <span className="font-normal" style={{ color: 'rgba(20,40,28,0.4)' }}>(opcjonalny)</span>
-                </label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
-                  Adres e-mail
-                </label>
-                <p
-                  className="text-sm px-3 py-3 rounded-xl"
-                  style={{ background: 'rgba(0,0,0,0.03)', color: 'rgba(20,40,28,0.5)' }}
-                >
-                  {user?.email}{' '}
-                  <span className="text-xs italic">— nie mozna zmienic</span>
-                </p>
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={savingProfile}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
-                  style={{ background: '#1A3828', color: '#fff' }}
-                >
-                  {savingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Zapisz zmiany
-                </button>
-                <button
-                  onClick={() => setIsEditModalOpen(false)}
-                  disabled={savingProfile}
-                  className="inline-flex items-center justify-center px-5 py-3 rounded-full text-sm font-semibold border transition-colors hover:bg-gray-50 disabled:opacity-60"
-                  style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
-                >
-                  Anuluj
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Account data */}
       {cardSection(
@@ -509,6 +417,102 @@ export const UserProfile = () => {
           Powtórz przewodnik po aplikacji
         </button>
       </div>
+
+      {/* Edit personal data modal — rendered via portal to avoid z-index issues inside scrollable container */}
+      {isEditModalOpen && createPortal(
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+          onClick={() => setIsEditModalOpen(false)}
+        >
+          <div
+            className="rounded-[20px] bg-white max-w-md w-full mx-4"
+            style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <DecoLine />
+                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
+                    Edytuj dane
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  style={{ color: 'rgba(20,40,28,0.4)' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="edit-name" className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Imię i nazwisko
+                </label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="edit-phone" className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Numer telefonu <span className="font-normal" style={{ color: 'rgba(20,40,28,0.4)' }}>(opcjonalny)</span>
+                </label>
+                <input
+                  id="edit-phone"
+                  type="tel"
+                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Adres e-mail
+                </label>
+                <p
+                  className="text-sm px-3 py-3 rounded-xl"
+                  style={{ background: 'rgba(0,0,0,0.03)', color: 'rgba(20,40,28,0.5)' }}
+                >
+                  {user?.email}{' '}
+                  <span className="text-xs italic">— nie można zmienić</span>
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+                  style={{ background: '#1A3828', color: '#fff' }}
+                >
+                  {savingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Zapisz zmiany
+                </button>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={savingProfile}
+                  className="inline-flex items-center justify-center px-5 py-3 rounded-full text-sm font-semibold border transition-colors hover:bg-gray-50 disabled:opacity-60"
+                  style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
+                >
+                  Anuluj
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
