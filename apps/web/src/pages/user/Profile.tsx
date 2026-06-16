@@ -139,6 +139,10 @@ export const UserProfile = () => {
   });
 
   const handleChangePassword = () => {
+    if (!currentPassword) {
+      toast.error('Podaj obecne hasło');
+      return;
+    }
     if (newPassword !== confirmPassword) {
       toast.error('Nowe hasła nie są identyczne');
       return;
@@ -439,15 +443,16 @@ export const UserProfile = () => {
         undefined,
         <div className="p-6 space-y-4">
           {[
-            { label: 'Obecne hasło', id: 'pwd-current', value: currentPassword, setter: setCurrentPassword },
-            { label: 'Nowe hasło (min. 8 znaków)', id: 'pwd-new', value: newPassword, setter: setNewPassword },
-            { label: 'Powtórz nowe hasło', id: 'pwd-confirm', value: confirmPassword, setter: setConfirmPassword },
-          ].map(({ label, id, value, setter }) => (
+            { label: 'Obecne hasło', id: 'pwd-current', autocomplete: 'current-password', value: currentPassword, setter: setCurrentPassword },
+            { label: 'Nowe hasło (min. 8 znaków)', id: 'pwd-new', autocomplete: 'new-password', value: newPassword, setter: setNewPassword },
+            { label: 'Powtórz nowe hasło', id: 'pwd-confirm', autocomplete: 'new-password', value: confirmPassword, setter: setConfirmPassword },
+          ].map(({ label, id, autocomplete, value, setter }) => (
             <div key={id} className="space-y-1.5">
               <label htmlFor={id} className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
               <input
                 id={id}
                 type="password"
+                autoComplete={autocomplete}
                 className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
                 style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
                 value={value}
