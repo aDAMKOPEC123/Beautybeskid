@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '@/api/users.api';
 import { api } from '@/lib/axios';
-import { Loader2, Bell, BellOff } from 'lucide-react';
+import { Loader2, Bell, BellOff, X } from 'lucide-react';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { toast } from 'sonner';
 import { useTour } from '@/hooks/useTour';
@@ -49,6 +49,9 @@ export const UserProfile = () => {
   const [cardAllergies, setCardAllergies] = useState('');
   const [cardConditions, setCardConditions] = useState('');
   const [cardPreferences, setCardPreferences] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -59,6 +62,22 @@ export const UserProfile = () => {
       setCardPreferences(profile.cardPreferences ?? '');
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (isEditModalOpen) {
+      setEditName(user?.name ?? '');
+      setEditPhone(user?.phone ?? '');
+    }
+  }, [isEditModalOpen]);
+
+  useEffect(() => {
+    if (!isEditModalOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsEditModalOpen(false);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isEditModalOpen]);
 
   const { mutate: saveCard, isPending: savingCard } = useMutation({
     mutationFn: () => usersApi.updateMyCard({ cardAllergies, cardConditions, cardPreferences }),
@@ -79,6 +98,30 @@ export const UserProfile = () => {
     onError: () => toast.error('Nie udało się zapisać zgód.'),
   });
 
+  const { mutate: saveProfile, isPending: savingProfile } = useMutation({
+    mutationFn: () =>
+      usersApi.updateMe({
+        name: editName.trim(),
+        phone: editPhone.trim() || null,
+      }),
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser);
+      queryClient.invalidateQueries({ queryKey: ['profile-consents'] });
+      toast.success('Dane zostaly zaktualizowane.');
+      setIsEditModalOpen(false);
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Nie udalo sie zaktualizowac danych.'),
+  });
+
+  const handleSaveProfile = () => {
+    if (!editName.trim()) {
+      toast.error('Imie i nazwisko nie moze byc puste.');
+      return;
+    }
+    saveProfile();
+  };
+
   const { mutate: uploadAvatar, isPending } = useMutation({
     mutationFn: (file: File) => usersApi.uploadAvatar(file),
     onSuccess: (updatedUser) => {
@@ -96,7 +139,8 @@ export const UserProfile = () => {
   const cardSection = (
     title: string,
     subtitle?: string,
-    children?: React.ReactNode
+    children?: React.ReactNode,
+    headerAction?: React.ReactNode,
   ) => (
     <div
       className="max-w-xl rounded-[20px] overflow-hidden"
@@ -106,11 +150,14 @@ export const UserProfile = () => {
         className="px-6 py-5"
         style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <div className="flex items-center gap-3 mb-4">
-          <DecoLine />
-          <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
-            {title}
-          </span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <DecoLine />
+            <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
+              {title}
+            </span>
+          </div>
+          {headerAction}
         </div>
         {subtitle && (
           <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>{subtitle}</p>
@@ -170,8 +217,103 @@ export const UserProfile = () => {
         />
       </div>
 
+      {/* Edit personal data modal */}
+      {isEditModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+          onClick={() => setIsEditModalOpen(false)}
+        >
+          <div
+            className="rounded-[20px] bg-white max-w-md w-full mx-4"
+            style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <DecoLine />
+                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
+                    Edytuj dane
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  style={{ color: 'rgba(20,40,28,0.4)' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Imie i nazwisko
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Numer telefonu <span className="font-normal" style={{ color: 'rgba(20,40,28,0.4)' }}>(opcjonalny)</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                  Adres e-mail
+                </label>
+                <p
+                  className="text-sm px-3 py-3 rounded-xl"
+                  style={{ background: 'rgba(0,0,0,0.03)', color: 'rgba(20,40,28,0.5)' }}
+                >
+                  {user?.email}{' '}
+                  <span className="text-xs italic">— nie mozna zmienic</span>
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+                  style={{ background: '#1A3828', color: '#fff' }}
+                >
+                  {savingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Zapisz zmiany
+                </button>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={savingProfile}
+                  className="inline-flex items-center justify-center px-5 py-3 rounded-full text-sm font-semibold border transition-colors hover:bg-gray-50 disabled:opacity-60"
+                  style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
+                >
+                  Anuluj
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Account data */}
-      {cardSection('Dane konta', undefined,
+      {cardSection(
+        'Dane konta',
+        undefined,
         <div>
           {[
             { label: 'Imię i nazwisko', value: user?.name },
@@ -191,14 +333,15 @@ export const UserProfile = () => {
               <span className="col-span-2 font-semibold text-lg" style={{ color: '#1A3828' }}>{value}</span>
             </div>
           ))}
-        </div>
+        </div>,
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          className="text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
+          style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
+        >
+          Edytuj dane
+        </button>
       )}
-
-      <div className="max-w-xl">
-        <p className="text-xs italic text-center" style={{ color: 'rgba(20,40,28,0.45)' }}>
-          Aby zmienić swoje dane skontaktuj się z obsługą gabinetu.
-        </p>
-      </div>
 
       {/* Patient card */}
       {cardSection(
