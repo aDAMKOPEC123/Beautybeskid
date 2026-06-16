@@ -53,6 +53,9 @@ export const UserProfile = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -121,6 +124,30 @@ export const UserProfile = () => {
       return;
     }
     saveProfile();
+  };
+
+  const { mutate: doChangePassword, isPending: changingPassword } = useMutation({
+    mutationFn: () => usersApi.changePassword({ currentPassword, newPassword }),
+    onSuccess: () => {
+      toast.success('Hasło zostało zmienione.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Błąd zmiany hasła'),
+  });
+
+  const handleChangePassword = () => {
+    if (newPassword !== confirmPassword) {
+      toast.error('Nowe hasła nie są identyczne');
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error('Nowe hasło musi mieć co najmniej 8 znaków');
+      return;
+    }
+    doChangePassword();
   };
 
   const { mutate: uploadAvatar, isPending } = useMutation({
@@ -404,6 +431,44 @@ export const UserProfile = () => {
             )}
           </div>
         </section>
+      )}
+
+      {/* Change password */}
+      {cardSection(
+        'Zmiana hasła',
+        undefined,
+        <div className="p-6 space-y-4">
+          {[
+            { label: 'Obecne hasło', id: 'pwd-current', value: currentPassword, setter: setCurrentPassword },
+            { label: 'Nowe hasło (min. 8 znaków)', id: 'pwd-new', value: newPassword, setter: setNewPassword },
+            { label: 'Powtórz nowe hasło', id: 'pwd-confirm', value: confirmPassword, setter: setConfirmPassword },
+          ].map(({ label, id, value, setter }) => (
+            <div key={id} className="space-y-1.5">
+              <label htmlFor={id} className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
+              <input
+                id={id}
+                type="password"
+                className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
+                style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
+                value={value}
+                onChange={(e) => setter(e.target.value)}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#C4965A'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+              />
+            </div>
+          ))}
+          <div className="pt-1">
+            <button
+              onClick={handleChangePassword}
+              disabled={changingPassword}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+              style={{ background: '#1A3828', color: '#fff' }}
+            >
+              {changingPassword && <Loader2 className="w-4 h-4 animate-spin" />}
+              Zmień hasło
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Restart tour */}
