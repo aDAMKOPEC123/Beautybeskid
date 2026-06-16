@@ -4,7 +4,7 @@ import { useSocket } from './useSocket';
 import { useChatStore } from '../store/chat.store';
 import { chatApi } from '../api/chat.api';
 
-export const useChat = (roomId?: string) => {
+export const useChat = (roomId?: string, onRoomDeleted?: () => void) => {
   const { socket, isConnected } = useSocket();
   const {
     addMessage,
@@ -53,14 +53,22 @@ export const useChat = (roomId?: string) => {
     socket.on('admin:unread_count', onAdminUnread);
     socket.on('staff:unread_count', onStaffUnread);
 
+    const onRoomDeletedEvent = ({ roomId: deletedRoomId }: { roomId: string }) => {
+      if (deletedRoomId === roomId && onRoomDeleted) {
+        onRoomDeleted();
+      }
+    };
+    socket.on('room:deleted', onRoomDeletedEvent);
+
     return () => {
       socket.off('chat:message', onMessage);
       socket.off('chat:typing', onTyping);
       socket.off('chat:read_receipt', onReadReceipt);
       socket.off('admin:unread_count', onAdminUnread);
       socket.off('staff:unread_count', onStaffUnread);
+      socket.off('room:deleted', onRoomDeletedEvent);
     };
-  }, [isConnected, socket, roomId, addMessage, incrementUnread, setTyping, setStaffUnreadTotal, updateMessagesReadAt]);
+  }, [isConnected, socket, roomId, addMessage, incrementUnread, setTyping, setStaffUnreadTotal, updateMessagesReadAt, onRoomDeleted]);
 
   const sendMessage = async (content: string, rId: string, file?: File) => {
     const fd = new FormData();

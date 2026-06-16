@@ -1,6 +1,6 @@
 // filepath: apps/web/src/pages/user/Chat.tsx
 import { useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '@/api/chat.api';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
@@ -13,13 +13,20 @@ export const UserChat = () => {
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, setMessages, setUnreadCount } = useChatStore();
+  const queryClient = useQueryClient();
 
   const { data: room, isLoading } = useQuery({
     queryKey: ['chat', 'my-room'],
     queryFn: chatApi.getMyRoom,
   });
 
-  const { sendMessage, markAsRead, notifyTyping } = useChat(room?.id);
+  const { sendMessage, markAsRead, notifyTyping } = useChat(room?.id, () => {
+    // Admin deleted this room — reset UI and refetch (getMyRoom creates a new room automatically)
+    setMessages([]);
+    setUnreadCount(0);
+    // Query key must match the useQuery above — verified in Step 5.0
+    queryClient.invalidateQueries({ queryKey: ['chat', 'my-room'] });
+  });
 
   useEffect(() => {
     if (room?.messages) {
