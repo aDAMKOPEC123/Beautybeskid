@@ -25,6 +25,7 @@ enum AppointmentStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+  NO_SHOW
 }
 
 enum LoyaltyTier {
@@ -191,6 +192,8 @@ model User {
   lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
   refreshTokens          RefreshToken[]
+
+  @@index([role])
 }
 
 model RefreshToken {
@@ -212,6 +215,8 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Service {
@@ -364,6 +369,8 @@ model LoyaltyTransaction {
   rewardId    String?
   reward      LoyaltyReward?  @relation(fields: [rewardId], references: [id])
   createdAt   DateTime        @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model UserCoupon {
@@ -459,6 +466,10 @@ model Appointment {
   rescheduleStatus   RescheduleStatus?
 
   @@index([treatmentSeriesId])
+  @@index([userId])
+  @@index([userId, status])
+  @@index([date])
+  @@index([employeeId])
 }
 
 model DiscountCode {
@@ -1204,6 +1215,22 @@ enum IdeaStatus {
   WYKORZYSTANA
 }
 
+enum TrendStatus {
+  AKTYWNY
+  PRZETERMINOWANY
+}
+
+enum NagranieStatus {
+  DO_NAGRANIA
+  NAGRANE
+}
+
+enum Priority {
+  NISKI
+  SREDNI
+  WYSOKI
+}
+
 model ContentPost {
   id           String         @id @default(cuid())
   title        String
@@ -1215,12 +1242,15 @@ model ContentPost {
   notes        String?
   ideaId       String?        @unique
   idea         RolkaIdea?     @relation(fields: [ideaId], references: [id])
+  karuzelaId   String?        @unique
+  karuzela     KaruzelaIdea?  @relation(fields: [karuzelaId], references: [id])
+  wynik        WynikPost?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
 
 model RolkaIdea {
-  id          String       @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   hook        String?
   sceneDesc   String?
@@ -1232,6 +1262,81 @@ model RolkaIdea {
   status      IdeaStatus
   plannedDate DateTime?
   post        ContentPost?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  nagranie    NagranieItem?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model KaruzelaIdea {
+  id          String        @id @default(cuid())
+  title       String
+  slideDesc   String?
+  category    IdeaCategory
+  status      IdeaStatus
+  plannedDate DateTime?
+  post        ContentPost?
+  nagranie    NagranieItem?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Trend {
+  id        String         @id @default(cuid())
+  name      String
+  platform  SocialPlatform
+  link      String?
+  status    TrendStatus
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model OpisPost {
+  id        String       @id @default(cuid())
+  title     String
+  content   String
+  hashtags  String?
+  category  IdeaCategory
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model NagranieItem {
+  id         String         @id @default(cuid())
+  title      String
+  rolkaId    String?        @unique
+  rolka      RolkaIdea?     @relation(fields: [rolkaId], references: [id])
+  karuzelaId String?        @unique
+  karuzela   KaruzelaIdea?  @relation(fields: [karuzelaId], references: [id])
+  status     NagranieStatus
+  priority   Priority
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model Kampania {
+  id        String         @id @default(cuid())
+  name      String
+  goal      String?
+  dateFrom  DateTime?
+  dateTo    DateTime?
+  platform  SocialPlatform
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model WynikPost {
+  id          String         @id @default(cuid())
+  postId      String?        @unique
+  post        ContentPost?   @relation(fields: [postId], references: [id])
+  title       String
+  platform    SocialPlatform
+  publishedAt DateTime
+  reach       Int?
+  views       Int?
+  likes       Int?
+  comments    Int?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
