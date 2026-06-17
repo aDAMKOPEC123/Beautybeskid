@@ -1,6 +1,7 @@
 import { prisma } from '../../config/prisma';
 import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
 import { markCouponUsed, getTierForPoints } from '../loyalty/loyalty.service';
+import { generateCode } from '../../utils/generateCode';
 import { getAvailability } from '../employees/employees.service';
 import { AppError } from '../../middleware/error.middleware';
 import { checkAndAward } from '../achievements/achievements.service';
@@ -13,7 +14,21 @@ import { createAndEmitNotification } from '../notifications/notifications.servic
 import { sendPushToUser } from '../push/push.service';
 
 const appointmentInclude = {
-  service: true,
+  service: {
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      durationMinutes: true,
+      slug: true,
+      category: true,
+      imagePath: true,
+      isMultiVisit: true,
+      routineFirst48h: true,
+      routineFollowingDays: true,
+      routineProducts: true,
+    },
+  },
   employee: { select: { id: true, name: true, avatarPath: true } },
   coupon: { include: { reward: true } },
 } as const;
@@ -62,7 +77,20 @@ export const updateStaffNote = async (id: string, staffNote: string) => {
   });
 };
 
-export const createAppointment = async (userId: string, data: any) => {
+interface CreateAppointmentData {
+  serviceId: string;
+  employeeId?: string;
+  date: string;
+  notes?: string;
+  allergies?: string;
+  problemDescription?: string;
+  couponId?: string;
+  discountCodeId?: string;
+  treatmentSeriesId?: string;
+  happyHourId?: string;
+}
+
+export const createAppointment = async (userId: string, data: CreateAppointmentData) => {
   const { couponId, discountCodeId, treatmentSeriesId, happyHourId, ...rest } = data;
 
   const appointment = await prisma.$transaction(async (tx) => {
@@ -93,19 +121,28 @@ export const createAppointment = async (userId: string, data: any) => {
     });
   });
 
-  if (couponId) {
-    await markCouponUsed(couponId, appointment.id);
-  }
+  if (couponId || discountCodeId) {
+    await prisma.$transaction(async (tx) => {
+      if (couponId) {
+        const coupon = await tx.userCoupon.findUnique({ where: { id: couponId } });
+        if (!coupon || coupon.status !== 'ACTIVE') throw new AppError('Kupon niedostępny lub już użyty', 400);
+        await tx.userCoupon.update({
+          where: { id: couponId },
+          data: { status: 'USED', usedAt: new Date(), appointmentId: appointment.id },
+        });
+      }
 
-  if (discountCodeId) {
-    const code = await prisma.discountCode.findUnique({ where: { id: discountCodeId } });
-    if (code && code.isActive && (!code.lockedToUserId || code.lockedToUserId === userId)) {
-      await prisma.discountCodeUsage.upsert({
-        where: { discountCodeId_userId: { discountCodeId, userId } },
-        create: { discountCodeId, userId, appointmentId: appointment.id },
-        update: {},
-      });
-    }
+      if (discountCodeId) {
+        const code = await tx.discountCode.findUnique({ where: { id: discountCodeId } });
+        if (code && code.isActive && (!code.lockedToUserId || code.lockedToUserId === userId)) {
+          await tx.discountCodeUsage.upsert({
+            where: { discountCodeId_userId: { discountCodeId, userId } },
+            create: { discountCodeId, userId, appointmentId: appointment.id },
+            update: {},
+          });
+        }
+      }
+    });
   }
 
   try {
@@ -114,16 +151,16 @@ export const createAppointment = async (userId: string, data: any) => {
     const client = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
     const clientName = client?.name ?? 'Klient';
     const serviceName = appointment.service?.name ?? 'Usługa';
-    for (const admin of admins) {
-      await createAndEmitNotification(io, {
+    await Promise.all(admins.map((admin) =>
+      createAndEmitNotification(io, {
         userId: admin.id,
         type: 'NEW_APPOINTMENT',
         title: 'Nowa rezerwacja',
         body: `${clientName} — ${serviceName}`,
         url: '/admin/wizyty',
         emitToAdminGlobal: true,
-      });
-    }
+      })
+    ));
   } catch (err) {
     console.error('Notification delivery failed (createAppointment):', err);
   }
@@ -147,6 +184,7 @@ export const getUserAppointments = async (userId: string) => {
     where: { userId },
     orderBy: { date: 'asc' },
     include: appointmentInclude,
+    take: 200,
   });
 };
 
@@ -196,7 +234,7 @@ export const createAppointmentByAdmin = async (data: {
     user = await prisma.user.findUnique({ where: { email: data.clientEmail } });
   }
   if (!user) {
-    user = await prisma.user.findFirst({ where: { phone: data.clientPhone } });
+    user = await prisma.user.findFirst({ where: { phone: data.clientPhone }, orderBy: { createdAt: 'desc' } });
   }
   if (!user) {
     throw new AppError('Klient nie istnieje w systemie. Najpierw utwórz konto w sekcji Użytkownicy.', 404);
@@ -284,16 +322,25 @@ export const createExternalClientAppointment = async (data: {
     user = await prisma.user.findUnique({ where: { email: data.clientEmail } });
   }
   if (!user) {
-    user = await prisma.user.findFirst({ where: { phone: data.clientPhone } });
+    user = await prisma.user.findFirst({ where: { phone: data.clientPhone }, orderBy: { createdAt: 'desc' } });
   }
   if (!user) {
     const email = data.clientEmail || `${data.clientPhone.replace(/\D/g, '')}@external.cosmo`;
+    let ambassadorCode: string;
+    while (true) {
+      ambassadorCode = generateCode(8);
+      const exists = await prisma.user.findUnique({ where: { ambassadorCode } });
+      if (!exists) break;
+    }
     user = await prisma.user.create({
       data: {
         name: data.clientName,
         phone: data.clientPhone,
         email,
         passwordHash: null,
+        accountStatus: 'ACTIVE',
+        ambassadorCode,
+        termsAcceptedAt: new Date(),
       },
     });
   }
@@ -444,7 +491,7 @@ export const rejectReschedule = async (id: string) => {
 
 export const updateStatus = async (
   id: string,
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED',
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW',
 ) => {
   const result = await prisma.$transaction(async (tx) => {
     const existing = await tx.appointment.findUnique({
@@ -456,8 +503,9 @@ export const updateStatus = async (
       throw new AppError('Wizyta nie istnieje', 404);
     }
 
-    if (existing.status === 'COMPLETED' && status !== 'COMPLETED') {
-      throw new AppError('Nie mozna cofnac zakonczonej wizyty', 400);
+    const TERMINAL_STATUSES = ['COMPLETED', 'NO_SHOW'] as const;
+    if ((TERMINAL_STATUSES as readonly string[]).includes(existing.status) && existing.status !== status) {
+      throw new AppError('Nie mozna zmienic statusu zakonczonej wizyty', 400);
     }
 
     const appointment = await tx.appointment.update({
@@ -718,7 +766,7 @@ export const getUpcomingCount = async (userId: string): Promise<number> => {
     where: {
       userId,
       date: { gte: new Date() },
-      status: { notIn: ['CANCELLED'] },
+      status: { in: ['PENDING', 'CONFIRMED'] },
     },
   });
 };
