@@ -22,6 +22,7 @@ const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: 'Potwierdzona',
   CANCELLED: 'Anulowana',
   COMPLETED: 'Zakończona',
+  NO_SHOW: 'Nie stawiła się',
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,9 +30,10 @@ const STATUS_COLORS: Record<string, string> = {
   CONFIRMED: 'bg-green-100 text-green-800 border-green-300',
   CANCELLED: 'bg-red-100 text-red-800 border-red-300',
   COMPLETED: 'bg-primary/10 text-primary border-primary/30',
+  NO_SHOW: 'bg-purple-100 text-purple-800 border-purple-300',
 };
 
-const ALL_STATUSES = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'] as const;
+const ALL_STATUSES = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'NO_SHOW'] as const;
 
 // ─── Price helpers ─────────────────────────────────────────────────────────────
 
@@ -132,6 +134,22 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
 
   return (
     <div className={`flex flex-col gap-3 p-4 border rounded-xl hover:shadow-sm transition-shadow ${baseClass}`}>
+      {(() => {
+        const noShowCount = a.user?._count?.appointments ?? 0;
+        const isActive = a.status === 'PENDING' || a.status === 'CONFIRMED';
+        if (noShowCount === 0 || !isActive) return null;
+        return (
+          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-orange-50 border border-orange-300 text-orange-800 text-xs">
+            <span className="text-base leading-none mt-0.5">⚠</span>
+            <div>
+              <span className="font-semibold">
+                Ta klientka nie stawiła się {noShowCount === 1 ? '1 raz' : `${noShowCount} razy`} na poprzednich wizytach.
+              </span>
+              {' '}Upewnij się, że tym razem przyjdzie — zadzwoń lub wyślij SMS z potwierdzeniem.
+            </div>
+          </div>
+        );
+      })()}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
@@ -230,8 +248,9 @@ function ListView({ appointments }: { appointments: any[] }) {
       (!filterEmployee || a.employee?.name === filterEmployee)
   );
 
-  const activeFiltered = filtered.filter((a) => a.status !== 'COMPLETED');
-  const archivedFiltered = filtered.filter((a) => a.status === 'COMPLETED');
+  const ARCHIVED_STATUSES = ['COMPLETED', 'NO_SHOW'];
+  const activeFiltered = filtered.filter((a) => !ARCHIVED_STATUSES.includes(a.status));
+  const archivedFiltered = filtered.filter((a) => ARCHIVED_STATUSES.includes(a.status));
 
   const isCompletedFilter = filterStatus === 'COMPLETED';
 
