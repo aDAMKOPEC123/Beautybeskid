@@ -5,7 +5,9 @@ vi.mock('../../config/prisma', () => ({
   prisma: {
     appointment: {
       findMany: vi.fn(),
+      count: vi.fn(),
     },
+    $transaction: vi.fn((arr: unknown[]) => Promise.all(arr as Promise<unknown>[])),
   },
 }));
 
@@ -16,6 +18,7 @@ describe('getAllAppointments', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (prisma.appointment.findMany as any).mockResolvedValue([]);
+    (prisma.appointment.count as any).mockResolvedValue(0);
   });
 
   it('calls findMany with no where clause when no filters passed', async () => {
@@ -43,6 +46,21 @@ describe('getAllAppointments', () => {
     await getAllAppointments({ page: 2, limit: 10 });
     expect(prisma.appointment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+});
+
+describe('NO_SHOW status filter', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (prisma.appointment.findMany as any).mockResolvedValue([]);
+    (prisma.appointment.count as any).mockResolvedValue(0);
+  });
+
+  it('filters by NO_SHOW status when provided', async () => {
+    await getAllAppointments({ status: 'NO_SHOW' });
+    expect(prisma.appointment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: 'NO_SHOW' } })
     );
   });
 });

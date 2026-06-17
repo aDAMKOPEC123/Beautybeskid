@@ -4,6 +4,7 @@ import { processAndSaveImage } from '../../utils/imageProcessor';
 import { AppError } from '../../middleware/error.middleware';
 import { getIO } from '../../socket';
 import { sendPushToAdmins } from '../push/push.service';
+import { prisma } from '../../config/prisma';
 import { format } from 'date-fns';
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
@@ -12,9 +13,10 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     getIO().to('admin:global').emit('appointment:created', appointment as Record<string, unknown>);
     getIO().to('employee:global').emit('appointment:created', appointment as Record<string, unknown>);
     const appt = appointment as any;
+    const creator = await prisma.user.findUnique({ where: { id: req.user!.id }, select: { name: true } });
     sendPushToAdmins({
       title: 'Nowa wizyta',
-      body: `${appt.user?.name ?? ''} — ${appt.service?.name ?? ''}, ${format(new Date(appt.date), 'HH:mm')}`,
+      body: `${creator?.name ?? ''} — ${appt.service?.name ?? ''}, ${format(new Date(appt.date), 'HH:mm')}`,
       url: '/admin/wizyty',
     }).catch(() => {});
     res.status(201).json({ status: 'success', data: { appointment } });
@@ -117,6 +119,10 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
 export const updateStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status } = req.body;
+    const VALID_STATUSES = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+    if (!VALID_STATUSES.includes(status)) {
+      throw new AppError('Nieprawidłowy status wizyty', 400);
+    }
     const appointment = await appointmentsService.updateStatus(req.params.id, status);
     getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
     getIO().to(`user:${(appointment as any).userId}`).emit('appointment:updated', appointment as Record<string, unknown>);
