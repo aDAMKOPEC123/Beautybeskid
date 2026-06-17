@@ -252,7 +252,7 @@ function ListView({ appointments }: { appointments: any[] }) {
   const activeFiltered = filtered.filter((a) => !ARCHIVED_STATUSES.includes(a.status));
   const archivedFiltered = filtered.filter((a) => ARCHIVED_STATUSES.includes(a.status));
 
-  const isCompletedFilter = filterStatus === 'COMPLETED';
+  const isArchivedFilter = filterStatus === 'COMPLETED' || filterStatus === 'NO_SHOW';
 
   return (
     <div className="space-y-4">
@@ -292,7 +292,7 @@ function ListView({ appointments }: { appointments: any[] }) {
       </div>
 
       {/* Active appointments */}
-      {!isCompletedFilter && (
+      {!isArchivedFilter && (
         <div className="space-y-3">
           {activeFiltered.length === 0 ? (
             <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-xl">
@@ -309,7 +309,7 @@ function ListView({ appointments }: { appointments: any[] }) {
       {/* Archive section */}
       {archivedFiltered.length > 0 && (
         <div className="space-y-3">
-          {!isCompletedFilter && (
+          {!isArchivedFilter && (
             <button
               onClick={() => setShowArchive((v) => !v)}
               className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors w-full py-2 border-t pt-4"
@@ -322,7 +322,7 @@ function ListView({ appointments }: { appointments: any[] }) {
             </button>
           )}
 
-          {(isCompletedFilter || showArchive) && (
+          {(isArchivedFilter || showArchive) && (
             <div className="space-y-3">
               {archivedFiltered.map((a) => (
                 <AppointmentRow key={a.id} a={a} highlighted={unreadAppointmentIds.has(a.id)} />
@@ -333,7 +333,7 @@ function ListView({ appointments }: { appointments: any[] }) {
       )}
 
       {/* No results at all */}
-      {isCompletedFilter && archivedFiltered.length === 0 && (
+      {isArchivedFilter && archivedFiltered.length === 0 && (
         <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-xl">
           Brak wizyt spełniających kryteria filtrów
         </div>
