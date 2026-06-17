@@ -209,7 +209,19 @@ export const getAllAppointments = async (filters?: {
       skip,
       include: {
         ...appointmentInclude,
-        user: { select: { id: true, name: true, email: true, phone: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            _count: {
+              select: {
+                appointments: { where: { status: 'NO_SHOW' } },
+              },
+            },
+          },
+        },
       },
     }),
     prisma.appointment.count({ where }),
