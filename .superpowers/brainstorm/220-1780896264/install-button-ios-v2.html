@@ -1,0 +1,60 @@
+<h2>iOS — przycisk zamknięcia karty</h2>
+<p class="subtitle">Jak powinien wyglądać przycisk "nie pokazuj ponownie"?</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Osobny przycisk "Nie pokazuj ponownie"</h3>
+      <p>Pod instrukcją — wyraźny, tekstowy przycisk obok "Zamknij". Jasno komunikuje że to trwałe ukrycie.</p>
+      <div style="background:white;border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);width:220px;margin-top:10px;">
+        <div style="font-weight:700;font-size:13px;color:#333;margin-bottom:6px;">Dodaj do ekranu głównego</div>
+        <div style="font-size:12px;color:#555;line-height:1.7;margin-bottom:10px;">
+          <div>⎋ Kliknij <strong>Udostępnij</strong></div>
+          <div>＋ Wybierz <strong>"Dodaj do ekranu"</strong></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:#f0f0f0;color:#888;border-radius:8px;padding:6px 0;text-align:center;font-size:11px;">Zamknij</div>
+          <div style="flex:1;background:#fff0e8;color:#C8956C;border:1px solid #C8956C;border-radius:8px;padding:6px 0;text-align:center;font-size:11px;font-weight:600;">Nie pokazuj</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>✕ w rogu + tekst "nie pokazuj"</h3>
+      <p>Ikona X zamyka kartę tymczasowo. Małe łącze "nie pokazuj ponownie" pod instrukcją — dla tych co chcą pozbyć się na stałe.</p>
+      <div style="background:white;border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);width:220px;margin-top:10px;position:relative;">
+        <div style="position:absolute;top:10px;right:10px;color:#bbb;font-size:16px;cursor:pointer;">✕</div>
+        <div style="font-weight:700;font-size:13px;color:#333;margin-bottom:6px;padding-right:20px;">Dodaj do ekranu głównego</div>
+        <div style="font-size:12px;color:#555;line-height:1.7;margin-bottom:8px;">
+          <div>⎋ Kliknij <strong>Udostępnij</strong></div>
+          <div>＋ Wybierz <strong>"Dodaj do ekranu"</strong></div>
+        </div>
+        <div style="font-size:11px;color:#bbb;text-decoration:underline;cursor:pointer;">nie pokazuj ponownie</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Jedno kliknięcie = trwałe zamknięcie</h3>
+      <p>Jeden przycisk ✕ — zamknięcie od razu zapisuje do localStorage i nigdy nie wraca. Najprostsze, bez rozróżnienia.</p>
+      <div style="background:white;border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);width:220px;margin-top:10px;">
+        <div style="font-weight:700;font-size:13px;color:#333;margin-bottom:6px;">Dodaj do ekranu głównego</div>
+        <div style="font-size:12px;color:#555;line-height:1.7;margin-bottom:10px;">
+          <div>⎋ Kliknij <strong>Udostępnij</strong></div>
+          <div>＋ Wybierz <strong>"Dodaj do ekranu"</strong></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:#f0f0f0;color:#666;border-radius:8px;padding:6px 0;text-align:center;font-size:12px;font-weight:600;">Rozumiem, zamknij ✕</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

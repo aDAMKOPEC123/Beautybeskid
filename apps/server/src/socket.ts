@@ -36,7 +36,6 @@ export const initializeSocket = (server: Server) => {
 
   io.on('connection', async (socket) => {
     const user = socket.data.user;
-    console.log(`User connected: ${user.id} (${user.role})`);
 
     // Verify user actually exists in DB before proceeding
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } }).catch(() => null);
@@ -71,20 +70,35 @@ export const initializeSocket = (server: Server) => {
       socket.disconnect(true);
     }
 
-    socket.on('chat:join_room', (roomId) => {
+    socket.on('chat:join_room', async (roomId) => {
       if (user.role === 'ADMIN' || user.role === 'EMPLOYEE') {
-        socket.join(`room:${roomId}`);
+        const room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
+        if (room) socket.join(`room:${roomId}`);
       }
     });
 
-    socket.on('chat:typing', ({ roomId, isTyping }) => {
+    socket.on('chat:typing', async ({ roomId, isTyping }) => {
+      if (user.role === 'USER') {
+        const room = await prisma.chatRoom.findUnique({ where: { id: roomId }, select: { userId: true } });
+        if (!room || room.userId !== user.id) return;
+      } else {
+        if (!socket.rooms.has(`room:${roomId}`)) return;
+      }
       socket.to(`room:${roomId}`).emit('chat:typing', { roomId, isTyping });
     });
 
     socket.on('chat:send', async ({ roomId, content }) => {
+      const MAX_MESSAGE_LENGTH = 2000;
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return;
+      }
+      if (content.length > MAX_MESSAGE_LENGTH) {
+        return socket.emit('chat:error', { message: 'Wiadomość jest za długa (max 2000 znaków)' });
+      }
       try {
         const room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
         if (!room) return;
+        if (user.role === 'USER' && room.userId !== user.id) return;
 
         let receiverId: string;
         if (user.role === 'USER') {
@@ -115,7 +129,7 @@ export const initializeSocket = (server: Server) => {
                 userId: admin.id,
                 type: 'CHAT_MESSAGE',
                 title: 'Nowa wiadomość',
-                body: `${dbUser.name ?? 'Klient'}: ${content.substring(0, 80)}`,
+                body: `${(dbUser.name ?? 'Klient').trim().substring(0, 50)}: ${content.substring(0, 80)}`,
                 url: '/admin/chat',
                 emitToAdminGlobal: true,
               });
@@ -155,7 +169,6 @@ export const initializeSocket = (server: Server) => {
     });
 
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${user.id}`);
     });
   });
 

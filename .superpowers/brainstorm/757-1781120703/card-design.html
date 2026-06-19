@@ -1,0 +1,113 @@
+<h2>Karta publikacji w kalendarzu</h2>
+<p class="subtitle">Co widac na kazdej publikacji w widoku tygodniowym?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:12px;background:var(--surface-3)">
+      <p class="label" style="margin-bottom:8px">Opcja A - Kompaktowa</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:#E1306C;border-radius:6px;padding:6px 8px;color:white;font-size:11px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px">📸</span>
+            <div>
+              <div style="font-weight:700;font-size:11px">Before/after laminacja</div>
+              <div style="opacity:0.85;font-size:10px">IG • rolka • 18:00</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#4267B2;border-radius:6px;padding:6px 8px;color:white;font-size:11px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px">🎬</span>
+            <div>
+              <div style="font-weight:700;font-size:11px">POV: klient nie widzial efektu</div>
+              <div style="opacity:0.85;font-size:10px">FB • post • 12:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Kompaktowa</h3>
+      <p>Kolor = platforma. Ikona = format. Tytul + platforma/format/godzina. Maks. info na malem ekranie.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:12px;background:var(--surface-3)">
+      <p class="label" style="margin-bottom:8px">Opcja B - Z paskiem statusu</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:11px;border-left:4px solid #f59e0b">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:700;font-size:11px">Before/after laminacja</div>
+              <div style="color:var(--text-muted);font-size:10px;margin-top:2px">IG rolka • 18:00</div>
+            </div>
+            <span style="background:#fef3c7;color:#92400e;font-size:9px;padding:2px 5px;border-radius:4px;white-space:nowrap">scenariusz</span>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:11px;border-left:4px solid #10b981">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:700;font-size:11px">POV: klient nie widzial</div>
+              <div style="color:var(--text-muted);font-size:10px;margin-top:2px">TT rolka • 20:00</div>
+            </div>
+            <span style="background:#d1fae5;color:#065f46;font-size:9px;padding:2px 5px;border-radius:4px;white-space:nowrap">opublikowane</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Z paskiem statusu</h3>
+      <p>Kolorowy pasek z lewej = status. Badge statusu widoczny. Tlo jasne - latwe czytanie na mobile.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:12px;background:var(--surface-3)">
+      <p class="label" style="margin-bottom:8px">Opcja C - Polaczona</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:#E1306C;border-radius:6px;padding:6px 8px;color:white;font-size:11px;border-left:4px solid #fbbf24">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:700;font-size:11px">Before/after laminacja</div>
+              <div style="opacity:0.85;font-size:10px">IG rolka • 18:00</div>
+            </div>
+            <span style="background:rgba(0,0,0,0.3);font-size:9px;padding:2px 5px;border-radius:4px;white-space:nowrap">scenariusz</span>
+          </div>
+        </div>
+        <div style="background:#010101;border-radius:6px;padding:6px 8px;color:white;font-size:11px;border-left:4px solid #10b981">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:700;font-size:11px">POV: klient nie widzial</div>
+              <div style="opacity:0.7;font-size:10px">TikTok rolka • 20:00</div>
+            </div>
+            <span style="background:rgba(255,255,255,0.2);font-size:9px;padding:2px 5px;border-radius:4px;white-space:nowrap">opublikowane</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Polaczona</h3>
+      <p>Kolor tla = platforma (IG rozowy, TT czarny, FB niebieski). Pasek = status. Jednym rzutem oka widzisz wszystko.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:8px;font-size:13px">
+  <p class="label">Legenda kolorow platform</p>
+  <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#E1306C;border-radius:3px;display:inline-block"></span> Instagram</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#010101;border-radius:3px;display:inline-block"></span> TikTok</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#4267B2;border-radius:3px;display:inline-block"></span> Facebook</span>
+  </div>
+  <p class="label" style="margin-top:10px">Legenda paskow statusu</p>
+  <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#94a3b8;border-radius:3px;display:inline-block"></span> pomysl</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#f59e0b;border-radius:3px;display:inline-block"></span> scenariusz</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#3b82f6;border-radius:3px;display:inline-block"></span> nagrane</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#8b5cf6;border-radius:3px;display:inline-block"></span> zmontowane</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#10b981;border-radius:3px;display:inline-block"></span> opublikowane</span>
+  </div>
+</div>

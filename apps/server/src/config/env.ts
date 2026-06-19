@@ -6,6 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string().url(),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
+  SERVER_URL: z.string().url().optional(),
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_SECRET: z.string().min(32),
@@ -18,7 +19,16 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(10),
 });
 
-const _env = envSchema.safeParse(process.env);
+const _env = envSchema.superRefine((data, ctx) => {
+  const vapidKeys = [data.VAPID_PUBLIC_KEY, data.VAPID_PRIVATE_KEY, data.VAPID_EMAIL];
+  const definedCount = vapidKeys.filter(Boolean).length;
+  if (definedCount > 0 && definedCount < 3) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Musisz podać wszystkie trzy klucze VAPID (PUBLIC_KEY, PRIVATE_KEY, EMAIL) lub żadnego',
+    });
+  }
+}).safeParse(process.env);
 
 if (!_env.success) {
   console.error('❌ Invalid environment variables:', _env.error.format());

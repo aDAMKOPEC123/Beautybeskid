@@ -1,4 +1,4 @@
-// apps/web/src/components/layout/Navbar.tsx
+﻿// apps/web/src/components/layout/Navbar.tsx
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -53,7 +53,7 @@ const PanelLink = ({
     </span>
     <span
       style={{
-        color: mobile ? 'rgba(255,255,255,0.4)' : '#9A9A8A',
+        color: mobile ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.45)',
         fontSize: mobile ? '9px' : '8px',
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
@@ -130,12 +130,11 @@ export const Navbar = () => {
         className="fixed top-0 left-0 right-0 z-50"
         style={{
           height: '72px',
-          background: 'rgba(250,247,242,0.92)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(26,56,40,0.08)',
+          background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
+          borderBottom: '2px solid #C4965A',
+          boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
           transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
-          transition: 'transform 0.3s ease, background 0.3s ease, border-color 0.3s ease',
+          transition: 'transform 0.3s ease',
           willChange: 'transform',
         }}
       >
@@ -144,9 +143,9 @@ export const Navbar = () => {
           <Link
             to="/"
             className="font-display text-[13px] uppercase"
-            style={{ color: '#1A3828', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.08em' }}
+            style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.08em' }}
           >
-            Cosmo
+            BeautyBeskid
           </Link>
 
           {/* Mobile center: Panel klienta */}
@@ -168,7 +167,7 @@ export const Navbar = () => {
                 className={({ isActive }) =>
                   `text-[11px] tracking-[0.2em] uppercase transition-colors hover:text-caramel${isActive ? ' border-b border-caramel pb-px' : ''}`
                 }
-                style={{ color: '#5A7A62' }}
+                style={{ color: 'rgba(255,255,255,0.75)' }}
               >
                 {label}
               </NavLink>
@@ -186,7 +185,7 @@ export const Navbar = () => {
                 <button
                   onClick={handleLogout}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-                  style={{ color: '#5A7A62' }}
+                  style={{ color: 'rgba(255,255,255,0.6)' }}
                 >
                   Wyloguj
                 </button>
@@ -209,11 +208,11 @@ export const Navbar = () => {
           >
             <span
               className="block h-px w-[22px] transition-all duration-300"
-              style={{ background: '#1A3828' }}
+              style={{ background: '#F8F5F0' }}
             />
             <span
               className="block h-px w-[14px] transition-all duration-300"
-              style={{ background: '#1A3828' }}
+              style={{ background: '#F8F5F0' }}
             />
           </button>
         </div>
@@ -238,7 +237,7 @@ export const Navbar = () => {
                 className="font-display text-[13px] tracking-[0.45em] uppercase text-ivory"
                 style={{ fontStyle: 'normal', fontWeight: 300 }}
               >
-                Cosmo
+                BeautyBeskid
               </Link>
               <button
                 onClick={() => setMobileOpen(false)}

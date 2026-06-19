@@ -1,0 +1,191 @@
+<h2>Styl animacji i ikon</h2>
+<p class="subtitle">Wszystkie używają tego samego układu co opcja C</p>
+
+<style>
+  .cards { display: flex; flex-direction: column; gap: 24px; max-width: 680px; margin: 0 auto; }
+  .card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; opacity: .6; }
+
+  .wcard { background: #111827; border-radius: 18px; color: white; font-family: system-ui, sans-serif; cursor: pointer; border: 2px solid transparent; transition: border-color .2s; overflow: hidden; }
+  .wcard.selected { border-color: #818cf8; }
+
+  .wcard .top { display: flex; gap: 16px; padding: 18px 18px 12px; align-items: center; }
+  .wcard .scroll { display: flex; gap: 2px; overflow-x: auto; padding: 0 14px 16px; scrollbar-width: none; }
+  .wcard .hour-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 8px; border-radius: 12px; min-width: 46px; }
+  .wcard .hour-col.now { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+  .wcard .h-time { font-size: 10px; opacity: .45; }
+  .wcard .h-temp { font-size: 13px; font-weight: 600; }
+  .wcard .h-uv { font-size: 9px; color: #fbbf24; font-weight: 600; }
+  .wcard .top-info .temp { font-size: 32px; font-weight: 700; }
+  .wcard .top-info .sub { font-size: 12px; opacity: .45; margin-top: 2px; }
+
+  /* ── A: Emoji + wejście z lewej ── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .anim-slide .hour-col { animation: slideIn .4s ease both; }
+  .anim-slide .hour-col:nth-child(1) { animation-delay: .05s; }
+  .anim-slide .hour-col:nth-child(2) { animation-delay: .1s; }
+  .anim-slide .hour-col:nth-child(3) { animation-delay: .15s; }
+  .anim-slide .hour-col:nth-child(4) { animation-delay: .2s; }
+  .anim-slide .hour-col:nth-child(5) { animation-delay: .25s; }
+  .anim-slide .hour-col:nth-child(6) { animation-delay: .3s; }
+  .anim-slide .hour-col:nth-child(7) { animation-delay: .35s; }
+  .anim-slide .hour-col:nth-child(8) { animation-delay: .4s; }
+  .anim-slide .hour-col:nth-child(9) { animation-delay: .45s; }
+  .h-emoji { font-size: 20px; }
+
+  /* ── B: Animowane SVG ikony ── */
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes pulse-glow { 0%,100% { filter: drop-shadow(0 0 2px rgba(251,191,36,.4)); } 50% { filter: drop-shadow(0 0 6px rgba(251,191,36,.9)); } }
+  @keyframes cloud-drift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+
+  .sun-icon { display: inline-block; animation: spin-slow 8s linear infinite; font-size: 20px; }
+  .cloud-icon { display: inline-block; animation: cloud-drift 3s ease-in-out infinite; font-size: 20px; }
+  .rain-icon { display: inline-block; animation: float 1.5s ease-in-out infinite; font-size: 20px; }
+  .moon-icon { display: inline-block; animation: float 4s ease-in-out infinite; font-size: 20px; }
+
+  .now-icon { animation: pulse-glow 2s ease-in-out infinite; font-size: 20px; display: inline-block; }
+
+  /* ── C: CSS drawn ikony + temperatura bar ── */
+  @keyframes bar-grow { from { height: 0; } to { } }
+
+  .css-sun { width: 20px; height: 20px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .css-sun-core { width: 9px; height: 9px; background: #fbbf24; border-radius: 50%; box-shadow: 0 0 6px 2px rgba(251,191,36,.5); animation: pulse-glow 2s ease-in-out infinite; }
+  .css-sun-rays { position: absolute; inset: 0; }
+  .ray { position: absolute; width: 2px; height: 4px; background: #fbbf24; border-radius: 1px; left: 50%; top: 0; transform-origin: 50% 10px; }
+
+  .temp-row { display: flex; align-items: flex-end; gap: 2px; height: 22px; padding: 0 14px 0; margin-top: -4px; }
+  .temp-bar { flex: 1; border-radius: 2px 2px 0 0; min-height: 2px; animation: bar-grow .6s ease both; }
+  .temp-bar-wrap { flex: 1; }
+
+  .cloud-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(148,163,184,.12); border-radius: 20px; padding: 3px 10px; font-size: 11px; color: rgba(255,255,255,.55); }
+
+  .icon-wrap-a { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+</style>
+
+<div class="cards">
+
+  <!-- OPTION A: Emoji + slide-in -->
+  <div>
+    <div class="card-label">A — Emoji + płynne wejście kolumn przy załadowaniu</div>
+    <div class="wcard" data-choice="a" onclick="toggleSelect(this)">
+      <div class="top">
+        <div class="icon-wrap-a" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">⛅</div>
+        <div class="top-info">
+          <div class="temp">23° <span style="font-size:13px;font-weight:400;opacity:.4">max 26°</span></div>
+          <div class="sub">Częściowe zachmurzenie · Warszawa</div>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <span class="cloud-badge">☁ 40% chmur</span>
+            <span class="cloud-badge" style="color:#fca5a5">UV 7</span>
+          </div>
+        </div>
+      </div>
+      <div class="scroll anim-slide">
+        <div class="hour-col"><div class="h-time">06</div><span class="h-emoji">🌤</span><div class="h-temp">17°</div><div class="h-uv">UV 1</div></div>
+        <div class="hour-col"><div class="h-time">08</div><span class="h-emoji">☀️</span><div class="h-temp">19°</div><div class="h-uv">UV 3</div></div>
+        <div class="hour-col"><div class="h-time">10</div><span class="h-emoji">☀️</span><div class="h-temp">22°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">12</div><span class="h-emoji">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 6</div></div>
+        <div class="hour-col now"><div class="h-time">13</div><span class="h-emoji">🔆</span><div class="h-temp">26°</div><div class="h-uv" style="color:#fde68a">UV 7</div></div>
+        <div class="hour-col"><div class="h-time">15</div><span class="h-emoji">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">17</div><span class="h-emoji">🌥</span><div class="h-temp">22°</div><div class="h-uv">UV 2</div></div>
+        <div class="hour-col"><div class="h-time">19</div><span class="h-emoji">🌆</span><div class="h-temp">20°</div><div class="h-uv" style="opacity:.3">UV 0</div></div>
+        <div class="hour-col"><div class="h-time">21</div><span class="h-emoji">🌙</span><div class="h-temp">18°</div><div class="h-uv" style="opacity:.2">UV 0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Animated SVG-like icons -->
+  <div>
+    <div class="card-label">B — Animowane ikony (słońce obraca się, chmura dryfuje, deszcz podskakuje)</div>
+    <div class="wcard" data-choice="b" onclick="toggleSelect(this)">
+      <div class="top">
+        <div class="icon-wrap-a" style="background:linear-gradient(135deg,#1e3a5f,#1e1b4b)">
+          <span class="sun-icon">🌤</span>
+        </div>
+        <div class="top-info">
+          <div class="temp">23° <span style="font-size:13px;font-weight:400;opacity:.4">max 26°</span></div>
+          <div class="sub">Częściowe zachmurzenie · Warszawa</div>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <span class="cloud-badge">☁ 40% chmur</span>
+            <span class="cloud-badge" style="color:#fca5a5">UV 7</span>
+          </div>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="hour-col"><div class="h-time">06</div><span class="cloud-icon">🌤</span><div class="h-temp">17°</div><div class="h-uv">UV 1</div></div>
+        <div class="hour-col"><div class="h-time">08</div><span class="sun-icon">☀️</span><div class="h-temp">19°</div><div class="h-uv">UV 3</div></div>
+        <div class="hour-col"><div class="h-time">10</div><span class="sun-icon">☀️</span><div class="h-temp">22°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">12</div><span class="cloud-icon">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 6</div></div>
+        <div class="hour-col now"><div class="h-time">13</div><span class="now-icon">🌞</span><div class="h-temp">26°</div><div class="h-uv" style="color:#fde68a">UV 7</div></div>
+        <div class="hour-col"><div class="h-time">15</div><span class="cloud-icon">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">17</div><span class="cloud-icon">🌥</span><div class="h-temp">22°</div><div class="h-uv">UV 2</div></div>
+        <div class="hour-col"><div class="h-time">19</div><span class="rain-icon">🌦</span><div class="h-temp">20°</div><div class="h-uv" style="opacity:.3">UV 0</div></div>
+        <div class="hour-col"><div class="h-time">21</div><span class="moon-icon">🌙</span><div class="h-temp">18°</div><div class="h-uv" style="opacity:.2">UV 0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: Emoji + mini temperature bars below -->
+  <div>
+    <div class="card-label">C — Emoji + mini pasek temperatury pod kolumnami</div>
+    <div class="wcard" data-choice="c" onclick="toggleSelect(this)">
+      <div class="top">
+        <div class="icon-wrap-a" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">⛅</div>
+        <div class="top-info">
+          <div class="temp">23° <span style="font-size:13px;font-weight:400;opacity:.4">max 26°</span></div>
+          <div class="sub">Częściowe zachmurzenie · Warszawa</div>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <span class="cloud-badge">☁ 40% chmur</span>
+            <span class="cloud-badge" style="color:#fca5a5">UV max 7</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temperature mini-bars -->
+      <div style="display:flex;gap:2px;padding:0 14px;align-items:flex-end;height:28px;margin-bottom:2px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:6px;background:rgba(99,102,241,.4);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:9px;background:rgba(99,102,241,.5);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:14px;background:rgba(139,92,246,.55);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:20px;background:rgba(168,85,247,.6);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:28px;background:#ef4444;border-radius:2px 2px 0 0;box-shadow:0 0 6px rgba(239,68,68,.5)"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:24px;background:rgba(239,68,68,.7);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:17px;background:rgba(139,92,246,.5);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:11px;background:rgba(99,102,241,.4);border-radius:2px 2px 0 0"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="width:100%;height:7px;background:rgba(99,102,241,.3);border-radius:2px 2px 0 0"></div>
+        </div>
+      </div>
+
+      <div class="scroll anim-slide" style="padding-top:0">
+        <div class="hour-col"><div class="h-time">06</div><span class="h-emoji">🌤</span><div class="h-temp">17°</div><div class="h-uv">UV 1</div></div>
+        <div class="hour-col"><div class="h-time">08</div><span class="h-emoji">☀️</span><div class="h-temp">19°</div><div class="h-uv">UV 3</div></div>
+        <div class="hour-col"><div class="h-time">10</div><span class="h-emoji">☀️</span><div class="h-temp">22°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">12</div><span class="h-emoji">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 6</div></div>
+        <div class="hour-col now"><div class="h-time">13</div><span class="h-emoji">🔆</span><div class="h-temp">26°</div><div class="h-uv" style="color:#fde68a">UV 7</div></div>
+        <div class="hour-col"><div class="h-time">15</div><span class="h-emoji">⛅</span><div class="h-temp">25°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">17</div><span class="h-emoji">🌥</span><div class="h-temp">22°</div><div class="h-uv">UV 2</div></div>
+        <div class="hour-col"><div class="h-time">19</div><span class="h-emoji">🌆</span><div class="h-temp">20°</div><div class="h-uv" style="opacity:.3">UV 0</div></div>
+        <div class="hour-col"><div class="h-time">21</div><span class="h-emoji">🌙</span><div class="h-temp">18°</div><div class="h-uv" style="opacity:.2">UV 0</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>

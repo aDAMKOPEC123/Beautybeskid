@@ -1,0 +1,135 @@
+<h2>Admin — nowy formularz reguły pogodowej</h2>
+<p class="subtitle">Bez suwaków. Kafelki presetów + tekst. Prosto i intuicyjnie.</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Formularz tworzenia/edycji reguły</div>
+    <div class="mockup-body" style="padding:16px;font-family:system-ui;display:flex;flex-direction:column;gap:14px">
+
+      <!-- Label -->
+      <div>
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Nazwa reguły</div>
+        <div class="mock-input" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;font-size:13px">
+          Upał i intensywne słońce
+        </div>
+      </div>
+
+      <!-- Conditions -->
+      <div>
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Warunki pogodowe <span style="color:#475569;font-size:10px;text-transform:none">(wszystkie muszą być spełnione)</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div style="background:#7c3aed22;border:2px solid #7c3aed;border-radius:8px;padding:10px;text-align:center;cursor:pointer;position:relative">
+            <div style="position:absolute;top:-5px;right:-5px;background:#7c3aed;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:flex;align-items:center;justify-content:center">✓</div>
+            <div style="font-size:18px;margin-bottom:3px">🌡️</div>
+            <div style="font-size:10px;font-weight:700;color:#a78bfa">Gorąco</div>
+            <div style="font-size:9px;color:#64748b">&gt;28°C</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;cursor:pointer;opacity:.5">
+            <div style="font-size:18px;margin-bottom:3px">❄️</div>
+            <div style="font-size:10px;font-weight:600;color:#94a3b8">Zimno</div>
+            <div style="font-size:9px;color:#64748b">&lt;5°C</div>
+          </div>
+          <div style="background:#fbbf2422;border:2px solid #fbbf24;border-radius:8px;padding:10px;text-align:center;cursor:pointer;position:relative">
+            <div style="position:absolute;top:-5px;right:-5px;background:#fbbf24;color:#000;border-radius:50%;width:14px;height:14px;font-size:9px;display:flex;align-items:center;justify-content:center">✓</div>
+            <div style="font-size:18px;margin-bottom:3px">☀️</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d">Wysokie UV</div>
+            <div style="font-size:9px;color:#64748b">UV ≥ 6</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;cursor:pointer;opacity:.5">
+            <div style="font-size:18px;margin-bottom:3px">🌧️</div>
+            <div style="font-size:10px;font-weight:600;color:#94a3b8">Deszcz</div>
+            <div style="font-size:9px;color:#64748b">opady ≥60%</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;cursor:pointer;opacity:.5">
+            <div style="font-size:18px;margin-bottom:3px">🌫️</div>
+            <div style="font-size:10px;font-weight:600;color:#94a3b8">Smog</div>
+            <div style="font-size:9px;color:#64748b">AQI ≥150</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;cursor:pointer;opacity:.5">
+            <div style="font-size:18px;margin-bottom:3px">💧</div>
+            <div style="font-size:10px;font-weight:600;color:#94a3b8">Wilgotno</div>
+            <div style="font-size:9px;color:#64748b">wilg. ≥75%</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;cursor:pointer;opacity:.5">
+            <div style="font-size:18px;margin-bottom:3px">🏜️</div>
+            <div style="font-size:10px;font-weight:600;color:#94a3b8">Sucho</div>
+            <div style="font-size:9px;color:#64748b">wilg. ≤30%</div>
+          </div>
+        </div>
+        <!-- AND indicator -->
+        <div style="margin-top:8px;padding:8px 10px;background:#7c3aed15;border:1px solid #7c3aed33;border-radius:6px;font-size:11px;color:#a78bfa">
+          ⚡ Reguła aktywuje się gdy: <strong>Gorąco</strong> ORAZ <strong>Wysokie UV</strong>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div>
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Rekomendacja dla klienta</div>
+        <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#94a3b8;font-size:12px;min-height:60px">
+          Dzisiaj mamy upał i intensywne promieniowanie UV. Koniecznie użyj kremu z filtrem SPF 50+, pij dużo wody i unikaj wychodzenia w godzinach 11–15.
+        </div>
+      </div>
+
+      <!-- Active toggle + save -->
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:36px;height:20px;background:#7c3aed;border-radius:10px;position:relative">
+            <div style="position:absolute;right:2px;top:2px;width:16px;height:16px;background:#fff;border-radius:50%"></div>
+          </div>
+          <span style="font-size:12px;color:#94a3b8">Aktywna</span>
+        </div>
+        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:9px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+          Zapisz regułę
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Karta reguły (lista)</div>
+    <div class="mockup-body" style="padding:12px;font-family:system-ui;display:flex;flex-direction:column;gap:10px">
+
+      <!-- Active rule card -->
+      <div style="background:#1e293b;border-radius:10px;padding:14px;border-left:3px solid #7c3aed">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#f1f5f9">Upał i intensywne słońce</div>
+            <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+              <span style="background:#7c3aed22;border:1px solid #7c3aed44;color:#a78bfa;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">🌡️ Gorąco &gt;28°C</span>
+              <span style="background:#fbbf2422;border:1px solid #fbbf2444;color:#fcd34d;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">☀️ Wysokie UV ≥6</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="background:#22c55e22;color:#4ade80;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">● aktywna</span>
+            <span style="color:#475569;cursor:pointer;font-size:16px">✏️</span>
+            <span style="color:#475569;cursor:pointer;font-size:16px">🗑️</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#64748b;line-height:1.5">Dzisiaj mamy upał i intensywne promieniowanie UV. Koniecznie użyj kremu z filtrem SPF 50+...</div>
+      </div>
+
+      <!-- Inactive rule card -->
+      <div style="background:#1e293b;border-radius:10px;padding:14px;border-left:3px solid #334155;opacity:.6">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#94a3b8">Deszczowy dzień</div>
+            <div style="display:flex;gap:6px;margin-top:5px">
+              <span style="background:#1e293b;border:1px solid #334155;color:#64748b;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">🌧️ Deszcz ≥60%</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="background:#33415522;color:#64748b;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">○ nieaktywna</span>
+            <span style="color:#475569;cursor:pointer;font-size:16px">✏️</span>
+            <span style="color:#475569;cursor:pointer;font-size:16px">🗑️</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#64748b;line-height:1.5">Pamiętaj o ochronie włosów przed wilgocią...</div>
+      </div>
+
+      <!-- Add button -->
+      <div style="border:2px dashed #334155;border-radius:10px;padding:14px;text-align:center;cursor:pointer;color:#475569;font-size:12px;font-weight:600">
+        + Dodaj nową regułę
+      </div>
+    </div>
+  </div>
+</div>

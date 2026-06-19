@@ -1,0 +1,414 @@
+﻿<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; }
+
+  .phones-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .phone {
+    width: 220px;
+    height: 440px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 2.5px solid rgba(0,0,0,0.13);
+    background: #F4F9F5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    position: relative;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .phone::-webkit-scrollbar { display: none; }
+
+  .phone-wrap.selected .phone {
+    border-color: #C4965A;
+    box-shadow: 0 0 0 3px rgba(196,150,90,0.25);
+  }
+  .phone-wrap.selected .phone-label {
+    color: #C4965A;
+    font-weight: 700;
+  }
+
+  .phone-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1A3828;
+    text-align: center;
+  }
+  .phone-desc {
+    font-size: 10px;
+    color: rgba(20,40,28,0.5);
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.4;
+  }
+  .phone-inner { padding: 10px 8px; }
+
+  /* SHARED CARD */
+  .dcard {
+    background: white;
+    border-radius: 14px;
+    padding: 10px 10px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(0,0,0,0.06);
+    color: rgba(20,40,28,0.7);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .dcard-title { font-weight: 700; color: #1A3828; font-size: 11px; margin-bottom: 2px; }
+  .dcard-accent { color: #C4965A; font-weight: 700; }
+  .dcard-muted { color: rgba(20,40,28,0.4); font-size: 9px; }
+
+  /* ── CURRENT: just stacked ── */
+  .current-header { padding: 12px 10px 4px; }
+  .current-h1 { font-size: 16px; font-weight: 700; color: #1A3828; }
+  .current-sub { font-size: 9px; color: rgba(20,40,28,0.4); margin-top: 1px; }
+
+  /* ── A: Section labels ── */
+  .sec-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 2px 4px;
+  }
+  .sec-line { flex: 1; height: 1px; background: rgba(26,56,40,0.1); }
+  .sec-badge {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(26,56,40,0.4);
+    white-space: nowrap;
+  }
+
+  /* ── B: Section pills with color strips ── */
+  .sec-pill-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+    padding-top: 8px;
+  }
+  .sec-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sec-pill-text {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .sec-strip {
+    border-radius: 14px;
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+
+  /* ── C: Grouped card containers ── */
+  .group-box {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .group-header {
+    padding: 8px 10px 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: rgba(244,249,245,0.8);
+  }
+  .group-title { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,56,40,0.5); }
+  .group-body { padding: 8px; }
+  .inner-card {
+    background: #F4F9F5;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 5px;
+    font-size: 10px;
+    color: rgba(20,40,28,0.7);
+  }
+  .inner-card:last-child { margin-bottom: 0; }
+</style>
+
+<h2>Dashboard — jak opisać sekcje na mobile?</h2>
+<p class="subtitle">Obecny stan vs 3 podejścia. Kliknij żeby wybrać kierunek.</p>
+
+<div class="phones-row">
+
+  <!-- CURRENT -->
+  <div class="phone-wrap" id="pw-current" onclick="selectPhone('current')">
+    <div class="phone" id="ph-current">
+      <div class="phone-inner">
+        <div class="current-header">
+          <div class="current-h1">Cześć, Ania!</div>
+          <div class="current-sub">poniedziałek, 8 czerwca</div>
+        </div>
+        <!-- no labels, just stacked -->
+        <div style="height:6px"></div>
+        <div class="dcard" style="background:#1A3828;border:none">
+          <div style="color:rgba(255,255,255,0.5);font-size:9px">Następna wizyta</div>
+          <div style="color:#fff;font-weight:700;font-size:12px;margin-top:2px">Wt. 10 cze · 14:00</div>
+          <div style="color:#C4965A;font-size:9px">Manicure hybrydowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Pogoda skóry</div>
+          <div>Wysoka wilgotność — zadbaj o nawilżenie</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Polecane zabiegi</div>
+          <div class="dcard-accent">Peeling kwasowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Seria zabiegowa</div>
+          <div>Krok 2 z 5 — czas na następny</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Ostatnia wizyta</div>
+          <div>Pedicure · 25 maj</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Oceń wizytę</div>
+          <div>★★★★★ — Manicure hybrydowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Dziennik skóry</div>
+          <div>Ostatni wpis: 3 dni temu</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Rutyna domowa</div>
+          <div>3 kroki na dziś</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Kod ambasadorski</div>
+          <div class="dcard-accent">BeautyBeskid-ANIA</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Obecny stan</div>
+    <div class="phone-desc">Karty bez etykiet, wszystko wygląda tak samo</div>
+  </div>
+
+  <!-- A: Horizontal dividers with labels -->
+  <div class="phone-wrap" id="pw-a" onclick="selectPhone('a')">
+    <div class="phone" id="ph-a">
+      <div class="phone-inner">
+        <div class="current-header">
+          <div class="current-h1">Cześć, Ania!</div>
+          <div class="current-sub">poniedziałek, 8 czerwca</div>
+        </div>
+        <div style="height:2px"></div>
+
+        <!-- Group: Wizyty -->
+        <div class="sec-label">
+          <span class="sec-badge">Twoje wizyty</span>
+          <div class="sec-line"></div>
+        </div>
+        <div class="dcard" style="background:#1A3828;border:none">
+          <div style="color:rgba(255,255,255,0.5);font-size:9px">Następna wizyta</div>
+          <div style="color:#fff;font-weight:700;font-size:12px;margin-top:2px">Wt. 10 cze · 14:00</div>
+          <div style="color:#C4965A;font-size:9px">Manicure hybrydowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Ostatnia wizyta</div>
+          <div>Pedicure · 25 maj</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Oceń wizytę</div>
+          <div>★★★★★ — Manicure hybrydowy</div>
+        </div>
+
+        <!-- Group: Pielęgnacja -->
+        <div class="sec-label">
+          <span class="sec-badge">Pielęgnacja</span>
+          <div class="sec-line"></div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Pogoda skóry</div>
+          <div>Wysoka wilgotność — zadbaj o nawilżenie</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Rutyna domowa</div>
+          <div>3 kroki na dziś</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Seria zabiegowa</div>
+          <div>Krok 2 z 5</div>
+        </div>
+
+        <!-- Group: Dla Ciebie -->
+        <div class="sec-label">
+          <span class="sec-badge">Dla Ciebie</span>
+          <div class="sec-line"></div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Polecane zabiegi</div>
+          <div class="dcard-accent">Peeling kwasowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Dziennik skóry</div>
+          <div>Ostatni wpis: 3 dni temu</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Kod ambasadorski</div>
+          <div class="dcard-accent">BeautyBeskid-ANIA</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">A — Poziome rozdzielniki</div>
+    <div class="phone-desc">Subtelna etykieta + linia rozdziela grupy. Karty bez zmian.</div>
+  </div>
+
+  <!-- B: Colored section pills -->
+  <div class="phone-wrap" id="pw-b" onclick="selectPhone('b')">
+    <div class="phone" id="ph-b">
+      <div class="phone-inner">
+        <div class="current-header">
+          <div class="current-h1">Cześć, Ania!</div>
+          <div class="current-sub">poniedziałek, 8 czerwca</div>
+        </div>
+        <div style="height:4px"></div>
+
+        <!-- Wizyty -->
+        <div class="sec-pill-header">
+          <div class="sec-dot" style="background:#1A3828"></div>
+          <span class="sec-pill-text" style="color:#1A3828">Twoje wizyty</span>
+        </div>
+        <div class="dcard" style="background:#1A3828;border:none">
+          <div style="color:rgba(255,255,255,0.5);font-size:9px">Następna wizyta</div>
+          <div style="color:#fff;font-weight:700;font-size:12px;margin-top:2px">Wt. 10 cze · 14:00</div>
+          <div style="color:#C4965A;font-size:9px">Manicure hybrydowy</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Ostatnia wizyta · Pedicure</div>
+          <div class="dcard-muted">25 maja · ukończona</div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-title">Oceń wizytę ★</div>
+          <div>Manicure hybrydowy</div>
+        </div>
+
+        <!-- Pielęgnacja -->
+        <div class="sec-pill-header">
+          <div class="sec-dot" style="background:#3D7A54"></div>
+          <span class="sec-pill-text" style="color:#3D7A54">Pielęgnacja</span>
+        </div>
+        <div class="dcard" style="background:#E8F3EA;border-color:rgba(61,122,84,0.12)">
+          <div class="dcard-title">Pogoda skóry ☁</div>
+          <div>Wysoka wilgotność — zadbaj o nawilżenie</div>
+        </div>
+        <div class="dcard" style="background:#E8F3EA;border-color:rgba(61,122,84,0.12)">
+          <div class="dcard-title">Rutyna domowa</div>
+          <div>3 kroki na dziś</div>
+        </div>
+        <div class="dcard" style="background:#E8F3EA;border-color:rgba(61,122,84,0.12)">
+          <div class="dcard-title">Seria zabiegowa</div>
+          <div>Krok 2 z 5</div>
+        </div>
+
+        <!-- Dla Ciebie -->
+        <div class="sec-pill-header">
+          <div class="sec-dot" style="background:#C4965A"></div>
+          <span class="sec-pill-text" style="color:#C4965A">Dla Ciebie</span>
+        </div>
+        <div class="dcard" style="background:#FDF5EC;border-color:rgba(196,150,90,0.15)">
+          <div class="dcard-title">Polecane zabiegi</div>
+          <div class="dcard-accent">Peeling kwasowy</div>
+        </div>
+        <div class="dcard" style="background:#FDF5EC;border-color:rgba(196,150,90,0.15)">
+          <div class="dcard-title">Dziennik skóry</div>
+          <div>Ostatni wpis: 3 dni temu</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">B — Kolorowe grupy</div>
+    <div class="phone-desc">Każda sekcja ma inny kolor akcentu + tła kart</div>
+  </div>
+
+  <!-- C: Grouped containers -->
+  <div class="phone-wrap" id="pw-c" onclick="selectPhone('c')">
+    <div class="phone" id="ph-c">
+      <div class="phone-inner">
+        <div class="current-header">
+          <div class="current-h1">Cześć, Ania!</div>
+          <div class="current-sub">poniedziałek, 8 czerwca</div>
+        </div>
+        <div style="height:6px"></div>
+
+        <!-- Next appointment standalone -->
+        <div class="dcard" style="background:#1A3828;border:none;margin-bottom:8px">
+          <div style="color:rgba(255,255,255,0.5);font-size:9px">Następna wizyta</div>
+          <div style="color:#fff;font-weight:700;font-size:12px;margin-top:2px">Wt. 10 cze · 14:00</div>
+          <div style="color:#C4965A;font-size:9px">Manicure hybrydowy</div>
+        </div>
+
+        <!-- Grouped: Wizyty -->
+        <div class="group-box">
+          <div class="group-header">
+            <span class="group-title">Historia wizyt</span>
+          </div>
+          <div class="group-body">
+            <div class="inner-card">Ostatnia: Pedicure · 25 maja</div>
+            <div class="inner-card">Oceń wizytę ★ — Manicure hybrydowy</div>
+          </div>
+        </div>
+
+        <!-- Grouped: Pielęgnacja -->
+        <div class="group-box">
+          <div class="group-header">
+            <span class="group-title">Pielęgnacja skóry</span>
+          </div>
+          <div class="group-body">
+            <div class="inner-card">Pogoda skóry — wysoka wilgotność</div>
+            <div class="inner-card">Rutyna domowa — 3 kroki na dziś</div>
+            <div class="inner-card">Seria zabiegowa — krok 2 z 5</div>
+          </div>
+        </div>
+
+        <!-- Grouped: Dla Ciebie -->
+        <div class="group-box">
+          <div class="group-header">
+            <span class="group-title">Dla Ciebie</span>
+          </div>
+          <div class="group-body">
+            <div class="inner-card">Polecane: Peeling kwasowy</div>
+            <div class="inner-card">Dziennik skóry — ostatni wpis 3 dni temu</div>
+            <div class="inner-card">Kod ambasadorski: BeautyBeskid-ANIA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">C — Zgrupowane kontenery</div>
+    <div class="phone-desc">Karty wewnątrz pudełka z tytułem sekcji. Mniej elementów na ekranie.</div>
+  </div>
+
+</div>
+
+<script>
+  let selected = null;
+  function selectPhone(id) {
+    if (selected) document.getElementById('pw-' + selected).classList.remove('selected');
+    selected = id;
+    document.getElementById('pw-' + id).classList.add('selected');
+    // emit choice
+    if (window.recordChoice) window.recordChoice(id, document.querySelector('#pw-' + id + ' .phone-label').textContent);
+  }
+</script>

@@ -19,7 +19,7 @@ export const PublicLayout = () => {
     : pageVariants;
 
   return (
-    <div className="min-h-screen flex flex-col bg-ivory">
+    <div className="min-h-screen flex flex-col bg-ivory overflow-x-hidden">
       <Navbar />
       <AnimatePresence mode="wait">
         <motion.main

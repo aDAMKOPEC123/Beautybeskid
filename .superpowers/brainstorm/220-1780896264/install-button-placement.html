@@ -1,0 +1,66 @@
+﻿<h2>Gdzie umieścić przycisk "Dodaj do ekranu głównego"?</h2>
+<p class="subtitle">Wybierz jedno lub więcej miejsc, które Ci się podobają</p>
+
+<div class="options" data-multiselect>
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Baner u góry strony (top banner)</h3>
+      <p>Pasek pojawiający się nad nawigacją przy pierwszej wizycie, z przyciskiem "Zainstaluj aplikację". Można go zamknąć. Bardzo widoczny — idealne dla nowych odwiedzających.</p>
+      <div style="margin-top:12px;background:#fdf6f0;border:1px solid #C8956C;border-radius:8px;padding:10px 14px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="color:#7a5c42;">📱 Dodaj BeautyBeskid do ekranu głównego dla szybkiego dostępu</span>
+        <span style="background:#C8956C;color:white;padding:4px 12px;border-radius:6px;white-space:nowrap;font-size:12px;">Zainstaluj</span>
+        <span style="color:#aaa;cursor:pointer;">✕</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Floating button (pływający, zawsze widoczny)</h3>
+      <p>Mała ikona telefonu w rogu ekranu (np. prawy dół). Po kliknięciu rozwija się w mini-kartę z przyciskiem instalacji. Nie blokuje treści, zawsze dostępny.</p>
+      <div style="margin-top:12px;position:relative;height:80px;background:#f5f5f5;border-radius:8px;overflow:hidden;">
+        <div style="position:absolute;bottom:10px;right:10px;background:#C8956C;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">📱</div>
+        <div style="position:absolute;bottom:10px;right:62px;background:white;border-radius:10px;padding:8px 12px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.15);white-space:nowrap;">
+          <div style="font-weight:600;color:#333;margin-bottom:4px;">Zainstaluj BeautyBeskid</div>
+          <div style="background:#C8956C;color:white;border-radius:6px;padding:3px 10px;font-size:11px;text-align:center;">Dodaj do ekranu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Przycisk w menu nawigacyjnym</h3>
+      <p>Dodatkowa pozycja w menu (sidebar lub bottom nav na mobile) — "Zainstaluj aplikację". Subtelny, nie nachodzi na treść, dostępny dla świadomych użytkowników.</p>
+      <div style="margin-top:12px;background:#fdf6f0;border-radius:8px;padding:10px 14px;font-size:13px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;color:#555;"><span>🏠</span> Strona główna</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#555;"><span>📅</span> Rezerwacja</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#555;"><span>👤</span> Profil</div>
+          <div style="display:flex;align-items:center;gap:10px;color:#C8956C;font-weight:600;border-top:1px solid #f0e0d0;padding-top:8px;"><span>📲</span> Zainstaluj aplikację</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="d" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>Karta w sekcji hero / dashboard</h3>
+      <p>Elegancka karta wyróżniona na stronie głównej lub w panelu użytkownika, zachęcająca do instalacji. Wygląda jak element treści, nie jak reklama.</p>
+      <div style="margin-top:12px;background:linear-gradient(135deg,#C8956C,#a0704e);border-radius:12px;padding:14px 16px;color:white;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:28px;">📲</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:2px;">Zainstaluj aplikację BeautyBeskid</div>
+          <div style="font-size:12px;opacity:0.85;margin-bottom:8px;">Szybki dostęp z ekranu głównego</div>
+          <div style="background:white;color:#C8956C;border-radius:8px;padding:4px 14px;font-size:12px;font-weight:600;display:inline-block;">Zainstaluj teraz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

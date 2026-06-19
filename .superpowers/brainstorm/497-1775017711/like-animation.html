@@ -1,0 +1,221 @@
+<style>
+  .like-demo-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 24px 0;
+  }
+  .like-demo-box {
+    background: #1a1208;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    min-width: 160px;
+    position: relative;
+  }
+  .like-label {
+    color: #8a6640;
+    font-size: 12px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ---- BUTTON BASE ---- */
+  .like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    background: rgba(26,18,8,0.05);
+    color: #8a6640;
+    transition: background 0.3s;
+    position: relative;
+    overflow: visible;
+  }
+  .like-btn.liked { background: rgba(184,145,58,0.12); color: #B8913A; }
+
+  /* ---- A: Heartbeat pulse ---- */
+  @keyframes heartbeat {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.35); }
+    40%  { transform: scale(1.1); }
+    60%  { transform: scale(1.25); }
+    80%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .heart-a { display:inline-block; transition: color 0.3s; }
+  .heart-a.beat { animation: heartbeat 0.6s ease; color: #B8913A; }
+
+  /* ---- B: Floating mini-hearts ---- */
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(0.5); }
+  }
+  .mini-heart {
+    position: absolute;
+    font-size: 14px;
+    pointer-events: none;
+    animation: floatUp 0.7s ease forwards;
+  }
+  @keyframes heartScale {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .heart-b { display:inline-block; transition: color 0.3s; }
+  .heart-b.pop { animation: heartScale 0.3s ease; }
+
+  /* ---- C: Ripple ring ---- */
+  @keyframes rippleOut {
+    0%   { transform: scale(0.5); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .ripple-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 40px; height: 40px;
+    margin: -20px 0 0 -20px;
+    border-radius: 50%;
+    border: 2px solid #B8913A;
+    animation: rippleOut 0.5s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes heartSimple {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  .heart-c { display:inline-block; transition: color 0.3s; }
+  .heart-c.pop { animation: heartSimple 0.3s ease; }
+</style>
+
+<h2>Animacja przycisku "Polub"</h2>
+<p class="subtitle">Kliknij każde serce, żeby zobaczyć animację na żywo. Kliknij ponownie, żeby odkliknąć.</p>
+
+<div class="like-demo-row">
+
+  <!-- Option A: Heartbeat -->
+  <div class="like-demo-box">
+    <div class="like-label">Opcja A</div>
+    <button class="like-btn" id="btn-a" onclick="toggleA(this)">
+      <span class="heart-a" id="heart-a">🤍</span>
+      <span id="count-a">12</span> polubień
+    </button>
+    <div style="color:#5a4020;font-size:11px;margin-top:12px;">Podwójne bicie serca<br>— jak prawdziwy puls</div>
+  </div>
+
+  <!-- Option B: Floating hearts -->
+  <div class="like-demo-box" style="overflow:visible">
+    <div class="like-label">Opcja B</div>
+    <button class="like-btn" id="btn-b" onclick="toggleB(this)" style="position:relative;">
+      <span class="heart-b" id="heart-b">🤍</span>
+      <span id="count-b">12</span> polubień
+    </button>
+    <div style="color:#5a4020;font-size:11px;margin-top:12px;">Unoszące się serduszka<br>— radosne i wyraziste</div>
+  </div>
+
+  <!-- Option C: Ripple -->
+  <div class="like-demo-box">
+    <div class="like-label">Opcja C</div>
+    <button class="like-btn" id="btn-c" onclick="toggleC(this)" style="position:relative;">
+      <span class="heart-c" id="heart-c">🤍</span>
+      <span id="count-c">12</span> polubień
+    </button>
+    <div style="color:#5a4020;font-size:11px;margin-top:12px;">Złota fala (ripple)<br>— elegancka i subtelna</div>
+  </div>
+
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Heartbeat (podwójny puls)</h3>
+      <p>Serce "bije" dwukrotnie przy kliknięciu — emocjonalne, ale nie przesadzone.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Floating hearts (unoszące się)</h3>
+      <p>Małe serduszka unoszą się do góry po kliknięciu. Radosne, dobrze znane z Instagrama.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Gold ripple (złota fala)</h3>
+      <p>Subtelna złota fala rozchodzi się od przycisku. Najbardziej eleganckie, pasuje do estetyki salonu.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let likedA = false, likedB = false, likedC = false;
+
+function toggleA(btn) {
+  likedA = !likedA;
+  const heart = document.getElementById('heart-a');
+  const count = document.getElementById('count-a');
+  heart.textContent = likedA ? '❤️' : '🤍';
+  count.textContent = likedA ? 13 : 12;
+  btn.classList.toggle('liked', likedA);
+  heart.classList.remove('beat');
+  void heart.offsetWidth;
+  heart.classList.add('beat');
+  setTimeout(() => heart.classList.remove('beat'), 600);
+}
+
+function toggleB(btn) {
+  likedB = !likedB;
+  const heart = document.getElementById('heart-b');
+  const count = document.getElementById('count-b');
+  heart.textContent = likedB ? '❤️' : '🤍';
+  count.textContent = likedB ? 13 : 12;
+  btn.classList.toggle('liked', likedB);
+  heart.classList.remove('pop');
+  void heart.offsetWidth;
+  heart.classList.add('pop');
+  if (likedB) {
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        const m = document.createElement('span');
+        m.className = 'mini-heart';
+        m.textContent = '❤️';
+        m.style.left = (30 + Math.random() * 60) + 'px';
+        m.style.top = '10px';
+        m.style.animationDelay = (Math.random() * 0.2) + 's';
+        btn.appendChild(m);
+        setTimeout(() => m.remove(), 900);
+      }, i * 80);
+    }
+  }
+  setTimeout(() => heart.classList.remove('pop'), 300);
+}
+
+function toggleC(btn) {
+  likedC = !likedC;
+  const heart = document.getElementById('heart-c');
+  const count = document.getElementById('count-c');
+  heart.textContent = likedC ? '❤️' : '🤍';
+  count.textContent = likedC ? 13 : 12;
+  btn.classList.toggle('liked', likedC);
+  heart.classList.remove('pop');
+  void heart.offsetWidth;
+  heart.classList.add('pop');
+  if (likedC) {
+    const ring = document.createElement('div');
+    ring.className = 'ripple-ring';
+    btn.appendChild(ring);
+    setTimeout(() => ring.remove(), 500);
+  }
+  setTimeout(() => heart.classList.remove('pop'), 300);
+}
+</script>

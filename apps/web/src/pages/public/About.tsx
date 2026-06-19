@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Calendar, Star, Shield, Heart, Sparkles, Zap, Award, Users, Clock, Smile,
@@ -286,7 +286,7 @@ export const About = () => {
         <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container">
             <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
-              {about.featuresTitle || 'Dlaczego warto wybrać Cosmo?'}
+              {about.featuresTitle || 'Dlaczego warto wybrać BeautyBeskid?'}
             </h2>
             <p className="text-center text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Nowoczesna aplikacja to więcej niż rezerwacje — to pełne doświadczenie klienta.

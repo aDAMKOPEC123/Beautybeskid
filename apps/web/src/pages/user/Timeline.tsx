@@ -1,4 +1,4 @@
-// filepath: apps/web/src/pages/user/Timeline.tsx
+﻿// filepath: apps/web/src/pages/user/Timeline.tsx
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
@@ -75,7 +75,7 @@ export const UserTimeline = () => {
           Twoja historia
         </h1>
         <p className="text-sm mt-1" style={{ color: 'rgba(20,40,28,0.55)' }}>
-          Postep wizyt, serii zabiegowych i osiagniec w COSMO
+          Postep wizyt, serii zabiegowych i osiagniec w BeautyBeskid
         </p>
       </div>
 
@@ -83,7 +83,7 @@ export const UserTimeline = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value={data.stats.totalVisits} label="wizyty" />
           <StatCard value={data.stats.uniqueServices} label="rodzajow zabiegow" />
-          <StatCard value={data.stats.monthsInCosmo} label="miesiecy w COSMO" />
+          <StatCard value={data.stats.monthsInCosmo} label="miesiecy w BeautyBeskid" />
           <StatCard value={data.stats.tier} label="poziom" isText />
         </div>
       )}

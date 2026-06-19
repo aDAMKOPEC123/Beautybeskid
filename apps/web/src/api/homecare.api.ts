@@ -10,7 +10,10 @@ export const homecareApi = {
   createDraft: (appointmentId: string) =>
     api.post(`/homecare/${appointmentId}`).then((r) => r.data.data.routine),
   getMy: () => api.get('/homecare/my').then((r) => r.data.data.routines),
-  getUnreadCount: () => api.get('/homecare/unread-count'),
+  getUnreadCount: async (): Promise<number> => {
+    const res = await api.get('/homecare/unread-count');
+    return res.data.data.count;
+  },
   markViewed: () => api.post('/homecare/mark-viewed'),
   deleteMyRoutine: (id: string) => api.delete(`/homecare/my/${id}`),
 };

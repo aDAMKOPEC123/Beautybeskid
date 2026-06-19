@@ -1,0 +1,99 @@
+<h2>Jak admin ustawia parametry pogodowe w regule?</h2>
+<p class="subtitle">Obecny system: suwaki 0–100 (znormalizowane). Trzy podejścia do poprawy.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#0f172a;border-radius:8px;margin-bottom:8px">
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Temperatura</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="color:#f87171;font-size:13px;font-weight:600">od</span>
+        <span style="background:#1e293b;color:#fff;padding:3px 10px;border-radius:6px;font-size:14px;font-weight:700">28°C</span>
+        <span style="color:#f87171;font-size:13px;font-weight:600">do</span>
+        <span style="background:#1e293b;color:#fff;padding:3px 10px;border-radius:6px;font-size:14px;font-weight:700">40°C</span>
+      </div>
+      <div style="height:6px;background:#1e293b;border-radius:3px;position:relative">
+        <div style="position:absolute;left:40%;right:15%;height:100%;background:linear-gradient(90deg,#f87171,#fb923c);border-radius:3px"></div>
+        <div style="position:absolute;left:40%;top:-3px;width:12px;height:12px;background:#fff;border:2px solid #f87171;border-radius:50%;transform:translateX(-50%)"></div>
+        <div style="position:absolute;right:15%;top:-3px;width:12px;height:12px;background:#fff;border:2px solid #fb923c;border-radius:50%;transform:translateX(50%)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-top:4px">
+        <span>-20°C</span><span>10°C</span><span>40°C</span>
+      </div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:8px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Indeks UV</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="color:#fbbf24;font-size:13px;font-weight:600">od</span>
+        <span style="background:#1e293b;color:#fff;padding:3px 10px;border-radius:6px;font-size:14px;font-weight:700">6</span>
+        <span style="color:#fbbf24;font-size:13px;font-weight:600">do</span>
+        <span style="background:#1e293b;color:#fff;padding:3px 10px;border-radius:6px;font-size:14px;font-weight:700">11+</span>
+      </div>
+      <div style="height:6px;background:#1e293b;border-radius:3px;position:relative">
+        <div style="position:absolute;left:54%;right:0%;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-top:4px">
+        <span>0 (brak)</span><span>5–6 (wysoki)</span><span>11+ (ekstremalny)</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Zakresy w prawdziwych jednostkach</h3>
+      <p>Admin ustawia min/max w °C, indeksie UV (0–11), AQI (0–300), wilgotności (%), opadach (%). Reguła aktywuje się gdy aktualna pogoda mieści się w zakresie. Intuicyjne, zero normalizacji.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#0f172a;border-radius:8px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div onclick="event.stopPropagation()" style="background:#1e293b;border:2px solid #f87171;border-radius:8px;padding:10px;cursor:pointer">
+          <div style="font-size:18px;text-align:center;margin-bottom:4px">🌡️</div>
+          <div style="font-size:11px;font-weight:700;color:#f87171;text-align:center">Gorąco</div>
+          <div style="font-size:10px;color:#64748b;text-align:center">powyżej 28°C</div>
+        </div>
+        <div onclick="event.stopPropagation()" style="background:#1e293b;border:2px solid #475569;border-radius:8px;padding:10px;cursor:pointer">
+          <div style="font-size:18px;text-align:center;margin-bottom:4px">❄️</div>
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;text-align:center">Zimno</div>
+          <div style="font-size:10px;color:#64748b;text-align:center">poniżej 5°C</div>
+        </div>
+        <div onclick="event.stopPropagation()" style="background:#1e293b;border:2px solid #fbbf24;border-radius:8px;padding:10px;cursor:pointer">
+          <div style="font-size:18px;text-align:center;margin-bottom:4px">☀️</div>
+          <div style="font-size:11px;font-weight:700;color:#fbbf24;text-align:center">Wysokie UV</div>
+          <div style="font-size:10px;color:#64748b;text-align:center">UV 6+</div>
+        </div>
+        <div onclick="event.stopPropagation()" style="background:#1e293b;border:2px solid #475569;border-radius:8px;padding:10px;cursor:pointer">
+          <div style="font-size:18px;text-align:center;margin-bottom:4px">🌧️</div>
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;text-align:center">Deszczowo</div>
+          <div style="font-size:10px;color:#64748b;text-align:center">opady 60%+</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#64748b;text-align:center">+ możliwość łączenia warunków</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Gotowe presety warunków</h3>
+      <p>Admin wybiera predefiniowane warunki ("Gorąco", "Zimno", "Wysokie UV", "Deszczowo", "Zła jakość powietrza"). Można łączyć wiele. Wartości progowe na sztywno wbudowane. Najprostsze w obsłudze.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#0f172a;border-radius:8px;margin-bottom:8px">
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Temperatura</div>
+        <input type="range" min="0" max="100" value="75" onclick="event.stopPropagation()" style="width:100%;accent-color:#f87171" />
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569">
+          <span>Zimno</span><span style="color:#94a3b8">↑ tu: Ciepło (28°C)</span><span>Gorąco</span>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Tolerancja dopasowania ±</div>
+        <input type="range" min="5" max="50" value="20" onclick="event.stopPropagation()" style="width:100%;accent-color:#8b5cf6" />
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569">
+          <span>±5% (ścisłe)</span><span style="color:#94a3b8">↑ tu: ±20%</span><span>±50% (szerokie)</span>
+        </div>
+      </div>
+      <div style="background:#1e293b;border-radius:6px;padding:8px;font-size:11px;color:#64748b">
+        💡 Reguła dopasuje się gdy temp. ≈ 28°C ± 20% (tj. 19–37°C w skali)
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Obecny system + lepsze etykiety</h3>
+      <p>Suwaki 0–100 zostają, ale pokazują prawdziwe wartości przy aktualnej pozycji (np. "↑ tu: 28°C"). Mniejszy refactor, ale koncepcja "celu + tolerancji" nadal może być myląca dla kosmetologa.</p>
+    </div>
+  </div>
+</div>

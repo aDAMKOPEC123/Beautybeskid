@@ -1,0 +1,33 @@
+<h2>Kalendarz marketingowy - podejście</h2>
+<p class="subtitle">Projekt ma juz zainstalowany FullCalendar (uzywany do wizyt). Jak budujemy kalendarz contentu?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>FullCalendar (gotowa biblioteka)</h3>
+      <p>Ta sama biblioteka co kalendarz wizyt. Widok tygodniowy/miesiac/lista wbudowany. Drag &amp; drop z wtyczka @fullcalendar/interaction (juz zainstalowana). Szybka implementacja, sprawdzone na projekcie.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Zalety</h4><ul><li>Drag &amp; drop z pudla</li><li>3 widoki gotowe (tydz/mies/lista)</li><li>Mobilny dotyk natywny</li><li>Mniej kodu</li></ul></div>
+        <div class="cons"><h4>Wady</h4><ul><li>Wygladalo tak samo jak kalendarz wizyt</li><li>Customizacja stylu wymaga pracy</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Wlasna siatka + @dnd-kit</h3>
+      <p>Customowa siatka 7 dni x sloty czasowe. Drag &amp; drop przez @dnd-kit (tez juz zainstalowany w projekcie). Pelna kontrola nad wyglad - inne kolory, rozmiary kart, layout dopasowany do contentu.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Zalety</h4><ul><li>Wyglad dowolny (karty z miniatura, kolorami statusu)</li><li>Latwe dodanie specyficznych pol (platforma, format)</li></ul></div>
+        <div class="cons"><h4>Wady</h4><ul><li>Wiecej kodu do napisania</li><li>Widok miesiac trzeba zbudowac osobno</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;padding:16px;background:var(--surface-2);border-radius:8px">
+  <p class="label">Rekomendacja</p>
+  <p style="margin-top:4px">Opcja <strong>A (FullCalendar)</strong> - szybsza implementacja, drag &amp; drop gotowy, mobilny dotyk dziala. Karty publikacji mozna dowolnie stylizowac przez <code>eventContent</code> prop. Widoki tygodniowy/miesiac/lista dostepne bez dodatkowego kodu.</p>
+</div>

@@ -1,0 +1,72 @@
+<h2>Co widać na kafelku wizyty w kalendarzu?</h2>
+<p class="subtitle">Możesz wybrać więcej niż jedną opcję</p>
+
+<div class="options" data-multiselect>
+
+  <div class="option" data-choice="name" onclick="toggleSelect(this)">
+    <div class="letter">👤</div>
+    <div class="content">
+      <h3>Imię i nazwisko klientki</h3>
+      <p>np. "Anna Kowalska"</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="service" onclick="toggleSelect(this)">
+    <div class="letter">💅</div>
+    <div class="content">
+      <h3>Nazwa usługi</h3>
+      <p>np. "Pedicure leczniczy"</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="time" onclick="toggleSelect(this)">
+    <div class="letter">🕐</div>
+    <div class="content">
+      <h3>Godzina start–koniec</h3>
+      <p>np. "10:00–11:30"</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="price" onclick="toggleSelect(this)">
+    <div class="letter">💰</div>
+    <div class="content">
+      <h3>Cena</h3>
+      <p>np. "120 zł" lub "120 zł (–20%)"</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="status" onclick="toggleSelect(this)">
+    <div class="letter">🔖</div>
+    <div class="content">
+      <h3>Status wizyty</h3>
+      <p>Kolor tła = status (jak teraz), ale też etykieta: POTWIERDZONA / OCZEKUJĄCA</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="employee" onclick="toggleSelect(this)">
+    <div class="letter">🧑‍💼</div>
+    <div class="content">
+      <h3>Avatar pracownika</h3>
+      <p>Małe zdjęcie/inicjały pracownika — przydatne w widoku "wszyscy"</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="notes" onclick="toggleSelect(this)">
+    <div class="letter">📝</div>
+    <div class="content">
+      <h3>Ikona notatki / alergii</h3>
+      <p>Znaczek ostrzeżenia jeśli klientka ma alergie lub notatki lekarskie</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="phone" onclick="toggleSelect(this)">
+    <div class="letter">📞</div>
+    <div class="content">
+      <h3>Numer telefonu</h3>
+      <p>Do szybkiego kontaktu bez otwierania kartoteki</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Zaznacz wszystko co chcesz widzieć na kafelku, potem napisz w terminalu "ok".</p>

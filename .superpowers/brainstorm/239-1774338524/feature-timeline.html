@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid — Treatment Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FDFAF6; color: #1A1208; line-height: 1.6; }
+  h1,h2,h3,h4 { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .section-label { display:inline-block; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#B8913A; background:rgba(184,145,58,0.12); padding:4px 12px; border-radius:20px; margin-bottom:12px; }
+  .section-title { font-size:2rem; margin-bottom:8px; }
+  .section-subtitle { color:#6B6560; font-size:1rem; margin-bottom:32px; }
+  .mockup-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#B0A89E; font-weight:600; margin-bottom:12px; }
+  .divider { height:1px; background:#E8DDD2; margin:40px 0; }
+
+  /* ====== Stats bar ====== */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    color: #B8913A;
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    color: #6B6560;
+    margin-top: 2px;
+  }
+
+  /* ====== Timeline ====== */
+  .timeline-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .timeline-header h3 { font-size: 1.3rem; }
+  .timeline-filter {
+    display: flex;
+    gap: 8px;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #E8DDD2;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: #6B6560;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active {
+    background: #1A1208;
+    color: white;
+    border-color: #1A1208;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, #B8913A, #E8DDD2);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 28px;
+    padding-left: 20px;
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-dot {
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #B8913A;
+    border: 3px solid #FDFAF6;
+    box-shadow: 0 0 0 2px #B8913A;
+  }
+  .timeline-item.milestone .timeline-dot {
+    width: 16px; height: 16px;
+    left: -28px;
+    top: 4px;
+    background: linear-gradient(135deg, #B8913A, #D99B68);
+    box-shadow: 0 0 0 2px #B8913A, 0 0 12px rgba(184,145,58,0.3);
+  }
+
+  .timeline-date {
+    font-size: 0.78rem;
+    color: #B0A89E;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .timeline-content {
+    background: #F5F0EB;
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .timeline-content h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .timeline-content p {
+    font-size: 0.85rem;
+    color: #6B6560;
+  }
+  .timeline-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .timeline-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+  .badge-service { background: rgba(184,145,58,0.12); color: #B8913A; }
+  .badge-employee { background: rgba(107,101,96,0.1); color: #6B6560; }
+  .badge-rating { background: rgba(245,158,11,0.1); color: #d97706; }
+  .badge-achievement { background: rgba(184,145,58,0.2); color: #8C6040; }
+  .badge-points { background: rgba(16,185,129,0.1); color: #059669; }
+
+  .timeline-item.milestone .timeline-content {
+    background: rgba(184,145,58,0.08);
+    border: 1px solid rgba(184,145,58,0.2);
+  }
+
+  /* ====== Features ====== */
+  .features-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:32px; }
+  .feature-card { background:white; border-radius:14px; padding:16px; border:1px solid rgba(0,0,0,0.06); }
+  .feature-card h4 { font-size:0.95rem; color:#B8913A; margin-bottom:4px; font-family:'DM Sans',sans-serif; font-weight:600; }
+  .feature-card p { font-size:0.82rem; color:#6B6560; }
+
+  .decision-title { font-size:1.3rem; margin-bottom:16px; text-align:center; }
+  .decision-options { display:flex; gap:16px; justify-content:center; }
+  .decision-btn { padding:14px 28px; border-radius:16px; border:2px solid #E8DDD2; background:white; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.95rem; color:#1A1208; cursor:pointer; transition:all 0.2s; }
+  .decision-btn:hover { border-color:#B8913A; background:rgba(184,145,58,0.06); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="section-label">Feature 4 z 7</div>
+  <h2 class="section-title">Treatment Timeline</h2>
+  <p class="section-subtitle">Wizualna historia zabiegów — klientka widzi swoją pielęgnacyjną podróż</p>
+
+  <!-- Stats -->
+  <div class="mockup-label">Podsumowanie u góry</div>
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value">24</div>
+      <div class="stat-label">wizyty</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">rodzajów zabiegów</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">8</div>
+      <div class="stat-label">miesięcy w BeautyBeskid</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">💎</div>
+      <div class="stat-label">Silver tier</div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="mockup-label">Timeline wizyt z osiągnięciami</div>
+  <div class="timeline-card">
+    <div class="timeline-header">
+      <h3>Twoja historia</h3>
+      <div class="timeline-filter">
+        <button class="filter-btn active">Wszystko</button>
+        <button class="filter-btn">Wizyty</button>
+        <button class="filter-btn">Osiągnięcia</button>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">10 marca 2026</div>
+        <div class="timeline-content">
+          <h4>Mikrodermabrazja</h4>
+          <p>Zabieg oczyszczający skórę twarzy — seria 6/8</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-employee">👩‍⚕️ Marta K.</span>
+            <span class="timeline-badge badge-rating">★ 5.0</span>
+            <span class="timeline-badge badge-points">+10 pkt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item milestone">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">10 marca 2026</div>
+        <div class="timeline-content">
+          <h4>🎯 Odznaczenie: Odkrywczyni</h4>
+          <p>Wypróbowałaś 3 różne rodzaje zabiegów!</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-achievement">+20 pkt bonusowych</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">24 lutego 2026</div>
+        <div class="timeline-content">
+          <h4>Peeling kawitacyjny</h4>
+          <p>Głębokie oczyszczanie porów</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-employee">👩‍⚕️ Anna W.</span>
+            <span class="timeline-badge badge-rating">★ 4.0</span>
+            <span class="timeline-badge badge-points">+10 pkt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">10 lutego 2026</div>
+        <div class="timeline-content">
+          <h4>Mikrodermabrazja</h4>
+          <p>Zabieg oczyszczający skórę twarzy — seria 5/8</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-employee">👩‍⚕️ Marta K.</span>
+            <span class="timeline-badge badge-points">+10 pkt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item milestone">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">10 lutego 2026</div>
+        <div class="timeline-content">
+          <h4>💎 Tier Up: Silver!</h4>
+          <p>Awansowałaś do poziomu Silver — 10% zniżki na wszystkie zabiegi</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-achievement">Nowe nagrody odblokowane</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">27 stycznia 2026</div>
+        <div class="timeline-content">
+          <h4>Mezoterapia igłowa</h4>
+          <p>Nawilżanie i odmładzanie skóry</p>
+          <div class="timeline-meta">
+            <span class="timeline-badge badge-employee">👩‍⚕️ Marta K.</span>
+            <span class="timeline-badge badge-rating">★ 5.0</span>
+            <span class="timeline-badge badge-points">+10 pkt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="mockup-label">Kluczowe elementy</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <h4>Bazuje na istniejących danych</h4>
+      <p>Appointments + LoyaltyTransactions + nowe Achievements — zero dodatkowych tabel</p>
+    </div>
+    <div class="feature-card">
+      <h4>Milestone markers</h4>
+      <p>Osiągnięcia i tier-upy wyróżnione wizualnie na timeline</p>
+    </div>
+    <div class="feature-card">
+      <h4>Filtry</h4>
+      <p>Wszystko / Tylko wizyty / Tylko osiągnięcia — szybkie przeglądanie</p>
+    </div>
+    <div class="feature-card">
+      <h4>Stats podsumowanie</h4>
+      <p>Łączna liczba wizyt, rodzajów zabiegów, czas w BeautyBeskid, aktualny tier</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3 class="decision-title">Jak oceniasz Treatment Timeline?</h3>
+  <div class="decision-options">
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✓ Podoba się, dalej</button>
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✎ Mam uwagi</button>
+  </div>
+
+</div>
+</body>
+</html>

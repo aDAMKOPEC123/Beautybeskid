@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { servicesApi } from '@/api/services.api';
 import { formatPrice } from '@/lib/utils';
@@ -30,7 +30,7 @@ export const ServiceDetail = () => {
   return (
     <>
       <PageSEO
-        title={`${service.name} — Cosmo Salon`}
+        title={`${service.name} — BeautyBeskid Salon`}
         description={service.description}
         canonical={`/uslugi/${service.slug}`}
         ogImage={service.imagePath}

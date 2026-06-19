@@ -153,8 +153,12 @@ export const AdminLayout = () => {
           { to: '/admin/recenzje', label: 'Recenzje' },
           { to: '/admin/quizy', label: 'Quizy' },
           { to: '/admin/hero', label: 'Slider' },
+          { to: '/admin/polecane-zabiegi', label: 'Polecane' },
           { to: '/admin/o-nas', label: 'O nas' },
           { to: '/admin/regulamin', label: 'Regulamin' },
+          { to: '/admin/asortyment', label: 'Asortyment' },
+          { to: '/admin/pogoda-skory', label: 'Pogoda skóry' },
+          { to: '/admin/akademia', label: 'Akademia' },
           { to: '/admin/marketing', label: 'Marketing' },
         ].map(({ to, label, badge }) => (
           <Link
@@ -185,7 +189,17 @@ export const AdminLayout = () => {
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 bg-card border-r flex flex-col hidden md:flex">
-          <div className="p-6 font-heading font-semibold text-lg border-b">Administracja</div>
+          <div
+            className="p-6 font-heading font-semibold text-lg"
+            style={{
+              background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
+              borderBottom: '2px solid #C4965A',
+              boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
+              color: '#fff',
+            }}
+          >
+            Administracja
+          </div>
           <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
             <Link to="/admin" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">
               Dashboard

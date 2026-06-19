@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid – Kierunek Wizualny</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Tenor+Sans&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #0c0b09;
+    color: #e8e0d4;
+    padding: 40px 24px 60px;
+  }
+  .header { text-align: center; margin-bottom: 48px; }
+  .eyebrow {
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: #C4A882; margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 600; color: #FAF7F2;
+    line-height: 1.15; margin-bottom: 12px;
+  }
+  .subtitle { color: #6b5f54; font-size: 14px; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card.selected { border-color: #C4A882; box-shadow: 0 0 0 4px rgba(196,168,130,0.2); }
+
+  .mockup {
+    height: 320px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── A: Editorial ── */
+  .editorial {
+    background: #FAF7F2;
+    font-family: 'Playfair Display', serif;
+  }
+  .editorial .nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(28,21,16,0.1);
+    background: #FAF7F2;
+  }
+  .editorial .nav-logo { font-size: 15px; font-weight: 600; color: #1C1510; letter-spacing: 0.12em; text-transform: uppercase; }
+  .editorial .nav-links { display: flex; gap: 18px; }
+  .editorial .nav-links span { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #8C6A4A; }
+
+  .editorial .hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .editorial .hero-left {
+    padding: 24px 20px;
+    background: #FAF7F2;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .editorial .hero-issue { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #C4A882; margin-bottom: 8px; }
+  .editorial .hero-title { font-size: 30px; font-style: italic; font-weight: 400; color: #1C1510; line-height: 1.1; }
+  .editorial .hero-sub { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #8C6A4A; margin-top: 6px; }
+  .editorial .hero-cta {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: #1C1510; border-bottom: 1px solid #1C1510;
+    padding-bottom: 2px; margin-top: 12px;
+  }
+  .editorial .hero-right {
+    background: #E8D5B7;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .editorial .hero-img-placeholder {
+    width: 90px; height: 120px;
+    background: linear-gradient(160deg, #C4A882, #8C6A4A);
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    opacity: 0.7;
+  }
+  .editorial .hero-caption {
+    position: absolute; bottom: 10px; left: 10px;
+    font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(28,21,16,0.5);
+  }
+
+  /* ── B: Artisan ── */
+  .artisan {
+    background: #1C1510;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .artisan .nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px;
+    background: rgba(28,21,16,0.95);
+    backdrop-filter: blur(10px);
+  }
+  .artisan .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 17px; letter-spacing: 0.15em; color: #C4A882; }
+  .artisan .nav-links span { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B5A4E; }
+
+  .artisan .hero {
+    flex: 1; padding: 0 20px 20px; display: flex; flex-direction: column; justify-content: flex-end;
+    position: relative;
+  }
+  /* Decorative pattern overlay */
+  .artisan .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(196,168,130,0.08) 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(196,168,130,0.06) 1px, transparent 1px);
+    background-size: 24px 24px, 36px 36px;
+  }
+  .artisan .hero-eyebrow { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: #C4A882; margin-bottom: 8px; }
+  .artisan .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-style: italic; font-weight: 300; color: #FAF7F2; line-height: 1.1; margin-bottom: 12px; }
+  .artisan .hero-divider { width: 40px; height: 1px; background: #C4A882; margin-bottom: 10px; }
+  .artisan .hero-sub { font-size: 11px; color: #6B5A4E; line-height: 1.5; max-width: 220px; }
+  .artisan .hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 14px;
+    background: rgba(196,168,130,0.15);
+    border: 1px solid rgba(196,168,130,0.4);
+    border-radius: 999px; padding: 7px 16px;
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #C4A882;
+  }
+  /* Corner decorations */
+  .artisan .corner-tl, .artisan .corner-br {
+    position: absolute; width: 40px; height: 40px;
+  }
+  .artisan .corner-tl {
+    top: 50px; right: 20px;
+    border-top: 1px solid rgba(196,168,130,0.3);
+    border-right: 1px solid rgba(196,168,130,0.3);
+  }
+  .artisan .corner-br {
+    bottom: 50px; right: 20px;
+    border-bottom: 1px solid rgba(196,168,130,0.3);
+    border-left: 1px solid rgba(196,168,130,0.3);
+    right: 20px;
+  }
+  /* Floating badge */
+  .artisan .badge {
+    position: absolute; top: 60px; right: 20px;
+    width: 64px; height: 64px;
+    border: 1px solid rgba(196,168,130,0.3);
+    border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: #C4A882;
+    text-align: center; line-height: 1.4;
+  }
+
+  /* ── C: Modern Glamour ── */
+  .glamour {
+    background: #F5F0E8;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .glamour .nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px;
+    background: #F5F0E8;
+  }
+  .glamour .nav-logo { font-family: 'Tenor Sans', serif; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #1C1510; }
+  .glamour .nav-links span { font-size: 10px; letter-spacing: 0.08em; color: #8C6A4A; }
+  .glamour .hero {
+    flex: 1; position: relative; overflow: hidden;
+    display: flex; align-items: flex-end; padding: 20px;
+  }
+  /* Geometric accent */
+  .glamour .geo-circle {
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C4A882 0%, #E8D5B7 60%, transparent 100%);
+    opacity: 0.35;
+  }
+  .glamour .geo-line {
+    position: absolute;
+    top: 50%; right: 80px;
+    width: 1px; height: 80px; margin-top: -40px;
+    background: linear-gradient(to bottom, transparent, #C4A882, transparent);
+  }
+  .glamour .geo-dot {
+    position: absolute; top: 40px; right: 60px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C4A882;
+  }
+  /* Large number accent */
+  .glamour .big-num {
+    position: absolute; top: 10px; left: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 120px; font-weight: 700; line-height: 1;
+    color: rgba(196,168,130,0.08);
+    letter-spacing: -0.04em;
+    user-select: none;
+  }
+  .glamour .content { position: relative; z-index: 1; }
+  .glamour .hero-label { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #C4A882; margin-bottom: 8px; }
+  .glamour .hero-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: #1C1510; line-height: 1.2; margin-bottom: 8px; }
+  .glamour .hero-sub { font-size: 11px; color: #8C6A4A; }
+  .glamour .hero-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 12px;
+    background: #1C1510;
+    border-radius: 999px; padding: 8px 18px;
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #FAF7F2;
+  }
+
+  /* Card info */
+  .card-info {
+    background: #111;
+    padding: 18px 20px 20px;
+  }
+  .card-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 6px; }
+  .card-name { font-size: 17px; font-weight: 600; color: #FAF7F2; margin-bottom: 6px; }
+  .card-desc { font-size: 12px; color: #6b5f54; line-height: 1.5; margin-bottom: 10px; }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 10px; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 3px 9px; color: #8a7a6a; }
+
+  .select-hint {
+    text-align: center; color: #C4A882;
+    font-size: 12px; letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
+  .header-sub { color: #6b5f54; font-size: 13px; margin-top: 8px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Krok 2 · Kierunek Wizualny</div>
+  <h1>Który charakter pasuje<br>do BeautyBeskid?</h1>
+  <p class="header-sub">Wszystkie opcje zachowują Twoją paletę caramel + espresso. Różnią się energią i sposobem wyrazu.</p>
+</div>
+
+<p class="select-hint">Kliknij, żeby wybrać kierunek</p>
+
+<div class="cards">
+
+  <!-- A: Editorial -->
+  <div class="card" data-choice="editorial" onclick="toggleSelect(this)">
+    <div class="mockup editorial">
+      <div class="nav">
+        <div class="nav-logo">BeautyBeskid</div>
+        <div class="nav-links">
+          <span>Usługi</span><span>Blog</span><span>O nas</span>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="hero-left">
+          <div>
+            <div class="hero-issue">Wiosna 2026 · Rytuały pielęgnacji</div>
+            <div class="hero-title">Twoja skóra<br>zasługuje<br>na więcej</div>
+            <div class="hero-sub">Personalizowane zabiegi dla każdego typu skóry</div>
+          </div>
+          <div>
+            <div class="hero-cta">Odkryj zabiegi →</div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-img-placeholder"></div>
+          <div class="hero-caption">Fot. Studio BeautyBeskid</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-label" style="color:#fcd34d">A — Editorial / Magazine</div>
+      <div class="card-name">Jak luksusowy magazyn</div>
+      <div class="card-desc">Dwukolumnowy grid, duże białe tło, typografia na pierwszym planie. Minimalistyczne, prestiżowe, jak Vogue beauty.</div>
+      <div class="card-tags">
+        <span class="tag">jasne tło</span>
+        <span class="tag">siatka editorialna</span>
+        <span class="tag">typografia dominuje</span>
+        <span class="tag">elegancki minimalizm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: Artisan -->
+  <div class="card" data-choice="artisan" onclick="toggleSelect(this)">
+    <div class="mockup artisan">
+      <div class="nav">
+        <div class="nav-logo">BeautyBeskid</div>
+        <div class="nav-links" style="display:flex;gap:18px"><span>Usługi</span><span>Blog</span></div>
+      </div>
+      <div class="hero">
+        <div class="badge">od<br>2018</div>
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="hero-eyebrow">Gabinet kosmetyczny · Warszawa</div>
+        <div class="hero-title">Rytuały,<br>które zostają</div>
+        <div class="hero-divider"></div>
+        <div class="hero-sub">Zabiegi tworzone z pasji do pielęgnacji i wiedzy o skórze</div>
+        <div class="hero-btn">Umów wizytę</div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-label" style="color:#C4A882">B — Artisan / Crafted</div>
+      <div class="card-name">Rzemieślniczy luksus</div>
+      <div class="card-desc">Ciemne tło, subtelne wzory dot-grid, ramki dekoracyjne, elegancki serif italic. Jak premium spa z duszą.</div>
+      <div class="card-tags">
+        <span class="tag">ciemne tło</span>
+        <span class="tag">dot-grid pattern</span>
+        <span class="tag">dekoracyjne ramki</span>
+        <span class="tag">serif italic</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Modern Glamour -->
+  <div class="card" data-choice="glamour" onclick="toggleSelect(this)">
+    <div class="mockup glamour">
+      <div class="nav">
+        <div class="nav-logo">BeautyBeskid</div>
+        <div class="nav-links" style="display:flex;gap:18px"><span>Usługi</span><span>Blog</span></div>
+      </div>
+      <div class="hero">
+        <div class="geo-circle"></div>
+        <div class="geo-line"></div>
+        <div class="geo-dot"></div>
+        <div class="big-num">C</div>
+        <div class="content">
+          <div class="hero-label">Premium Beauty · Warszawa</div>
+          <div class="hero-title">Poczuj różnicę<br>prawdziwej pielęgnacji</div>
+          <div class="hero-sub">Zabiegi dobierane indywidualnie</div>
+          <div class="hero-cta">Zarezerwuj →</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-label" style="color:#86efac">C — Modern Glamour</div>
+      <div class="card-name">Współczesny blask</div>
+      <div class="card-desc">Geometryczne akcenty (koła, linie), duże dekoracyjne cyfry/litery w tle, ciepłe kremowe tło. Nowoczesne i pewne siebie.</div>
+      <div class="card-tags">
+        <span class="tag">geometria</span>
+        <span class="tag">kremowe tło</span>
+        <span class="tag">wielkie dekoracje tła</span>
+        <span class="tag">pewny siebie</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const choice = el.dataset.choice;
+  const name = el.querySelector('.card-name').textContent;
+  if (window.__sendEvent) window.__sendEvent({ type: 'click', choice, text: name });
+}
+</script>
+</body>
+</html>

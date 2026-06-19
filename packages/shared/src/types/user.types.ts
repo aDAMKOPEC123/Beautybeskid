@@ -33,4 +33,7 @@ export interface User {
   onboardingCompleted?: boolean;
   accountStatus?: AccountStatus;
   mustChangePassword?: boolean;
+  hasAcademyAccess?: boolean;
+  academyAccessExpiresAt?: Date | string | null;
+  academyGrantedAt?: Date | string | null;
 }

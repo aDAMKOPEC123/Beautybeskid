@@ -1,0 +1,151 @@
+<h2>Jak dodać „Więcej" do nawigacji B?</h2>
+<p class="subtitle">Dashboard · Wizyty · <strong>(+)</strong> · Chat · Profil — gdzie schować dostęp do pozostałych sekcji?</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+
+  <!-- Option A: Replace Profil with Więcej, Profil inside sheet -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">OPCJA A — Więcej zamiast Profilu</div>
+
+      <!-- Bottom nav -->
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center; margin-bottom:10px;">
+        <div style="text-align:center; color:#C4965A;"><div style="font-size:16px;">🏠</div><div style="font-size:8px; font-weight:600;">Dashboard</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">📅</div><div style="font-size:8px;">Wizyty</div></div>
+        <div style="text-align:center; margin-top:-16px;">
+          <div style="background:#1A3828; color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; box-shadow:0 3px 10px rgba(26,56,40,0.3);">+</div>
+          <div style="font-size:8px; color:#1A3828; font-weight:700; margin-top:2px;">Rezerwuj</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;"><div style="font-size:16px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-3px;right:-3px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:10px;">1</span></div><div style="font-size:8px;">Chat</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">☰</div><div style="font-size:8px;">Więcej</div></div>
+      </div>
+
+      <!-- Sheet preview -->
+      <div style="background:#fff; border-radius:12px; padding:10px; border:1px solid #eee;">
+        <div style="font-size:9px; color:#888; margin-bottom:8px; font-weight:600;">↑ "Więcej" otwiera sheet:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">👤 Mój Profil</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">⭐ Punkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">📖 Dziennik</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">✨ Rutyna</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">🛍️ Produkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">🎓 Akademia</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">👥 Polecenia</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:7px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:5px;">🌤️ Twoja Skóra</div>
+        </div>
+        <div style="margin-top:8px; background:#1A3828; border-radius:8px; padding:9px; text-align:center; color:#fff; font-size:10px; font-weight:700;">+ Umów wizytę</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Więcej zastępuje Profil</h3>
+      <p>Profil trafia do sheetu. Prosto — 5 ikon, jedno miejsce na wszystko dodatkowe.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Profil stays, Więcej is long-press or swipe -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">OPCJA B — Profil + rozwijane Więcej</div>
+
+      <!-- Bottom nav with 5 tabs + Więcej inside Profil -->
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center; margin-bottom:10px;">
+        <div style="text-align:center; color:#C4965A;"><div style="font-size:16px;">🏠</div><div style="font-size:8px; font-weight:600;">Dashboard</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">📅</div><div style="font-size:8px;">Wizyty</div></div>
+        <div style="text-align:center; margin-top:-16px;">
+          <div style="background:#1A3828; color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; box-shadow:0 3px 10px rgba(26,56,40,0.3);">+</div>
+          <div style="font-size:8px; color:#1A3828; font-weight:700; margin-top:2px;">Rezerwuj</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;"><div style="font-size:16px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-3px;right:-3px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:10px;">1</span></div><div style="font-size:8px;">Chat</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">👤</div><div style="font-size:8px;">Profil</div></div>
+      </div>
+
+      <!-- Profil page with built-in menu -->
+      <div style="background:#fff; border-radius:12px; padding:10px; border:1px solid #eee;">
+        <div style="font-size:9px; color:#888; margin-bottom:8px; font-weight:600;">Strona Profilu zawiera menu:</div>
+        <div style="background:#FAFAF9; border-radius:8px; padding:8px; margin-bottom:6px; display:flex; align-items:center; gap:6px; font-size:10px; color:#1A3828;">
+          <span>👤</span> Anna Kowalska
+          <span style="margin-left:auto; font-size:9px; color:#888;">Brąz · 340 pkt</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">⭐ Punkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">📖 Dziennik</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">✨ Rutyna</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">🎓 Akademia</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">🛍️ Produkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">👥 Polecenia</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:9px; color:#888; font-style:italic;">Profil = centrum osobiste + pełne menu. Wzorzec znany z Spotify/Allegro.</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Profil jako centrum + pełne menu</h3>
+      <p>5 ikon bez "Więcej". Strona Profilu staje się centrum zarządzania kontem + skróty do wszystkich sekcji.</p>
+    </div>
+  </div>
+
+  <!-- Option C: 5 tabs + floating more -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">OPCJA C — Dashboard · Wizyty · (+) · Chat · Więcej (Profil w środku)</div>
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center; margin-bottom:10px;">
+        <div style="text-align:center; color:#C4965A;"><div style="font-size:16px;">🏠</div><div style="font-size:8px; font-weight:600;">Dashboard</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">📅</div><div style="font-size:8px;">Wizyty</div></div>
+        <div style="text-align:center; margin-top:-16px;">
+          <div style="background:#1A3828; color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; box-shadow:0 3px 10px rgba(26,56,40,0.3);">+</div>
+          <div style="font-size:8px; color:#1A3828; font-weight:700; margin-top:2px;">Rezerwuj</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;"><div style="font-size:16px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-3px;right:-3px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:10px;">1</span></div><div style="font-size:8px;">Chat</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:16px;">☰</div><div style="font-size:8px;">Więcej</div></div>
+      </div>
+
+      <!-- Sheet with Profil on top -->
+      <div style="background:#fff; border-radius:12px; padding:10px; border:1px solid #eee;">
+        <div style="font-size:9px; color:#888; margin-bottom:8px; font-weight:600;">Sheet „Więcej" — Profil na górze:</div>
+        <div style="background:#1A3828; border-radius:8px; padding:9px; margin-bottom:6px; display:flex; align-items:center; gap:8px; color:#fff;">
+          <div style="background:rgba(255,255,255,0.2); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px;">👤</div>
+          <div>
+            <div style="font-size:10px; font-weight:700;">Anna Kowalska</div>
+            <div style="font-size:8px; opacity:0.7;">Brąz · 340 pkt lojalnościowych</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">⭐ Punkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">📖 Dziennik</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">✨ Rutyna</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">🎓 Akademia</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">🛍️ Produkty</div>
+          <div style="background:#FAFAF9; border:1px solid #eee; border-radius:8px; padding:6px; font-size:9px; color:#1A3828; display:flex; align-items:center; gap:4px;">👥 Polecenia</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Więcej z kartą profilu na górze sheetu</h3>
+      <p>Sheet otwiera się na karcie profilu (imię + punkty), a poniżej siatka sekcji. Profil i menu w jednym miejscu.</p>
+    </div>
+  </div>
+
+  <!-- Option D: Keep Profil + add Więcej above nav -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">OPCJA D — 6 tabów (mniejsze ikony)</div>
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:6px 2px; display:flex; justify-content:space-around; align-items:center; margin-bottom:10px;">
+        <div style="text-align:center; color:#C4965A;"><div style="font-size:14px;">🏠</div><div style="font-size:7px; font-weight:600;">Home</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:14px;">📅</div><div style="font-size:7px;">Wizyty</div></div>
+        <div style="text-align:center; margin-top:-14px;">
+          <div style="background:#1A3828; color:#fff; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px; margin:0 auto; box-shadow:0 3px 10px rgba(26,56,40,0.3);">+</div>
+          <div style="font-size:7px; color:#1A3828; font-weight:700; margin-top:2px;">Rezerwuj</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;"><div style="font-size:14px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-3px;right:-3px;background:#C4965A;color:#fff;font-size:6px;border-radius:50%;width:9px;height:9px;display:flex;align-items:center;justify-content:center;line-height:9px;">1</span></div><div style="font-size:7px;">Chat</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:14px;">👤</div><div style="font-size:7px;">Profil</div></div>
+        <div style="text-align:center; color:#5A7A62;"><div style="font-size:14px;">☰</div><div style="font-size:7px;">Więcej</div></div>
+      </div>
+      <div style="font-size:9px; color:#888; line-height:1.5;">6 ikon = trochę ciasno na małych ekranach, ale wszystko widoczne. Ikony mają ~44px szerokości zamiast 64px.</div>
+    </div>
+    <div class="card-body">
+      <h3>D — 6 ikon: Dashboard · Wizyty · (+) · Chat · Profil · Więcej</h3>
+      <p>Najbardziej kompletna, ale ikony są ciaśniej. Działa na ekranach 375px+, może być za małe na iPhone SE.</p>
+    </div>
+  </div>
+
+</div>
+<p class="subtitle" style="margin-top:12px; font-size:12px;">Kliknij lub opisz w terminalu co wolisz.</p>

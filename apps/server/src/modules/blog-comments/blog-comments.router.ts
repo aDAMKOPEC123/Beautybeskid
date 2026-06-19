@@ -13,7 +13,7 @@ const createCommentSchema = z.object({
 });
 
 const reactSchema = z.object({
-  emoji: z.enum(['❤️', '😂', '😮', '😢', '😡', '👍']),
+  emoji: z.enum(['❤️', '😂', '😮', '😢', '😡', '👍', '🔥', '👏', '🎉', '💪', '✨', '💯']),
 });
 
 const moderateSchema = z.object({

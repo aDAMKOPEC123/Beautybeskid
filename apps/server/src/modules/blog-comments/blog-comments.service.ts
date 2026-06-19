@@ -51,7 +51,7 @@ export const createComment = async (
   let parentComment: { id: string; authorId: string } | null = null;
   if (data.parentId) {
     parentComment = await prisma.blogComment.findFirst({
-      where: { id: data.parentId },
+      where: { id: data.parentId, postId: post.id },
       select: { id: true, authorId: true },
     });
     if (!parentComment) throw new AppError('Komentarz nadrzędny nie istnieje', 404);
@@ -97,18 +97,43 @@ export const createComment = async (
 };
 
 const deleteCommentTree = async (commentId: string) => {
-  const replies = await prisma.blogComment.findMany({ where: { parentId: commentId } });
-  for (const reply of replies) {
-    await deleteCommentTree(reply.id);
+  // Fetch root comment to get postId
+  const rootComment = await prisma.blogComment.findUnique({
+    where: { id: commentId },
+    select: { id: true, postId: true },
+  });
+  if (!rootComment) return;
+
+  // Fetch ALL comments for this post in one query, then BFS in memory
+  const allPostComments = await prisma.blogComment.findMany({
+    where: { postId: rootComment.postId },
+    select: { id: true, parentId: true },
+  });
+
+  const allIds: string[] = [];
+  const queue = [commentId];
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    allIds.push(id);
+    const children = allPostComments.filter((c) => c.parentId === id);
+    queue.push(...children.map((c) => c.id));
   }
-  await prisma.blogCommentReaction.deleteMany({ where: { commentId } });
-  const comment = await prisma.blogComment.findFirst({ where: { id: commentId } });
-  if (comment?.imagePath) {
-    const relPath = comment.imagePath.replace(/^\//, '');
-    const absPath = path.join(process.cwd(), relPath);
-    fs.unlink(absPath).catch(() => {});
+
+  // Delete images for all affected comments
+  const comments = await prisma.blogComment.findMany({
+    where: { id: { in: allIds }, imagePath: { not: null } },
+    select: { imagePath: true },
+  });
+  for (const c of comments) {
+    if (c.imagePath) {
+      const absPath = path.join(process.cwd(), c.imagePath.replace(/^\//, ''));
+      fs.unlink(absPath).catch(() => {});
+    }
   }
-  await prisma.blogComment.delete({ where: { id: commentId } });
+
+  // Delete everything in two bulk queries
+  await prisma.blogCommentReaction.deleteMany({ where: { commentId: { in: allIds } } });
+  await prisma.blogComment.deleteMany({ where: { id: { in: allIds } } });
 };
 
 export const deleteComment = async (
@@ -121,12 +146,6 @@ export const deleteComment = async (
 
   if (!isAdmin && comment.authorId !== userId) {
     throw new AppError('Brak uprawnień do usunięcia tego komentarza', 403);
-  }
-
-  if (comment.imagePath) {
-    const relPath = comment.imagePath.replace(/^\//, '');
-    const absPath = path.join(process.cwd(), relPath);
-    fs.unlink(absPath).catch(() => {});
   }
 
   await deleteCommentTree(commentId);
@@ -149,11 +168,16 @@ export const moderateComment = async (
   });
 };
 
+const ALLOWED_EMOJIS = new Set(['❤️', '😂', '😮', '😢', '😡', '👍', '🔥', '👏', '🎉', '💪', '✨', '💯']);
+
 export const reactToComment = async (
   userId: string,
   commentId: string,
   emoji: string
 ) => {
+  if (!ALLOWED_EMOJIS.has(emoji)) {
+    throw new AppError('Nieprawidłowa reakcja', 400);
+  }
   const existing = await prisma.blogCommentReaction.findFirst({
     where: { commentId, userId },
   });

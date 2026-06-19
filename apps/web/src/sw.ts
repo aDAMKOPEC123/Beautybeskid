@@ -1,4 +1,4 @@
-// cache-version: v2
+﻿// cache-version: v2
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 
@@ -10,7 +10,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {};
   event.waitUntil(
-    self.registration.showNotification(data.title ?? 'Cosmo', {
+    self.registration.showNotification(data.title ?? 'BeautyBeskid', {
       body: data.body,
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',

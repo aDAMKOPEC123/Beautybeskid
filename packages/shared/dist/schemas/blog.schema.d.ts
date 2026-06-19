@@ -8,11 +8,13 @@ export declare const createBlogPostSchema: z.ZodObject<{
     metaTitle: z.ZodOptional<z.ZodString>;
     metaDescription: z.ZodOptional<z.ZodString>;
     readingTime: z.ZodOptional<z.ZodNumber>;
+    category: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     title: string;
     content: string;
     excerpt: string;
     isPublished: boolean;
+    category?: string | undefined;
     tags?: string[] | undefined;
     metaTitle?: string | undefined;
     metaDescription?: string | undefined;
@@ -21,6 +23,7 @@ export declare const createBlogPostSchema: z.ZodObject<{
     title: string;
     content: string;
     excerpt: string;
+    category?: string | undefined;
     tags?: string[] | undefined;
     isPublished?: boolean | undefined;
     metaTitle?: string | undefined;
@@ -36,7 +39,9 @@ export declare const updateBlogPostSchema: z.ZodObject<{
     metaTitle: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     metaDescription: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     readingTime: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
+    category: z.ZodOptional<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
+    category?: string | undefined;
     title?: string | undefined;
     content?: string | undefined;
     excerpt?: string | undefined;
@@ -46,6 +51,7 @@ export declare const updateBlogPostSchema: z.ZodObject<{
     metaDescription?: string | undefined;
     readingTime?: number | undefined;
 }, {
+    category?: string | undefined;
     title?: string | undefined;
     content?: string | undefined;
     excerpt?: string | undefined;

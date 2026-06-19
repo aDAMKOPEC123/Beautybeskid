@@ -1,4 +1,4 @@
-// filepath: apps/web/src/components/metamorphoses/ShareButton.tsx
+﻿// filepath: apps/web/src/components/metamorphoses/ShareButton.tsx
 import { useState } from 'react';
 import { Share2, Check, Loader2 } from 'lucide-react';
 import { generateShareImage } from '@/utils/generateShareImage';
@@ -23,8 +23,8 @@ export const ShareButton = ({ beforeImage, afterImage, title }: ShareButtonProps
       // Try native Web Share API (mobile)
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          title: `${title} — COSMO Salon Kosmetyczny`,
-          text: 'Zobacz moją metamorfozę w COSMO!',
+          title: `${title} — BeautyBeskid Salon Kosmetyczny`,
+          text: 'Zobacz moją metamorfozę w BeautyBeskid!',
           files: [file],
         });
         toast.success('Udostępniono!');

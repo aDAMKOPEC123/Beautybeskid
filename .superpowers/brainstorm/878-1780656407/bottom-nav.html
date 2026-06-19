@@ -1,0 +1,118 @@
+<h2>Dolna nawigacja na mobile</h2>
+<p class="subtitle">Te 5 ikon to główna nawigacja klienta. Co powinno się tam znaleźć?</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+
+  <!-- Option A: Current -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">OBECNA</div>
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center;">
+        <div style="text-align:center; color:#C4965A;">
+          <div style="font-size:18px;">🏠</div>
+          <div style="font-size:8px; font-weight:600;">Dashboard</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">📅</div>
+          <div style="font-size:8px;">Wizyty</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">⭐</div>
+          <div style="font-size:8px;">Lojalność</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;">
+          <div style="font-size:18px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-4px;right:-4px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:11px;height:11px;display:flex;align-items:center;justify-content:center;line-height:11px;">1</span></div>
+          <div style="font-size:8px;">Chat</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">☰</div>
+          <div style="font-size:8px;">Więcej</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:9px; color:#888; line-height:1.5;">
+        <strong>„Więcej"</strong> otwiera sheet ze wszystkimi 13 sekcjami w siatce 2×2. Klient musi kliknąć dwa razy, żeby dotrzeć do Dziennika, Rutyny, Profilu itd.
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Obecna (Dashboard · Wizyty · Lojalność · Chat · Więcej)</h3>
+      <p>Sprawdzona, ale "Lojalność" jako stały tab wydaje się mniej priorytetowa niż np. Profil czy szybka rezerwacja.</p>
+    </div>
+  </div>
+
+  <!-- Option B: CTA in center -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">PROPOZYCJA B</div>
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center; position:relative;">
+        <div style="text-align:center; color:#C4965A;">
+          <div style="font-size:18px;">🏠</div>
+          <div style="font-size:8px; font-weight:600;">Dashboard</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">📅</div>
+          <div style="font-size:8px;">Wizyty</div>
+        </div>
+        <!-- Center CTA button -->
+        <div style="text-align:center; margin-top:-18px;">
+          <div style="background:#1A3828; color:#fff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto; box-shadow:0 4px 12px rgba(26,56,40,0.3);">+</div>
+          <div style="font-size:8px; color:#1A3828; font-weight:700; margin-top:2px;">Rezerwuj</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;">
+          <div style="font-size:18px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-4px;right:-4px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:11px;height:11px;display:flex;align-items:center;justify-content:center;line-height:11px;">1</span></div>
+          <div style="font-size:8px;">Chat</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">👤</div>
+          <div style="font-size:8px;">Profil</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:9px; color:#888; line-height:1.5;">
+        Środkowy przycisk <strong>+</strong> prowadzi do rezerwacji — wzorzec znany z Instagram/TikTok. Profil zamiast Lojalności jako stały tab.
+        <br/>Reszta sekcji wciąż dostępna przez Dashboard lub „ukrytą" nawigację.
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Dashboard · Wizyty · (+Rezerwuj) · Chat · Profil</h3>
+      <p>Rezerwacja jedno kliknięcie, Profil zawsze dostępny. Lojalność i dziennik w dashboardzie lub przez sekcje.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Personalized -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 12px;">
+      <div style="font-size:10px; color:#5A7A62; font-weight:600; letter-spacing:0.1em; margin-bottom:10px;">PROPOZYCJA C</div>
+      <div style="background:#fff; border-top:1px solid #eee; border-radius:12px; padding:8px 4px; display:flex; justify-content:space-around; align-items:center;">
+        <div style="text-align:center; color:#C4965A;">
+          <div style="font-size:18px;">🏠</div>
+          <div style="font-size:8px; font-weight:600;">Dashboard</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">📅</div>
+          <div style="font-size:8px;">Wizyty</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;">
+          <div style="font-size:18px; position:relative; display:inline-block;">💬<span style="position:absolute;top:-4px;right:-4px;background:#C4965A;color:#fff;font-size:7px;border-radius:50%;width:11px;height:11px;display:flex;align-items:center;justify-content:center;line-height:11px;">1</span></div>
+          <div style="font-size:8px;">Chat</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62; position:relative;">
+          <div style="font-size:18px;">📖</div>
+          <div style="font-size:8px;">Dziennik</div>
+        </div>
+        <div style="text-align:center; color:#5A7A62;">
+          <div style="font-size:18px;">☰</div>
+          <div style="font-size:8px;">Więcej</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:9px; color:#888; line-height:1.5;">
+        Dziennik zamiast Lojalności — bo klientki używają go regularnie (codziennie/tygodniowo). Lojalność i Profil w „Więcej".
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Dashboard · Wizyty · Chat · Dziennik · Więcej</h3>
+      <p>Stawia na codzienne sekcje (chat + dziennik). Dobra opcja jeśli klientki aktywnie korzystają z dziennika skóry.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:12px; font-size:12px;">Kliknij lub opisz w terminalu. Możesz też zaproponować własny zestaw 5 ikon.</p>

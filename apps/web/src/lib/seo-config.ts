@@ -1,5 +1,5 @@
-export const SEO = {
-  siteName: 'Cosmo — Salon Kosmetologiczny & Gabinet Podologiczny',
+﻿export const SEO = {
+  siteName: 'BeautyBeskid — Salon Kosmetologiczny & Gabinet Podologiczny',
   domain: 'https://cosmo.pl',           // ← uzupełnić
   phone: '+48532128227',
   email: 'kontakt@cosmo.pl',            // ← uzupełnić

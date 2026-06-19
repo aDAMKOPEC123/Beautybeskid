@@ -1,0 +1,99 @@
+<h2>Widok dzienny — jak wyświetlać pracowników?</h2>
+<p class="subtitle">Gdy admin/pracownik przełączy się na widok dnia, jak powinny być ułożone kolumny?</p>
+
+<div class="cards">
+
+  <!-- Option A: Multi-column by employee -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:12px;">
+      <div style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;background:#fff;">
+        <!-- Header -->
+        <div style="display:grid;grid-template-columns:48px repeat(3,1fr);border-bottom:2px solid #e5e7eb;">
+          <div style="background:#f9fafb;padding:6px;"></div>
+          <div style="padding:6px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="font-size:9px;color:#6b7280;">MARTA</div>
+            <div style="width:20px;height:20px;background:#a78bfa;border-radius:50%;margin:2px auto;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;">M</div>
+          </div>
+          <div style="padding:6px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="font-size:9px;color:#6b7280;">KASIA</div>
+            <div style="width:20px;height:20px;background:#34d399;border-radius:50%;margin:2px auto;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;">K</div>
+          </div>
+          <div style="padding:6px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="font-size:9px;color:#6b7280;">ZOSIA</div>
+            <div style="width:20px;height:20px;background:#fb923c;border-radius:50%;margin:2px auto;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;">Z</div>
+          </div>
+        </div>
+        <!-- Rows -->
+        <div style="display:grid;grid-template-columns:48px repeat(3,1fr);">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;border-bottom:1px solid #f3f4f6;">9:00</div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;padding:2px;"><div style="background:#6366f1;color:#fff;border-radius:3px;padding:2px 4px;font-size:8px;">Anna K. — Pedicure</div></div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;"></div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;padding:2px;"><div style="background:#10b981;color:#fff;border-radius:3px;padding:2px 4px;font-size:8px;">Maria W. — Manic.</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px repeat(3,1fr);">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;border-bottom:1px solid #f3f4f6;">10:00</div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;"></div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;padding:2px;"><div style="background:#f59e0b;color:#fff;border-radius:3px;padding:2px 4px;font-size:8px;">Ewa P. — Pedicure</div></div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px repeat(3,1fr);">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;">11:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;"><div style="background:#6366f1;color:#fff;border-radius:3px;padding:2px 4px;font-size:8px;">Joanna — Mezot.</div></div>
+          <div style="border-left:1px solid #f3f4f6;"></div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;"><div style="background:#10b981;color:#fff;border-radius:3px;padding:2px 4px;font-size:8px;">Basia — Laser</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Kolumna na pracownika</h3>
+      <p>Każdy pracownik ma swoją kolumnę. Widać od razu kto jest zajęty, konflikty są niemożliwe w obrębie kolumny.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Single selected employee day view -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:12px;">
+      <div style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;background:#fff;">
+        <!-- Header with employee selector -->
+        <div style="padding:8px;border-bottom:2px solid #e5e7eb;display:flex;align-items:center;gap:8px;">
+          <div style="font-size:9px;color:#6b7280;">Pracownik:</div>
+          <div style="background:#6366f1;color:#fff;border-radius:12px;padding:2px 10px;font-size:9px;">Marta ▾</div>
+          <div style="background:#f3f4f6;border-radius:12px;padding:2px 10px;font-size:9px;color:#6b7280;">Kasia</div>
+          <div style="background:#f3f4f6;border-radius:12px;padding:2px 10px;font-size:9px;color:#6b7280;">Zosia</div>
+        </div>
+        <!-- Single column timeline -->
+        <div style="display:grid;grid-template-columns:48px 1fr;">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;border-bottom:1px solid #f3f4f6;">9:00</div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;padding:4px;"><div style="background:#6366f1;color:#fff;border-radius:4px;padding:4px 8px;font-size:9px;">Anna Kowalska — Pedicure leczniczy<br><span style="opacity:0.8">60 min · 120 zł · POTWIERDZONA</span></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr;">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;border-bottom:1px solid #f3f4f6;">10:00</div>
+          <div style="border-left:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;padding:4px;background:#fafafa;"><div style="font-size:8px;color:#d1d5db;text-align:center;padding:4px;">+ kliknij by dodać wizytę</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr;">
+          <div style="background:#f9fafb;padding:4px 2px;font-size:8px;color:#9ca3af;text-align:right;">11:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:4px;"><div style="background:#f59e0b;color:#fff;border-radius:4px;padding:4px 8px;font-size:9px;">Maria Wiśniewska — Manicure hyb.<br><span style="opacity:0.8">90 min · 140 zł · OCZEKUJĄCA</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Jeden pracownik, pełna oś czasu</h3>
+      <p>Filtr pracownika na górze, pełna oś czasu z dużymi kartami wizyt. Więcej szczegółów per wizyta.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Both (default multi, click to zoom) -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:12px;display:flex;align-items:center;justify-content:center;height:200px;">
+      <div style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">A + B</div>
+        <div style="font-size:10px;color:#6b7280;max-width:180px;">Domyślnie widok A (wszyscy pracownicy). Kliknięcie imienia pracownika przełącza do widoku B (zoom na jednego).</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Oba tryby (przełączalne)</h3>
+      <p>Widok multi-kolumna jako domyślny, kliknięcie pracownika przybliża do jego osi czasu. Najbardziej elastyczny.</p>
+    </div>
+  </div>
+
+</div>

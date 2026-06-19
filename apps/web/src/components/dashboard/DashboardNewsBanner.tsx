@@ -120,10 +120,13 @@ export const DashboardNewsBanner = () => {
   // Loading skeleton
   if (isLoading) {
     return (
-      <div
-        className="w-full animate-pulse rounded-none"
-        style={{ height: '160px', background: 'rgba(0,0,0,0.08)' }}
-      />
+      <div style={{ borderRadius: 18, border: '1.5px solid rgba(26,56,40,0.22)', background: '#fff', overflow: 'hidden' }}>
+        <div style={{ background: 'rgba(232,243,234,0.8)', padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A3828', flexShrink: 0 }} />
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.5)' }}>Nowości</span>
+        </div>
+        <div className="w-full animate-pulse" style={{ height: '160px', background: 'rgba(0,0,0,0.08)' }} />
+      </div>
     );
   }
 
@@ -133,10 +136,16 @@ export const DashboardNewsBanner = () => {
   const showNav = slides.length > 1;
 
   return (
-    <section
-      aria-label="Nowości i aktualności"
-      className="relative w-full overflow-hidden"
-      style={{ height: '160px' }}
+    <div style={{ borderRadius: 18, border: '1.5px solid rgba(26,56,40,0.22)', background: '#fff', overflow: 'hidden' }}>
+      {/* Nagłówek */}
+      <div style={{ background: 'rgba(232,243,234,0.8)', padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A3828', flexShrink: 0 }} />
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.5)' }}>Nowości</span>
+      </div>
+      <section
+        aria-label="Nowości i aktualności"
+        className="relative w-full overflow-hidden"
+        style={{ height: '160px' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
@@ -203,6 +212,7 @@ export const DashboardNewsBanner = () => {
           </div>
         </>
       )}
-    </section>
+      </section>
+    </div>
   );
 };

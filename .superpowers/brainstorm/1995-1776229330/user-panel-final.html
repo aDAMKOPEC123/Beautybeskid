@@ -1,0 +1,120 @@
+<h2>Panel klienta — mobile-first design</h2>
+<p class="subtitle">Widok strony /user/pogoda-skory (brak raportu) + widget na dashboardzie</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">📱 /user/pogoda-skory — brak raportu (mobile)</div>
+    <div class="mockup-body" style="padding:0;font-family:system-ui;max-width:375px;margin:0 auto">
+
+      <!-- Page header -->
+      <div style="padding:16px 16px 0">
+        <div style="font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:2px">Pogoda dla skóry 🌤️</div>
+        <div style="font-size:12px;color:#64748b">Wtorek, 15 kwiecień · Kraków</div>
+      </div>
+
+      <!-- Empty state card — PROMINENT -->
+      <div style="margin:16px;background:linear-gradient(135deg,#1e1b4b,#1e293b);border:1px solid #4338ca44;border-radius:16px;padding:24px;text-align:center">
+        <div style="font-size:48px;margin-bottom:12px;line-height:1">🌥️</div>
+        <div style="font-size:15px;font-weight:700;color:#e2e8f0;margin-bottom:6px">Brak raportu na dziś</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.5;margin-bottom:20px">
+          Raport generowany automatycznie o 6:00.<br>Możesz też wygenerować go teraz.
+        </div>
+        <!-- Full-width mobile button -->
+        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px">
+          <span>✨</span>
+          <span>Wygeneruj raport teraz</span>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#475569">Zajmuje kilka sekund</div>
+      </div>
+
+      <!-- Loading state (shown after click) -->
+      <div style="margin:0 16px 16px;background:#1e293b;border-radius:12px;padding:16px;text-align:center;border:1px dashed #334155">
+        <div style="font-size:11px;color:#64748b;margin-bottom:6px">Stan po kliknięciu →</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;color:#7c3aed;font-size:13px;font-weight:600">
+          <div style="width:16px;height:16px;border:2px solid #7c3aed;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>
+          Generowanie raportu...
+        </div>
+      </div>
+
+      <!-- History below -->
+      <div style="padding:0 16px 16px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;font-weight:600">Poprzednie raporty</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:#1e293b;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#cbd5e1">Wczoraj</div>
+              <div style="font-size:10px;color:#475569">3 wskazówki · Gorąco, Wysokie UV</div>
+            </div>
+            <div style="color:#475569;font-size:16px">›</div>
+          </div>
+          <div style="background:#1e293b;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#cbd5e1">13 kwi</div>
+              <div style="font-size:10px;color:#475569">2 wskazówki · Deszcz</div>
+            </div>
+            <div style="color:#475569;font-size:16px">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">📱 Dashboard widget — brak raportu</div>
+    <div class="mockup-body" style="padding:12px;font-family:system-ui;max-width:375px;margin:0 auto">
+
+      <!-- Other widgets above (context) -->
+      <div style="background:#1e293b;border-radius:10px;padding:12px;margin-bottom:10px;opacity:.4">
+        <div style="font-size:11px;color:#64748b">Najbliższa wizyta</div>
+        <div style="font-size:13px;color:#94a3b8">Piątek, 18 kwi · 14:00</div>
+      </div>
+
+      <!-- Weather widget — no report -->
+      <div style="background:linear-gradient(135deg,#1e1b4b,#1e293b);border:1px solid #4338ca33;border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">🌤️</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9">Pogoda dla skóry</div>
+              <div style="font-size:10px;color:#475569">Kraków · dziś</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state inside widget -->
+        <div style="background:#ffffff08;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">Raport nie został jeszcze wygenerowany</div>
+          <!-- Full-width button in widget -->
+          <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+            <span>✨</span><span>Wygeneruj teraz</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget WITH report (for comparison) -->
+      <div style="margin-top:10px;opacity:.5">
+        <div style="font-size:10px;color:#64748b;text-align:center;margin-bottom:6px">— po wygenerowaniu —</div>
+        <div style="background:linear-gradient(135deg,#1e1b4b,#1e293b);border:1px solid #4338ca33;border-radius:12px;padding:14px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:20px">🌤️</span>
+            <div style="font-size:13px;font-weight:700;color:#f1f5f9">Pogoda dla skóry</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="background:#7c3aed22;border-radius:6px;padding:8px;display:flex;gap:8px;align-items:center">
+              <span style="font-size:14px">☀️</span>
+              <span style="font-size:11px;color:#c4b5fd">Użyj SPF 50+ — wysoki indeks UV</span>
+            </div>
+            <div style="background:#f87171" + "22;border-radius:6px;padding:8px;display:flex;gap:8px;align-items:center;background:#f8717122">
+              <span style="font-size:14px">🌡️</span>
+              <span style="font-size:11px;color:#fca5a5">Pij dużo wody — upał powyżej 28°C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

@@ -31,6 +31,7 @@ const appointmentInclude = {
   },
   employee: { select: { id: true, name: true, avatarPath: true } },
   coupon: { include: { reward: true } },
+  discountCodeUsage: { include: { discountCode: true } },
 } as const;
 
 const todayInclude = {

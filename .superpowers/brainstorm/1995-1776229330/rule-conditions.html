@@ -1,0 +1,103 @@
+<h2>Czy reguła może mieć wiele warunków?</h2>
+<p class="subtitle">To decyduje o tym jak skomplikowana jest logika dopasowania i formularz tworzenia reguły.</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">A — Jeden warunek na regułę (proste)</div>
+    <div class="mockup-body" style="padding:16px">
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Warunek pogodowy</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#1e40af22;border:2px solid #3b82f6;border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:20px">☀️</div>
+            <div style="font-size:12px;font-weight:700;color:#60a5fa">Wysokie UV</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;opacity:.4">
+            <div style="font-size:20px">🌡️</div>
+            <div style="font-size:12px;color:#64748b">Gorąco</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;opacity:.4">
+            <div style="font-size:20px">🌧️</div>
+            <div style="font-size:12px;color:#64748b">Deszcz</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;opacity:.4">
+            <div style="font-size:20px">🌫️</div>
+            <div style="font-size:12px;color:#64748b">Smog</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:#64748b;text-align:center">Wybierz dokładnie jeden</div>
+      </div>
+      <div style="background:#0f172a;border-radius:6px;padding:10px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Rekomendacja</div>
+        <div style="background:#1e293b;border-radius:4px;padding:8px;font-size:12px;color:#cbd5e1">Dzisiaj wysoki indeks UV — koniecznie użyj kremu SPF 50+...</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#0f172a;border-radius:6px;font-size:10px;color:#64748b">
+        ✅ Prosta logika: reguła = 1 warunek<br>
+        ✅ Łatwa w zarządzaniu (lista warunków)<br>
+        ⚠️ Mniej precyzyjne dopasowanie
+      </div>
+    </div>
+    <div style="padding:12px;border-top:1px solid #1e293b;text-align:center">
+      <button class="mock-button" onclick="event.stopPropagation()">Wybierz opcję A</button>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">B — Wiele warunków AND (zaawansowane)</div>
+    <div class="mockup-body" style="padding:16px">
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Warunki (wszystkie muszą być spełnione)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#7c3aed22;border:2px solid #7c3aed;border-radius:8px;padding:10px;text-align:center;position:relative">
+            <div style="position:absolute;top:-6px;right:-6px;background:#7c3aed;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">✓</div>
+            <div style="font-size:20px">☀️</div>
+            <div style="font-size:12px;font-weight:700;color:#a78bfa">Wysokie UV</div>
+          </div>
+          <div style="background:#7c3aed22;border:2px solid #7c3aed;border-radius:8px;padding:10px;text-align:center;position:relative">
+            <div style="position:absolute;top:-6px;right:-6px;background:#7c3aed;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">✓</div>
+            <div style="font-size:20px">🌡️</div>
+            <div style="font-size:12px;font-weight:700;color:#a78bfa">Gorąco</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;opacity:.4">
+            <div style="font-size:20px">🌧️</div>
+            <div style="font-size:12px;color:#64748b">Deszcz</div>
+          </div>
+          <div style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;opacity:.4">
+            <div style="font-size:20px">🌫️</div>
+            <div style="font-size:12px;color:#64748b">Smog</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#a78bfa;text-align:center;font-weight:600">☀️ Wysokie UV + 🌡️ Gorąco = aktywuje razem</div>
+      </div>
+      <div style="background:#0f172a;border-radius:6px;padding:10px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Rekomendacja</div>
+        <div style="background:#1e293b;border-radius:4px;padding:8px;font-size:12px;color:#cbd5e1">Upał i intensywne słońce — używaj SPF 50+ oraz pij dużo wody...</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#0f172a;border-radius:6px;font-size:10px;color:#64748b">
+        ✅ Precyzyjne dopasowanie kombinacji warunków<br>
+        ✅ Bardziej trafne rekomendacje<br>
+        ⚠️ Więcej reguł potrzebnych do pełnego pokrycia
+      </div>
+    </div>
+    <div style="padding:12px;border-top:1px solid #1e293b;text-align:center">
+      <button class="mock-button" onclick="event.stopPropagation()">Wybierz opcję B</button>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:20px">
+  <div class="option" data-choice="single" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Jeden warunek na regułę</h3>
+      <p>Prosta lista: "Gdy Wysokie UV → pokaż rekomendację". 5 presetów = max 5 aktywnych reguł jednocześnie.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="multi" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Wiele warunków AND</h3>
+      <p>Reguła może wymagać spełnienia kilku warunków naraz. Bardziej precyzyjne, ale więcej reguł do skonfigurowania.</p>
+    </div>
+  </div>
+</div>

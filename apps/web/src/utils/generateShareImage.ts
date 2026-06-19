@@ -1,4 +1,4 @@
-// filepath: apps/web/src/utils/generateShareImage.ts
+﻿// filepath: apps/web/src/utils/generateShareImage.ts
 
 export async function generateShareImage(
   beforeUrl: string,
@@ -56,11 +56,11 @@ export async function generateShareImage(
   ctx.textAlign = 'left';
   ctx.fillText(title, PADDING, textY + 25);
 
-  // COSMO branding
+  // BeautyBeskid branding
   ctx.fillStyle = '#C4965A';
   ctx.font = 'bold 20px "Playfair Display", serif';
   ctx.textAlign = 'right';
-  ctx.fillText('COSMO', WIDTH - PADDING, textY + 25);
+  ctx.fillText('BeautyBeskid', WIDTH - PADDING, textY + 25);
 
   ctx.fillStyle = '#5A7A62';
   ctx.font = '14px "DM Sans", sans-serif';

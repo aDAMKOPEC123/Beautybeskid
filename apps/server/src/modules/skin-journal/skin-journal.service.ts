@@ -33,6 +33,10 @@ export const createEntry = async (
   if (data.mood !== undefined && (!Number.isInteger(data.mood) || data.mood < 1 || data.mood > 5)) {
     throw new AppError('Nastrój musi być wartością od 1 do 5', 400);
   }
+  if (data.linkedAppointmentId && !isAdminEntry) {
+    const appt = await prisma.appointment.findUnique({ where: { id: data.linkedAppointmentId } });
+    if (!appt || appt.userId !== userId) throw new AppError('Wizyta nie należy do tego użytkownika', 403);
+  }
   return prisma.skinJournalEntry.create({
     data: {
       userId,
@@ -62,7 +66,7 @@ export const updateEntry = async (
   const entry = await prisma.skinJournalEntry.findFirst({ where });
   if (!entry) throw new AppError('Wpis nie znaleziony', 404);
   return prisma.skinJournalEntry.update({
-    where: { id: entryId },
+    where,
     data,
     include: {
       author: { select: { id: true, name: true } },
@@ -75,12 +79,13 @@ export const deleteEntry = async (userId: string, entryId: string, isAdmin = fal
   const where = isAdmin ? { id: entryId } : { id: entryId, userId };
   const entry = await prisma.skinJournalEntry.findFirst({ where });
   if (!entry) throw new AppError('Wpis nie znaleziony', 404);
-  await prisma.skinJournalEntry.delete({ where: { id: entryId } });
+  await prisma.skinJournalEntry.delete({ where });
 };
 
-export const addComment = async (entryId: string, authorId: string, content: string) => {
-  const entry = await prisma.skinJournalEntry.findUnique({ where: { id: entryId } });
-  if (!entry) throw new AppError('Wpis nie znaleziony', 404);
+export const addComment = async (entryId: string, authorId: string, content: string, isAdmin = false) => {
+  const entry = await prisma.skinJournalEntry.findUnique({ where: { id: entryId }, select: { userId: true } });
+  if (!entry) throw new AppError('Wpis nie istnieje', 404);
+  if (!isAdmin && entry.userId !== authorId) throw new AppError('Brak dostępu', 403);
   return prisma.skinJournalComment.create({
     data: { entryId, authorId, content },
     include: {
@@ -101,6 +106,8 @@ export const getUnreadCommentCount = async (userId: string) => {
 };
 
 export const markCommentsRead = async (userId: string, entryId: string) => {
+  const entry = await prisma.skinJournalEntry.findUnique({ where: { id: entryId }, select: { userId: true } });
+  if (!entry || entry.userId !== userId) throw new AppError('Brak dostępu', 403);
   await prisma.skinJournalComment.updateMany({
     where: {
       entryId,

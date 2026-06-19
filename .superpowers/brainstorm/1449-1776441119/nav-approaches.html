@@ -1,0 +1,148 @@
+﻿<style>
+  .nav-demo {
+    position: relative;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .nav-logo { font-size: 11px; letter-spacing: 0.45em; text-transform: uppercase; font-weight: 300; }
+  .nav-links { display: flex; gap: 24px; margin: 0 auto; }
+  .nav-link { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .nav-cta { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+
+  .demo-page {
+    height: 120px;
+    border-radius: 0 0 8px 8px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .badge-problem { background: #fee2e2; color: #b91c1c; }
+  .badge-fix { background: #dcfce7; color: #166534; }
+  .badge-bonus { background: #fef9c3; color: #854d0e; }
+</style>
+
+<h2>Jak poprawić widoczność nawigacji?</h2>
+<p class="subtitle">Obecny problem: navbar jest transparentny na górze strony — niewidoczny na jasnym tle. Wybierz podejście które najbardziej Ci odpowiada.</p>
+
+<div class="options">
+
+  <!-- Opcja A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <span class="badge badge-fix">Najprostsze</span>
+      <h3>Zawsze wypełniony pasek</h3>
+      <div class="mockup" style="margin: 12px 0; padding: 0; overflow: hidden; border-radius: 8px;">
+        <div class="nav-demo" style="background: rgba(250,247,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(28,21,16,0.08);">
+          <span class="nav-logo" style="color: #1C1510;">BeautyBeskid</span>
+          <div class="nav-links">
+            <span class="nav-link" style="color: #6B5A4E;">Usługi</span>
+            <span class="nav-link" style="color: #6B5A4E;">Blog</span>
+            <span class="nav-link" style="color: #6B5A4E;">O nas</span>
+          </div>
+          <span class="nav-cta" style="color: #8B6F5E;">Rezerwacja</span>
+        </div>
+        <div class="demo-page" style="background: #f5f0eb; color: #6B5A4E;">Treść strony widoczna od razu</div>
+      </div>
+      <p>Nawigacja <strong>zawsze widoczna</strong> z kremowym tłem i delikatnym blur. Transparentność usunięta całkowicie. Strona główna traci efekt "przenikania" nad hero, ale wszystkie inne strony działają poprawnie od razu.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Plusy</h4><ul><li>Zero problemów z czytelnością</li><li>Spójne zachowanie na każdej stronie</li><li>Prosta zmiana — 3 linie kodu</li></ul></div>
+        <div class="cons"><h4>Minusy</h4><ul><li>Strona główna traci efekt transparentnej nav nad hero</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opcja B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <span class="badge badge-bonus">Najelegantsza</span>
+      <h3>Scroll-aware: ukryj / pokaż przy przewijaniu</h3>
+      <div class="mockup" style="margin: 12px 0; padding: 0; overflow: hidden; border-radius: 8px;">
+        <div style="display: flex; gap: 8px; padding: 8px 12px; background: #f5f0eb; border-radius: 8px 8px 0 0; font-size: 10px; color: #8B6F5E; letter-spacing: 0.1em;">
+          <span>⬆ Scroll w górę → navbar wyjeżdża</span>
+          <span style="margin-left: auto;">⬇ Scroll w dół → navbar chowa się</span>
+        </div>
+        <div class="nav-demo" style="background: rgba(250,247,242,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(28,21,16,0.08);">
+          <span class="nav-logo" style="color: #1C1510;">BeautyBeskid</span>
+          <div class="nav-links">
+            <span class="nav-link" style="color: #6B5A4E;">Usługi</span>
+            <span class="nav-link" style="color: #6B5A4E;">Blog</span>
+            <span class="nav-link" style="color: #6B5A4E;">O nas</span>
+          </div>
+          <span class="nav-cta" style="color: #8B6F5E;">Rezerwacja</span>
+        </div>
+        <div class="demo-page" style="background: #ede8e1; color: #6B5A4E;">Navbar wraca przy scroll w górę</div>
+      </div>
+      <p>Navbar <strong>startuje jako filled</strong> (zawsze widoczny). Przy scrollowaniu w dół — chowa się. Przy scrollowaniu w górę — powraca z animacją. Popularne w premium serwisach (Apple, Stripe). Daje przestrzeń do przeglądania treści.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Plusy</h4><ul><li>Nowoczesna, premiowa estetyka</li><li>Więcej miejsca na treść przy scrollowaniu</li><li>Nawigacja zawsze dostępna gdy potrzebna</li></ul></div>
+        <div class="cons"><h4>Minusy</h4><ul><li>Wymaga więcej kodu (~30 linii)</li><li>Może dezorientować przy szybkim scrollu</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opcja C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <span class="badge badge-bonus">Zachowuje efekt hero</span>
+      <h3>Context-aware: transparent tylko nad hero</h3>
+      <div class="mockup" style="margin: 12px 0; padding: 0; overflow: hidden; border-radius: 8px;">
+        <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+          <div style="flex: 1; background: #1C1510; border-radius: 4px; padding: 6px 10px; font-size: 9px; color: #FAF7F2; letter-spacing: 0.1em; text-align: center;">Strona główna: transparent nav nad ciemnym hero</div>
+          <div style="flex: 1; background: #f5f0eb; border-radius: 4px; padding: 6px 10px; font-size: 9px; color: #6B5A4E; letter-spacing: 0.1em; text-align: center;">Inne strony: filled od razu</div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <div style="flex: 1; border-radius: 8px; overflow: hidden;">
+            <div class="nav-demo" style="background: transparent;">
+              <span class="nav-logo" style="color: #FAF7F2;">BeautyBeskid</span>
+              <div class="nav-links">
+                <span class="nav-link" style="color: rgba(250,247,242,0.75);">Usługi</span>
+                <span class="nav-link" style="color: rgba(250,247,242,0.75);">Blog</span>
+              </div>
+            </div>
+            <div class="demo-page" style="background: #2a1f18; color: rgba(250,247,242,0.4); border-radius: 0 0 8px 8px;">🌿 Hero zdjęcie</div>
+          </div>
+          <div style="flex: 1; border-radius: 8px; overflow: hidden;">
+            <div class="nav-demo" style="background: rgba(250,247,242,0.96); border-bottom: 1px solid rgba(28,21,16,0.08);">
+              <span class="nav-logo" style="color: #1C1510;">BeautyBeskid</span>
+              <div class="nav-links">
+                <span class="nav-link" style="color: #6B5A4E;">Usługi</span>
+                <span class="nav-link" style="color: #6B5A4E;">Blog</span>
+              </div>
+            </div>
+            <div class="demo-page" style="background: #f5f0eb; color: #6B5A4E; border-radius: 0 0 8px 8px;">Usługi / Blog / O nas</div>
+          </div>
+        </div>
+      </div>
+      <p>Navbar wykrywa czy jesteś na stronie głównej (<code>/</code>) — jeśli tak, zachowuje efekt transparentny nad hero. Na wszystkich innych stronach <strong>od razu filled</strong>. Najlepszy kompromis między estetyką a funkcjonalnością.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Plusy</h4><ul><li>Zachowuje premium efekt na homepage</li><li>Wszystkie podstrony — poprawne od razu</li><li>Jedna linia warunków z useLocation()</li></ul></div>
+        <div class="cons"><h4>Minusy</h4><ul><li>Nieco więcej logiki niż opcja A</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>

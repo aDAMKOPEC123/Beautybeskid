@@ -1,0 +1,144 @@
+<h2>Zawartość zakładek w modalu</h2>
+<p class="subtitle">Podgląd wszystkich 4 zakładek podsumowania. Sprawdź czy wszystkie dane są właściwe.</p>
+
+<div style="max-width: 500px; margin: 0 auto;">
+
+  <!-- Modal wrapper -->
+  <div style="background:#fff; border:1px solid #e5e0d8; border-radius:16px; padding:20px; box-shadow:0 8px 40px rgba(0,0,0,0.12);">
+
+    <!-- Modal header -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <div style="font-size:15px; font-weight:700; color:#1A1208;">📊 Podsumowanie dziennika</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <select style="padding:5px 10px; border:1px solid #e5e0d8; border-radius:8px; font-size:12px; color:#1A1208; background:#faf9f7;">
+          <option>Ostatnie 30 dni</option>
+          <option>Ostatnie 90 dni</option>
+          <option>Cała historia</option>
+        </select>
+        <span style="color:#ccc; font-size:18px; cursor:pointer; line-height:1;">✕</span>
+      </div>
+    </div>
+
+    <!-- Tabs nav -->
+    <div style="display:flex; gap:4px; margin-bottom:16px; padding:4px; background:#faf9f7; border-radius:10px;">
+      <div style="flex:1; text-align:center; padding:7px 4px; background:#B8913A; border-radius:7px; font-size:11px; font-weight:700; color:#fff;">😊 Nastrój</div>
+      <div style="flex:1; text-align:center; padding:7px 4px; border-radius:7px; font-size:11px; color:#999;">🏷 Tagi</div>
+      <div style="flex:1; text-align:center; padding:7px 4px; border-radius:7px; font-size:11px; color:#999;">📅 Aktywność</div>
+      <div style="flex:1; text-align:center; padding:7px 4px; border-radius:7px; font-size:11px; color:#999;">📷 Zdjęcia</div>
+    </div>
+
+    <!-- TAB 1: Nastrój -->
+    <div style="border:1px solid #f0e8d8; border-radius:12px; padding:16px; margin-bottom:12px;">
+      <div style="text-align:center; margin-bottom:12px;">
+        <div style="font-size:40px; font-weight:700; color:#B8913A;">3.8</div>
+        <div style="font-size:12px; color:#999;">średni nastrój skóry</div>
+        <div style="display:inline-block; margin-top:6px; padding:3px 10px; background:#d1fae5; border-radius:20px; font-size:11px; color:#059669; font-weight:600;">↑ Rosnący trend</div>
+      </div>
+      <!-- Bar chart -->
+      <div style="margin-bottom:8px;">
+        <div style="font-size:10px; color:#999; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Nastrój tydzień po tygodniu</div>
+        <div style="display:flex; align-items:flex-end; gap:4px; height:60px; padding:0 4px;">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div style="font-size:9px; color:#ccc;">3</div>
+            <div style="width:100%; background:#fdf6ec; height:55%; border-radius:3px 3px 0 0; border:1px solid #e8d5a0;"></div>
+            <div style="font-size:8px; color:#ccc;">T1</div>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div style="font-size:9px; color:#ccc;">3</div>
+            <div style="width:100%; background:#fdf6ec; height:55%; border-radius:3px 3px 0 0; border:1px solid #e8d5a0;"></div>
+            <div style="font-size:8px; color:#ccc;">T2</div>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div style="font-size:9px; color:#B8913A;">4</div>
+            <div style="width:100%; background:#d4a84b; height:75%; border-radius:3px 3px 0 0;"></div>
+            <div style="font-size:8px; color:#ccc;">T3</div>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div style="font-size:9px; color:#B8913A;">5</div>
+            <div style="width:100%; background:#B8913A; height:100%; border-radius:3px 3px 0 0;"></div>
+            <div style="font-size:8px; color:#ccc;">T4</div>
+          </div>
+        </div>
+      </div>
+      <!-- Mood breakdown -->
+      <div style="display:flex; gap:4px; margin-top:8px;">
+        <div style="flex:1; text-align:center; padding:6px; background:#faf9f7; border-radius:8px;">
+          <div style="font-size:16px;">😟</div>
+          <div style="font-size:11px; font-weight:700; color:#1A1208;">1</div>
+          <div style="font-size:9px; color:#999;">raz</div>
+        </div>
+        <div style="flex:1; text-align:center; padding:6px; background:#faf9f7; border-radius:8px;">
+          <div style="font-size:16px;">😕</div>
+          <div style="font-size:11px; font-weight:700; color:#1A1208;">2</div>
+          <div style="font-size:9px; color:#999;">razy</div>
+        </div>
+        <div style="flex:1; text-align:center; padding:6px; background:#faf9f7; border-radius:8px;">
+          <div style="font-size:16px;">😐</div>
+          <div style="font-size:11px; font-weight:700; color:#1A1208;">3</div>
+          <div style="font-size:9px; color:#999;">razy</div>
+        </div>
+        <div style="flex:1; text-align:center; padding:6px; background:#fdf6ec; border-radius:8px; border:1px solid #e8d5a0;">
+          <div style="font-size:16px;">🙂</div>
+          <div style="font-size:11px; font-weight:700; color:#B8913A;">5</div>
+          <div style="font-size:9px; color:#B8913A;">razy</div>
+        </div>
+        <div style="flex:1; text-align:center; padding:6px; background:#fdf6ec; border-radius:8px; border:1px solid #e8d5a0;">
+          <div style="font-size:16px;">😊</div>
+          <div style="font-size:11px; font-weight:700; color:#B8913A;">3</div>
+          <div style="font-size:9px; color:#B8913A;">razy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Tagi (collapsed preview) -->
+    <div style="border:1px solid #e5e0d8; border-radius:12px; padding:14px; margin-bottom:8px; opacity:0.6;">
+      <div style="font-size:11px; font-weight:600; color:#999; margin-bottom:8px;">🏷 NAJCZĘSTSZE TAGI</div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px;">
+        <span style="padding:4px 12px; background:#fdf6ec; border:1px solid #e8d5a0; border-radius:20px; font-size:11px; color:#B8913A; font-weight:600;">nawilżenie ×8</span>
+        <span style="padding:4px 12px; background:#fdf6ec; border:1px solid #e8d5a0; border-radius:20px; font-size:11px; color:#B8913A; font-weight:600;">trądzik ×4</span>
+        <span style="padding:4px 12px; background:#faf9f7; border:1px solid #e5e0d8; border-radius:20px; font-size:11px; color:#666;">po zabiegu ×3</span>
+        <span style="padding:4px 12px; background:#faf9f7; border:1px solid #e5e0d8; border-radius:20px; font-size:11px; color:#666;">reakcja ×2</span>
+        <span style="padding:4px 12px; background:#faf9f7; border:1px solid #e5e0d8; border-radius:20px; font-size:11px; color:#666;">SPF ×1</span>
+      </div>
+    </div>
+
+    <!-- TAB 3: Aktywność (collapsed preview) -->
+    <div style="border:1px solid #e5e0d8; border-radius:12px; padding:14px; margin-bottom:8px; opacity:0.6;">
+      <div style="font-size:11px; font-weight:600; color:#999; margin-bottom:8px;">📅 AKTYWNOŚĆ</div>
+      <div style="display:flex; gap:12px;">
+        <div style="text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#1A1208;">14</div>
+          <div style="font-size:9px; color:#999;">wpisów</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#B8913A;">5🔥</div>
+          <div style="font-size:9px; color:#999;">streak</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#1A1208;">47%</div>
+          <div style="font-size:9px; color:#999;">dni aktywnych</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#1A1208;">6</div>
+          <div style="font-size:9px; color:#999;">po wizytach</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Zdjęcia (collapsed preview) -->
+    <div style="border:1px solid #e5e0d8; border-radius:12px; padding:14px; opacity:0.6;">
+      <div style="font-size:11px; font-weight:600; color:#999; margin-bottom:8px;">📷 ZDJĘCIA (4 łącznie)</div>
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; aspect-ratio:1; background:#f0e8d8; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px;">📷</div>
+        <div style="flex:1; aspect-ratio:1; background:#f0e8d8; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px;">📷</div>
+        <div style="flex:1; aspect-ratio:1; background:#f0e8d8; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px;">📷</div>
+        <div style="flex:1; aspect-ratio:1; background:#e5e0d8; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#999;">+1</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="font-size:11px; color:#999; text-align:center; margin-top:12px;">Szare sekcje to pozostałe 3 zakładki w stanie zwiniętym — kliknięcie przełącza aktywną zakładkę</p>
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Czy taki układ danych Ci odpowiada? Odpisz w terminalu co zmienić lub napisz "wygląda dobrze".</p>

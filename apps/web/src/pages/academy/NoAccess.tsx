@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { Lock, GraduationCap, BookOpen, Award, Star, Video, Sparkles } from 'lucide-react';
 
 const BENEFITS = [
-  { icon: Video, label: 'Kursy wideo', desc: 'Nagrania i materiały edukacyjne od ekspertów COSMO' },
+  { icon: Video, label: 'Kursy wideo', desc: 'Nagrania i materiały edukacyjne od ekspertów BeautyBeskid' },
   { icon: BookOpen, label: 'Wiedza o pielęgnacji', desc: 'Szczegółowe przewodniki po zabiegach i rutynach' },
   { icon: Star, label: 'Quizy i testy', desc: 'Sprawdź swoją wiedzę i odkryj dopasowane zabiegi' },
   { icon: Award, label: 'Certyfikaty', desc: 'Zdobywaj certyfikaty ukończenia kursów' },
@@ -27,9 +27,9 @@ export function NoAccess() {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold font-heading">Akademia COSMO</h1>
+            <h1 className="text-2xl font-bold font-heading">Akademia BeautyBeskid</h1>
             <p className="text-muted-foreground mt-1">
-              Ekskluzywna strefa edukacyjna dla klientów COSMO
+              Ekskluzywna strefa edukacyjna dla klientów BeautyBeskid
             </p>
           </div>
         </div>

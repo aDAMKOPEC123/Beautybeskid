@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 export const AdminDiscountCodes = () => {
   const queryClient = useQueryClient();
 
-  const [newCode, setNewCode] = useState({ code: '', discountType: 'PERCENTAGE' as 'PERCENTAGE' | 'AMOUNT', discountValue: '' });
+  const [newCode, setNewCode] = useState({ code: '', discountType: 'PERCENTAGE' as 'PERCENTAGE' | 'AMOUNT', discountValue: '', isMultiUse: false });
   const [ambassadorForm, setAmbassadorForm] = useState<{ discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: string; referrerDiscountType: 'PERCENTAGE' | 'AMOUNT'; referrerDiscountValue: string }>({ discountType: 'PERCENTAGE', discountValue: '', referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: '' });
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ['admin', 'discount-codes'],
@@ -25,7 +25,7 @@ export const AdminDiscountCodes = () => {
     mutationFn: discountCodesApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'discount-codes'] });
-      setNewCode({ code: '', discountType: 'PERCENTAGE', discountValue: '' });
+      setNewCode({ code: '', discountType: 'PERCENTAGE', discountValue: '', isMultiUse: false });
       toast.success('Kod rabatowy dodany');
     },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Błąd tworzenia kodu'),
@@ -59,7 +59,7 @@ export const AdminDiscountCodes = () => {
     if (!newCode.code || !newCode.discountValue) return toast.error('Wypełnij wszystkie pola');
     const value = parseFloat(newCode.discountValue);
     if (isNaN(value) || value <= 0) return toast.error('Podaj prawidłową wartość');
-    createMutation.mutate({ code: newCode.code.toUpperCase(), discountType: newCode.discountType, discountValue: value });
+    createMutation.mutate({ code: newCode.code.toUpperCase(), discountType: newCode.discountType, discountValue: value, isMultiUse: newCode.isMultiUse });
   };
 
   const handleAmbassadorSave = () => {
@@ -92,7 +92,7 @@ export const AdminDiscountCodes = () => {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Typ</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Typ rabatu</label>
               <select
                 value={newCode.discountType}
                 onChange={e => setNewCode(p => ({ ...p, discountType: e.target.value as 'PERCENTAGE' | 'AMOUNT' }))}
@@ -116,6 +116,17 @@ export const AdminDiscountCodes = () => {
                 className="w-28"
               />
             </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Typ użycia</label>
+              <select
+                value={newCode.isMultiUse ? 'multi' : 'single'}
+                onChange={e => setNewCode(p => ({ ...p, isMultiUse: e.target.value === 'multi' }))}
+                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="single">Jednorazowy</option>
+                <option value="multi">Wielorazowy</option>
+              </select>
+            </div>
             <Button onClick={handleCreate} disabled={createMutation.isPending}>Dodaj kod</Button>
           </div>
 
@@ -130,10 +141,11 @@ export const AdminDiscountCodes = () => {
                 <thead>
                   <tr className="border-b text-muted-foreground text-left">
                     <th className="py-2 pr-4 font-medium">Kod</th>
-                    <th className="py-2 pr-4 font-medium">Typ</th>
+                    <th className="py-2 pr-4 font-medium">Typ rabatu</th>
                     <th className="py-2 pr-4 font-medium">Wartość</th>
                     <th className="py-2 pr-4 font-medium">Status</th>
                     <th className="py-2 pr-4 font-medium">Użyć</th>
+                    <th className="py-2 pr-4 font-medium">Typ użycia</th>
                     <th className="py-2 font-medium">Akcje</th>
                   </tr>
                 </thead>
@@ -161,6 +173,11 @@ export const AdminDiscountCodes = () => {
                         </label>
                       </td>
                       <td className="py-3 pr-4">{code._count?.usages ?? 0}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${code.isMultiUse ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {code.isMultiUse ? 'Wielorazowy' : 'Jednorazowy'}
+                        </span>
+                      </td>
                       <td className="py-3">
                         <Button
                           variant="destructive"

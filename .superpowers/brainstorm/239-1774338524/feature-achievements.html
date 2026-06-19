@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid — Achievements & Badges</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FDFAF6; color: #1A1208; line-height: 1.6; }
+  h1,h2,h3,h4 { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .section-label { display:inline-block; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#B8913A; background:rgba(184,145,58,0.12); padding:4px 12px; border-radius:20px; margin-bottom:12px; }
+  .section-title { font-size:2rem; margin-bottom:8px; }
+  .section-subtitle { color:#6B6560; font-size:1rem; margin-bottom:32px; }
+  .mockup-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#B0A89E; font-weight:600; margin-bottom:12px; }
+  .divider { height:1px; background:#E8DDD2; margin:40px 0; }
+
+  /* ====== Badges Grid ====== */
+  .badges-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .badges-title {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+  .badges-subtitle {
+    color: #6B6560;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .badge-item {
+    text-align: center;
+    padding: 16px 8px;
+    border-radius: 16px;
+    transition: transform 0.2s;
+  }
+  .badge-item:hover { transform: translateY(-2px); }
+  .badge-item.earned { background: rgba(184,145,58,0.08); }
+  .badge-item.locked { opacity: 0.4; }
+  .badge-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+  }
+  .badge-item.earned .badge-icon {
+    background: linear-gradient(135deg, #B8913A, #D99B68);
+    box-shadow: 0 4px 12px rgba(184,145,58,0.3);
+  }
+  .badge-item.locked .badge-icon {
+    background: #E8DDD2;
+  }
+  .badge-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #1A1208;
+    margin-bottom: 2px;
+  }
+  .badge-desc {
+    font-size: 0.72rem;
+    color: #6B6560;
+  }
+  .badge-item.earned .badge-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.68rem;
+    color: #B8913A;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* ====== Confetti Toast ====== */
+  .confetti-demo {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .confetti-demo::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at top, rgba(184,145,58,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .toast-popup {
+    display: inline-block;
+    background: #1A1208;
+    color: white;
+    border-radius: 16px;
+    padding: 24px 36px;
+    position: relative;
+    animation: bounceIn 0.5s ease-out;
+  }
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .toast-popup .toast-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+  .toast-popup h4 {
+    color: #B8913A;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+  .toast-popup p {
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+  .toast-popup .points {
+    display: inline-block;
+    background: rgba(184,145,58,0.2);
+    color: #B8913A;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* Confetti particles */
+  .confetti-particle {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confettiFall 2s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(300px) rotate(720deg); opacity: 0; }
+  }
+
+  /* ====== Achievement list (profile) ====== */
+  .profile-achievements {
+    background: #F5F0EB;
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .achievement-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .achievement-row:last-child { border-bottom: none; }
+  .achievement-icon-sm {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .achievement-row.earned .achievement-icon-sm {
+    background: linear-gradient(135deg, #B8913A, #D99B68);
+    box-shadow: 0 2px 8px rgba(184,145,58,0.25);
+  }
+  .achievement-row.locked .achievement-icon-sm {
+    background: #DDD5CC;
+  }
+  .achievement-info { flex: 1; }
+  .achievement-info h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .achievement-info p {
+    font-size: 0.82rem;
+    color: #6B6560;
+  }
+  .achievement-date {
+    font-size: 0.78rem;
+    color: #B8913A;
+    font-weight: 500;
+  }
+  .achievement-progress {
+    width: 80px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #DDD5CC;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #B8913A, #D99B68);
+    border-radius: 3px;
+  }
+  .progress-text {
+    font-size: 0.7rem;
+    color: #6B6560;
+    text-align: right;
+    margin-top: 3px;
+  }
+
+  /* ====== Features ====== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .feature-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .feature-card h4 {
+    font-size: 0.95rem;
+    color: #B8913A;
+    margin-bottom: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+  .feature-card p { font-size: 0.82rem; color: #6B6560; }
+
+  .decision-title { font-size:1.3rem; margin-bottom:16px; text-align:center; }
+  .decision-options { display:flex; gap:16px; justify-content:center; }
+  .decision-btn { padding:14px 28px; border-radius:16px; border:2px solid #E8DDD2; background:white; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.95rem; color:#1A1208; cursor:pointer; transition:all 0.2s; }
+  .decision-btn:hover { border-color:#B8913A; background:rgba(184,145,58,0.06); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="section-label">Feature 2 z 7</div>
+  <h2 class="section-title">Achievement Badges + Confetti</h2>
+  <p class="section-subtitle">System odznaczeń za kamienie milowe — motywuje klientki do wracania</p>
+
+  <!-- MOCKUP 1: Badges grid in profile -->
+  <div class="mockup-label">Panel klientki — sekcja "Moje odznaczenia"</div>
+  <div class="badges-card">
+    <h3 class="badges-title">Twoje odznaczenia</h3>
+    <p class="badges-subtitle">Zdobyto 5 z 12 odznaczeń</p>
+    <div class="badges-grid">
+      <div class="badge-item earned">
+        <div class="badge-icon">🌟</div>
+        <div class="badge-name">Pierwsza wizyta</div>
+        <div class="badge-desc">Witaj w BeautyBeskid!</div>
+        <div class="badge-check">✓ Zdobyto</div>
+      </div>
+      <div class="badge-item earned">
+        <div class="badge-icon">💎</div>
+        <div class="badge-name">Wierna klientka</div>
+        <div class="badge-desc">10 wizyt</div>
+        <div class="badge-check">✓ Zdobyto</div>
+      </div>
+      <div class="badge-item earned">
+        <div class="badge-icon">✍️</div>
+        <div class="badge-name">Głos ma znaczenie</div>
+        <div class="badge-desc">Pierwsza recenzja</div>
+        <div class="badge-check">✓ Zdobyto</div>
+      </div>
+      <div class="badge-item earned">
+        <div class="badge-icon">🎯</div>
+        <div class="badge-name">Odkrywczyni</div>
+        <div class="badge-desc">3 różne zabiegi</div>
+        <div class="badge-check">✓ Zdobyto</div>
+      </div>
+      <div class="badge-item earned">
+        <div class="badge-icon">👑</div>
+        <div class="badge-name">Ambasadorka</div>
+        <div class="badge-desc">Poleciłaś znajomą</div>
+        <div class="badge-check">✓ Zdobyto</div>
+      </div>
+      <div class="badge-item locked">
+        <div class="badge-icon">🔥</div>
+        <div class="badge-name">Seria 5</div>
+        <div class="badge-desc">5 wizyt z rzędu</div>
+      </div>
+      <div class="badge-item locked">
+        <div class="badge-icon">🏆</div>
+        <div class="badge-name">VIP</div>
+        <div class="badge-desc">50 wizyt</div>
+      </div>
+      <div class="badge-item locked">
+        <div class="badge-icon">🌸</div>
+        <div class="badge-name">Pełen pakiet</div>
+        <div class="badge-desc">Każda kategoria</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOCKUP 2: Confetti celebration toast -->
+  <div class="mockup-label">Moment zdobycia odznaczenia — confetti + toast</div>
+  <div class="confetti-demo">
+    <!-- Confetti particles -->
+    <div class="confetti-particle" style="left:10%; top:10%; background:#B8913A; animation-delay:0s;"></div>
+    <div class="confetti-particle" style="left:20%; top:5%; background:#D99B68; animation-delay:0.1s;"></div>
+    <div class="confetti-particle" style="left:35%; top:8%; background:#E8BB94; animation-delay:0.2s;"></div>
+    <div class="confetti-particle" style="left:50%; top:3%; background:#B8913A; animation-delay:0.15s;"></div>
+    <div class="confetti-particle" style="left:65%; top:7%; background:#8C6040; animation-delay:0.25s;"></div>
+    <div class="confetti-particle" style="left:78%; top:5%; background:#D99B68; animation-delay:0.05s;"></div>
+    <div class="confetti-particle" style="left:88%; top:10%; background:#B8913A; animation-delay:0.3s;"></div>
+    <div class="confetti-particle" style="left:15%; top:2%; background:#E8BB94; animation-delay:0.18s;"></div>
+    <div class="confetti-particle" style="left:42%; top:6%; background:#8C6040; animation-delay:0.22s;"></div>
+    <div class="confetti-particle" style="left:72%; top:4%; background:#B8913A; animation-delay:0.12s;"></div>
+
+    <div class="toast-popup">
+      <div class="toast-icon">💎</div>
+      <h4>Nowe odznaczenie!</h4>
+      <p>"Wierna klientka" — 10 wizyt w BeautyBeskid</p>
+      <div class="points">+20 punktów bonusowych</div>
+    </div>
+  </div>
+
+  <!-- MOCKUP 3: Achievement list in profile -->
+  <div class="mockup-label">Szczegółowa lista osiągnięć z progressem</div>
+  <div class="profile-achievements">
+    <div class="achievement-row earned">
+      <div class="achievement-icon-sm">💎</div>
+      <div class="achievement-info">
+        <h4>Wierna klientka</h4>
+        <p>Ukończ 10 wizyt w BeautyBeskid</p>
+      </div>
+      <div class="achievement-date">12 marca 2026</div>
+    </div>
+    <div class="achievement-row earned">
+      <div class="achievement-icon-sm">🎯</div>
+      <div class="achievement-info">
+        <h4>Odkrywczyni</h4>
+        <p>Wypróbuj 3 różne rodzaje zabiegów</p>
+      </div>
+      <div class="achievement-date">28 lutego 2026</div>
+    </div>
+    <div class="achievement-row locked">
+      <div class="achievement-icon-sm">🔥</div>
+      <div class="achievement-info">
+        <h4>Seria 5</h4>
+        <p>Odwiedź salon 5 miesięcy z rzędu</p>
+      </div>
+      <div class="achievement-progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:60%;"></div></div>
+        <div class="progress-text">3/5</div>
+      </div>
+    </div>
+    <div class="achievement-row locked">
+      <div class="achievement-icon-sm">🏆</div>
+      <div class="achievement-info">
+        <h4>VIP</h4>
+        <p>Ukończ 50 wizyt</p>
+      </div>
+      <div class="achievement-progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:24%;"></div></div>
+        <div class="progress-text">12/50</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zasady -->
+  <div class="mockup-label">Proponowane odznaczenia (wstępna lista)</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <h4>🌟 Pierwsza wizyta</h4>
+      <p>Automatycznie po pierwszej zakończonej wizycie</p>
+    </div>
+    <div class="feature-card">
+      <h4>💎 Wierna klientka</h4>
+      <p>10 ukończonych wizyt</p>
+    </div>
+    <div class="feature-card">
+      <h4>🏆 VIP</h4>
+      <p>50 ukończonych wizyt</p>
+    </div>
+    <div class="feature-card">
+      <h4>🎯 Odkrywczyni</h4>
+      <p>3 różne kategorie zabiegów</p>
+    </div>
+    <div class="feature-card">
+      <h4>🌸 Pełen pakiet</h4>
+      <p>Zabieg z każdej kategorii</p>
+    </div>
+    <div class="feature-card">
+      <h4>✍️ Głos ma znaczenie</h4>
+      <p>Pierwsza zostawiona recenzja</p>
+    </div>
+    <div class="feature-card">
+      <h4>👑 Ambasadorka</h4>
+      <p>Poleciłaś kogoś kodem ambasadora</p>
+    </div>
+    <div class="feature-card">
+      <h4>🔥 Seria 5</h4>
+      <p>Wizyta co miesiąc przez 5 m-cy</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3 class="decision-title">Jak oceniasz system odznaczeń?</h3>
+  <div class="decision-options">
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✓ Podoba się, dalej</button>
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✎ Mam uwagi</button>
+  </div>
+</div>
+</body>
+</html>

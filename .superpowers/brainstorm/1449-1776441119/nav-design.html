@@ -1,0 +1,211 @@
+﻿<style>
+  .state-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .state-card {
+    border: 1px solid rgba(28,21,16,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: system-ui, sans-serif;
+  }
+  .state-label {
+    padding: 6px 12px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: #f5f0eb;
+    color: #6B5A4E;
+    border-bottom: 1px solid rgba(28,21,16,0.08);
+  }
+  .nav-preview {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+  }
+  .nav-logo { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; font-weight: 300; }
+  .nav-links { display: flex; gap: 16px; margin: 0 auto; }
+  .nav-link { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .nav-cta { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+  .page-bg { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .hidden-nav {
+    transform: translateY(-100%);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    background: rgba(250,247,242,0.95);
+    position: relative;
+  }
+  .hidden-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(139,111,94,0.9);
+    color: white;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(28,21,16,0.06);
+    font-size: 12px;
+  }
+  .flow-row:last-child { border-bottom: none; }
+  .flow-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .tag-home { background: #e0f2fe; color: #0369a1; }
+  .tag-other { background: #f0fdf4; color: #166534; }
+  .tag-mobile { background: #fdf4ff; color: #7e22ce; }
+  .tag-desktop { background: #fff7ed; color: #c2410c; }
+  .arrow { color: #9ca3af; font-size: 14px; }
+</style>
+
+<h2>Design nawigacji — zachowanie po zmianach</h2>
+<p class="subtitle">Sprawdź czy wszystkie stany wyglądają dobrze przed implementacją</p>
+
+<div class="section">
+  <h3>Stany wizualne</h3>
+  <div class="state-grid">
+
+    <div class="state-card">
+      <div class="state-label">Homepage / — scroll = 0 (top)</div>
+      <div style="background: #1C1510;">
+        <div class="nav-preview" style="background: transparent;">
+          <span class="nav-logo" style="color: #FAF7F2;">BeautyBeskid</span>
+          <div class="nav-links">
+            <span class="nav-link" style="color: rgba(250,247,242,0.75);">Usługi</span>
+            <span class="nav-link" style="color: rgba(250,247,242,0.75);">Blog</span>
+            <span class="nav-link" style="color: rgba(250,247,242,0.75);">O nas</span>
+          </div>
+          <span class="nav-cta" style="color: rgba(250,247,242,0.85);">Rezerwacja</span>
+        </div>
+        <div class="page-bg">🌿 Ciemne hero zdjęcie</div>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label">Dowolna strona — scroll = 0 (lub scrolled)</div>
+      <div style="background: #f5f0eb;">
+        <div class="nav-preview" style="background: rgba(250,247,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(28,21,16,0.08);">
+          <span class="nav-logo" style="color: #1C1510;">BeautyBeskid</span>
+          <div class="nav-links">
+            <span class="nav-link" style="color: #6B5A4E;">Usługi</span>
+            <span class="nav-link" style="color: #6B5A4E;">Blog</span>
+            <span class="nav-link" style="color: #6B5A4E;">O nas</span>
+          </div>
+          <span class="nav-cta" style="color: #8B6F5E;">Rezerwacja</span>
+        </div>
+        <div class="page-bg" style="color: #9ca3af;">Treść strony — widoczna od razu</div>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label">Desktop — scroll w DÓŁ (nav chowa się)</div>
+      <div style="background: #f5f0eb; overflow: hidden;">
+        <div style="height: 20px; background: rgba(250,247,242,0.95); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid rgba(28,21,16,0.08);">
+          <span style="font-size: 8px; color: #6B5A4E; letter-spacing: 0.1em;">↑ nav wysuwa się za górę ekranu (translateY -100%)</span>
+        </div>
+        <div class="page-bg" style="height: 96px; color: #9ca3af; background: #ede8e3; border-radius: 0;">Więcej miejsca na treść ↓</div>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label">Desktop — scroll w GÓRĘ (nav wraca)</div>
+      <div style="background: #f5f0eb;">
+        <div class="nav-preview" style="background: rgba(250,247,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(28,21,16,0.08); transition: transform 0.3s;">
+          <span class="nav-logo" style="color: #1C1510;">BeautyBeskid</span>
+          <div class="nav-links">
+            <span class="nav-link" style="color: #6B5A4E;">Usługi</span>
+            <span class="nav-link" style="color: #6B5A4E;">Blog</span>
+            <span class="nav-link" style="color: #6B5A4E;">O nas</span>
+          </div>
+          <span class="nav-cta" style="color: #8B6F5E;">Rezerwacja</span>
+        </div>
+        <div class="page-bg" style="color: #9ca3af; background: #ede8e3;">↑ Scrolujesz w górę → nav pojawia się</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h3>Logika zachowania</h3>
+  <div style="background: #fafaf9; border: 1px solid rgba(28,21,16,0.08); border-radius: 8px; padding: 16px;">
+    <div class="flow-row">
+      <span class="flow-tag tag-home">Homepage /</span>
+      <span class="arrow">+</span>
+      <span class="flow-tag" style="background:#f1f5f9;color:#475569;">scroll &lt; 60px</span>
+      <span class="arrow">→</span>
+      <span>Transparent nav, biały tekst</span>
+    </div>
+    <div class="flow-row">
+      <span class="flow-tag tag-other">Inna strona</span>
+      <span class="arrow">+</span>
+      <span class="flow-tag" style="background:#f1f5f9;color:#475569;">zawsze</span>
+      <span class="arrow">→</span>
+      <span>Filled nav, ciemny tekst — od razu</span>
+    </div>
+    <div class="flow-row">
+      <span class="flow-tag tag-desktop">Desktop</span>
+      <span class="arrow">+</span>
+      <span class="flow-tag" style="background:#f1f5f9;color:#475569;">scroll w dół</span>
+      <span class="arrow">→</span>
+      <span>Nav chowa się (translateY -100%), 300ms ease</span>
+    </div>
+    <div class="flow-row">
+      <span class="flow-tag tag-desktop">Desktop</span>
+      <span class="arrow">+</span>
+      <span class="flow-tag" style="background:#f1f5f9;color:#475569;">scroll w górę</span>
+      <span class="arrow">→</span>
+      <span>Nav wraca (translateY 0), 300ms ease</span>
+    </div>
+    <div class="flow-row">
+      <span class="flow-tag tag-mobile">Mobile</span>
+      <span class="arrow">+</span>
+      <span class="flow-tag" style="background:#f1f5f9;color:#475569;">zawsze</span>
+      <span class="arrow">→</span>
+      <span>Zawsze widoczny, bez scroll-hide (dolna nav wystarczy)</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Zmiany w kodzie</h3>
+  <div style="background: #fafaf9; border: 1px solid rgba(28,21,16,0.08); border-radius: 8px; padding: 16px; font-size: 12px; color: #374151; line-height: 1.6;">
+    <p><strong>Plik:</strong> <code>apps/web/src/components/layout/Navbar.tsx</code> — tylko ten jeden plik</p>
+    <ul style="margin: 8px 0; padding-left: 20px;">
+      <li>Dodać <code>hidden</code> state (boolean)</li>
+      <li>Dodać <code>lastScrollY</code> ref do śledzenia kierunku</li>
+      <li>Dodać <code>useLocation()</code> i <code>isHomepage</code> const</li>
+      <li>Zaktualizować <code>onScroll</code> handler — porównuje poprzedni Y z bieżącym</li>
+      <li>Na mobile (window.innerWidth &lt; 768) skip scroll-hide</li>
+      <li>Dodać <code>transform</code> i <code>transition</code> do stylu nav</li>
+      <li><code>isTransparent</code> = <code>isHomepage &amp;&amp; !scrolled</code></li>
+    </ul>
+    <p style="color: #6b7280; font-size: 11px; margin-top: 8px;">~25 dodanych linii, zero nowych plików, zero zmian w innych komponentach</p>
+  </div>
+</div>
+
+<p class="subtitle" style="text-align:center; margin-top: 16px;">Czy ten design wygląda dobrze? Zatwierdź żebym napisał spec i plan implementacji.</p>

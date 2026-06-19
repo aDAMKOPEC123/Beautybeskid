@@ -65,7 +65,8 @@ export const addComment = async (req: Request, res: Response, next: NextFunction
   try {
     const { content } = req.body;
     if (!content?.trim()) throw new AppError('Treść komentarza jest wymagana', 400);
-    const comment = await journalService.addComment(req.params.id, req.user!.id, content.trim());
+    const isAdmin = (req.user as any).role === 'ADMIN';
+    const comment = await journalService.addComment(req.params.id, req.user!.id, content.trim(), isAdmin);
 
     const entryUserId = (comment as any).entry?.userId;
     if (entryUserId && entryUserId !== req.user!.id) {

@@ -31,7 +31,43 @@ export const RecommendedSlider = () => {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [current, paused, count]);
 
-  if (count === 0) return null;
+  if (count === 0) {
+    return (
+      <div
+        style={{
+          borderRadius: 16,
+          background: 'rgba(196,150,90,0.05)',
+          border: '1px solid rgba(196,150,90,0.15)',
+          padding: '18px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+        }}
+      >
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(196,150,90,0.7)', marginBottom: 2 }}>
+          Polecane zabiegi
+        </p>
+        <p style={{ fontSize: 14, fontWeight: 700, color: '#1A3828', lineHeight: 1.3 }}>
+          Odkryj nasze zabiegi
+        </p>
+        <p style={{ fontSize: 12, color: 'rgba(20,40,28,0.5)', lineHeight: 1.55 }}>
+          Sprawdź pełną ofertę salonowych usług dopasowanych do Twoich potrzeb.
+        </p>
+        <Link
+          to="/uslugi"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '9px 14px', borderRadius: 100,
+            background: '#1A3828', color: '#fff',
+            fontSize: 12, fontWeight: 600, textDecoration: 'none',
+            alignSelf: 'flex-start',
+          }}
+        >
+          Zobacz ofertę
+        </Link>
+      </div>
+    );
+  }
 
   const slide: RecommendedSlide = slides[current];
 

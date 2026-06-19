@@ -1,0 +1,92 @@
+<h2>Kierunek redesignu — wybierz priorytet</h2>
+<p class="subtitle">Wszystkie opcje poprawiają UX na mobile. Różni się punkt ciężkości.</p>
+
+<div style="display:flex;flex-direction:column;gap:14px;max-width:720px">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Premium UX — czytelność i płynność</h3>
+      <div style="margin:12px 0;display:flex;gap:10px;flex-wrap:wrap">
+        <div style="background:#FAF7F2;border:1px solid #e5ddd5;border-radius:12px;padding:12px;flex:1;min-width:160px">
+          <div style="font-size:10px;color:#B8913A;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Następna wizyta</div>
+          <div style="font-size:13px;font-weight:600;color:#1C1510">Pedicure SPA</div>
+          <div style="font-size:11px;color:#666;margin-top:2px">Czwartek, 12 kwi · 14:00</div>
+          <div style="margin-top:10px;background:#1C1510;color:#FAF7F2;border-radius:8px;padding:7px 12px;font-size:11px;text-align:center">Zmień termin</div>
+        </div>
+        <div style="background:#FAF7F2;border:1px solid #e5ddd5;border-radius:12px;padding:12px;flex:1;min-width:160px">
+          <div style="font-size:10px;color:#B8913A;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Twoje punkty</div>
+          <div style="font-size:24px;font-weight:700;color:#1C1510">340</div>
+          <div style="height:4px;background:#e5ddd5;border-radius:2px;margin:8px 0"><div style="width:34%;height:100%;background:#B8913A;border-radius:2px"></div></div>
+          <div style="font-size:11px;color:#666">160 pkt do Silver</div>
+        </div>
+      </div>
+      <p style="font-size:13px">Nacisk na: duże czytelne karty, wyraźna hierarchia informacji, dobre odstępy na dotyk, płynne animacje przejść. Luksusowy, spokojny charakter marki.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Co zyskujesz</h4><ul><li>Aplikacja wygląda drogo i profesjonalnie</li><li>Klientki rzadziej się gubią</li><li>Satysfakcja z używania = lojalność</li></ul></div>
+        <div class="cons"><h4>Mniejszy nacisk na</h4><ul><li>Bezpośrednie działania marketingowe</li><li>Konwersję (rezerwacje, polecenia)</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Marketing & Engagement — konwersja i zaangażowanie</h3>
+      <div style="margin:12px 0;display:flex;gap:10px;flex-wrap:wrap">
+        <div style="background:linear-gradient(135deg,#2a1f15,#1C1510);border-radius:12px;padding:14px;flex:1;min-width:160px;color:#FAF7F2">
+          <div style="font-size:10px;color:#B8913A;text-transform:uppercase;letter-spacing:0.1em">🔥 Tylko 3 miejsca!</div>
+          <div style="font-size:13px;font-weight:600;margin-top:4px">Pedicure SPA</div>
+          <div style="font-size:11px;color:#C4A882;margin-top:2px">Jutro, 15:00</div>
+          <div style="margin-top:10px;background:#B8913A;color:#fff;border-radius:8px;padding:7px 12px;font-size:11px;text-align:center;font-weight:600">Zarezerwuj teraz →</div>
+        </div>
+        <div style="background:#FAF7F2;border:1px solid #e5ddd5;border-radius:12px;padding:12px;flex:1;min-width:160px">
+          <div style="font-size:10px;color:#e53e3e;font-weight:600;margin-bottom:4px">⏰ Oferta wygasa za 2 dni</div>
+          <div style="font-size:12px;font-weight:600">Poleć znajomą</div>
+          <div style="font-size:11px;color:#666;margin-top:2px">Zarabiaj 50 pkt za każde polecenie</div>
+          <div style="margin-top:8px;border:1px solid #B8913A;color:#B8913A;border-radius:8px;padding:6px 10px;font-size:11px;text-align:center">Udostępnij kod</div>
+        </div>
+      </div>
+      <p style="font-size:13px">Nacisk na: silne CTA na każdej stronie, urgency (ograniczone miejsca, wygasające oferty), gamifikacja (odznaki, rankingi), promowanie programu poleceń, cross-sell produktów.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Co zyskujesz</h4><ul><li>Więcej rezerwacji i poleceń</li><li>Aktywacja śpiących klientek</li><li>Wzrost wartości koszyka</li></ul></div>
+        <div class="cons"><h4>Mniejszy nacisk na</h4><ul><li>Spokojne przeglądanie</li><li>Może czuć się nachalnie</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid — premium UX + marketing w kluczowych momentach</h3>
+      <div style="margin:12px 0;display:flex;gap:10px;flex-wrap:wrap">
+        <div style="background:#FAF7F2;border:1px solid #e5ddd5;border-radius:12px;padding:12px;flex:1;min-width:160px">
+          <div style="font-size:10px;color:#B8913A;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Pedicure SPA</div>
+          <div style="font-size:13px;font-weight:600">Czwartek, 12 kwi</div>
+          <div style="font-size:11px;color:#666">14:00 · Anna Kowalska</div>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <div style="flex:1;background:#1C1510;color:#FAF7F2;border-radius:8px;padding:6px;font-size:10px;text-align:center">Zmień</div>
+            <div style="flex:1;border:1px solid #B8913A;color:#B8913A;border-radius:8px;padding:6px;font-size:10px;text-align:center">Rezerwuj →</div>
+          </div>
+        </div>
+        <div style="background:#FAF7F2;border:2px solid #B8913A;border-radius:12px;padding:12px;flex:1;min-width:160px">
+          <div style="font-size:10px;font-weight:600;color:#1C1510;margin-bottom:4px">🎯 Blisko Silver!</div>
+          <div style="height:6px;background:#e5ddd5;border-radius:3px;margin:6px 0"><div style="width:68%;height:100%;background:linear-gradient(90deg,#B8913A,#C4A882);border-radius:3px"></div></div>
+          <div style="font-size:11px;color:#666">160 pkt · 2 wizyty</div>
+          <div style="margin-top:8px;font-size:10px;color:#B8913A;text-align:center;font-weight:600">Zobacz nagrody Silver →</div>
+        </div>
+      </div>
+      <p style="font-size:13px">Czysta, premium UX na co dzień. Marketing pojawia się tylko w strategicznych miejscach: po ukończeniu wizyty, gdy klientka jest blisko kolejnego tieru, przy wygasaniu kodu rabatowego.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Co zyskujesz</h4><ul><li>Aplikacja wygląda premium, nie jak sklep</li><li>Marketing w odpowiednim kontekście = skuteczniejszy</li><li>Klientki nie czują się "atakowane"</li></ul></div>
+        <div class="cons"><h4>Mniejszy nacisk na</h4><ul><li>Agresywna konwersja</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="margin-top:16px;font-size:12px;color:#888">Moja rekomendacja: C (hybrid). Salon kosmetyczny = relacja z klientką, nie sklep. Marketing działa lepiej, gdy jest subtelny.</p>

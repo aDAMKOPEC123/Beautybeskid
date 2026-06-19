@@ -1,0 +1,106 @@
+<h2>Panel klienta — brak raportu na dziś</h2>
+<p class="subtitle">Jak powinien wyglądać widok gdy nie ma jeszcze raportu pogodowego na dziś?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;border-radius:8px;padding:16px;font-family:system-ui">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:32px;height:32px;background:#7c3aed;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🌤️</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#f1f5f9">Pogoda dla Twojej skóry</div>
+          <div style="font-size:10px;color:#64748b">Wtorek, 15 kwiecień</div>
+        </div>
+      </div>
+      <!-- Empty state prominent -->
+      <div style="border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;background:#ffffff08">
+        <div style="font-size:32px;margin-bottom:8px">🌥️</div>
+        <div style="font-size:13px;font-weight:600;color:#cbd5e1;margin-bottom:4px">Brak raportu na dziś</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:14px">Raport generowany automatycznie o 6:00.<br>Możesz też wygenerować go teraz.</div>
+        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:700;display:inline-block;cursor:pointer">
+          ✨ Wygeneruj raport teraz
+        </div>
+      </div>
+      <!-- History below -->
+      <div style="margin-top:12px;font-size:11px;color:#475569;text-align:center">
+        Poprzednie raporty ↓
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Prominentny empty state z CTA</h3>
+      <p>Duże, widoczne miejsce z przyciskiem "Wygeneruj teraz". Zajmuje całą sekcję raportu gdy nie ma danych. Nie można przegapić.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;border-radius:8px;padding:16px;font-family:system-ui">
+      <!-- Header with inline badge -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;background:#7c3aed;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🌤️</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#f1f5f9">Raport na dziś</div>
+            <div style="font-size:10px;color:#64748b">Wtorek, 15 kwiecień</div>
+          </div>
+        </div>
+        <div style="background:#7c3aed22;border:1px solid #7c3aed;color:#a78bfa;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">
+          ⚡ Generuj
+        </div>
+      </div>
+      <!-- Subtle empty message -->
+      <div style="background:#1e293b;border-radius:8px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:#64748b;margin-bottom:2px">Raport nie został jeszcze wygenerowany</div>
+        <div style="font-size:10px;color:#475569">Automatycznie pojawi się o 6:00 lub kliknij "Generuj" →</div>
+      </div>
+      <!-- Divider and history -->
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+        <div style="background:#1e293b;border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:#94a3b8">Wczoraj — 3 wskazówki</span>
+          <span style="font-size:10px;color:#475569">14 kwi</span>
+        </div>
+        <div style="background:#1e293b;border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:#94a3b8">Niedziela — 2 wskazówki</span>
+          <span style="font-size:10px;color:#475569">13 kwi</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Subtelny empty state + przycisk w nagłówku</h3>
+      <p>Mały przycisk "Generuj" obok tytułu, widoczna historia poprzednich raportów od razu. Mniej dramatyczny, bardziej zintegrowany z resztą strony.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;border-radius:8px;padding:16px;font-family:system-ui">
+      <!-- Banner style -->
+      <div style="background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">🌤️</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:2px">Twój raport jest gotowy do wygenerowania</div>
+          <div style="font-size:10px;color:#64748b">Sprawdź co dziś czeka Twoją skórę</div>
+        </div>
+        <div style="background:#7c3aed;color:#fff;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">
+          Generuj →
+        </div>
+      </div>
+      <!-- Profile summary below -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:#1e293b;border-radius:6px;padding:8px">
+          <div style="font-size:10px;color:#64748b">Typ skóry</div>
+          <div style="font-size:12px;font-weight:600;color:#cbd5e1">Wrażliwa</div>
+        </div>
+        <div style="background:#1e293b;border-radius:6px;padding:8px">
+          <div style="font-size:10px;color:#64748b">Lokalizacja</div>
+          <div style="font-size:12px;font-weight:600;color:#cbd5e1">Kraków</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:#475569;text-align:center">
+        Raport o 6:00 · lub wygeneruj ręcznie
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Banner z kontekstem profilu</h3>
+      <p>Poziomy banner z CTA, pod spodem widoczne dane profilu (typ skóry, lokalizacja). Pokazuje że system "wie" o użytkowniku i jest gotowy do działania.</p>
+    </div>
+  </div>
+</div>

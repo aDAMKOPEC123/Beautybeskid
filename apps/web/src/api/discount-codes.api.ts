@@ -11,7 +11,7 @@ export const discountCodesApi = {
   getAll: (): Promise<DiscountCode[]> =>
     api.get('/discount-codes').then(r => r.data.data.codes),
 
-  create: (data: { code: string; discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: number }): Promise<DiscountCode> =>
+  create: (data: { code: string; discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: number; isMultiUse: boolean }): Promise<DiscountCode> =>
     api.post('/discount-codes', data).then(r => r.data.data.code),
 
   toggle: (id: string, isActive: boolean): Promise<DiscountCode> =>

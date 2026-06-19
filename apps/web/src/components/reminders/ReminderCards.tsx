@@ -1,4 +1,5 @@
 // filepath: apps/web/src/components/reminders/ReminderCards.tsx
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarClock, CheckCircle2, Clock3, Layers3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +54,47 @@ export const ReminderCards = () => {
     queryFn: remindersApi.getMy,
   });
 
-  if (isLoading || reminders.length === 0) return null;
+  if (isLoading) return null;
+
+  if (reminders.length === 0) {
+    return (
+      <div
+        className="rounded-[18px] p-4"
+        style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)' }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(26,56,40,0.06)' }}
+          >
+            <CalendarClock size={17} style={{ color: '#1A3828' }} />
+          </div>
+          <div>
+            <p style={{ fontSize: '11px', color: 'rgba(20,40,28,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '2px' }}>
+              Wizyty cykliczne
+            </p>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#1A3828', lineHeight: 1.2 }}>
+              Brak aktywnych serii
+            </p>
+          </div>
+        </div>
+        <p style={{ fontSize: '12px', color: 'rgba(20,40,28,0.5)', lineHeight: 1.55, marginBottom: '12px' }}>
+          Niektóre zabiegi wymagają serii wizyt. Kosmetolożka może ustawić dla Ciebie plan cykliczny.
+        </p>
+        <Link
+          to="/rezerwacja"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '9px 14px', borderRadius: 100,
+            background: '#1A3828', color: '#fff',
+            fontSize: '12px', fontWeight: 600, textDecoration: 'none',
+          }}
+        >
+          Umów wizytę
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div

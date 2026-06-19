@@ -161,14 +161,14 @@ export function WeatherDayCard({ weatherData, cityName }: WeatherDayCardProps) {
           })}
         </div>
 
-        <div className="flex gap-1 overflow-x-auto [scrollbar-width:none]">
+        <div className="flex gap-1 overflow-x-auto w-full [scrollbar-width:none]">
           {columns.map((col, i) => {
             const isThirteen = col.hour === 13;
             return (
               <div
                 key={col.hour}
                 className={[
-                  'flex-shrink-0 flex-1 min-w-[40px] flex flex-col items-center gap-1 py-2 px-1 rounded-xl',
+                  'flex-shrink-0 min-w-[40px] flex-1 basis-[40px] flex flex-col items-center gap-1 py-2 px-1 rounded-xl',
                   'animate-slideIn motion-reduce:animate-none',
                   isThirteen
                     ? 'bg-gradient-to-b from-indigo-600/80 to-violet-700/80 animate-pulseGlow'

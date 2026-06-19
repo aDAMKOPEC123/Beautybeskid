@@ -1,4 +1,4 @@
-// filepath: apps/web/src/components/layout/UserLayout.tsx
+﻿// filepath: apps/web/src/components/layout/UserLayout.tsx
 import { useEffect, useState, useRef } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -78,7 +78,7 @@ const UserLayoutInner = () => {
     queryFn: skinJournalApi.getUnreadCount,
     enabled: isAuthenticated,
     refetchInterval: 30_000,
-    staleTime: 0,
+    staleTime: 30_000,
   });
 
   const { data: notifUnread = 0 } = useQuery<number>({
@@ -90,10 +90,7 @@ const UserLayoutInner = () => {
 
   const { data: routineUnread = 0 } = useQuery<number>({
     queryKey: ['homecare-unread'],
-    queryFn: async () => {
-      const res = await homecareApi.getUnreadCount();
-      return res.data.data.count;
-    },
+    queryFn: () => homecareApi.getUnreadCount(),
     enabled: isAuthenticated,
     refetchInterval: 30_000,
   });
@@ -144,9 +141,11 @@ const UserLayoutInner = () => {
   const { isSupported, isSubscribed, permission, subscribe } = usePushSubscription();
 
   const { startTour } = useTour();
+  const tourStartedRef = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated && freshUser !== undefined && freshUser.onboardingCompleted === false) {
+    if (isAuthenticated && freshUser !== undefined && freshUser.onboardingCompleted === false && !tourStartedRef.current) {
+      tourStartedRef.current = true;
       startTour();
     }
   }, [isAuthenticated, freshUser, startTour]);
@@ -186,7 +185,7 @@ const UserLayoutInner = () => {
         duration: 5000,
         action: {
           label: 'Zobacz',
-          onClick: () => { window.location.href = '/user/dziennik'; },
+          onClick: () => { navigate('/user/dziennik'); },
         },
       });
     };
@@ -202,7 +201,11 @@ const UserLayoutInner = () => {
     };
   }, [isConnected, queryClient]);
 
-  if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
+  if (isLoading) return (
+    <div className="flex items-center justify-center p-8">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
   if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname + location.search }} replace />;
 
   // Force password change for admin-created accounts
@@ -224,24 +227,25 @@ const UserLayoutInner = () => {
         className="sticky top-0 z-50 flex items-center"
         style={{
           height: '64px',
-          background: '#F4F9F5',
-          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
+          borderBottom: '2px solid #C4965A',
+          boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
         }}
       >
         <div className="container flex items-center justify-between">
           <Link
             to="/user"
             className="font-display text-[13px] tracking-[0.45em] uppercase"
-            style={{ color: '#1A3828', fontStyle: 'normal', fontWeight: 300 }}
+            style={{ color: '#F0EDE6', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.45em' }}
           >
-            Cosmo
+            BeautyBeskid
           </Link>
 
           <div className="flex items-center gap-5">
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
+                className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
                 style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Admina
@@ -250,7 +254,7 @@ const UserLayoutInner = () => {
             {!isAdmin && isEmployee && (
               <Link
                 to="/employee"
-                className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
+                className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
                 style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Pracownika
@@ -258,15 +262,15 @@ const UserLayoutInner = () => {
             )}
             <Link
               to="/"
-              className="hidden sm:block text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-              style={{ color: '#5A7A62' }}
+              className="hidden sm:block text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70"
+              style={{ color: 'rgba(240,237,230,0.65)' }}
             >
               ← Wizytówka
             </Link>
             <button
               onClick={handleLogout}
-              className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
-              style={{ color: '#5A7A62' }}
+              className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70"
+              style={{ color: 'rgba(240,237,230,0.65)' }}
             >
               Wyloguj
             </button>
@@ -275,8 +279,9 @@ const UserLayoutInner = () => {
       </header>
 
       {welcomeCoupon && (
-        <div
-          className="text-center py-2.5 px-4 text-sm border-b"
+        <Link
+          to={`/rezerwacja?code=${welcomeCoupon.code}`}
+          className="block text-center py-2.5 px-4 text-sm border-b transition-opacity hover:opacity-80"
           style={{
             background: 'rgba(196,150,90,0.08)',
             borderColor: 'rgba(196,150,90,0.2)',
@@ -291,8 +296,8 @@ const UserLayoutInner = () => {
           {welcomeCoupon.discountType === 'PERCENTAGE'
             ? `${welcomeCoupon.discountValue}% zniżki`
             : `${Number(welcomeCoupon.discountValue).toFixed(2)} zł zniżki`}
-          {' '}· Użyj go przy rezerwacji wizyty!
-        </div>
+          {' '}· Kliknij, aby zarezerwować wizytę z rabatem!
+        </Link>
       )}
 
       <div className="container flex-1 flex py-8 gap-8">
@@ -367,6 +372,7 @@ const UserLayoutInner = () => {
           <div className="mt-4">
             <Link
               to="/rezerwacja"
+              data-tour="sidebar-booking-btn"
               className="block w-full text-center py-2.5 px-4 rounded-full text-sm font-semibold transition-all"
               style={{ background: '#1A3828', color: '#fff' }}
             >
@@ -375,12 +381,13 @@ const UserLayoutInner = () => {
           </div>
         </aside>
 
-        <main className="flex-1 pb-20 md:pb-0">
+        <main className="flex-1 min-w-0 pb-20 md:pb-0">
           <Outlet />
         </main>
       </div>
 
       <Footer />
+      <div className="h-16 md:hidden" aria-hidden="true" />
       <ReviewPromptModal />
       <MobileBottomNav />
       <PwaInstallButton />

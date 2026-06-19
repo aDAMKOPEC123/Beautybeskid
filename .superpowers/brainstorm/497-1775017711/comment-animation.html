@@ -1,0 +1,174 @@
+<style>
+  .demo-area {
+    background: #1a1208;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    position: relative;
+    min-height: 80px;
+  }
+  .fake-comment {
+    background: #2a1f10;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .fake-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #B8913A;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #1a1208;
+    font-weight: bold;
+  }
+  .fake-text { flex: 1; }
+  .fake-name { background: #5a4020; height: 8px; border-radius: 4px; width: 80px; margin-bottom: 6px; }
+  .fake-line { background: #3a2818; height: 6px; border-radius: 3px; margin-bottom: 4px; }
+  .fake-line.short { width: 60%; }
+
+  /* Animation A — slide-in from bottom + fade */
+  @keyframes slideInFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .anim-a { animation: slideInFade 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+
+  /* Animation B — expand from zero height */
+  @keyframes expandIn {
+    from { opacity: 0; max-height: 0; transform: scaleY(0.8); transform-origin: top; }
+    to   { opacity: 1; max-height: 200px; transform: scaleY(1); }
+  }
+  .anim-b { animation: expandIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; overflow: hidden; }
+
+  /* Animation C — gentle glow highlight then settle */
+  @keyframes glowIn {
+    0%   { opacity: 0; transform: translateY(12px); background: #3d2810; }
+    40%  { opacity: 1; transform: translateY(0);    background: #B8913A22; }
+    100% { background: #2a1f10; }
+  }
+  .anim-c { animation: glowIn 0.8s ease forwards; }
+
+  .demo-btn {
+    background: #B8913A;
+    color: #1a1208;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .demo-btn:hover { background: #d4a84a; }
+</style>
+
+<h2>Jak powinien pojawiać się nowy komentarz?</h2>
+<p class="subtitle">Kliknij "Dodaj komentarz" w każdej opcji, żeby zobaczyć animację na żywo.</p>
+
+<div class="section">
+  <div class="label">Opcja A — Slide-in z dołu + fade</div>
+  <div class="demo-area" id="area-a">
+    <div class="fake-comment">
+      <div class="fake-avatar">M</div>
+      <div class="fake-text">
+        <div class="fake-name"></div>
+        <div class="fake-line"></div>
+        <div class="fake-line short"></div>
+      </div>
+    </div>
+  </div>
+  <button class="demo-btn" onclick="addComment('area-a','anim-a')">+ Dodaj komentarz</button>
+</div>
+
+<div class="section">
+  <div class="label">Opcja B — Rozwinięcie (expand z góry)</div>
+  <div class="demo-area" id="area-b">
+    <div class="fake-comment">
+      <div class="fake-avatar">K</div>
+      <div class="fake-text">
+        <div class="fake-name"></div>
+        <div class="fake-line"></div>
+        <div class="fake-line short"></div>
+      </div>
+    </div>
+  </div>
+  <button class="demo-btn" onclick="addComment('area-b','anim-b')">+ Dodaj komentarz</button>
+</div>
+
+<div class="section">
+  <div class="label">Opcja C — Pojawianie z podświetleniem (glow)</div>
+  <div class="demo-area" id="area-c">
+    <div class="fake-comment">
+      <div class="fake-avatar">A</div>
+      <div class="fake-text">
+        <div class="fake-name"></div>
+        <div class="fake-line"></div>
+        <div class="fake-line short"></div>
+      </div>
+    </div>
+  </div>
+  <button class="demo-btn" onclick="addComment('area-c','anim-c')">+ Dodaj komentarz</button>
+</div>
+
+<div class="options" style="margin-top:24px;">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Slide-in + fade</h3>
+      <p>Płynne wjechanie od dołu z pojawieniem się. Klasyczne, dobrze znane użytkownikom z mediów społecznościowych.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Expand z góry</h3>
+      <p>Komentarz "rośnie" od zera. Bardziej organiczne, nie przeskakuje treść poniżej.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Glow highlight</h3>
+      <p>Pojawia się z ciepłym złotym podświetleniem, które powoli gaśnie. Wyróżnia nowo dodany komentarz, łatwo go zlokalizować.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let commentCounts = {a: 1, b: 1, c: 1};
+const names = ['Zofia', 'Natalia', 'Karolina', 'Marta', 'Ewa'];
+const texts = [
+  ['Świetny artykuł!', 'Na pewno wypróbuję te wskazówki.'],
+  ['Bardzo pomocne porady 😊', 'Dziękuję za ten post!'],
+  ['Właśnie tego szukałam ❤️', 'Zapisuję do ulubionych.'],
+];
+
+function addComment(areaId, animClass) {
+  const area = document.getElementById(areaId);
+  const key = areaId.split('-')[1];
+  const name = names[commentCounts[key] % names.length];
+  const textSet = texts[commentCounts[key] % texts.length];
+  commentCounts[key]++;
+
+  const div = document.createElement('div');
+  div.className = 'fake-comment ' + animClass;
+  div.innerHTML = `
+    <div class="fake-avatar" style="background:#B8913A;font-size:13px;">${name[0]}</div>
+    <div class="fake-text">
+      <div style="color:#B8913A;font-size:12px;font-weight:600;margin-bottom:4px;">${name}</div>
+      <div style="color:#c9a96e;font-size:13px;line-height:1.4;">${textSet[0]}</div>
+      <div style="color:#8a6640;font-size:12px;margin-top:4px;">${textSet[1]}</div>
+    </div>
+  `;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+</script>

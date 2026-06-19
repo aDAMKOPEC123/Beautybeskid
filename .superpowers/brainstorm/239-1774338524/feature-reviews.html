@@ -1,0 +1,108 @@
+<h2>Feature 1: System Recenzji po Wizycie</h2>
+<p class="subtitle">Klient otrzymuje zaproszenie do oceny po zakończonej wizycie</p>
+
+<div class="section">
+  <h3>Flow recenzji</h3>
+  <div class="mockup">
+    <div class="mockup-header">Email / Push po wizycie (24h delay)</div>
+    <div class="mockup-body" style="text-align:center; padding:30px;">
+      <p style="font-size:1.1em;">Cześć <strong>Anna</strong>! Jak oceniasz wizytę?</p>
+      <p style="margin:15px 0;">Zabieg: <strong>Mikrodermabrazja</strong> · Kosmetolog: <strong>Marta K.</strong></p>
+      <div style="font-size:2.5em; letter-spacing:8px; margin:20px 0;">
+        <span style="color:#f59e0b;">★ ★ ★ ★</span><span style="color:#374151;">★</span>
+      </div>
+      <div style="background:#1a1a2e; border-radius:8px; padding:15px; margin:15px auto; max-width:400px; text-align:left;">
+        <p style="color:#888; font-size:0.9em; margin-bottom:8px;">Twoja opinia (opcjonalnie)</p>
+        <p style="color:#ccc;">"Super efekt, skóra gładka jak nigdy! Marta jest bardzo profesjonalna i miła."</p>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
+        <button class="mock-button" style="background:#8b5cf6; color:white;">Wyślij opinię</button>
+        <button class="mock-button" style="background:transparent; border:1px solid #555; color:#aaa;">Pomiń</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Wyświetlanie recenzji na stronie usługi</h3>
+  <div class="mockup">
+    <div class="mockup-header">Strona usługi — sekcja "Opinie klientek"</div>
+    <div class="mockup-body" style="padding:20px;">
+      <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+        <div style="font-size:2.5em; font-weight:bold; color:#f59e0b;">4.8</div>
+        <div>
+          <div style="color:#f59e0b; font-size:1.2em;">★★★★★</div>
+          <div style="color:#888; font-size:0.85em;">na podstawie 47 opinii</div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #333; padding:15px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="color:#e2e8f0;">Anna M.</strong>
+            <span style="color:#f59e0b; margin-left:8px;">★★★★★</span>
+          </div>
+          <span style="color:#666; font-size:0.8em;">2 tygodnie temu</span>
+        </div>
+        <p style="color:#aaa; margin-top:8px;">"Super efekt, skóra gładka jak nigdy! Marta jest bardzo profesjonalna."</p>
+        <div style="display:flex; gap:5px; margin-top:8px;">
+          <span style="background:#1e1b4b; color:#a78bfa; padding:2px 8px; border-radius:12px; font-size:0.75em;">Zweryfikowana wizyta ✓</span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #333; padding:15px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="color:#e2e8f0;">Kasia P.</strong>
+            <span style="color:#f59e0b; margin-left:8px;">★★★★<span style="color:#374151;">★</span></span>
+          </div>
+          <span style="color:#666; font-size:0.8em;">miesiąc temu</span>
+        </div>
+        <p style="color:#aaa; margin-top:8px;">"Bardzo dobry zabieg, widoczna poprawa. Jedyny minus to czas oczekiwania."</p>
+        <div style="display:flex; gap:5px; margin-top:8px;">
+          <span style="background:#1e1b4b; color:#a78bfa; padding:2px 8px; border-radius:12px; font-size:0.75em;">Zweryfikowana wizyta ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Kluczowe zasady</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+    <div style="background:#1a1a2e; border-radius:8px; padding:15px;">
+      <h4 style="color:#a78bfa; margin-bottom:8px;">✓ Tylko po wizycie</h4>
+      <p style="color:#aaa; font-size:0.9em;">Recenzję może dodać tylko klient z COMPLETED appointment — zero fake reviews</p>
+    </div>
+    <div style="background:#1a1a2e; border-radius:8px; padding:15px;">
+      <h4 style="color:#a78bfa; margin-bottom:8px;">✓ Gwiazdki 1-5 + tekst</h4>
+      <p style="color:#aaa; font-size:0.9em;">Rating obowiązkowy, komentarz opcjonalny. Prosto i szybko.</p>
+    </div>
+    <div style="background:#1a1a2e; border-radius:8px; padding:15px;">
+      <h4 style="color:#a78bfa; margin-bottom:8px;">✓ Admin moderacja</h4>
+      <p style="color:#aaa; font-size:0.9em;">Admin widzi wszystkie, może ukryć nieodpowiednie. Domyślnie widoczne.</p>
+    </div>
+    <div style="background:#1a1a2e; border-radius:8px; padding:15px;">
+      <h4 style="color:#a78bfa; margin-bottom:8px;">✓ Punkty lojalnościowe</h4>
+      <p style="color:#aaa; font-size:0.9em;">+5 punktów za zostawienie recenzji — motywacja do dzielenia się opinią</p>
+    </div>
+  </div>
+</div>
+
+<h3>Czy ten design Ci odpowiada?</h3>
+<div class="options">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Tak, podoba mi się</h3>
+      <p>Flow recenzji, wyświetlanie, moderacja — wszystko ok</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Mam uwagi</h3>
+      <p>Coś bym zmienił — napiszę w terminalu</p>
+    </div>
+  </div>
+</div>

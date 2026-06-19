@@ -61,9 +61,8 @@ export const getAllPosts = async (includeUnpublished = false, userId?: string) =
 };
 
 export const getPostBySlug = async (slug: string, userId?: string) => {
-  const post = await prisma.blogPost.update({
+  const post = await prisma.blogPost.findUnique({
     where: { slug },
-    data: { views: { increment: 1 } },
     include: {
       author: { select: { name: true, avatarPath: true } },
       tags: true,
@@ -71,6 +70,8 @@ export const getPostBySlug = async (slug: string, userId?: string) => {
     }
   });
   if (!post) throw new AppError('Wpis nie znaleziony', 404);
+
+  await prisma.blogPost.update({ where: { slug }, data: { views: { increment: 1 } } });
 
   let isLiked = false;
   if (userId) {
@@ -87,7 +88,7 @@ export const createPost = async (authorId: string, data: CreateBlogPostInput) =>
   let slug = createSlug(data.title);
 
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
-  if (existing) slug = `${slug}-${Date.now()}`;
+  if (existing) slug = `${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
   const { tags, ...rest } = data;
 
@@ -116,8 +117,12 @@ export const updatePostImage = async (id: string, coverImage: string) => {
 
 export const updatePost = async (id: string, data: UpdateBlogPostInput) => {
   const { tags, ...rest } = data;
-  let slug;
-  if (data.title) slug = createSlug(data.title);
+  let slug: string | undefined;
+  if (data.title) {
+    slug = createSlug(data.title);
+    const existing = await prisma.blogPost.findFirst({ where: { slug, NOT: { id } } });
+    if (existing) slug = `${slug}-${Date.now()}`;
+  }
 
   return await prisma.blogPost.update({
     where: { id },

@@ -1,0 +1,346 @@
+﻿<style>
+  body { font-family: Georgia, serif; }
+
+  /* ── shared tokens ── */
+  :root {
+    --gold: #B8913A;
+    --dark: #1A1208;
+    --bg: #FDFAF6;
+    --border: rgba(0,0,0,0.07);
+    --text-muted: rgba(26,18,8,0.55);
+  }
+
+  .split { gap: 32px; align-items: flex-start; }
+
+  /* ── MOBILE MOCK ── */
+  .mobile-frame {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+  .panel-header {
+    height: 48px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--dark);
+  }
+  .panel-header span { font-size: 9px; color: #9a8070; letter-spacing: 0.12em; }
+
+  .greeting-strip {
+    background: linear-gradient(135deg, var(--dark), #3a2a14);
+    color: #fff;
+    padding: 14px 16px;
+    font-size: 13px; font-weight: 700;
+  }
+  .greeting-strip small {
+    display: block; font-size: 9px; font-weight: 400;
+    color: rgba(255,255,255,0.6); margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* THE NEW BANNER */
+  .news-banner {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .banner-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a0800 30%, #7a4020 70%, #c07840 100%);
+  }
+  .banner-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.78) 55%, rgba(0,0,0,0.15) 100%);
+  }
+  .banner-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 14px 16px;
+  }
+  .banner-label {
+    font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; margin-bottom: 4px;
+    font-family: sans-serif;
+  }
+  .banner-heading {
+    font-size: 14px; color: #fff; font-weight: 700;
+    line-height: 1.25; margin-bottom: 3px;
+  }
+  .banner-sub {
+    font-size: 9px; color: rgba(255,255,255,0.6);
+    margin-bottom: 10px; line-height: 1.4; font-family: sans-serif;
+  }
+  .banner-btns { display: flex; gap: 6px; }
+  .btn-primary {
+    background: var(--gold); color: #fff;
+    font-size: 9px; font-weight: 700; padding: 5px 12px;
+    border-radius: 20px; letter-spacing: 0.08em; font-family: sans-serif;
+  }
+  .btn-outline {
+    border: 1px solid rgba(255,255,255,0.4); color: rgba(255,255,255,0.8);
+    font-size: 9px; padding: 5px 12px; border-radius: 20px;
+    letter-spacing: 0.08em; font-family: sans-serif;
+  }
+  .banner-nav-prev, .banner-nav-next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: rgba(255,255,255,0.7);
+  }
+  .banner-nav-prev { left: 8px; }
+  .banner-nav-next { right: 8px; }
+  .banner-dots {
+    position: absolute; right: 14px; bottom: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .bdot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.28); }
+  .bdot.on { background: var(--gold); }
+
+  .chips-row {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 6px;
+  }
+  .chip {
+    background: rgba(184,145,58,0.12); color: #8a6a20;
+    font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+    font-family: sans-serif;
+  }
+  .dash-row {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    font-size: 10px; color: var(--text-muted); font-family: sans-serif;
+  }
+  .more { text-align: center; font-size: 9px; color: #c0b0a0; padding: 6px; font-family: sans-serif; }
+
+  /* ── DESKTOP MOCK ── */
+  .desktop-frame {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .desktop-panel-header {
+    height: 52px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--dark);
+  }
+  .desktop-panel-header span { font-size: 9px; color: #9a8070; letter-spacing: 0.12em; font-family: sans-serif; }
+
+  .desktop-layout {
+    display: flex;
+  }
+  .desktop-sidebar {
+    width: 180px; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+  }
+  .sidebar-link {
+    padding: 7px 16px;
+    font-size: 10px; color: rgba(26,18,8,0.55);
+    display: flex; align-items: center; gap: 6px;
+    font-family: sans-serif;
+  }
+  .sidebar-link.active { color: var(--gold); font-weight: 700; background: rgba(184,145,58,0.07); }
+  .sidebar-icon { width: 10px; height: 10px; border-radius: 2px; background: currentColor; opacity: 0.6; }
+
+  .desktop-main { flex: 1; overflow: hidden; }
+
+  /* Desktop greeting */
+  .desktop-greeting {
+    background: linear-gradient(135deg, var(--dark), #3a2a14);
+    color: #fff; padding: 14px 24px;
+    font-size: 14px; font-weight: 700;
+  }
+  .desktop-greeting small {
+    font-size: 10px; font-weight: 400;
+    color: rgba(255,255,255,0.55); margin-left: 8px;
+    font-family: sans-serif;
+  }
+
+  /* Desktop banner — wider, same height */
+  .desktop-news-banner {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .desktop-banner-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, #1a0800 25%, #6a3010 60%, #c07840 100%);
+  }
+  .desktop-banner-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.1) 100%);
+  }
+  .desktop-banner-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px 24px;
+  }
+  .desktop-chips {
+    padding: 10px 24px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .desktop-row {
+    padding: 10px 24px; border-bottom: 1px solid var(--border);
+    font-size: 10px; color: var(--text-muted); font-family: sans-serif;
+  }
+  .desktop-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .desktop-grid .desktop-row { border-right: 1px solid var(--border); }
+  .desktop-grid .desktop-row:nth-child(2) { border-right: none; }
+</style>
+
+<h2>Finalny design — DashboardNewsBanner</h2>
+<p class="subtitle">Widok mobile (lewa) i desktop (prawa). Złotem zaznaczona nowa sekcja.</p>
+
+<div class="split" style="display:flex; flex-wrap: wrap;">
+
+  <!-- MOBILE -->
+  <div>
+    <p class="label" style="text-align:center; margin-bottom: 8px;">Mobile</p>
+    <div class="mobile-frame">
+      <div class="panel-header">BeautyBeskid <span>← Wizytówka &nbsp;·&nbsp; Wyloguj</span></div>
+      <div class="greeting-strip">
+        Cześć, Ania! ✦
+        <small>Kolejna wizyta: pn. 9 kwi · 10:00 · Mezoterapia</small>
+      </div>
+
+      <!-- NEW COMPONENT highlighted -->
+      <div style="outline: 2px solid #B8913A; outline-offset: -2px;">
+        <div class="news-banner">
+          <div class="banner-bg"></div>
+          <div class="banner-overlay"></div>
+          <div class="banner-content">
+            <div class="banner-label">✦ Nowości &amp; Aktualności</div>
+            <div class="banner-heading">Nowy zabieg laserowy<br>w ofercie BeautyBeskid</div>
+            <div class="banner-sub">Precyzyjne modelowanie twarzy bez bólu</div>
+            <div class="banner-btns">
+              <div class="btn-primary">Dowiedz się więcej</div>
+              <div class="btn-outline">Umów się</div>
+            </div>
+          </div>
+          <div class="banner-nav-prev">‹</div>
+          <div class="banner-nav-next">›</div>
+          <div class="banner-dots">
+            <div class="bdot on"></div>
+            <div class="bdot"></div>
+            <div class="bdot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chips-row">
+        <div class="chip">+ Zarezerwuj</div>
+        <div class="chip">✦ 320 pkt</div>
+        <div class="chip">Wizyty</div>
+      </div>
+      <div class="dash-row">Serie zabiegowe…</div>
+      <div class="dash-row">Lojalność · Poziom BRONZE</div>
+      <div class="more">↓ więcej sekcji</div>
+    </div>
+  </div>
+
+  <!-- DESKTOP -->
+  <div style="flex: 1; min-width: 420px;">
+    <p class="label" style="text-align:center; margin-bottom: 8px;">Desktop</p>
+    <div class="desktop-frame">
+      <div class="desktop-panel-header">BeautyBeskid <span>← Wizytówka &nbsp;·&nbsp; Wyloguj</span></div>
+      <div class="desktop-layout">
+        <div class="desktop-sidebar">
+          <div class="sidebar-link active"><div class="sidebar-icon"></div> Dashboard</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Moje Wizyty</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Punkty</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Historia</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Dziennik</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Produkty</div>
+          <div class="sidebar-link"><div class="sidebar-icon"></div> Profil</div>
+        </div>
+        <div class="desktop-main">
+          <div class="desktop-greeting">
+            Cześć, Ania! ✦
+            <small>Kolejna wizyta: pn. 9 kwi · 10:00</small>
+          </div>
+
+          <!-- NEW COMPONENT highlighted -->
+          <div style="outline: 2px solid #B8913A; outline-offset: -2px;">
+            <div class="desktop-news-banner">
+              <div class="desktop-banner-bg"></div>
+              <div class="desktop-banner-overlay"></div>
+              <div class="desktop-banner-content">
+                <div class="banner-label">✦ Nowości &amp; Aktualności</div>
+                <div class="banner-heading" style="font-size:16px;">Nowy zabieg laserowy w ofercie BeautyBeskid</div>
+                <div class="banner-sub" style="font-size:10px; max-width:340px;">Precyzyjne modelowanie twarzy bez bólu — dowiedz się więcej</div>
+                <div class="banner-btns">
+                  <div class="btn-primary">Dowiedz się więcej</div>
+                  <div class="btn-outline">Umów się</div>
+                </div>
+              </div>
+              <div class="banner-nav-prev" style="left:12px;">‹</div>
+              <div class="banner-nav-next" style="right:12px;">›</div>
+              <div class="banner-dots">
+                <div class="bdot on"></div><div class="bdot"></div><div class="bdot"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="desktop-chips">
+            <div class="chip">+ Zarezerwuj wizytę</div>
+            <div class="chip">✦ 320 pkt</div>
+          </div>
+          <div class="desktop-grid">
+            <div class="desktop-row">Serie zabiegowe…</div>
+            <div class="desktop-row">Lojalność · BRONZE</div>
+          </div>
+          <div class="more">↓ więcej sekcji</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Szczegóły zachowania</h3>
+  <ul style="font-family: sans-serif; font-size: 13px; color: #5a4a3a; line-height: 1.8; padding-left: 20px;">
+    <li>Autoplay co <strong>5 sekund</strong> (pauza przy hover/touch)</li>
+    <li>Przyciski CTA ze slajdu — klikalne, otwierają <code>href</code> ze slide'a</li>
+    <li>Strzałki prev/next + kropki po prawej (pionowo)</li>
+    <li>Jeśli tylko 1 slajd — strzałki i kropki ukryte</li>
+    <li>Jeśli brak slajdów — sekcja niewidoczna (<code>null</code>)</li>
+    <li>Skeleton loader podczas ładowania</li>
+  </ul>
+</div>
+
+<div class="options" style="margin-top: 8px;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Zatwierdź design</h3>
+      <p>Wygląda dobrze, przejdź do pisania specyfikacji</p>
+    </div>
+  </div>
+  <div class="option" data-choice="changes" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>Wprowadź zmiany</h3>
+      <p>Coś wymaga korekty</p>
+    </div>
+  </div>
+</div>

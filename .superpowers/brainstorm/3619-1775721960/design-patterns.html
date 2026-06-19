@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid — Design Patterns Mobile</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #f0ebe3; padding: 20px; color: #1C1510; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #6B5A4E; margin-bottom: 24px; }
+  section { margin-bottom: 32px; }
+  section > h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: #B8913A; margin-bottom: 12px; font-weight: 600; }
+
+  /* Phone frame */
+  .phones { display: flex; gap: 16px; flex-wrap: wrap; }
+  .phone { width: 220px; background: #FAF7F2; border-radius: 24px; overflow: hidden; border: 2px solid #d4c9ba; box-shadow: 0 4px 20px rgba(0,0,0,0.12); flex-shrink: 0; }
+  .phone-label { font-size: 11px; font-weight: 600; color: #6B5A4E; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Bottom nav */
+  .bottom-nav { display: flex; background: #fff; border-top: 1px solid #e5ddd5; padding: 8px 0 4px; }
+  .nav-item { flex: 1; text-align: center; font-size: 9px; color: #888; line-height: 1.3; padding: 2px 0; }
+  .nav-item.active { color: #B8913A; }
+  .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+  .nav-badge { display: inline-block; background: #e53e3e; color: white; font-size: 8px; border-radius: 6px; padding: 1px 4px; margin-left: 2px; vertical-align: top; margin-top: -2px; }
+
+  /* Cards */
+  .card { background: #fff; border-radius: 16px; padding: 14px; border: 1px solid rgba(0,0,0,0.07); margin-bottom: 10px; }
+  .card-dark { background: linear-gradient(135deg, #2a1f15, #1C1510); border-radius: 16px; padding: 14px; margin-bottom: 10px; color: #FAF7F2; }
+
+  /* Typography */
+  .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: #B8913A; font-weight: 600; margin-bottom: 4px; }
+  .title { font-size: 15px; font-weight: 700; color: #1C1510; }
+  .title-light { font-size: 15px; font-weight: 700; color: #FAF7F2; }
+  .meta { font-size: 11px; color: #6B5A4E; margin-top: 2px; }
+  .meta-light { font-size: 11px; color: rgba(250,247,242,0.6); margin-top: 2px; }
+
+  /* Buttons */
+  .btn-primary { background: #1C1510; color: #FAF7F2; border-radius: 10px; padding: 10px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border: none; width: 100%; margin-top: 10px; display: block; text-align: center; }
+  .btn-caramel { background: #B8913A; color: #FAF7F2; border-radius: 10px; padding: 10px 16px; font-size: 11px; font-weight: 600; border: none; width: 100%; display: block; text-align: center; }
+  .btn-outline { border: 1px solid #B8913A; color: #B8913A; border-radius: 10px; padding: 8px 14px; font-size: 11px; font-weight: 600; background: none; display: inline-block; text-align: center; }
+
+  /* Status badges */
+  .badge { display: inline-block; border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; }
+  .badge-confirmed { background: rgba(34,197,94,0.12); color: #15803D; }
+  .badge-pending { background: rgba(184,145,58,0.12); color: #92400E; }
+  .badge-cancelled { background: rgba(239,68,68,0.1); color: #DC2626; }
+
+  /* Progress bar */
+  .progress-track { height: 6px; background: #e5ddd5; border-radius: 3px; overflow: hidden; margin: 6px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #B8913A, #C4A882); border-radius: 3px; }
+
+  /* Marketing elements */
+  .marketing-banner { background: rgba(184,145,58,0.08); border: 1px solid rgba(184,145,58,0.2); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .marketing-dot { width: 6px; height: 6px; background: #B8913A; border-radius: 50%; flex-shrink: 0; }
+
+  /* Page header */
+  .page-header { padding: 14px 14px 8px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .page-content { padding: 12px; }
+
+  /* Divider */
+  .divider { height: 1px; background: rgba(0,0,0,0.06); margin: 10px 0; }
+
+  /* Grid 2 col */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* Tag */
+  .tag { display: inline-block; background: #fdf6ec; border: 1px solid rgba(184,145,58,0.3); border-radius: 20px; padding: 2px 8px; font-size: 9px; color: #B8913A; margin-right: 4px; }
+
+  /* Tier badge */
+  .tier-badge { background: rgba(184,145,58,0.15); border-radius: 20px; padding: 3px 10px; font-size: 9px; font-weight: 700; color: #92400E; display: inline-block; }
+</style>
+</head>
+<body>
+
+<h1>BeautyBeskid · Design mobilny</h1>
+<p class="sub">Wzorce wizualne stosowane na wszystkich stronach panelu klienta</p>
+
+<!-- SECTION: Bottom Nav -->
+<section>
+  <h2>1. Dolna nawigacja (Bottom Bar)</h2>
+  <div class="phones">
+    <div>
+      <div class="phone-label">Nowa nawigacja</div>
+      <div class="phone">
+        <div style="padding:12px;font-size:11px;color:#888;text-align:center;min-height:140px;background:#FAF7F2;display:flex;align-items:center;justify-content:center">Treść strony</div>
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">📅</span>
+            Wizyty
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">⭐</span>
+            Lojalność
+          </div>
+          <div class="nav-item" style="position:relative">
+            <span class="nav-icon">💬</span>
+            Chat
+            <span style="position:absolute;top:0;right:28px;background:#e53e3e;color:#fff;font-size:7px;border-radius:8px;padding:1px 4px">3</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">☰</span>
+            Więcej
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-label">"Więcej" — bottom sheet</div>
+      <div class="phone">
+        <div style="background:rgba(0,0,0,0.3);min-height:60px"></div>
+        <div style="background:#fff;border-radius:20px 20px 0 0;padding:16px">
+          <div style="width:32px;height:3px;background:#ddd;border-radius:2px;margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0e8de">
+            <span style="font-size:20px">🕐</span>
+            <span style="font-size:13px;font-weight:500">Historia</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0e8de">
+            <span style="font-size:20px">👤</span>
+            <span style="font-size:13px;font-weight:500">Profil</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0e8de">
+            <span style="font-size:20px">🔔</span>
+            <span style="font-size:13px;font-weight:500">Powiadomienia</span>
+            <span class="nav-badge" style="margin-left:auto;margin-top:0">2</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0e8de">
+            <span style="font-size:20px">👥</span>
+            <span style="font-size:13px;font-weight:500">Polecenia</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0e8de">
+            <span style="font-size:20px">🛍️</span>
+            <span style="font-size:13px;font-weight:500">Produkty</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0">
+            <span style="font-size:20px">📓</span>
+            <span style="font-size:13px;font-weight:500">Dziennik skóry</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Cards -->
+<section>
+  <h2>2. Wzorce kart — czytelność na mobile</h2>
+  <div class="phones">
+
+    <div>
+      <div class="phone-label">Karta wizyty</div>
+      <div class="phone">
+        <div class="page-content">
+          <div class="card">
+            <div class="eyebrow">Nadchodząca wizyta</div>
+            <div class="title">Pedicure SPA</div>
+            <div class="meta">Czw, 12 kwi · 14:00 · Anna K.</div>
+            <div class="divider"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span class="badge badge-confirmed">Potwierdzona</span>
+              <span style="font-size:13px;font-weight:600;color:#1C1510">180 zł</span>
+            </div>
+            <a class="btn-primary">Zmień termin</a>
+          </div>
+
+          <!-- Marketing contextual -->
+          <div class="marketing-banner">
+            <div class="marketing-dot"></div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#1C1510">Zarezerwuj kolejną wizytę</div>
+              <div style="font-size:10px;color:#6B5A4E">Regularne zabiegi = lepsze efekty</div>
+            </div>
+            <span style="margin-left:auto;font-size:18px">→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-label">Karta lojalności</div>
+      <div class="phone">
+        <div class="page-content">
+          <div class="card-dark">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(250,247,242,0.5);margin-bottom:4px">Twoje punkty</div>
+                <div style="font-size:32px;font-weight:700;color:#FAF7F2;line-height:1">340</div>
+                <div style="font-size:11px;color:rgba(250,247,242,0.6);margin-top:4px">160 pkt do Silver</div>
+              </div>
+              <span class="tier-badge" style="background:rgba(184,145,58,0.25);color:#C4A882">BRONZE</span>
+            </div>
+            <div class="progress-track" style="margin-top:12px;background:rgba(255,255,255,0.15)">
+              <div class="progress-fill" style="width:68%"></div>
+            </div>
+          </div>
+
+          <!-- Marketing: near tier upgrade -->
+          <div class="marketing-banner" style="background:rgba(184,145,58,0.12);border-color:rgba(184,145,58,0.3)">
+            <span style="font-size:16px">🎯</span>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#1C1510">Blisko Silver!</div>
+              <div style="font-size:10px;color:#6B5A4E">2 wizyty dzielą Cię od nagrody</div>
+            </div>
+            <span style="margin-left:auto;font-size:11px;color:#B8913A;font-weight:600">Zobacz →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION: Dashboard hub -->
+<section>
+  <h2>3. Dashboard — hub z kafelkami statusu</h2>
+  <div class="phones">
+    <div>
+      <div class="phone-label">Strona główna</div>
+      <div class="phone">
+        <div class="page-header">
+          <div style="font-size:11px;color:#B8913A;font-weight:600">Cześć, Anna 👋</div>
+          <div style="font-size:16px;font-weight:700;margin-top:1px">Twój panel</div>
+        </div>
+        <div class="page-content">
+          <div class="grid2" style="margin-bottom:10px">
+            <div class="card" style="padding:12px">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#B8913A;margin-bottom:6px">Wizyty</div>
+              <div style="font-size:18px;font-weight:700">2</div>
+              <div style="font-size:10px;color:#6B5A4E">nadchodzące</div>
+            </div>
+            <div class="card" style="padding:12px">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#B8913A;margin-bottom:6px">Punkty</div>
+              <div style="font-size:18px;font-weight:700">340</div>
+              <div style="font-size:10px;color:#6B5A4E">Bronze · +160 do Silver</div>
+            </div>
+            <div class="card" style="padding:12px;position:relative">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#B8913A;margin-bottom:6px">Chat</div>
+              <div style="font-size:18px;font-weight:700">3</div>
+              <div style="font-size:10px;color:#e53e3e;font-weight:500">nowe wiad.</div>
+            </div>
+            <div class="card" style="padding:12px">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#B8913A;margin-bottom:6px">Dziennik</div>
+              <div style="font-size:18px;font-weight:700">12</div>
+              <div style="font-size:10px;color:#6B5A4E">wpisów</div>
+            </div>
+          </div>
+          <a class="btn-caramel" style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase">+ Umów wizytę</a>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active"><span class="nav-icon">🏠</span>Dashboard</div>
+          <div class="nav-item"><span class="nav-icon">📅</span>Wizyty</div>
+          <div class="nav-item"><span class="nav-icon">⭐</span>Lojalność</div>
+          <div class="nav-item"><span class="nav-icon">💬</span>Chat</div>
+          <div class="nav-item"><span class="nav-icon">☰</span>Więcej</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-label">Widok wizyty po zabiegu</div>
+      <div class="phone">
+        <div class="page-content">
+          <div class="card">
+            <div style="text-align:center;padding:10px 0">
+              <div style="font-size:28px;margin-bottom:6px">✨</div>
+              <div style="font-size:14px;font-weight:700;color:#1C1510">Wizyta zakończona!</div>
+              <div style="font-size:11px;color:#6B5A4E;margin-top:3px">Pedicure SPA · wczoraj</div>
+            </div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:6px">
+              <a class="btn-outline" style="flex:1;font-size:10px;padding:8px">★ Oceń</a>
+              <a class="btn-primary" style="flex:1;font-size:10px;margin:0;padding:8px">Rezerwuj znowu</a>
+            </div>
+          </div>
+
+          <div class="card" style="background:rgba(184,145,58,0.04);border-color:rgba(184,145,58,0.2)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:16px">🎯</span>
+              <div style="font-size:12px;font-weight:700">Jesteś blisko Silver!</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:68%"></div>
+            </div>
+            <div style="font-size:10px;color:#6B5A4E;margin-top:4px">160 pkt · jeszcze 2 wizyty</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Typography scale -->
+<section>
+  <h2>4. Skala typograficzna na mobile</h2>
+  <div class="card" style="max-width:440px">
+    <div style="margin-bottom:16px">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#B8913A;margin-bottom:3px">Eyebrow / label — 9–10px, uppercase, caramel</div>
+      <div style="font-size:16px;font-weight:700;color:#1C1510;margin-bottom:2px">Tytuł karty — 15–16px, bold, espresso</div>
+      <div style="font-size:12px;color:#6B5A4E;margin-bottom:8px">Meta / pomocnicze — 11–12px, mink</div>
+      <div style="font-size:13px;color:#1C1510;line-height:1.5">Treść / opis — 13px, regular, espresso. Wystarczająco duże na dotknięcie palcem i łatwe w czytaniu na małym ekranie.</div>
+    </div>
+    <div style="background:#f5f0eb;border-radius:10px;padding:12px">
+      <div style="font-size:11px;font-weight:600;color:#92400E;margin-bottom:4px">⚠ Błąd obecny w projekcie</div>
+      <div style="font-size:11px;color:#6B5A4E">Wiele elementów używa 10–11px na mobile (zbyt małe). Proponuję minimum 13px dla treści, 11px dla metadanych.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Touch targets -->
+<section>
+  <h2>5. Dotykalne obszary (min. 44×44px)</h2>
+  <div class="card" style="max-width:440px">
+    <div style="font-size:12px;color:#6B5A4E;line-height:1.6">
+      Obecny problem: przyciski "Zmień termin", ikony usuwania w Dzienniku i Produktach są za małe na dotyk (<strong>~32px</strong>). Wszystkie interaktywne elementy zostaną powiększone do minimum 44px wysokości, z padding ≥ 12px pionowo.
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <div style="flex:1">
+        <div style="font-size:10px;color:#e53e3e;margin-bottom:6px;font-weight:600">❌ Obecne (za małe)</div>
+        <div style="background:#fee2e2;border-radius:8px;padding:5px 10px;font-size:10px;text-align:center;color:#DC2626">Zmień termin</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:10px;color:#15803D;margin-bottom:6px;font-weight:600">✓ Nowe (ok)</div>
+        <div style="background:#1C1510;border-radius:8px;padding:12px 10px;font-size:11px;text-align:center;color:#FAF7F2;font-weight:600">Zmień termin</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

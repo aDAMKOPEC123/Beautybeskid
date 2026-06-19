@@ -1,0 +1,124 @@
+<h2>Układ modalu "Podsumowanie dziennika"</h2>
+<p class="subtitle">Jak powinny być rozmieszczone sekcje wewnątrz modalu? Wybierz opcję która najbardziej Ci odpowiada.</p>
+
+<div class="cards">
+
+  <!-- Opcja A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #faf9f7; border-radius: 8px; font-size: 12px;">
+      <div style="background:#B8913A; color:#fff; borderRadius:6px; padding:6px 10px; marginBottom:8px; fontWeight:700; borderRadius:6px; border-radius:6px;">📅 30 dni ▾</div>
+      <div style="display:flex; gap:6px; marginBottom:8px;">
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:8px; border-radius:6px; text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#B8913A;">3.8</div>
+          <div style="color:#999; font-size:10px;">śr. nastrój</div>
+        </div>
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:8px; border-radius:6px; text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#B8913A;">14</div>
+          <div style="color:#999; font-size:10px;">wpisów</div>
+        </div>
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:8px; border-radius:6px; text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:#4ade80;">↑</div>
+          <div style="color:#999; font-size:10px;">trend</div>
+        </div>
+      </div>
+      <div style="background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:8px; marginBottom:6px; border-radius:6px;">
+        <div style="font-size:10px; color:#666; margin-bottom:4px; font-weight:600;">TREND NASTROJU</div>
+        <div style="display:flex; align-items:flex-end; gap:3px; height:40px;">
+          <div style="width:100%; background:#fdf6ec; borderRadius:2px; height:60%; border-radius:2px;"></div>
+          <div style="width:100%; background:#fdf6ec; borderRadius:2px; height:40%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; borderRadius:2px; height:80%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; borderRadius:2px; height:75%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; borderRadius:2px; height:90%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; borderRadius:2px; height:95%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; borderRadius:2px; height:100%; border-radius:2px;"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:6px; border-radius:6px; font-size:10px; color:#666;">🏷 Tagi</div>
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:6px; border-radius:6px; font-size:10px; color:#666;">📅 Aktywność</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Pionowy scroll</h3>
+      <p>Sekcje jedna pod drugą: statystyki → wykres → tagi → aktywność → zdjęcia. Prosty, czytelny, mobilny.</p>
+    </div>
+  </div>
+
+  <!-- Opcja B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #faf9f7; border-radius: 8px; font-size: 12px;">
+      <div style="background:#B8913A; color:#fff; padding:6px 10px; marginBottom:8px; fontWeight:700; borderRadius:6px; border-radius:6px; display:flex; justify-content:space-between;">
+        <span>Podsumowanie</span><span>30 dni ▾</span>
+      </div>
+      <div style="display:flex; gap:6px; marginBottom:8px;">
+        <div style="flex:2; background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:8px; border-radius:6px;">
+          <div style="font-size:10px; color:#666; font-weight:600; marginBottom:4px;">TREND</div>
+          <div style="display:flex; align-items:flex-end; gap:2px; height:50px;">
+            <div style="width:100%; background:#fdf6ec; height:50%; border-radius:2px;"></div>
+            <div style="width:100%; background:#fdf6ec; height:35%; border-radius:2px;"></div>
+            <div style="width:100%; background:#B8913A; height:70%; border-radius:2px;"></div>
+            <div style="width:100%; background:#B8913A; height:80%; border-radius:2px;"></div>
+            <div style="width:100%; background:#B8913A; height:95%; border-radius:2px;"></div>
+            <div style="width:100%; background:#B8913A; height:100%; border-radius:2px;"></div>
+          </div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+          <div style="background:#fff; border:1px solid #e5e0d8; borderRadius:4px; padding:6px; border-radius:4px; text-align:center;">
+            <div style="font-size:16px; font-weight:700; color:#B8913A;">3.8</div>
+            <div style="color:#999; font-size:9px;">nastrój</div>
+          </div>
+          <div style="background:#fff; border:1px solid #e5e0d8; borderRadius:4px; padding:6px; border-radius:4px; text-align:center;">
+            <div style="font-size:16px; font-weight:700; color:#B8913A;">14</div>
+            <div style="color:#999; font-size:9px;">wpisów</div>
+          </div>
+          <div style="background:#fff; border:1px solid #e5e0d8; borderRadius:4px; padding:6px; border-radius:4px; text-align:center;">
+            <div style="font-size:16px; font-weight:700; color:#4ade80;">5🔥</div>
+            <div style="color:#999; font-size:9px;">streak</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:4px; padding:6px; border-radius:4px; font-size:10px; color:#666;">nawilżenie ×5 / trądzik ×3</div>
+        <div style="flex:1; background:#fff; border:1px solid #e5e0d8; borderRadius:4px; padding:6px; border-radius:4px; font-size:10px; color:#666;">📷 4 zdjęcia</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Dashboard grid</h3>
+      <p>Wykres główny po lewej + kafelki statystyk po prawej. Kompaktowy, wszystko widoczne od razu bez scrollowania.</p>
+    </div>
+  </div>
+
+  <!-- Opcja C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #faf9f7; border-radius: 8px; font-size: 12px;">
+      <div style="display:flex; border-bottom:1px solid #e5e0d8; marginBottom:8px; gap:0;">
+        <div style="flex:1; text-align:center; padding:6px; border-bottom:2px solid #B8913A; color:#B8913A; font-weight:700; font-size:11px;">Nastrój</div>
+        <div style="flex:1; text-align:center; padding:6px; color:#999; font-size:11px;">Tagi</div>
+        <div style="flex:1; text-align:center; padding:6px; color:#999; font-size:11px;">Aktywność</div>
+        <div style="flex:1; text-align:center; padding:6px; color:#999; font-size:11px;">Zdjęcia</div>
+      </div>
+      <div style="background:#fff; border:1px solid #e5e0d8; borderRadius:6px; padding:10px; border-radius:6px;">
+        <div style="text-align:center; margin-bottom:6px;">
+          <span style="font-size:28px; font-weight:700; color:#B8913A;">3.8</span>
+          <span style="font-size:11px; color:#999; margin-left:4px;">/ 5 średnia</span>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:3px; height:50px;">
+          <div style="width:100%; background:#fdf6ec; height:50%; border-radius:2px;"></div>
+          <div style="width:100%; background:#fdf6ec; height:35%; border-radius:2px;"></div>
+          <div style="width:100%; background:#d4a84b; height:60%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; height:75%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; height:90%; border-radius:2px;"></div>
+          <div style="width:100%; background:#B8913A; height:100%; border-radius:2px;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:9px; color:#ccc; margin-top:4px;"><span>Mar</span><span>Kwi</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Zakładki w modalu</h3>
+      <p>Modal z 4 zakładkami: Nastrój / Tagi / Aktywność / Zdjęcia. Każda zakładka skupia się na jednej kategorii analizy.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">Kliknij wybraną opcję — możesz też po prostu odpisać w terminalu.</p>

@@ -183,11 +183,14 @@ export async function saveTree(quizId: string, nodes: TreeNodePayload[], edges: 
 
     // 3. Create edges
     for (const e of edges) {
+      const dbSourceId = tempIdMap.get(e.sourceNodeId);
+      const dbTargetId = tempIdMap.get(e.targetNodeId);
+      if (!dbSourceId || !dbTargetId) throw new AppError('Nieprawidłowa krawędź — node nie istnieje', 400);
       await tx.quizEdge.create({
         data: {
           quizId,
-          sourceNodeId: tempIdMap.get(e.sourceNodeId)!,
-          targetNodeId: tempIdMap.get(e.targetNodeId)!,
+          sourceNodeId: dbSourceId,
+          targetNodeId: dbTargetId,
           sourceHandle: e.sourceHandle,
         },
       });
@@ -196,7 +199,8 @@ export async function saveTree(quizId: string, nodes: TreeNodePayload[], edges: 
     // 4. Create result configs for RESULT nodes
     for (const n of nodes) {
       if (n.type === 'RESULT' && n.result !== undefined) {
-        const dbNodeId = tempIdMap.get(n.id)!;
+        const dbNodeId = tempIdMap.get(n.id);
+        if (!dbNodeId) throw new AppError('Nieprawidłowa krawędź — node nie istnieje', 400);
         const quizResult = await tx.quizResult.create({
           data: {
             nodeId: dbNodeId,

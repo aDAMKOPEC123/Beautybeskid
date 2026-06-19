@@ -45,6 +45,8 @@ const sendPushToSubscriptions = async (
         .catch(async (e: any) => {
           if (e.statusCode === 410) {
             await prisma.pushSubscription.deleteMany({ where: { endpoint: s.endpoint } });
+          } else {
+            console.error(`Push notification failed for endpoint ${s.endpoint}:`, e?.message ?? e);
           }
         }),
       ),

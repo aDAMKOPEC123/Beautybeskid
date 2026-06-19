@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid — Smart Reminders</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FDFAF6; color: #1A1208; line-height: 1.6; }
+  h1,h2,h3,h4 { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .section-label { display:inline-block; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#B8913A; background:rgba(184,145,58,0.12); padding:4px 12px; border-radius:20px; margin-bottom:12px; }
+  .section-title { font-size:2rem; margin-bottom:8px; }
+  .section-subtitle { color:#6B6560; font-size:1rem; margin-bottom:32px; }
+  .mockup-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#B0A89E; font-weight:600; margin-bottom:12px; }
+  .divider { height:1px; background:#E8DDD2; margin:40px 0; }
+
+  /* ====== Reminder Card (Dashboard) ====== */
+  .reminder-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 28px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .reminder-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .reminder-icon.urgent { background: rgba(239,68,68,0.1); }
+  .reminder-icon.soon { background: rgba(245,158,11,0.1); }
+  .reminder-icon.info { background: rgba(184,145,58,0.1); }
+  .reminder-info { flex: 1; }
+  .reminder-info h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .reminder-info p { font-size: 0.88rem; color: #6B6560; }
+  .reminder-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+  .tag-urgent { background: rgba(239,68,68,0.1); color: #dc2626; }
+  .tag-soon { background: rgba(245,158,11,0.1); color: #d97706; }
+  .tag-available { background: rgba(184,145,58,0.12); color: #B8913A; }
+  .reminder-action {
+    background: #1A1208;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .reminder-action:hover { background: #2C2420; }
+
+  .reminders-container {
+    margin-bottom: 48px;
+  }
+
+  /* ====== Push notification mockup ====== */
+  .push-mockup {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .phone-frame {
+    display: inline-block;
+    background: #1A1208;
+    border-radius: 28px;
+    padding: 12px;
+    width: 320px;
+  }
+  .phone-screen {
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 20px 16px;
+    text-align: left;
+  }
+  .push-notification {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .push-app-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #B8913A, #D99B68);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+  .push-content h5 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1A1208;
+    margin-bottom: 2px;
+  }
+  .push-content p {
+    font-size: 0.78rem;
+    color: #6B6560;
+    line-height: 1.4;
+  }
+  .push-time {
+    font-size: 0.7rem;
+    color: #B0A89E;
+    margin-top: 4px;
+  }
+
+  /* ====== Algorithm explanation ====== */
+  .algo-card {
+    background: #F5F0EB;
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .algo-title {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .algo-steps {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .algo-step {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .algo-step .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #B8913A;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin: 0 auto 10px;
+  }
+  .algo-step h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .algo-step p {
+    font-size: 0.8rem;
+    color: #6B6560;
+  }
+
+  .features-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:32px; }
+  .feature-card { background:white; border-radius:14px; padding:16px; border:1px solid rgba(0,0,0,0.06); }
+  .feature-card h4 { font-size:0.95rem; color:#B8913A; margin-bottom:4px; font-family:'DM Sans',sans-serif; font-weight:600; }
+  .feature-card p { font-size:0.82rem; color:#6B6560; }
+
+  .decision-title { font-size:1.3rem; margin-bottom:16px; text-align:center; }
+  .decision-options { display:flex; gap:16px; justify-content:center; }
+  .decision-btn { padding:14px 28px; border-radius:16px; border:2px solid #E8DDD2; background:white; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.95rem; color:#1A1208; cursor:pointer; transition:all 0.2s; }
+  .decision-btn:hover { border-color:#B8913A; background:rgba(184,145,58,0.06); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="section-label">Feature 3 z 7</div>
+  <h2 class="section-title">Smart Treatment Reminders</h2>
+  <p class="section-subtitle">Algorytm oblicza optymalny czas kolejnego zabiegu na podstawie historii wizyt</p>
+
+  <!-- MOCKUP 1: Reminder cards on dashboard -->
+  <div class="mockup-label">Dashboard klientki — sekcja "Zaplanuj kolejną wizytę"</div>
+  <div class="reminders-container">
+    <div class="reminder-card">
+      <div class="reminder-icon urgent">⏰</div>
+      <div class="reminder-info">
+        <h4>Mikrodermabrazja</h4>
+        <p>Ostatnia wizyta: 28 dni temu · Zalecany cykl: co 4 tygodnie</p>
+        <span class="reminder-tag tag-urgent">Czas na wizytę!</span>
+      </div>
+      <button class="reminder-action">Zarezerwuj</button>
+    </div>
+
+    <div class="reminder-card">
+      <div class="reminder-icon soon">📅</div>
+      <div class="reminder-info">
+        <h4>Peeling kawitacyjny</h4>
+        <p>Ostatnia wizyta: 18 dni temu · Zalecany cykl: co 3 tygodnie</p>
+        <span class="reminder-tag tag-soon">Za 3 dni</span>
+      </div>
+      <button class="reminder-action">Zarezerwuj</button>
+    </div>
+
+    <div class="reminder-card">
+      <div class="reminder-icon info">💡</div>
+      <div class="reminder-info">
+        <h4>Mezoterapia igłowa</h4>
+        <p>Ostatnia wizyta: 5 dni temu · Zalecany cykl: co 2 tygodnie</p>
+        <span class="reminder-tag tag-available">Za 9 dni</span>
+      </div>
+      <button class="reminder-action" style="background:transparent; color:#1A1208; border:1px solid #E8DDD2;">Przypomnij</button>
+    </div>
+  </div>
+
+  <!-- MOCKUP 2: Push notification -->
+  <div class="mockup-label">Push notification — przypomnienie o zabiegu</div>
+  <div class="push-mockup">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="push-notification">
+          <div class="push-app-icon">C</div>
+          <div class="push-content">
+            <h5>BeautyBeskid — Czas na zabieg! ✨</h5>
+            <p>Hej Anna! Twoja mikrodermabrazja była 28 dni temu. Pora na kolejną sesję dla pięknej skóry!</p>
+            <div class="push-time">teraz</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Algorithm explanation -->
+  <div class="mockup-label">Jak działa algorytm (bez AI, bez płatnych API)</div>
+  <div class="algo-card">
+    <h3 class="algo-title">Algorytm Smart Reminders</h3>
+    <div class="algo-steps">
+      <div class="algo-step">
+        <div class="step-num">1</div>
+        <h4>Cykl usługi</h4>
+        <p>Admin ustawia zalecany interwał powtórzenia dla każdej usługi (np. co 4 tyg.)</p>
+      </div>
+      <div class="algo-step">
+        <div class="step-num">2</div>
+        <h4>Historia klienta</h4>
+        <p>System liczy dni od ostatniej wizyty dla każdego typu zabiegu</p>
+      </div>
+      <div class="algo-step">
+        <div class="step-num">3</div>
+        <h4>Powiadomienie</h4>
+        <p>Push/email gdy zbliża się czas — 3 dni przed, w dniu, i dzień po terminie</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="mockup-label">Kluczowe zasady</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <h4>Admin konfiguruje cykl</h4>
+      <p>Nowe pole "recommendedInterval" (w dniach) przy każdej usłudze</p>
+    </div>
+    <div class="feature-card">
+      <h4>Push + Dashboard</h4>
+      <p>Wykorzystuje istniejący system Push Notifications + widżet na dashboardzie</p>
+    </div>
+    <div class="feature-card">
+      <h4>Bezpośredni link do rezerwacji</h4>
+      <p>Przycisk "Zarezerwuj" przenosi do BookingWizard z wybraną usługą</p>
+    </div>
+    <div class="feature-card">
+      <h4>Prosty CRON backend</h4>
+      <p>Codzienny job sprawdza wizyty i wysyła przypomnienia — node-cron, zero kosztów</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3 class="decision-title">Czy Smart Reminders Ci odpowiadają?</h3>
+  <div class="decision-options">
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✓ Podoba się, dalej</button>
+    <button class="decision-btn" onclick="this.classList.toggle('selected')">✎ Mam uwagi</button>
+  </div>
+
+</div>
+</body>
+</html>

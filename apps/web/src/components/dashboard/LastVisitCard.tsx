@@ -8,7 +8,30 @@ interface Props {
 }
 
 export const LastVisitCard = ({ appointment }: Props) => {
-  if (!appointment) return null;
+  if (!appointment) {
+    return (
+      <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '18px', overflow: 'hidden' }}>
+        <div style={{ height: '3px', background: 'linear-gradient(90deg, #1A3828, #C4965A)' }} />
+        <div style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0, background: 'rgba(26,56,40,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle2 size={17} style={{ color: '#1A3828' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '11px', color: 'rgba(20,40,28,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Historia wizyt</p>
+              <p style={{ fontSize: '14px', fontWeight: 700, color: '#1A3828', lineHeight: 1.2, marginBottom: '4px' }}>Brak historii wizyt</p>
+              <p style={{ fontSize: '12px', color: 'rgba(20,40,28,0.45)' }}>Umów pierwszą wizytę i zacznij swoją historię pielęgnacji.</p>
+            </div>
+          </div>
+          <div style={{ marginTop: '14px' }}>
+            <Link to="/rezerwacja" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 0', borderRadius: '100px', background: '#1A3828', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <RotateCcw size={13} /> Umów wizytę
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const date = new Date(appointment.date);
   const dateLabel = format(date, 'd MMMM yyyy', { locale: pl });

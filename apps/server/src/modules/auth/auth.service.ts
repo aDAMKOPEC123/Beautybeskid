@@ -1,4 +1,4 @@
-// filepath: apps/server/src/modules/auth/auth.service.ts
+﻿// filepath: apps/server/src/modules/auth/auth.service.ts
 import { prisma } from '../../config/prisma';
 import bcrypt from 'bcryptjs';
 import { AppError } from '../../middleware/error.middleware';
@@ -85,10 +85,10 @@ export const registerUser = async (data: RegisterInput & {
 
   // Send verification email (fire-and-forget — don't fail registration if email fails)
   if (user.emailVerificationToken) {
-    const verifyUrl = `${env.CLIENT_URL}/api/auth/verify-email?token=${user.emailVerificationToken}`;
+    const verifyUrl = `${env.SERVER_URL ?? `http://localhost:${env.PORT || 3001}`}/api/auth/verify-email?token=${user.emailVerificationToken}`;
     sendEmail(
       user.email,
-      'Aktywuj swoje konto w COSMO',
+      'Aktywuj swoje konto w BeautyBeskid',
       `<p>Witaj ${user.name},</p>
        <p>Kliknij poniższy link, aby aktywować swoje konto:</p>
        <p><a href="${verifyUrl}" style="background:#1A3828;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Aktywuj konto</a></p>
@@ -99,7 +99,7 @@ export const registerUser = async (data: RegisterInput & {
   return { id: user.id, email: user.email, name: user.name, role: user.role };
 };
 
-export const loginUser = async (data: LoginInput) => {
+export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
   const raw = await prisma.user.findUnique({
     where: { email: data.email }
   });
@@ -128,7 +128,7 @@ export const loginUser = async (data: LoginInput) => {
   const user = await getUserById(raw.id);
 
   const accessToken = signToken({ id: raw.id, role: raw.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
-  const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+  const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, refreshTokenTtl ?? env.JWT_REFRESH_EXPIRES_IN);
 
   return {
     user: {
@@ -167,7 +167,10 @@ export const loginWithGoogle = async (credential: string) => {
   if (user) {
     // Merge: link Google to existing account and activate if pending
     // Note: if user already has a different googleId, we preserve it (first Google account wins)
-    if (!user.googleId || user.accountStatus === 'PENDING') {
+    if (user.accountStatus === 'REJECTED') {
+      throw new AppError('Konto zostało zablokowane', 403);
+    }
+    if ((!user.googleId || user.accountStatus === 'PENDING') && user.accountStatus !== 'REJECTED') {
       user = await prisma.user.update({
         where: { id: user.id },
         data: {

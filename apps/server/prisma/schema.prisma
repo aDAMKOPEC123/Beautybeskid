@@ -478,6 +478,7 @@ model DiscountCode {
   discountType   DiscountType
   discountValue  Decimal             @db.Decimal(10, 2)
   isActive       Boolean             @default(true)
+  isMultiUse     Boolean             @default(false)
   lockedToUserId String?
   lockedToUser   User?               @relation("LockedDiscountCodes", fields: [lockedToUserId], references: [id])
   usages         DiscountCodeUsage[]

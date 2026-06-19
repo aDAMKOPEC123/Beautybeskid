@@ -48,12 +48,23 @@ function calcDiscountedPrice(price: number, reward: any): number {
   return price;
 }
 
-function PriceDisplay({ service, coupon }: { service: any; coupon?: any }) {
+function PriceDisplay({ service, coupon, discountCodeUsage }: { service: any; coupon?: any; discountCodeUsage?: any }) {
   if (!service?.price) return null;
   const base = Number(service.price);
-  const reward = coupon?.reward;
-  const discounted = reward ? calcDiscountedPrice(base, reward) : base;
-  const hasDiscount = reward && discounted < base;
+
+  // Determine active discount: loyalty coupon takes priority, then discount code
+  const couponReward = coupon?.reward;
+  const discountCode = discountCodeUsage?.discountCode;
+  const activeDiscount = couponReward ?? discountCode ?? null;
+
+  const discounted = activeDiscount ? calcDiscountedPrice(base, activeDiscount) : base;
+  const hasDiscount = activeDiscount && discounted < base;
+
+  const label = couponReward
+    ? `Kupon: ${couponReward.name}`
+    : discountCode
+      ? `Kod: ${discountCode.code}`
+      : '';
 
   return (
     <span className="flex items-center gap-1.5 flex-wrap">
@@ -62,7 +73,7 @@ function PriceDisplay({ service, coupon }: { service: any; coupon?: any }) {
           <span className="line-through text-muted-foreground text-xs">{base.toFixed(2)} zł</span>
           <span className="font-bold text-green-600 text-xs">{discounted.toFixed(2)} zł</span>
           <span className="text-[10px] bg-green-100 text-green-700 border border-green-300 px-1.5 py-0.5 rounded-full font-medium">
-            Kupon: {reward.name}
+            {label}
           </span>
         </>
       ) : (
@@ -154,7 +165,7 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold text-sm">{a.service?.name}</p>
-            <PriceDisplay service={a.service} coupon={a.coupon} />
+            <PriceDisplay service={a.service} coupon={a.coupon} discountCodeUsage={a.discountCodeUsage} />
             {a.rescheduleStatus === 'PENDING' && (
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-400">
                 🔄 Prośba o zmianę terminu

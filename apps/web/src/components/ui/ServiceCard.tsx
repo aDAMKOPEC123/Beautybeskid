@@ -73,10 +73,10 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
 
         {/* Bottom bar */}
         <div
-          className="flex items-center justify-between px-5 py-4 bg-ivory"
+          className="flex items-center justify-between px-4 py-4 bg-ivory gap-2"
           style={{ borderTop: '1px solid rgba(26,56,40,0.06)' }}
         >
-          <div>
+          <div className="min-w-0">
             <span className="font-display text-[20px] text-espresso" style={{ fontWeight: 300 }}>
               {formatPrice(service.price)}
             </span>
@@ -86,8 +86,8 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
               </div>
             )}
           </div>
-          <div aria-hidden="true" className="flex items-center gap-1.5 px-5 py-2.5 bg-espresso text-ivory text-[9px] tracking-[0.25em] uppercase font-medium hover:bg-espresso/90 transition-colors">
-            Umów wizytę <ArrowRight size={10} />
+          <div aria-hidden="true" className="shrink-0 flex items-center gap-1 px-3 py-2.5 bg-espresso text-ivory text-[9px] tracking-[0.15em] uppercase font-medium hover:bg-espresso/90 transition-colors">
+            Umów <ArrowRight size={10} />
           </div>
         </div>
       </div>

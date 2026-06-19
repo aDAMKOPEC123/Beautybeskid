@@ -1,0 +1,138 @@
+<h2>Schemat bazy danych — nowe tabele</h2>
+<p class="subtitle">5 nowych modeli Prisma. Kliknij aby zaakceptować lub powiedz co zmienić w terminalu.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Diagram relacji (ER)</div>
+  <div class="mockup-body" style="padding: 24px; overflow-x: auto;">
+    <div style="display: flex; gap: 32px; align-items: flex-start; min-width: 900px;">
+
+      <!-- Quiz -->
+      <div style="background: #1a1a2e; color: white; border-radius: 8px; min-width: 170px; overflow: hidden;">
+        <div style="background: #16213e; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">Quiz</div>
+        <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+          <div style="color: #ffd700;">🔑 id: cuid</div>
+          <div>title: String</div>
+          <div>bodyPart: String</div>
+          <div style="color: #aaa; font-size: 9px; margin-top: 2px;">('stopy' | 'twarz' | ...)</div>
+          <div>isActive: Boolean</div>
+          <div>createdAt: DateTime</div>
+        </div>
+      </div>
+
+      <!-- Arrow Quiz→QuizNode -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 40px;">
+        <div style="font-size: 10px; color: #666; white-space: nowrap;">1 → n</div>
+        <div style="width: 60px; height: 2px; background: #999;"></div>
+        <div style="font-size: 9px; color: #aaa; white-space: nowrap;">nodes, edges</div>
+      </div>
+
+      <!-- QuizNode + QuizEdge column -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- QuizNode -->
+        <div style="background: #1565c0; color: white; border-radius: 8px; min-width: 200px; overflow: hidden;">
+          <div style="background: #0d47a1; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">QuizNode</div>
+          <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+            <div style="color: #ffd700;">🔑 id: cuid</div>
+            <div>quizId: String <span style="color: #90caf9;">→ Quiz</span></div>
+            <div>type: <span style="color: #81d4fa;">QuizNodeType</span></div>
+            <div style="color: #aaa; font-size: 9px; margin-left: 8px;">START | QUESTION | RESULT</div>
+            <div>positionX: Float</div>
+            <div>positionY: Float</div>
+            <div>data: Json</div>
+            <div style="color: #aaa; font-size: 9px; margin-left: 8px;">QUESTION: {"{question, options[]}"}</div>
+            <div style="color: #aaa; font-size: 9px; margin-left: 8px;">RESULT: {"{title, description, extras}"}</div>
+          </div>
+        </div>
+
+        <!-- QuizEdge -->
+        <div style="background: #6a1b9a; color: white; border-radius: 8px; min-width: 200px; overflow: hidden;">
+          <div style="background: #4a148c; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">QuizEdge</div>
+          <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+            <div style="color: #ffd700;">🔑 id: cuid</div>
+            <div>quizId: String <span style="color: #ce93d8;">→ Quiz</span></div>
+            <div>sourceNodeId <span style="color: #ce93d8;">→ QuizNode</span></div>
+            <div>targetNodeId <span style="color: #ce93d8;">→ QuizNode</span></div>
+            <div>sourceHandle: String</div>
+            <div style="color: #aaa; font-size: 9px; margin-left: 8px;">(klucz opcji: 'A' | 'B' | ...)</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Arrow Node→Result -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 40px;">
+        <div style="font-size: 10px; color: #666; white-space: nowrap;">1 → 1</div>
+        <div style="width: 50px; height: 2px; background: #999;"></div>
+        <div style="font-size: 9px; color: #aaa; white-space: nowrap;">result</div>
+      </div>
+
+      <!-- QuizResult + QuizResultSuggestion -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- QuizResult -->
+        <div style="background: #2e7d32; color: white; border-radius: 8px; min-width: 190px; overflow: hidden;">
+          <div style="background: #1b5e20; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">QuizResult</div>
+          <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+            <div style="color: #ffd700;">🔑 id: cuid</div>
+            <div>nodeId: String <span style="color: #a5d6a7;">→ QuizNode</span></div>
+            <div>mainServiceId: String?</div>
+            <div style="color: #a5d6a7; font-size: 9px; margin-left: 8px;">→ Service (opcjonalne)</div>
+          </div>
+        </div>
+
+        <!-- Arrow Result→Suggestion -->
+        <div style="display: flex; align-items: center; gap: 4px; padding-left: 16px;">
+          <div style="width: 2px; height: 20px; background: #999; margin-left: 8px;"></div>
+        </div>
+
+        <!-- QuizResultSuggestion -->
+        <div style="background: #e65100; color: white; border-radius: 8px; min-width: 190px; overflow: hidden;">
+          <div style="background: #bf360c; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">QuizResultSuggestion</div>
+          <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+            <div style="color: #ffd700;">🔑 id: cuid</div>
+            <div>resultId <span style="color: #ffccbc;">→ QuizResult</span></div>
+            <div>serviceId <span style="color: #ffccbc;">→ Service</span></div>
+            <div>order: Int</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Existing Service note -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 80px;">
+        <div style="font-size: 10px; color: #666; white-space: nowrap;">istniejąca</div>
+        <div style="width: 40px; height: 2px; background: #ccc;"></div>
+      </div>
+
+      <div style="background: #546e7a; color: white; border-radius: 8px; min-width: 150px; overflow: hidden; margin-top: 60px; opacity: 0.7;">
+        <div style="background: #37474f; padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1);">Service <span style="font-weight: 400; font-size: 9px;">(istniejący)</span></div>
+        <div style="padding: 10px 12px; display: grid; gap: 4px; font-size: 10px;">
+          <div style="color: #ffd700;">🔑 id: cuid</div>
+          <div>name: String</div>
+          <div>slug: String</div>
+          <div>price: Float</div>
+          <div style="color: #aaa;">...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee; display: flex; gap: 24px; flex-wrap: wrap;">
+      <div style="font-size: 10px; color: #555;"><span style="display: inline-block; width: 10px; height: 10px; background: #1a1a2e; border-radius: 2px; margin-right: 4px;"></span>Quiz — lista dostępnych quizów</div>
+      <div style="font-size: 10px; color: #555;"><span style="display: inline-block; width: 10px; height: 10px; background: #1565c0; border-radius: 2px; margin-right: 4px;"></span>QuizNode — węzeł START / QUESTION / RESULT</div>
+      <div style="font-size: 10px; color: #555;"><span style="display: inline-block; width: 10px; height: 10px; background: #6a1b9a; border-radius: 2px; margin-right: 4px;"></span>QuizEdge — połączenie między węzłami</div>
+      <div style="font-size: 10px; color: #555;"><span style="display: inline-block; width: 10px; height: 10px; background: #2e7d32; border-radius: 2px; margin-right: 4px;"></span>QuizResult — konfiguracja wyniku</div>
+      <div style="font-size: 10px; color: #555;"><span style="display: inline-block; width: 10px; height: 10px; background: #e65100; border-radius: 2px; margin-right: 4px;"></span>QuizResultSuggestion — sugestie dodatkowe</div>
+    </div>
+  </div>
+</div>
+
+<div class="option" data-choice="approve" onclick="toggleSelect(this)" style="margin-top: 16px;">
+  <div class="letter">✓</div>
+  <div class="content">
+    <h3>Akceptuję schemat</h3>
+    <p>Struktura tabel wygląda dobrze, przechodzimy do następnej sekcji</p>
+  </div>
+</div>

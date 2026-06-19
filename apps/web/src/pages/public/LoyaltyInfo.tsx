@@ -1,4 +1,4 @@
-// filepath: apps/web/src/pages/public/LoyaltyInfo.tsx
+﻿// filepath: apps/web/src/pages/public/LoyaltyInfo.tsx
 import { Link } from 'react-router-dom';
 import { Crown, Gift, Sparkles } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
@@ -32,8 +32,8 @@ export const LoyaltyInfo = () => {
   return (
     <>
       <PageSEO
-        title="Program Lojalnościowy — Cosmo Limanowa"
-        description="Zbieraj punkty za każdą wizytę w naszym salonie i wymieniaj je na nagrody. Program lojalnościowy Cosmo w Limanowej."
+        title="Program Lojalnościowy — BeautyBeskid Limanowa"
+        description="Zbieraj punkty za każdą wizytę w naszym salonie i wymieniaj je na nagrody. Program lojalnościowy BeautyBeskid w Limanowej."
         canonical="/program-lojalnosciowy"
       />
 
@@ -68,13 +68,13 @@ export const LoyaltyInfo = () => {
             {tiers.map(({ icon: Icon, iconColor, label, description, featured, badge }) => (
               <div
                 key={label}
-                className="relative p-10 text-center transition-all duration-300 hover:-translate-y-1"
+                className={`relative p-10 text-center transition-all duration-300 hover:-translate-y-1${featured ? ' md:-mt-3' : ''}`}
                 style={{
                   borderRadius: '24px',
                   backgroundColor: '#fff',
                   border: featured ? '1.5px solid #C4965A' : '1px solid rgba(0,0,0,0.07)',
                   boxShadow: featured ? '0 8px 32px rgba(196,150,90,0.15)' : '0 2px 12px rgba(0,0,0,0.04)',
-                  marginTop: featured ? '-12px' : undefined,
+                  
                 }}
               >
                 {badge && (

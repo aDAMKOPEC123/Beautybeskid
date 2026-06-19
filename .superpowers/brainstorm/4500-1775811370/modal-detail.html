@@ -1,0 +1,124 @@
+<h2>Szczegółowy wygląd modalu podsumowania</h2>
+<p class="subtitle">Jak powinien wyglądać przycisk wejścia i nagłówek modalu z dropdownem zakresu?</p>
+
+<div class="cards">
+
+  <!-- Opcja A: złoty przycisk w headerze -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf9f7; padding:16px; border-radius:8px;">
+      <!-- Header dziennika z przyciskiem -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:10px 14px; background:#fff; border:1px solid #e5e0d8; border-radius:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#B8913A,#d4a84b); display:flex; align-items:center; justify-content:center; font-size:16px;">📖</div>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#1A1208;">Dziennik Kosmetologa</div>
+            <div style="font-size:10px; color:#999;">Twój osobisty dziennik</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button style="padding:7px 12px; background:#fdf6ec; border:1px solid #e8d5a0; border-radius:8px; color:#B8913A; font-size:11px; font-weight:600; cursor:pointer;">📊 Podsumowanie</button>
+          <button style="padding:7px 12px; background:#B8913A; border:none; border-radius:8px; color:#fff; font-size:11px; font-weight:600; cursor:pointer;">+ Nowy wpis</button>
+        </div>
+      </div>
+      <!-- Modal preview -->
+      <div style="background:#fff; border:1px solid #e5e0d8; border-radius:12px; padding:14px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-size:13px; font-weight:700; color:#1A1208;">📊 Podsumowanie dziennika</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <select style="padding:4px 8px; border:1px solid #e5e0d8; border-radius:6px; font-size:11px; color:#1A1208; background:#faf9f7;">
+              <option>30 dni</option>
+            </select>
+            <span style="color:#ccc; font-size:16px; cursor:pointer;">✕</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:4px; border-bottom:1px solid #e5e0d8; padding-bottom:8px; margin-bottom:10px;">
+          <div style="padding:5px 10px; background:#fdf6ec; border:1px solid #e8d5a0; border-radius:6px; font-size:10px; font-weight:700; color:#B8913A;">Nastrój</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999;">Tagi</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999;">Aktywność</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999;">Zdjęcia</div>
+        </div>
+        <div style="text-align:center; padding:6px 0;">
+          <div style="font-size:28px; font-weight:700; color:#B8913A;">3.8 <span style="font-size:12px; color:#999; font-weight:400;">/ 5</span></div>
+          <div style="font-size:10px; color:#999; margin-bottom:8px;">średni nastrój w ostatnich 30 dniach</div>
+          <div style="display:flex; align-items:flex-end; gap:3px; height:50px; padding:0 10px;">
+            <div style="flex:1; background:#fdf6ec; height:45%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#fdf6ec; height:30%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#d4a84b; height:60%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:80%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:90%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:100%; border-radius:2px 2px 0 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Subtelny złoty przycisk</h3>
+      <p>Przycisk "📊 Podsumowanie" w kolorze złotego tła obok "Nowy wpis". Dropdown zakresu w prawym górnym rogu modalu.</p>
+    </div>
+  </div>
+
+  <!-- Opcja B: link tekstowy pod headerem -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf9f7; padding:16px; border-radius:8px;">
+      <!-- Header dziennika -->
+      <div style="margin-bottom:8px; padding:10px 14px; background:#fff; border:1px solid #e5e0d8; border-radius:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#B8913A,#d4a84b); display:flex; align-items:center; justify-content:center; font-size:16px;">📖</div>
+            <div>
+              <div style="font-size:13px; font-weight:700; color:#1A1208;">Dziennik Kosmetologa</div>
+              <div style="font-size:10px; color:#999;">Twój osobisty dziennik</div>
+            </div>
+          </div>
+          <button style="padding:7px 12px; background:#B8913A; border:none; border-radius:8px; color:#fff; font-size:11px; font-weight:600;">+ Nowy wpis</button>
+        </div>
+        <!-- Banner statystyki -->
+        <div style="background:linear-gradient(135deg,#fdf6ec,#fef9f0); border:1px solid #e8d5a0; border-radius:8px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-size:10px; color:#B8913A;">📈 <strong>14 wpisów</strong> · śr. nastrój <strong>3.8/5</strong> · trend rosnący ↑</div>
+          <button style="background:none; border:none; color:#B8913A; font-size:10px; font-weight:700; cursor:pointer; text-decoration:underline;">Pełna analiza →</button>
+        </div>
+      </div>
+      <!-- Modal preview -->
+      <div style="background:#fff; border:1px solid #e5e0d8; border-radius:12px; padding:14px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div style="font-size:13px; font-weight:700; color:#1A1208;">Analiza dziennika</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="display:flex; background:#faf9f7; border:1px solid #e5e0d8; border-radius:6px; overflow:hidden;">
+              <div style="padding:4px 8px; font-size:10px; background:#B8913A; color:#fff; font-weight:700;">30 dni</div>
+              <div style="padding:4px 8px; font-size:10px; color:#999;">90 dni</div>
+              <div style="padding:4px 8px; font-size:10px; color:#999;">Wszystko</div>
+            </div>
+            <span style="color:#ccc; cursor:pointer;">✕</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:4px; margin-bottom:10px;">
+          <div style="padding:5px 10px; background:#1A1208; border-radius:6px; font-size:10px; font-weight:700; color:#fff;">Nastrój</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999; background:#faf9f7;">Tagi</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999; background:#faf9f7;">Aktywność</div>
+          <div style="padding:5px 10px; border-radius:6px; font-size:10px; color:#999; background:#faf9f7;">Zdjęcia</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="text-align:center;">
+            <div style="font-size:24px; font-weight:700; color:#B8913A;">3.8</div>
+            <div style="font-size:9px; color:#999;">/ 5 avg</div>
+          </div>
+          <div style="flex:1; display:flex; align-items:flex-end; gap:3px; height:45px;">
+            <div style="flex:1; background:#fdf6ec; height:45%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#fdf6ec; height:30%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#d4a84b; height:60%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:80%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:90%; border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1; background:#B8913A; height:100%; border-radius:2px 2px 0 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Mini-banner ze skrótem + "Pełna analiza →"</h3>
+      <p>Pod headerem pojawia się mały złoty banner z kluczowymi statystykami i linkiem. Zakres wybierany segmented control w modalu.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Kliknij lub odpisz w terminalu.</p>

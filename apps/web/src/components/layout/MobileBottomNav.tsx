@@ -48,10 +48,7 @@ export function MobileBottomNav() {
 
   const { data: routineUnread = 0 } = useQuery<number>({
     queryKey: ['homecare-unread'],
-    queryFn: async () => {
-      const res = await homecareApi.getUnreadCount();
-      return res.data.data.count;
-    },
+    queryFn: () => homecareApi.getUnreadCount(),
     enabled: isAuthenticated,
     staleTime: 30_000,
   });

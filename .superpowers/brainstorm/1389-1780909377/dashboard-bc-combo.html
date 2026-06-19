@@ -1,0 +1,224 @@
+﻿<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .phone {
+    width: 260px;
+    height: 520px;
+    border-radius: 32px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 2.5px solid rgba(0,0,0,0.13);
+    background: #F4F9F5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    scrollbar-width: none;
+    margin: 0 auto;
+  }
+  .phone::-webkit-scrollbar { display: none; }
+  .phone-inner { padding: 14px 10px 24px; }
+
+  /* Header */
+  .dash-header { margin-bottom: 12px; }
+  .dash-h1 { font-size: 18px; font-weight: 700; color: #1A3828; }
+  .dash-sub { font-size: 10px; color: rgba(20,40,28,0.4); margin-top: 2px; }
+
+  /* Hero appointment card */
+  .hero-card {
+    background: #1A3828;
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .hero-card-label { color: rgba(255,255,255,0.45); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .hero-card-title { color: #fff; font-weight: 700; font-size: 14px; }
+  .hero-card-sub { color: #C4965A; font-size: 10px; margin-top: 2px; }
+
+  /* Section container */
+  .sec-box {
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1.5px solid transparent;
+  }
+  .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+  }
+  .sec-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sec-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .sec-body { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 5px; }
+
+  /* Inner card */
+  .icard {
+    border-radius: 12px;
+    padding: 9px 10px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .icard-title { font-weight: 700; font-size: 11px; margin-bottom: 1px; }
+  .icard-muted { font-size: 9px; opacity: 0.5; }
+
+  /* ── Green section ── */
+  .sec-green { background: white; border-color: rgba(26,56,40,0.08); }
+  .sec-green .sec-head { background: rgba(232,243,234,0.8); }
+  .sec-green .sec-dot { background: #1A3828; }
+  .sec-green .sec-title { color: rgba(26,56,40,0.5); }
+  .sec-green .icard { background: #F0F7F2; color: rgba(20,40,28,0.7); }
+  .sec-green .icard-title { color: #1A3828; }
+
+  /* ── Mint section ── */
+  .sec-mint { background: white; border-color: rgba(61,122,84,0.1); }
+  .sec-mint .sec-head { background: rgba(61,122,84,0.06); }
+  .sec-mint .sec-dot { background: #3D7A54; }
+  .sec-mint .sec-title { color: #3D7A54; }
+  .sec-mint .icard { background: rgba(61,122,84,0.05); color: rgba(20,40,28,0.7); border: 1px solid rgba(61,122,84,0.08); }
+  .sec-mint .icard-title { color: #2D6040; }
+
+  /* ── Caramel section ── */
+  .sec-caramel { background: white; border-color: rgba(196,150,90,0.15); }
+  .sec-caramel .sec-head { background: rgba(196,150,90,0.06); }
+  .sec-caramel .sec-dot { background: #C4965A; }
+  .sec-caramel .sec-title { color: #C4965A; }
+  .sec-caramel .icard { background: rgba(196,150,90,0.04); color: rgba(20,40,28,0.7); border: 1px solid rgba(196,150,90,0.1); }
+  .sec-caramel .icard-title { color: #A07840; }
+  .icard-accent { color: #C4965A; font-weight: 700; }
+</style>
+
+<h2>Dashboard — połączenie B + C</h2>
+<p class="subtitle">Kolorowe kontenery z nagłówkiem sekcji. Każda grupa kart zamknięta w pudełku z własnym akcentem. Czy taki kierunek jest OK?</p>
+
+<div class="mockup" style="margin-top:20px">
+  <div class="mockup-header">Podgląd mobile (przewijalny)</div>
+  <div class="mockup-body" style="display:flex;justify-content:center;padding:24px 0">
+
+    <div class="phone">
+      <div class="phone-inner">
+
+        <!-- Header -->
+        <div class="dash-header">
+          <div class="dash-h1">Cześć, Ania!</div>
+          <div class="dash-sub">poniedziałek, 8 czerwca</div>
+        </div>
+
+        <!-- Hero: next appointment -->
+        <div class="hero-card">
+          <div class="hero-card-label">Następna wizyta</div>
+          <div class="hero-card-title">Wt. 10 cze · 14:00</div>
+          <div class="hero-card-sub">Manicure hybrydowy · Wiktoria Ćwik</div>
+        </div>
+
+        <!-- Section: Wizyty (green) -->
+        <div class="sec-box sec-green">
+          <div class="sec-head">
+            <div class="sec-dot"></div>
+            <span class="sec-title">Historia wizyt</span>
+          </div>
+          <div class="sec-body">
+            <div class="icard">
+              <div class="icard-title">Ostatnia wizyta</div>
+              <div>Pedicure · 25 maja</div>
+              <div class="icard-muted">ukończona</div>
+            </div>
+            <div class="icard">
+              <div class="icard-title">Oceń wizytę ★</div>
+              <div>Manicure hybrydowy czeka na ocenę</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Pielęgnacja (mint) -->
+        <div class="sec-box sec-mint">
+          <div class="sec-head">
+            <div class="sec-dot"></div>
+            <span class="sec-title">Pielęgnacja skóry</span>
+          </div>
+          <div class="sec-body">
+            <div class="icard">
+              <div class="icard-title">Pogoda skóry</div>
+              <div>Wysoka wilgotność — nawilżaj intensywnie</div>
+            </div>
+            <div class="icard">
+              <div class="icard-title">Rutyna domowa</div>
+              <div>3 kroki na dziś</div>
+            </div>
+            <div class="icard">
+              <div class="icard-title">Seria zabiegowa</div>
+              <div>Krok 2 z 5 — czas na następny</div>
+            </div>
+            <div class="icard">
+              <div class="icard-title">Dziennik skóry</div>
+              <div>Ostatni wpis: 3 dni temu</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Dla Ciebie (caramel) -->
+        <div class="sec-box sec-caramel">
+          <div class="sec-head">
+            <div class="sec-dot"></div>
+            <span class="sec-title">Dla Ciebie</span>
+          </div>
+          <div class="sec-body">
+            <div class="icard">
+              <div class="icard-title">Polecane zabiegi</div>
+              <div class="icard-accent">Peeling kwasowy · od 199 zł</div>
+            </div>
+            <div class="icard">
+              <div class="icard-title">Kod ambasadorski</div>
+              <div class="icard-accent" style="font-family:monospace;font-size:13px;letter-spacing:0.15em">BeautyBeskid-ANIA</div>
+              <div class="icard-muted">Udostępnij znajomym</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:8px">
+  <p class="label">Struktura grupowania</p>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.08)">
+      <td style="padding:6px 8px;font-weight:700;color:#1A3828">Ciemna zieleń</td>
+      <td style="padding:6px 8px;color:rgba(20,40,28,0.6)">Historia wizyt — ostatnia wizyta, oceny</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.08)">
+      <td style="padding:6px 8px;font-weight:700;color:#3D7A54">Miętowy</td>
+      <td style="padding:6px 8px;color:rgba(20,40,28,0.6)">Pielęgnacja — pogoda skóry, rutyna, seria, dziennik</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 8px;font-weight:700;color:#C4965A">Karmelowy</td>
+      <td style="padding:6px 8px;color:rgba(20,40,28,0.6)">Dla Ciebie — polecane, kod ambasadorski</td>
+    </tr>
+  </table>
+</div>
+
+<div class="options" style="margin-top:16px">
+  <div class="option" data-choice="tak" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Tak, taki kierunek</h3>
+      <p>Idę dalej z tym designem — tworzę spec i plan implementacji</p>
+    </div>
+  </div>
+  <div class="option" data-choice="zmien" onclick="toggleSelect(this)">
+    <div class="letter">~</div>
+    <div class="content">
+      <h3>Blisko, ale zmień...</h3>
+      <p>Napisz w terminalu co chcesz inaczej</p>
+    </div>
+  </div>
+</div>

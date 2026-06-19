@@ -1,0 +1,126 @@
+﻿<h2>Nawigacja mobilna — wybierz podejście</h2>
+<p class="subtitle">Panel klienta ma 10 sekcji. Jak chcesz je organizować na telefonie?</p>
+
+<div style="display:flex;flex-direction:column;gap:12px;max-width:700px">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Bottom Bar + "Więcej" (obecne podejście, ulepszone)</h3>
+      <div style="margin:12px 0;display:flex;justify-content:center">
+        <div style="width:260px;border:2px solid #ddd;border-radius:16px;overflow:hidden;background:#FAF7F2">
+          <div style="padding:12px;background:#fff;border-bottom:1px solid #eee;font-size:11px;color:#666;text-align:center">Panel klienta</div>
+          <div style="padding:20px;font-size:11px;color:#888;text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center">
+            Treść strony
+          </div>
+          <div style="display:flex;background:#fff;border-top:2px solid #B8913A;padding:8px 0">
+            <div style="flex:1;text-align:center;font-size:10px;color:#B8913A">🏠<br>Strona<br>główna</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">📅<br>Wizyty</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">⭐<br>Lojalność</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">💬<br>Chat</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">☰<br>Więcej</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px">5 ikon w bottom bar: Dashboard, Wizyty, Lojalność, Chat, + "Więcej" otwierające sheet z resztą opcji. Znany wzorzec (jak Instagram/Gmail). Szybki dostęp do najważniejszych sekcji.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Zalety</h4><ul><li>Intuicyjny — znany z popularnych aplikacji</li><li>Szybki dostęp do 4 kluczowych sekcji</li><li>Pełny ekran na treść</li></ul></div>
+        <div class="cons"><h4>Wady</h4><ul><li>"Więcej" ukrywa część funkcji</li><li>Sheet wymaga dodatkowego kliknięcia</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Dashboard jako centrum — kafelki ze skrótami</h3>
+      <div style="margin:12px 0;display:flex;justify-content:center">
+        <div style="width:260px;border:2px solid #ddd;border-radius:16px;overflow:hidden;background:#FAF7F2">
+          <div style="padding:12px;background:#fff;border-bottom:1px solid #eee;font-size:11px;text-align:center;font-weight:600">Cześć, Anna! 👋</div>
+          <div style="padding:10px;background:#FAF7F2">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div style="background:#fff;border-radius:12px;padding:12px;font-size:10px;text-align:center;border:1px solid #eee">
+                <div style="font-size:20px;margin-bottom:4px">📅</div>
+                <div style="font-weight:600">Wizyty</div>
+                <div style="color:#B8913A;font-size:9px">2 nadchodzące</div>
+              </div>
+              <div style="background:#fff;border-radius:12px;padding:12px;font-size:10px;text-align:center;border:1px solid #eee">
+                <div style="font-size:20px;margin-bottom:4px">⭐</div>
+                <div style="font-weight:600">Lojalność</div>
+                <div style="color:#B8913A;font-size:9px">340 pkt</div>
+              </div>
+              <div style="background:#fff;border-radius:12px;padding:12px;font-size:10px;text-align:center;border:1px solid #eee">
+                <div style="font-size:20px;margin-bottom:4px">💬</div>
+                <div style="font-weight:600">Chat</div>
+                <div style="color:#e53e3e;font-size:9px">3 nowe wiad.</div>
+              </div>
+              <div style="background:#fff;border-radius:12px;padding:12px;font-size:10px;text-align:center;border:1px solid #eee">
+                <div style="font-size:20px;margin-bottom:4px">📓</div>
+                <div style="font-weight:600">Dziennik</div>
+                <div style="color:#888;font-size:9px">Ostatni: wczoraj</div>
+              </div>
+            </div>
+            <div style="background:#B8913A;border-radius:10px;padding:10px;text-align:center;color:#fff;font-size:11px;font-weight:600">
+              + Umów wizytę
+            </div>
+          </div>
+          <div style="display:flex;background:#fff;border-top:1px solid #eee;padding:8px 0">
+            <div style="flex:1;text-align:center;font-size:10px;color:#B8913A">🏠<br>Home</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">📅<br>Wizyty</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">👤<br>Profil</div>
+            <div style="flex:1;text-align:center;font-size:10px;color:#888">☰<br>Menu</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px">Dashboard staje się "hubem" — kafelki ze statusem każdej sekcji + dane na żywo (ile nowych wiadomości, ile punktów). Bottom bar uproszczony do 4 pozycji.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Zalety</h4><ul><li>Wszystko widać od razu — kontekst bez nawigacji</li><li>Dane live na kafelkach (badge'y)</li><li>Jasny CTA "Umów wizytę"</li></ul></div>
+        <div class="cons"><h4>Wady</h4><ul><li>Dashboard wymaga przebudowy</li><li>Mniej bezpośredniego dostępu do sekcji</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)" style="padding:20px">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Pełnoekranowe boczne menu (Drawer)</h3>
+      <div style="margin:12px 0;display:flex;justify-content:center;gap:12px">
+        <div style="width:120px;border:2px solid #ddd;border-radius:12px;overflow:hidden;background:#FAF7F2">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-bottom:1px solid #eee">
+            <span style="font-size:11px;font-weight:600">BeautyBeskid</span>
+            <span style="font-size:16px">☰</span>
+          </div>
+          <div style="padding:12px;font-size:10px;color:#888;text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center">
+            Treść strony
+          </div>
+        </div>
+        <div style="width:120px;border:2px solid #B8913A;border-radius:12px;overflow:hidden;background:#fff;font-size:10px">
+          <div style="padding:12px;background:#1C1510;color:#FAF7F2">
+            <div style="font-size:11px;font-weight:600">👤 Anna K.</div>
+            <div style="color:#B8913A;font-size:9px">340 pkt · BRONZE</div>
+          </div>
+          <div style="padding:6px 0">
+            <div style="padding:8px 14px;background:#B8913A;color:#fff">🏠 Dashboard</div>
+            <div style="padding:8px 14px;color:#333">📅 Wizyty</div>
+            <div style="padding:8px 14px;color:#333">⭐ Lojalność</div>
+            <div style="padding:8px 14px;color:#333">💬 Chat <span style="background:#e53e3e;color:#fff;border-radius:8px;padding:1px 5px">3</span></div>
+            <div style="padding:8px 14px;color:#333">🕐 Historia</div>
+            <div style="padding:8px 14px;color:#333">👥 Polecenia</div>
+            <div style="padding:8px 14px;color:#333">📓 Dziennik</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px">Hamburger menu w górnym pasku otwiera pełnoekranowy drawer z wszystkimi opcjami (jak w większości aplikacji bankowych). Pełny ekran na treść, badge'y przy pozycjach.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Zalety</h4><ul><li>Maksymalna przestrzeń na treść</li><li>Wszystkie 10 sekcji w jednym miejscu</li><li>Profil + punkty widoczne w menu</li></ul></div>
+        <div class="cons"><h4>Wady</h4><ul><li>Nawigacja wymaga 2 kliknięć</li><li>Mniej "aplikacyjny" feel</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="margin-top:20px;font-size:13px;color:#888">Możesz wybrać opcję klikając na nią, lub napisz mi co myślisz w terminalu.</p>

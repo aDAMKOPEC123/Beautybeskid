@@ -375,7 +375,7 @@ export const SkinWeatherProfile = () => {
   // ── First-time user: show quiz fullscreen ──
   if (!isLoading && !profile) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6 overflow-x-hidden">
         {/* Header */}
         <div className="flex items-start gap-4">
           <div className="p-3 bg-sky-100 dark:bg-sky-900/30 rounded-2xl">
@@ -399,7 +399,7 @@ export const SkinWeatherProfile = () => {
 
   // ── Returning user: full layout ──
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6 overflow-x-hidden">
 
       {/* Header */}
       <div className="flex items-start gap-4">

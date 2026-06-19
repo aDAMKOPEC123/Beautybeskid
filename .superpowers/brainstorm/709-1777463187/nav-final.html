@@ -1,0 +1,118 @@
+<h2>Proponowany układ nawigacji — do zatwierdzenia</h2>
+<p class="subtitle">Opcja B z sekcją "Diagnostyka". Czy ten podział wygląda dobrze?</p>
+
+<style>
+.final-nav { background: #f8faf8; border: 1.5px solid #3D7A54; border-radius: 12px; overflow: hidden; max-width: 260px; box-shadow: 0 4px 18px rgba(61,122,84,0.10); }
+.fn-title { background: #3D7A54; color: white; padding: 14px 18px; font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
+.fn-item { padding: 8px 18px; font-size: 13px; color: #1A3828; display: flex; align-items: center; gap: 7px; border-left: 3px solid transparent; }
+.fn-item.active { background: #e6f3ec; border-left-color: #3D7A54; color: #3D7A54; font-weight: 600; }
+.fn-badge { margin-left: auto; background: #e53e3e; color: white; border-radius: 9px; padding: 1px 6px; font-size: 10px; font-weight: 700; }
+.fn-group { border-top: 1px solid #d1e8d4; }
+.fn-group-header { padding: 7px 18px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.10em; color: #5A7A62; background: #eef6f0; display: flex; align-items: center; gap: 6px; }
+.fn-sub { padding: 6px 18px 6px 38px; font-size: 12.5px; color: #1A3828; display: flex; align-items: center; justify-content: space-between; }
+.fn-sub:hover { background: #f0f8f2; }
+.fn-sub .sub-badge { background: #e53e3e; color: white; border-radius: 9px; padding: 1px 5px; font-size: 10px; font-weight: 700; }
+.fn-sub .sub-badge-primary { background: #3D7A54; color: white; border-radius: 9px; padding: 1px 5px; font-size: 10px; font-weight: 700; }
+.layout-wrap { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+.annotations { max-width: 320px; }
+.ann-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; padding: 10px 12px; background: #f4f9f5; border-radius: 8px; border-left: 3px solid #3D7A54; }
+.ann-icon { font-size: 18px; flex-shrink: 0; }
+.ann-text { font-size: 12.5px; color: #1A3828; line-height: 1.5; }
+.ann-text strong { color: #3D7A54; }
+</style>
+
+<div class="layout-wrap">
+  <div class="final-nav">
+    <div class="fn-title">Administracja</div>
+
+    <div class="fn-item active">&#128200; Dashboard</div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#128276; Komunikacja</div>
+      <div class="fn-sub">Powiadomienia <span class="sub-badge">3</span></div>
+      <div class="fn-sub">Chat <span class="sub-badge">5</span></div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#128197; Wizyty i personel</div>
+      <div class="fn-sub">Wizyty <span class="sub-badge">2</span></div>
+      <div class="fn-sub">Konsultacje <span class="sub-badge-primary">4</span></div>
+      <div class="fn-sub">Pracownicy</div>
+      <div class="fn-sub">Praca</div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#128100; Klienci</div>
+      <div class="fn-sub">Użytkownicy</div>
+      <div class="fn-sub">Recenzje</div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#128196; Treści</div>
+      <div class="fn-sub">Slider główny</div>
+      <div class="fn-sub">Polecane zabiegi</div>
+      <div class="fn-sub">O nas</div>
+      <div class="fn-sub">Usługi</div>
+      <div class="fn-sub">Blog</div>
+      <div class="fn-sub">Metamorfozy</div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#129514; Diagnostyka</div>
+      <div class="fn-sub">Quizy</div>
+      <div class="fn-sub">Twoja Skóra</div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#128722; Sprzedaż</div>
+      <div class="fn-sub">Kody Rabatowe</div>
+      <div class="fn-sub">Program Lojalnościowy</div>
+      <div class="fn-sub">Asortyment</div>
+    </div>
+
+    <div class="fn-group">
+      <div class="fn-group-header">&#9881; Ustawienia</div>
+      <div class="fn-sub">Regulamin</div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="ann-item">
+      <div class="ann-icon">&#128276;</div>
+      <div class="ann-text"><strong>Komunikacja</strong> — Powiadomienia i Chat razem. Wszystkie badge'e widoczne w nagłówku grupy gdy zwinięta.</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-icon">&#128197;</div>
+      <div class="ann-text"><strong>Wizyty i personel</strong> — przemianowane z "Pracownik". Nowa logiczna kolejność: co jest pilne (Wizyty) jest na górze.</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-icon">&#128100;</div>
+      <div class="ann-text"><strong>Klienci</strong> — nowa sekcja. Użytkownicy i Recenzje naturalnie razem — oba dot. klientów.</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-icon">&#129514;</div>
+      <div class="ann-text"><strong>Diagnostyka</strong> — Quizy pomagają dobrać zabieg, Twoja Skóra diagnozuje stan skóry. Logicznie powiązane.</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-icon">&#128722;</div>
+      <div class="ann-text"><strong>Sprzedaż</strong> — Asortyment dołącza do kodów i lojalności. Wszystko co dot. transakcji i produktów razem.</div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 20px; max-width: 500px;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">&#10003;</div>
+    <div class="content">
+      <h3>Zatwierdź ten układ</h3>
+      <p>Implementujemy dokładnie to co widać powyżej</p>
+    </div>
+  </div>
+  <div class="option" data-choice="changes" onclick="toggleSelect(this)">
+    <div class="letter">&#9998;</div>
+    <div class="content">
+      <h3>Chcę coś zmienić</h3>
+      <p>Powiedz w terminalu co poprawić</p>
+    </div>
+  </div>
+</div>

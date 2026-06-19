@@ -58,7 +58,7 @@ export const ServiceList = () => {
       {/* Sticky layout: header left, cards right */}
       <section data-tour="services-list" style={{ background: '#F4F9F5' }}>
         <div className="container py-16">
-          <div className="flex gap-16 items-start">
+          <div className="flex gap-16 items-start overflow-x-hidden">
             {/* Sticky sidebar header + filters */}
             <div
               ref={headerRef}
@@ -114,7 +114,7 @@ export const ServiceList = () => {
             </div>
 
             {/* Cards grid */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {/* Mobile category pills */}
               {categories.length > 0 && (
                 <div className="flex lg:hidden gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">

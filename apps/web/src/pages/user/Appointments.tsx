@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { format, addDays, startOfMonth, addMonths, subMonths, getDaysInMonth, getDay, isBefore, startOfDay } from 'date-fns';
@@ -115,7 +115,7 @@ export const UserAppointments = () => {
               Twoja historia zaczyna się teraz
             </h3>
             <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
-              Umów pierwszą wizytę i odkryj pełne możliwości COSMO — śledzenie serii zabiegowych, punkty lojalnościowe i wiele więcej.
+              Umów pierwszą wizytę i odkryj pełne możliwości BeautyBeskid — śledzenie serii zabiegowych, punkty lojalnościowe i wiele więcej.
             </p>
           </div>
           <Link
@@ -129,45 +129,54 @@ export const UserAppointments = () => {
       )}
 
       {upcoming.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold" style={{ color: '#1A3828' }}>Nadchodzące wizyty</h2>
-          <div className="grid gap-4">
-            {upcoming.map((a: any) => (
-              <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
-            ))}
+        <section>
+          <div style={{ borderRadius: 18, border: '1.5px solid rgba(26,56,40,0.22)', overflow: 'hidden' }}>
+            <div style={{ background: 'rgba(232,243,234,0.9)', padding: '9px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A3828', flexShrink: 0 }} />
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.5)' }}>
+                Nadchodzące wizyty
+              </span>
+            </div>
+            <div className="grid gap-3" style={{ padding: '12px', background: 'rgba(232,243,234,0.18)' }}>
+              {upcoming.map((a: any) => (
+                <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       {past.length > 0 && (
-        <section className="space-y-4">
-          <button
-            type="button"
-            onClick={() => setHistoryOpen((v) => !v)}
-            className="w-full flex items-center justify-between"
-            style={{ color: 'rgba(20,40,28,0.5)' }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold">Historia</span>
-              <span
-                className="text-xs px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.06)', color: 'rgba(20,40,28,0.5)' }}
-              >
-                {past.length}
-              </span>
-            </div>
-            <ChevronDown
-              size={18}
-              className={`transition-transform duration-200 ${historyOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-          {historyOpen && (
-            <div className="grid gap-4 opacity-75">
-              {past.map((a: any) => (
-                <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
-              ))}
-            </div>
-          )}
+        <section>
+          <div style={{ borderRadius: 18, border: '1.5px solid rgba(196,150,90,0.4)', overflow: 'hidden' }}>
+            <button
+              type="button"
+              onClick={() => setHistoryOpen((v) => !v)}
+              className="w-full flex items-center justify-between"
+              style={{ background: 'rgba(196,150,90,0.08)', padding: '9px 14px' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#C4965A', flexShrink: 0 }} />
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#C4965A' }}>
+                  Historia wizyt
+                </span>
+                <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(196,150,90,0.18)', color: '#C4965A', borderRadius: 99, padding: '1px 6px' }}>
+                  {past.length}
+                </span>
+              </div>
+              <ChevronDown
+                size={16}
+                style={{ color: '#C4965A', transition: 'transform 0.2s', transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
+            </button>
+            {historyOpen && (
+              <div className="grid gap-3" style={{ padding: '12px', background: 'rgba(196,150,90,0.04)' }}>
+                {past.map((a: any) => (
+                  <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       )}
     </div>

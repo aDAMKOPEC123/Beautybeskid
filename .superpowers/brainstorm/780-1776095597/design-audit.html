@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid – Design Audit</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #0f0f0f;
+    color: #e8e0d4;
+    min-height: 100vh;
+    padding: 40px 32px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #C4A882;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: #FAF7F2;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    color: #7a6e64;
+    font-size: 15px;
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .score-bar {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 36px 0 48px;
+    flex-wrap: wrap;
+  }
+  .score-item {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7a6e64;
+  }
+  .good { color: #86efac; }
+  .mid  { color: #C4A882; }
+  .low  { color: #f87171; }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #FAF7F2;
+    margin-bottom: 20px;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .area-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .area-card:hover {
+    border-color: #C4A882;
+    background: #1e1b17;
+    transform: translateY(-2px);
+  }
+  .area-card.selected {
+    border-color: #C4A882;
+    background: #1e1b17;
+    box-shadow: 0 0 0 2px rgba(196,168,130,0.3);
+  }
+  .area-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent, #C4A882);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .area-card:hover::before,
+  .area-card.selected::before { opacity: 1; }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent, #C4A882);
+    background: rgba(196,168,130,0.1);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 12px;
+  }
+  .card-tag.green { color: #86efac; background: rgba(134,239,172,0.1); }
+  .card-tag.red   { color: #f87171; background: rgba(248,113,113,0.1); }
+  .card-tag.yellow{ color: #fcd34d; background: rgba(252,211,77,0.1); }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #FAF7F2;
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: #7a6e64;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .card-issues {
+    list-style: none;
+    padding: 0;
+  }
+  .card-issues li {
+    font-size: 12px;
+    color: #a89880;
+    padding: 4px 0 4px 16px;
+    position: relative;
+  }
+  .card-issues li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #C4A882;
+  }
+
+  .ok-section {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .ok-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .ok-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(134,239,172,0.07);
+    border: 1px solid rgba(134,239,172,0.2);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #86efac;
+  }
+  .ok-pill span { font-size: 16px; }
+
+  .bottom-note {
+    text-align: center;
+    color: #7a6e64;
+    font-size: 13px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid #1e1e1e;
+  }
+
+  .select-hint {
+    text-align: center;
+    color: #C4A882;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Design Audit · BeautyBeskid App</div>
+  <h1>Co wygląda dobrze,<br>a co można poprawić?</h1>
+  <p class="subtitle">Przeanalizowałem cały frontend — poniżej wyniki. Kliknij obszar, który chcesz poprawić.</p>
+</div>
+
+<!-- Scores -->
+<div class="score-bar">
+  <div class="score-item">
+    <div class="score-num good">9</div>
+    <div class="score-label">Spójność</div>
+  </div>
+  <div class="score-item">
+    <div class="score-num good">8.5</div>
+    <div class="score-label">Elegancja</div>
+  </div>
+  <div class="score-item">
+    <div class="score-num mid">8</div>
+    <div class="score-label">Nowoczesność</div>
+  </div>
+  <div class="score-item">
+    <div class="score-num mid">7</div>
+    <div class="score-label">Unikalność</div>
+  </div>
+  <div class="score-item">
+    <div class="score-num low">6.5</div>
+    <div class="score-label">Wow Factor</div>
+  </div>
+</div>
+
+<!-- Co jest dobre -->
+<div class="ok-section">
+  <div class="eyebrow">Co działa dobrze</div>
+  <div class="ok-grid">
+    <div class="ok-pill"><span>✓</span> Paleta kolorów (caramel + espresso)</div>
+    <div class="ok-pill"><span>✓</span> Typografia (Playfair + DM Sans)</div>
+    <div class="ok-pill"><span>✓</span> Animacje (clip reveal, parallax)</div>
+    <div class="ok-pill"><span>✓</span> Responsywność (mobile bottom nav)</div>
+    <div class="ok-pill"><span>✓</span> Glassmorphism na kartach usług</div>
+    <div class="ok-pill"><span>✓</span> Spójność między wszystkimi stronami</div>
+    <div class="ok-pill"><span>✓</span> Dostępność (useReducedMotion)</div>
+  </div>
+</div>
+
+<!-- Obszary do poprawy -->
+<div class="section">
+  <div class="eyebrow" style="margin-bottom:12px;">Gdzie jest przestrzeń na poprawę — wybierz obszar</div>
+  <div class="select-hint">Kliknij kartę, która Cię najbardziej interesuje</div>
+
+  <div class="grid">
+
+    <div class="area-card" data-choice="public" onclick="toggleSelect(this)" style="--accent:#C4A882">
+      <div class="card-tag yellow">Priorytet wysoki</div>
+      <div class="card-title">Strony Publiczne</div>
+      <div class="card-desc">Home, Usługi, Blog, O nas — to pierwsza rzecz, którą widzą klienci. Tutaj można dodać największy "wow factor".</div>
+      <ul class="card-issues">
+        <li>Hero section mało wyróżniający na tle branży</li>
+        <li>Service cards — brak głębi i narracji wizualnej</li>
+        <li>Brak unikalnych elementów graficznych (textury, patterny)</li>
+        <li>CTA mogą być bardziej przekonujące wizualnie</li>
+      </ul>
+    </div>
+
+    <div class="area-card" data-choice="user-panel" onclick="toggleSelect(this)" style="--accent:#86efac">
+      <div class="card-tag green">UX Focus</div>
+      <div class="card-title">Panel Użytkownika</div>
+      <div class="card-desc">Dashboard, Wizyty, Profil, Dziennik — codzienne narzędzie klientów. Musi być szybkie i przyjemne w obsłudze.</div>
+      <ul class="card-issues">
+        <li>Dashboard — dużo kart bez wyraźnej hierarchii</li>
+        <li>Appointments — kalendarz może być bardziej czytelny</li>
+        <li>Skeletonsy ładowania mogłyby być bardziej eleganckie</li>
+        <li>Empty states — brak wizualnie atrakcyjnych pustych ekranów</li>
+      </ul>
+    </div>
+
+    <div class="area-card" data-choice="components" onclick="toggleSelect(this)" style="--accent:#c084fc">
+      <div class="card-tag" style="color:#c084fc;background:rgba(192,132,252,0.1);">Detal & Polish</div>
+      <div class="card-title">Komponenty UI</div>
+      <div class="card-desc">Przyciski, karty, inputy, modal — "design is in the details". Małe poprawki, duży efekt.</div>
+      <ul class="card-issues">
+        <li>Buttons — brak micro-animacji na hover/press</li>
+        <li>Form inputs — minimalistyczne, można dodać character</li>
+        <li>Toast/notification style mogłoby być bardziej branded</li>
+        <li>Loading states (spinners) są generyczne</li>
+      </ul>
+    </div>
+
+    <div class="area-card" data-choice="admin" onclick="toggleSelect(this)" style="--accent:#60a5fa">
+      <div class="card-tag" style="color:#60a5fa;background:rgba(96,165,250,0.1);">Wewnętrzny</div>
+      <div class="card-title">Panel Admina</div>
+      <div class="card-desc">Codzienne narzędzie pracy. Priorytet: czytelność, szybkość, brak rozpraszaczy. Elegancja na drugim miejscu.</div>
+      <ul class="card-issues">
+        <li>Tabele danych — gęste, brak visual breathing room</li>
+        <li>Sidebar — dużo linków, może warto pogrupować lepiej</li>
+        <li>Stats/wykresy — brak infografik, czyste liczby</li>
+        <li>Calendar view — świetna funkcja, UI do dopracowania</li>
+      </ul>
+    </div>
+
+    <div class="area-card" data-choice="mobile" onclick="toggleSelect(this)" style="--accent:#fb923c">
+      <div class="card-tag" style="color:#fb923c;background:rgba(251,146,60,0.1);">Mobile First</div>
+      <div class="card-title">Doświadczenie Mobilne</div>
+      <div class="card-desc">Bottom nav jest dobrym wyborem — ale czy cały UX na mobile jest zoptymalizowany? Touch targets, gesty, czytelność.</div>
+      <ul class="card-issues">
+        <li>Bottom nav — aktywne stany mogą być wyraźniejsze</li>
+        <li>Cards na mobile — padding i typography do sprawdzenia</li>
+        <li>Formularz rezerwacji (BookingWizard) na mobile</li>
+        <li>Brak "native-like" gestów przesuwania</li>
+      </ul>
+    </div>
+
+    <div class="area-card" data-choice="branding" onclick="toggleSelect(this)" style="--accent:#f472b6">
+      <div class="card-tag" style="color:#f472b6;background:rgba(244,114,182,0.1);">Brand Identity</div>
+      <div class="card-title">Tożsamość Wizualna</div>
+      <div class="card-desc">Paleta i fonty są dobre — ale czy aplikacja ma unikalny "charakter"? Ilustracje, ikony, patterny, logo usage.</div>
+      <ul class="card-issues">
+        <li>Brak custom ilustracji lub ikon brandowych</li>
+        <li>Lucide icons — neutralne, nie "luxury salon" feel</li>
+        <li>Brak dekoracyjnych elementów graficznych</li>
+        <li>Duże sekcje tła — puste, mogłyby mieć subtelne tekstury</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<div class="bottom-note">
+  Możesz wybrać kilka obszarów — zacznę od tego, który klikasz pierwszy.<br>
+  Następnie pokażę Ci konkretne propozycje zmian dla wybranego obszaru.
+</div>
+
+<script>
+function toggleSelect(el) {
+  const wasSelected = el.classList.contains('selected');
+  // Don't deselect — allow accumulating selections
+  el.classList.toggle('selected');
+
+  const choice = el.dataset.choice;
+  const text = el.querySelector('.card-title').textContent;
+
+  if (window.__sendEvent) {
+    window.__sendEvent({ type: 'click', choice, text });
+  }
+}
+</script>
+</body>
+</html>

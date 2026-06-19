@@ -1,0 +1,201 @@
+<h2>Układ karty pogodowej — wybierz styl</h2>
+<p class="subtitle">Karta pojawi się nad sekcją "Prognoza na 13:00" na stronie /user/pogoda-skory</p>
+
+<style>
+  .cards { display: flex; flex-direction: column; gap: 20px; max-width: 700px; margin: 0 auto; }
+
+  /* shared dark card base */
+  .weather-card {
+    border-radius: 18px;
+    overflow: hidden;
+    font-family: system-ui, sans-serif;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .2s;
+  }
+  .weather-card.selected { border-color: #818cf8; }
+
+  /* ── Option A: Gradient hero + mini bars ── */
+  .card-a {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #1e3a5f 100%);
+    color: white;
+  }
+  .card-a .top { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 20px 14px; }
+  .card-a .city { font-size: 11px; opacity: .6; text-transform: uppercase; letter-spacing: .05em; }
+  .card-a .temp-big { font-size: 56px; font-weight: 300; line-height: 1; }
+  .card-a .temp-unit { font-size: 20px; font-weight: 300; vertical-align: super; }
+  .card-a .desc { font-size: 13px; opacity: .7; margin-top: 2px; }
+  .card-a .badges { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 20px 14px; }
+  .card-a .badge { background: rgba(255,255,255,.1); border-radius: 20px; padding: 4px 10px; font-size: 11px; display: flex; align-items: center; gap: 4px; }
+  .card-a .uv-strip { padding: 12px 20px 18px; }
+  .card-a .strip-label { font-size: 10px; opacity: .5; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .card-a .bars { display: flex; align-items: flex-end; gap: 4px; height: 40px; }
+  .card-a .bar { flex: 1; border-radius: 3px 3px 0 0; transition: height .3s; }
+  .card-a .bar-label { font-size: 8px; opacity: .4; text-align: center; margin-top: 3px; }
+  .card-a .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .card-a .hours { display: flex; gap: 4px; }
+
+  /* ── Option B: Clean metrics + SVG line ── */
+  .card-b {
+    background: #0f172a;
+    border: 1px solid rgba(148,163,184,.15);
+    color: white;
+  }
+  .card-b .header { padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(148,163,184,.08); }
+  .card-b .header-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; opacity: .5; }
+  .card-b .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+  .card-b .metric { padding: 14px 16px; border-right: 1px solid rgba(148,163,184,.06); }
+  .card-b .metric:last-child { border-right: none; }
+  .card-b .m-val { font-size: 24px; font-weight: 600; }
+  .card-b .m-unit { font-size: 11px; opacity: .4; }
+  .card-b .m-label { font-size: 10px; opacity: .4; margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .card-b .chart-area { padding: 4px 20px 16px; }
+  .card-b .chart-title { font-size: 10px; opacity: .35; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+  .card-b svg { width: 100%; height: 50px; overflow: visible; }
+
+  /* ── Option C: Hourly scroll strip ── */
+  .card-c {
+    background: #111827;
+    color: white;
+  }
+  .card-c .top { display: flex; gap: 16px; padding: 18px 18px 14px; align-items: center; }
+  .card-c .icon-wrap { width: 52px; height: 52px; background: linear-gradient(135deg,#fbbf24,#f59e0b); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .card-c .top-info .temp { font-size: 34px; font-weight: 700; }
+  .card-c .top-info .sub { font-size: 12px; opacity: .5; }
+  .card-c .scroll { display: flex; gap: 2px; overflow-x: auto; padding: 0 18px 18px; scrollbar-width: none; }
+  .card-c .hour-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 8px; border-radius: 12px; min-width: 44px; }
+  .card-c .hour-col.now { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+  .card-c .h-time { font-size: 10px; opacity: .5; }
+  .card-c .h-icon { font-size: 18px; }
+  .card-c .h-temp { font-size: 12px; font-weight: 600; }
+  .card-c .h-uv { font-size: 9px; color: #fbbf24; font-weight: 600; }
+  .card-c .uv-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+
+  .card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; opacity: .6; }
+</style>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div>
+    <div class="card-label">A — Gradient Hero z paskami UV</div>
+    <div class="weather-card card-a" data-choice="a" onclick="toggleSelect(this)">
+      <div class="top">
+        <div>
+          <div class="city">Warszawa · prognoza na dziś</div>
+          <div style="margin-top:8px">
+            <span class="temp-big">23</span><span class="temp-unit">°C</span>
+          </div>
+          <div class="desc">Częściowe zachmurzenie</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:42px;line-height:1">⛅</div>
+          <div style="font-size:11px;opacity:.5;margin-top:4px">Zachmurzenie 40%</div>
+        </div>
+      </div>
+      <div class="badges">
+        <div class="badge">🌡 Max 26°C</div>
+        <div class="badge">💧 Wilgotność 58%</div>
+        <div class="badge">🌧 Deszcz 15%</div>
+        <div class="badge" style="background:rgba(251,191,36,.2);color:#fbbf24">☀ UV 7 — Wysoki</div>
+      </div>
+      <div class="uv-strip">
+        <div class="strip-label">Indeks UV przez cały dzień</div>
+        <div class="hours">
+          <!-- Hours 6–20 -->
+          <div class="bar-wrap"><div class="bar" style="height:4px;background:rgba(134,239,172,.6)"></div><div class="bar-label">6</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:8px;background:rgba(134,239,172,.6)"></div><div class="bar-label">7</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:14px;background:rgba(250,204,21,.7)"></div><div class="bar-label">8</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:20px;background:rgba(250,204,21,.8)"></div><div class="bar-label">9</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:28px;background:rgba(251,146,60,.8)"></div><div class="bar-label">10</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:34px;background:rgba(251,146,60,.9)"></div><div class="bar-label">11</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:36px;background:rgba(239,68,68,.85)"></div><div class="bar-label">12</div></div>
+          <div class="bar-wrap" style="position:relative"><div class="bar" style="height:40px;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,.6)"></div><div class="bar-label" style="color:#ef4444;opacity:1;font-weight:700">13</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:36px;background:rgba(239,68,68,.8)"></div><div class="bar-label">14</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:28px;background:rgba(251,146,60,.8)"></div><div class="bar-label">15</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:22px;background:rgba(250,204,21,.7)"></div><div class="bar-label">16</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:14px;background:rgba(134,239,172,.7)"></div><div class="bar-label">17</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:8px;background:rgba(134,239,172,.5)"></div><div class="bar-label">18</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:4px;background:rgba(134,239,172,.3)"></div><div class="bar-label">19</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:2px;background:rgba(148,163,184,.2)"></div><div class="bar-label">20</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div>
+    <div class="card-label">B — Minimalistyczne metryki + linia temperatury</div>
+    <div class="weather-card card-b" data-choice="b" onclick="toggleSelect(this)">
+      <div class="header">
+        <span class="header-title">Warunki atmosferyczne · dziś</span>
+        <span style="font-size:11px;opacity:.4">Warszawa</span>
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="m-val">23<span class="m-unit">°</span></div>
+          <div class="m-label">Temperatura</div>
+        </div>
+        <div class="metric">
+          <div class="m-val" style="color:#ef4444">7</div>
+          <div class="m-label">UV (13:00)</div>
+        </div>
+        <div class="metric">
+          <div class="m-val">40<span class="m-unit">%</span></div>
+          <div class="m-label">Chmury</div>
+        </div>
+        <div class="metric">
+          <div class="m-val">15<span class="m-unit">%</span></div>
+          <div class="m-label">Deszcz</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <div class="chart-title">Temperatura w ciągu dnia (°C)</div>
+        <svg viewBox="0 0 300 50">
+          <defs>
+            <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#818cf8" stop-opacity=".4"/>
+              <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,44 L20,42 L40,38 L60,33 L80,26 L100,18 L120,12 L140,10 L160,9 L180,11 L200,15 L220,22 L240,30 L260,38 L280,43 L300,44" fill="url(#tempGrad)" stroke="none"/>
+          <path d="M0,44 L20,42 L40,38 L60,33 L80,26 L100,18 L120,12 L140,10 L160,9 L180,11 L200,15 L220,22 L240,30 L260,38 L280,43 L300,44" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+          <circle cx="160" cy="9" r="3" fill="#818cf8"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:9px;opacity:.3;margin-top:2px">
+          <span>6:00</span><span>9:00</span><span>12:00</span><span>13:00</span><span>15:00</span><span>18:00</span><span>21:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div>
+    <div class="card-label">C — Horyzontalne przewijanie godzin</div>
+    <div class="weather-card card-c" data-choice="c" onclick="toggleSelect(this)">
+      <div class="top">
+        <div class="icon-wrap">⛅</div>
+        <div class="top-info">
+          <div class="temp">23°C <span style="font-size:14px;font-weight:400;opacity:.5">max 26°</span></div>
+          <div class="sub">Częściowe zachmurzenie · Warszawa</div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <span style="font-size:11px;background:rgba(239,68,68,.15);color:#ef4444;padding:2px 8px;border-radius:20px">UV max 7</span>
+            <span style="font-size:11px;background:rgba(148,163,184,.1);color:rgba(255,255,255,.5);padding:2px 8px;border-radius:20px">💧 58%</span>
+          </div>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="hour-col"><div class="h-time">06</div><div class="h-icon">🌤</div><div class="h-temp">17°</div><div class="h-uv">UV 1</div></div>
+        <div class="hour-col"><div class="h-time">08</div><div class="h-icon">☀</div><div class="h-temp">19°</div><div class="h-uv">UV 3</div></div>
+        <div class="hour-col"><div class="h-time">10</div><div class="h-icon">☀</div><div class="h-temp">22°</div><div class="h-uv">UV 5</div></div>
+        <div class="hour-col"><div class="h-time">12</div><div class="h-icon">⛅</div><div class="h-temp">25°</div><div class="h-uv">UV 6</div></div>
+        <div class="hour-col now"><div class="h-time">13</div><div class="h-icon">🌞</div><div class="h-temp">26°</div><div class="h-uv" style="color:#fde68a">UV 7</div></div>
+        <div class="hour-col"><div class="h-time">14</div><div class="h-icon">⛅</div><div class="h-temp">26°</div><div class="h-uv">UV 6</div></div>
+        <div class="hour-col"><div class="h-time">16</div><div class="h-icon">🌤</div><div class="h-temp">24°</div><div class="h-uv">UV 4</div></div>
+        <div class="hour-col"><div class="h-time">18</div><div class="h-icon">🌥</div><div class="h-temp">22°</div><div class="h-uv">UV 2</div></div>
+        <div class="hour-col"><div class="h-time">20</div><div class="h-icon">🌙</div><div class="h-temp">19°</div><div class="h-uv" style="opacity:.3">UV 0</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>

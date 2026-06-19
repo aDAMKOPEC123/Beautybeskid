@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cosmo-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "cosmo-web", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "cosmo-server",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "cosmo-server", "run", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "cosmo-shared",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@cosmo/shared", "run", "dev"],
+      "port": 0
+    },
+    {
+      "name": "cosmo-all",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}

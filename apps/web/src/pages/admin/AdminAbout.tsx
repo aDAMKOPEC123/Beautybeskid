@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
@@ -193,7 +193,7 @@ export const AdminAbout = () => {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label>Tytuł sekcji</Label>
-            <Input value={featuresTitle} onChange={(e) => setFeaturesTitle(e.target.value)} placeholder="Dlaczego warto wybrać Cosmo?" />
+            <Input value={featuresTitle} onChange={(e) => setFeaturesTitle(e.target.value)} placeholder="Dlaczego warto wybrać BeautyBeskid?" />
           </div>
 
           <div className="space-y-3">

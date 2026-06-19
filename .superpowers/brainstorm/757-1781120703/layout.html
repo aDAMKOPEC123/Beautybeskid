@@ -1,0 +1,61 @@
+<h2>Układ zakładki Marketing</h2>
+<p class="subtitle">Jak zorganizowac podzakladki i nawigacje?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Zakladki poziome u gory strony</h3>
+      <p>Jedna trasa /admin/marketing - wewnatrz poziome taby: Kalendarz / Rolki / Karuzele / Trendy / Opisy / Lista nagran / Kampanie / Wyniki</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Podglad</div>
+        <div class="mockup-body" style="padding:0">
+          <div style="background:var(--surface-2);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;gap:4px;flex-wrap:wrap">
+            <span style="background:var(--accent);color:white;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">Kalendarz</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Rolki</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Karuzele</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Trendy</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Opisy</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Lista nagran</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Kampanie</span>
+            <span style="padding:4px 12px;border-radius:6px;font-size:12px;color:var(--text-muted)">Wyniki</span>
+          </div>
+          <div style="padding:12px;height:80px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px">
+            Tresc aktywnej zakladki
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Osobne trasy w sidebarze</h3>
+      <p>Sekcja "Marketing" w sidebarze z rozwijana lista linkow: /admin/marketing/kalendarz, /admin/marketing/rolki, /admin/marketing/karuzele itd.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Podglad (sidebar)</div>
+        <div class="mockup-body" style="padding:8px">
+          <div style="font-size:12px;font-weight:600;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;background:var(--surface-2);border-radius:6px">
+            <span>Marketing</span><span style="font-size:10px">v</span>
+          </div>
+          <div style="margin-top:4px;margin-left:12px;border-left:2px solid var(--border);padding-left:8px;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;padding:3px 6px;background:var(--accent-soft);border-radius:4px;color:var(--accent)">Kalendarz</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Rolki</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Karuzele</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Trendy</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Opisy i hashtagi</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Lista nagran</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Kampanie</span>
+            <span style="font-size:11px;padding:3px 6px;color:var(--text-muted)">Wyniki</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;padding:14px;background:var(--surface-2);border-radius:8px">
+  <p class="label">Rekomendacja</p>
+  <p style="margin-top:4px;font-size:13px">Opcja <strong>A (zakladki poziome)</strong> - jedna trasa /admin/marketing, przelaczanie bez pelnego przeladowania strony, latwiejsza nawigacja na mobile (brak dostepu do sidebara). Pasuje do wzorca uzytego np. w akademii.</p>
+</div>

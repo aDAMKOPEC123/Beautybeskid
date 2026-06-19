@@ -1,0 +1,57 @@
+<h2>Widget na dashboardzie — brak raportu</h2>
+<p class="subtitle">Widget SkinWeatherWidget.tsx widoczny na stronie głównej użytkownika (/user/dashboard)</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">A — Widget z przyciskiem generowania</div>
+    <div class="mockup-body" style="padding:12px;font-family:system-ui">
+      <div style="background:#1e293b;border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:18px">🌤️</span>
+          <span style="font-size:13px;font-weight:700;color:#f1f5f9">Pogoda dla skóry</span>
+        </div>
+        <div style="border:2px dashed #334155;border-radius:8px;padding:14px;text-align:center;background:#ffffff05">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">Brak raportu na dziś</div>
+          <div style="background:#7c3aed;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;display:inline-block">
+            ✨ Wygeneruj
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">B — Widget tylko linkuje do profilu</div>
+    <div class="mockup-body" style="padding:12px;font-family:system-ui">
+      <div style="background:#1e293b;border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:18px">🌤️</span>
+          <span style="font-size:13px;font-weight:700;color:#f1f5f9">Pogoda dla skóry</span>
+        </div>
+        <div style="padding:12px;text-align:center">
+          <div style="font-size:11px;color:#64748b;margin-bottom:8px">Raport pojawi się o 6:00</div>
+          <div style="color:#7c3aed;font-size:12px;font-weight:600;cursor:pointer">
+            → Przejdź do pogody skóry
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:20px">
+  <div class="option" data-choice="widget-generate" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Widget ma przycisk "Wygeneruj"</h3>
+      <p>Użytkownik może wygenerować raport bezpośrednio z dashboardu bez przechodzenia do podstrony.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="widget-link" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Widget tylko linkuje do strony profilu</h3>
+      <p>Generowanie tylko na /user/pogoda-skory. Widget na dashboardzie = skrót/podgląd, nie akcja.</p>
+    </div>
+  </div>
+</div>

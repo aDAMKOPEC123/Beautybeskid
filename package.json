@@ -1,0 +1,19 @@
+{
+  "name": "cosmo-app",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "concurrently --kill-others-on-fail --names \"server,web\" --prefix-colors \"cyan,magenta\" \"pnpm --filter cosmo-server dev\" \"pnpm --filter cosmo-web dev\"",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}

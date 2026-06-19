@@ -25,7 +25,51 @@ export const HomecarePreviewCard = () => {
   });
 
   const active = routines[0] ?? null;
-  if (!active) return null;
+
+  if (!active) {
+    return (
+      <div
+        style={{
+          background: 'rgba(196,150,90,0.04)',
+          border: '1px solid rgba(196,150,90,0.15)',
+          borderRadius: '18px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+            background: 'rgba(196,150,90,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Sparkles size={17} style={{ color: '#C4965A' }} />
+          </div>
+          <div>
+            <p style={{ fontSize: '11px', color: 'rgba(20,40,28,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '2px' }}>
+              Rutyna domowa
+            </p>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#1A3828', lineHeight: 1.2 }}>
+              Brak aktywnej rutyny
+            </p>
+          </div>
+        </div>
+        <p style={{ fontSize: '12px', color: 'rgba(20,40,28,0.5)', lineHeight: 1.55 }}>
+          Po wizycie kosmetolożka może przypisać Ci indywidualną rutynę pielęgnacyjną na dni po zabiegu.
+        </p>
+        <Link
+          to="/user/rutyna"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '5px',
+            fontSize: '12px', fontWeight: 600, color: '#C4965A', textDecoration: 'none',
+          }}
+        >
+          Sprawdź rutyny <ArrowRight size={12} />
+        </Link>
+      </div>
+    );
+  }
 
   const snippet = active.first48h || active.followingDays || '';
   const preview = snippet.length > 80 ? snippet.slice(0, 80).trimEnd() + '…' : snippet;

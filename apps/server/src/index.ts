@@ -55,7 +55,7 @@ process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
 process.on('unhandledRejection', (err) => {
-  console.log('UNHANDLED REJECTION! Shutting down...');
+  console.error('UNHANDLED REJECTION! Shutting down...');
   console.error(err);
   server.close(() => {
     process.exit(1);

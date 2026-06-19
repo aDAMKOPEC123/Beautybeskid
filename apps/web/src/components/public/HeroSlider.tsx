@@ -70,7 +70,7 @@ export const HeroSlider = () => {
   return (
     <div
       className="relative w-full overflow-hidden"
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: '100svh' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

@@ -10,6 +10,7 @@ export const createBlogPostSchema = z.object({
   metaTitle: z.string().max(70).optional(),
   metaDescription: z.string().max(160).optional(),
   readingTime: z.number().int().positive().optional(),
+  category: z.string().max(60).optional(),
 });
 
 export const updateBlogPostSchema = createBlogPostSchema.partial();

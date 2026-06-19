@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { loginSchema } from '@cosmo/shared';
+import { loginSchema, LoginInput } from '@cosmo/shared';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
@@ -38,7 +38,7 @@ export const Login = () => {
     resolver: zodResolver(loginSchema)
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginInput) => {
     try {
       setLoading(true);
       const res = await authApi.login({ ...data, rememberMe });

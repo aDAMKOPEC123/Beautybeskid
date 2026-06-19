@@ -1,10 +1,10 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { PublicLayout } from './components/layout/PublicLayout';
-import { UserLayout } from './components/layout/UserLayout';
-import { AdminLayout } from './components/layout/AdminLayout';
-import { EmployeeLayout } from './components/layout/EmployeeLayout';
+const PublicLayout = lazy(() => import('./components/layout/PublicLayout').then(m => ({ default: m.PublicLayout })));
+const UserLayout = lazy(() => import('./components/layout/UserLayout').then(m => ({ default: m.UserLayout })));
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const EmployeeLayout = lazy(() => import('./components/layout/EmployeeLayout').then(m => ({ default: m.EmployeeLayout })));
 
 // Public pages
 const Home = lazy(() => import('./pages/public/Home').then(m => ({ default: m.Home })));
@@ -152,7 +152,7 @@ export const router = createBrowserRouter([
     path: '/employee',
     element: <EmployeeLayout />,
     children: [
-      { index: true, element: <S><EmployeeSchedule /></S> },
+      { index: true, element: <Navigate to="terminarz" replace /> },
       { path: 'terminarz', element: <S><EmployeeSchedule /></S> },
       { path: 'wizyty', element: <S><EmployeeAppointments /></S> },
       { path: 'chat', element: <S><EmployeeChat /></S> },

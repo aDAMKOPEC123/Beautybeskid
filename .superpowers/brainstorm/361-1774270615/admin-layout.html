@@ -1,0 +1,217 @@
+﻿<h2>Sekcja 3 — Układ stron admina</h2>
+<p class="subtitle">Dwie nowe strony. Zaakceptuj lub powiedz co zmienić.</p>
+
+<div style="display: grid; gap: 24px;">
+
+  <!-- Page 1: Quiz List -->
+  <div class="mockup">
+    <div class="mockup-header">/admin/quizy — Lista quizów</div>
+    <div class="mockup-body" style="padding: 0; overflow: hidden;">
+      <div style="display: flex; height: 340px;">
+        <!-- Sidebar -->
+        <div style="width: 180px; background: #1A1208; padding: 16px 0; flex-shrink: 0;">
+          <div style="padding: 0 16px 12px; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1px; text-transform: uppercase;">BeautyBeskid Admin</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">Dashboard</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">Wizyty</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">Usługi</div>
+          <div style="padding: 8px 16px; font-size: 10px; background: rgba(184,145,58,0.15); color: #B8913A; font-weight: 600; border-left: 2px solid #B8913A;">Quizy</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">Blog</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">...</div>
+        </div>
+        <!-- Main content -->
+        <div style="flex: 1; padding: 20px; background: #FDFAF6; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #1A1208;">Quizy dopasowania</div>
+              <div style="font-size: 10px; color: rgba(26,18,8,0.4);">Zarządzaj quizami dla każdej części ciała</div>
+            </div>
+            <div style="background: #1A1208; color: #FDFAF6; padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: 600;">+ Nowy quiz</div>
+          </div>
+
+          <!-- Filter tabs -->
+          <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+            <div style="padding: 4px 10px; background: #1A1208; color: white; border-radius: 20px; font-size: 9px; font-weight: 600;">Wszystkie</div>
+            <div style="padding: 4px 10px; background: #f0ece4; color: #555; border-radius: 20px; font-size: 9px;">🦶 Stopy</div>
+            <div style="padding: 4px 10px; background: #f0ece4; color: #555; border-radius: 20px; font-size: 9px;">🧖 Twarz</div>
+            <div style="padding: 4px 10px; background: #f0ece4; color: #555; border-radius: 20px; font-size: 9px;">💅 Dłonie</div>
+          </div>
+
+          <!-- Quiz cards -->
+          <div style="display: grid; gap: 8px;">
+            <!-- Quiz 1 -->
+            <div style="background: white; border: 1px solid #e8e0d4; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+              <div style="font-size: 20px;">🦶</div>
+              <div style="flex: 1;">
+                <div style="font-size: 11px; font-weight: 600; color: #1A1208;">Quiz podologiczny — stopy</div>
+                <div style="font-size: 9px; color: rgba(26,18,8,0.4);">6 węzłów pytań · 5 wyników · ostatnia edycja 2 dni temu</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600;">Aktywny</div>
+                <div style="background: #f0ece4; color: #555; padding: 4px 8px; border-radius: 6px; font-size: 9px;">Edytuj drzewo →</div>
+              </div>
+            </div>
+            <!-- Quiz 2 -->
+            <div style="background: white; border: 1px solid #e8e0d4; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+              <div style="font-size: 20px;">🦶</div>
+              <div style="flex: 1;">
+                <div style="font-size: 11px; font-weight: 600; color: #1A1208;">Quiz pedicure estetyczny</div>
+                <div style="font-size: 9px; color: rgba(26,18,8,0.4);">3 węzły pytań · 3 wyniki · szkic</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600;">Nieaktywny</div>
+                <div style="background: #f0ece4; color: #555; padding: 4px 8px; border-radius: 6px; font-size: 9px;">Edytuj drzewo →</div>
+              </div>
+            </div>
+            <!-- Add new -->
+            <div style="border: 1.5px dashed #d4c9b5; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; color: rgba(26,18,8,0.3);">
+              <span style="font-size: 14px;">+</span>
+              <span style="font-size: 10px;">Dodaj kolejny quiz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 2: Canvas Editor -->
+  <div class="mockup">
+    <div class="mockup-header">/admin/quizy/:id/edytor — Edytor drzewa (React Flow canvas)</div>
+    <div class="mockup-body" style="padding: 0; overflow: hidden;">
+      <div style="display: flex; height: 400px;">
+        <!-- Sidebar -->
+        <div style="width: 180px; background: #1A1208; padding: 16px 0; flex-shrink: 0;">
+          <div style="padding: 0 16px 12px; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1px; text-transform: uppercase;">BeautyBeskid Admin</div>
+          <div style="padding: 8px 16px; font-size: 10px; color: rgba(255,255,255,0.5);">← Quizy</div>
+          <div style="padding: 8px 16px; font-size: 10px; background: rgba(184,145,58,0.15); color: #B8913A; font-weight: 600; border-left: 2px solid #B8913A;">Edytor drzewa</div>
+        </div>
+        <!-- Canvas area -->
+        <div style="flex: 1; display: flex; flex-direction: column; background: #f5f5f0;">
+          <!-- Top toolbar -->
+          <div style="background: white; border-bottom: 1px solid #e0e0e0; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: #1A1208;">Quiz podologiczny — stopy</div>
+              <div style="background: #e8f5e9; color: #2e7d32; padding: 1px 6px; border-radius: 10px; font-size: 9px;">Aktywny</div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div style="border: 1px solid #e0e0e0; padding: 4px 10px; border-radius: 6px; font-size: 9px; color: #555;">+ Pytanie</div>
+              <div style="border: 1px solid #e0e0e0; padding: 4px 10px; border-radius: 6px; font-size: 9px; color: #555;">+ Wynik</div>
+              <div style="background: #B8913A; color: white; padding: 4px 12px; border-radius: 6px; font-size: 9px; font-weight: 600;">Zapisz</div>
+            </div>
+          </div>
+          <!-- Canvas -->
+          <div style="flex: 1; position: relative; overflow: hidden;">
+            <!-- Grid background -->
+            <div style="position: absolute; inset: 0; background-image: radial-gradient(circle, #ccc 1px, transparent 1px); background-size: 20px 20px; opacity: 0.4;"></div>
+
+            <!-- START node -->
+            <div style="position: absolute; left: 40px; top: 80px; background: #1A1208; color: white; border-radius: 6px; padding: 6px 14px; font-size: 10px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">START</div>
+            <!-- Arrow -->
+            <svg style="position: absolute; left: 100px; top: 72px; overflow: visible;" width="60" height="40">
+              <line x1="0" y1="20" x2="55" y2="20" stroke="#999" stroke-width="1.5" marker-end="url(#arrow)"/>
+              <defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#999"/></marker></defs>
+            </svg>
+
+            <!-- Q1 node -->
+            <div style="position: absolute; left: 160px; top: 55px; background: white; border: 2px solid #1565c0; border-radius: 8px; padding: 8px 10px; min-width: 140px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 8px; color: #1565c0; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Pytanie</div>
+              <div style="font-size: 9px; color: #333; margin-bottom: 6px;">Kiedy ostatnio byłaś u podologa?</div>
+              <div style="display: grid; gap: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 8px; background: #e3f2fd; color: #1565c0; padding: 1px 5px; border-radius: 3px;">A</span>
+                  <div style="width: 20px; height: 1px; background: #1565c0; opacity: 0.4;"></div>
+                  <div style="width: 6px; height: 6px; background: #1565c0; border-radius: 50;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 8px; background: #e3f2fd; color: #1565c0; padding: 1px 5px; border-radius: 3px;">B</span>
+                  <div style="width: 20px; height: 1px; background: #1565c0; opacity: 0.4;"></div>
+                  <div style="width: 6px; height: 6px; background: #1565c0; border-radius: 50;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 8px; background: #e3f2fd; color: #1565c0; padding: 1px 5px; border-radius: 3px;">C</span>
+                  <div style="width: 20px; height: 1px; background: #4caf50; opacity: 0.6;"></div>
+                  <div style="width: 6px; height: 6px; background: #4caf50; border-radius: 50;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 8px; background: #e3f2fd; color: #1565c0; padding: 1px 5px; border-radius: 3px;">D</span>
+                  <div style="width: 20px; height: 1px; background: #1565c0; opacity: 0.4;"></div>
+                  <div style="width: 6px; height: 6px; background: #1565c0; border-radius: 50;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q2 node -->
+            <div style="position: absolute; left: 360px; top: 30px; background: white; border: 2px solid #1565c0; border-radius: 8px; padding: 8px 10px; min-width: 130px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 8px; color: #1565c0; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Pytanie</div>
+              <div style="font-size: 9px; color: #333; margin-bottom: 4px;">Czy masz odciski?</div>
+              <div style="font-size: 8px; color: #aaa;">4 opcje →</div>
+            </div>
+
+            <!-- Result 1 node -->
+            <div style="position: absolute; left: 360px; top: 180px; background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 8px 10px; min-width: 130px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 8px; color: #2e7d32; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">🏁 Wynik</div>
+              <div style="font-size: 9px; color: #1A1208; font-weight: 600; margin-bottom: 2px;">Pedicure relaksacyjny</div>
+              <div style="font-size: 8px; color: #555;">→ Pedicure spa z masażem</div>
+            </div>
+
+            <!-- Result 2 node (further right) -->
+            <div style="position: absolute; left: 550px; top: 60px; background: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 8px 10px; min-width: 130px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); opacity: 0.8;">
+              <div style="font-size: 8px; color: #e65100; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">🏁 Wynik</div>
+              <div style="font-size: 9px; color: #1A1208; font-weight: 600; margin-bottom: 2px;">Zabieg leczniczy</div>
+              <div style="font-size: 8px; color: #555;">→ Podologia lecznicza</div>
+            </div>
+
+            <!-- SVG edges -->
+            <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;">
+              <defs>
+                <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 Z" fill="#999"/>
+                </marker>
+              </defs>
+              <!-- Q1 A,B → Q2 -->
+              <path d="M 300 75 C 330 75, 330 55, 360 55" stroke="#1565c0" stroke-width="1.5" fill="none" stroke-dasharray="4" marker-end="url(#arr)" opacity="0.7"/>
+              <!-- Q1 C → Result 1 -->
+              <path d="M 300 92 C 330 92, 330 210, 360 210" stroke="#4caf50" stroke-width="1.5" fill="none" marker-end="url(#arr)" opacity="0.8"/>
+              <!-- Q2 → Result 2 -->
+              <path d="M 490 65 C 520 65, 520 90, 550 90" stroke="#ff9800" stroke-width="1.5" fill="none" marker-end="url(#arr)" opacity="0.7"/>
+            </svg>
+
+            <!-- Zoom controls -->
+            <div style="position: absolute; bottom: 12px; right: 12px; background: white; border: 1px solid #e0e0e0; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">
+              <div style="padding: 4px 8px; font-size: 12px; color: #555; border-bottom: 1px solid #eee; text-align: center;">+</div>
+              <div style="padding: 4px 8px; font-size: 12px; color: #555; text-align: center;">−</div>
+            </div>
+
+            <!-- Node panel (right side - appears on click) -->
+            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 170px; background: white; border-left: 1px solid #e0e0e0; padding: 12px; overflow-y: auto;">
+              <div style="font-size: 10px; font-weight: 700; color: #1A1208; margin-bottom: 8px;">Edytuj węzeł</div>
+              <div style="font-size: 9px; color: #999; margin-bottom: 3px;">Treść pytania</div>
+              <div style="background: #f5f5f5; border-radius: 4px; padding: 5px 7px; font-size: 9px; color: #333; margin-bottom: 8px;">Kiedy ostatnio byłaś u podologa?</div>
+              <div style="font-size: 9px; color: #999; margin-bottom: 4px;">Opcje odpowiedzi</div>
+              <div style="display: grid; gap: 3px; margin-bottom: 8px;">
+                <div style="background: #f5f5f5; border-radius: 3px; padding: 3px 6px; font-size: 9px; display: flex; gap: 4px;"><span style="color: #B8913A; font-weight: 700;">A</span> Nigdy lub ponad 2 lata</div>
+                <div style="background: #f5f5f5; border-radius: 3px; padding: 3px 6px; font-size: 9px; display: flex; gap: 4px;"><span style="color: #B8913A; font-weight: 700;">B</span> Ponad rok temu</div>
+                <div style="background: #f5f5f5; border-radius: 3px; padding: 3px 6px; font-size: 9px; display: flex; gap: 4px;"><span style="color: #B8913A; font-weight: 700;">C</span> Kilka miesięcy temu</div>
+                <div style="background: #f5f5f5; border-radius: 3px; padding: 3px 6px; font-size: 9px; display: flex; gap: 4px;"><span style="color: #B8913A; font-weight: 700;">D</span> Byłam niedawno</div>
+              </div>
+              <div style="border-top: 1px solid #eee; padding-top: 8px;">
+                <div style="display: grid; gap: 4px;">
+                  <div style="background: #f0f0f0; border-radius: 4px; padding: 4px 7px; font-size: 9px; color: #555;">✏️ Edytuj</div>
+                  <div style="background: #fce4ec; border-radius: 4px; padding: 4px 7px; font-size: 9px; color: #c62828;">🗑 Usuń węzeł</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="option" data-choice="approve" onclick="toggleSelect(this)" style="margin-top: 16px;">
+  <div class="letter">✓</div>
+  <div class="content">
+    <h3>Akceptuję układ stron admina</h3>
+    <p>Wygląda dobrze, przechodzimy dalej</p>
+  </div>
+</div>

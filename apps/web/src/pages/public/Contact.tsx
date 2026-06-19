@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
@@ -69,7 +69,7 @@ export const Contact = () => {
     <>
       <PageSEO
         title="Kontakt — Kosmetolog Limanowa"
-        description="Skontaktuj się z salonem kosmetologicznym Cosmo w Limanowej. Obsługujemy klientów z Limanowej, Laskowej, Mordarki, Dobrej, Tymbarku i okolic. Zadzwoń, napisz SMS lub wyślij wiadomość przez czat."
+        description="Skontaktuj się z salonem kosmetologicznym BeautyBeskid w Limanowej. Obsługujemy klientów z Limanowej, Laskowej, Mordarki, Dobrej, Tymbarku i okolic. Zadzwoń, napisz SMS lub wyślij wiadomość przez czat."
         canonical="/kontakt"
         schema={localBusinessSchema}
       />
@@ -210,7 +210,7 @@ export const Contact = () => {
               {/* Google Maps */}
               <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <iframe
-                  title="Lokalizacja salonu Cosmo — Limanowa"
+                  title="Lokalizacja salonu BeautyBeskid — Limanowa"
                   src={`https://maps.google.com/maps?q=${SEO.lat},${SEO.lon}&z=15&output=embed`}
                   width="100%"
                   height="400"

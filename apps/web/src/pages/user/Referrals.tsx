@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { Users, Copy, Share2, CheckCircle2, Circle, Gift, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { usersApi } from '@/api/users.api';
@@ -16,7 +16,7 @@ export const UserReferrals = () => {
   });
 
   const shareText = data?.ambassadorCode
-    ? `Dołącz do COSMO z moim kodem polecenia: ${data.ambassadorCode}`
+    ? `Dołącz do BeautyBeskid z moim kodem polecenia: ${data.ambassadorCode}`
     : '';
 
   const handleCopy = async () => {
@@ -83,7 +83,7 @@ export const UserReferrals = () => {
             Program Poleceń
           </h1>
           <p className="text-sm" style={{ color: '#5A7A62' }}>
-            Zarabiaj nagrody, polecając COSMO znajomym
+            Zarabiaj nagrody, polecając BeautyBeskid znajomym
           </p>
         </div>
       </div>

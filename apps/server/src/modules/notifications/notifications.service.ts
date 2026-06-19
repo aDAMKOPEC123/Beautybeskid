@@ -36,7 +36,7 @@ export const markRead = async (userId: string, notificationId: string) => {
   }
 
   return await prisma.notification.update({
-    where: { id: notificationId },
+    where: { id: notificationId, userId },
     data: { readAt: new Date() },
   });
 };

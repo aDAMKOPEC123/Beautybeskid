@@ -1,4 +1,4 @@
-// filepath: apps/server/src/modules/auth/auth.controller.ts
+﻿// filepath: apps/server/src/modules/auth/auth.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '@cosmo/shared';
@@ -39,8 +39,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validatedData = loginSchema.parse(req.body);
-    const result = await authService.loginUser(validatedData);
     const rememberMe = req.body.rememberMe === true;
+    const refreshTtl = rememberMe ? '30d' : env.JWT_REFRESH_EXPIRES_IN;
+    const result = await authService.loginUser(validatedData, refreshTtl);
 
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
@@ -118,16 +119,18 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+    // Preserve original session TTL (supports rememberMe 30d sessions)
+    const remainingMs = Math.max(60_000, storedToken.expiresAt.getTime() - Date.now());
+    const remainingSeconds = Math.floor(remainingMs / 1000);
+    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, `${remainingSeconds}s`);
     const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-    const refreshTokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
     await prisma.$transaction([
       prisma.refreshToken.delete({ where: { tokenHash } }),
       prisma.refreshToken.create({
         data: {
           tokenHash: newTokenHash,
           userId: user.id,
-          expiresAt: new Date(Date.now() + refreshTokenTtlMs),
+          expiresAt: new Date(Date.now() + remainingMs),
         },
       }),
     ]);
@@ -135,7 +138,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: refreshTokenTtlMs,
+      maxAge: remainingMs,
     });
 
     res.status(200).json({
@@ -168,10 +171,10 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       }
     });
 
-    const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}`;
+    const resetUrl = `${env.CLIENT_URL}/auth/reset-password?token=${resetToken}`;
     const message = `<p>Kliknij w link, aby zresetować hasło: <a href="${resetUrl}">${resetUrl}</a></p>`;
 
-    await sendEmail(user.email, 'Reset hasła - Cosmo App', message);
+    await sendEmail(user.email, 'Reset hasła - BeautyBeskid App', message);
 
     res.status(200).json({ status: 'success', message: 'Link zresetowania hasła wysłany na email.' });
   } catch (error) {
@@ -247,7 +250,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export const verifyEmail = async (req: Request, res: Response) => {
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   const { token } = req.query as { token?: string };
 
   if (!token) {

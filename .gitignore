@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+dev-dist/
+build/
+
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env.*.local
+
+# Uploads (user files)
+apps/server/uploads/
+
+# Turbo cache
+.turbo/
+apps/server/.turbo/
+apps/web/.turbo/
+packages/shared/.turbo/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Windows shortcuts
+*.lnk
+
+# Misc
+nul
+*.tmp

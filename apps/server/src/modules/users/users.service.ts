@@ -1,4 +1,4 @@
-import { prisma } from '../../config/prisma';
+﻿import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCode } from '../../utils/generateCode';
 import { sendEmail } from '../../utils/email';
@@ -17,7 +17,9 @@ const extractVisitServiceName = (description: string): string | null => {
 };
 
 const ensureAmbassadorCode = async (userId: string): Promise<string> => {
-  while (true) {
+  let attempts = 0;
+  while (attempts < 10) {
+    attempts++;
     const code = generateCode(8);
 
     try {
@@ -32,6 +34,7 @@ const ensureAmbassadorCode = async (userId: string): Promise<string> => {
       // Unique constraint violation - retry with a new code.
     }
   }
+  throw new AppError('Nie można wygenerować unikalnego kodu ambasadora', 500);
 };
 
 export const getAllUsers = async (page = 1, limit = 50) => {
@@ -161,6 +164,7 @@ export const getUserDetails = async (id: string) => {
           },
         },
         orderBy: { date: 'desc' },
+        take: 50,
       },
       loyaltyTransactions: {
         select: {
@@ -171,7 +175,7 @@ export const getUserDetails = async (id: string) => {
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
-        // No take limit — all EARN transactions needed for accurate pointsEarned matching
+        take: 200,
       },
     },
   });
@@ -245,20 +249,31 @@ export const getUserTimeline = async (userId: string, cursor?: string, limit = 2
   const cursorDate = cursor ? new Date(cursor) : undefined;
   const dateFilter = cursorDate ? { lt: cursorDate } : undefined;
 
-  const appointments = await prisma.appointment.findMany({
-    where: {
-      userId,
-      status: 'COMPLETED',
-      ...(dateFilter ? { date: dateFilter } : {}),
-    },
-    include: {
-      service: { select: { name: true } },
-      employee: { select: { name: true } },
-      review: { select: { rating: true } },
-    },
-    orderBy: { date: 'desc' },
-    take: limit + 1,
-  });
+  const [appointments, manualTransactions] = await Promise.all([
+    prisma.appointment.findMany({
+      where: {
+        userId,
+        status: 'COMPLETED',
+        ...(dateFilter ? { date: dateFilter } : {}),
+      },
+      include: {
+        service: { select: { name: true } },
+        employee: { select: { name: true } },
+        review: { select: { rating: true } },
+      },
+      orderBy: { date: 'desc' },
+      take: limit + 1,
+    }),
+    prisma.loyaltyTransaction.findMany({
+      where: {
+        userId,
+        type: 'MANUAL_ADJUST',
+        ...(dateFilter ? { createdAt: dateFilter } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+    }),
+  ]);
 
   const appointmentPointsMap = new Map<string, number>();
 
@@ -277,6 +292,7 @@ export const getUserTimeline = async (userId: string, cursor?: string, limit = 2
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
+      take: 200,
     });
 
     for (const transaction of earnTransactions) {
@@ -332,16 +348,6 @@ export const getUserTimeline = async (userId: string, cursor?: string, limit = 2
       pointsBonus: userAchievement.achievement.pointsBonus,
     },
   }));
-
-  const manualTransactions = await prisma.loyaltyTransaction.findMany({
-    where: {
-      userId,
-      type: 'MANUAL_ADJUST',
-      ...(dateFilter ? { createdAt: dateFilter } : {}),
-    },
-    orderBy: { createdAt: 'desc' },
-    take: limit + 1,
-  });
 
   const loyaltyItems = manualTransactions.map((transaction) => ({
     type: 'loyalty' as const,
@@ -424,7 +430,23 @@ export const getMyReferrals = async (userId: string) => {
   };
 };
 
-export const updateUser = async (id: string, data: any) => {
+type UpdateUserData = Partial<{
+  name: string;
+  phone: string | null;
+  avatarPath: string | null;
+  onboardingCompleted: boolean;
+  marketingConsent: boolean;
+  photoConsent: boolean;
+  cardAllergies: string | null;
+  cardConditions: string | null;
+  cardPreferences: string | null;
+  cardStaffNotes: string | null;
+  passwordHash: string;
+  mustChangePassword: boolean;
+  passwordChangedAt: Date;
+}>;
+
+export const updateUser = async (id: string, data: UpdateUserData) => {
   return prisma.user.update({
     where: { id },
     data,
@@ -465,8 +487,8 @@ export const approveUser = async (id: string) => {
 
   sendEmail(
     user.email,
-    'Konto zatwierdzone — COSMO',
-    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji COSMO zostało zatwierdzone. Możesz się teraz zalogować.</p>`
+    'Konto zatwierdzone — BeautyBeskid',
+    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji BeautyBeskid zostało zatwierdzone. Możesz się teraz zalogować.</p>`
   ).catch(err => console.warn('[WARN] approveUser: email send failed:', err.message));
 };
 
@@ -476,6 +498,12 @@ export const rejectUser = async (id: string) => {
   if (user.accountStatus !== 'PENDING') throw new AppError('Konto nie jest w statusie oczekującym', 400);
 
   await prisma.user.update({ where: { id }, data: { accountStatus: 'REJECTED' } });
+
+  sendEmail(
+    user.email,
+    'Twoje konto zostało odrzucone',
+    '<p>Niestety, Twoje konto w salonie BeautyBeskid nie zostało zatwierdzone. Skontaktuj się z nami, aby dowiedzieć się więcej.</p>'
+  ).catch(err => console.warn('[WARN] rejectUser: email send failed:', err.message));
 };
 
 export const changeUserPassword = async (userId: string, currentPassword: string, newPassword: string) => {
@@ -501,7 +529,7 @@ export const changeUserPassword = async (userId: string, currentPassword: string
     },
   });
   return updated;
-};;
+};
 
 export const searchUsersByName = async (query: string) => {
   const q = query.trim();

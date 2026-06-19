@@ -56,6 +56,7 @@ export const update = async (
 };
 
 export const updateStock = async (id: string, quantity: number) => {
+  if (quantity < 0) throw new AppError('Stan magazynowy nie może być ujemny', 400);
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) throw new AppError('Produkt nie znaleziony', 404);
 

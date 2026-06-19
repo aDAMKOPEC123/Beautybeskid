@@ -1,4 +1,4 @@
-// filepath: apps/web/src/pages/public/BlogPost.tsx
+﻿// filepath: apps/web/src/pages/public/BlogPost.tsx
 import { useMemo, useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
@@ -213,7 +213,7 @@ export const BlogPost = () => {
 `}</style>
       <PageSEO
         title={post.metaTitle ?? post.title}
-        description={post.metaDescription ?? post.excerpt ?? `Przeczytaj artykuł: ${post.title} na blogu salonu Cosmo w Limanowej.`}
+        description={post.metaDescription ?? post.excerpt ?? `Przeczytaj artykuł: ${post.title} na blogu salonu BeautyBeskid w Limanowej.`}
         canonical={`/blog/${post.slug}`}
         ogImage={post.coverImage}
       />

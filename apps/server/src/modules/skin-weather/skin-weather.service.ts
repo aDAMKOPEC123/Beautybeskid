@@ -1,4 +1,4 @@
-import { SkinType } from '@prisma/client';
+import { Prisma, SkinType } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { sendPushToUser } from '../push/push.service';
@@ -78,9 +78,10 @@ interface WeatherData {
   precip: number;      // precipitation probability % 0–100
   humidity: number;    // relative humidity % 0–100
   aqi: number;         // EU AQI 0–300
+  cloud: number;       // cloud cover % 0–100
 }
 
-type ParamKey = 'temperature' | 'uv' | 'humidity' | 'aqi' | 'precip';
+type ParamKey = 'temperature' | 'uv' | 'humidity' | 'aqi' | 'precip' | 'cloud';
 
 type ParamRange = { min: number; max: number };
 type RangeThresholds = Partial<Record<ParamKey, ParamRange>>;
@@ -110,14 +111,14 @@ export const createRule = async (data: RuleParams) => {
 export const updateRule = async (id: string, data: Partial<RuleParams>) => {
   const rule = await prisma.skinWeatherRule.findUnique({ where: { id } });
   if (!rule) throw new AppError('Reguła nie znaleziona', 404);
-  const updateData: Partial<RuleParams> = {};
+  const updateData: Prisma.SkinWeatherRuleUpdateInput = {};
   if (data.label !== undefined)          updateData.label = data.label;
   if (data.recommendation !== undefined) updateData.recommendation = data.recommendation;
   if (data.sortOrder !== undefined)      updateData.sortOrder = data.sortOrder;
   if (data.isActive !== undefined)       updateData.isActive = data.isActive;
   if (data.conditions !== undefined)     updateData.conditions = data.conditions;
-  if (data.thresholds !== undefined)     (updateData as any).thresholds = data.thresholds;
-  return prisma.skinWeatherRule.update({ where: { id }, data: updateData as any });
+  if (data.thresholds !== undefined)     updateData.thresholds = data.thresholds as Prisma.InputJsonValue;
+  return prisma.skinWeatherRule.update({ where: { id }, data: updateData });
 };
 
 
@@ -215,6 +216,7 @@ const fetchWeatherForecastAt13 = async (lat: number, lng: number) => {
       relative_humidity_2m:     data.hourly.relative_humidity_2m?.[idx] ?? 50,
       precipitation_probability: data.hourly.precipitation_probability?.[idx] ?? 0,
       uv_index:                  data.hourly.uv_index?.[idx] ?? 0,
+      cloud_cover:               data.hourly.cloud_cover?.[idx] ?? 50,
     },
   };
 };
@@ -237,12 +239,16 @@ const fetchAirQualityForecastAt13 = async (lat: number, lng: number) => {
 };
 
 function buildWeatherData(weather: any, airQuality: any): WeatherData {
+  if (!weather?.current) {
+    throw new AppError('Brak danych pogodowych z API', 502);
+  }
   return {
-    temperature: weather?.current?.temperature_2m ?? 20,
-    uv:          weather?.current?.uv_index ?? 0,
-    precip:      weather?.current?.precipitation_probability ?? 0,
-    humidity:    weather?.current?.relative_humidity_2m ?? 50,
+    temperature: weather.current.temperature_2m ?? 20,
+    uv:          weather.current.uv_index ?? 0,
+    precip:      weather.current.precipitation_probability ?? 0,
+    humidity:    weather.current.relative_humidity_2m ?? 50,
     aqi:         airQuality?.current?.european_aqi ?? 0,
+    cloud:       weather.current.cloud_cover ?? 50,
   };
 }
 
@@ -253,6 +259,7 @@ function getParamValue(param: ParamKey, w: WeatherData): number {
     case 'humidity':    return w.humidity;
     case 'aqi':         return w.aqi;
     case 'precip':      return w.precip;
+    case 'cloud':       return w.cloud;
     default:            return 0;
   }
 }

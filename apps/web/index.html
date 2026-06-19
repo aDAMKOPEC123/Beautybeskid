@@ -1,0 +1,93 @@
+﻿<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C8956C" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BeautyBeskid" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny Limanowa</title>
+    <meta name="description" content="Profesjonalny salon kosmetologiczny i gabinet podologiczny w Limanowej. Zabiegi na twarz, brwi, rzęsy, manicure, pedicure, podologia. Obsługujemy Laskową, Mordarkę, Dobrą i okolice." />
+    <!-- OG fallback -->
+    <meta property="og:type" content="business.business" />
+    <meta property="og:site_name" content="BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny" />
+    <meta property="og:title" content="BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny Limanowa" />
+    <meta property="og:description" content="Profesjonalny salon kosmetologiczny i gabinet podologiczny w Limanowej. Zabiegi na twarz, brwi, rzęsy, manicure, pedicure, podologia. Obsługujemy Laskową, Mordarkę, Dobrą i okolice." />
+    <meta property="og:image" content="https://cosmo.pl/images/og-salon.jpg" />
+    <meta property="og:url" content="https://cosmo.pl" />
+    <meta property="og:locale" content="pl_PL" />
+    <!-- Google Fonts for Playfair Display & DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- BeautySalon / LocalBusiness JSON-LD (static — visible to non-JS bots) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BeautySalon",
+      "name": "BeautyBeskid — Salon Kosmetologiczny & Gabinet Podologiczny",
+      "url": "https://cosmo.pl",
+      "telephone": "+48000000000",
+      "email": "kontakt@cosmo.pl",
+      "image": "https://cosmo.pl/images/og-salon.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "ul. Przykładowa 1",
+        "addressLocality": "Limanowa",
+        "postalCode": "34-600",
+        "addressRegion": "Małopolska",
+        "addressCountry": "PL"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 49.7058,
+        "longitude": 20.4262
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Saturday"],
+          "opens": "09:00",
+          "closes": "14:00"
+        }
+      ],
+      "areaServed": [
+        "Limanowa", "Mordarka", "Laskowa", "Słopnice", "Mszana Dolna",
+        "Nowy Sącz", "Ujanowice", "Dobra", "Kasina Wielka", "Sowliny",
+        "Tymbark", "Jodłownik", "Łososina Dolna", "Pisarzowa", "Żmiąca"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Usługi salonu BeautyBeskid",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kosmetologia twarzy" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Podologia" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Stylizacja brwi i rzęs" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Manicure i pedicure" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Lifting i laminowanie rzęs" } }
+        ]
+      },
+      "sameAs": [
+        "https://www.facebook.com/cosmo",
+        "https://www.instagram.com/cosmo",
+        "https://www.google.com/maps/place/..."
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

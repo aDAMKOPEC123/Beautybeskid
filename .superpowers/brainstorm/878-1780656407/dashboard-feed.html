@@ -1,0 +1,104 @@
+<h2>Co powinno być w dashboardzie poniżej karty wizyty?</h2>
+<p class="subtitle">Wybierz sekcje, które chcesz zachować lub dodać. <strong>Możesz wybrać kilka.</strong></p>
+
+<div class="options" data-multiselect>
+
+  <div class="option" data-choice="quick-actions" onclick="toggleSelect(this)">
+    <div class="letter">★</div>
+    <div class="content">
+      <h3>🆕 Szybkie akcje (3 przyciski w rzędzie)</h3>
+      <p><em>Nowe.</em> Trzy ikony-przyciski pod kartą wizyty: np. <strong>Dziennik / Rutyna / Punkty</strong>. Klientka jednym tapem trafia do najczęstszych sekcji bez szukania w menu.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="skin-weather" onclick="toggleSelect(this)">
+    <div class="letter">☁</div>
+    <div class="content">
+      <h3>Twoja Skóra (pogoda skóry)</h3>
+      <p><em>Obecne.</em> Widget z dzisiejszymi wskazówkami pielęgnacyjnymi dopasowanymi do pogody i profilu skóry. Przydatne, ale tylko dla osób z ustawionym profilem.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="recommendations" onclick="toggleSelect(this)">
+    <div class="letter">✦</div>
+    <div class="content">
+      <h3>Polecane zabiegi (slider)</h3>
+      <p><em>Obecne.</em> Karuzela z rekomendowanymi zabiegami. Dobry element marketingowy, ale może być za wcześnie w hierarchii.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="loyalty-bar" onclick="toggleSelect(this)">
+    <div class="letter">🏆</div>
+    <div class="content">
+      <h3>🆕 Pasek lojalności (kompaktowy)</h3>
+      <p><em>Nowe.</em> Jeden kompaktowy pasek: <strong>340 pkt · Brąz → Srebro (35%)</strong> z linkiem do szczegółów. Motywuje do kolejnych wizyt bez zajmowania dużo miejsca.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="reminders" onclick="toggleSelect(this)">
+    <div class="letter">🔁</div>
+    <div class="content">
+      <h3>Aktywne serie zabiegów</h3>
+      <p><em>Obecne.</em> Karty przypominające o kolejnych etapach serii (np. „Zabieg 3/6 — termin za 10 dni"). Bardzo ważne dla klientek w trakcie kuracji.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="pending-reviews" onclick="toggleSelect(this)">
+    <div class="letter">⭐</div>
+    <div class="content">
+      <h3>Oceń wizytę (oczekujące recenzje)</h3>
+      <p><em>Obecne.</em> Prompt do oceny zakończonych wizyt. Pojawia się tylko gdy jest co ocenić.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="last-visit" onclick="toggleSelect(this)">
+    <div class="letter">🆕</div>
+    <div class="content">
+      <h3>🆕 Ostatnia wizyta — podsumowanie</h3>
+      <p><em>Nowe.</em> Karta z ostatnią wizytą: zabieg, data, kosmetolożka + przycisk oceny lub „Umów znowu". Zastąpiłoby obecny contextual marketing banner.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="metamorphoses" onclick="toggleSelect(this)">
+    <div class="letter">🆕</div>
+    <div class="content">
+      <h3>🆕 Inspiracje — mini galeria metamorfoz</h3>
+      <p><em>Nowe.</em> 2-3 zdjęcia przed/po z salonu. Buduje aspiracje i zachęca do rezerwacji zabiegów estetycznych.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="ambassador" onclick="toggleSelect(this)">
+    <div class="letter">👥</div>
+    <div class="content">
+      <h3>Kod ambasadorski</h3>
+      <p><em>Obecne.</em> Rozwijany panel z kodem do polecenia znajomym. Mało widoczny, większość klientek go nie zauważa.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="badges" onclick="toggleSelect(this)">
+    <div class="letter">🏅</div>
+    <div class="content">
+      <h3>Odznaki / osiągnięcia</h3>
+      <p><em>Obecne.</em> Siatka 8 odznak (np. Pierwsza wizyta, Lojalny x10). Na mobile schowane za przyciskiem. Warto pokazać choć jedną zdobytą odznakę prominentnie.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="journal-preview" onclick="toggleSelect(this)">
+    <div class="letter">🆕</div>
+    <div class="content">
+      <h3>🆕 Podgląd dziennika skóry</h3>
+      <p><em>Nowe.</em> Mini-karta z ostatnim wpisem w dzienniku i przyciskiem „Dodaj wpis". Przypomina klientce o regularnym uzupełnianiu.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="homecare" onclick="toggleSelect(this)">
+    <div class="letter">✨</div>
+    <div class="content">
+      <h3>Moja Rutyna (homecare)</h3>
+      <p><em>Obecne (pośrednio przez reminder).</em> Jeśli kosmetolożka przypisała rutynę po wizycie, warto pokazać ją w dashboardzie jako „Co dziś zrobić dla skóry?".</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px; font-size:12px;">Zaznacz wszystkie sekcje które chcesz mieć. Nieznaczone zostaną usunięte lub przeniesione głębiej.</p>

@@ -1,0 +1,247 @@
+<style>
+  .phone {
+    width: 280px;
+    min-height: 500px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 2px solid rgba(0,0,0,0.12);
+    background: #F0F7F1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+  .phone-inner { overflow: hidden; }
+
+  /* ── Approach A: Numbered section headers ── */
+  .a-section {
+    padding: 20px 16px 16px;
+  }
+  .a-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .a-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #1A3828;
+    color: #C4965A;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .a-eyebrow {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C4965A;
+  }
+  .a-heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A3828;
+    margin-bottom: 8px;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+  }
+  .a-card {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: rgba(20,40,28,0.7);
+  }
+  .a-divider {
+    height: 1px;
+    margin: 0 16px;
+    background: rgba(26,56,40,0.12);
+  }
+
+  /* ── Approach B: Strong color-coded sections ── */
+  .b-sec-green { background: #1A3828; padding: 20px 16px; }
+  .b-sec-cream { background: #EDE8DE; padding: 20px 16px; }
+  .b-sec-mint  { background: #E8F3EA; padding: 20px 16px; }
+  .b-tag {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .b-tag-light { background: rgba(196,150,90,0.2); color: #C4965A; }
+  .b-tag-dark  { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
+  .b-heading-white { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .b-heading-dark  { font-size: 18px; font-weight: 700; color: #1A3828; margin-bottom: 8px; }
+  .b-card-white { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; color: rgba(255,255,255,0.75); font-size: 11px; margin-bottom: 6px; }
+  .b-card-dark  { background: white; border-radius: 10px; padding: 10px; color: rgba(20,40,28,0.7); font-size: 11px; margin-bottom: 6px; }
+
+  /* ── Approach C: "Floating card" sections ── */
+  .c-bg { background: #F0F7F1; padding: 8px 10px; }
+  .c-card-section {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .c-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #1A3828;
+    background: #E8F3EA;
+    border-radius: 20px;
+    padding: 3px 9px;
+    margin-bottom: 8px;
+  }
+  .c-heading { font-size: 16px; font-weight: 700; color: #1A3828; margin-bottom: 6px; }
+  .c-row { display: flex; gap: 6px; margin-top: 8px; }
+  .c-mini { flex: 1; background: #F4F9F5; border-radius: 10px; padding: 8px; font-size: 10px; color: rgba(20,40,28,0.6); }
+  .c-mini strong { display: block; color: #C4965A; font-size: 13px; margin-bottom: 2px; }
+
+  .cards { gap: 24px; align-items: flex-start; }
+  .card { min-width: 0; }
+  .card-image { padding: 20px 16px; background: #f8f8f8; display: flex; justify-content: center; }
+  .card-body { padding: 12px 16px; }
+  .card-body h3 { margin: 0 0 6px; font-size: 15px; }
+  .card-body p { margin: 0; font-size: 12px; opacity: 0.7; }
+</style>
+
+<h2>Jak poprawić czytelność sekcji na mobile?</h2>
+<p class="subtitle">3 podejścia — każde rozwiązuje problem A (brak tytułów), B (podobne tła) i D (brak kontekstu). Kliknij preferowane.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <!-- Section 1 -->
+        <div class="a-section" style="background:#F0F7F1">
+          <div class="a-section-label">
+            <div class="a-num">1</div>
+            <span class="a-eyebrow">Nasze zabiegi</span>
+          </div>
+          <div class="a-heading">Co robimy najlepiej</div>
+          <div class="a-card">Laminowanie rzęs — od 149 zł</div>
+          <div class="a-card">Podologia — od 120 zł</div>
+        </div>
+        <div class="a-divider"></div>
+        <!-- Section 2 -->
+        <div class="a-section" style="background:#EDE8DE">
+          <div class="a-section-label">
+            <div class="a-num">2</div>
+            <span class="a-eyebrow">Opinie klientek</span>
+          </div>
+          <div class="a-heading">Co o nas mówią</div>
+          <div class="a-card">"Profesjonalizm na najwyższym poziomie"<br><small style="color:#C4965A">— Anna W.</small></div>
+        </div>
+        <div class="a-divider"></div>
+        <!-- Section 3 -->
+        <div class="a-section" style="background:#F4F9F5">
+          <div class="a-section-label">
+            <div class="a-num">3</div>
+            <span class="a-eyebrow">Jak działamy</span>
+          </div>
+          <div class="a-heading">Wizyta krok po kroku</div>
+          <div class="a-card">01 Analiza &nbsp;&rarr;&nbsp; 02 Plan &nbsp;&rarr;&nbsp; 03 Zabieg</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Numerowane nagłówki sekcji</h3>
+      <p>Każda sekcja ma numerek + etykietę + kursywny tytuł. Tła delikatnie się różnią. Sekcje są jasno "podpisane" co to jest.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <!-- Section 1: dark -->
+        <div class="b-sec-green">
+          <div class="b-tag b-tag-dark">Nasze zabiegi</div>
+          <div class="b-heading-white">Co robimy najlepiej</div>
+          <div class="b-card-white">Laminowanie rzęs — od 149 zł</div>
+          <div class="b-card-white">Podologia — od 120 zł</div>
+        </div>
+        <!-- Section 2: cream -->
+        <div class="b-sec-cream">
+          <div class="b-tag b-tag-light">Opinie klientek</div>
+          <div class="b-heading-dark">Co o nas mówią</div>
+          <div class="b-card-dark">"Profesjonalizm na najwyższym poziomie"<br><small style="color:#C4965A">— Anna W.</small></div>
+        </div>
+        <!-- Section 3: mint -->
+        <div class="b-sec-mint">
+          <div class="b-tag b-tag-light">Jak działamy</div>
+          <div class="b-heading-dark">Wizyta krok po kroku</div>
+          <div class="b-card-dark">01 → 02 → 03 → 04</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Mocne kolory sekcji</h3>
+      <p>Każda sekcja ma inny mocny kolor tła. Natychmiastowe odróżnienie wizualne. Etykieta tekstowa w pigułce nad tytułem.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="c-bg">
+          <!-- Card 1 -->
+          <div class="c-card-section">
+            <div class="c-pill">
+              <span style="width:5px;height:5px;border-radius:50%;background:#C4965A;display:inline-block"></span>
+              Nasze zabiegi
+            </div>
+            <div class="c-heading">Co robimy najlepiej</div>
+            <div class="c-row">
+              <div class="c-mini"><strong>149 zł</strong>Laminowanie rzęs</div>
+              <div class="c-mini"><strong>120 zł</strong>Podologia</div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="c-card-section">
+            <div class="c-pill">
+              <span style="width:5px;height:5px;border-radius:50%;background:#C4965A;display:inline-block"></span>
+              Opinie klientek
+            </div>
+            <div class="c-heading">Co o nas mówią</div>
+            <div style="font-size:11px;color:rgba(20,40,28,0.65);font-style:italic">"Profesjonalizm na najwyższym poziomie"</div>
+            <div style="font-size:10px;color:#C4965A;margin-top:4px">— Anna W., klientka od roku</div>
+          </div>
+          <!-- Card 3 -->
+          <div class="c-card-section">
+            <div class="c-pill">
+              <span style="width:5px;height:5px;border-radius:50%;background:#C4965A;display:inline-block"></span>
+              Jak działamy
+            </div>
+            <div class="c-heading">Wizyta krok po kroku</div>
+            <div class="c-row">
+              <div class="c-mini"><strong style="color:#1A3828">01</strong>Analiza</div>
+              <div class="c-mini"><strong style="color:#1A3828">02</strong>Plan</div>
+              <div class="c-mini"><strong style="color:#1A3828">03</strong>Zabieg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Sekcje jako "karty"</h3>
+      <p>Każda sekcja to biała karta z zaokrąglonymi rogami na zielonym tle. Etykieta w pigułce + tytuł. Wyraźne granice, "airiness".</p>
+    </div>
+  </div>
+
+</div>

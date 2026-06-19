@@ -1,0 +1,170 @@
+﻿<h2>Design: Nowy Kalendarz BeautyBeskid</h2>
+<p class="subtitle">Ogólny układ strony — czy tak powinno wyglądać?</p>
+
+<div class="mockup">
+  <div class="mockup-header">AdminAppointments — widok kalendarza (FullCalendar)</div>
+  <div class="mockup-body" style="padding:0;font-family:system-ui;font-size:12px;">
+
+    <!-- Top bar -->
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#fff;">
+      <button style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">← Poprzedni</button>
+      <button style="background:#6366f1;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">Dziś</button>
+      <button style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">Następny →</button>
+      <span style="font-weight:600;font-size:13px;margin-left:8px;">Poniedziałek, 7 kwietnia 2025</span>
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <button style="background:#6366f1;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;">Dzień</button>
+        <button style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 12px;font-size:11px;">Tydzień</button>
+        <button style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 12px;font-size:11px;">Lista</button>
+      </div>
+      <button style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;margin-left:8px;">+ Wizyta</button>
+    </div>
+
+    <div style="display:flex;height:360px;">
+
+      <!-- Calendar grid (day view, 3 employees) -->
+      <div style="flex:1;overflow:auto;">
+        <!-- Employee headers -->
+        <div style="display:grid;grid-template-columns:52px repeat(3,1fr);border-bottom:2px solid #e5e7eb;position:sticky;top:0;background:#fff;z-index:2;">
+          <div style="background:#f9fafb;"></div>
+          <div style="padding:8px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="width:28px;height:28px;background:#a78bfa;border-radius:50%;margin:0 auto 4px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:600;">M</div>
+            <div style="font-size:10px;font-weight:600;color:#374151;">Marta</div>
+            <div style="font-size:9px;color:#10b981;">9:00–17:00</div>
+          </div>
+          <div style="padding:8px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="width:28px;height:28px;background:#34d399;border-radius:50%;margin:0 auto 4px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:600;">K</div>
+            <div style="font-size:10px;font-weight:600;color:#374151;">Kasia</div>
+            <div style="font-size:9px;color:#10b981;">10:00–18:00</div>
+          </div>
+          <div style="padding:8px;text-align:center;border-left:1px solid #e5e7eb;">
+            <div style="width:28px;height:28px;background:#fb923c;border-radius:50%;margin:0 auto 4px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:600;">Z</div>
+            <div style="font-size:10px;font-weight:600;color:#374151;">Zosia</div>
+            <div style="font-size:9px;color:#ef4444;">wolna</div>
+          </div>
+        </div>
+
+        <!-- Time slots -->
+        <!-- 9:00 -->
+        <div style="display:grid;grid-template-columns:52px repeat(3,1fr);border-bottom:1px solid #f3f4f6;">
+          <div style="background:#f9fafb;padding:4px 6px;font-size:9px;color:#9ca3af;text-align:right;padding-top:0;">9:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;position:relative;">
+            <div style="background:#6366f1;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;line-height:1.3;cursor:pointer;">
+              <div style="font-weight:600;">Anna Kowalska</div>
+              <div style="opacity:0.85;">Pedicure leczniczy</div>
+              <div style="opacity:0.75;">9:00–10:30 · 150zł</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                <span style="background:rgba(255,255,255,0.3);border-radius:3px;padding:1px 3px;font-size:8px;">POTWIERDZONA</span>
+                <span title="Alergie!" style="font-size:10px;">⚠️</span>
+              </div>
+            </div>
+          </div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;background:#f0fdf4;"></div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;background:#fef2f2;opacity:0.5;">
+            <div style="font-size:8px;color:#ef4444;padding:4px;text-align:center;">wolna</div>
+          </div>
+        </div>
+
+        <!-- 10:00 -->
+        <div style="display:grid;grid-template-columns:52px repeat(3,1fr);border-bottom:1px solid #f3f4f6;">
+          <div style="background:#f9fafb;padding:4px 6px;font-size:9px;color:#9ca3af;text-align:right;padding-top:0;">10:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;"></div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;position:relative;">
+            <div style="background:#f59e0b;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;line-height:1.3;cursor:pointer;">
+              <div style="font-weight:600;">Maria Wiśniewska</div>
+              <div style="opacity:0.85;">Manicure hybrydowy</div>
+              <div style="opacity:0.75;">10:00–11:30 · 120zł</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                <span style="background:rgba(255,255,255,0.3);border-radius:3px;padding:1px 3px;font-size:8px;">OCZEKUJĄCA</span>
+              </div>
+            </div>
+          </div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;background:#fef2f2;opacity:0.5;"></div>
+        </div>
+
+        <!-- 11:00 -->
+        <div style="display:grid;grid-template-columns:52px repeat(3,1fr);border-bottom:1px solid #f3f4f6;">
+          <div style="background:#f9fafb;padding:4px 6px;font-size:9px;color:#9ca3af;text-align:right;padding-top:0;">11:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;position:relative;">
+            <div style="background:#10b981;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;line-height:1.3;cursor:pointer;">
+              <div style="font-weight:600;">Joanna Nowak</div>
+              <div style="opacity:0.85;">Mezoterapia igłowa</div>
+              <div style="opacity:0.75;">11:00–12:00 · 200zł</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                <span style="background:rgba(255,255,255,0.3);border-radius:3px;padding:1px 3px;font-size:8px;">POTWIERDZONA</span>
+                <span title="Notatki" style="font-size:10px;">📝</span>
+              </div>
+            </div>
+          </div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;"></div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;background:#fef2f2;opacity:0.5;"></div>
+        </div>
+
+        <!-- 12:00 -->
+        <div style="display:grid;grid-template-columns:52px repeat(3,1fr);border-bottom:1px solid #f3f4f6;">
+          <div style="background:#f9fafb;padding:4px 6px;font-size:9px;color:#9ca3af;text-align:right;padding-top:0;">12:00</div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;"></div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;position:relative;">
+            <div style="background:#6366f1;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;line-height:1.3;cursor:pointer;">
+              <div style="font-weight:600;">Basia Kowal</div>
+              <div style="opacity:0.85;">Laser depilacja</div>
+              <div style="opacity:0.75;">12:00–13:00 · 180zł</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                <span style="background:rgba(255,255,255,0.3);border-radius:3px;padding:1px 3px;font-size:8px;">POTWIERDZONA</span>
+              </div>
+            </div>
+          </div>
+          <div style="border-left:1px solid #f3f4f6;padding:2px;min-height:48px;background:#fef2f2;opacity:0.5;"></div>
+        </div>
+      </div>
+
+      <!-- Client Drawer (slide-out) -->
+      <div style="width:260px;border-left:2px solid #6366f1;background:#fff;display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,0.1);">
+        <!-- Drawer header -->
+        <div style="padding:10px 12px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#1f2937;">Anna Kowalska</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:1px;">📞 +48 601 234 567</div>
+            <div style="font-size:9px;color:#f59e0b;margin-top:2px;">★ GOLD · 14 wizyt</div>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <button style="background:#6366f1;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:9px;cursor:pointer;">Profil ↗</button>
+            <span style="color:#9ca3af;cursor:pointer;font-size:14px;">✕</span>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;border-bottom:1px solid #e5e7eb;background:#f9fafb;">
+          <div style="padding:6px 10px;font-size:9px;font-weight:600;color:#6366f1;border-bottom:2px solid #6366f1;cursor:pointer;">Wizyta</div>
+          <div style="padding:6px 10px;font-size:9px;color:#6b7280;cursor:pointer;">Historia</div>
+          <div style="padding:6px 10px;font-size:9px;color:#6b7280;cursor:pointer;">Dziennik</div>
+          <div style="padding:6px 10px;font-size:9px;color:#6b7280;cursor:pointer;">Rutyna</div>
+          <div style="padding:6px 10px;font-size:9px;color:#6b7280;cursor:pointer;">Produkty</div>
+        </div>
+
+        <!-- Drawer content: Wizyta tab -->
+        <div style="padding:10px 12px;overflow-y:auto;flex:1;font-size:10px;color:#374151;">
+          <div style="margin-bottom:8px;">
+            <div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Usługa</div>
+            <div style="font-weight:600;">Pedicure leczniczy</div>
+            <div style="color:#6b7280;">9:00–10:30 · 150 zł</div>
+          </div>
+          <div style="margin-bottom:8px;background:#fff3f3;border-radius:6px;padding:6px 8px;border-left:3px solid #ef4444;">
+            <div style="font-size:9px;font-weight:600;color:#ef4444;margin-bottom:2px;">⚠️ Alergie</div>
+            <div style="font-size:9px;color:#374151;">nikiel, środki dezynfekujące</div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Notatki pracownika</div>
+            <div style="color:#6b7280;font-size:9px;">Wrażliwa skóra stóp, delikatne preparaty</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:12px;">
+            <button style="flex:1;background:#10b981;color:#fff;border:none;border-radius:4px;padding:5px;font-size:9px;cursor:pointer;">✓ Potwierdź</button>
+            <button style="flex:1;background:#f3f4f6;border:none;border-radius:4px;padding:5px;font-size:9px;cursor:pointer;">✎ Edytuj</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px;text-align:center;">Czy ten układ (kalendarz + panel boczny) wygląda dobrze? Napisz "tak" lub co chcesz zmienić.</p>

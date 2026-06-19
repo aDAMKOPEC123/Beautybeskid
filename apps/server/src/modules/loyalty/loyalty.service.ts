@@ -1,4 +1,4 @@
-// filepath: apps/server/src/modules/loyalty/loyalty.service.ts
+﻿// filepath: apps/server/src/modules/loyalty/loyalty.service.ts
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { AdjustPointsInput, RedeemRewardInput } from '@cosmo/shared';
@@ -67,11 +67,23 @@ export const deleteReward = async (id: string) => {
   });
 };
 
-export const getHistory = async (userId: string) => {
+export const getHistory = async (userId: string, limit = 100) => {
   return await prisma.loyaltyTransaction.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
-    include: { reward: true }
+    take: limit,
+    include: {
+      reward: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          discountType: true,
+          discountValue: true,
+          pointsCost: true,
+        }
+      }
+    }
   });
 };
 
@@ -94,7 +106,7 @@ export const adjustPoints = async (data: AdjustPointsInput) => {
 
     await tx.user.update({
       where: { id: user.id },
-      data: { loyaltyPoints: newPoints }
+      data: { loyaltyPoints: newPoints, loyaltyTier: getTierForPoints(newPoints) }
     });
 
     return { transaction, newPoints, userId: user.id };
@@ -145,11 +157,11 @@ export const activateCoupon = async (userId: string, data: RedeemRewardInput) =>
 
     await tx.user.update({
       where: { id: userId },
-      data: { loyaltyPoints: newPoints }
+      data: { loyaltyPoints: newPoints, loyaltyTier: getTierForPoints(newPoints) }
     });
 
     return await tx.userCoupon.create({
-      data: { userId, rewardId: reward.id, code: 'COSMO-' + generateCode(8) },
+      data: { userId, rewardId: reward.id, code: 'BeautyBeskid-' + generateCode(8) },
       include: { reward: true }
     });
   });

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { employeesApi } from '../../api/employees.api';
@@ -76,7 +76,7 @@ export const Footer = () => {
               className="font-heading font-bold text-2xl"
               style={{ color: '#F4F9F5', letterSpacing: '-0.02em' }}
             >
-              Cosmo
+              BeautyBeskid
             </Link>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
               Salon Kosmetologiczny & Gabinet Podologiczny w Limanowej. Zadbaj o siebie razem z nami.
@@ -195,7 +195,7 @@ export const Footer = () => {
           }}
         >
           <iframe
-            title="Lokalizacja salonu Cosmo"
+            title="Lokalizacja salonu BeautyBeskid"
             src={`https://maps.google.com/maps?q=${SEO.lat},${SEO.lon}&z=15&output=embed`}
             width="100%"
             height="280"
@@ -209,7 +209,7 @@ export const Footer = () => {
       {/* Copyright bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', paddingBottom: '1rem' }}>
         <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          <span>© {new Date().getFullYear()} Cosmo. Wszelkie prawa zastrzeżone.</span>
+          <span>© {new Date().getFullYear()} BeautyBeskid. Wszelkie prawa zastrzeżone.</span>
           <Link
             to="/regulamin"
             className="transition-colors"

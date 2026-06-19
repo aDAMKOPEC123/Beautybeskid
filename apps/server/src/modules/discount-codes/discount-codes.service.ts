@@ -1,0 +1,157 @@
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/prisma';
+import { AppError } from '../../middleware/error.middleware';
+import { generateCode } from '../../utils/generateCode';
+
+export const getAllCodes = async () => {
+  return await prisma.discountCode.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { _count: { select: { usages: true } } },
+  });
+};
+
+export const createCode = async (data: { code: string; discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: number; isMultiUse?: boolean }) => {
+  const code = data.code.trim().toUpperCase();
+  return await prisma.discountCode.create({
+    data: {
+      code,
+      discountType: data.discountType,
+      discountValue: data.discountValue,
+      isMultiUse: data.isMultiUse ?? false,
+    },
+  });
+};
+
+export const toggleCode = async (id: string, isActive: boolean) => {
+  return await prisma.discountCode.update({
+    where: { id },
+    data: { isActive },
+  });
+};
+
+export const deactivateCode = async (id: string) => {
+  return await prisma.discountCode.update({
+    where: { id },
+    data: { isActive: false },
+  });
+};
+
+export const validateCode = async (code: string, userId: string) => {
+  const normalized = code.trim().toUpperCase();
+  const discountCode = await prisma.discountCode.findUnique({ where: { code: normalized } });
+
+  if (!discountCode) throw new AppError('Nieprawidłowy kod rabatowy', 400);
+  if (!discountCode.isActive) throw new AppError('Ten kod rabatowy jest nieaktywny', 400);
+  if (discountCode.lockedToUserId && discountCode.lockedToUserId !== userId) {
+    throw new AppError('Ten kod rabatowy nie jest przeznaczony dla Ciebie', 403);
+  }
+
+  if (!discountCode.isMultiUse) {
+    const existingUsage = await prisma.discountCodeUsage.findFirst({
+      where: { discountCodeId: discountCode.id, userId },
+    });
+    if (existingUsage) throw new AppError('Już użyłeś tego kodu rabatowego', 400);
+  }
+
+  return {
+    id: discountCode.id,
+    code: discountCode.code,
+    discountType: discountCode.discountType as 'PERCENTAGE' | 'AMOUNT',
+    discountValue: Number(discountCode.discountValue),
+  };
+};
+
+export const getWelcomeCoupon = async (userId: string) => {
+  const code = await prisma.discountCode.findFirst({
+    where: {
+      lockedToUserId: userId,
+      isActive: true,
+      usages: { none: {} },
+    },
+  });
+  if (!code) return null;
+  return {
+    code: code.code,
+    discountType: code.discountType as 'PERCENTAGE' | 'AMOUNT',
+    discountValue: Number(code.discountValue),
+  };
+};
+
+export const getAmbassadorConfig = async () => {
+  return await prisma.ambassadorConfig.upsert({
+    where: { id: 'singleton' },
+    create: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
+    update: {},
+  });
+};
+
+export const getReferralBenefits = async () => {
+  const config = await prisma.ambassadorConfig.upsert({
+    where: { id: 'singleton' },
+    create: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
+    update: {},
+  });
+  return {
+    newUserDiscountType: config.discountType as 'PERCENTAGE' | 'AMOUNT',
+    newUserDiscountValue: Number(config.discountValue),
+    referrerDiscountType: config.referrerDiscountType as 'PERCENTAGE' | 'AMOUNT',
+    referrerDiscountValue: Number(config.referrerDiscountValue),
+  };
+};
+
+export const updateAmbassadorConfig = async (data: { discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: number; referrerDiscountType: 'PERCENTAGE' | 'AMOUNT'; referrerDiscountValue: number }) => {
+  return await prisma.ambassadorConfig.upsert({
+    where: { id: 'singleton' },
+    create: { id: 'singleton', ...data },
+    update: data,
+  });
+};
+
+export const createWelcomeCodeForUser = async (
+  tx: Prisma.TransactionClient,
+  newUserId: string,
+  referrerId: string
+) => {
+  const config = await tx.ambassadorConfig.upsert({
+    where: { id: 'singleton' },
+    create: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
+    update: {},
+  });
+
+  let welcomeCode: string;
+  while (true) {
+    welcomeCode = generateCode(8);
+    const existing = await tx.discountCode.findUnique({ where: { code: welcomeCode } });
+    if (!existing) break;
+  }
+
+  await tx.discountCode.create({
+    data: {
+      code: welcomeCode,
+      discountType: config.discountType,
+      discountValue: config.discountValue,
+      lockedToUserId: newUserId,
+    },
+  });
+
+  let referrerCode: string;
+  while (true) {
+    referrerCode = generateCode(8);
+    const existing = await tx.discountCode.findUnique({ where: { code: referrerCode } });
+    if (!existing) break;
+  }
+
+  await tx.discountCode.create({
+    data: {
+      code: referrerCode,
+      discountType: config.referrerDiscountType,
+      discountValue: config.referrerDiscountValue,
+      lockedToUserId: referrerId,
+    },
+  });
+
+  await tx.user.update({
+    where: { id: referrerId },
+    data: { referralCount: { increment: 1 } },
+  });
+};

@@ -607,7 +607,7 @@ export const AdminServices = () => {
               <CardContent className="p-0 flex flex-col sm:flex-row sm:items-center">
                 {service.imagePath && (
                   <div className="w-full sm:w-40 h-32 sm:h-28 bg-muted shrink-0 border-r">
-                    <img src={service.imagePath} alt={service.name} className="w-full h-full object-cover" />
+                    <img src={service.imagePath} alt={service.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 )}
                 <div className="p-5 flex-1">

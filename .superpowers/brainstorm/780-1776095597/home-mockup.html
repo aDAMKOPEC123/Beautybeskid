@@ -1,0 +1,580 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBeskid – Home Mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #0c0b09;
+  color: #e8e0d4;
+  padding: 32px 20px 60px;
+}
+
+.page-header { text-align: center; margin-bottom: 40px; }
+.eyebrow { font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: #C4A882; margin-bottom: 10px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 30px; color: #FAF7F2; margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: #6b5f54; }
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
+}
+@media (max-width: 800px) {
+  .split { grid-template-columns: 1fr; }
+}
+
+.col-label {
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  margin-bottom: 10px; padding: 6px 12px; border-radius: 4px;
+  display: inline-block;
+}
+.col-label.before { color: #6b5f54; background: rgba(107,95,84,0.1); border: 1px solid rgba(107,95,84,0.2); }
+.col-label.after  { color: #C4A882; background: rgba(196,168,130,0.1); border: 1px solid rgba(196,168,130,0.3); }
+
+/* ═══════════════════ BEFORE ═══════════════════ */
+.before-page {
+  background: #F5F0EB;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.b-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px; background: #F5F0EB;
+  border-bottom: 1px solid rgba(28,21,16,0.08);
+}
+.b-logo { font-family: 'Playfair Display', serif; font-size: 16px; color: #1C1510; font-style: italic; }
+.b-navlinks { display: flex; gap: 14px; }
+.b-navlinks span { font-size: 10px; color: #8C6A4A; letter-spacing: 0.05em; }
+
+.b-hero {
+  padding: 32px 24px 28px;
+  background: #F5F0EB;
+  position: relative;
+}
+.b-badge {
+  display: inline-block; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #B8913A; border: 1px solid #B8913A; border-radius: 999px;
+  padding: 4px 12px; margin-bottom: 14px;
+}
+.b-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px; font-weight: 700; line-height: 1.15;
+  color: #1A1208; margin-bottom: 10px;
+}
+.b-title em { color: #B8913A; }
+.b-desc { font-size: 12px; color: rgba(26,18,8,0.6); line-height: 1.6; margin-bottom: 18px; max-width: 280px; }
+.b-btns { display: flex; gap: 10px; }
+.b-btn-primary {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: #1A1208; color: #FAF7F2;
+  border-radius: 999px; padding: 9px 20px;
+}
+.b-btn-secondary {
+  font-size: 11px; color: #1A1208;
+  border: 1px solid rgba(26,18,8,0.25); border-radius: 999px; padding: 9px 20px;
+}
+
+.b-section {
+  padding: 24px;
+  border-top: 1px solid rgba(196,168,130,0.2);
+  background: #FAF7F2;
+}
+.b-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600; color: #1A1208; margin-bottom: 6px;
+}
+.b-section-sub { font-size: 11px; color: rgba(26,18,8,0.5); margin-bottom: 16px; }
+.b-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.b-card {
+  background: #F5F0EB; border-radius: 10px; overflow: hidden;
+  border: 1px solid rgba(196,168,130,0.2);
+}
+.b-card-img {
+  height: 60px;
+  background: linear-gradient(135deg, #C4A882 0%, #8C6A4A 100%);
+  position: relative;
+}
+.b-card-img-label {
+  position: absolute; bottom: 6px; left: 8px;
+  font-size: 8px; color: rgba(255,255,255,0.8); letter-spacing: 0.1em; text-transform: uppercase;
+  background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;
+}
+.b-card-info { padding: 10px 10px 8px; }
+.b-card-name { font-size: 11px; font-weight: 600; color: #1A1208; margin-bottom: 3px; }
+.b-card-price { font-size: 10px; color: #B8913A; }
+
+.b-testimonials {
+  padding: 24px;
+  border-top: 1px solid rgba(196,168,130,0.2);
+  background: #F5F0EB;
+}
+.b-test-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #1A1208; margin-bottom: 16px; }
+.b-test-item { padding: 12px 0; border-top: 1px solid rgba(196,168,130,0.15); }
+.b-test-quote { font-size: 11px; color: rgba(26,18,8,0.65); font-style: italic; line-height: 1.5; margin-bottom: 6px; }
+.b-test-author { font-size: 10px; color: #B8913A; font-weight: 600; }
+
+/* ═══════════════════ AFTER ═══════════════════ */
+.after-page {
+  background: #F5F0E8;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(196,168,130,0.2);
+  box-shadow: 0 0 40px rgba(196,168,130,0.08);
+}
+
+.a-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px; background: rgba(245,240,232,0.95);
+  border-bottom: 1px solid rgba(28,21,16,0.08);
+  backdrop-filter: blur(10px);
+}
+.a-logo { font-family: 'Playfair Display', serif; font-size: 16px; color: #1C1510; letter-spacing: 0.08em; }
+.a-navlinks { display: flex; gap: 14px; align-items: center; }
+.a-navlinks span { font-size: 10px; color: #8C6A4A; letter-spacing: 0.05em; }
+.a-nav-cta {
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  background: #1C1510; color: #FAF7F2;
+  border-radius: 999px; padding: 5px 12px;
+}
+
+.a-hero {
+  padding: 32px 24px 28px;
+  background: #F5F0E8;
+  position: relative;
+  overflow: hidden;
+}
+/* Big decorative circle */
+.a-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(196,168,130,0.18) 0%, rgba(196,168,130,0.04) 60%, transparent 100%);
+  pointer-events: none;
+}
+/* Decorative arc */
+.a-hero::after {
+  content: '';
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,168,130,0.25);
+  pointer-events: none;
+}
+/* Section number */
+.a-section-num {
+  position: absolute;
+  top: -10px; right: 22px;
+  font-family: 'Playfair Display', serif;
+  font-size: 130px; font-weight: 700; line-height: 1;
+  color: rgba(196,168,130,0.07);
+  letter-spacing: -0.04em;
+  user-select: none; pointer-events: none;
+}
+
+.a-eyebrow {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.a-eyebrow-line { width: 24px; height: 1px; background: #C4A882; }
+.a-eyebrow-text { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #C4A882; }
+
+.a-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px; font-weight: 600; line-height: 1.1;
+  color: #1A1208; margin-bottom: 10px;
+  position: relative;
+}
+.a-title em { color: #B8913A; font-style: italic; }
+.a-desc { font-size: 12px; color: rgba(26,18,8,0.58); line-height: 1.65; margin-bottom: 20px; max-width: 270px; position: relative; }
+
+.a-btns { display: flex; gap: 10px; align-items: center; position: relative; }
+.a-btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  background: #1A1208; color: #FAF7F2;
+  border-radius: 999px; padding: 10px 22px;
+  font-weight: 500;
+}
+.a-btn-arrow {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.a-btn-ghost {
+  font-size: 11px; color: rgba(26,18,8,0.5);
+  display: flex; align-items: center; gap: 5px;
+  border-bottom: 1px solid rgba(26,18,8,0.2); padding-bottom: 1px;
+}
+
+/* Floating badge */
+.a-float-badge {
+  position: absolute; top: 36px; right: 24px; z-index: 2;
+  width: 72px; height: 72px;
+  border: 1px solid rgba(196,168,130,0.4);
+  border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 7px; letter-spacing: 0.15em; text-transform: uppercase; color: #C4A882;
+  text-align: center; line-height: 1.5;
+  background: rgba(245,240,232,0.9);
+}
+
+/* Services section */
+.a-section {
+  padding: 24px;
+  border-top: 1px solid rgba(196,168,130,0.15);
+  background: #EDE8DE;
+  position: relative;
+  overflow: hidden;
+}
+.a-section::before {
+  content: '';
+  position: absolute;
+  bottom: -20px; right: -20px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,168,130,0.12);
+}
+
+.a-section-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 16px; position: relative;
+}
+.a-section-label { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #C4A882; margin-bottom: 6px; }
+.a-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600; color: #1A1208;
+}
+.a-section-num-sm {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px; font-weight: 700; line-height: 1;
+  color: rgba(196,168,130,0.12); letter-spacing: -0.02em;
+}
+.a-view-all {
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: #8C6A4A; border-bottom: 1px solid rgba(140,106,74,0.3); padding-bottom: 1px;
+}
+
+.a-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.a-card {
+  background: #F5F0E8; border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(196,168,130,0.15);
+  position: relative;
+}
+.a-card-img {
+  height: 64px;
+  background: linear-gradient(135deg, #C4A882 0%, #8C6A4A 100%);
+  position: relative; overflow: hidden;
+}
+/* Geometric overlay on card image */
+.a-card-img::after {
+  content: '';
+  position: absolute; bottom: -10px; right: -10px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.a-card-img-label {
+  position: absolute; bottom: 6px; left: 8px;
+  font-size: 8px; color: rgba(255,255,255,0.85); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.a-card-info { padding: 10px 10px 9px; }
+.a-card-name { font-size: 11px; font-weight: 600; color: #1A1208; margin-bottom: 4px; }
+.a-card-footer { display: flex; justify-content: space-between; align-items: center; }
+.a-card-price { font-size: 10px; color: #B8913A; font-weight: 500; }
+.a-card-arrow { font-size: 9px; color: rgba(26,18,8,0.3); }
+
+/* Testimonials */
+.a-testimonials {
+  padding: 24px;
+  border-top: 1px solid rgba(196,168,130,0.15);
+  background: #F5F0E8;
+  position: relative; overflow: hidden;
+}
+/* Large decorative quote mark */
+.a-testimonials::before {
+  content: '"';
+  position: absolute; top: 10px; right: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 120px; line-height: 1; color: rgba(196,168,130,0.08);
+  font-style: italic;
+}
+.a-test-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.a-test-line { flex: 1; height: 1px; background: rgba(196,168,130,0.2); }
+.a-test-label { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #C4A882; white-space: nowrap; }
+
+.a-test-item { padding: 12px 0; border-top: 1px solid rgba(196,168,130,0.12); position: relative; }
+.a-test-quote { font-family: 'Playfair Display', serif; font-size: 12px; font-style: italic; color: rgba(26,18,8,0.7); line-height: 1.55; margin-bottom: 6px; }
+.a-test-author { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #B8913A; }
+.a-test-dots {
+  display: flex; gap: 3px; margin-bottom: 4px;
+}
+.a-dot { width: 14px; height: 2px; background: #C4A882; border-radius: 1px; }
+.a-dot-empty { background: rgba(196,168,130,0.25); }
+
+/* Change labels */
+.change-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; background: rgba(134,239,172,0.1);
+  border: 1px solid rgba(134,239,172,0.2);
+  color: #86efac; border-radius: 999px; padding: 3px 10px;
+  margin: 3px 3px 3px 0;
+}
+
+.changes-panel {
+  background: #111; border: 1px solid #1e1e1e; border-radius: 12px;
+  padding: 20px 24px; margin-top: 40px; max-width: 1200px; margin-left: auto; margin-right: auto;
+}
+.changes-panel h3 { font-size: 14px; font-weight: 600; color: #FAF7F2; margin-bottom: 12px; }
+.changes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.change-item { }
+.change-title { font-size: 11px; font-weight: 600; color: #C4A882; margin-bottom: 6px; }
+.change-list { list-style: none; }
+.change-list li { font-size: 11px; color: #6b5f54; padding: 2px 0 2px 12px; position: relative; line-height: 1.5; }
+.change-list li::before { content: '+'; position: absolute; left: 0; color: #86efac; font-weight: 700; }
+
+.bottom-q {
+  text-align: center; margin-top: 36px;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: #FAF7F2; margin-bottom: 8px;
+}
+.bottom-sub { text-align: center; font-size: 13px; color: #6b5f54; margin-bottom: 24px; }
+
+.vote-btns { display: flex; justify-content: center; gap: 12px; }
+.vote-btn {
+  cursor: pointer; border-radius: 999px; padding: 11px 28px;
+  font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.vote-btn.yes { background: rgba(196,168,130,0.15); border: 1px solid rgba(196,168,130,0.4); color: #C4A882; }
+.vote-btn.yes:hover { background: rgba(196,168,130,0.25); }
+.vote-btn.tweak { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #6b5f54; }
+.vote-btn.tweak:hover { border-color: rgba(255,255,255,0.2); color: #a89880; }
+.vote-btn.selected { box-shadow: 0 0 0 2px currentColor; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Krok 3 · Podgląd zmiany · Home Page</div>
+  <h1>Obecny styl vs. Modern Glamour Refresh</h1>
+  <p class="subtitle">Funkcjonalność identyczna — tylko wygląd. Przewiń żeby zobaczyć całą stronę.</p>
+</div>
+
+<div class="split">
+
+  <!-- ══ BEFORE ══ -->
+  <div>
+    <div style="margin-bottom:8px"><span class="col-label before">Teraz</span></div>
+    <div class="before-page">
+
+      <div class="b-nav">
+        <div class="b-logo">BeautyBeskid</div>
+        <div class="b-navlinks"><span>Usługi</span><span>Blog</span><span>O nas</span><span>Kontakt</span></div>
+      </div>
+
+      <div class="b-hero">
+        <div class="b-badge">Profesjonalny salon kosmetologiczny</div>
+        <div class="b-title">Twoja pielęgnacja,<br><em>nasza pasja</em></div>
+        <div class="b-desc">Oferujemy kompleksowe zabiegi kosmetologiczne i podologiczne. Każda wizyta to indywidualne podejście do potrzeb Twojej skóry.</div>
+        <div class="b-btns">
+          <div class="b-btn-primary">Umów wizytę</div>
+          <div class="b-btn-secondary">Nasze usługi</div>
+        </div>
+      </div>
+
+      <div class="b-section">
+        <div class="b-section-title">Polecane zabiegi</div>
+        <div class="b-section-sub">Wybrane usługi na ten sezon</div>
+        <div class="b-cards">
+          <div class="b-card">
+            <div class="b-card-img"><div class="b-card-img-label">Twarz</div></div>
+            <div class="b-card-info"><div class="b-card-name">Peeling chemiczny</div><div class="b-card-price">od 180 zł</div></div>
+          </div>
+          <div class="b-card">
+            <div class="b-card-img" style="background:linear-gradient(135deg,#D4B896,#A07855)"><div class="b-card-img-label">Rzęsy</div></div>
+            <div class="b-card-info"><div class="b-card-name">Lifting rzęs</div><div class="b-card-price">od 120 zł</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b-testimonials">
+        <div class="b-test-title">Co mówią klientki</div>
+        <div class="b-test-item">
+          <div class="b-test-quote">"Po raz pierwszy poczułam, że ktoś naprawdę rozumie moją skórę."</div>
+          <div class="b-test-author">Kasia M. · Klientka od 2 lat</div>
+        </div>
+        <div class="b-test-item">
+          <div class="b-test-quote">"Wychodząc z gabinetu czuję się jak nowa osoba."</div>
+          <div class="b-test-author">Anna W. · Klientka od roku</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ AFTER ══ -->
+  <div>
+    <div style="margin-bottom:8px"><span class="col-label after">Po odświeżeniu</span></div>
+    <div class="after-page">
+
+      <div class="a-nav">
+        <div class="a-logo">BeautyBeskid</div>
+        <div class="a-navlinks">
+          <span>Usługi</span><span>Blog</span><span>O nas</span>
+          <span class="a-nav-cta">Rezerwacja</span>
+        </div>
+      </div>
+
+      <div class="a-hero">
+        <div class="a-section-num">01</div>
+        <div class="a-float-badge">Salon<br>od 2018</div>
+
+        <div class="a-eyebrow">
+          <div class="a-eyebrow-line"></div>
+          <div class="a-eyebrow-text">Gabinet kosmetologiczny · Limanowa</div>
+        </div>
+
+        <div class="a-title">Twoja pielęgnacja,<br><em>nasza pasja</em></div>
+        <div class="a-desc">Oferujemy kompleksowe zabiegi kosmetologiczne i podologiczne. Każda wizyta to indywidualne podejście do potrzeb Twojej skóry.</div>
+
+        <div class="a-btns">
+          <div class="a-btn-primary">
+            Umów wizytę
+            <div class="a-btn-arrow">→</div>
+          </div>
+          <div class="a-btn-ghost">Nasze usługi ↓</div>
+        </div>
+      </div>
+
+      <div class="a-section">
+        <div class="a-section-header">
+          <div>
+            <div class="a-section-label">Polecane zabiegi</div>
+            <div class="a-section-title">Na ten sezon</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="a-section-num-sm">02</div>
+            <div class="a-view-all">Wszystkie →</div>
+          </div>
+        </div>
+
+        <div class="a-cards">
+          <div class="a-card">
+            <div class="a-card-img"><div class="a-card-img-label">Twarz</div></div>
+            <div class="a-card-info">
+              <div class="a-card-name">Peeling chemiczny</div>
+              <div class="a-card-footer"><span class="a-card-price">od 180 zł</span><span class="a-card-arrow">→</span></div>
+            </div>
+          </div>
+          <div class="a-card">
+            <div class="a-card-img" style="background:linear-gradient(135deg,#D4B896,#A07855)"><div class="a-card-img-label">Rzęsy</div></div>
+            <div class="a-card-info">
+              <div class="a-card-name">Lifting rzęs</div>
+              <div class="a-card-footer"><span class="a-card-price">od 120 zł</span><span class="a-card-arrow">→</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="a-testimonials">
+        <div class="a-test-header">
+          <div class="a-test-line"></div>
+          <div class="a-test-label">Co mówią klientki</div>
+          <div class="a-test-line"></div>
+        </div>
+
+        <div class="a-test-item">
+          <div class="a-test-dots">
+            <div class="a-dot"></div><div class="a-dot"></div><div class="a-dot"></div><div class="a-dot a-dot-empty"></div><div class="a-dot a-dot-empty"></div>
+          </div>
+          <div class="a-test-quote">"Po raz pierwszy poczułam, że ktoś naprawdę rozumie moją skórę."</div>
+          <div class="a-test-author">Kasia M. · Klientka od 2 lat</div>
+        </div>
+        <div class="a-test-item">
+          <div class="a-test-dots">
+            <div class="a-dot"></div><div class="a-dot"></div><div class="a-dot"></div><div class="a-dot"></div><div class="a-dot a-dot-empty"></div>
+          </div>
+          <div class="a-test-quote">"Wychodząc z gabinetu czuję się jak nowa osoba."</div>
+          <div class="a-test-author">Anna W. · Klientka od roku</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- What changed -->
+<div class="changes-panel">
+  <h3>Co konkretnie się zmienia →</h3>
+  <div class="changes-grid">
+    <div class="change-item">
+      <div class="change-title">Tło hero</div>
+      <ul class="change-list">
+        <li>Duży gradient circle (caramel, 18% opacity)</li>
+        <li>Dekoracyjna ramka (arc) w prawym rogu</li>
+        <li>Wielka cyfra "01" jako sekcja-numer (7% opacity)</li>
+        <li>Floating badge "Salon od 2018"</li>
+      </ul>
+    </div>
+    <div class="change-item">
+      <div class="change-title">Eyebrow / Labels</div>
+      <ul class="change-list">
+        <li>Pill badge → linia + wersaliki (bardziej editorial)</li>
+        <li>Sekcje mają numer dekoracyjny (02, 03...)</li>
+        <li>Testimonials header: linia – tekst – linia</li>
+      </ul>
+    </div>
+    <div class="change-item">
+      <div class="change-title">Przyciski CTA</div>
+      <ul class="change-list">
+        <li>Główny button: ikonka strzałki w kółku</li>
+        <li>Drugorzędny: ghost z podkreśleniem zamiast border</li>
+        <li>Nav: mały pill "Rezerwacja" zawsze widoczny</li>
+      </ul>
+    </div>
+    <div class="change-item">
+      <div class="change-title">Testimonials</div>
+      <ul class="change-list">
+        <li>Serif italic dla cytatów</li>
+        <li>Kolorowe "pałeczki" zamiast gwiazdek (rating)</li>
+        <li>Wielki dekoracyjny cudzysłów w tle sekcji</li>
+        <li>Centered header z liniami</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Approval -->
+<div style="margin-top:44px">
+  <div class="bottom-q">Czy to jest właściwy kierunek?</div>
+  <div class="bottom-sub">Jeśli tak — przejdziemy do pełnego planu wszystkich stron. Jeśli chcesz coś zmienić — napisz w terminalu.</div>
+  <div class="vote-btns">
+    <div class="vote-btn yes" data-choice="approve" onclick="vote(this)">Tak, tak właśnie</div>
+    <div class="vote-btn tweak" data-choice="tweak" onclick="vote(this)">Chcę coś zmienić</div>
+  </div>
+</div>
+
+<script>
+function vote(el) {
+  document.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  if (window.__sendEvent) window.__sendEvent({ type: 'click', choice: el.dataset.choice, text: el.textContent });
+}
+</script>
+</body>
+</html>

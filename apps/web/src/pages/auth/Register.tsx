@@ -1,10 +1,10 @@
-// filepath: apps/web/src/pages/auth/Register.tsx
+﻿// filepath: apps/web/src/pages/auth/Register.tsx
 import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { registerSchema } from '@cosmo/shared';
+import { registerSchema, RegisterInput } from '@cosmo/shared';
 import { authApi } from '@/api/auth.api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ export const Register = () => {
     resolver: zodResolver(registerSchema)
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RegisterInput) => {
     if (!termsAccepted) {
       toast.error('Musisz zaakceptować regulamin, aby się zarejestrować.');
       return;
@@ -144,7 +144,7 @@ export const Register = () => {
                 <span className="text-sm text-foreground">
                   Akceptuję{' '}
                   <a href="/regulamin" target="_blank" className="text-primary underline hover:opacity-80">
-                    regulamin gabinetu COSMO
+                    regulamin gabinetu BeautyBeskid
                   </a>{' '}
                   <span className="text-destructive font-bold">*</span>
                 </span>

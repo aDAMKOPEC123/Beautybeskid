@@ -1,0 +1,135 @@
+<h2>Górna sekcja dashboardu (mobile)</h2>
+<p class="subtitle">Co użytkownik widzi jako pierwsze? Wybierz podejście, które najbardziej Ci odpowiada.</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+
+  <!-- Option A: Current -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 16px; min-height: 260px; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; color:#5A7A62; font-weight:600; letter-spacing:0.1em;">OBECNY UKŁAD</div>
+      <div style="font-size:15px; font-weight:700; color:#1A3828;">Cześć, Anna! 👋</div>
+      <div style="font-size:10px; color:#888;">czwartek, 5 czerwca</div>
+      <div style="background:#FFE8C7; border-radius:8px; padding:8px; font-size:10px; color:#92400E;">📢 Nowa promocja na zabiegi...</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div style="background:#fff; border-radius:10px; padding:10px; border:1px solid #eee;">
+          <div style="font-size:9px; color:#C4965A;">📅</div>
+          <div style="font-size:18px; font-weight:700; color:#1A3828;">2</div>
+          <div style="font-size:9px; color:#888;">nadchodzące wizyty</div>
+        </div>
+        <div style="background:#fff; border-radius:10px; padding:10px; border:1px solid #eee;">
+          <div style="font-size:9px; color:#C4965A;">🏆</div>
+          <div style="font-size:18px; font-weight:700; color:#1A3828;">340</div>
+          <div style="font-size:9px; color:#888;">pkt · Brąz</div>
+        </div>
+        <div style="background:#fff; border-radius:10px; padding:10px; border:1px solid #eee;">
+          <div style="font-size:9px; color:#C4965A;">💬</div>
+          <div style="font-size:18px; font-weight:700; color:#1A3828;">1</div>
+          <div style="font-size:9px; color:#888;">nowa wiadomość</div>
+        </div>
+        <div style="background:#fff; border-radius:10px; padding:10px; border:1px solid #eee;">
+          <div style="font-size:9px; color:#C4965A;">🔔</div>
+          <div style="font-size:18px; font-weight:700; color:#1A3828;">0</div>
+          <div style="font-size:9px; color:#888;">brak nowych</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Statystyki 2×2</h3>
+      <p>Obecny układ. Szybki przegląd czterech liczb. Klient nie widzi od razu kiedy ma wizytę.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Next appointment as hero -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 16px; min-height: 260px; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; color:#5A7A62; font-weight:600; letter-spacing:0.1em;">PROPOZYCJA B</div>
+      <div style="font-size:15px; font-weight:700; color:#1A3828;">Cześć, Anna! 👋</div>
+      <!-- Big appointment card -->
+      <div style="background:linear-gradient(135deg,#1A3828,#2d5c46); border-radius:14px; padding:14px; color:#fff; flex:1;">
+        <div style="font-size:9px; opacity:0.7; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">Twoja następna wizyta</div>
+        <div style="font-size:18px; font-weight:700; margin-bottom:2px;">Peeling kawitacyjny</div>
+        <div style="font-size:12px; opacity:0.85; margin-bottom:8px;">Wiktoria Ćwik</div>
+        <div style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1); border-radius:8px; padding:8px;">
+          <span style="font-size:18px;">📅</span>
+          <div>
+            <div style="font-size:13px; font-weight:700;">Pon, 9 czerwca</div>
+            <div style="font-size:11px; opacity:0.8;">godz. 14:00 · 60 min</div>
+          </div>
+        </div>
+      </div>
+      <!-- Small chips row -->
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; background:#fff; border-radius:8px; padding:7px; text-align:center; border:1px solid #eee;">
+          <div style="font-size:15px; font-weight:700; color:#1A3828;">340</div>
+          <div style="font-size:8px; color:#888;">pkt</div>
+        </div>
+        <div style="flex:1; background:#fff; border-radius:8px; padding:7px; text-align:center; border:1px solid #eee;">
+          <div style="position:relative; display:inline-block;">
+            <span style="font-size:15px;">💬</span>
+            <span style="position:absolute; top:-4px; right:-6px; background:#C4965A; color:#fff; font-size:8px; border-radius:50%; width:12px; height:12px; display:flex; align-items:center; justify-content:center;">1</span>
+          </div>
+          <div style="font-size:8px; color:#888;">czat</div>
+        </div>
+        <div style="flex:1; background:#fff; border-radius:8px; padding:7px; text-align:center; border:1px solid #eee;">
+          <span style="font-size:15px;">🔔</span>
+          <div style="font-size:8px; color:#888;">notif</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Karta wizyty jako bohater</h3>
+      <p>Następna wizyta na pierwszym miejscu. Klient od razu widzi kiedy i co. Statystyki w mini-chipach poniżej.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Booking CTA hero -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F4F9F5; padding: 16px; min-height: 260px; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; color:#5A7A62; font-weight:600; letter-spacing:0.1em;">PROPOZYCJA C</div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:15px; font-weight:700; color:#1A3828;">Cześć, Anna! 👋</div>
+        <div style="display:flex; gap:8px;">
+          <div style="position:relative;">
+            <span style="font-size:18px;">💬</span>
+            <span style="position:absolute; top:-4px; right:-4px; background:#C4965A; color:#fff; font-size:8px; border-radius:50%; width:12px; height:12px; display:flex; align-items:center; justify-content:center;">1</span>
+          </div>
+          <span style="font-size:18px;">🔔</span>
+        </div>
+      </div>
+      <!-- Loyalty progress bar prominent -->
+      <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #eee;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:600; color:#1A3828;">🏆 Brąz → Srebro</span>
+          <span style="font-size:11px; color:#C4965A; font-weight:700;">340 pkt</span>
+        </div>
+        <div style="background:#f0f0f0; border-radius:4px; height:6px;">
+          <div style="background:#C4965A; width:35%; height:6px; border-radius:4px;"></div>
+        </div>
+        <div style="font-size:9px; color:#888; margin-top:4px;">Brakuje Ci 160 pkt do Srebra</div>
+      </div>
+      <!-- Next appointment compact -->
+      <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #eee; display:flex; gap:10px; align-items:center;">
+        <div style="background:#1A3828; border-radius:8px; padding:8px; color:#fff; text-align:center; min-width:42px;">
+          <div style="font-size:16px; font-weight:700;">9</div>
+          <div style="font-size:9px; opacity:0.8;">CZE</div>
+        </div>
+        <div>
+          <div style="font-size:12px; font-weight:600; color:#1A3828;">Peeling kawitacyjny</div>
+          <div style="font-size:10px; color:#888;">godz. 14:00 · Wiktoria Ćwik</div>
+        </div>
+      </div>
+      <!-- Big CTA -->
+      <div style="background:#1A3828; border-radius:12px; padding:14px; text-align:center; color:#fff;">
+        <div style="font-size:13px; font-weight:700;">+ Umów kolejną wizytę</div>
+        <div style="font-size:10px; opacity:0.7; margin-top:2px;">Zabieg, termin, pracownik</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Lojalność + Wizyta + Rezerwuj</h3>
+      <p>Pasek lojalności na górze (motywuje), kompaktowa karta wizyty, wyraźny CTA rezerwacji.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:12px; font-size:12px;">Kliknij kartę, aby wybrać. Możesz też opisać w terminalu co Ci się podoba a co nie.</p>

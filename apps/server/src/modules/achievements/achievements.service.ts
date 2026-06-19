@@ -1,4 +1,4 @@
-// filepath: apps/server/src/modules/achievements/achievements.service.ts
+﻿// filepath: apps/server/src/modules/achievements/achievements.service.ts
 import { prisma } from '../../config/prisma';
 import { getIO } from '../../socket';
 import { createAndEmitNotification } from '../notifications/notifications.service';
@@ -18,9 +18,9 @@ interface AwardedAchievement {
 }
 
 const DEFAULT_ACHIEVEMENTS = [
-  { key: 'FIRST_VISIT', name: 'Pierwsza wizyta', description: 'Witaj w COSMO!', icon: '🌟', pointsBonus: 10, condition: { type: 'VISIT_COUNT', value: 1 }, sortOrder: 1 },
-  { key: 'LOYAL_10', name: 'Wierna klientka', description: '10 wizyt w COSMO', icon: '💎', pointsBonus: 20, condition: { type: 'VISIT_COUNT', value: 10 }, sortOrder: 2 },
-  { key: 'VIP_50', name: 'VIP', description: '50 wizyt w COSMO', icon: '🏆', pointsBonus: 50, condition: { type: 'VISIT_COUNT', value: 50 }, sortOrder: 3 },
+  { key: 'FIRST_VISIT', name: 'Pierwsza wizyta', description: 'Witaj w BeautyBeskid!', icon: '🌟', pointsBonus: 10, condition: { type: 'VISIT_COUNT', value: 1 }, sortOrder: 1 },
+  { key: 'LOYAL_10', name: 'Wierna klientka', description: '10 wizyt w BeautyBeskid', icon: '💎', pointsBonus: 20, condition: { type: 'VISIT_COUNT', value: 10 }, sortOrder: 2 },
+  { key: 'VIP_50', name: 'VIP', description: '50 wizyt w BeautyBeskid', icon: '🏆', pointsBonus: 50, condition: { type: 'VISIT_COUNT', value: 50 }, sortOrder: 3 },
   { key: 'EXPLORER_3', name: 'Odkrywczyni', description: 'Wypróbuj 3 różne kategorie zabiegów', icon: '🎯', pointsBonus: 15, condition: { type: 'CATEGORY_COUNT', value: 3 }, sortOrder: 4 },
   { key: 'FULL_PACKAGE', name: 'Pełen pakiet', description: 'Zabieg z każdej kategorii', icon: '🌸', pointsBonus: 30, condition: { type: 'ALL_CATEGORIES' }, sortOrder: 5 },
   { key: 'FIRST_REVIEW', name: 'Głos ma znaczenie', description: 'Pierwsza recenzja', icon: '✍️', pointsBonus: 10, condition: { type: 'REVIEW_COUNT', value: 1 }, sortOrder: 6 },
@@ -30,13 +30,13 @@ const DEFAULT_ACHIEVEMENTS = [
 
 // ─── Seed default achievements ───────────────────────────────────────────────
 export const seedAchievements = async () => {
-  for (const a of DEFAULT_ACHIEVEMENTS) {
-    await prisma.achievement.upsert({
+  await Promise.all(
+    DEFAULT_ACHIEVEMENTS.map(a => prisma.achievement.upsert({
       where: { key: a.key },
       update: { name: a.name, description: a.description, icon: a.icon, pointsBonus: a.pointsBonus, condition: a.condition, sortOrder: a.sortOrder },
       create: { key: a.key, name: a.name, description: a.description, icon: a.icon, pointsBonus: a.pointsBonus, condition: a.condition, sortOrder: a.sortOrder },
-    });
-  }
+    }))
+  );
   console.log('🏅 Achievement badges seeded');
 };
 
@@ -237,24 +237,24 @@ export const checkAndAward = async (userId: string): Promise<AwardedAchievement[
     where: { isActive: true },
   });
 
-  const alreadyEarned = await prisma.userAchievement.findMany({
-    where: { userId },
-    select: { achievementId: true },
-  });
-
-  const earnedIds = new Set(alreadyEarned.map((ua) => ua.achievementId));
-
-  // Find achievements the user qualifies for but hasn't earned yet
-  const newlyQualified = achievements.filter((a) => {
-    if (earnedIds.has(a.id)) return false;
-    const condition = a.condition as unknown as AchievementCondition;
-    return checkCondition(condition, stats);
-  });
-
-  if (newlyQualified.length === 0) return [];
-
-  // Award all new achievements in a single transaction
+  // Check and award inside a single transaction to prevent duplicate awards from concurrent calls
   const awarded = await prisma.$transaction(async (tx) => {
+    const alreadyEarned = await tx.userAchievement.findMany({
+      where: { userId },
+      select: { achievementId: true },
+    });
+
+    const earnedIds = new Set(alreadyEarned.map((ua) => ua.achievementId));
+
+    // Find achievements the user qualifies for but hasn't earned yet
+    const newlyQualified = achievements.filter((a) => {
+      if (earnedIds.has(a.id)) return false;
+      const condition = a.condition as unknown as AchievementCondition;
+      return checkCondition(condition, stats);
+    });
+
+    if (newlyQualified.length === 0) return [];
+
     const results: AwardedAchievement[] = [];
 
     for (const achievement of newlyQualified) {

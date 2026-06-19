@@ -1,0 +1,84 @@
+<h2>Co zawiera węzeł "Wynik" w drzewie?</h2>
+<p class="subtitle">Kliknięcie węzła wyniku otwiera panel konfiguracji. Jak powiązać wynik z zabiegami?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #f8f9fa;">
+      <div style="font-size: 10px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase;">Panel wyniku — konkretny zabieg</div>
+      <div style="background: white; border: 1.5px solid #4caf50; border-radius: 8px; padding: 10px;">
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Nazwa wyniku</div>
+        <div style="background: #f5f5f5; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #333; margin-bottom: 8px;">Pedicure leczniczy</div>
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Opis dla klientki</div>
+        <div style="background: #f5f5f5; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #333; margin-bottom: 8px; min-height: 28px;">Zabieg skupiony na leczeniu konkretnych dolegliwości...</div>
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Powiązany zabieg <span style="color: #e53935;">*wymagany</span></div>
+        <div style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 10px; color: #2e7d32; font-weight: 600;">Zabieg podologiczny leczniczy</span>
+          <span style="font-size: 9px; color: #999;">✕</span>
+        </div>
+        <div style="font-size: 9px; color: #aaa; margin-top: 4px;">+ wybierz z listy zabiegów</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Jeden konkretny zabieg</h3>
+      <p>Każdy wynik wskazuje na dokładnie jeden zabieg z bazy. Admin wybiera go z listy. Proste i precyzyjne — quiz zawsze poleca konkretną usługę.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #f8f9fa;">
+      <div style="font-size: 10px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase;">Panel wyniku — wiele zabiegów</div>
+      <div style="background: white; border: 1.5px solid #2196f3; border-radius: 8px; padding: 10px;">
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Nazwa wyniku</div>
+        <div style="background: #f5f5f5; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #333; margin-bottom: 8px;">Pedicure relaksacyjny</div>
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Polecane zabiegi <span style="font-size: 9px; color: #aaa;">(pierwszy = główna rekomendacja)</span></div>
+        <div style="display: grid; gap: 3px; margin-bottom: 6px;">
+          <div style="background: #e3f2fd; border-radius: 4px; padding: 4px 8px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 9px; background: #1565c0; color: white; border-radius: 2px; padding: 1px 4px;">★</span>
+              <span style="font-size: 9px; color: #1565c0; font-weight: 600;">Pedicure spa z masażem</span>
+            </div>
+            <span style="font-size: 9px; color: #999;">✕</span>
+          </div>
+          <div style="background: #f5f5f5; border-radius: 4px; padding: 4px 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 9px; color: #555;">Masaż stóp i łydek</span>
+            <span style="font-size: 9px; color: #999;">✕</span>
+          </div>
+          <div style="background: #f5f5f5; border-radius: 4px; padding: 4px 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 9px; color: #555;">Okłady parafinowe</span>
+            <span style="font-size: 9px; color: #999;">✕</span>
+          </div>
+        </div>
+        <div style="font-size: 9px; color: #aaa;">+ dodaj zabieg</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Lista zabiegów z priorytetem</h3>
+      <p>Wynik wskazuje na kilka zabiegów — pierwszy to główna rekomendacja, reszta to propozycje dodatkowe. Klientka widzi pakiet, może wybrać który chce zarezerwować.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #f8f9fa;">
+      <div style="font-size: 10px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase;">Panel wyniku — główny + dodatkowe</div>
+      <div style="background: white; border: 1.5px solid #9c27b0; border-radius: 8px; padding: 10px;">
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Nazwa wyniku</div>
+        <div style="background: #f5f5f5; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #333; margin-bottom: 8px;">Zabieg cukrzycowy</div>
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Główny zabieg <span style="color: #e53935;">*</span></div>
+        <div style="background: #f3e5f5; border: 1px solid #ce93d8; border-radius: 4px; padding: 5px 8px; margin-bottom: 8px;">
+          <span style="font-size: 9px; color: #6a1b9a; font-weight: 600;">Zabieg dla stóp cukrzycowych</span>
+        </div>
+        <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Polecamy dodatkowo <span style="font-size: 9px; color: #aaa;">(opcjonalne)</span></div>
+        <div style="display: grid; gap: 2px;">
+          <div style="background: #fafafa; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #777;">Wkładki ortopedyczne</div>
+          <div style="background: #fafafa; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #aaa;">+ dodaj sugestię</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Główny zabieg + sugestie dodatkowe</h3>
+      <p>Jeden główny zabieg (obowiązkowy) + dowolna liczba sugestii "polecamy też". Sugestie to osobna sekcja na ekranie wynikowym quizu — nie blokują rezerwacji.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,98 @@
+<h2>Jak powinna się otworzyć kartoteka klientki po kliknięciu wizyty?</h2>
+<p class="subtitle">Wybierz sposób wyświetlania panelu z historią, dziennikiem i produktami</p>
+
+<div class="cards">
+
+  <!-- Option A: Slide-out drawer -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:16px;font-family:monospace;font-size:12px;">
+      <div style="display:flex;height:200px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+        <!-- Calendar side -->
+        <div style="flex:1;background:#fff;padding:8px;border-right:2px solid #6366f1;">
+          <div style="font-size:10px;color:#888;margin-bottom:6px;">KALENDARZ</div>
+          <div style="background:#6366f1;color:#fff;border-radius:4px;padding:4px 6px;font-size:10px;margin-bottom:4px;">10:00 Anna K. — Pedicure</div>
+          <div style="background:#e0e7ff;border-radius:4px;padding:4px 6px;font-size:10px;margin-bottom:4px;color:#4338ca;">11:00 Maria W. — Manicure</div>
+          <div style="background:#f3f4f6;border-radius:4px;padding:4px 6px;font-size:10px;color:#888;">12:00 — wolne</div>
+        </div>
+        <!-- Drawer side -->
+        <div style="width:55%;background:#fff;padding:8px;box-shadow:-4px 0 12px rgba(0,0,0,0.15);">
+          <div style="font-size:11px;font-weight:bold;margin-bottom:4px;color:#1f2937;">Anna Kowalska ↗</div>
+          <div style="font-size:9px;color:#6b7280;margin-bottom:8px;">📞 +48 601 234 567</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px;">
+            <span style="background:#f3f4f6;border-radius:10px;padding:2px 6px;font-size:9px;">Historia</span>
+            <span style="background:#6366f1;color:#fff;border-radius:10px;padding:2px 6px;font-size:9px;">Dziennik</span>
+            <span style="background:#f3f4f6;border-radius:10px;padding:2px 6px;font-size:9px;">Produkty</span>
+          </div>
+          <div style="font-size:9px;color:#374151;background:#f9fafb;border-radius:4px;padding:6px;">
+            <div style="font-weight:bold;margin-bottom:2px;">📖 Ostatni wpis w dzienniku</div>
+            <div style="color:#6b7280;">15 mar — nastrój 4/5, bez reakcji</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Panel wysuwany z boku</h3>
+      <p>Kalendarz zostaje widoczny po lewej, kartoteka wysuwa się z prawej. Można pracować na obu jednocześnie.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Modal/popup -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:16px;font-family:monospace;font-size:12px;">
+      <div style="position:relative;height:200px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+        <!-- Calendar background (blurred) -->
+        <div style="position:absolute;inset:0;background:#fff;padding:8px;filter:blur(1px);opacity:0.5;">
+          <div style="font-size:10px;color:#888;margin-bottom:6px;">KALENDARZ</div>
+          <div style="background:#6366f1;color:#fff;border-radius:4px;padding:4px 6px;font-size:10px;margin-bottom:4px;">10:00 Anna K. — Pedicure</div>
+          <div style="background:#e0e7ff;border-radius:4px;padding:4px 6px;font-size:10px;margin-bottom:4px;">11:00 Maria W. — Manicure</div>
+        </div>
+        <!-- Modal overlay -->
+        <div style="position:absolute;inset:16px;background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);padding:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:bold;color:#1f2937;">Anna Kowalska</div>
+            <div style="font-size:14px;color:#9ca3af;cursor:pointer;">✕</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:8px;">
+            <span style="background:#6366f1;color:#fff;border-radius:10px;padding:2px 8px;font-size:9px;">Wizyta</span>
+            <span style="background:#f3f4f6;border-radius:10px;padding:2px 8px;font-size:9px;">Historia</span>
+            <span style="background:#f3f4f6;border-radius:10px;padding:2px 8px;font-size:9px;">Dziennik</span>
+            <span style="background:#f3f4f6;border-radius:10px;padding:2px 8px;font-size:9px;">Produkty</span>
+          </div>
+          <div style="font-size:9px;color:#374151;line-height:1.4;">
+            <div style="margin-bottom:4px;">🩺 <b>Alergie:</b> nikiel, środki dezynfekujące</div>
+            <div style="margin-bottom:4px;">📋 <b>Notatki:</b> wrażliwa skóra stóp</div>
+            <div style="color:#6b7280;">📅 Poprzednia wizyta: 10 mar 2025</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Modal (okienko)</h3>
+      <p>Kliknięcie otwiera duże okienko na środku ekranu z pełnymi zakładkami. Skupia uwagę na kliencie.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Navigate to client page -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:16px;font-family:monospace;font-size:12px;">
+      <div style="height:200px;border:1px solid #ddd;border-radius:6px;overflow:hidden;background:#fff;padding:8px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f3f4f6;">
+          <div style="font-size:9px;color:#6366f1;cursor:pointer;">← Wróć do kalendarza</div>
+        </div>
+        <div style="font-size:11px;font-weight:bold;margin-bottom:4px;">Anna Kowalska</div>
+        <div style="font-size:9px;color:#6b7280;margin-bottom:8px;">Klient od 2023 · 14 wizyt · GOLD</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+          <div style="background:#f9fafb;border-radius:4px;padding:6px;font-size:9px;"><b>Historia wizyt</b><br><span style="color:#6b7280;">14 wpisów</span></div>
+          <div style="background:#f9fafb;border-radius:4px;padding:6px;font-size:9px;"><b>Dziennik skóry</b><br><span style="color:#6b7280;">8 wpisów</span></div>
+          <div style="background:#f9fafb;border-radius:4px;padding:6px;font-size:9px;"><b>Polecane produkty</b><br><span style="color:#6b7280;">3 aktywne</span></div>
+          <div style="background:#f9fafb;border-radius:4px;padding:6px;font-size:9px;"><b>Rutyna pielęgnacji</b><br><span style="color:#6b7280;">2 wpisy</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Przejście do strony klientki</h3>
+      <p>Kliknięcie przenosi do pełnej strony profilu klientki z przyciskiem "Wróć do kalendarza". Maksimum miejsca na dane.</p>
+    </div>
+  </div>
+
+</div>

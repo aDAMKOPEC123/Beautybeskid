@@ -21,6 +21,7 @@ router.patch('/:id/reschedule/reject', requireAdmin, appointmentsController.reje
 router.get('/today', requireAdmin, appointmentsController.getToday);
 router.get('/', requireAdmin, appointmentsController.getAll);
 router.post('/admin', requireAdmin, appointmentsController.createAdmin);
+router.post('/admin/external', requireAdmin, appointmentsController.createExternal);
 router.patch('/:id/status', requireAdmin, appointmentsController.updateStatus);
 router.patch('/:id/staff-note', requireAdmin, appointmentsController.updateStaffNote);
 router.get('/:id/recommendations', requireStaff, recommendationsController.getForAppointment);

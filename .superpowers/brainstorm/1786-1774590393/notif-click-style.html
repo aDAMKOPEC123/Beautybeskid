@@ -1,0 +1,109 @@
+<h2>Jak powiadomienie powinno prowadzić do właściwego miejsca?</h2>
+<p class="subtitle">Wybierz styl interakcji kliknięcia na stronie /user/powiadomienia</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#0f0f0f;">
+      <div style="background:#1a1a1a; border-radius:8px; overflow:hidden; border:1px solid #2a2a2a;">
+        <!-- Unread item -->
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#1e1a10;border-left:3px solid #B8913A;cursor:pointer;">
+          <div style="width:36px;height:36px;background:#16a34a22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#16a34a;font-size:16px;">✓</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#f0f0f0;">Wizyta potwierdzona</div>
+            <div style="font-size:12px;color:#888;margin-top:2px;">Twoja wizyta na Pedicure została potwierdzona na 15 kwi.</div>
+          </div>
+          <div style="color:#B8913A;font-size:18px;flex-shrink:0;">›</div>
+        </div>
+        <!-- Read item -->
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid #222;cursor:pointer;opacity:0.7;">
+          <div style="width:36px;height:36px;background:#B8913A22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#B8913A;font-size:16px;">★</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:400;color:#ccc;">Zdobyto odznakę: Pierwsza wizyta</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">Gratulacje! Odblokowałeś osiągnięcie.</div>
+          </div>
+          <div style="color:#555;font-size:18px;flex-shrink:0;">›</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Cała karta klikalana</h3>
+      <p>Kliknięcie gdziekolwiek na karcie przenosi do celu. Strzałka › po prawej sygnalizuje nawigację. Proste i intuicyjne.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#0f0f0f;">
+      <div style="background:#1a1a1a; border-radius:8px; overflow:hidden; border:1px solid #2a2a2a;">
+        <!-- Unread item -->
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#1e1a10;border-left:3px solid #B8913A;">
+          <div style="width:36px;height:36px;background:#16a34a22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+            <span style="color:#16a34a;font-size:16px;">✓</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#f0f0f0;">Wizyta potwierdzona</div>
+            <div style="font-size:12px;color:#888;margin-top:2px;">Twoja wizyta na Pedicure została potwierdzona na 15 kwi.</div>
+            <a style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#B8913A;font-weight:600;text-decoration:none;border:1px solid #B8913A33;padding:3px 8px;border-radius:4px;">
+              Przejdź do wizyty →
+            </a>
+          </div>
+        </div>
+        <!-- Read item -->
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-top:1px solid #222;opacity:0.7;">
+          <div style="width:36px;height:36px;background:#B8913A22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+            <span style="color:#B8913A;font-size:16px;">★</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:400;color:#ccc;">Zdobyto odznakę: Pierwsza wizyta</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">Gratulacje! Odblokowałeś osiągnięcie.</div>
+            <a style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#666;font-weight:600;text-decoration:none;border:1px solid #33333388;padding:3px 8px;border-radius:4px;">
+              Zobacz osiągnięcia →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Wyraźny przycisk "Przejdź do..."</h3>
+      <p>Karta jest nieklikalana, ale ma jawny przycisk/link z opisem celu (np. "Przejdź do wizyty →"). Bardziej czytelne, tekst zmienia się per typ zdarzenia.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#0f0f0f;">
+      <div style="background:#1a1a1a; border-radius:8px; overflow:hidden; border:1px solid #2a2a2a;">
+        <!-- Unread item -->
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#1e1a10;border-left:3px solid #B8913A;cursor:pointer;">
+          <div style="width:36px;height:36px;background:#16a34a22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#16a34a;font-size:16px;">✓</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#f0f0f0;">Wizyta potwierdzona</div>
+            <div style="font-size:12px;color:#888;margin-top:2px;">Twoja wizyta na Pedicure została potwierdzona na 15 kwi.</div>
+          </div>
+          <div style="background:#B8913A;color:#000;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;white-space:nowrap;">Wizyta</div>
+        </div>
+        <!-- Read item -->
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid #222;cursor:pointer;opacity:0.7;">
+          <div style="width:36px;height:36px;background:#B8913A22;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#B8913A;font-size:16px;">★</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:400;color:#ccc;">Zdobyto odznakę: Pierwsza wizyta</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">Gratulacje! Odblokowałeś osiągnięcie.</div>
+          </div>
+          <div style="background:#33333388;color:#aaa;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;white-space:nowrap;">Osiągnięcia</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Chip z kategorią + cała karta klikalana</h3>
+      <p>Karta jest klikalana jak w A, ale zamiast strzałki po prawej widnieje złoty chip z nazwą sekcji docelowej (np. "Wizyta", "Chat", "Dziennik"). Użytkownik wie dokąd trafi przed kliknięciem.</p>
+    </div>
+  </div>
+
+</div>

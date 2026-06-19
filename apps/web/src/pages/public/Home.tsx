@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -22,7 +22,7 @@ const faqSchema = {
       name: 'Gdzie jest dobry podolog w Limanowej?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Gabinet Cosmo w Limanowej oferuje profesjonalne usługi podologiczne: leczenie wrastających paznokci, usuwanie odcisków, pielęgnację stóp oraz terapię grzybicy. Nasz doświadczony podolog przyjmuje po wcześniejszej rezerwacji.',
+        text: 'Gabinet BeautyBeskid w Limanowej oferuje profesjonalne usługi podologiczne: leczenie wrastających paznokci, usuwanie odcisków, pielęgnację stóp oraz terapię grzybicy. Nasz doświadczony podolog przyjmuje po wcześniejszej rezerwacji.',
       },
     },
     {
@@ -30,7 +30,7 @@ const faqSchema = {
       name: 'Ile kosztuje laminowanie brwi w Limanowej?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Koszt laminowania brwi w salonie Cosmo w Limanowej sprawdzisz w zakładce Usługi. Oferujemy konkurencyjne ceny oraz pakiety łączone z henna lub regulacją brwi. Zapraszamy do kontaktu po aktualny cennik.',
+        text: 'Koszt laminowania brwi w salonie BeautyBeskid w Limanowej sprawdzisz w zakładce Usługi. Oferujemy konkurencyjne ceny oraz pakiety łączone z henna lub regulacją brwi. Zapraszamy do kontaktu po aktualny cennik.',
       },
     },
     {
@@ -46,7 +46,7 @@ const faqSchema = {
       name: 'Jak leczyć wrastający paznokieć w Limanowej?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Wrastający paznokieć to problem, który wymaga interwencji podologicznej. W gabinecie Cosmo w Limanowej wykonujemy bezbolesny zabieg korekty wrastającego paznokcia z użyciem klamry podologicznej lub techniki tamponowania. Zadzwoń, aby umówić konsultację.',
+        text: 'Wrastający paznokieć to problem, który wymaga interwencji podologicznej. W gabinecie BeautyBeskid w Limanowej wykonujemy bezbolesny zabieg korekty wrastającego paznokcia z użyciem klamry podologicznej lub techniki tamponowania. Zadzwoń, aby umówić konsultację.',
       },
     },
     {
@@ -54,7 +54,7 @@ const faqSchema = {
       name: 'Czy wykonujecie lifting i przedłużanie rzęs w Limanowej?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Tak! W salonie Cosmo w Limanowej oferujemy lifting rzęs, laminowanie rzęs oraz przedłużanie rzęs metodą 1:1 i objętościową. Zabiegi wykonujemy przy użyciu sprawdzonych preparatów i z pełnym profesjonalizmem.',
+        text: 'Tak! W salonie BeautyBeskid w Limanowej oferujemy lifting rzęs, laminowanie rzęs oraz przedłużanie rzęs metodą 1:1 i objętościową. Zabiegi wykonujemy przy użyciu sprawdzonych preparatów i z pełnym profesjonalizmem.',
       },
     },
   ],
@@ -159,6 +159,11 @@ export const Home = () => {
             margin-bottom: 40px;
           }
         }
+        .testimonial-col:last-child {
+          @media (max-width: 767px) {
+            padding: 0 !important;
+          }
+        }
         @keyframes ticker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -212,7 +217,7 @@ export const Home = () => {
                 </h1>
 
                 <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(20,40,28,0.65)' }}>
-                  Gabinet Cosmo w Limanowej — profesjonalne zabiegi kosmetologiczne
+                  Gabinet BeautyBeskid w Limanowej — profesjonalne zabiegi kosmetologiczne
                   i podologiczne w przyjaznej atmosferze. Dbamy o Twój komfort i efekty.
                 </p>
 

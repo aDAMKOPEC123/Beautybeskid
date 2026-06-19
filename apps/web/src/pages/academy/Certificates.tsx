@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { Award, Download } from 'lucide-react';
 import { format } from 'date-fns';
@@ -45,7 +45,7 @@ export function Certificates() {
               </div>
               <div className="space-y-1">
                 <h3 className="font-semibold text-sm">
-                  {cert.course?.title ?? cert.quiz?.title ?? 'Akademia COSMO'}
+                  {cert.course?.title ?? cert.quiz?.title ?? 'Akademia BeautyBeskid'}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   Wydano: {format(new Date(cert.issuedAt), 'd MMMM yyyy', { locale: pl })}

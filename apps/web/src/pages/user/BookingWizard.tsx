@@ -89,6 +89,7 @@ function MiniCalendar({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setViewMonth((m) => subMonths(m, 1))}
+          aria-label="Poprzedni miesiąc"
           className="p-1 rounded-lg hover:opacity-60 transition-opacity"
           style={{ color: '#1A3828' }}
         >
@@ -99,6 +100,7 @@ function MiniCalendar({
         </span>
         <button
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
+          aria-label="Następny miesiąc"
           className="p-1 rounded-lg hover:opacity-60 transition-opacity"
           style={{ color: '#1A3828' }}
         >
@@ -128,6 +130,9 @@ function MiniCalendar({
             <button
               key={day.toISOString()}
               disabled={isPast || isRed}
+              aria-label={format(day, 'd MMMM yyyy', { locale: pl })}
+              aria-selected={isSelected}
+              aria-disabled={isPast || isRed}
               onClick={() => onSelect(day)}
               className="text-sm rounded-full w-8 h-8 mx-auto flex items-center justify-center transition-colors"
               style={
@@ -383,7 +388,7 @@ function StepEmployee({
             >
               <div className="w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: 'rgba(196,150,90,0.1)' }}>
                 {emp.avatarPath ? (
-                  <img src={emp.avatarPath} alt={emp.name} className="w-full h-full object-cover" />
+                  <img src={emp.avatarPath} alt={emp.name} className="w-full h-full object-cover" loading="lazy" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xl font-bold" style={{ color: '#C4965A' }}>
                     {emp.name?.charAt(0)}
@@ -728,16 +733,29 @@ function StepConfirm({
   onOtherRewardSelect,
   onVoucherChange,
   user,
+  preselectedCode,
 }: {
   state: WizardState;
   onCouponSelect: (id: string | null) => void;
   onOtherRewardSelect: (id: string | null) => void;
   onVoucherChange: (v: ValidatedVoucher | null) => void;
   user: any;
+  preselectedCode?: string | null;
 }) {
   const [codeInput, setCodeInput] = useState('');
   const [validating, setValidating] = useState(false);
   const [showInput, setShowInput] = useState(false);
+
+  useEffect(() => {
+    if (!preselectedCode || state.voucherData) return;
+    setValidating(true);
+    loyaltyApi.validateVoucher(preselectedCode).then((data) => {
+      onVoucherChange(data);
+      toast.success(`Kod ${data.code} został automatycznie zastosowany!`);
+    }).catch(() => {
+      // silently ignore — user can enter manually
+    }).finally(() => setValidating(false));
+  }, [preselectedCode]); // eslint-disable-line react-hooks/exhaustive-deps
   const { data: rewards = [] } = useQuery<any[]>({
     queryKey: ['loyalty', 'rewards'],
     queryFn: loyaltyApi.getRewards,
@@ -988,6 +1006,7 @@ export const BookingWizard = () => {
   const preselectedEmployeeId = searchParams.get('employeeId');
   const preselectedDate = searchParams.get('date'); // yyyy-MM-dd
   const preselectedTime = searchParams.get('time'); // HH:mm
+  const preselectedCode = searchParams.get('code');
   const isFullyPreselected = !!preselectedDate && !!preselectedTime;
 
   const [step, setStep] = useState(1);
@@ -1198,6 +1217,7 @@ export const BookingWizard = () => {
               voucherData: voucher,
             }))}
             user={user}
+            preselectedCode={preselectedCode}
           />
         )}
       </div>

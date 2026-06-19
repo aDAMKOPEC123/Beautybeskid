@@ -1,0 +1,245 @@
+<style>
+  .demo-wrap {
+    max-width: 360px;
+    margin: 0 auto;
+    background: #FDFAF6;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0d8ce;
+    font-family: Georgia, serif;
+  }
+  .demo-header {
+    background: linear-gradient(135deg, #1A1208, #3a2a14);
+    color: #fff;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* === STYLE 1: Filmowy — pełna wysokość z gradientem === */
+  .s1-banner {
+    height: 160px;
+    background: linear-gradient(to right, #1a0a00, #6a3820);
+    position: relative;
+    overflow: hidden;
+  }
+  .s1-img {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a0a00 40%, #8a5030 100%);
+  }
+  .s1-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.75) 50%, transparent);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px;
+  }
+  .s1-label {
+    font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #B8913A; font-weight: 700; margin-bottom: 4px;
+  }
+  .s1-heading {
+    font-size: 15px; color: #fff; font-weight: 700;
+    line-height: 1.25; margin-bottom: 4px;
+  }
+  .s1-sub {
+    font-size: 10px; color: rgba(255,255,255,0.65);
+    margin-bottom: 10px;
+  }
+  .s1-cta {
+    display: inline-block;
+    background: #B8913A; color: #fff;
+    font-size: 9px; font-weight: 700;
+    padding: 5px 12px; border-radius: 20px;
+    letter-spacing: 0.08em;
+    width: fit-content;
+  }
+  .s1-dots {
+    position: absolute; right: 14px; bottom: 14px;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .dot-v { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+  .dot-v.a { background: #B8913A; }
+
+  /* === STYLE 2: Karta z obrazem po prawej === */
+  .s2-card {
+    margin: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1A1208;
+    display: flex;
+    height: 96px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  }
+  .s2-text {
+    flex: 1; padding: 12px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .s2-label {
+    font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #B8913A; font-weight: 700; margin-bottom: 4px;
+  }
+  .s2-heading {
+    font-size: 12px; color: #fff; font-weight: 700; line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .s2-cta {
+    font-size: 8px; color: #B8913A; font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .s2-img {
+    width: 100px;
+    background: linear-gradient(135deg, #3a1a00, #9a6040);
+    flex-shrink: 0;
+  }
+  .s2-dots {
+    display: flex; justify-content: center; gap: 5px;
+    padding: 6px 0 10px;
+  }
+  .dot-h { width: 5px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.12); }
+  .dot-h.a { background: #B8913A; }
+
+  /* === STYLE 3: Subtelna karta z akcentem złota === */
+  .s3-card {
+    margin: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(184,145,58,0.25);
+    background: linear-gradient(135deg, rgba(184,145,58,0.06), rgba(184,145,58,0.02));
+    overflow: hidden;
+  }
+  .s3-inner {
+    display: flex; gap: 0; height: 80px;
+  }
+  .s3-accent {
+    width: 4px;
+    background: #B8913A;
+    flex-shrink: 0;
+  }
+  .s3-text {
+    flex: 1; padding: 10px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .s3-label {
+    font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #9a7030; font-weight: 700; margin-bottom: 3px;
+  }
+  .s3-heading {
+    font-size: 12px; color: #1A1208; font-weight: 700; line-height: 1.3;
+    margin-bottom: 3px;
+  }
+  .s3-sub {
+    font-size: 9px; color: rgba(26,18,8,0.55); line-height: 1.3;
+  }
+  .s3-img {
+    width: 80px; flex-shrink: 0;
+    background: linear-gradient(135deg, #3a1a00, #9a6040);
+  }
+  .s3-footer {
+    padding: 6px 14px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s3-dots {
+    display: flex; gap: 4px;
+  }
+  .s3-more {
+    font-size: 8px; color: #9a7030; font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .demo-below {
+    padding: 10px 16px;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    font-size: 10px; color: #9a8070;
+  }
+</style>
+
+<h2>Jaki styl wizualny banera?</h2>
+<p class="subtitle">Trzy kierunki estetyczne dla slidera tuż pod sekcją powitalną</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5f0ea; padding: 0;">
+      <div class="demo-wrap">
+        <div class="demo-header">Cześć, Ania! ✦ Następna wizyta: pon.</div>
+        <div class="s1-banner">
+          <div class="s1-img"></div>
+          <div class="s1-overlay">
+            <div class="s1-label">✦ Aktualności</div>
+            <div class="s1-heading">Nowy zabieg laserowy w ofercie</div>
+            <div class="s1-sub">Precyzyjne modelowanie bez bólu</div>
+            <div class="s1-cta">Dowiedz się więcej →</div>
+          </div>
+          <div class="s1-dots">
+            <div class="dot-v a"></div>
+            <div class="dot-v"></div>
+            <div class="dot-v"></div>
+          </div>
+        </div>
+        <div class="demo-below">Quick actions · Serie · Lojalność…</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Filmowy baner (160 px)</h3>
+      <p>Pełna szerokość z obrazem w tle i gradientem. Opcjonalny przycisk CTA. Mocna obecność, nastrój zbliżony do publicznego hero slidera.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5f0ea; padding: 0;">
+      <div class="demo-wrap">
+        <div class="demo-header">Cześć, Ania! ✦ Następna wizyta: pon.</div>
+        <div class="s2-card">
+          <div class="s2-text">
+            <div class="s2-label">✦ Co nowego</div>
+            <div class="s2-heading">Nowy zabieg laserowy w ofercie</div>
+            <div class="s2-cta">Dowiedz się więcej →</div>
+          </div>
+          <div class="s2-img"></div>
+        </div>
+        <div class="s2-dots">
+          <div class="dot-h a"></div>
+          <div class="dot-h"></div>
+          <div class="dot-h"></div>
+        </div>
+        <div class="demo-below">Quick actions · Serie · Lojalność…</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Karta pozioma (96 px)</h3>
+      <p>Ciemna karta z tekstem po lewej i obrazem po prawej, z delikatnym cieniem. Zwarta, "appowa". Nie dominuje nad resztą dashboardu.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5f0ea; padding: 0;">
+      <div class="demo-wrap">
+        <div class="demo-header">Cześć, Ania! ✦ Następna wizyta: pon.</div>
+        <div class="s3-card">
+          <div class="s3-inner">
+            <div class="s3-accent"></div>
+            <div class="s3-text">
+              <div class="s3-label">✦ Nowości</div>
+              <div class="s3-heading">Nowy zabieg laserowy w ofercie</div>
+              <div class="s3-sub">Precyzyjne modelowanie bez bólu</div>
+            </div>
+            <div class="s3-img"></div>
+          </div>
+          <div class="s3-footer">
+            <div class="s3-dots">
+              <div class="dot-h a" style="background:#B8913A"></div>
+              <div class="dot-h"></div>
+              <div class="dot-h"></div>
+            </div>
+            <div class="s3-more">1 / 3</div>
+          </div>
+        </div>
+        <div class="demo-below">Quick actions · Serie · Lojalność…</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Subtelna karta (80 px)</h3>
+      <p>Jasne tło z złotym akcentem po lewej. Minimalistyczny i elegancki — dopasowany do stylu panelu, nie przytłacza. Obraz jako detal.</p>
+    </div>
+  </div>
+
+</div>

@@ -12,7 +12,36 @@ export const PendingReviews = () => {
   });
   const [reviewingId, setReviewingId] = useState<string | null>(null);
 
-  if (isLoading || !pending || pending.length === 0) return null;
+  if (isLoading) return null;
+
+  if (!pending || pending.length === 0) {
+    return (
+      <div
+        className="rounded-[18px] p-4"
+        style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.06)' }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+            background: 'rgba(26,56,40,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <MessageSquarePlus size={17} style={{ color: '#1A3828' }} />
+          </div>
+          <div>
+            <p style={{ fontSize: '11px', color: 'rgba(20,40,28,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '2px' }}>
+              Opinie
+            </p>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#1A3828', lineHeight: 1.2 }}>
+              Brak wizyt do oceny
+            </p>
+          </div>
+        </div>
+        <p style={{ fontSize: '12px', color: 'rgba(20,40,28,0.5)', lineHeight: 1.55 }}>
+          Po każdej ukończonej wizycie możesz zostawić opinię i zdobyć +5 pkt lojalnościowych.
+        </p>
+      </div>
+    );
+  }
 
   const currentAppointment = pending.find((a) => a.id === reviewingId) || pending[0];
 
