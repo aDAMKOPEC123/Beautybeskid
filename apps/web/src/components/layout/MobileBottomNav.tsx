@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -75,17 +75,39 @@ export function MobileBottomNav() {
   const activeBackdropVariants = shouldReduce ? {} : backdropVariants;
   const activePanelVariants = shouldReduce ? {} : panelVariants;
   const activeItemVariants = shouldReduce ? {} : itemVariants;
+  const navIndicatorTransition = shouldReduce
+    ? { duration: 0 }
+    : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
 
+  useEffect(() => {
+    setIsMoreOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMoreOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+    };
+  }, [isMoreOpen]);
+
   return (
     <>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isMoreOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/40 md:hidden"
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden"
               onClick={() => setIsMoreOpen(false)}
               variants={activeBackdropVariants}
               initial="hidden"
@@ -111,16 +133,27 @@ export function MobileBottomNav() {
                         to={to}
                         onClick={() => setIsMoreOpen(false)}
                         className={cn(
-                          'relative flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-colors active:scale-95',
+                          'relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-all duration-300 active:scale-95',
                           isActive(to) ? 'font-semibold' : 'opacity-60',
                         )}
                         style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
                       >
+                        {isActive(to) && (
+                          <motion.span
+                            layoutId="user-mobile-more-active"
+                            className="absolute inset-0 rounded-xl"
+                            transition={navIndicatorTransition}
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+                              boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                            }}
+                          />
+                        )}
                         <Icon size={22} />
-                        <span className="text-center leading-tight">{label}</span>
+                        <span className="relative z-10 text-center leading-tight">{label}</span>
                         {count > 0 && (
                           <span
-                            className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
+                            className="absolute right-1 top-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
                             style={{ background: '#C4965A', color: '#fff' }}
                           >
                             {count > 9 ? '9+' : count}
@@ -147,23 +180,43 @@ export function MobileBottomNav() {
       >
         <Link
           to="/user"
-          className="flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isActive('/user') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
+          {isActive('/user') && !isMoreOpen && (
+            <motion.span
+              layoutId="user-mobile-nav-active"
+              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
+              transition={navIndicatorTransition}
+              style={{
+                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+              }}
+            />
+          )}
           <LayoutDashboard size={22} />
-          <span>Glowna</span>
+          <span className="relative z-10">Glowna</span>
         </Link>
 
         <Link
           to="/user/wizyty"
-          className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isActive('/user/wizyty') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
+          {isActive('/user/wizyty') && !isMoreOpen && (
+            <motion.span
+              layoutId="user-mobile-nav-active"
+              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
+              transition={navIndicatorTransition}
+              style={{
+                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+              }}
+            />
+          )}
           <Calendar size={22} />
-          <span>Wizyty</span>
+          <span className="relative z-10">Wizyty</span>
           {getBadgeCount('/user/wizyty') > 0 && (
             <span
-              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
+              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
               style={{ background: '#C4965A', color: '#fff' }}
             >
               {getBadgeCount('/user/wizyty') > 9 ? '9+' : getBadgeCount('/user/wizyty')}
@@ -181,14 +234,24 @@ export function MobileBottomNav() {
 
         <Link
           to="/user/chat"
-          className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isActive('/user/chat') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
+          {isActive('/user/chat') && !isMoreOpen && (
+            <motion.span
+              layoutId="user-mobile-nav-active"
+              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
+              transition={navIndicatorTransition}
+              style={{
+                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+              }}
+            />
+          )}
           <MessageCircle size={22} />
-          <span>Czat</span>
+          <span className="relative z-10">Czat</span>
           {getBadgeCount('/user/chat') > 0 && (
             <span
-              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
+              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
               style={{ background: '#C4965A', color: '#fff' }}
             >
               {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
@@ -198,14 +261,25 @@ export function MobileBottomNav() {
 
         <button
           onClick={() => setIsMoreOpen((open) => !open)}
-          className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          aria-expanded={isMoreOpen}
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
+          {isMoreOpen && (
+            <motion.span
+              layoutId="user-mobile-nav-active"
+              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
+              transition={navIndicatorTransition}
+              style={{
+                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+              }}
+            />
+          )}
           {isMoreOpen ? <X size={22} /> : <UserIcon size={22} />}
-          <span>Wiecej</span>
+          <span className="relative z-10">Wiecej</span>
           {moreBadge > 0 && !isMoreOpen && (
             <span
-              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
+              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
               style={{ background: '#C4965A', color: '#fff' }}
             >
               {moreBadge > 9 ? '9+' : moreBadge}

@@ -11,6 +11,7 @@ import { skinWeatherApi } from '@/api/skin-weather.api';
 import { WeatherDayCard } from '@/components/skin-weather/WeatherDayCard';
 import { useSkinWeatherLocation } from '@/hooks/useSkinWeatherLocation';
 import { SkinTypeQuiz, SKIN_TYPE_INFO } from '@/components/skin-weather/SkinTypeQuiz';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ function SkinAdviceSection({ content }: { content?: string }) {
             <button
               type="button"
               onClick={() => setOpenKey(isOpen ? null : cat.key)}
+              aria-expanded={isOpen}
               className="w-full flex items-center gap-2.5 px-3.5 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors text-left"
             >
               <span className="text-muted-foreground">{cat.icon}</span>
@@ -96,13 +98,15 @@ function SkinAdviceSection({ content }: { content?: string }) {
                 ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
             </button>
-            {isOpen && (
-              <div className="px-3.5 py-3 border-t border-border/30 bg-card">
+            <AnimatedCollapse
+              open={isOpen}
+              className="border-t border-border/30 bg-card"
+              innerClassName="px-3.5 py-3"
+            >
                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
                   {advice[cat.key]}
                 </p>
-              </div>
-            )}
+            </AnimatedCollapse>
           </div>
         );
       })}
@@ -520,6 +524,7 @@ export const SkinWeatherProfile = () => {
             if (!settingsOpen) openSettings();
             else setSettingsOpen(false);
           }}
+          aria-expanded={settingsOpen}
           className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/20 transition-colors text-left"
         >
           <div className="flex items-center gap-2">
@@ -531,8 +536,11 @@ export const SkinWeatherProfile = () => {
             : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
         </button>
 
-        {settingsOpen && (
-          <div className="px-6 pb-6 pt-2 space-y-5 border-t border-border/30">
+        <AnimatedCollapse
+          open={settingsOpen}
+          className="border-t border-border/30"
+          innerClassName="px-6 pb-6 pt-2 space-y-5"
+        >
             {/* Skin Concerns */}
             <div>
               <p className="text-sm font-semibold mb-2">
@@ -603,8 +611,7 @@ export const SkinWeatherProfile = () => {
               {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               Zapisz zmiany
             </button>
-          </div>
-        )}
+        </AnimatedCollapse>
       </section>
     </div>
   );

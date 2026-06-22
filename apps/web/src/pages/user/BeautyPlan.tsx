@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { beautyPlanApi, type BeautyPlan as BeautyPlanType, type PlanSection } from '@/api/beauty-plan.api';
 import { CalendarDays, ExternalLink, Flower2, ChevronDown, ChevronUp, ArrowRight, MessageCircle } from 'lucide-react';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 
 // ─── Animations (injected once) ───────────────────────────────────────────────
 
@@ -206,6 +207,7 @@ function SectionCard({
               className="w-full flex items-center justify-between gap-3 text-left"
               style={{ padding: '16px 18px' }}
               onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
             >
               <h3
                 className="font-heading font-bold leading-snug flex-1"
@@ -220,8 +222,10 @@ function SectionCard({
           )}
 
           {/* Body */}
-          {(open || hasImage) && (
-            <div style={{ padding: hasImage ? '0 18px 18px' : '0 18px 18px' }}>
+          <AnimatedCollapse
+            open={open || hasImage}
+            innerStyle={{ padding: hasImage ? '0 18px 18px' : '0 18px 18px' }}
+          >
               {hasImage && section.title && open === false ? null : null}
 
               {section.content && (
@@ -271,8 +275,7 @@ function SectionCard({
                   ))}
                 </div>
               )}
-            </div>
-          )}
+          </AnimatedCollapse>
         </div>
       </div>
     </article>

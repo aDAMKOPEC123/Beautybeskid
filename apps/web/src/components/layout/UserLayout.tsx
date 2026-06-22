@@ -59,9 +59,19 @@ const NAV_LINKS = [
 ];
 
 const panelPageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.24, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.16, ease: 'easeIn' } },
+  initial: { opacity: 0, y: 18, scale: 0.992 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.998,
+    transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
+  },
 };
 
 const UserLayoutInner = () => {
@@ -90,6 +100,9 @@ const UserLayoutInner = () => {
   const activePageVariants = shouldReduce
     ? { initial: {}, animate: {}, exit: {} }
     : panelPageVariants;
+  const navIndicatorTransition = shouldReduce
+    ? { duration: 0 }
+    : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   useEffect(() => {
     if (!chatRoom || !storeUser) return;
@@ -301,19 +314,30 @@ const UserLayoutInner = () => {
               <Link
                 key={to}
                 to={to}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-3 justify-between"
+                className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center gap-3 justify-between"
                 style={
                   isActive(to)
-                    ? { color: '#C4965A', background: 'rgba(196,150,90,0.08)', fontWeight: 600 }
+                    ? { color: '#C4965A', fontWeight: 600 }
                     : { color: 'rgba(20,40,28,0.6)' }
                 }
               >
-                <span className="flex items-center gap-3">
+                {isActive(to) && (
+                  <motion.span
+                    layoutId="user-sidebar-active-pill"
+                    className="absolute inset-0 rounded-xl"
+                    transition={navIndicatorTransition}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
+                      boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                    }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-3">
                   <Icon size={18} />
                   <span>{label}</span>
                 </span>
                 {getBadgeCount(to) > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
+                  <span className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
                     {getBadgeCount(to) > 9 ? '9+' : getBadgeCount(to)}
                   </span>
                 )}
@@ -322,26 +346,36 @@ const UserLayoutInner = () => {
 
             <Link
               to="/user/chat"
-              className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between"
+              className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center justify-between"
               style={
                 isActive('/user/chat')
                   ? {
                       color: '#C4965A',
-                      background: 'rgba(196,150,90,0.08)',
                       fontWeight: 600,
                     }
-                  : {
+                : {
                       color: 'rgba(20,40,28,0.6)',
                     }
               }
             >
-              <span className="flex items-center gap-3">
+              {isActive('/user/chat') && (
+                <motion.span
+                  layoutId="user-sidebar-active-pill"
+                  className="absolute inset-0 rounded-xl"
+                  transition={navIndicatorTransition}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
+                    boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                  }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-3">
                 <MessageCircle size={18} />
                 <span>Czat</span>
               </span>
               {getBadgeCount('/user/chat') > 0 && (
                 <span
-                  className="text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
+                  className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
                   style={{ background: '#C4965A', color: '#fff' }}
                 >
                   {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
@@ -370,6 +404,7 @@ const UserLayoutInner = () => {
             initial="initial"
             animate="animate"
             exit="exit"
+            style={{ transformOrigin: 'top center' }}
           >
             <Outlet />
           </motion.main>

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { skinJournalApi, type SkinJournalEntry } from '@/api/skin-journal.api';
 import { SummaryModal } from '@/components/skin-journal/SummaryModal';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 
 const MOODS: string[] = ['😟', '😕', '😐', '🙂', '😊'];
 
@@ -55,6 +56,7 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
     <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10, marginTop: 8 }}>
       <button
         onClick={toggle}
+        aria-expanded={open}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -82,8 +84,11 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
         {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
 
-      {open && (
-        <div style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10, padding: '10px 12px' }}>
+      <AnimatedCollapse
+        open={open}
+        style={{ marginTop: 6, background: 'rgba(20,40,28,0.03)', borderRadius: 10 }}
+        innerStyle={{ padding: '10px 12px' }}
+      >
           {entry.comments.map((c) => (
             <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               <div style={{ width: 26, height: 26, minWidth: 26, borderRadius: '50%', background: '#1A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700 }}>
@@ -96,8 +101,7 @@ function CommentSection({ entry, userId }: { entry: SkinJournalEntry; userId: st
               </div>
             </div>
           ))}
-        </div>
-      )}
+      </AnimatedCollapse>
     </div>
   );
 }
