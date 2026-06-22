@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/axios';
@@ -57,6 +58,12 @@ const NAV_LINKS = [
   { to: '/user/profil', label: 'Mój Profil', icon: UserIcon },
 ];
 
+const panelPageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.24, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.16, ease: 'easeIn' } },
+};
+
 const UserLayoutInner = () => {
   const { isAuthenticated, isLoading, user: storeUser, setUser, logout, isAdmin, isEmployee } = useAuth();
   const storeUserRef = useRef(storeUser);
@@ -79,6 +86,10 @@ const UserLayoutInner = () => {
     staleTime: 30_000,
   });
   const { getBadgeCount } = useUserMenuBadges();
+  const shouldReduce = useReducedMotion();
+  const activePageVariants = shouldReduce
+    ? { initial: {}, animate: {}, exit: {} }
+    : panelPageVariants;
 
   useEffect(() => {
     if (!chatRoom || !storeUser) return;
@@ -351,9 +362,18 @@ const UserLayoutInner = () => {
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 pb-20 md:pb-0">
-          <Outlet />
-        </main>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.main
+            key={location.pathname}
+            className="flex-1 min-w-0 pb-20 md:pb-0"
+            variants={activePageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Outlet />
+          </motion.main>
+        </AnimatePresence>
       </div>
 
       <Footer />
