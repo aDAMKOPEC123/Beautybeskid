@@ -1,5 +1,5 @@
 -- DropIndex
-DROP INDEX "DiscountCodeUsage_discountCodeId_userId_idx";
+DROP INDEX IF EXISTS "DiscountCodeUsage_discountCodeId_userId_idx";
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DiscountCodeUsage_discountCodeId_userId_key" ON "DiscountCodeUsage"("discountCodeId", "userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "DiscountCodeUsage_discountCodeId_userId_key" ON "DiscountCodeUsage"("discountCodeId", "userId");

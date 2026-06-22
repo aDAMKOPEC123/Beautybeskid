@@ -11,6 +11,11 @@ export const getAllCodes = async () => {
 };
 
 export const createCode = async (data: { code: string; discountType: 'PERCENTAGE' | 'AMOUNT'; discountValue: number; isMultiUse?: boolean }) => {
+  if (!data.code.trim()) throw new AppError('Kod rabatowy nie może być pusty', 400);
+  if (data.discountValue <= 0) throw new AppError('Wartość rabatu musi być większa od zera', 400);
+  if (data.discountType === 'PERCENTAGE' && data.discountValue > 100) {
+    throw new AppError('Rabat procentowy nie może przekraczać 100%', 400);
+  }
   const code = data.code.trim().toUpperCase();
   return await prisma.discountCode.create({
     data: {
@@ -78,19 +83,15 @@ export const getWelcomeCoupon = async (userId: string) => {
 };
 
 export const getAmbassadorConfig = async () => {
-  return await prisma.ambassadorConfig.upsert({
-    where: { id: 'singleton' },
-    create: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
-    update: {},
+  const existing = await prisma.ambassadorConfig.findUnique({ where: { id: 'singleton' } });
+  if (existing) return existing;
+  return prisma.ambassadorConfig.create({
+    data: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
   });
 };
 
 export const getReferralBenefits = async () => {
-  const config = await prisma.ambassadorConfig.upsert({
-    where: { id: 'singleton' },
-    create: { id: 'singleton', discountType: 'PERCENTAGE', discountValue: 10, referrerDiscountType: 'PERCENTAGE', referrerDiscountValue: 10 },
-    update: {},
-  });
+  const config = await getAmbassadorConfig();
   return {
     newUserDiscountType: config.discountType as 'PERCENTAGE' | 'AMOUNT',
     newUserDiscountValue: Number(config.discountValue),
@@ -118,12 +119,13 @@ export const createWelcomeCodeForUser = async (
     update: {},
   });
 
-  let welcomeCode: string;
-  while (true) {
-    welcomeCode = generateCode(8);
-    const existing = await tx.discountCode.findUnique({ where: { code: welcomeCode } });
-    if (!existing) break;
+  let welcomeCode = '';
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = generateCode(8);
+    const existing = await tx.discountCode.findUnique({ where: { code: candidate } });
+    if (!existing) { welcomeCode = candidate; break; }
   }
+  if (!welcomeCode) throw new AppError('Nie udało się wygenerować kodu rabatowego', 500);
 
   await tx.discountCode.create({
     data: {
@@ -134,12 +136,13 @@ export const createWelcomeCodeForUser = async (
     },
   });
 
-  let referrerCode: string;
-  while (true) {
-    referrerCode = generateCode(8);
-    const existing = await tx.discountCode.findUnique({ where: { code: referrerCode } });
-    if (!existing) break;
+  let referrerCode = '';
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = generateCode(8);
+    const existing = await tx.discountCode.findUnique({ where: { code: candidate } });
+    if (!existing) { referrerCode = candidate; break; }
   }
+  if (!referrerCode) throw new AppError('Nie udało się wygenerować kodu polecającego', 500);
 
   await tx.discountCode.create({
     data: {

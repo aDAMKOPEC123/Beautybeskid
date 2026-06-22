@@ -40,6 +40,7 @@ import recommendedSlidesRouter from './modules/recommended-slides/router';
 import skinWeatherRouter from './modules/skin-weather/skin-weather.router';
 import { academyRouter } from './modules/academy/academy.router';
 import marketingRouter from './modules/marketing/marketing.router';
+import beautyPlanRouter from './modules/beauty-plan/beauty-plan.router';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -58,8 +59,7 @@ app.use(cookieParser());
 
 // Static files for uploads if needed
 app.use('/uploads', privateUploadMiddleware, express.static('uploads', {
-  maxAge: '1y',
-  immutable: true,
+  maxAge: '1d',
 }));
 
 // API Routes
@@ -93,6 +93,7 @@ app.use('/api/recommended-slides', recommendedSlidesRouter);
 app.use('/api/skin-weather', skinWeatherRouter);
 app.use('/api/academy', academyRouter);
 app.use('/api/marketing', marketingRouter);
+app.use('/api/beauty-plans', beautyPlanRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {

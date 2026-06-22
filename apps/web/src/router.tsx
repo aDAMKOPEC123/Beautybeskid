@@ -39,6 +39,7 @@ const UserSkinJournal = lazy(() => import('./pages/user/SkinJournal').then(m => 
 const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').then(m => ({ default: m.HomecareRoutinePage })));
 const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
+const UserBeautyPlan = lazy(() => import('./pages/user/BeautyPlan').then(m => ({ default: m.UserBeautyPlan })));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard').then(m => ({ default: m.AdminDashboard })));
@@ -70,6 +71,7 @@ const AdminAkademia = lazy(() => import('./pages/admin/academy/AdminAkademia').t
 const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEditor').then(m => ({ default: m.AdminCourseEditor })));
 const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
 const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
+const AdminBeautyPlans = lazy(() => import('./pages/admin/AdminBeautyPlans').then(m => ({ default: m.AdminBeautyPlans })));
 
 // Employee pages
 const EmployeeSchedule = lazy(() => import('./pages/employee/Schedule').then(m => ({ default: m.EmployeeSchedule })));
@@ -141,6 +143,7 @@ export const router = createBrowserRouter([
       { path: 'rutyna', element: <S><HomecareRoutinePage /></S> },
       { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
+      { path: 'zalecenia', element: <S><UserBeautyPlan /></S> },
     ],
   },
   {
@@ -206,6 +209,7 @@ export const router = createBrowserRouter([
       { path: 'powiadomienia', element: <S><AdminNotifications /></S> },
       { path: 'asortyment', element: <S><AdminAssortment /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherRules /></S> },
+      { path: 'beauty-plans', element: <S><AdminBeautyPlans /></S> },
       { path: 'akademia', element: <S><AdminAkademia /></S> },
       { path: 'akademia/kurs/:id', element: <S><AdminCourseEditor /></S> },
       { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },

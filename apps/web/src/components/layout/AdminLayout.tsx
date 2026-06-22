@@ -25,7 +25,7 @@ export const AdminLayout = () => {
     () => ['/admin/wizyty', '/admin/konsultacje', '/admin/pracownicy', '/admin/praca'].some(p => location.pathname.startsWith(p))
   );
   const [klienciOpen, setKlienciOpen] = useState(
-    () => ['/admin/uzytkownicy', '/admin/recenzje'].some(p => location.pathname.startsWith(p))
+    () => ['/admin/uzytkownicy', '/admin/recenzje', '/admin/beauty-plans'].some(p => location.pathname.startsWith(p))
   );
   const [tresciOpen, setTresciOpen] = useState(
     () => ['/admin/hero', '/admin/polecane-zabiegi', '/admin/o-nas', '/admin/uslugi', '/admin/blog', '/admin/metamorfozy'].some(p => location.pathname.startsWith(p))
@@ -151,6 +151,7 @@ export const AdminLayout = () => {
           { to: '/admin/lojalnosc', label: 'Lojalność' },
           { to: '/admin/kody-rabatowe', label: 'Kody' },
           { to: '/admin/recenzje', label: 'Recenzje' },
+          { to: '/admin/beauty-plans', label: 'Beauty Plans' },
           { to: '/admin/quizy', label: 'Quizy' },
           { to: '/admin/hero', label: 'Slider' },
           { to: '/admin/polecane-zabiegi', label: 'Polecane' },
@@ -320,6 +321,9 @@ export const AdminLayout = () => {
                   </Link>
                   <Link to="/admin/recenzje" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Recenzje
+                  </Link>
+                  <Link to="/admin/beauty-plans" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Beauty Plans
                   </Link>
                 </div>
               )}

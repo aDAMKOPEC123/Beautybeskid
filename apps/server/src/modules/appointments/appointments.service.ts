@@ -94,6 +94,31 @@ interface CreateAppointmentData {
 export const createAppointment = async (userId: string, data: CreateAppointmentData) => {
   const { couponId, discountCodeId, treatmentSeriesId, happyHourId, ...rest } = data;
 
+  // BUG-01: Check slot availability before creating (best-effort — not serializable,
+  // but catches the common case of same-slot double-booking)
+  if (rest.employeeId) {
+    const service = await prisma.service.findUnique({
+      where: { id: rest.serviceId },
+      select: { durationMinutes: true },
+    });
+    const apptStart = new Date(rest.date);
+    const durationMs = (service?.durationMinutes ?? 60) * 60_000;
+    const apptEnd = new Date(apptStart.getTime() + durationMs);
+
+    const conflict = await prisma.appointment.findFirst({
+      where: {
+        employeeId: rest.employeeId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        date: {
+          gte: new Date(apptStart.getTime() - durationMs),
+          lt: apptEnd,
+        },
+      },
+      select: { id: true },
+    });
+    if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+  }
+
   const appointment = await prisma.$transaction(async (tx) => {
     const created = await tx.appointment.create({
       data: {
@@ -109,6 +134,27 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
       include: appointmentInclude,
     });
 
+    // BUG-02: Validate and apply coupon/discount inside the same transaction
+    if (couponId) {
+      const coupon = await tx.userCoupon.findUnique({ where: { id: couponId } });
+      if (!coupon || coupon.status !== 'ACTIVE') throw new AppError('Kupon niedostępny lub już użyty', 400);
+      await tx.userCoupon.update({
+        where: { id: couponId },
+        data: { status: 'USED', usedAt: new Date(), appointmentId: created.id },
+      });
+    }
+
+    if (discountCodeId) {
+      const code = await tx.discountCode.findUnique({ where: { id: discountCodeId } });
+      if (code && code.isActive && (!code.lockedToUserId || code.lockedToUserId === userId)) {
+        await tx.discountCodeUsage.upsert({
+          where: { discountCodeId_userId: { discountCodeId, userId } },
+          create: { discountCodeId, userId, appointmentId: created.id },
+          update: {},
+        });
+      }
+    }
+
     await attachAppointmentToSeries(tx, {
       appointmentId: created.id,
       userId,
@@ -121,30 +167,6 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
       include: appointmentInclude,
     });
   });
-
-  if (couponId || discountCodeId) {
-    await prisma.$transaction(async (tx) => {
-      if (couponId) {
-        const coupon = await tx.userCoupon.findUnique({ where: { id: couponId } });
-        if (!coupon || coupon.status !== 'ACTIVE') throw new AppError('Kupon niedostępny lub już użyty', 400);
-        await tx.userCoupon.update({
-          where: { id: couponId },
-          data: { status: 'USED', usedAt: new Date(), appointmentId: appointment.id },
-        });
-      }
-
-      if (discountCodeId) {
-        const code = await tx.discountCode.findUnique({ where: { id: discountCodeId } });
-        if (code && code.isActive && (!code.lockedToUserId || code.lockedToUserId === userId)) {
-          await tx.discountCodeUsage.upsert({
-            where: { discountCodeId_userId: { discountCodeId, userId } },
-            create: { discountCodeId, userId, appointmentId: appointment.id },
-            update: {},
-          });
-        }
-      }
-    });
-  }
 
   try {
     const io = getIO();
@@ -199,8 +221,8 @@ export const getAllAppointments = async (filters?: {
   if (filters?.userId) where.userId = filters.userId;
   if (filters?.status) where.status = filters.status;
 
-  const take = filters?.limit ?? undefined;
-  const skip = take && filters?.page ? (filters.page - 1) * take : undefined;
+  const take = Math.min(filters?.limit ?? 50, 200);
+  const skip = filters?.page ? (filters.page - 1) * take : 0;
 
   const [data, total] = await prisma.$transaction([
     prisma.appointment.findMany({

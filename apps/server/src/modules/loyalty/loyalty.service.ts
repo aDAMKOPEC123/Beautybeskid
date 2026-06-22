@@ -44,7 +44,19 @@ export const getRewards = async () => {
   });
 };
 
-export const createReward = async (data: any) => {
+interface CreateRewardData {
+  name: string;
+  pointsCost: number;
+  discountType: 'PERCENTAGE' | 'AMOUNT' | 'OTHER';
+  discountValue?: number;
+  description?: string;
+  requiredTier?: 'BRONZE' | 'SILVER' | 'GOLD' | null;
+  isForAllServices?: boolean;
+  isActive?: boolean;
+  applicableServiceIds?: string[];
+}
+
+export const createReward = async (data: CreateRewardData) => {
   const { applicableServiceIds, description, discountValue, requiredTier, ...rest } = data;
   return await prisma.loyaltyReward.create({
     data: {
@@ -52,8 +64,8 @@ export const createReward = async (data: any) => {
       description: description || '',
       ...(requiredTier ? { requiredTier } : {}),
       ...(discountValue != null ? { discountValue } : {}),
-      applicableServices: applicableServiceIds?.length > 0 && !rest.isForAllServices ? {
-        connect: applicableServiceIds.map((id: string) => ({ id }))
+      applicableServices: (applicableServiceIds?.length ?? 0) > 0 && !rest.isForAllServices ? {
+        connect: (applicableServiceIds ?? []).map((id: string) => ({ id }))
       } : undefined
     },
     include: { applicableServices: true }

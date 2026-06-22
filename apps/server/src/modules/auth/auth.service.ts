@@ -7,7 +7,6 @@ import { env } from '../../config/env';
 import { RegisterInput, LoginInput } from '@cosmo/shared';
 import { generateCode } from '../../utils/generateCode';
 import { createWelcomeCodeForUser } from '../discount-codes/discount-codes.service';
-import { getUserById } from '../users/users.service';
 import { verifyGoogleToken } from './google.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
@@ -25,12 +24,13 @@ export const registerUser = async (data: RegisterInput & {
   }
 
   // Generate unique ambassador code
-  let ambassadorCode: string;
-  while (true) {
-    ambassadorCode = generateCode(8);
-    const existing = await prisma.user.findUnique({ where: { ambassadorCode } });
-    if (!existing) break;
+  let ambassadorCode = '';
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = generateCode(8);
+    const existing = await prisma.user.findUnique({ where: { ambassadorCode: candidate } });
+    if (!existing) { ambassadorCode = candidate; break; }
   }
+  if (!ambassadorCode) throw new AppError('Nie udało się wygenerować kodu ambasadora', 500);
 
   // Find referrer by ambassador code (silently ignore invalid code)
   let referrer = null;
@@ -67,24 +67,24 @@ export const registerUser = async (data: RegisterInput & {
 
   // Fire-and-forget: notify all admins of new registration
   prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-    .then(admins =>
-      Promise.all(
-        admins.map(admin =>
-          prisma.notification.create({
-            data: {
-              userId: admin.id,
-              type: 'GENERIC',
-              title: 'Nowa rejestracja',
-              body: `Nowa rejestracja: ${user.name} (${user.email})`,
-            },
-          })
-        )
-      )
-    )
+    .then(admins => {
+      if (admins.length === 0) return;
+      return prisma.notification.createMany({
+        data: admins.map(admin => ({
+          userId: admin.id,
+          type: 'GENERIC' as const,
+          title: 'Nowa rejestracja',
+          body: `Nowa rejestracja: ${user.name} (${user.email})`,
+        })),
+      });
+    })
     .catch(() => {/* ignore — don't fail registration */});
 
   // Send verification email (fire-and-forget — don't fail registration if email fails)
   if (user.emailVerificationToken) {
+    if (!env.SERVER_URL && env.NODE_ENV === 'production') {
+      console.error('[AUTH] SERVER_URL nie jest ustawione w produkcji — linki weryfikacyjne będą wskazywać na localhost!');
+    }
     const verifyUrl = `${env.SERVER_URL ?? `http://localhost:${env.PORT || 3001}`}/api/auth/verify-email?token=${user.emailVerificationToken}`;
     sendEmail(
       user.email,
@@ -124,24 +124,35 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
     throw new AppError('Konto zostało odrzucone. Skontaktuj się z salonem.', 403);
   }
 
-  // Ensures ambassadorCode exists (auto-generates for legacy users)
-  const user = await getUserById(raw.id);
+  // Ensures ambassadorCode exists (auto-generates for legacy users without extra getUserById round-trip)
+  let loginUser = raw;
+  if (!raw.ambassadorCode) {
+    let newCode = '';
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const candidate = generateCode(8);
+      const existing = await prisma.user.findUnique({ where: { ambassadorCode: candidate } });
+      if (!existing) { newCode = candidate; break; }
+    }
+    if (newCode) {
+      loginUser = await prisma.user.update({ where: { id: raw.id }, data: { ambassadorCode: newCode } });
+    }
+  }
 
   const accessToken = signToken({ id: raw.id, role: raw.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
   const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, refreshTokenTtl ?? env.JWT_REFRESH_EXPIRES_IN);
 
   return {
     user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      avatarPath: user.avatarPath,
-      loyaltyPoints: user.loyaltyPoints,
-      loyaltyTier: user.loyaltyTier,
-      ambassadorCode: user.ambassadorCode,
-      referralCount: user.referralCount,
-      mustChangePassword: user.mustChangePassword,
+      id: loginUser.id,
+      email: loginUser.email,
+      name: loginUser.name,
+      role: loginUser.role,
+      avatarPath: loginUser.avatarPath,
+      loyaltyPoints: loginUser.loyaltyPoints,
+      loyaltyTier: loginUser.loyaltyTier,
+      ambassadorCode: loginUser.ambassadorCode,
+      referralCount: loginUser.referralCount,
+      mustChangePassword: loginUser.mustChangePassword,
     },
     accessToken,
     refreshToken
@@ -152,11 +163,12 @@ export const loginWithGoogle = async (credential: string) => {
   const { googleId, email, name, picture } = await verifyGoogleToken(credential);
 
   const generateAmbassadorCode = async (): Promise<string> => {
-    while (true) {
+    for (let attempt = 0; attempt < 10; attempt++) {
       const code = generateCode(8);
       const existing = await prisma.user.findUnique({ where: { ambassadorCode: code } });
       if (!existing) return code;
     }
+    throw new AppError('Nie udało się wygenerować kodu ambasadora', 500);
   };
 
   // Find by googleId first, then by email (merge case)
@@ -170,7 +182,7 @@ export const loginWithGoogle = async (credential: string) => {
     if (user.accountStatus === 'REJECTED') {
       throw new AppError('Konto zostało zablokowane', 403);
     }
-    if ((!user.googleId || user.accountStatus === 'PENDING') && user.accountStatus !== 'REJECTED') {
+    if (!user.googleId || user.accountStatus === 'PENDING') {
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -200,22 +212,21 @@ export const loginWithGoogle = async (credential: string) => {
     });
   }
 
-  const fullUser = await getUserById(user.id);
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
   const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
 
   return {
     user: {
-      id: fullUser.id,
-      email: fullUser.email,
-      name: fullUser.name,
-      role: fullUser.role,
-      avatarPath: fullUser.avatarPath,
-      loyaltyPoints: fullUser.loyaltyPoints,
-      loyaltyTier: fullUser.loyaltyTier,
-      ambassadorCode: fullUser.ambassadorCode,
-      referralCount: fullUser.referralCount,
-      mustChangePassword: fullUser.mustChangePassword,
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      avatarPath: user.avatarPath,
+      loyaltyPoints: user.loyaltyPoints,
+      loyaltyTier: user.loyaltyTier,
+      ambassadorCode: user.ambassadorCode,
+      referralCount: user.referralCount,
+      mustChangePassword: user.mustChangePassword,
     },
     accessToken,
     refreshToken,
@@ -231,12 +242,13 @@ export const adminCreateUser = async (data: {
   const existing = await prisma.user.findUnique({ where: { email: data.email } });
   if (existing) throw new AppError('Użytkownik z tym adresem email już istnieje', 400);
 
-  let ambassadorCode: string;
-  while (true) {
-    ambassadorCode = generateCode(8);
-    const exists = await prisma.user.findUnique({ where: { ambassadorCode } });
-    if (!exists) break;
+  let ambassadorCode = '';
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = generateCode(8);
+    const exists = await prisma.user.findUnique({ where: { ambassadorCode: candidate } });
+    if (!exists) { ambassadorCode = candidate; break; }
   }
+  if (!ambassadorCode) throw new AppError('Nie udało się wygenerować kodu ambasadora', 500);
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
 

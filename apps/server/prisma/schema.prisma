@@ -192,6 +192,8 @@ model User {
   lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
   refreshTokens          RefreshToken[]
+  beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
+  createdBeautyPlans     BeautyPlan[]       @relation("BeautyPlanCreatedBy")
 
   @@index([role])
 }
@@ -250,6 +252,9 @@ model Service {
   treatmentSeries TreatmentSeries[]
   happyHours        HappyHour[]       @relation("HappyHourServices")
   recommendedSlides RecommendedSlide[]
+
+  @@index([category])
+  @@index([isActive])
 }
 
 model BlogPost {
@@ -272,6 +277,10 @@ model BlogPost {
   likes           BlogPostLike[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([category])
+  @@index([authorId])
 }
 
 model BlogPostLike {
@@ -627,6 +636,9 @@ model Quiz {
   edges     QuizEdge[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
+  @@index([bodyPart])
+  @@index([isActive])
 }
 
 model QuizNode {
@@ -1340,4 +1352,20 @@ model WynikPost {
   comments    Int?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+}
+
+model BeautyPlan {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation("UserBeautyPlans", fields: [userId], references: [id], onDelete: Cascade)
+  createdById  String
+  createdBy    User     @relation("BeautyPlanCreatedBy", fields: [createdById], references: [id])
+  title        String
+  intro        String?  @db.Text
+  sections     Json?
+  externalLinks Json?
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
 }

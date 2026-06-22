@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, Calendar, Star, Clock, CheckCheck, MessageCircle, Trophy, BookOpen, ShoppingBag, Megaphone, Info } from 'lucide-react';
+import { Bell, Calendar, Star, Clock, CheckCheck, MessageCircle, Trophy, BookOpen, ShoppingBag, Megaphone, Info, BellRing, BellOff } from 'lucide-react';
 import { notificationsApi, type Notification } from '@/api/notifications.api';
 import { toast } from 'sonner';
 import { useSocket } from '@/hooks/useSocket';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
 
 const CHIP_MAP: Record<string, { label: string; fallbackUrl: string }> = {
   APPOINTMENT_CONFIRMED:   { label: 'Wizyta',       fallbackUrl: '/user/wizyty' },
@@ -131,6 +132,115 @@ function SkeletonItem() {
   );
 }
 
+function PushBanner() {
+  const { permission, isSubscribed, isSupported, subscribe, unsubscribe } = usePushSubscription();
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  const isStandalone = (window.navigator as any).standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches;
+
+  // iOS without PWA — show install instructions
+  if (isIOS && !isStandalone) {
+    return (
+      <div
+        className="rounded-2xl p-4 flex gap-3 items-start"
+        style={{ background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.25)' }}
+      >
+        <BellRing size={20} style={{ color: '#C4965A', flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Włącz powiadomienia push</p>
+          <p className="text-xs mt-1 leading-relaxed" style={{ color: '#5A7A62' }}>
+            Na iPhonie dodaj aplikację do ekranu głównego:{' '}
+            <span className="font-semibold">Udostępnij</span> →{' '}
+            <span className="font-semibold">Dodaj do ekranu głównego</span>, a potem wróć tutaj.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Already subscribed
+  if (isSubscribed) {
+    return (
+      <div
+        className="rounded-2xl p-4 flex gap-3 items-center"
+        style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}
+      >
+        <BellRing size={20} style={{ color: '#15803D', flexShrink: 0 }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Powiadomienia push włączone</p>
+          <p className="text-xs mt-0.5" style={{ color: '#5A7A62' }}>Będziesz otrzymywać powiadomienia o wizytach i promocjach.</p>
+        </div>
+        <button
+          onClick={unsubscribe}
+          className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors"
+          style={{ background: 'rgba(239,68,68,0.08)', color: '#DC2626', border: '1px solid rgba(239,68,68,0.2)' }}
+        >
+          Wyłącz
+        </button>
+      </div>
+    );
+  }
+
+  // Permission denied
+  if (permission === 'denied') {
+    return (
+      <div
+        className="rounded-2xl p-4 flex gap-3 items-start"
+        style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}
+      >
+        <BellOff size={20} style={{ color: '#DC2626', flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Powiadomienia zablokowane</p>
+          <p className="text-xs mt-1 leading-relaxed" style={{ color: '#5A7A62' }}>
+            Odblokuj w ustawieniach przeglądarki:{' '}
+            <span className="font-semibold">Ustawienia → Powiadomienia → BeautyBeskid → Zezwól</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not supported in this browser
+  if (!isSupported) {
+    return (
+      <div
+        className="rounded-2xl p-4 flex gap-3 items-center"
+        style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)' }}
+      >
+        <BellOff size={20} style={{ color: '#888', flexShrink: 0 }} />
+        <div>
+          <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Powiadomienia push</p>
+          <p className="text-xs mt-0.5" style={{ color: '#5A7A62' }}>
+            Twoja przeglądarka nie obsługuje powiadomień push. Użyj Chrome lub Safari (iOS 16.4+).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Default — can request permission
+  return (
+    <div
+      className="rounded-2xl p-4 flex gap-3 items-center"
+      style={{ background: 'rgba(196,150,90,0.08)', border: '1px solid rgba(196,150,90,0.25)' }}
+    >
+      <BellRing size={20} style={{ color: '#C4965A', flexShrink: 0 }} />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Włącz powiadomienia push</p>
+        <p className="text-xs mt-0.5" style={{ color: '#5A7A62' }}>Bądź na bieżąco z wizytami, promocjami i poradami.</p>
+      </div>
+      <button
+        onClick={subscribe}
+        className="shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
+        style={{ background: '#C4965A', color: '#fff' }}
+      >
+        Włącz
+      </button>
+    </div>
+  );
+}
+
 export const UserNotifications = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -193,6 +303,9 @@ export const UserNotifications = () => {
 
   return (
     <div className="space-y-6 animate-enter">
+      {/* Push notification banner */}
+      <PushBanner />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

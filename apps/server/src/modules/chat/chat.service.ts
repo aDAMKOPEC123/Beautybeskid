@@ -13,14 +13,16 @@ export const getAllRooms = async () => {
   });
 };
 
-export const getRoomMessages = async (roomId: string) => {
-  return await prisma.chatMessage.findMany({
+export const getRoomMessages = async (roomId: string, limit = 100) => {
+  const messages = await prisma.chatMessage.findMany({
     where: { roomId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
     include: {
       sender: { select: { id: true, name: true, role: true, avatarPath: true } }
     }
   });
+  return messages.reverse();
 };
 
 export const getMyRoom = async (userId: string) => {
@@ -60,8 +62,7 @@ export const saveMessage = async (
     }
   });
 
-  const sender = await prisma.user.findUnique({ where: { id: senderId } });
-  if (sender?.role === 'ADMIN' || sender?.role === 'EMPLOYEE') {
+  if (message.sender.role === 'ADMIN' || message.sender.role === 'EMPLOYEE') {
     await prisma.chatRoom.update({
       where: { id: roomId },
       data: { lastMessageAt: new Date(), userUnread: { increment: 1 } }

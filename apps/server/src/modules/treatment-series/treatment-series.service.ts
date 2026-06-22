@@ -622,16 +622,30 @@ export const processDueTreatmentSeriesNotifications = async () => {
     },
   });
 
+  if (activeSeries.length === 0) return;
+
+  // Batch query instead of N individual queries per series
+  const seriesIds = activeSeries.map((s) => s.id);
+  const upcomingAppointments = await prisma.appointment.findMany({
+    where: {
+      treatmentSeriesId: { in: seriesIds },
+      status: { in: ['PENDING', 'CONFIRMED'] },
+    },
+    select: {
+      treatmentSeriesId: true,
+      treatmentSeriesStep: true,
+    },
+  });
+
+  const bookedKeys = new Set(
+    upcomingAppointments
+      .filter((a) => a.treatmentSeriesId && a.treatmentSeriesStep)
+      .map((a) => `${a.treatmentSeriesId}:${a.treatmentSeriesStep}`),
+  );
+
   for (const series of activeSeries) {
     if (!series.nextStep) continue;
-
-    const existingAppointment = await getUpcomingSeriesAppointment(
-      prisma,
-      series.id,
-      series.nextStep,
-    );
-    if (existingAppointment) continue;
-
+    if (bookedKeys.has(`${series.id}:${series.nextStep}`)) continue;
     await sendSeriesNotification(series);
   }
 };

@@ -6,8 +6,8 @@ import { sendPushToAllUsers } from '../push/push.service';
 
 export const getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const data = await notificationsService.getNotifications(req.user!.id, page, limit);
     res.status(200).json({ status: 'success', data });
   } catch (error) {

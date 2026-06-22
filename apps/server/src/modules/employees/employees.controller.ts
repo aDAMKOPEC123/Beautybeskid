@@ -63,11 +63,12 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
   try {
     const { name, bio, specialties } = req.body;
     if (!name) throw new AppError('Imię pracownika jest wymagane', 400);
-    const parsedSpecialties: string[] = Array.isArray(specialties)
-      ? specialties
-      : typeof specialties === 'string'
-      ? JSON.parse(specialties)
-      : [];
+    let parsedSpecialties: string[] = [];
+    if (Array.isArray(specialties)) {
+      parsedSpecialties = specialties;
+    } else if (typeof specialties === 'string') {
+      try { parsedSpecialties = JSON.parse(specialties); } catch { parsedSpecialties = []; }
+    }
     let employee = await employeesService.createEmployee({ name, bio, specialties: parsedSpecialties });
     if (req.file) {
       const avatarPath = await processAndSaveImage(req.file.buffer, 'employees');
@@ -86,7 +87,11 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
     if (name !== undefined) data.name = name;
     if (bio !== undefined) data.bio = bio;
     if (specialties !== undefined) {
-      data.specialties = Array.isArray(specialties) ? specialties : JSON.parse(specialties as string);
+      if (Array.isArray(specialties)) {
+        data.specialties = specialties;
+      } else {
+        try { data.specialties = JSON.parse(specialties as string); } catch { data.specialties = []; }
+      }
     }
     if (isActive !== undefined) data.isActive = isActive === 'true' || isActive === true;
 
