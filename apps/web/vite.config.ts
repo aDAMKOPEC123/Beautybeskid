@@ -22,6 +22,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@cosmo/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
       '@mux/mux-player-react': path.resolve(__dirname, 'src/lib/mux-stub.ts'),
     },
   },
