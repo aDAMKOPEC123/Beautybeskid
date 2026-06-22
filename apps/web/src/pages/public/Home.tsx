@@ -193,15 +193,6 @@ export const Home = () => {
               <GeoArc   size={110} opacity={0.22} className="top-[20px] right-[20px]" />
               <SectionNumber n={1} opacity={0.07} className="top-[-10px] right-[24px]" />
 
-              {/* Floating badge */}
-              <div
-                className="hidden md:flex absolute top-8 right-6 z-10 w-[72px] h-[72px] rounded-full flex-col items-center justify-center text-center leading-snug"
-                style={{ border: '1px solid rgba(61,122,84,0.4)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#3D7A54', background: 'rgba(232,243,234,0.9)' }}
-                aria-hidden="true"
-              >
-                Salon<br />od 2018
-              </div>
-
               {/* Left column */}
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">

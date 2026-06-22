@@ -1,13 +1,32 @@
-﻿{
+{
+  "id": "/",
   "name": "BeautyBeskid — Salon Kosmetologiczny",
   "short_name": "BeautyBeskid",
   "description": "Panel zarządzania salonem kosmetologicznym",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "lang": "pl",
   "background_color": "#ffffff",
   "theme_color": "#C8956C",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Rezerwacja",
+      "short_name": "Rezerwuj",
+      "url": "/rezerwacja",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Moje wizyty",
+      "short_name": "Wizyty",
+      "url": "/user/wizyty",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
