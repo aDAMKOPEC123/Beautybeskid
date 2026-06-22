@@ -40,10 +40,11 @@ function App() {
         setAccessToken(res.data.data.accessToken);
         // user is hydrated from localStorage — no need to set here
       })
-      .catch(() => {
-        // Don't logout here — keep localStorage state intact.
-        // If the token is truly expired, the axios interceptor will logout
-        // when the next authenticated API call fails.
+      .catch((err) => {
+        // Clear stale auth state only on confirmed unauthorized sessions.
+        if (err?.response?.status === 401) {
+          logout();
+        }
       })
       .finally(() => {
         hydrate();

@@ -6,9 +6,6 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/axios';
 import { discountCodesApi } from '@/api/discount-codes.api';
-import { skinJournalApi } from '@/api/skin-journal.api';
-import { notificationsApi } from '@/api/notifications.api';
-import { homecareApi } from '@/api/homecare.api';
 import { authApi } from '@/api/auth.api';
 import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
@@ -26,6 +23,7 @@ import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
+import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
   LayoutDashboard,
   Calendar,
@@ -72,36 +70,15 @@ const UserLayoutInner = () => {
     logout();
     navigate('/');
   };
-  const { unreadCount, incrementUnread, setUnreadCount } = useChatStore();
+  const { incrementUnread, setUnreadCount } = useChatStore();
   const queryClient = useQueryClient();
-
-  const { data: journalUnread = 0 } = useQuery<number>({
-    queryKey: ['journal', 'unread'],
-    queryFn: skinJournalApi.getUnreadCount,
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-    staleTime: 30_000,
-  });
-
-  const { data: notifUnread = 0 } = useQuery<number>({
-    queryKey: ['notifications', 'unread-count'],
-    queryFn: () => notificationsApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-  });
-
-  const { data: routineUnread = 0 } = useQuery<number>({
-    queryKey: ['homecare-unread'],
-    queryFn: () => homecareApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-  });
   const { data: chatRoom } = useQuery({
     queryKey: ['chat', 'my-room'],
     queryFn: chatApi.getMyRoom,
     enabled: isAuthenticated,
     staleTime: 30_000,
   });
+  const { getBadgeCount } = useUserMenuBadges();
 
   useEffect(() => {
     if (!chatRoom || !storeUser) return;
@@ -193,6 +170,7 @@ const UserLayoutInner = () => {
     };
     const onNotificationNew = () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-map'] });
       queryClient.invalidateQueries({ queryKey: ['homecare-unread'] });
     };
     sock.on('journal:new-comment', onJournalComment);
@@ -323,19 +301,9 @@ const UserLayoutInner = () => {
                   <Icon size={18} />
                   <span>{label}</span>
                 </span>
-                {to === '/user/dziennik' && journalUnread > 0 && (
+                {getBadgeCount(to) > 0 && (
                   <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {journalUnread > 9 ? '9+' : journalUnread}
-                  </span>
-                )}
-                {to === '/user/rutyna' && routineUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {routineUnread > 9 ? '9+' : routineUnread}
-                  </span>
-                )}
-                {to === '/user/powiadomienia' && notifUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {notifUnread > 9 ? '9+' : notifUnread}
+                    {getBadgeCount(to) > 9 ? '9+' : getBadgeCount(to)}
                   </span>
                 )}
               </Link>
@@ -360,12 +328,12 @@ const UserLayoutInner = () => {
                 <MessageCircle size={18} />
                 <span>Czat</span>
               </span>
-              {unreadCount > 0 && (
+              {getBadgeCount('/user/chat') > 0 && (
                 <span
                   className="text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
                   style={{ background: '#C4965A', color: '#fff' }}
                 >
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                  {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
                 </span>
               )}
             </Link>

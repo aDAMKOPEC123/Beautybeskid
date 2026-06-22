@@ -22,6 +22,8 @@ export type NotificationsResponse = {
   unreadCount: number;
 };
 
+export type NotificationUnreadMap = Record<string, number>;
+
 export const notificationsApi = {
   getAll: async (page = 1, limit = 20): Promise<NotificationsResponse> => {
     const res = await api.get('/notifications', { params: { page, limit } });
@@ -30,6 +32,10 @@ export const notificationsApi = {
   getUnreadCount: async (): Promise<number> => {
     const res = await api.get('/notifications/unread-count');
     return res.data.data.count;
+  },
+  getUnreadMap: async (): Promise<NotificationUnreadMap> => {
+    const res = await api.get('/notifications/unread-map');
+    return res.data.data.counts;
   },
   markRead: async (id: string): Promise<void> => {
     await api.patch(`/notifications/${id}/read`);

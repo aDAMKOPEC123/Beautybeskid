@@ -43,6 +43,15 @@ export const getUnreadCount = async (req: Request, res: Response, next: NextFunc
   }
 };
 
+export const getUnreadRouteCounts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const counts = await notificationsService.getUnreadRouteCounts(req.user!.id);
+    res.status(200).json({ status: 'success', data: { counts } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const broadcastNotification = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, body, url } = req.body;

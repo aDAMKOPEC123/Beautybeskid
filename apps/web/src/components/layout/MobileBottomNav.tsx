@@ -1,69 +1,45 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/useAuth';
-import { useChatStore } from '@/store/chat.store';
-import { skinJournalApi } from '@/api/skin-journal.api';
-import { notificationsApi } from '@/api/notifications.api';
-import { homecareApi } from '@/api/homecare.api';
+import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
-  LayoutDashboard, Calendar, Plus, MessageCircle, X,
-  Bell, User as UserIcon, Star, BookOpen, ShoppingBag,
-  Users, Sparkles, GraduationCap, Cloud, Clock,
+  LayoutDashboard,
+  Calendar,
+  Plus,
+  MessageCircle,
+  X,
+  Bell,
+  User as UserIcon,
+  Star,
+  BookOpen,
+  ShoppingBag,
+  Users,
+  Sparkles,
+  GraduationCap,
+  Cloud,
+  Clock,
 } from 'lucide-react';
 
 const MORE_LINKS = [
   { to: '/user/lojalnosc', label: 'Punkty', icon: Star },
   { to: '/user/historia', label: 'Historia', icon: Clock },
-  { to: '/user/dziennik', label: 'Dziennik', icon: BookOpen, badge: 'journal' as const },
-  { to: '/user/rutyna', label: 'Rutyna', icon: Sparkles, badge: 'routine' as const },
+  { to: '/user/dziennik', label: 'Dziennik', icon: BookOpen },
+  { to: '/user/rutyna', label: 'Rutyna', icon: Sparkles },
   { to: '/user/produkty', label: 'Produkty', icon: ShoppingBag },
   { to: '/user/polecenia', label: 'Polecenia', icon: Users },
-  { to: '/user/pogoda-skory', label: 'Skóra', icon: Cloud },
+  { to: '/user/pogoda-skory', label: 'Skora', icon: Cloud },
   { to: '/akademia', label: 'Akademia', icon: GraduationCap },
-  { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell, badge: 'notif' as const },
+  { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Profil', icon: UserIcon },
 ];
 
 export function MobileBottomNav() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
-  const { unreadCount } = useChatStore();
-
-  const { data: journalUnread = 0 } = useQuery<number>({
-    queryKey: ['journal', 'unread'],
-    queryFn: skinJournalApi.getUnreadCount,
-    enabled: isAuthenticated,
-    staleTime: 30_000,
-  });
-
-  const { data: notifUnread = 0 } = useQuery<number>({
-    queryKey: ['notifications', 'unread-count'],
-    queryFn: () => notificationsApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    staleTime: 30_000,
-  });
-
-  const { data: routineUnread = 0 } = useQuery<number>({
-    queryKey: ['homecare-unread'],
-    queryFn: () => homecareApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    staleTime: 30_000,
-  });
+  const { getBadgeCount, moreBadge } = useUserMenuBadges();
 
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
-
-  const getBadge = (badge?: 'journal' | 'routine' | 'notif') => {
-    if (badge === 'journal') return journalUnread;
-    if (badge === 'routine') return routineUnread;
-    if (badge === 'notif') return notifUnread;
-    return 0;
-  };
-
-  const totalMoreBadge = journalUnread + routineUnread + notifUnread;
 
   return (
     <>
@@ -76,20 +52,21 @@ export function MobileBottomNav() {
 
       {isMoreOpen && (
         <div
-          className="fixed bottom-16 left-0 right-0 z-50 md:hidden rounded-t-2xl p-4 shadow-xl"
+          className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl p-4 shadow-xl md:hidden"
           style={{ background: '#F4F9F5', borderTop: '1px solid rgba(0,0,0,0.07)' }}
         >
           <div className="grid grid-cols-4 gap-2">
-            {MORE_LINKS.map(({ to, label, icon: Icon, badge }) => {
-              const count = getBadge(badge);
+            {MORE_LINKS.map(({ to, label, icon: Icon }) => {
+              const count = getBadgeCount(to);
+
               return (
                 <Link
                   key={to}
                   to={to}
                   onClick={() => setIsMoreOpen(false)}
                   className={cn(
-                    'relative flex flex-col items-center gap-1 p-2 rounded-xl text-xs',
-                    isActive(to) ? 'font-semibold' : 'opacity-60'
+                    'relative flex flex-col items-center gap-1 rounded-xl p-2 text-xs',
+                    isActive(to) ? 'font-semibold' : 'opacity-60',
                   )}
                   style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
                 >
@@ -97,7 +74,7 @@ export function MobileBottomNav() {
                   <span className="text-center leading-tight">{label}</span>
                   {count > 0 && (
                     <span
-                      className="absolute top-1 right-1 text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold px-1"
+                      className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
                       style={{ background: '#C4965A', color: '#fff' }}
                     >
                       {count > 9 ? '9+' : count}
@@ -111,7 +88,7 @@ export function MobileBottomNav() {
       )}
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex items-center justify-around px-2"
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 md:hidden"
         style={{
           height: '64px',
           background: '#F4F9F5',
@@ -125,21 +102,29 @@ export function MobileBottomNav() {
           style={{ color: isActive('/user') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           <LayoutDashboard size={22} />
-          <span>Główna</span>
+          <span>Glowna</span>
         </Link>
 
         <Link
           to="/user/wizyty"
-          className="flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isActive('/user/wizyty') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           <Calendar size={22} />
           <span>Wizyty</span>
+          {getBadgeCount('/user/wizyty') > 0 && (
+            <span
+              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
+              style={{ background: '#C4965A', color: '#fff' }}
+            >
+              {getBadgeCount('/user/wizyty') > 9 ? '9+' : getBadgeCount('/user/wizyty')}
+            </span>
+          )}
         </Link>
 
         <Link
           to="/rezerwacja"
-          className="flex items-center justify-center rounded-full w-12 h-12 -mt-4 shadow-md transition-transform active:scale-95"
+          className="flex h-12 w-12 -mt-4 items-center justify-center rounded-full shadow-md transition-transform active:scale-95"
           style={{ background: '#1A3828', color: '#fff' }}
         >
           <Plus size={24} />
@@ -152,29 +137,29 @@ export function MobileBottomNav() {
         >
           <MessageCircle size={22} />
           <span>Czat</span>
-          {unreadCount > 0 && (
+          {getBadgeCount('/user/chat') > 0 && (
             <span
-              className="absolute top-0.5 right-0.5 text-[9px] rounded-full min-w-[14px] h-3.5 flex items-center justify-center font-bold px-0.5"
+              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
               style={{ background: '#C4965A', color: '#fff' }}
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
             </span>
           )}
         </Link>
 
         <button
-          onClick={() => setIsMoreOpen(!isMoreOpen)}
+          onClick={() => setIsMoreOpen((open) => !open)}
           className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
           style={{ color: isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isMoreOpen ? <X size={22} /> : <UserIcon size={22} />}
-          <span>Więcej</span>
-          {totalMoreBadge > 0 && !isMoreOpen && (
+          <span>Wiecej</span>
+          {moreBadge > 0 && !isMoreOpen && (
             <span
-              className="absolute top-0.5 right-0.5 text-[9px] rounded-full min-w-[14px] h-3.5 flex items-center justify-center font-bold px-0.5"
+              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
               style={{ background: '#C4965A', color: '#fff' }}
             >
-              {totalMoreBadge > 9 ? '9+' : totalMoreBadge}
+              {moreBadge > 9 ? '9+' : moreBadge}
             </span>
           )}
         </button>

@@ -259,6 +259,7 @@ export const UserNotifications = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
       qc.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['notifications', 'unread-map'] });
     },
     onError: () => {
       toast.error('Nie udało się oznaczyć wszystkich powiadomień');
@@ -293,6 +294,7 @@ export const UserNotifications = () => {
     const onNotificationNew = () => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
       qc.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['notifications', 'unread-map'] });
     };
     socket.on('notification:new', onNotificationNew);
     return () => { socket.off('notification:new', onNotificationNew); };
