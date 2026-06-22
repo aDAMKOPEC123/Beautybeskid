@@ -39,7 +39,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validatedData = loginSchema.parse(req.body);
-    const rememberMe = req.body.rememberMe === true;
+    const rememberMe = validatedData.rememberMe === true;
     const refreshTtl = rememberMe ? '30d' : env.JWT_REFRESH_EXPIRES_IN;
     const result = await authService.loginUser(validatedData, refreshTtl);
 

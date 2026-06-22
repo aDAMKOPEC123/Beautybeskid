@@ -1,11 +1,27 @@
 // filepath: apps/web/src/api/auth.api.ts
 import { api } from '../lib/axios';
-import { LoginInput, RegisterInput, ForgotPasswordInput, ResetPasswordInput } from '@cosmo/shared';
+import {
+  type User,
+  LoginInput,
+  RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from '@cosmo/shared';
+
+type AuthResponseData = {
+  user: User;
+  accessToken: string;
+};
+
+type AuthResponseEnvelope = {
+  status: 'success';
+  data: AuthResponseData;
+};
 
 export const authApi = {
   login: async (data: LoginInput) => {
-    const res = await api.post('/auth/login', data);
-    return res.data;
+    const res = await api.post<AuthResponseEnvelope>('/auth/login', data);
+    return res.data.data;
   },
   register: async (
     data: RegisterInput,
@@ -47,7 +63,6 @@ export const authApi = {
     return res.data.data.user;
   },
 
-  // Note: .data.data because controller wraps as { status, data: { user, accessToken } }
   loginWithGoogle: (credential: string) =>
-    api.post('/auth/google', { credential }).then((r) => r.data.data),
+    api.post<AuthResponseEnvelope>('/auth/google', { credential }).then((r) => r.data.data),
 };

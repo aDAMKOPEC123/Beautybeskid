@@ -34,7 +34,7 @@ export const Login = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema)
   });
 
@@ -42,10 +42,10 @@ export const Login = () => {
     try {
       setLoading(true);
       const res = await authApi.login({ ...data, rememberMe });
-      setAccessToken(res.data.accessToken);
-      setUser(res.data.user);
+      setAccessToken(res.accessToken);
+      setUser(res.user);
 
-      if (res.data.user?.mustChangePassword) {
+      if (res.user?.mustChangePassword) {
         navigate('/user/zmien-haslo', { replace: true });
         return;
       }

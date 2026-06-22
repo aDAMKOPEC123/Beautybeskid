@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { beautyPlanApi, type BeautyPlan, type PlanSection, type PlanExternalLink } from '@/api/beauty-plan.api';
 import { api } from '@/lib/axios';
-import { v4 as uuidv4 } from 'uuid';
 
 type UserItem = { id: string; name: string; email: string; avatarPath?: string | null };
 
@@ -416,7 +415,7 @@ function PlanForm({
   };
 
   const addSection = () =>
-    setSections((s) => [...s, { id: uuidv4(), title: '', content: '', externalLinks: [] }]);
+    setSections((s) => [...s, { id: crypto.randomUUID(), title: '', content: '', externalLinks: [] }]);
 
   const moveSection = (index: number, direction: 'up' | 'down') => {
     setSections((s) => {
