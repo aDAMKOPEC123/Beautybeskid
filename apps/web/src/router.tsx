@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
 
 const PublicLayout = lazy(() => import('./components/layout/PublicLayout').then(m => ({ default: m.PublicLayout })));
 const UserLayout = lazy(() => import('./components/layout/UserLayout').then(m => ({ default: m.UserLayout })));
@@ -99,10 +100,13 @@ const S = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={Spinner}>{children}</Suspense>
 );
 
+const routeErrorElement = <RouteErrorFallback />;
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><Home /></S> },
       { path: 'uslugi', element: <S><ServiceList /></S> },
@@ -128,6 +132,7 @@ export const router = createBrowserRouter([
   {
     path: '/user',
     element: <UserLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><UserDashboard /></S> },
       { path: 'wizyty', element: <S><UserAppointments /></S> },
@@ -149,11 +154,13 @@ export const router = createBrowserRouter([
   {
     path: '/rezerwacja',
     element: <UserLayout />,
+    errorElement: routeErrorElement,
     children: [{ index: true, element: <S><BookingWizard /></S> }],
   },
   {
     path: '/employee',
     element: <EmployeeLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <Navigate to="terminarz" replace /> },
       { path: 'terminarz', element: <S><EmployeeSchedule /></S> },
@@ -164,6 +171,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/akademia',
+    errorElement: routeErrorElement,
     children: [
       { path: 'brak-dostepu', element: <S><NoAccess /></S> },
       {
@@ -182,6 +190,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: <AdminLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><AdminDashboard /></S> },
       { path: 'wizyty', element: <S><AdminAppointments /></S> },
