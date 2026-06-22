@@ -74,6 +74,20 @@ const panelPageVariants = {
   },
 };
 
+const panelPageReducedVariants = {
+  initial: { opacity: 0, y: 4 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.18, ease: 'easeOut' },
+  },
+  exit: {
+    opacity: 0,
+    y: -2,
+    transition: { duration: 0.12, ease: 'easeIn' },
+  },
+};
+
 const UserLayoutInner = () => {
   const { isAuthenticated, isLoading, user: storeUser, setUser, logout, isAdmin, isEmployee } = useAuth();
   const storeUserRef = useRef(storeUser);
@@ -97,11 +111,9 @@ const UserLayoutInner = () => {
   });
   const { getBadgeCount } = useUserMenuBadges();
   const shouldReduce = useReducedMotion();
-  const activePageVariants = shouldReduce
-    ? { initial: {}, animate: {}, exit: {} }
-    : panelPageVariants;
+  const activePageVariants = shouldReduce ? panelPageReducedVariants : panelPageVariants;
   const navIndicatorTransition = shouldReduce
-    ? { duration: 0 }
+    ? { duration: 0.16, ease: 'easeOut' }
     : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   useEffect(() => {

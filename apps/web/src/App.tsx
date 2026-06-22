@@ -79,14 +79,14 @@ class ErrorBoundary extends React.Component<
 }
 
 function App() {
-  const { hydrate, setAccessToken, logout } = useAuthStore();
+  const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
 
-  // Initial token refresh on app start.
+  // Rebuild the auth session from the refresh cookie on every app start.
   useEffect(() => {
     api.post('/auth/refresh')
       .then((res) => {
         setAccessToken(res.data.data.accessToken);
-        // User is hydrated from local storage, so only the token needs refreshing here.
+        setUser(res.data.data.user);
       })
       .catch((err) => {
         // Clear stale auth state only on confirmed unauthorized sessions.
@@ -97,7 +97,7 @@ function App() {
       .finally(() => {
         hydrate();
       });
-  }, [hydrate, logout, setAccessToken]);
+  }, [hydrate, logout, setAccessToken, setUser]);
 
   // PWA: refresh token and reconnect socket when app becomes visible again.
   useEffect(() => {
@@ -110,6 +110,7 @@ function App() {
       api.post('/auth/refresh')
         .then((res) => {
           setAccessToken(res.data.data.accessToken);
+          setUser(res.data.data.user);
           const sock = getSocket();
           sock.auth = { token: res.data.data.accessToken };
           sock.disconnect();
@@ -125,7 +126,7 @@ function App() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [logout, setAccessToken]);
+  }, [logout, setAccessToken, setUser]);
 
   useEffect(() => {
     const recoverFromChunkError = (error: unknown) => {

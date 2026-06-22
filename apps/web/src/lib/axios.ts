@@ -61,6 +61,9 @@ api.interceptors.response.use(
         const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
         const newToken = data.data.accessToken;
         useAuthStore.getState().setAccessToken(newToken);
+        if (data.data.user) {
+          useAuthStore.getState().setUser(data.data.user);
+        }
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
 

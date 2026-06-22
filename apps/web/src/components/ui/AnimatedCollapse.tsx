@@ -20,18 +20,11 @@ export function AnimatedCollapse({
   innerStyle,
 }: AnimatedCollapseProps) {
   const shouldReduce = useReducedMotion();
-
-  if (shouldReduce) {
-    if (!open) return null;
-
-    return (
-      <div className={className} style={style}>
-        <div className={innerClassName} style={innerStyle}>
-          {children}
-        </div>
-      </div>
-    );
-  }
+  const heightDuration = shouldReduce ? 0.18 : 0.3;
+  const opacityDuration = shouldReduce ? 0.12 : 0.18;
+  const contentDuration = shouldReduce ? 0.14 : 0.2;
+  const contentOffset = shouldReduce ? -2 : -8;
+  const exitOffset = shouldReduce ? -1 : -4;
 
   return (
     <AnimatePresence initial={false}>
@@ -45,12 +38,12 @@ export function AnimatedCollapse({
             opacity: 1,
             transition: {
               height: {
-                duration: 0.3,
+                duration: heightDuration,
                 ease: [0.22, 1, 0.36, 1],
               },
               opacity: {
-                duration: 0.18,
-                delay: 0.04,
+                duration: opacityDuration,
+                delay: shouldReduce ? 0 : 0.04,
                 ease: 'easeOut',
               },
             },
@@ -60,11 +53,11 @@ export function AnimatedCollapse({
             opacity: 0,
             transition: {
               height: {
-                duration: 0.22,
+                duration: shouldReduce ? 0.16 : 0.22,
                 ease: [0.4, 0, 1, 1],
               },
               opacity: {
-                duration: 0.12,
+                duration: shouldReduce ? 0.1 : 0.12,
                 ease: 'easeIn',
               },
             },
@@ -73,20 +66,20 @@ export function AnimatedCollapse({
           <motion.div
             className={innerClassName}
             style={innerStyle}
-            initial={{ y: -8, opacity: 0 }}
+            initial={{ y: contentOffset, opacity: 0 }}
             animate={{
               y: 0,
               opacity: 1,
               transition: {
-                duration: 0.2,
+                duration: contentDuration,
                 ease: [0.22, 1, 0.36, 1],
               },
             }}
             exit={{
-              y: -4,
+              y: exitOffset,
               opacity: 0,
               transition: {
-                duration: 0.12,
+                duration: shouldReduce ? 0.1 : 0.12,
                 ease: 'easeIn',
               },
             }}

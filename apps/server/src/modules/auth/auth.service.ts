@@ -11,6 +11,30 @@ import { verifyGoogleToken } from './google.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
 
+export const toAuthUser = (user: {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  avatarPath: string | null;
+  loyaltyPoints: number;
+  loyaltyTier: string;
+  ambassadorCode: string | null;
+  referralCount: number;
+  mustChangePassword: boolean;
+}) => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  avatarPath: user.avatarPath,
+  loyaltyPoints: user.loyaltyPoints,
+  loyaltyTier: user.loyaltyTier,
+  ambassadorCode: user.ambassadorCode,
+  referralCount: user.referralCount,
+  mustChangePassword: user.mustChangePassword,
+});
+
 export const registerUser = async (data: RegisterInput & {
   ambassadorCode?: string;
   avatarPath?: string;
@@ -142,18 +166,7 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
   const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, refreshTokenTtl ?? env.JWT_REFRESH_EXPIRES_IN);
 
   return {
-    user: {
-      id: loginUser.id,
-      email: loginUser.email,
-      name: loginUser.name,
-      role: loginUser.role,
-      avatarPath: loginUser.avatarPath,
-      loyaltyPoints: loginUser.loyaltyPoints,
-      loyaltyTier: loginUser.loyaltyTier,
-      ambassadorCode: loginUser.ambassadorCode,
-      referralCount: loginUser.referralCount,
-      mustChangePassword: loginUser.mustChangePassword,
-    },
+    user: toAuthUser(loginUser),
     accessToken,
     refreshToken
   };
@@ -216,18 +229,7 @@ export const loginWithGoogle = async (credential: string) => {
   const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
 
   return {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      avatarPath: user.avatarPath,
-      loyaltyPoints: user.loyaltyPoints,
-      loyaltyTier: user.loyaltyTier,
-      ambassadorCode: user.ambassadorCode,
-      referralCount: user.referralCount,
-      mustChangePassword: user.mustChangePassword,
-    },
+    user: toAuthUser(user),
     accessToken,
     refreshToken,
   };

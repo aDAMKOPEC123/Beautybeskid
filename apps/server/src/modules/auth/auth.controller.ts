@@ -11,6 +11,13 @@ import { processAndSaveImage } from '../../utils/imageProcessor';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
+const buildRefreshCookieOptions = (maxAge: number) => ({
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge,
+});
+
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validatedData = registerSchema.parse(req.body);
@@ -42,16 +49,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const rememberMe = validatedData.rememberMe === true;
     const refreshTtl = rememberMe ? '30d' : env.JWT_REFRESH_EXPIRES_IN;
     const result = await authService.loginUser(validatedData, refreshTtl);
+    const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
 
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}), // session cookie if not remembered
-    });
+    res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
 
     const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
-    const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
     await prisma.refreshToken.create({
       data: {
         tokenHash,
@@ -134,16 +136,14 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
         },
       }),
     ]);
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: remainingMs,
-    });
+    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(remainingMs));
 
     res.status(200).json({
       status: 'success',
-      data: { accessToken }
+      data: {
+        accessToken,
+        user: authService.toAuthUser(user),
+      }
     });
   } catch (error) {
     if (error instanceof AppError) return next(error);
@@ -223,18 +223,15 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
 
     const result = await authService.loginWithGoogle(credential);
 
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
+    const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+    res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
 
     const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
     await prisma.refreshToken.create({
       data: {
         tokenHash,
         userId: result.user.id,
-        expiresAt: new Date(Date.now() + parseDurationMs(env.JWT_REFRESH_EXPIRES_IN)),
+        expiresAt: new Date(Date.now() + tokenTtlMs),
       },
     });
 

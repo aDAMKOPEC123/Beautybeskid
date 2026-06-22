@@ -40,6 +40,12 @@ const backdropVariants = {
   exit: { opacity: 0, transition: { duration: 0.16 } },
 };
 
+const backdropReducedVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.12 } },
+  exit: { opacity: 0, transition: { duration: 0.1 } },
+};
+
 const panelVariants = {
   hidden: { opacity: 0, y: 28, scale: 0.98 },
   visible: {
@@ -62,9 +68,32 @@ const panelVariants = {
   },
 };
 
+const panelReducedVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.18,
+      ease: 'easeOut',
+      staggerChildren: 0.018,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: 6,
+    transition: { duration: 0.12, ease: 'easeIn' },
+  },
+};
+
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
+};
+
+const itemReducedVariants = {
+  hidden: { opacity: 0, y: 4 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.12, ease: 'easeOut' } },
 };
 
 export function MobileBottomNav() {
@@ -72,11 +101,11 @@ export function MobileBottomNav() {
   const location = useLocation();
   const { getBadgeCount, moreBadge } = useUserMenuBadges();
   const shouldReduce = useReducedMotion();
-  const activeBackdropVariants = shouldReduce ? {} : backdropVariants;
-  const activePanelVariants = shouldReduce ? {} : panelVariants;
-  const activeItemVariants = shouldReduce ? {} : itemVariants;
+  const activeBackdropVariants = shouldReduce ? backdropReducedVariants : backdropVariants;
+  const activePanelVariants = shouldReduce ? panelReducedVariants : panelVariants;
+  const activeItemVariants = shouldReduce ? itemReducedVariants : itemVariants;
   const navIndicatorTransition = shouldReduce
-    ? { duration: 0 }
+    ? { duration: 0.16, ease: 'easeOut' }
     : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   const isActive = (path: string) =>
