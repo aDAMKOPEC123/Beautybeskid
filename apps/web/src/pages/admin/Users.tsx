@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { usersApi } from '@/api/users.api';
 import { authApi } from '@/api/auth.api';
 import { toast } from 'sonner';
-import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star, Trash2 } from 'lucide-react';
+import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star, Trash2, ShieldCheck } from 'lucide-react';
 import { UserJournal } from './UserJournal';
 
 const TIER_LABELS: Record<string, string> = { BRONZE: 'Brąz', SILVER: 'Srebro', GOLD: 'Złoto' };
@@ -409,6 +409,16 @@ export const AdminUsers = () => {
     onError: (err: any) => toast.error(err.response?.data?.message || 'Nie udało się usunąć konta.'),
   });
 
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: 'USER' | 'ADMIN' | 'EMPLOYEE' }) => usersApi.updateRole(id, role),
+    onSuccess: () => {
+      toast.success('Uprawnienia zaktualizowane');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['employees-admin'] });
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Nie udalo sie zmienic uprawnien.'),
+  });
+
   const handleAdminCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createForm.name || !createForm.email || !createForm.password) {
@@ -534,6 +544,22 @@ export const AdminUsers = () => {
                           >
                             Szczegóły
                           </Button>
+                          {u.role !== 'ADMIN' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="font-semibold text-primary border-primary/30 hover:bg-primary/10"
+                              disabled={roleMutation.isPending}
+                              onClick={() => {
+                                if (confirm(`Nadac uprawnienia administratora dla ${u.email}?`)) {
+                                  roleMutation.mutate({ id: u.id, role: 'ADMIN' });
+                                }
+                              }}
+                            >
+                              <ShieldCheck size={14} className="mr-1" />
+                              Admin
+                            </Button>
+                          )}
                           {u.role !== 'ADMIN' && (
                             <Button
                               variant="ghost"

@@ -105,21 +105,53 @@ export const deleteEmployee = async (id: string) => {
 
 export const createEmployeeAccount = async (
   employeeId: string,
-  data: { email: string; password: string }
+  data: { email: string; password?: string }
 ) => {
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
   if (!employee) throw new AppError('Nie znaleziono pracownika', 404);
   if (employee.userId) throw new AppError('Pracownik ma już przypisane konto', 400);
 
-  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  const email = data.email.trim().toLowerCase();
+  if (!email) throw new AppError('Email jest wymagany', 400);
+
+  const existing = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } },
+    include: { employee: { select: { id: true, name: true } } },
+  });
+
+  if (existing?.employee) {
+    throw new AppError(`To konto jest juz przypisane do pracownika: ${existing.employee.name}`, 400);
+  }
+
+  if (existing) {
+    return await prisma.$transaction(async (tx) => {
+      // Existing ADMIN accounts keep admin privileges and become linked employee accounts too.
+      if (existing.role === 'USER') {
+        await tx.user.update({
+          where: { id: existing.id },
+          data: { role: 'EMPLOYEE' },
+        });
+      }
+
+      return await tx.employee.update({
+        where: { id: employeeId },
+        data: { userId: existing.id },
+        include: { user: { select: { id: true, email: true, role: true } } },
+      });
+    });
+  }
   if (existing) throw new AppError('Użytkownik z tym adresem email już istnieje', 400);
+
+  if (!data.password || data.password.length < 6) {
+    throw new AppError('Haslo jest wymagane dla nowego konta pracownika', 400);
+  }
 
   const passwordHash = await bcrypt.hash(data.password, 10);
 
   return await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
-        email: data.email,
+        email,
         passwordHash,
         name: employee.name,
         role: 'EMPLOYEE',
@@ -137,14 +169,17 @@ export const createEmployeeAccount = async (
 };
 
 export const revokeEmployeeAccount = async (employeeId: string) => {
-  const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    include: { user: { select: { role: true } } },
+  });
   if (!employee) throw new AppError('Nie znaleziono pracownika', 404);
   if (!employee.userId) throw new AppError('Pracownik nie ma przypisanego konta', 400);
 
   return await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: employee.userId! },
-      data: { role: 'USER' },
+      data: { role: employee.user?.role === 'ADMIN' ? 'ADMIN' : 'USER' },
     });
     return await tx.employee.update({
       where: { id: employeeId },

@@ -34,6 +34,7 @@ router.get('/search', requireAdmin, usersController.searchUsers);
 // Admin: approve/reject
 router.post('/:id/approve', requireAdmin, usersController.approveUser);
 router.post('/:id/reject', requireAdmin, usersController.rejectUser);
+router.patch('/:id/role', requireAdmin, usersController.updateUserRole);
 
 router.patch('/:id/card', requireStaff, usersController.updateUserCard);
 router.get('/:id/recommendations', requireAdmin, recommendationsController.getByUser);

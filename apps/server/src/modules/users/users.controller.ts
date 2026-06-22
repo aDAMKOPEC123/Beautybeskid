@@ -161,6 +161,16 @@ export const adminCreateUser = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { role } = req.body;
+    const user = await usersService.updateUserRole(req.params.id, role);
+    res.status(200).json({ status: 'success', data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { currentPassword, newPassword } = req.body;

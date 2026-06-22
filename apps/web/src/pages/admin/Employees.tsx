@@ -457,7 +457,10 @@ function AccountForm({ employeeId, onDone }: { employeeId: string; onDone: () =>
   const [password, setPassword] = useState('');
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => employeesApi.createAccount(employeeId, { email, password }),
+    mutationFn: () => employeesApi.createAccount(employeeId, {
+      email,
+      password: password.trim() || undefined,
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['employees-admin'] });
       toast.success('Konto pracownicze utworzone');
@@ -478,7 +481,10 @@ function AccountForm({ employeeId, onDone }: { employeeId: string; onDone: () =>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={INPUT_CLS} />
       </Field>
       <Field label="Hasło tymczasowe">
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={INPUT_CLS} />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} className={INPUT_CLS} />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Zostaw puste, jeśli chcesz podpiąć istniejące konto admina lub użytkownika po emailu.
+        </p>
       </Field>
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? 'Tworzenie...' : 'Utwórz konto'}

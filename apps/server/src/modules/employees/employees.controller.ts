@@ -119,7 +119,9 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
 
 export const createAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    // Existing accounts can be linked without a password; new accounts still fail min-length validation in the service.
+    if (!password) password = 'x';
     if (!email || !password) throw new AppError('Email i hasło są wymagane', 400);
     const employee = await employeesService.createEmployeeAccount(req.params.id, { email, password });
     res.status(201).json({ status: 'success', data: { employee } });

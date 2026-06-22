@@ -80,7 +80,7 @@ export const employeesApi = {
   },
 
   // ── Account management (admin) ───────────────────────────────────────────────
-  createAccount: async (employeeId: string, data: { email: string; password: string }) => {
+  createAccount: async (employeeId: string, data: { email: string; password?: string }) => {
     const res = await api.post(`/employees/${employeeId}/create-account`, data);
     return res.data.data.employee;
   },
