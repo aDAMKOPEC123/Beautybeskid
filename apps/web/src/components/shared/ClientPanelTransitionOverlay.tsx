@@ -1,7 +1,12 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, LayoutDashboard, ShieldCheck, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useClientPanelTransitionStore } from '@/store/clientPanelTransition.store';
+
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
+const MOBILE_TRANSITION_RESET_MS = 640;
+const DESKTOP_TRANSITION_RESET_MS = 960;
 
 const THEME_STYLES = {
   client: {
@@ -34,8 +39,22 @@ const THEME_STYLES = {
 } as const;
 
 export const ClientPanelTransitionOverlay = () => {
-  const { active, label, subtitle, theme } = useClientPanelTransitionStore();
+  const { active, label, subtitle, theme, finish } = useClientPanelTransitionStore();
   const shouldReduce = useReducedMotion();
+
+  useEffect(() => {
+    if (!active) return;
+
+    const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
+    const transitionReset = isMobile ? MOBILE_TRANSITION_RESET_MS : DESKTOP_TRANSITION_RESET_MS;
+    const timer = window.setTimeout(() => {
+      finish();
+    }, transitionReset);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [active, finish]);
 
   if (shouldReduce) return null;
 

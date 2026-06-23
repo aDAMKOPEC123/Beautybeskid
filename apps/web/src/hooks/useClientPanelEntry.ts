@@ -7,8 +7,6 @@ import { useClientPanelTransitionStore, type ClientPanelTheme } from '@/store/cl
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
 const MOBILE_NAVIGATION_DELAY_MS = 90;
 const DESKTOP_NAVIGATION_DELAY_MS = 150;
-const MOBILE_TRANSITION_RESET_MS = 640;
-const DESKTOP_TRANSITION_RESET_MS = 960;
 
 type PanelEntryOptions = {
   closeMenu?: () => void;
@@ -24,7 +22,6 @@ export const useClientPanelEntry = () => {
   const shouldReduce = useReducedMotion();
   const { isAuthenticated, isAdmin, isEmployee } = useAuth();
   const start = useClientPanelTransitionStore((state) => state.start);
-  const finish = useClientPanelTransitionStore((state) => state.finish);
   const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
@@ -36,7 +33,6 @@ export const useClientPanelEntry = () => {
   return ({ closeMenu }: PanelEntryOptions = {}) => {
     const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
     const navigationDelay = isMobile ? MOBILE_NAVIGATION_DELAY_MS : DESKTOP_NAVIGATION_DELAY_MS;
-    const transitionReset = isMobile ? MOBILE_TRANSITION_RESET_MS : DESKTOP_TRANSITION_RESET_MS;
     const appPath = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
     const destination = isAuthenticated ? appPath : '/auth/login';
 
@@ -83,10 +79,6 @@ export const useClientPanelEntry = () => {
       }
     }, navigationDelay);
 
-    const resetTimer = window.setTimeout(() => {
-      finish();
-    }, transitionReset);
-
-    timersRef.current = [navTimer, resetTimer];
+    timersRef.current = [navTimer];
   };
 };
