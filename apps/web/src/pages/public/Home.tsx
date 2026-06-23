@@ -1,96 +1,198 @@
-﻿import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarCheck,
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Eye,
+  Footprints,
+  Hand,
+  HeartHandshake,
+  Leaf,
+  MessageCircle,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Timer,
+  Wand2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ArrowRight } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
-import { GeoCircle, GeoArc, SectionNumber, DecoLine } from '@/components/shared/DecoElements';
 import { ConsultationModal } from '@/components/public/ConsultationModal';
-import { HeroSlider } from '@/components/public/HeroSlider';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import { Season, type Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
 
+const heroImage = '/images/beautybeskid-hero-premium.png';
+
+const faqItems = [
+  {
+    '@type': 'Question',
+    name: 'Czy BeautyBeskid to salon kosmetologiczny w Limanowej?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'BeautyBeskid w Limanowej prowadzi Wiktoria Ćwik. Aktualne usługi oraz dostępne terminy są pobierane z panelu administracyjnego salonu.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Czy mogę umówić bezpłatną konsultację przed zabiegiem?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Tak. Nowe klientki mogą skorzystać z bezpłatnej konsultacji, podczas której dobieramy zabieg do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Czy usługi widoczne na stronie są aktualne?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Tak. Sekcja zabiegów pokazuje aktywne usługi dodane w panelu admina. Kalendarz terminów liczy godziny dla wybranej usługi z tego samego panelu.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Kiedy warto umówić się do podologa w Limanowej?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Podologia w BeautyBeskid jest usługą w przygotowaniu. Jeśli interesuje Cię podolog Limanowa, zostaw kontakt lub obserwuj stronę, a poinformujemy o uruchomieniu zapisów.',
+    },
+  },
+];
+
 const faqSchema = {
   '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
+  '@graph': [
     {
-      '@type': 'Question',
-      name: 'Gdzie jest dobry podolog w Limanowej?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Gabinet BeautyBeskid w Limanowej oferuje profesjonalne usługi podologiczne: leczenie wrastających paznokci, usuwanie odcisków, pielęgnację stóp oraz terapię grzybicy. Nasz doświadczony podolog przyjmuje po wcześniejszej rezerwacji.',
+      '@type': 'BeautySalon',
+      name: 'BeautyBeskid',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Limanowa',
+        addressCountry: 'PL',
       },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        bestRating: '5',
+      },
+      areaServed: ['Limanowa', 'Laskowa', 'Mordarka', 'Tymbark', 'Dobra'],
+      makesOffer: [
+        'Wiktoria Ćwik kosmetolog Limanowa',
+        'podolog Limanowa wkrótce',
+        'aktywne usługi BeautyBeskid',
+      ],
     },
     {
-      '@type': 'Question',
-      name: 'Ile kosztuje laminowanie brwi w Limanowej?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Koszt laminowania brwi w salonie BeautyBeskid w Limanowej sprawdzisz w zakładce Usługi. Oferujemy konkurencyjne ceny oraz pakiety łączone z henna lub regulacją brwi. Zapraszamy do kontaktu po aktualny cennik.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Czy wykonujecie zabiegi w Laskowej i Mordarce?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Nasz salon działa stacjonarnie w Limanowej, jednak obsługujemy klientów z Laskowej, Mordarki, Dobrej, Tymbarku i wielu innych okolicznych miejscowości. Dojazd do nas z tych miejscowości zajmuje zazwyczaj kilkanaście minut.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Jak leczyć wrastający paznokieć w Limanowej?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Wrastający paznokieć to problem, który wymaga interwencji podologicznej. W gabinecie BeautyBeskid w Limanowej wykonujemy bezbolesny zabieg korekty wrastającego paznokcia z użyciem klamry podologicznej lub techniki tamponowania. Zadzwoń, aby umówić konsultację.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Czy wykonujecie lifting i przedłużanie rzęs w Limanowej?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Tak! W salonie BeautyBeskid w Limanowej oferujemy lifting rzęs, laminowanie rzęs oraz przedłużanie rzęs metodą 1:1 i objętościową. Zabiegi wykonujemy przy użyciu sprawdzonych preparatów i z pełnym profesjonalizmem.',
-      },
+      '@type': 'FAQPage',
+      mainEntity: faqItems,
     },
   ],
 };
 
-const tickerItems = [
-  'Laminowanie rzęs',
-  'Manicure',
-  'Pedicure',
-  'Podologia',
-  'Lifting brwi',
-  'Henna brwi',
-  'Zabiegi na twarz',
-  'Peeling chemiczny',
+const heroTrust = [
+  { value: '4.9/5', label: 'ocena Google', Icon: Star },
+  { value: '500+', label: 'zaopiekowanych klientek', Icon: HeartHandshake },
+  { value: '5+', label: 'lat doświadczenia', Icon: BadgeCheck },
+  { value: '0 zł', label: 'konsultacja dla nowych klientek', Icon: Sparkles },
+];
+
+const benefits = [
+  'komfortowa atmosfera',
+  'indywidualnie dobrane zabiegi',
+  'opieka Wiktorii Ćwik',
+  'efekty bez przypadkowych decyzji',
+];
+
+const upcomingServiceCards = [
+  {
+    title: 'Podolog Limanowa',
+    shortTitle: 'Podologia',
+    description: 'Usługa jest jeszcze niedostępna. Przygotowujemy ją tak, aby była prowadzona spokojnie, bezpiecznie i profesjonalnie.',
+    price: 'wkrótce',
+    time: 'zapisy wkrótce',
+    effect: 'lista zainteresowanych',
+    cta: 'Wkrótce dostępne',
+    Icon: Footprints,
+    matchers: ['podolog', 'podologia'],
+    availableSoon: true,
+  },
+  {
+    title: 'Kosmetologia Limanowa',
+    shortTitle: 'Kosmetologia',
+    description: 'Pełna oferta kosmetologiczna jest jeszcze niedostępna. Wkrótce pojawi się jako osobna, dopracowana ścieżka zabiegowa.',
+    price: 'wkrótce',
+    time: 'zapisy wkrótce',
+    effect: 'plan w przygotowaniu',
+    cta: 'Wkrótce dostępne',
+    Icon: Leaf,
+    matchers: ['kosmetolog', 'kosmetologia'],
+    availableSoon: true,
+  },
 ];
 
 const testimonials = [
   {
-    quote: 'Po raz pierwszy poczułam, że ktoś naprawdę rozumie moją skórę i wie, czego potrzebuję.',
-    author: 'Kasia M.',
-    label: 'Klientka od 2 lat',
+    quote: 'Bardzo spokojna konsultacja i jasny plan. Wiedziałam, co wybieram i dlaczego, bez presji ani pośpiechu.',
+    author: 'Katarzyna M.',
+    detail: 'konsultacja beauty',
   },
   {
-    quote: 'Wychodząc z gabinetu czuję się jak nowa osoba. Profesjonalizm na najwyższym poziomie.',
+    quote: 'Zabieg był wykonany dokładnie, czysto i w miłej atmosferze. Efekt wygląda elegancko na co dzień.',
     author: 'Anna W.',
-    label: 'Klientka od roku',
+    detail: 'zabieg z aktualnej oferty',
   },
   {
-    quote: 'Najlepszy salon w okolicy — dbałość o detal i autentyczna troska o klienta.',
+    quote: 'Cała wizyta była spokojna i profesjonalna. Najbardziej doceniam dokładność oraz ciepłą atmosferę.',
     author: 'Marta K.',
-    label: 'Stała klientka',
+    detail: 'wizyta beauty',
   },
 ];
 
+const processSteps = [
+  {
+    num: '01',
+    title: 'Analiza',
+    desc: 'Rozmawiamy o potrzebach, przeciwwskazaniach i tym, jaki efekt będzie dla Ciebie realny oraz komfortowy.',
+    Icon: MessageCircle,
+  },
+  {
+    num: '02',
+    title: 'Plan',
+    desc: 'Dobieramy zabieg, częstotliwość i pielęgnację tak, aby decyzja była spokojna, świadoma i dopasowana.',
+    Icon: Wand2,
+  },
+  {
+    num: '03',
+    title: 'Zabieg',
+    desc: 'Pracujemy dokładnie, w czystych warunkach i z uważnością na Twój komfort w trakcie wizyty.',
+    Icon: Sparkles,
+  },
+  {
+    num: '04',
+    title: 'Opieka po',
+    desc: 'Otrzymujesz zalecenia po zabiegu i jasną informację, kiedy warto wrócić na kolejną wizytę.',
+    Icon: ShieldCheck,
+  },
+];
+
+const consultationArguments = [
+  'dobierzemy aktywną usługę do Twoich potrzeb',
+  'bez presji i zobowiązań',
+  'otrzymasz jasny plan działania',
+];
+
 function getCurrentSeason(): Season {
-  const month = new Date().getMonth(); // 0-indexed
+  const month = new Date().getMonth();
   if (month >= 2 && month <= 4) return Season.SPRING;
   if (month >= 5 && month <= 7) return Season.SUMMER;
   if (month >= 8 && month <= 10) return Season.AUTUMN;
@@ -106,19 +208,1265 @@ const SEASON_LABELS: Record<Season, string> = {
 
 const formatNextSlot = (date: string, time: string) => {
   const d = new Date(`${date}T${time}`);
+  if (Number.isNaN(d.getTime())) {
+    return { day: date, time };
+  }
+
   const day = d.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short' });
   return { day, time };
 };
 
-function getSlotsUrgency(count: number | undefined): { text: string; color: string } | null {
+function getSlotsUrgency(count: number | undefined): { text: string; className: string } | null {
   if (count === undefined || count === 0) return null;
-  if (count <= 2) return { text: `🔴 Ostatnie ${count} miejsce w tym tygodniu!`, color: '#DC2626' };
-  if (count <= 5) return { text: `⚡ Zostało tylko ${count} wolnych terminów!`, color: '#C4965A' };
-  return { text: `Wolnych terminów w tym tygodniu: ${count}`, color: 'rgba(20,40,28,0.5)' };
+  if (count === 1) {
+    return { text: 'Ostatnie miejsce w tym tygodniu', className: 'text-[#A44437]' };
+  }
+  if (count <= 3) {
+    return { text: `Ostatnie ${count} miejsca w tym tygodniu`, className: 'text-[#A44437]' };
+  }
+  if (count <= 6) {
+    return { text: `Zostało ${count} wolnych terminów`, className: 'text-oak' };
+  }
+  return { text: `${count} wolnych terminów w tym tygodniu`, className: 'text-mink' };
 }
+
+type DayStatus = 'off' | 'none' | 'partial' | 'available';
+type AvailabilitySlot = { time: string; available: boolean };
+
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const getActiveAdminServices = (availableServices: Service[]) =>
+  availableServices
+    .filter((service) => service.isActive)
+    .sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+
+const serviceMatches = (service: Service, matchers: string[]) => {
+  const haystack = normalizeText(`${service.name} ${service.category ?? ''} ${service.description ?? ''}`);
+  return matchers.some((matcher) => haystack.includes(matcher));
+};
+
+const formatAdminServicePrice = (service: Service) => `od ${Number(service.price).toFixed(0)} zł`;
+
+const getServiceIcon = (service: Service) => {
+  const haystack = normalizeText(`${service.name} ${service.category ?? ''}`);
+  if (haystack.includes('rz') || haystack.includes('oko') || haystack.includes('brwi')) return Eye;
+  if (haystack.includes('manicure') || haystack.includes('paznok')) return Hand;
+  if (haystack.includes('podolog') || haystack.includes('stop')) return Footprints;
+  if (haystack.includes('kosmetolog') || haystack.includes('twarz')) return Leaf;
+  return Sparkles;
+};
+
+const toDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatAvailabilityDate = (date: string) =>
+  new Date(`${date}T12:00:00`).toLocaleDateString('pl-PL', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+const getMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+
+const addCalendarMonths = (date: Date, amount: number) =>
+  new Date(date.getFullYear(), date.getMonth() + amount, 1);
+
+const getCalendarMonth = (viewMonth: Date) => {
+  const year = viewMonth.getFullYear();
+  const month = viewMonth.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+  const days = Array.from({ length: daysInMonth }, (_, index) => new Date(year, month, index + 1));
+
+  return { firstDayOffset, days };
+};
+
+const formatMonthLabel = (date: Date) =>
+  date.toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' });
+
+const isAvailableDay = (status: DayStatus | undefined) => status === 'available' || status === 'partial';
+
+const buildReservationTarget = (serviceId?: string, date?: string | null, time?: string | null) => {
+  const params = new URLSearchParams();
+  if (serviceId) {
+    params.set('serviceId', serviceId);
+    if (date) params.set('date', date);
+    if (time) params.set('time', time);
+  }
+  const query = params.toString();
+  return query ? `/rezerwacja?${query}` : '/rezerwacja';
+};
+
+type BookingState = { from: string } | undefined;
+
+type AvailabilityRequest = {
+  serviceId: string;
+  label: string;
+};
+
+type FadeUpProps = {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+};
+
+const FadeUp = ({ children, className, delay = 0 }: FadeUpProps) => {
+  const shouldReduce = useReducedMotion();
+
+  if (shouldReduce) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const SectionIntro = ({
+  eyebrow,
+  title,
+  description,
+  align = 'center',
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center';
+}) => (
+  <div className={align === 'center' ? 'mx-auto mb-10 max-w-3xl text-center' : 'mb-10 max-w-2xl'}>
+    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">{eyebrow}</p>
+    <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">{title}</h2>
+    {description && (
+      <p className="mt-4 text-base leading-relaxed text-espresso/65 md:text-lg">{description}</p>
+    )}
+  </div>
+);
+
+const StarRow = ({ compact = false }: { compact?: boolean }) => (
+  <div className="flex items-center gap-1 text-oak" aria-label="Ocena 5 na 5">
+    {[1, 2, 3, 4, 5].map((star) => (
+      <Star key={star} className={compact ? 'h-3.5 w-3.5 fill-current' : 'h-4 w-4 fill-current'} />
+    ))}
+  </div>
+);
+
+const BookingButton = ({
+  to,
+  state,
+  label = 'Umów wizytę',
+  className,
+}: {
+  to: string;
+  state?: BookingState;
+  label?: string;
+  className?: string;
+}) => (
+  <Button
+    size="lg"
+    className={`premium-shine gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.35)] hover:bg-oak/90 ${className ?? ''}`}
+    asChild
+  >
+    <Link to={to} state={state}>
+      {label}
+      <ArrowRight className="h-4 w-4" />
+    </Link>
+  </Button>
+);
+
+const NextSlotCard = ({
+  nextSlotLoading,
+  formattedSlot,
+  urgency,
+  bookingTo,
+  bookingState,
+  isAuthenticated,
+  onCheckAvailability,
+}: {
+  nextSlotLoading: boolean;
+  formattedSlot: { day: string; time: string } | null;
+  urgency: { text: string; className: string } | null;
+  bookingTo: string;
+  bookingState?: BookingState;
+  isAuthenticated: boolean;
+  onCheckAvailability: () => void;
+}) => (
+  <div className="relative overflow-hidden rounded-lg border border-oak/25 bg-white p-5 shadow-[0_22px_70px_rgba(26,56,40,0.16)]">
+    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-oak via-caramel to-oak" aria-hidden="true" />
+    <div className="flex items-start gap-4">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-espresso text-ivory">
+        <CalendarCheck className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Najbliższy termin</p>
+        {nextSlotLoading ? (
+          <p className="mt-2 font-heading text-2xl font-bold text-espresso">Sprawdzam terminarz...</p>
+        ) : formattedSlot ? (
+          <>
+            <p className="mt-2 font-heading text-3xl font-bold leading-none text-espresso">{formattedSlot.day}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-espresso/70">
+              <Clock className="h-4 w-4 text-oak" />
+              <span>{formattedSlot.time}</span>
+              {urgency && <span className={`text-xs ${urgency.className}`}>{urgency.text}</span>}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-2 font-heading text-2xl font-bold text-espresso">Dobierzemy termin</p>
+            <p className="mt-2 text-sm leading-relaxed text-espresso/60">
+              Zostaw kontakt, a wrócimy z najlepszą propozycją wizyty.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+    {isAuthenticated ? (
+      <Button className="mt-5 w-full gap-2 bg-espresso text-ivory hover:bg-espresso/90" asChild>
+        <Link to={bookingTo} state={bookingState}>
+          Rezerwuj ten termin
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    ) : (
+      <Button
+        type="button"
+        onClick={onCheckAvailability}
+        className="mt-5 w-full gap-2 bg-espresso text-ivory hover:bg-espresso/90"
+      >
+        Sprawdź termin bez logowania
+        <ArrowRight className="h-4 w-4" />
+      </Button>
+    )}
+    <p className="mt-3 text-center text-xs text-espresso/55">Bezpłatna konsultacja dla nowych klientek</p>
+  </div>
+);
+
+const HeroSection = ({
+  nextSlotLoading,
+  formattedSlot,
+  urgency,
+  bookingTo,
+  bookingState,
+  isAuthenticated,
+  onConsultationClick,
+  onCheckAvailability,
+}: {
+  nextSlotLoading: boolean;
+  formattedSlot: { day: string; time: string } | null;
+  urgency: { text: string; className: string } | null;
+  bookingTo: string;
+  bookingState?: BookingState;
+  isAuthenticated: boolean;
+  onConsultationClick: () => void;
+  onCheckAvailability: () => void;
+}) => (
+  <section className="premium-home-bg premium-animated-light relative overflow-hidden grain-overlay">
+    <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
+      <div className="grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
+        <FadeUp>
+          <div className="max-w-3xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-oak/25 bg-white/70 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-espresso/70 shadow-sm backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-oak" />
+              Wiktoria Ćwik · BeautyBeskid Limanowa
+            </div>
+
+            <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
+              BeautyBeskid Limanowa. Profesjonalny kosmetolog i podolog Wiktoria Ćwik.
+            </h1>
+
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
+              W BeautyBeskid sprawdzisz dostępne terminy bez logowania i spokojnie wybierzesz usługę
+              aktywną w panelu admina. Podologia i kosmetologia pozostają wyszarzoną zapowiedzią, jeśli nie są
+              jeszcze dodane i aktywowane w systemie.
+            </p>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <BookingButton to={bookingTo} state={bookingState} />
+              <Button variant="outline" size="lg" className="gap-2 border-espresso/20 bg-white/50 text-espresso hover:bg-white" asChild>
+                <a href="#zabiegi">
+                  Zobacz zabiegi
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/60">
+              <button
+                type="button"
+                onClick={onConsultationClick}
+                className="inline-flex items-center gap-2 font-semibold text-espresso transition-colors hover:text-oak"
+              >
+                <CheckCircle2 className="h-4 w-4 text-oak" />
+                Bezpłatna konsultacja dla nowych klientek
+              </button>
+              {!isAuthenticated && (
+                <Link
+                  to="/auth/register"
+                  state={{ from: '/rezerwacja' }}
+                  className="inline-flex items-center gap-1 font-semibold text-oak hover:text-espresso"
+                >
+                  Zarejestruj się
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+            </div>
+
+            <div className="mt-5 lg:hidden">
+              <NextSlotCard
+                nextSlotLoading={nextSlotLoading}
+                formattedSlot={formattedSlot}
+                urgency={urgency}
+                bookingTo={bookingTo}
+                bookingState={bookingState}
+                isAuthenticated={isAuthenticated}
+                onCheckAvailability={onCheckAvailability}
+              />
+            </div>
+
+            <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-4">
+              {heroTrust.map(({ value, label, Icon }) => (
+                <div key={label} className="rounded-lg border border-espresso/10 bg-white/65 p-3 shadow-sm backdrop-blur">
+                  <Icon className="mb-2 h-4 w-4 text-oak" />
+                  <p className="font-heading text-xl font-bold text-espresso">{value}</p>
+                  <p className="mt-1 text-xs leading-snug text-espresso/58">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.1}>
+          <div className="grid gap-4">
+            <div className="relative overflow-hidden rounded-lg border border-white/70 bg-white shadow-[0_24px_90px_rgba(26,56,40,0.18)]">
+              <img
+                src={heroImage}
+                alt="Elegancki gabinet kosmetologiczno-podologiczny BeautyBeskid w Limanowej"
+                className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
+                loading="eager"
+              />
+              <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Premium care</p>
+                    <p className="mt-1 font-heading text-xl font-bold">Prowadzimy Cię krok po kroku</p>
+                  </div>
+                  <ShieldCheck className="h-7 w-7 shrink-0 text-oak" />
+                </div>
+              </div>
+            </div>
+            <div className="hidden lg:block">
+              <NextSlotCard
+                nextSlotLoading={nextSlotLoading}
+                formattedSlot={formattedSlot}
+                urgency={urgency}
+                bookingTo={bookingTo}
+                bookingState={bookingState}
+                isAuthenticated={isAuthenticated}
+                onCheckAvailability={onCheckAvailability}
+              />
+            </div>
+          </div>
+        </FadeUp>
+      </div>
+    </div>
+  </section>
+);
+
+const BenefitsStrip = () => (
+  <section className="border-y border-oak/20 bg-espresso py-4 text-ivory">
+    <div className="container max-w-7xl px-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {benefits.map((benefit) => (
+          <div key={benefit} className="flex items-center gap-3 text-sm text-ivory/82">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-oak/18 text-oak">
+              <CheckCircle2 className="h-4 w-4" />
+            </span>
+            <span>{benefit}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const AvailabilityPreviewSection = ({
+  request,
+  availableServices,
+  servicesLoading,
+  isAuthenticated,
+  onSelectService,
+}: {
+  request: AvailabilityRequest | null;
+  availableServices: Service[];
+  servicesLoading: boolean;
+  isAuthenticated: boolean;
+  onSelectService: (request: AvailabilityRequest) => void;
+}) => {
+  const activeAdminServices = getActiveAdminServices(availableServices);
+  const selectedService = activeAdminServices.find((service) => service.id === request?.serviceId) ?? activeAdminServices[0] ?? null;
+  const todayKey = toDateKey(new Date());
+  const [viewMonth, setViewMonth] = useState(() => getMonthStart(new Date()));
+  const [selectedDate, setSelectedDate] = useState<string | null>(todayKey);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  const year = viewMonth.getFullYear();
+  const month = viewMonth.getMonth() + 1;
+  const { firstDayOffset, days } = getCalendarMonth(viewMonth);
+  const currentMonthStart = getMonthStart(new Date());
+  const canGoPrevious = viewMonth.getTime() > currentMonthStart.getTime();
+
+  const { data: monthAvailability = {}, isFetching: monthFetching } = useQuery<Record<string, DayStatus>>({
+    queryKey: ['public-month-availability', year, month, selectedService?.id],
+    queryFn: () => employeesApi.getMonthAvailability(year, month, selectedService!.id),
+    enabled: !!selectedService?.id,
+    staleTime: 3 * 60_000,
+  });
+
+  const { data: daySlots = [], isFetching: slotsFetching } = useQuery<AvailabilitySlot[]>({
+    queryKey: ['public-day-availability', selectedDate, selectedService?.id],
+    queryFn: () => employeesApi.getAvailability(selectedDate!, selectedService!.id),
+    enabled: !!selectedDate && !!selectedService?.id,
+    staleTime: 60_000,
+  });
+
+  const availableDaySlots = daySlots.filter((slot) => slot.available);
+  const selectedDateLabel = selectedDate ? formatAvailabilityDate(selectedDate) : 'wybierz dzień';
+  const reservationTarget = buildReservationTarget(selectedService?.id, selectedDate, selectedTime);
+  const reservationTo = isAuthenticated ? reservationTarget : '/auth/login';
+  const reservationState = isAuthenticated ? undefined : { from: reservationTarget };
+
+  useEffect(() => {
+    const today = toDateKey(new Date());
+    setViewMonth(getMonthStart(new Date()));
+    setSelectedDate(today);
+    setSelectedTime(null);
+  }, [selectedService?.id]);
+
+  useEffect(() => {
+    if (!selectedService?.id) return;
+    if (Object.keys(monthAvailability).length === 0) return;
+
+    const currentStatus = selectedDate ? monthAvailability[selectedDate] : undefined;
+    if (isAvailableDay(currentStatus)) return;
+
+    const nextAvailableDate = Object.entries(monthAvailability)
+      .filter(([date, status]) => date >= todayKey && isAvailableDay(status))
+      .sort(([a], [b]) => a.localeCompare(b))[0]?.[0];
+
+    if (nextAvailableDate && nextAvailableDate !== selectedDate) {
+      setSelectedDate(nextAvailableDate);
+      setSelectedTime(null);
+    }
+  }, [selectedService?.id, monthAvailability, selectedDate, todayKey]);
+
+  return (
+    <section id="terminy" className="bg-espresso py-16 text-ivory md:py-24">
+      <div className="container max-w-7xl px-5">
+        <FadeUp>
+          <div className="mb-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+            <div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">
+                Kalendarz terminów
+              </p>
+              <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
+                Sprawdź dostępny dzień i godzinę bez logowania
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ivory/68 md:text-base">
+                Wybierz usługę dodaną i aktywną w panelu admina, kliknij dostępny dzień w kalendarzu i zobacz wolne godziny.
+                Konto będzie potrzebne dopiero przy potwierdzeniu rezerwacji.
+              </p>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              {servicesLoading ? (
+                <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68">
+                  Ładuję usługi z panelu admina...
+                </div>
+              ) : activeAdminServices.length === 0 ? (
+                <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68 sm:col-span-2">
+                  Brak aktywnych usług w panelu admina. Kalendarz pojawi się po dodaniu i aktywowaniu usługi.
+                </div>
+              ) : (
+                activeAdminServices.map((service) => (
+                  <button
+                    key={service.id}
+                    type="button"
+                    onClick={() => onSelectService({ serviceId: service.id, label: service.name })}
+                    className={`rounded-lg border px-4 py-3 text-left transition ${
+                      selectedService?.id === service.id
+                        ? 'border-oak bg-oak text-espresso shadow-[0_14px_35px_rgba(196,150,90,0.22)]'
+                        : 'border-white/12 bg-white/7 text-ivory/78 hover:border-oak/45 hover:bg-white/12'
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{service.name}</span>
+                    <span className={`mt-1 block text-xs ${selectedService?.id === service.id ? 'text-espresso/62' : 'text-ivory/50'}`}>
+                      {service.category} · {service.durationMinutes} min
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.06}>
+          <div className="grid gap-5 rounded-lg border border-oak/25 bg-white p-4 text-espresso shadow-[0_28px_90px_rgba(0,0,0,0.24)] md:p-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-lg border border-espresso/10 bg-cream/60 p-4 md:p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setViewMonth((monthDate) => addCalendarMonths(monthDate, -1))}
+                  disabled={!canGoPrevious}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-espresso/10 bg-white text-espresso transition hover:border-oak/45 disabled:cursor-not-allowed disabled:opacity-35"
+                  aria-label="Poprzedni miesiąc"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <div className="text-center">
+                  <p className="font-heading text-2xl font-bold capitalize text-espresso">{formatMonthLabel(viewMonth)}</p>
+                  <p className="mt-1 text-xs text-espresso/50">
+                    {monthFetching ? 'Aktualizuję dostępność...' : 'Zielone dni mają wolne godziny'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMonth((monthDate) => addCalendarMonths(monthDate, 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-espresso/10 bg-white text-espresso transition hover:border-oak/45"
+                  aria-label="Następny miesiąc"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-espresso/45">
+                {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((day) => (
+                  <span key={day} className="py-2">{day}</span>
+                ))}
+              </div>
+
+              <div className="mt-1 grid grid-cols-7 gap-1.5">
+                {Array.from({ length: firstDayOffset }).map((_, index) => (
+                  <span key={`empty-${index}`} aria-hidden="true" />
+                ))}
+                {days.map((day) => {
+                  const dateKey = toDateKey(day);
+                  const status = monthAvailability[dateKey];
+                  const isPast = dateKey < todayKey;
+                  const isSelected = selectedDate === dateKey;
+                  const isToday = dateKey === todayKey;
+                  const isUnavailable = status === 'off' || status === 'none';
+                  const disabled = !selectedService?.id || isPast || isUnavailable;
+                  const available = isAvailableDay(status);
+
+                  return (
+                    <button
+                      key={dateKey}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => {
+                        setSelectedDate(dateKey);
+                        setSelectedTime(null);
+                      }}
+                      className={`relative flex aspect-square min-h-[42px] items-center justify-center rounded-lg border text-sm font-semibold transition ${
+                        isSelected
+                          ? 'border-espresso bg-espresso text-ivory shadow-[0_10px_25px_rgba(26,56,40,0.18)]'
+                          : disabled
+                          ? 'border-transparent bg-white/45 text-espresso/25'
+                          : available
+                          ? 'border-oak/45 bg-oak/12 text-espresso hover:bg-oak/20'
+                          : 'border-espresso/8 bg-white text-espresso/70 hover:border-oak/35 hover:bg-white'
+                      } ${isToday && !isSelected ? 'ring-1 ring-oak/60' : ''}`}
+                      aria-label={formatAvailabilityDate(dateKey)}
+                      aria-selected={isSelected}
+                    >
+                      {day.getDate()}
+                      {available && (
+                        <span
+                          className={`absolute bottom-1.5 h-1.5 w-1.5 rounded-full ${
+                            isSelected ? 'bg-oak' : status === 'partial' ? 'bg-caramel' : 'bg-green-600'
+                          }`}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-3 text-xs text-espresso/55">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-green-600" />
+                  Dostępne
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-caramel" />
+                  Częściowo zajęte
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-espresso/18" />
+                  Niedostępne
+                </span>
+              </div>
+            </div>
+
+            <div className="flex min-h-[430px] flex-col rounded-lg border border-espresso/10 bg-white p-4 md:p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Wybrana usługa</p>
+                  <h3 className="mt-2 font-heading text-2xl font-bold text-espresso">
+                    {selectedService?.name ?? 'Brak aktywnej usługi'}
+                  </h3>
+                  <p className="mt-1 text-sm text-espresso/55">
+                    {selectedService ? selectedDateLabel : 'Dodaj lub aktywuj usługę w panelu admina'}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-espresso/48">
+                    Dostępne godziny są liczone wyłącznie na podstawie tej usługi i jej czasu trwania z panelu admina.
+                  </p>
+                </div>
+                <CalendarCheck className="h-8 w-8 shrink-0 text-oak" />
+              </div>
+
+              <div className="mt-5 flex-1 rounded-lg bg-cream/55 p-4">
+                {servicesLoading ? (
+                  <p className="mb-4 rounded-lg border border-oak/20 bg-white px-3 py-2 text-xs text-espresso/55">
+                    Ładuję usługi z panelu admina...
+                  </p>
+                ) : null}
+                {!servicesLoading && !selectedService ? (
+                  <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
+                    <div>
+                      <p className="font-semibold text-espresso">Brak aktywnych usług do sprawdzenia</p>
+                      <p className="mt-2 text-sm text-espresso/58">
+                        Terminy pojawią się tutaj dopiero po dodaniu i aktywowaniu usługi w panelu admina.
+                      </p>
+                    </div>
+                  </div>
+                ) : slotsFetching ? (
+                  <div className="grid min-h-[220px] place-items-center text-center">
+                    <p className="text-sm text-espresso/55">Sprawdzam godziny dla wybranego dnia...</p>
+                  </div>
+                ) : availableDaySlots.length > 0 ? (
+                  <div>
+                    <p className="text-sm font-semibold text-espresso">
+                      Dostępne godziny — {selectedDateLabel}
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {availableDaySlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          type="button"
+                          onClick={() => setSelectedTime(slot.time)}
+                          className={`min-h-[46px] rounded-lg border text-sm font-semibold transition ${
+                            selectedTime === slot.time
+                              ? 'border-espresso bg-espresso text-ivory shadow-[0_10px_25px_rgba(26,56,40,0.18)]'
+                              : 'border-oak/25 bg-white text-espresso hover:border-oak hover:bg-oak/10'
+                          }`}
+                        >
+                          {slot.time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
+                    <div>
+                      <p className="font-semibold text-espresso">Brak wolnych godzin w tym dniu</p>
+                      <p className="mt-2 text-sm text-espresso/58">
+                        Wybierz zielony dzień w kalendarzu albo sprawdź kolejny miesiąc.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm text-espresso/58">
+                  {selectedTime ? (
+                    <span>
+                      Wybrano: <strong className="text-espresso">{selectedDateLabel}, {selectedTime}</strong>
+                    </span>
+                  ) : (
+                    <span>Wybierz godzinę, aby przejść dalej z gotowym terminem.</span>
+                  )}
+                </div>
+                <Button
+                  className="shrink-0 gap-2 bg-espresso text-ivory hover:bg-espresso/90"
+                  disabled={!selectedTime || !selectedService}
+                  asChild={!!selectedTime && !!selectedService}
+                >
+                  {selectedTime && selectedService ? (
+                    <Link to={reservationTo} state={reservationState}>
+                      Zarezerwuj wybrany termin
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <span>
+                      Wybierz godzinę
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </FadeUp>
+      </div>
+    </section>
+  );
+};
+
+const ServicesSection = ({
+  availableServices,
+  servicesLoading,
+  onCheckAvailability,
+}: {
+  availableServices: Service[];
+  servicesLoading: boolean;
+  onCheckAvailability: (request: AvailabilityRequest) => void;
+}) => {
+  const activeAdminServices = getActiveAdminServices(availableServices);
+  const upcomingCards = upcomingServiceCards.filter(
+    (card) => !activeAdminServices.some((service) => serviceMatches(service, card.matchers))
+  );
+
+  return (
+    <section id="zabiegi" className="bg-ivory py-16 md:py-24">
+      <div className="container max-w-7xl px-5">
+        <FadeUp>
+          <SectionIntro
+            eyebrow="Aktualne usługi"
+            title="Zabiegi dostępne w panelu admina"
+            description="Ta lista pokazuje wyłącznie aktywne usługi dodane w panelu administracyjnym. Terminy w kalendarzu są liczone dla tej samej usługi, jej czasu trwania i realnego grafiku."
+          />
+        </FadeUp>
+
+        {servicesLoading ? (
+          <div className="rounded-lg border border-espresso/10 bg-white p-6 text-center text-sm text-espresso/60 shadow-sm">
+            Ładuję usługi z panelu admina...
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {activeAdminServices.length === 0 && (
+              <FadeUp className="md:col-span-2 xl:col-span-4">
+                <article className="rounded-lg border border-dashed border-espresso/15 bg-white p-6 text-center shadow-sm">
+                  <h3 className="font-heading text-2xl font-bold text-espresso">Brak aktywnych usług</h3>
+                  <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-espresso/60">
+                    Dodaj i aktywuj usługę w panelu admina, aby pojawiła się tutaj oraz w kalendarzu terminów.
+                  </p>
+                </article>
+              </FadeUp>
+            )}
+
+            {activeAdminServices.map((service, index) => {
+              const Icon = getServiceIcon(service);
+              return (
+                <FadeUp key={service.id} delay={index * 0.06} className={index === 0 ? 'md:col-span-2 xl:col-span-2' : ''}>
+                  <article className="group flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(26,56,40,0.14)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-cream text-caramel transition-colors group-hover:bg-espresso group-hover:text-ivory">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      {index === 0 ? (
+                        <span className="rounded-full bg-oak/14 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-oak">
+                          Aktywne w panelu
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-5">
+                      <h3 className="font-heading text-2xl font-bold text-espresso">{service.name}</h3>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">
+                        {service.category || 'Usługa z panelu'}
+                      </p>
+                      <p className="mt-4 text-sm leading-relaxed text-espresso/62">{service.description}</p>
+                    </div>
+
+                    <div className="mt-5 grid gap-2 text-sm text-espresso/68 sm:grid-cols-3">
+                      <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
+                        <BadgeCheck className="h-4 w-4 text-oak" />
+                        {formatAdminServicePrice(service)}
+                      </span>
+                      <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
+                        <Timer className="h-4 w-4 text-oak" />
+                        {service.durationMinutes} min
+                      </span>
+                      <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
+                        <Sparkles className="h-4 w-4 text-oak" />
+                        Aktywna
+                      </span>
+                    </div>
+
+                    <div className="mt-auto pt-5">
+                      <Button
+                        type="button"
+                        onClick={() => onCheckAvailability({ serviceId: service.id, label: service.name })}
+                        className="w-full gap-2 bg-espresso text-ivory hover:bg-espresso/90"
+                      >
+                        Sprawdź termin
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </article>
+                </FadeUp>
+              );
+            })}
+
+            {upcomingCards.map(({ title, shortTitle, description, price, time, effect, cta, Icon }, index) => (
+              <FadeUp key={title} delay={(activeAdminServices.length + index) * 0.06}>
+                <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-[#EEEEEA] p-5 opacity-75 grayscale shadow-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/70 text-espresso/45">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="rounded-full bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-espresso/45">
+                      Jeszcze niedostępne
+                    </span>
+                  </div>
+
+                  <div className="mt-5">
+                    <h3 className="font-heading text-2xl font-bold text-espresso/55">{shortTitle}</h3>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">{title}</p>
+                    <p className="mt-4 text-sm leading-relaxed text-espresso/50">{description}</p>
+                  </div>
+
+                  <div className="mt-5 grid gap-2 text-sm text-espresso/50 sm:grid-cols-3">
+                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
+                      <BadgeCheck className="h-4 w-4 text-espresso/35" />
+                      {price}
+                    </span>
+                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
+                      <Timer className="h-4 w-4 text-espresso/35" />
+                      {time}
+                    </span>
+                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
+                      <Sparkles className="h-4 w-4 text-espresso/35" />
+                      {effect}
+                    </span>
+                  </div>
+
+                  <div className="mt-auto pt-5">
+                    <Button className="w-full gap-2 bg-white/70 text-espresso/45" disabled>
+                      {cta}
+                    </Button>
+                  </div>
+                </article>
+              </FadeUp>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+const SeasonalSection = ({
+  seasonalServices,
+  currentSeason,
+}: {
+  seasonalServices: Service[];
+  currentSeason: Season;
+}) => {
+  if (seasonalServices.length === 0) return null;
+
+  return (
+    <section className="bg-cream py-16">
+      <div className="container max-w-7xl px-5">
+        <FadeUp>
+          <SectionIntro
+            eyebrow="Polecane zabiegi"
+            title={`${SEASON_LABELS[currentSeason]} w BeautyBeskid`}
+            description="Zalogowane klientki widzą sezonowe propozycje z aktualnej oferty salonu."
+            align="left"
+          />
+        </FadeUp>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {seasonalServices.map((service, index) => (
+            <FadeUp key={service.id} delay={index * 0.06}>
+              <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-5 shadow-sm">
+                <h3 className="font-heading text-xl font-bold text-espresso">{service.name}</h3>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-espresso/62">{service.description}</p>
+                <div className="mt-5 flex items-center justify-between gap-3">
+                  <p className="font-bold text-oak">od {Number(service.price).toFixed(0)} zł</p>
+                  <Button size="sm" className="gap-1 bg-espresso text-ivory" asChild>
+                    <Link to={`/rezerwacja?serviceId=${service.id}`}>
+                      Zarezerwuj
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </div>
+              </article>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ConsultationSection = ({
+  onConsultationClick,
+  bookingTo,
+  bookingState,
+}: {
+  onConsultationClick: () => void;
+  bookingTo: string;
+  bookingState?: BookingState;
+}) => (
+  <section className="bg-[#F8F5EF] py-16 md:py-20">
+    <div className="container max-w-6xl px-5">
+      <FadeUp>
+        <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_24px_80px_rgba(26,56,40,0.22)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Bezpłatna konsultacja</p>
+            <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
+              Nie wiesz, jaki zabieg wybrać?
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-ivory/72">
+              Przyjdź na spokojną konsultację. Dobierzemy aktywną usługę do Twoich potrzeb,
+              wyjaśnimy możliwe efekty i zaproponujemy plan bez presji. Jeśli interesuje Cię podologia
+              lub kosmetologia, zapiszemy Twoje zainteresowanie na start zapisów.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button
+                type="button"
+                size="lg"
+                onClick={onConsultationClick}
+                className="gap-2 bg-oak text-espresso hover:bg-oak/90"
+              >
+                Bezpłatna konsultacja
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="lg" className="gap-2 border-ivory/30 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory" asChild>
+                <Link to={bookingTo} state={bookingState}>
+                  Umów wizytę
+                  <CalendarCheck className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-3 text-sm text-ivory/55">Mikroplan działania już po pierwszej rozmowie.</p>
+          </div>
+
+          <div className="grid gap-3">
+            {consultationArguments.map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/8 p-4">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                <p className="text-sm leading-relaxed text-ivory/78">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeUp>
+    </div>
+  </section>
+);
+
+const TestimonialsSection = ({
+  onCheckAvailability,
+}: {
+  onCheckAvailability: () => void;
+}) => (
+  <section className="bg-ivory py-16 md:py-24">
+    <div className="container max-w-7xl px-5">
+      <FadeUp>
+        <div className="mb-10 grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+          <SectionIntro
+            eyebrow="Opinie klientek"
+            title="Zaufanie buduje się spokojem, dokładnością i kontaktem po wizycie"
+            description="Naturalne opinie klientek podkreślają to, co dla nas ważne: jasny plan, delikatność i profesjonalną opiekę."
+            align="left"
+          />
+          <div className="rounded-lg border border-oak/25 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <p className="font-heading text-4xl font-bold text-espresso">4.9</p>
+              <div>
+                <StarRow />
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">ocena Google</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {testimonials.map((testimonial, index) => (
+          <FadeUp key={testimonial.author} delay={index * 0.08}>
+            <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]">
+              <StarRow compact />
+              <p className="mt-5 flex-1 font-display text-[22px] italic leading-relaxed text-espresso">
+                “{testimonial.quote}”
+              </p>
+              <div className="mt-6 border-t border-espresso/10 pt-4">
+                <p className="text-sm font-semibold text-espresso">{testimonial.author}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{testimonial.detail}</p>
+              </div>
+            </article>
+          </FadeUp>
+        ))}
+      </div>
+
+      <FadeUp>
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-lg border border-oak/20 bg-cream p-5 text-center md:flex-row md:text-left">
+          <div>
+            <p className="font-heading text-2xl font-bold text-espresso">Chcesz sprawdzić najbliższy termin?</p>
+            <p className="mt-1 text-sm text-espresso/60">Najpierw zobacz godziny bez logowania, a konto założysz dopiero przy rezerwacji.</p>
+          </div>
+          <Button
+            type="button"
+            onClick={onCheckAvailability}
+            size="lg"
+            className="premium-shine shrink-0 gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.35)] hover:bg-oak/90"
+          >
+            Sprawdź termin
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </FadeUp>
+    </div>
+  </section>
+);
+
+const ProcessSection = () => (
+  <section className="bg-cream py-16 md:py-24">
+    <div className="container max-w-7xl px-5">
+      <FadeUp>
+        <SectionIntro
+          eyebrow="Twoja wizyta krok po kroku"
+          title="Nie musisz wiedzieć wszystkiego przed wejściem do gabinetu"
+          description="Od pierwszej rozmowy prowadzimy Cię przez decyzję, zabieg i pielęgnację po wizycie."
+        />
+      </FadeUp>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {processSteps.map(({ num, title, desc, Icon }, index) => (
+          <FadeUp key={title} delay={index * 0.07}>
+            <article className="relative h-full overflow-hidden rounded-lg border border-espresso/10 bg-white p-5 shadow-sm">
+              <p className="absolute right-4 top-3 font-heading text-5xl font-bold text-cream">{num}</p>
+              <div className="relative z-10">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-espresso text-ivory">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-heading text-2xl font-bold text-espresso">{title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-espresso/62">{desc}</p>
+              </div>
+            </article>
+          </FadeUp>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const ReservationFormSection = ({
+  onConsultationClick,
+  bookingTo,
+  bookingState,
+  availableServices,
+  servicesLoading,
+}: {
+  onConsultationClick: () => void;
+  bookingTo: string;
+  bookingState?: BookingState;
+  availableServices: Service[];
+  servicesLoading: boolean;
+}) => {
+  const activeAdminServices = getActiveAdminServices(availableServices);
+  const upcomingCards = upcomingServiceCards.filter(
+    (card) => !activeAdminServices.some((service) => serviceMatches(service, card.matchers))
+  );
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onConsultationClick();
+  };
+
+  return (
+    <section className="bg-[#F8F5EF] py-16 md:py-24">
+      <div className="container max-w-7xl px-5">
+        <div className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
+          <FadeUp>
+            <div className="rounded-lg border border-espresso/10 bg-white p-5 shadow-[0_18px_55px_rgba(26,56,40,0.1)] md:p-8">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Formularz kontaktowy</p>
+              <h2 className="font-heading text-3xl font-bold text-espresso md:text-4xl">
+                Zostaw kontakt, a dopasujemy najlepszy termin
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-espresso/62">
+                Odezwiemy się, aby potwierdzić najlepszy termin i dobrać właściwy kierunek wizyty.
+              </p>
+
+              <form onSubmit={handleSubmit} className="mt-7 grid gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-semibold text-espresso">
+                    Imię
+                    <input
+                      name="name"
+                      className="min-h-[48px] rounded-lg border border-espresso/12 bg-cream/45 px-4 text-base font-normal outline-none transition focus:border-oak focus:bg-white"
+                      placeholder="np. Anna"
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-espresso">
+                    Telefon
+                    <input
+                      name="phone"
+                      type="tel"
+                      className="min-h-[48px] rounded-lg border border-espresso/12 bg-cream/45 px-4 text-base font-normal outline-none transition focus:border-oak focus:bg-white"
+                      placeholder="np. 600 123 456"
+                    />
+                  </label>
+                </div>
+                <label className="grid gap-2 text-sm font-semibold text-espresso">
+                  Preferowany zabieg
+                  <select
+                    name="service"
+                    defaultValue=""
+                    className="min-h-[48px] rounded-lg border border-espresso/12 bg-cream/45 px-4 text-base font-normal outline-none transition focus:border-oak focus:bg-white"
+                  >
+                    <option value="" disabled>Wybierz z listy</option>
+                    {servicesLoading && <option disabled>Ładuję usługi z panelu...</option>}
+                    {!servicesLoading && activeAdminServices.length === 0 && (
+                      <option disabled>Brak aktywnych usług w panelu</option>
+                    )}
+                    {activeAdminServices.map((service) => (
+                      <option key={service.id} value={service.id}>{service.name}</option>
+                    ))}
+                    {upcomingCards.map((card) => (
+                      <option key={card.shortTitle} disabled>{card.shortTitle} (wkrótce)</option>
+                    ))}
+                    <option>Nie wiem, potrzebuję konsultacji</option>
+                  </select>
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-espresso">
+                  Wiadomość
+                  <textarea
+                    name="message"
+                    rows={4}
+                    className="rounded-lg border border-espresso/12 bg-cream/45 px-4 py-3 text-base font-normal outline-none transition focus:border-oak focus:bg-white"
+                    placeholder="Napisz, czego potrzebujesz lub jaki termin byłby wygodny."
+                  />
+                </label>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button type="submit" size="lg" className="gap-2 bg-espresso text-ivory hover:bg-espresso/90">
+                    Poproś o kontakt
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                    <Link to={bookingTo} state={bookingState}>
+                      Umów wizytę online
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </FadeUp>
+
+          <FadeUp delay={0.08}>
+            <aside className="h-full rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_22px_70px_rgba(26,56,40,0.18)] md:p-8">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-oak/18 text-oak">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <h3 className="mt-6 font-heading text-3xl font-bold">Bezpłatna konsultacja</h3>
+              <p className="mt-3 text-sm leading-relaxed text-ivory/70">
+                Dla nowych klientek to najprostszy sposób, aby zacząć bez niepewności i bez wybierania usługi na ślepo.
+              </p>
+              <ul className="mt-6 grid gap-3">
+                {consultationArguments.map((argument) => (
+                  <li key={argument} className="flex items-start gap-3 text-sm text-ivory/78">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                    <span>{argument}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                onClick={onConsultationClick}
+                className="mt-7 w-full gap-2 bg-oak text-espresso hover:bg-oak/90"
+              >
+                Umów konsultację
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Link
+                to="/auth/register"
+                state={{ from: '/rezerwacja' }}
+                className="mt-4 flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-white/14 text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory transition hover:bg-white/8"
+              >
+                Zarejestruj się
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </aside>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const FaqSection = () => {
+  return (
+    <section className="bg-ivory py-16 md:py-24" aria-labelledby="faq-heading">
+      <div className="container max-w-3xl px-5">
+        <FadeUp>
+          <div className="mb-10 text-center">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">FAQ</p>
+            <h2 id="faq-heading" className="font-heading text-3xl font-bold text-espresso md:text-4xl">
+              Najczęściej zadawane pytania
+            </h2>
+          </div>
+        </FadeUp>
+        <dl className="space-y-3">
+          {faqItems.map((item, index) => (
+            <FadeUp key={item.name} delay={index * 0.04}>
+              <details className="group overflow-hidden rounded-lg border border-espresso/10 bg-white shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-espresso transition-colors hover:bg-cream/60">
+                  {item.name}
+                  <ChevronDown className="h-5 w-5 shrink-0 text-oak transition-transform group-open:rotate-180" />
+                </summary>
+                <dd className="border-t border-espresso/10 px-5 pb-5 pt-4 text-sm leading-relaxed text-espresso/65">
+                  {item.acceptedAnswer.text}
+                </dd>
+              </details>
+            </FadeUp>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+};
+
+const AreaSection = () => (
+  <section className="bg-cream py-14" aria-labelledby="area-heading">
+    <div className="container max-w-4xl px-5 text-center">
+      <FadeUp>
+        <h2 id="area-heading" className="font-heading text-2xl font-bold text-espresso">
+          Salon kosmetologiczny Limanowa i okolice
+        </h2>
+        <p className="mt-5 text-sm leading-relaxed text-espresso/64">
+          BeautyBeskid przyjmuje klientki z Limanowej i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
+          z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Nowego Sącza, Ujanowic, Dobrej, Kasiny Wielkiej, Sowlin,
+          Tymbarku, Jodłownika oraz pobliskich miejscowości.
+        </p>
+      </FadeUp>
+    </div>
+  </section>
+);
 
 export const Home = () => {
   const [consultationOpen, setConsultationOpen] = useState(false);
+  const [availabilityRequest, setAvailabilityRequest] = useState<AvailabilityRequest | null>(null);
   const { isAuthenticated } = useAuth();
 
   const { data: nextSlot, isLoading: nextSlotLoading } = useQuery({
@@ -133,648 +1481,85 @@ export const Home = () => {
     staleTime: 5 * 60_000,
   });
 
-  const { data: allServices = [] } = useQuery<Service[]>({
+  const { data: allServices = [], isLoading: servicesLoading } = useQuery<Service[]>({
     queryKey: ['services'],
     queryFn: servicesApi.getAll,
     staleTime: 10 * 60_000,
-    enabled: isAuthenticated,
   });
 
   const currentSeason = getCurrentSeason();
   const seasonalServices = allServices
-    .filter((s) => s.isActive && s.seasons.includes(currentSeason))
+    .filter((service) => service.isActive && service.seasons.includes(currentSeason))
     .sort((a, b) => a.name.localeCompare(b.name, 'pl'))
     .slice(0, 3);
 
   const formattedSlot = nextSlot ? formatNextSlot(nextSlot.date, nextSlot.time) : null;
+  const urgency = getSlotsUrgency(weekSlots?.count);
+  const bookingTo = isAuthenticated ? '/rezerwacja' : '/auth/login';
+  const bookingState = isAuthenticated ? undefined : { from: '/rezerwacja' };
+
+  const handleCheckAvailability = (request?: AvailabilityRequest) => {
+    if (request) {
+      setAvailabilityRequest(request);
+    }
+    window.setTimeout(() => {
+      document.getElementById('terminy')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <style>{`
-        .testimonial-col:not(:last-child) {
-          @media (max-width: 767px) {
-            border-right: none !important;
-            border-bottom: 1px solid rgba(61,122,84,0.25);
-            padding: 0 0 40px 0 !important;
-            margin-bottom: 40px;
-          }
-        }
-        .testimonial-col:last-child {
-          @media (max-width: 767px) {
-            padding: 0 !important;
-          }
-        }
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .ticker-track {
-          animation: ticker 20s linear infinite;
-        }
-      `}</style>
-
+    <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
-        title="Salon Kosmetyczny & Gabinet Podologiczny Limanowa"
-        description="Profesjonalny salon kosmetologiczny i gabinet podologiczny w Limanowej. Zabiegi na twarz, brwi, rzęsy, manicure, pedicure, podologia. Obsługujemy Laskową, Mordarkę, Dobrą i okolice."
+        title="Wiktoria Ćwik BeautyBeskid Limanowa"
+        description="BeautyBeskid Limanowa, Wiktoria Ćwik: sprawdź terminy bez logowania dla usług aktywnych w panelu admina. Podologia oraz kosmetologia są w przygotowaniu, jeśli nie są aktywne w systemie."
         canonical="/"
+        ogImage={heroImage}
         schema={faqSchema}
       />
 
       <main className="flex-1">
-        <HeroSlider />
-
-        {/* ── 1. HERO ── */}
-        <section className="py-16 md:py-24 grain-overlay" style={{ backgroundColor: '#F0F7F1' }}>
-          <div className="container max-w-6xl mx-auto px-6">
-            <div className="grid md:grid-cols-2 gap-12 items-center relative">
-
-              {/* Dekoracje tła */}
-              <GeoCircle size={280} opacity={0.16} className="top-[-40px] right-[-40px]" />
-              <GeoArc   size={110} opacity={0.22} className="top-[20px] right-[20px]" />
-              <SectionNumber n={1} opacity={0.07} className="top-[-10px] right-[24px]" />
-
-              {/* Left column */}
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <DecoLine />
-                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
-                    Profesjonalny salon kosmetologiczny
-                  </span>
-                </div>
-
-                <h1 className="font-heading text-5xl md:text-6xl font-bold leading-tight mb-6" style={{ color: '#1A3828' }}>
-                  Twoja pielęgnacja,{' '}
-                  <em className="font-heading italic" style={{ color: '#C4965A' }}>nasza pasja</em>
-                </h1>
-
-                <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(20,40,28,0.65)' }}>
-                  Gabinet BeautyBeskid w Limanowej — profesjonalne zabiegi kosmetologiczne
-                  i podologiczne w przyjaznej atmosferze. Dbamy o Twój komfort i efekty.
-                </p>
-
-                <div className="flex flex-wrap gap-4 items-center mb-6">
-                  <Button size="lg" className="rounded-full gap-2" asChild>
-                    <Link to={isAuthenticated ? '/rezerwacja' : '/auth/login'} state={isAuthenticated ? undefined : { from: '/rezerwacja' }}>
-                      Umów wizytę
-                      <span className="w-5 h-5 rounded-full bg-white/15 flex items-center justify-center">
-                        <ArrowRight size={12} />
-                      </span>
-                    </Link>
-                  </Button>
-                  <Button variant="ghost-underline" size="lg" asChild>
-                    <Link to="/uslugi">Nasze usługi</Link>
-                  </Button>
-                </div>
-
-                <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                  ★ Bezpłatna konsultacja dla nowych klientów
-                </p>
-              </div>
-
-              {/* Right column — specialist card */}
-              <div className="flex flex-col gap-4">
-                {/* Main specialist card */}
-                <div
-                  className="bg-white p-6 flex items-center gap-5 shadow-lg"
-                  style={{ borderRadius: '20px' }}
-                >
-                  {/* Avatar */}
-                  <div
-                    className="w-16 h-16 flex-shrink-0 flex items-center justify-center text-white font-heading font-bold text-xl"
-                    style={{ borderRadius: '50%', backgroundColor: '#C4965A' }}
-                  >
-                    WĆ
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-heading font-bold text-lg" style={{ color: '#1A3828' }}>
-                      Wiktoria Ćwik
-                    </p>
-                    <p className="text-sm mb-3" style={{ color: 'rgba(20,40,28,0.55)' }}>
-                      Kosmetolożka &amp; Podolożka
-                    </p>
-                    <div className="flex gap-6">
-                      <div>
-                        <p className="font-bold text-lg" style={{ color: '#C4965A' }}>5+</p>
-                        <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>lat doświadczenia</p>
-                      </div>
-                      <div>
-                        <p className="font-bold text-lg" style={{ color: '#C4965A' }}>200+</p>
-                        <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>zadowolonych klientek</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Two small cards */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div
-                    className="bg-white p-4 shadow-sm flex flex-col gap-2"
-                    style={{ borderRadius: '16px' }}
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(20,40,28,0.4)' }}>
-                      Najbliższy termin
-                    </p>
-                    {nextSlotLoading ? (
-                      <p className="font-heading font-bold text-sm" style={{ color: '#1A3828' }}>Sprawdzam…</p>
-                    ) : nextSlot ? (
-                      <>
-                        <p className="font-heading font-bold leading-tight" style={{ color: '#1A3828' }}>
-                          {formattedSlot?.day}
-                        </p>
-                        <p className="text-sm font-semibold" style={{ color: '#C4965A' }}>
-                          {formattedSlot?.time}
-                        </p>
-                        {(() => {
-                          const urgency = getSlotsUrgency(weekSlots?.count);
-                          return urgency ? (
-                            <p className="text-xs font-semibold mt-1" style={{ color: urgency.color }}>
-                              {urgency.text}
-                            </p>
-                          ) : null;
-                        })()}
-                        <Link to={isAuthenticated ? '/rezerwacja' : '/auth/register'} state={isAuthenticated ? undefined : { from: '/rezerwacja' }}>
-                          <Button
-                            size="sm"
-                            className="w-full mt-1 rounded-full text-xs font-semibold"
-                            style={{ backgroundColor: '#1A3828', color: '#fff' }}
-                          >
-                            {isAuthenticated ? 'Umów wizytę' : 'Zarejestruj się'}
-                          </Button>
-                        </Link>
-                      </>
-                    ) : (
-                      <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>Brak wolnych terminów</p>
-                    )}
-                  </div>
-                  <div
-                    className="bg-white p-4 shadow-sm text-center"
-                    style={{ borderRadius: '16px' }}
-                  >
-                    <p className="font-heading font-bold text-3xl" style={{ color: '#C4965A' }}>4.9</p>
-                    <p className="text-sm" style={{ color: '#C4965A' }}>★★★★★</p>
-                    <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Ocena Google</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ── 2. TICKER ── */}
-        <section
-          className="overflow-hidden py-4"
-          style={{ backgroundColor: '#1A3828', transform: 'translateZ(0)' }}
-        >
-          <div className="flex whitespace-nowrap ticker-track">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span
-                key={i}
-                className="text-[11px] font-medium uppercase tracking-[0.2em] mx-6 text-caramel"
-              >
-                {item}
-                <span className="ml-6 opacity-40">·</span>
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 3. BENTO GRID ── */}
-        <section className="py-20" style={{ backgroundColor: '#F0F7F1' }}>
-          <div className="container max-w-6xl mx-auto px-6">
-            <div className="mb-12 text-center">
-              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#C4965A' }}>
-                Nasze zabiegi
-              </p>
-              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A3828' }}>
-                Co robimy najlepiej
-              </h2>
-            </div>
-
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-              {/* Wide card — col-span-2 */}
-              <div
-                className="bg-white p-8 md:col-span-2 flex flex-col justify-between shadow-sm"
-                style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)', minHeight: '200px' }}
-              >
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span
-                      className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
-                      style={{ backgroundColor: '#C4965A', color: '#fff' }}
-                    >
-                      Bestseller
-                    </span>
-                  </div>
-                  <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#1A3828' }}>
-                    Laminowanie rzęs
-                  </h3>
-                  <p className="text-base leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
-                    Spektakularny efekt uniesionych, zagęszczonych rzęs bez konieczności nakładania tuszu — trwa do 6 tygodni.
-                  </p>
-                </div>
-                <p className="font-heading font-bold text-2xl mt-6" style={{ color: '#C4965A' }}>od 149 zł</p>
-              </div>
-
-              {/* Stats card */}
-              <div
-                className="bg-white p-8 flex flex-col justify-center items-center text-center shadow-sm"
-                style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-              >
-                <p className="font-heading font-bold text-6xl mb-2" style={{ color: '#C4965A' }}>98%</p>
-                <p className="font-semibold text-lg" style={{ color: '#1A3828' }}>zadowolonych klientek</p>
-                <p className="text-sm mt-2" style={{ color: 'rgba(20,40,28,0.5)' }}>na podstawie opinii Google</p>
-              </div>
-
-              {/* Podologia */}
-              <div
-                className="bg-white p-6 shadow-sm"
-                style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-              >
-                <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <path d="M18 4C18 4 8 10 8 20C8 25.5 12.5 30 18 30C23.5 30 28 25.5 28 20C28 10 18 4 18 4Z" stroke="#C4965A" strokeWidth="2" fill="none"/>
-                  <circle cx="18" cy="20" r="3" fill="#C4965A"/>
-                </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Podologia</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
-                  Leczenie wrastających paznokci, odcisków i grzybicy metodami podologicznymi.
-                </p>
-                <p className="font-bold" style={{ color: '#C4965A' }}>od 120 zł</p>
-              </div>
-
-              {/* Manicure */}
-              <div
-                className="bg-white p-6 shadow-sm"
-                style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-              >
-                <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <rect x="10" y="6" width="6" height="16" rx="3" stroke="#C4965A" strokeWidth="2" fill="none"/>
-                  <rect x="20" y="8" width="6" height="14" rx="3" stroke="#C4965A" strokeWidth="2" fill="none"/>
-                  <line x1="8" y1="26" x2="28" y2="26" stroke="#C4965A" strokeWidth="2"/>
-                </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Manicure hybrydowy</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
-                  Trwały lakier hybrydowy do 3 tygodni. Szeroka paleta kolorów, perfekcyjne wykończenie.
-                </p>
-                <p className="font-bold" style={{ color: '#C4965A' }}>od 89 zł</p>
-              </div>
-
-              {/* Zabiegi na twarz */}
-              <div
-                className="bg-white p-6 shadow-sm"
-                style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-              >
-                <svg className="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                  <circle cx="18" cy="18" r="12" stroke="#C4965A" strokeWidth="2" fill="none"/>
-                  <path d="M13 22C14.5 24 21.5 24 23 22" stroke="#C4965A" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="14" cy="16" r="1.5" fill="#C4965A"/>
-                  <circle cx="22" cy="16" r="1.5" fill="#C4965A"/>
-                </svg>
-                <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>Zabiegi na twarz</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>
-                  Peeling chemiczny, oczyszczanie, nawilżenie — dobieramy zabieg do potrzeb skóry.
-                </p>
-                <p className="font-bold" style={{ color: '#C4965A' }}>od 199 zł</p>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ── SEASONAL RECOMMENDATIONS (logged-in only) ── */}
-        {isAuthenticated && seasonalServices.length > 0 && (
-          <section className="py-16" style={{ backgroundColor: '#EDE8DE' }}>
-            <div className="container max-w-6xl mx-auto px-6">
-              <div className="mb-10 relative">
-                <div className="flex items-center gap-3 mb-2">
-                  <DecoLine />
-                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
-                    Polecane zabiegi
-                  </span>
-                </div>
-                <h2 className="font-heading text-3xl font-bold" style={{ color: '#1A3828' }}>
-                  {SEASON_LABELS[currentSeason]} — na ten sezon
-                </h2>
-                <SectionNumber n={2} opacity={0.12} className="right-0 bottom-[-8px]" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {seasonalServices.map((s) => (
-                  <div
-                    key={s.id}
-                    className="bg-white p-6 shadow-sm flex flex-col justify-between"
-                    style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-                  >
-                    <div>
-                      <h3 className="font-heading font-bold text-lg mb-2" style={{ color: '#1A3828' }}>{s.name}</h3>
-                      <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(20,40,28,0.6)' }}>{s.description}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="font-bold" style={{ color: '#C4965A' }}>od {Number(s.price).toFixed(0)} zł</p>
-                      <Button size="sm" className="rounded-full text-xs font-semibold gap-1" style={{ backgroundColor: '#1A3828', color: '#fff' }} asChild>
-                        <Link to={`/rezerwacja?serviceId=${s.id}`}>
-                          Zarezerwuj <ArrowRight size={11} />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+        <HeroSection
+          nextSlotLoading={nextSlotLoading}
+          formattedSlot={formattedSlot}
+          urgency={urgency}
+          bookingTo={bookingTo}
+          bookingState={bookingState}
+          isAuthenticated={isAuthenticated}
+          onConsultationClick={() => setConsultationOpen(true)}
+          onCheckAvailability={() => handleCheckAvailability()}
+        />
+        <BenefitsStrip />
+        <ServicesSection
+          availableServices={allServices}
+          servicesLoading={servicesLoading}
+          onCheckAvailability={handleCheckAvailability}
+        />
+        <AvailabilityPreviewSection
+          request={availabilityRequest}
+          availableServices={allServices}
+          servicesLoading={servicesLoading}
+          isAuthenticated={isAuthenticated}
+          onSelectService={handleCheckAvailability}
+        />
+        {isAuthenticated && (
+          <SeasonalSection seasonalServices={seasonalServices} currentSeason={currentSeason} />
         )}
-
-        {/* ── TESTIMONIALS (editorial) ── */}
-        <section style={{ background: '#E8F3EA', padding: '112px 0' }}>
-          <div className="container">
-
-            {/* Section header */}
-            <div className="relative mb-16">
-              <SectionNumber n={3} opacity={0.07} className="top-[-20px] right-0" />
-              <div className="flex items-center gap-4 justify-center">
-                <DecoLine width={40} />
-                <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-caramel">
-                  Opinie Klientek
-                </span>
-                <DecoLine width={40} />
-              </div>
-              {/* Dekoracyjny cudzysłów */}
-              <span
-                className="absolute right-4 top-[-10px] font-heading italic pointer-events-none select-none"
-                aria-hidden="true"
-                style={{ fontSize: 120, lineHeight: 1, color: 'rgba(61,122,84,0.08)' }}
-              >
-                &ldquo;
-              </span>
-            </div>
-
-            {/* Testimonial grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              {testimonials.map((t, i) => (
-                <motion.div
-                  key={i}
-                  className="testimonial-col flex flex-col"
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.7, delay: i * 0.15, ease: [0.76, 0, 0.24, 1] }}
-                  style={{
-                    padding: i === 0 ? '0 40px 0 0' : i === 2 ? '0 0 0 40px' : '0 40px',
-                    borderRight: i < 2 ? '1px solid rgba(61,122,84,0.25)' : 'none',
-                  }}
-                >
-                  {/* Rating bars */}
-                  <div className="flex gap-1 mb-3">
-                    {[1,2,3,4,5].map((star) => (
-                      <span key={star} className="inline-block rounded-sm" style={{
-                        width: 14, height: 2, background: '#3D7A54'
-                      }} />
-                    ))}
-                  </div>
-
-                  {/* Dekoracyjny cudzysłów */}
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      fontFamily: 'Cormorant Garamond, Georgia, serif',
-                      fontSize: '96px',
-                      lineHeight: 1,
-                      color: '#3D7A54',
-                      opacity: 0.5,
-                      display: 'block',
-                      marginBottom: '-8px',
-                      fontStyle: 'italic',
-                      fontWeight: 300,
-                      userSelect: 'none',
-                    }}
-                  >
-                    &ldquo;
-                  </span>
-
-                  {/* Cytat */}
-                  <p
-                    style={{
-                      fontFamily: 'Cormorant Garamond, Georgia, serif',
-                      fontSize: '21px',
-                      fontStyle: 'italic',
-                      fontWeight: 300,
-                      lineHeight: 1.7,
-                      color: '#1A3828',
-                      marginBottom: '32px',
-                      textAlign: 'left',
-                    }}
-                  >
-                    {t.quote}
-                  </p>
-
-                  {/* Atrybucja */}
-                  <div style={{ marginTop: 'auto' }}>
-                    <div style={{ width: '24px', height: '1px', background: '#3D7A54', marginBottom: '14px' }} />
-                    <p style={{
-                      fontFamily: 'DM Sans, sans-serif',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      color: '#1A3828',
-                      marginBottom: '4px',
-                    }}>
-                      {t.author}
-                    </p>
-                    <p style={{
-                      fontFamily: 'DM Sans, sans-serif',
-                      fontSize: '10px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      color: '#5A7A62',
-                    }}>
-                      {t.label}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-          </div>
-        </section>
-
-        {/* ── 4. PROCESS ── */}
-        <section className="py-20" style={{ backgroundColor: '#F4F9F5' }}>
-          <div className="container max-w-6xl mx-auto px-6">
-            <div className="mb-12 text-center">
-              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#C4965A' }}>
-                Jak działamy
-              </p>
-              <h2 className="font-heading text-4xl font-bold" style={{ color: '#1A3828' }}>
-                Twoja wizyta krok po kroku
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { num: '01', title: 'Analiza', desc: 'Rozmawiamy o Twoich potrzebach i oceniamy stan skóry lub paznokci.' },
-                { num: '02', title: 'Plan', desc: 'Dobieramy najlepsze zabiegi i preparaty dopasowane do Ciebie.' },
-                { num: '03', title: 'Zabieg', desc: 'Wykonujemy zabieg w komfortowej atmosferze, dbając o każdy detal.' },
-                { num: '04', title: 'Opieka po', desc: 'Otrzymujesz wskazówki do pielęgnacji domowej i propozycję kolejnej wizyty.' },
-              ].map(({ num, title, desc }) => (
-                <div key={num} className="text-center">
-                  <p className="font-heading font-bold text-6xl mb-4" style={{ color: '#C4965A' }}>{num}</p>
-                  <h3 className="font-heading font-bold text-xl mb-3" style={{ color: '#1A3828' }}>{title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>{desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── 6. CTA ── */}
-        <section className="py-20" style={{ backgroundColor: '#F4F9F5' }}>
-          <div className="container max-w-6xl mx-auto px-6">
-            <div
-              className="px-10 py-14"
-              style={{ backgroundColor: '#1A3828', borderRadius: '28px' }}
-            >
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-
-                {/* Left */}
-                <div>
-                  <h2 className="font-heading text-4xl font-bold text-white mb-4">
-                    Nie wiesz od czego zacząć?
-                  </h2>
-                  <p className="text-white/70 text-lg mb-8 leading-relaxed">
-                    Umów się na bezpłatną konsultację — doradzimy jakie zabiegi będą najlepsze właśnie dla Ciebie.
-                  </p>
-                  <ul className="space-y-3">
-                    {[
-                      'Bezpłatna konsultacja',
-                      'Indywidualny dobór zabiegów',
-                      'Odpowiedź w ciągu 24 godzin',
-                    ].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-white/80 text-sm">
-                        <span style={{ color: '#C4965A' }}>✓</span> {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Right — decorative inputs + button */}
-                <div className="flex flex-col gap-4">
-                  <input
-                    type="text"
-                    placeholder="Twoje imię"
-                    className="w-full px-5 py-4 rounded-xl text-sm outline-none"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.15)',
-                      color: '#fff',
-                    }}
-                    readOnly
-                    onClick={() => setConsultationOpen(true)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Numer telefonu"
-                    className="w-full px-5 py-4 rounded-xl text-sm outline-none"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.15)',
-                      color: '#fff',
-                    }}
-                    readOnly
-                    onClick={() => setConsultationOpen(true)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Czego szukasz?"
-                    className="w-full px-5 py-4 rounded-xl text-sm outline-none"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.15)',
-                      color: '#fff',
-                    }}
-                    readOnly
-                    onClick={() => setConsultationOpen(true)}
-                  />
-                  <button
-                    onClick={() => setConsultationOpen(true)}
-                    className="w-full py-4 rounded-xl font-semibold text-base transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: '#C4965A', color: '#fff' }}
-                  >
-                    Umów konsultację
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 7. FAQ ── */}
-        <section className="py-24" style={{ backgroundColor: '#F0F7F1' }} aria-labelledby="faq-heading">
-          <div className="container max-w-3xl mx-auto px-6">
-            <div className="relative mb-12 text-center">
-              <SectionNumber n={4} opacity={0.07} className="top-[-10px] right-0" />
-              <h2
-                id="faq-heading"
-                className="font-heading text-4xl font-bold text-center"
-                style={{ color: '#1A3828' }}
-              >
-                Najczęściej zadawane pytania
-              </h2>
-            </div>
-            <dl className="space-y-3">
-              {faqSchema.mainEntity.map((item, i) => (
-                <details
-                  key={i}
-                  className="group overflow-hidden bg-white shadow-sm"
-                  style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}
-                >
-                  <summary
-                    className="flex items-center justify-between px-6 py-5 font-semibold text-base cursor-pointer list-none select-none transition-colors hover:bg-black/[0.02]"
-                    style={{ color: '#1A3828' }}
-                  >
-                    {item.name}
-                    <ChevronDown
-                      size={18}
-                      className="shrink-0 transition-transform duration-200 group-open:rotate-180"
-                      style={{ color: '#C4965A' }}
-                    />
-                  </summary>
-                  <dd
-                    className="px-6 pb-5 pt-1 text-sm leading-relaxed border-t"
-                    style={{ color: 'rgba(20,40,28,0.65)', borderColor: 'rgba(0,0,0,0.06)' }}
-                  >
-                    {item.acceptedAnswer.text}
-                  </dd>
-                </details>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* ── 8. OBSŁUGIWANE MIEJSCOWOŚCI ── */}
-        <section className="py-16" style={{ backgroundColor: '#F4F9F5' }} aria-labelledby="area-heading">
-          <div className="container max-w-3xl mx-auto px-6 text-center">
-            <h2
-              id="area-heading"
-              className="font-heading text-2xl font-bold mb-6"
-              style={{ color: '#1A3828' }}
-            >
-              Obsługiwane miejscowości
-            </h2>
-            <p className="leading-relaxed text-sm" style={{ color: 'rgba(20,40,28,0.65)' }}>
-              Nasz salon kosmetologiczny w <strong>Limanowej</strong> przyjmuje klientów z całego powiatu
-              limanowskiego i okolic. Regularnie odwiedzają nas osoby z{' '}
-              <strong>Mordarki</strong>, <strong>Laskowej</strong>, <strong>Słopnic</strong>,{' '}
-              <strong>Mszany Dolnej</strong>, <strong>Nowego Sącza</strong>, <strong>Ujanowic</strong>,{' '}
-              <strong>Dobrej</strong>, <strong>Kasiny Wielkiej</strong>, <strong>Sowlin</strong>,{' '}
-              <strong>Tymbarku</strong>, <strong>Jodłownika</strong> oraz Łososiny Dolnej,
-              Pisarzowej, Żmiącej, Pasierbca i wielu innych miejscowości w promieniu 25 km.
-              Umów wizytę online i odwiedź nas w Limanowej!
-            </p>
-          </div>
-        </section>
-
+        <ConsultationSection
+          onConsultationClick={() => setConsultationOpen(true)}
+          bookingTo={bookingTo}
+          bookingState={bookingState}
+        />
+        <TestimonialsSection onCheckAvailability={() => handleCheckAvailability()} />
+        <ProcessSection />
+        <ReservationFormSection
+          onConsultationClick={() => setConsultationOpen(true)}
+          bookingTo={bookingTo}
+          bookingState={bookingState}
+          availableServices={allServices}
+          servicesLoading={servicesLoading}
+        />
+        <FaqSection />
+        <AreaSection />
       </main>
 
       <ConsultationModal open={consultationOpen} onClose={() => setConsultationOpen(false)} />

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum — Makiety</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e8e0f0; min-height: 100vh; padding: 24px 16px; }
+
+  h1 { font-size: 22px; font-weight: 700; color: #d4b8e0; margin-bottom: 6px; }
+  .desc { font-size: 13px; color: #888; margin-bottom: 28px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; border-radius: 20px; border: 1.5px solid #333; background: transparent; color: #aaa; font-size: 13px; cursor: pointer; transition: all .15s; }
+  .tab.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #7c3aed; margin-bottom: 12px; margin-top: 28px; }
+
+  /* ===================== MOBILE MOCKUPS ===================== */
+  .mobile-wrap { display: flex; gap: 20px; flex-wrap: wrap; }
+  .phone { width: 320px; background: #1a1a1a; border-radius: 28px; border: 2px solid #2a2a2a; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.5); flex-shrink: 0; }
+  .phone-bar { background: #111; padding: 10px 16px 6px; font-size: 11px; color: #555; display: flex; justify-content: space-between; }
+  .phone-nav { background: #1e1e1e; border-bottom: 1px solid #2a2a2a; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .phone-nav .back { color: #a78bfa; font-size: 13px; cursor: pointer; }
+  .phone-nav .title { font-size: 15px; font-weight: 700; flex: 1; }
+  .phone-nav .action { color: #a78bfa; font-size: 13px; }
+  .phone-body { padding: 0; max-height: 580px; overflow-y: auto; }
+
+  /* Categories list */
+  .cat-item { padding: 14px 16px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .cat-item:hover { background: #222; }
+  .cat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .cat-info { flex: 1; }
+  .cat-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .cat-desc { font-size: 11px; color: #888; }
+  .cat-count { font-size: 12px; color: #666; text-align: right; }
+  .cat-arrow { color: #555; font-size: 12px; margin-left: 4px; }
+
+  /* Thread list */
+  .thread-item { padding: 14px 16px; border-bottom: 1px solid #222; cursor: pointer; }
+  .thread-item:hover { background: #222; }
+  .thread-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .avatar.anon { background: #333; color: #888; font-size: 10px; }
+  .thread-author { font-size: 12px; color: #888; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; margin-left: auto; }
+  .badge-pin { background: #1e3a5f; color: #60a5fa; }
+  .badge-lock { background: #3a1e1e; color: #f87171; }
+  .badge-anon { background: #2a2a2a; color: #888; }
+  .thread-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+  .thread-meta { display: flex; gap: 12px; font-size: 11px; color: #666; align-items: center; }
+  .thread-meta .replies { color: #a78bfa; }
+
+  /* FAB */
+  .fab { position: sticky; bottom: 16px; right: 16px; margin: 16px 16px 16px auto; width: 48px; height: 48px; border-radius: 50%; background: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; box-shadow: 0 4px 16px rgba(124,58,237,.4); cursor: pointer; }
+
+  /* Thread view */
+  .thread-view-header { padding: 14px 16px; border-bottom: 1px solid #222; }
+  .thread-view-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+  .thread-view-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #888; margin-bottom: 12px; }
+  .watch-btn { display: flex; align-items: center; gap: 5px; margin-left: auto; padding: 5px 12px; border-radius: 14px; border: 1.5px solid #7c3aed; color: #a78bfa; font-size: 12px; cursor: pointer; background: transparent; }
+  .watch-btn.active { background: #7c3aed22; }
+  .thread-content { font-size: 13px; color: #ccc; line-height: 1.6; }
+
+  .post-item { padding: 14px 16px; border-bottom: 1px solid #222; }
+  .post-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .post-author { font-size: 12px; color: #a78bfa; font-weight: 600; }
+  .post-time { font-size: 11px; color: #555; margin-left: auto; }
+  .post-content { font-size: 13px; color: #ccc; line-height: 1.6; }
+  .admin-mention { color: #f59e0b; font-weight: 600; }
+  .post-actions { display: flex; gap: 12px; margin-top: 8px; }
+  .post-action { font-size: 11px; color: #666; cursor: pointer; }
+  .post-action:hover { color: #a78bfa; }
+
+  .reply-form { padding: 12px 16px; background: #1e1e1e; border-top: 1px solid #2a2a2a; position: sticky; bottom: 0; }
+  .reply-input { width: 100%; background: #2a2a2a; border: 1.5px solid #333; border-radius: 12px; padding: 10px 14px; color: #e8e0f0; font-size: 13px; resize: none; min-height: 60px; font-family: inherit; }
+  .reply-input:focus { outline: none; border-color: #7c3aed; }
+  .reply-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .anon-check { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #888; cursor: pointer; }
+  .anon-check input { accent-color: #7c3aed; }
+  .reply-send { margin-left: auto; padding: 8px 18px; background: #7c3aed; border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* ===================== DESKTOP MOCKUP ===================== */
+  .desktop-wrap { background: #1a1a1a; border-radius: 16px; border: 2px solid #2a2a2a; overflow: hidden; max-width: 900px; }
+  .desktop-topbar { background: #111; padding: 10px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #222; }
+  .desktop-topbar .logo { font-size: 14px; font-weight: 800; color: #a78bfa; letter-spacing: -.02em; }
+  .desktop-topbar .breadcrumb { font-size: 12px; color: #555; }
+  .desktop-topbar .breadcrumb span { color: #888; }
+  .desktop-body { display: flex; min-height: 500px; }
+  .desktop-sidebar { width: 220px; background: #161616; border-right: 1px solid #222; padding: 16px 0; flex-shrink: 0; }
+  .sidebar-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #555; padding: 0 16px 8px; }
+  .sidebar-cat { padding: 9px 16px; font-size: 13px; color: #888; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid transparent; }
+  .sidebar-cat:hover { color: #ccc; background: #1e1e1e; }
+  .sidebar-cat.active { color: #a78bfa; border-left-color: #7c3aed; background: #1e1e1e; font-weight: 600; }
+  .sidebar-cat .cnt { margin-left: auto; font-size: 11px; color: #555; background: #222; padding: 1px 7px; border-radius: 10px; }
+  .desktop-main { flex: 1; padding: 20px 24px; overflow: hidden; }
+  .desktop-main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .desktop-main-title { font-size: 18px; font-weight: 700; }
+  .desktop-new-btn { padding: 8px 18px; background: #7c3aed; border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .desktop-sort { display: flex; gap: 6px; margin-bottom: 14px; }
+  .sort-btn { padding: 5px 12px; border-radius: 10px; border: 1.5px solid #333; background: transparent; color: #888; font-size: 12px; cursor: pointer; }
+  .sort-btn.active { border-color: #7c3aed; color: #a78bfa; }
+
+  .desktop-thread { padding: 14px 16px; border-radius: 10px; background: #1e1e1e; margin-bottom: 8px; cursor: pointer; display: flex; gap: 14px; align-items: flex-start; }
+  .desktop-thread:hover { background: #242424; }
+  .dt-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 2px; }
+  .dt-avatar.anon { background: #2a2a2a; color: #666; font-size: 10px; }
+  .dt-body { flex: 1; min-width: 0; }
+  .dt-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dt-meta { font-size: 12px; color: #666; display: flex; gap: 14px; align-items: center; }
+  .dt-meta .replies { color: #a78bfa; }
+  .dt-right { text-align: right; flex-shrink: 0; }
+  .dt-time { font-size: 11px; color: #555; margin-bottom: 6px; }
+  .dt-badges { display: flex; gap: 4px; justify-content: flex-end; }
+
+  .screen-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #7c3aed; text-align: center; padding: 8px; background: #111; border-bottom: 1px solid #222; }
+</style>
+</head>
+<body>
+  <h1>Forum — Makiety UI</h1>
+  <p class="desc">BeautyBeskid · strefa zalogowanych użytkowników · /user/forum</p>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="show('mobile')">📱 Mobile</button>
+    <button class="tab" onclick="show('desktop')">🖥️ Desktop</button>
+    <button class="tab" onclick="show('thread')">💬 Widok wątku</button>
+  </div>
+
+  <!-- =================== MOBILE =================== -->
+  <div id="view-mobile">
+    <div class="section-label">Mobile — 3 ekrany</div>
+    <div class="mobile-wrap">
+
+      <!-- Screen 1: Categories -->
+      <div class="phone">
+        <div class="screen-label">1 · Lista kategorii /user/forum</div>
+        <div class="phone-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-nav"><span class="title">Forum</span><span class="action">+ Nowy wątek</span></div>
+        <div class="phone-body">
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#1e3a5f">🦶</div>
+            <div class="cat-info"><div class="cat-name">Pielęgnacja stóp</div><div class="cat-desc">Problemy, sposoby, porady</div></div>
+            <div class="cat-count">47 wątków<div class="cat-arrow">›</div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#3a1e3a">✨</div>
+            <div class="cat-info"><div class="cat-name">Pielęgnacja twarzy</div><div class="cat-desc">Cery, rutyny, problemy</div></div>
+            <div class="cat-count">31 wątków<div class="cat-arrow">›</div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#1e3a2a">💅</div>
+            <div class="cat-info"><div class="cat-name">Dłonie &amp; Paznokcie</div><div class="cat-desc">Manicure, pielęgnacja</div></div>
+            <div class="cat-count">22 wątki<div class="cat-arrow">›</div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#3a2e1e">🤔</div>
+            <div class="cat-info"><div class="cat-name">Pytania do kosmetologa</div><div class="cat-desc">Oznacz @admin po odpowiedź</div></div>
+            <div class="cat-count">18 wątków<div class="cat-arrow">›</div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#1e2a3a">💡</div>
+            <div class="cat-info"><div class="cat-name">Moje patenty na skórę</div><div class="cat-desc">Dziel się sprawdzonymi sposobami</div></div>
+            <div class="cat-count">56 wątków<div class="cat-arrow">›</div></div>
+          </div>
+          <div class="fab">+</div>
+        </div>
+      </div>
+
+      <!-- Screen 2: Thread list in category -->
+      <div class="phone">
+        <div class="screen-label">2 · Wątki w kategorii</div>
+        <div class="phone-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-nav"><span class="back">‹ Forum</span><span class="title">Pielęgnacja stóp</span><span class="action">⊕</span></div>
+        <div class="phone-body">
+          <div style="padding:10px 16px;display:flex;gap:6px;border-bottom:1px solid #222">
+            <button class="sort-btn active" style="font-size:11px;padding:4px 10px">Najnowsze</button>
+            <button class="sort-btn" style="font-size:11px;padding:4px 10px">Aktywne</button>
+            <button class="sort-btn" style="font-size:11px;padding:4px 10px">Popularne</button>
+          </div>
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="avatar">KM</div>
+              <span class="thread-author">Kasia M.</span>
+              <span class="badge badge-pin">📌 Przypięty</span>
+            </div>
+            <div class="thread-title">Jak pozbyć się twardej skóry na piętach domowym sposobem?</div>
+            <div class="thread-meta"><span class="replies">💬 12 odpowiedzi</span><span>2 godz.</span></div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="avatar anon">👤</div>
+              <span class="thread-author">Anonim</span>
+              <span class="badge badge-anon">Anonimowo</span>
+            </div>
+            <div class="thread-title">Wstydliwy problem z grzybicą — czy salon może mi pomóc?</div>
+            <div class="thread-meta"><span class="replies">💬 5 odpowiedzi</span><span>5 godz.</span></div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="avatar" style="background:linear-gradient(135deg,#e55,#f87)">AK</div>
+              <span class="thread-author">Agnieszka K.</span>
+            </div>
+            <div class="thread-title">Mój patent na moczenie stóp z sodą — działa!</div>
+            <div class="thread-meta"><span class="replies">💬 8 odpowiedzi</span><span>wczoraj</span></div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="avatar" style="background:linear-gradient(135deg,#059,#07a)">MB</div>
+              <span class="thread-author">Marta B.</span>
+              <span class="badge badge-lock" style="margin-left:auto">🔒 Zamknięty</span>
+            </div>
+            <div class="thread-title">Reklamacja zabiegu — do kogo się zwrócić?</div>
+            <div class="thread-meta"><span class="replies">💬 3 odpowiedzi</span><span>3 dni temu</span></div>
+          </div>
+          <div class="fab">+</div>
+        </div>
+      </div>
+
+      <!-- Screen 3: New thread form -->
+      <div class="phone">
+        <div class="screen-label">3 · Formularz nowego wątku</div>
+        <div class="phone-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-nav"><span class="back">✕ Anuluj</span><span class="title">Nowy wątek</span><span class="action" style="color:#a78bfa;font-weight:700">Opublikuj</span></div>
+        <div class="phone-body" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Kategoria</div>
+            <select style="width:100%;background:#2a2a2a;border:1.5px solid #333;border-radius:10px;padding:10px 14px;color:#e8e0f0;font-size:13px;font-family:inherit">
+              <option>Pielęgnacja stóp</option>
+              <option>Pielęgnacja twarzy</option>
+              <option>Dłonie &amp; Paznokcie</option>
+              <option>Pytania do kosmetologa</option>
+              <option>Moje patenty na skórę</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Tytuł wątku</div>
+            <input style="width:100%;background:#2a2a2a;border:1.5px solid #333;border-radius:10px;padding:10px 14px;color:#e8e0f0;font-size:13px;font-family:inherit" placeholder="Krótki, opisowy tytuł...">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Treść</div>
+            <textarea style="width:100%;background:#2a2a2a;border:1.5px solid #7c3aed;border-radius:10px;padding:10px 14px;color:#e8e0f0;font-size:13px;font-family:inherit;resize:none;min-height:120px">Wpisz treść wątku... użyj @admin jeśli chcesz odpowiedź od kosmetologa</textarea>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#888;cursor:pointer;padding:10px 14px;background:#222;border-radius:10px">
+            <input type="checkbox" style="accent-color:#7c3aed;width:16px;height:16px">
+            Opublikuj anonimowo
+            <span style="font-size:11px;color:#555;margin-left:4px">(tylko Ty wiesz że to Ty)</span>
+          </label>
+          <div style="font-size:11px;color:#555;padding:8px 12px;background:#1e1e1e;border-radius:8px;border-left:3px solid #7c3aed40">
+            💡 Jeśli chcesz odpowiedzi od kosmetologa, użyj <span style="color:#f59e0b">@admin</span> w treści — dostanie powiadomienie push.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =================== DESKTOP =================== -->
+  <div id="view-desktop" style="display:none">
+    <div class="section-label">Desktop — lista wątków z sidebar</div>
+    <div class="desktop-wrap">
+      <div class="desktop-topbar">
+        <span class="logo">BeautyBeskid</span>
+        <span class="breadcrumb">/ Panel użytkownika / <span>Forum</span> / Pielęgnacja stóp</span>
+        <button class="desktop-new-btn" style="margin-left:auto">+ Nowy wątek</button>
+      </div>
+      <div class="desktop-body">
+        <div class="desktop-sidebar">
+          <div class="sidebar-title">Kategorie</div>
+          <div class="sidebar-cat active">🦶 Pielęgnacja stóp <span class="cnt">47</span></div>
+          <div class="sidebar-cat">✨ Pielęgnacja twarzy <span class="cnt">31</span></div>
+          <div class="sidebar-cat">💅 Dłonie &amp; Paznokcie <span class="cnt">22</span></div>
+          <div class="sidebar-cat">🤔 Pytania do kosmetologa <span class="cnt">18</span></div>
+          <div class="sidebar-cat">💡 Moje patenty <span class="cnt">56</span></div>
+        </div>
+        <div class="desktop-main">
+          <div class="desktop-main-header">
+            <div class="desktop-main-title">Pielęgnacja stóp</div>
+          </div>
+          <div class="desktop-sort">
+            <button class="sort-btn active">Najnowsze</button>
+            <button class="sort-btn">Aktywne</button>
+            <button class="sort-btn">Popularne</button>
+          </div>
+
+          <div class="desktop-thread">
+            <div class="dt-avatar">KM</div>
+            <div class="dt-body">
+              <div class="dt-title">Jak pozbyć się twardej skóry na piętach domowym sposobem?</div>
+              <div class="dt-meta"><span class="replies">💬 12 odpowiedzi</span><span>Kasia M.</span></div>
+            </div>
+            <div class="dt-right">
+              <div class="dt-time">2 godz. temu</div>
+              <div class="dt-badges"><span class="badge badge-pin">📌</span></div>
+            </div>
+          </div>
+
+          <div class="desktop-thread">
+            <div class="dt-avatar anon">👤</div>
+            <div class="dt-body">
+              <div class="dt-title">Wstydliwy problem z grzybicą — czy salon może mi pomóc?</div>
+              <div class="dt-meta"><span class="replies">💬 5 odpowiedzi</span><span>Anonim</span></div>
+            </div>
+            <div class="dt-right">
+              <div class="dt-time">5 godz. temu</div>
+              <div class="dt-badges"><span class="badge badge-anon">anon</span></div>
+            </div>
+          </div>
+
+          <div class="desktop-thread">
+            <div class="dt-avatar" style="background:linear-gradient(135deg,#e55,#f87)">AK</div>
+            <div class="dt-body">
+              <div class="dt-title">Mój patent na moczenie stóp z sodą oczyszczoną — działa cuda!</div>
+              <div class="dt-meta"><span class="replies">💬 8 odpowiedzi</span><span>Agnieszka K.</span></div>
+            </div>
+            <div class="dt-right"><div class="dt-time">wczoraj</div></div>
+          </div>
+
+          <div class="desktop-thread">
+            <div class="dt-avatar" style="background:linear-gradient(135deg,#059,#07a)">MB</div>
+            <div class="dt-body">
+              <div class="dt-title">Reklamacja zabiegu — do kogo się zwrócić? @admin</div>
+              <div class="dt-meta"><span class="replies">💬 3 odpowiedzi</span><span>Marta B.</span></div>
+            </div>
+            <div class="dt-right">
+              <div class="dt-time">3 dni temu</div>
+              <div class="dt-badges"><span class="badge badge-lock">🔒</span></div>
+            </div>
+          </div>
+
+          <div class="desktop-thread">
+            <div class="dt-avatar" style="background:linear-gradient(135deg,#8b5,#9c6)">JW</div>
+            <div class="dt-body">
+              <div class="dt-title">Po zabiegu pedicure mam zaczerwienienie — normalne?</div>
+              <div class="dt-meta"><span class="replies">💬 7 odpowiedzi</span><span>Julia W.</span></div>
+            </div>
+            <div class="dt-right"><div class="dt-time">4 dni temu</div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== THREAD VIEW =================== -->
+  <div id="view-thread" style="display:none">
+    <div class="section-label">Mobile — Widok wątku z odpowiedziami</div>
+    <div class="mobile-wrap">
+      <div class="phone" style="width:340px">
+        <div class="screen-label">Wątek + odpowiedzi + formularz</div>
+        <div class="phone-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-nav"><span class="back">‹ Pielęgnacja stóp</span><span class="title" style="font-size:12px">Wątek</span><span class="action">⋯</span></div>
+        <div class="phone-body">
+          <!-- Thread header -->
+          <div class="thread-view-header">
+            <div class="thread-view-title">Jak pozbyć się twardej skóry na piętach domowym sposobem?</div>
+            <div class="thread-view-meta">
+              <div class="avatar">KM</div>
+              <span>Kasia M.</span>
+              <span>·</span>
+              <span>2 godz. temu</span>
+              <button class="watch-btn active">🔔 Obserwujesz</button>
+            </div>
+            <div class="thread-content">Mam problem z twardą skórą na piętach od dłuższego czasu. Próbowałam pumeksu ale pomaga tylko na chwilę. Słyszałam że jest jakiś domowy sposób z octem lub sodą? Ma ktoś sprawdzony przepis? 🙏</div>
+          </div>
+
+          <!-- Post 1 -->
+          <div class="post-item">
+            <div class="post-top">
+              <div class="avatar" style="background:linear-gradient(135deg,#e55,#f87);width:24px;height:24px;font-size:10px">AK</div>
+              <span class="post-author">Agnieszka K.</span>
+              <span class="post-time">1 godz. temu</span>
+            </div>
+            <div class="post-content">Ja moczyłam stopy w ciepłej wodzie z solą himalajską przez 20 min, a potem nakładałam pastę z sody i oliwy z oliwek. Po 2 tygodniach różnica ogromna! ✨</div>
+            <div class="post-actions"><span class="post-action">👍 5</span><span class="post-action">Odpowiedz</span></div>
+          </div>
+
+          <!-- Post 2 anon -->
+          <div class="post-item" style="background:#1c1c1c">
+            <div class="post-top">
+              <div class="avatar anon" style="width:24px;height:24px;font-size:9px">👤</div>
+              <span class="post-author" style="color:#888">Anonim</span>
+              <span class="post-time">45 min temu</span>
+            </div>
+            <div class="post-content">Spróbuj skarpetek nawilżających na noc — kupujesz w aptece. Wkładasz po kremie na noc i rano masz miękkie stopy 😊 mi to pomogło po ciąży</div>
+            <div class="post-actions"><span class="post-action">👍 3</span><span class="post-action">Odpowiedz</span></div>
+          </div>
+
+          <!-- Post 3 - admin mention -->
+          <div class="post-item">
+            <div class="post-top">
+              <div class="avatar" style="background:linear-gradient(135deg,#059,#07a);width:24px;height:24px;font-size:10px">MB</div>
+              <span class="post-author">Marta B.</span>
+              <span class="post-time">30 min temu</span>
+            </div>
+            <div class="post-content"><span class="admin-mention">@admin</span> czy któryś z waszych zabiegów pomógłby tutaj? Pytam bo sama też mam ten problem i rozważam wizytę 😊</div>
+            <div class="post-actions"><span class="post-action">👍 1</span><span class="post-action">Odpowiedz</span></div>
+          </div>
+
+          <!-- Admin response -->
+          <div class="post-item" style="background:#1e1830;border-left:3px solid #7c3aed">
+            <div class="post-top">
+              <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);width:24px;height:24px;font-size:9px;font-weight:800">👑</div>
+              <span class="post-author" style="color:#a78bfa">Kosmetolog (admin)</span>
+              <span class="post-time">10 min temu</span>
+              <span class="badge" style="background:#2d1e4f;color:#a78bfa;margin-left:4px">Admin</span>
+            </div>
+            <div class="post-content">Cześć! 😊 Polecam nasz zabieg pedicure leczniczy — usuwa twarde naskórek i nawilża. Po 2-3 wizytach problem znika. Możesz zarezerwować przez aplikację! A domowe sposoby Agnieszki też działają — stosuj je między wizytami.</div>
+            <div class="post-actions"><span class="post-action">👍 8</span></div>
+          </div>
+
+          <!-- Reply form -->
+          <div class="reply-form">
+            <textarea class="reply-input" placeholder="Napisz odpowiedź... użyj @admin po pomoc kosmetologa"></textarea>
+            <div class="reply-row">
+              <label class="anon-check"><input type="checkbox"> Anonimowo</label>
+              <button class="reply-send">Wyślij</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin panel preview -->
+      <div style="flex:1;min-width:280px">
+        <div class="section-label" style="margin-top:0">Panel admina — moderacja forum</div>
+        <div style="background:#1a1a1a;border-radius:14px;border:1.5px solid #2a2a2a;overflow:hidden">
+          <div style="padding:12px 16px;background:#111;font-size:13px;font-weight:700;color:#a78bfa;border-bottom:1px solid #222">
+            🛡️ Moderacja forum
+          </div>
+          <div style="padding:10px 16px;border-bottom:1px solid #222;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="sort-btn active" style="font-size:11px">Wszystkie</button>
+            <button class="sort-btn" style="font-size:11px;color:#f59e0b;border-color:#f59e0b33">⚠️ Z @admin (3)</button>
+            <button class="sort-btn" style="font-size:11px">Usunięte</button>
+            <button class="sort-btn" style="font-size:11px">Przypięte</button>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid #1e1e1e">
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;color:#e8e0f0">Wstydliwy problem z grzybicą...</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">Autor: <span style="color:#a78bfa">Anna Kowalska (ID: 42)</span> · Anonimowo dla innych · 5 godz.</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button style="padding:4px 10px;border-radius:7px;background:#1e3a5f;border:none;color:#60a5fa;font-size:11px;cursor:pointer">📌 Przypiąć</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#2a3a1e;border:none;color:#4ade80;font-size:11px;cursor:pointer">🔒 Zamknąć</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#1e1e2a;border:none;color:#818cf8;font-size:11px;cursor:pointer">📂 Przenieś</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#3a1e1e;border:none;color:#f87171;font-size:11px;cursor:pointer">🗑 Usuń</button>
+            </div>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid #1e1e1e;border-left:3px solid #f59e0b">
+            <div style="font-size:11px;color:#f59e0b;margin-bottom:4px;font-weight:700">⚠️ Oznaczono @admin</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">Reklamacja zabiegu — do kogo się zwrócić?</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">Marta B. · 3 dni temu · 3 odpowiedzi</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button style="padding:4px 10px;border-radius:7px;background:#2a1e0a;border:none;color:#f59e0b;font-size:11px;cursor:pointer">↗ Odpowiedz</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#2a3a1e;border:none;color:#4ade80;font-size:11px;cursor:pointer">🔒 Zamknąć</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#3a1e1e;border:none;color:#f87171;font-size:11px;cursor:pointer">🗑 Usuń</button>
+            </div>
+          </div>
+          <div style="padding:12px 16px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">Po zabiegu mam zaczerwienienie...</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">Julia W. · 4 dni temu · 7 odpowiedzi</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button style="padding:4px 10px;border-radius:7px;background:#1e3a5f;border:none;color:#60a5fa;font-size:11px;cursor:pointer">📌 Przypiąć</button>
+              <button style="padding:4px 10px;border-radius:7px;background:#3a1e1e;border:none;color:#f87171;font-size:11px;cursor:pointer">🗑 Usuń</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function show(id) {
+      ['mobile','desktop','thread'].forEach(v => {
+        document.getElementById('view-'+v).style.display = v===id?'':'none';
+      });
+      document.querySelectorAll('.tab').forEach((t,i) => {
+        t.classList.toggle('active', ['mobile','desktop','thread'][i]===id);
+      });
+    }
+  </script>
+</body>
+</html>

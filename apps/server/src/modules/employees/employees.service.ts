@@ -273,22 +273,12 @@ export const deleteWorkDay = async (id: string, employeeId: string) => {
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 
-export const getAvailability = async (
+const getAvailabilityForDuration = async (
   date: string,
-  serviceId: string,
-  employeeId?: string
+  duration: number,
+  employeeId?: string,
+  restrictedEmployeeIds: string[] = [],
 ): Promise<{ time: string; available: boolean }[]> => {
-  const service = await prisma.service.findUnique({
-    where: { id: serviceId },
-    select: { durationMinutes: true, employees: { select: { id: true } } },
-  });
-  if (!service) throw new AppError('Nie znaleziono usługi', 404);
-
-  // If no specific employee requested and service has assigned employees, use the first available
-  // (for multi-employee slot merging we check each assigned employee below)
-  const restrictedIds = service.employees.map((e) => e.id);
-
-  const duration = service.durationMinutes;
   const normalized = normalizeDate(date);
   const dayEnd = new Date(normalized);
   dayEnd.setUTCHours(23, 59, 59, 999);
@@ -296,8 +286,8 @@ export const getAvailability = async (
   // When no specific employee is selected, merge availability across all candidate employees.
   // Candidates = employees assigned to the service, or ALL active employees if none assigned.
   if (!employeeId) {
-    const candidateIds = restrictedIds.length > 0
-      ? restrictedIds
+    const candidateIds = restrictedEmployeeIds.length > 0
+      ? restrictedEmployeeIds
       : (await prisma.employee.findMany({
           where: { isActive: true },
           select: { id: true },
@@ -306,7 +296,7 @@ export const getAvailability = async (
     if (candidateIds.length === 0) return [];
 
     const allSlotSets = await Promise.all(
-      candidateIds.map((eid) => getAvailability(date, serviceId, eid))
+      candidateIds.map((eid) => getAvailabilityForDuration(date, duration, eid))
     );
     const timeMap = new Map<string, boolean>();
     for (const slotSet of allSlotSets) {
@@ -389,15 +379,29 @@ export const getAvailability = async (
   return slots;
 };
 
+export const getAvailability = async (
+  date: string,
+  serviceId: string,
+  employeeId?: string
+): Promise<{ time: string; available: boolean }[]> => {
+  const service = await prisma.service.findUnique({
+    where: { id: serviceId },
+    select: { durationMinutes: true, employees: { select: { id: true } } },
+  });
+  if (!service) throw new AppError('Nie znaleziono usługi', 404);
+
+  const restrictedIds = service.employees.map((e) => e.id);
+  return getAvailabilityForDuration(date, service.durationMinutes, employeeId, restrictedIds);
+};
+
 // ─── Month availability ───────────────────────────────────────────────────────
 
 export type DayStatus = 'off' | 'none' | 'partial' | 'available';
 
-export const getMonthAvailability = async (
+const getMonthAvailabilityFromSlots = async (
   year: number,
   month: number,
-  serviceId: string,
-  employeeId?: string,
+  loadSlots: (date: string) => Promise<{ time: string; available: boolean }[]>,
 ): Promise<Record<string, DayStatus>> => {
   const start = new Date(Date.UTC(year, month - 1, 1));
   const end   = new Date(Date.UTC(year, month, 0));
@@ -411,7 +415,7 @@ export const getMonthAvailability = async (
 
   const results = await Promise.all(
     days.map(async (dateStr) => {
-      const slots = await getAvailability(dateStr, serviceId, employeeId);
+      const slots = await loadSlots(dateStr);
       const total = slots.length;
       const free  = slots.filter((s) => s.available).length;
       let status: DayStatus;
@@ -425,6 +429,14 @@ export const getMonthAvailability = async (
 
   return Object.fromEntries(results);
 };
+
+export const getMonthAvailability = async (
+  year: number,
+  month: number,
+  serviceId: string,
+  employeeId?: string,
+): Promise<Record<string, DayStatus>> =>
+  getMonthAvailabilityFromSlots(year, month, (dateStr) => getAvailability(dateStr, serviceId, employeeId));
 
 // ─── Next available slot ──────────────────────────────────────────────────────
 
