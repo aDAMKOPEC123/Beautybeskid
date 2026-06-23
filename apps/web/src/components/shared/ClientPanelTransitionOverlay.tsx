@@ -53,31 +53,41 @@ export const ClientPanelTransitionOverlay = () => {
           className="pointer-events-none fixed inset-0 z-[120] overflow-hidden"
           aria-hidden="true"
         >
-          <div className="absolute inset-0" style={{ background: currentTheme.shell }} />
-          <div className="absolute inset-0" style={{ background: currentTheme.halo }} />
+          <div
+            className="absolute inset-0 bg-white/55 backdrop-blur-[10px] md:bg-transparent md:backdrop-blur-0"
+            style={{ background: currentTheme.shell }}
+          />
+          <div className="absolute inset-0 opacity-85 md:opacity-100" style={{ background: currentTheme.halo }} />
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1.08 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-1/2 top-1/2 h-[55vmax] w-[55vmax] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+            className="absolute left-1/2 top-1/2 hidden h-[55vmax] w-[55vmax] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl md:block"
             style={{ background: 'rgba(255,255,255,0.18)' }}
           />
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-x-0 bottom-0 h-[40vh] bg-gradient-to-t from-white/18 via-white/6 to-transparent md:hidden"
+          />
 
-          <div className="absolute inset-0 flex items-center justify-center px-5">
+          <div className="absolute inset-0 flex items-end justify-center px-4 pb-5 md:items-center md:px-5 md:pb-0">
             <motion.div
-              initial={{ opacity: 0, y: 36, scale: 0.94 }}
+              initial={{ opacity: 0, y: 28, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -18, scale: 0.98 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-[420px] rounded-[28px] border border-white/20 p-6 shadow-[0_24px_90px_rgba(26,56,40,0.18)] backdrop-blur-xl"
+              exit={{ opacity: 0, y: 18, scale: 0.99 }}
+              transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-[360px] rounded-[24px] border border-white/20 p-4 shadow-[0_18px_60px_rgba(26,56,40,0.18)] backdrop-blur-xl md:max-w-[420px] md:rounded-[28px] md:p-6 md:shadow-[0_24px_90px_rgba(26,56,40,0.18)]"
               style={{ background: currentTheme.card }}
             >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/12" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
-                  <Icon className="h-6 w-6" style={{ color: currentTheme.accent }} />
+              <div className="flex items-center justify-between gap-3 md:gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/12 md:h-14 md:w-14 md:rounded-2xl" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
+                  <Icon className="h-5 w-5 md:h-6 md:w-6" style={{ color: currentTheme.accent }} />
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.26em]" style={{ color: currentTheme.accent }}>
+                <div className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.24em] md:text-[10px] md:tracking-[0.26em]" style={{ color: currentTheme.accent }}>
                   Otwieramy
                   <motion.span
                     animate={{ x: [0, 4, 0] }}
@@ -88,24 +98,25 @@ export const ClientPanelTransitionOverlay = () => {
                 </div>
               </div>
 
-              <div className="mt-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.32em]" style={{ color: currentTheme.accent }}>
+              <div className="mt-5 md:mt-6">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] md:text-[10px] md:tracking-[0.32em]" style={{ color: currentTheme.accent }}>
                   BeautyBeskid
                 </p>
-                <h2 className="mt-3 font-heading text-4xl font-bold leading-none" style={{ color: currentTheme.ink }}>
+                <h2 className="mt-2 font-heading text-[2rem] font-bold leading-[0.92] md:mt-3 md:text-4xl md:leading-none" style={{ color: currentTheme.ink }}>
                   {label}
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-white/74">
+                <p className="mt-2 max-w-[16rem] text-[13px] leading-relaxed text-white/74 md:mt-3 md:max-w-none md:text-sm">
                   {subtitle}
                 </p>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                {currentTheme.badges.map((badge) => (
+              <div className="mt-4 flex flex-wrap gap-2 md:mt-5">
+                {currentTheme.badges.map((badge, index) => (
                   <span
                     key={badge}
                     className={cn(
-                      'rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]',
+                      'rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] md:px-3 md:text-[10px] md:tracking-[0.18em]',
+                      index === currentTheme.badges.length - 1 && 'hidden md:inline-flex',
                       'border-white/14 text-white/78'
                     )}
                   >
@@ -114,12 +125,12 @@ export const ClientPanelTransitionOverlay = () => {
                 ))}
               </div>
 
-              <div className="mt-6 overflow-hidden rounded-full bg-white/10">
+              <div className="mt-5 overflow-hidden rounded-full bg-white/10 md:mt-6">
                 <motion.div
                   initial={{ x: '-100%' }}
                   animate={{ x: '0%' }}
-                  transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-1 rounded-full"
+                  transition={{ duration: 0.52, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-[3px] rounded-full md:h-1"
                   style={{ background: `linear-gradient(90deg, ${currentTheme.accent} 0%, rgba(255,255,255,0.92) 100%)` }}
                 />
               </div>

@@ -4,8 +4,11 @@ import { useReducedMotion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelTransitionStore, type ClientPanelTheme } from '@/store/clientPanelTransition.store';
 
-const NAVIGATION_DELAY_MS = 150;
-const TRANSITION_RESET_MS = 960;
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
+const MOBILE_NAVIGATION_DELAY_MS = 90;
+const DESKTOP_NAVIGATION_DELAY_MS = 150;
+const MOBILE_TRANSITION_RESET_MS = 640;
+const DESKTOP_TRANSITION_RESET_MS = 960;
 
 type PanelEntryOptions = {
   closeMenu?: () => void;
@@ -31,6 +34,9 @@ export const useClientPanelEntry = () => {
   }, []);
 
   return ({ closeMenu }: PanelEntryOptions = {}) => {
+    const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
+    const navigationDelay = isMobile ? MOBILE_NAVIGATION_DELAY_MS : DESKTOP_NAVIGATION_DELAY_MS;
+    const transitionReset = isMobile ? MOBILE_TRANSITION_RESET_MS : DESKTOP_TRANSITION_RESET_MS;
     const appPath = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
     const destination = isAuthenticated ? appPath : '/auth/login';
 
@@ -75,11 +81,11 @@ export const useClientPanelEntry = () => {
       } else {
         navigate(destination, { state: navigationState });
       }
-    }, NAVIGATION_DELAY_MS);
+    }, navigationDelay);
 
     const resetTimer = window.setTimeout(() => {
       finish();
-    }, TRANSITION_RESET_MS);
+    }, transitionReset);
 
     timersRef.current = [navTimer, resetTimer];
   };

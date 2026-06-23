@@ -128,12 +128,12 @@ export const Navbar = () => {
   const appDest = isAuthenticated ? appLink : '/auth/login';
   const mobilePanelTitle = isAdmin ? 'Panel admina' : isEmployee ? 'Panel pracownika' : 'Panel klienta';
   const mobilePanelHint = isAdmin
-    ? 'ustawienia i zespol'
+    ? 'ustawienia i grafik'
     : isEmployee
-      ? 'grafik i wiadomosci'
+      ? 'grafik i wizyty'
       : isAuthenticated
-        ? 'wizyty i konto'
-        : 'logowanie i konto';
+        ? 'moje konto'
+        : 'otworz konto';
 
   const handlePanelEntry = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, closeMenu?: () => void) => {
     event.preventDefault();
@@ -169,16 +169,16 @@ export const Navbar = () => {
             <button
               type="button"
               onClick={(event) => handlePanelEntry(event)}
-              className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur"
+              className="group flex min-w-0 max-w-[184px] items-center gap-2.5 rounded-full border border-white/12 bg-white/10 px-3.5 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur"
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-caramel/18 text-caramel">
                 <LayoutDashboard className="h-4 w-4" />
               </span>
               <span className="min-w-0 text-left leading-none">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-caramel">
+                <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-caramel">
                   {mobilePanelTitle}
                 </span>
-                <span className="mt-1 block text-[8px] uppercase tracking-[0.14em] text-ivory/60">
+                <span className="mt-1 block truncate text-[9px] text-ivory/72">
                   {mobilePanelHint}
                 </span>
               </span>
