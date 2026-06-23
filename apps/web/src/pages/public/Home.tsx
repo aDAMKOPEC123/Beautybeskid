@@ -40,7 +40,7 @@ const faqItems = [
     name: 'Czy BeautyBeskid to salon kosmetologiczny w Limanowej?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'BeautyBeskid w Limanowej prowadzi Wiktoria Ćwik. Aktualne usługi oraz dostępne terminy są pobierane z panelu administracyjnego salonu.',
+      text: 'BeautyBeskid w Limanowej prowadzi Wiktoria Ćwik. Na stronie znajdziesz aktualną ofertę, wolne terminy, konsultacje i najważniejsze informacje przed wizytą.',
     },
   },
   {
@@ -56,7 +56,7 @@ const faqItems = [
     name: 'Czy usługi widoczne na stronie są aktualne?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Sekcja zabiegów pokazuje aktywne usługi dodane w panelu admina. Kalendarz terminów liczy godziny dla wybranej usługi z tego samego panelu.',
+      text: 'Tak. Sekcja zabiegów pokazuje usługi aktualnie dostępne do rezerwacji, a kalendarz wyświetla wolne godziny dla wybranego zabiegu.',
     },
   },
   {
@@ -686,7 +686,7 @@ const AvailabilityPreviewSection = ({
                 Sprawdź dostępny dzień i godzinę bez logowania
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ivory/68 md:text-base">
-                Wybierz usługę dodaną i aktywną w panelu admina, kliknij dostępny dzień w kalendarzu i zobacz wolne godziny.
+                Wybierz usługę z aktualnej oferty, kliknij dostępny dzień w kalendarzu i zobacz wolne godziny.
                 Konto będzie potrzebne dopiero przy potwierdzeniu rezerwacji.
               </p>
             </div>
@@ -694,11 +694,11 @@ const AvailabilityPreviewSection = ({
             <div className="grid gap-2 sm:grid-cols-2">
               {servicesLoading ? (
                 <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68">
-                  Ładuję usługi z panelu admina...
+                  Ładuję aktualną ofertę...
                 </div>
               ) : activeAdminServices.length === 0 ? (
                 <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68 sm:col-span-2">
-                  Brak aktywnych usług w panelu admina. Kalendarz pojawi się po dodaniu i aktywowaniu usługi.
+                  Brak usług dostępnych do rezerwacji. Kalendarz pojawi się, gdy oferta zostanie uzupełniona.
                 </div>
               ) : (
                 activeAdminServices.map((service) => (
@@ -831,10 +831,10 @@ const AvailabilityPreviewSection = ({
                     {selectedService?.name ?? 'Brak aktywnej usługi'}
                   </h3>
                   <p className="mt-1 text-sm text-espresso/55">
-                    {selectedService ? selectedDateLabel : 'Dodaj lub aktywuj usługę w panelu admina'}
+                    {selectedService ? selectedDateLabel : 'Brak usługi dostępnej do rezerwacji'}
                   </p>
                   <p className="mt-2 text-xs leading-relaxed text-espresso/48">
-                    Dostępne godziny są liczone wyłącznie na podstawie tej usługi i jej czasu trwania z panelu admina.
+                    Dostępne godziny są liczone dla wybranej usługi i jej czasu trwania.
                   </p>
                 </div>
                 <CalendarCheck className="h-8 w-8 shrink-0 text-oak" />
@@ -843,7 +843,7 @@ const AvailabilityPreviewSection = ({
               <div className="mt-5 flex-1 rounded-lg bg-cream/55 p-4">
                 {servicesLoading ? (
                   <p className="mb-4 rounded-lg border border-oak/20 bg-white px-3 py-2 text-xs text-espresso/55">
-                    Ładuję usługi z panelu admina...
+                    Ładuję aktualną ofertę...
                   </p>
                 ) : null}
                 {!servicesLoading && !selectedService ? (
@@ -851,7 +851,7 @@ const AvailabilityPreviewSection = ({
                     <div>
                       <p className="font-semibold text-espresso">Brak aktywnych usług do sprawdzenia</p>
                       <p className="mt-2 text-sm text-espresso/58">
-                        Terminy pojawią się tutaj dopiero po dodaniu i aktywowaniu usługi w panelu admina.
+                        Terminy pojawią się tutaj, gdy w ofercie będzie dostępna usługa do rezerwacji.
                       </p>
                     </div>
                   </div>
@@ -949,23 +949,23 @@ const ServicesSection = ({
         <FadeUp>
           <SectionIntro
             eyebrow="Aktualne usługi"
-            title="Zabiegi dostępne w panelu admina"
-            description="Ta lista pokazuje wyłącznie aktywne usługi dodane w panelu administracyjnym. Terminy w kalendarzu są liczone dla tej samej usługi, jej czasu trwania i realnego grafiku."
+            title="Zabiegi dostępne do rezerwacji"
+            description="Zobacz aktualną ofertę BeautyBeskid, wybierz zabieg i przejdź do kalendarza, aby sprawdzić najbliższe wolne godziny."
           />
         </FadeUp>
 
         {servicesLoading ? (
           <div className="rounded-lg border border-espresso/10 bg-white p-6 text-center text-sm text-espresso/60 shadow-sm">
-            Ładuję usługi z panelu admina...
+            Ładuję aktualną ofertę...
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {activeAdminServices.length === 0 && (
               <FadeUp className="md:col-span-2 xl:col-span-4">
                 <article className="rounded-lg border border-dashed border-espresso/15 bg-white p-6 text-center shadow-sm">
-                  <h3 className="font-heading text-2xl font-bold text-espresso">Brak aktywnych usług</h3>
+                  <h3 className="font-heading text-2xl font-bold text-espresso">Brak usług dostępnych do rezerwacji</h3>
                   <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-espresso/60">
-                    Dodaj i aktywuj usługę w panelu admina, aby pojawiła się tutaj oraz w kalendarzu terminów.
+                    Gdy oferta zostanie uzupełniona, zabiegi pojawią się tutaj oraz w kalendarzu terminów.
                   </p>
                 </article>
               </FadeUp>
@@ -982,7 +982,7 @@ const ServicesSection = ({
                       </div>
                       {index === 0 ? (
                         <span className="rounded-full bg-oak/14 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-oak">
-                          Aktywne w panelu
+                          Dostępne teraz
                         </span>
                       ) : null}
                     </div>
