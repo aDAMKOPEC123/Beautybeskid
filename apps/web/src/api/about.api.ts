@@ -26,5 +26,7 @@ export const aboutApi = {
   get: (): Promise<AboutPageData> =>
     api.get('/about').then((r) => r.data.data.about),
   update: (fd: FormData): Promise<AboutPageData> =>
-    api.put('/about', fd).then((r) => r.data.data.about),
+    api.put('/about', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data.data.about),
 };

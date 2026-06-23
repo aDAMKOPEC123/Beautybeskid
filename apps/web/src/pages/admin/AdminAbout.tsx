@@ -79,11 +79,14 @@ export const AdminAbout = () => {
 
   const mutation = useMutation({
     mutationFn: (fd: FormData) => aboutApi.update(fd),
-    onSuccess: () => {
+    onSuccess: (updatedAbout) => {
+      queryClient.setQueryData(['about'], updatedAbout);
       queryClient.invalidateQueries({ queryKey: ['about'] });
+      setSalonCoverFile(null);
+      setOwnerPhotoFile(null);
       toast.success('Zapisano zmiany');
     },
-    onError: () => toast.error('Błąd podczas zapisywania'),
+    onError: (error: any) => toast.error(error?.response?.data?.message || 'Błąd podczas zapisywania'),
   });
 
   const handleSave = () => {
