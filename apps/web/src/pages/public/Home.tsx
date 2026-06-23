@@ -486,13 +486,13 @@ const HeroSection = ({
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
-              BeautyBeskid Limanowa. Profesjonalny kosmetolog i podolog Wiktoria Ćwik.
+              BeautyBeskid Limanowa. Aktualne zabiegi i wolne terminy u Wiktorii Ćwik.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
               W BeautyBeskid sprawdzisz dostępne terminy bez logowania i spokojnie wybierzesz usługę
-              aktywną w panelu admina. Podologia i kosmetologia pozostają wyszarzoną zapowiedzią, jeśli nie są
-              jeszcze dodane i aktywowane w systemie.
+              aktywną w panelu admina. Usługi, które nie są jeszcze dodane i aktywowane w systemie,
+              pozostają wyszarzoną zapowiedzią.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -555,7 +555,7 @@ const HeroSection = ({
             <div className="relative overflow-hidden rounded-lg border border-white/70 bg-white shadow-[0_24px_90px_rgba(26,56,40,0.18)]">
               <img
                 src={heroImage}
-                alt="Elegancki gabinet kosmetologiczno-podologiczny BeautyBeskid w Limanowej"
+                alt="Elegancki gabinet BeautyBeskid w Limanowej"
                 className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
                 loading="eager"
               />
