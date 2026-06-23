@@ -194,6 +194,9 @@ model User {
   refreshTokens          RefreshToken[]
   beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
   createdBeautyPlans     BeautyPlan[]       @relation("BeautyPlanCreatedBy")
+  forumThreads ForumThread[] @relation("ForumThreadAuthor")
+  forumPosts   ForumPost[]   @relation("ForumPostAuthor")
+  forumWatches ForumWatch[]  @relation("ForumWatchUser")
 
   @@index([role])
 }
@@ -1368,4 +1371,57 @@ model BeautyPlan {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+}
+
+model ForumCategory {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  order       Int           @default(0)
+  threads     ForumThread[]
+  createdAt   DateTime      @default(now())
+}
+
+model ForumThread {
+  id          String        @id @default(cuid())
+  title       String
+  content     String
+  isAnonymous Boolean       @default(false)
+  isPinned    Boolean       @default(false)
+  isLocked    Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
+  authorId    String
+  author      User          @relation("ForumThreadAuthor", fields: [authorId], references: [id])
+  categoryId  String
+  category    ForumCategory @relation(fields: [categoryId], references: [id])
+  posts       ForumPost[]
+  watches     ForumWatch[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ForumPost {
+  id            String      @id @default(cuid())
+  content       String
+  isAnonymous   Boolean     @default(false)
+  isDeleted     Boolean     @default(false)
+  mentionsAdmin Boolean     @default(false)
+  authorId      String
+  author        User        @relation("ForumPostAuthor", fields: [authorId], references: [id])
+  threadId      String
+  thread        ForumThread @relation(fields: [threadId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model ForumWatch {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation("ForumWatchUser", fields: [userId], references: [id])
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id])
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, threadId])
 }
