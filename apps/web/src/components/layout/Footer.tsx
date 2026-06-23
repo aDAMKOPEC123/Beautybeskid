@@ -79,7 +79,7 @@ export const Footer = () => {
               BeautyBeskid
             </Link>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              Salon Kosmetologiczny & Gabinet Podologiczny w Limanowej. Zadbaj o siebie razem z nami.
+              Salon kosmetologiczny w Limanowej. Aktualne zabiegi, konsultacje i rezerwacja online.
             </p>
             <div className="flex gap-4">
               {[
