@@ -48,8 +48,13 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (id: string) => {
-  const cat = await prisma.forumCategory.findUnique({ where: { id } });
+  const cat = await prisma.forumCategory.findUnique({
+    where: { id },
+    include: { _count: { select: { threads: true } } },
+  });
   if (!cat) throw new AppError('Kategoria nie istnieje', 404);
+  if (cat._count.threads > 0)
+    throw new AppError('Nie można usunąć kategorii zawierającej wątki', 400);
   return prisma.forumCategory.delete({ where: { id } });
 };
 

@@ -55,7 +55,9 @@ import { createAndEmitNotification } from '../notifications/notifications.servic
 import { sendPushToUser, sendPushToAdmins } from '../push/push.service';
 import {
   getCategories,
+  getThreadsByCategory,
   createThread,
+  getThread,
   createPost,
   toggleWatch,
   getWatchStatus,
@@ -63,6 +65,8 @@ import {
   softDeletePost,
   pinThread,
   lockThread,
+  moveThread,
+  deleteCategory,
 } from './forum.service';
 
 const mockCategory = {
@@ -271,5 +275,78 @@ describe('pinThread / lockThread', () => {
     expect(prisma.forumThread.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { isLocked: true } })
     );
+  });
+});
+
+describe('getWatchStatus', () => {
+  it('returns watching:true when watch exists', async () => {
+    vi.mocked(prisma.forumWatch.findFirst).mockResolvedValue({ id: 'w1' } as any);
+    const result = await getWatchStatus('u1', 'th1');
+    expect(result).toEqual({ watching: true });
+  });
+
+  it('returns watching:false when no watch', async () => {
+    vi.mocked(prisma.forumWatch.findFirst).mockResolvedValue(null);
+    const result = await getWatchStatus('u1', 'th1');
+    expect(result).toEqual({ watching: false });
+  });
+});
+
+describe('getThreadsByCategory', () => {
+  it('returns paginated threads with anonymity masking', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue(mockCategory as any);
+    const anonThread = { ...mockThread, isAnonymous: true, author: mockUser };
+    vi.mocked(prisma.forumThread.findMany).mockResolvedValue([anonThread] as any);
+    vi.mocked(prisma.forumThread.count).mockResolvedValue(1);
+
+    const result = await getThreadsByCategory('pielegnacja-stop', 1, 20, 'newest', false);
+
+    expect(result.data[0].author).toEqual({ id: null, name: 'Anonim', avatarPath: null });
+    expect(result.totalPages).toBe(1);
+  });
+
+  it('throws 404 when category not found', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue(null);
+    await expect(getThreadsByCategory('nope', 1, 20, 'newest')).rejects.toThrow('Kategoria nie istnieje');
+  });
+});
+
+describe('moveThread', () => {
+  it('throws 404 when target category not found', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue(null);
+    await expect(moveThread('th1', 'bad-cat')).rejects.toThrow('Kategoria nie istnieje');
+  });
+
+  it('updates thread categoryId on success', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue(mockCategory as any);
+    vi.mocked(prisma.forumThread.update).mockResolvedValue({ ...mockThread, categoryId: 'cat2' } as any);
+
+    await moveThread('th1', 'cat2');
+
+    expect(prisma.forumThread.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { categoryId: 'cat2' } })
+    );
+  });
+});
+
+describe('deleteCategory', () => {
+  it('throws 400 when category has threads', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue({
+      ...mockCategory,
+      _count: { threads: 3 },
+    } as any);
+    await expect(deleteCategory('cat1')).rejects.toThrow('Nie można usunąć kategorii zawierającej wątki');
+  });
+
+  it('deletes category when empty', async () => {
+    vi.mocked(prisma.forumCategory.findUnique).mockResolvedValue({
+      ...mockCategory,
+      _count: { threads: 0 },
+    } as any);
+    vi.mocked(prisma.forumCategory.delete).mockResolvedValue(mockCategory as any);
+
+    await deleteCategory('cat1');
+
+    expect(prisma.forumCategory.delete).toHaveBeenCalledWith({ where: { id: 'cat1' } });
   });
 });
