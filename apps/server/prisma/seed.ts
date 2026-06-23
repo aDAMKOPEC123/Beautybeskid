@@ -104,6 +104,24 @@ async function main() {
   }
   console.log('Seeded 5 SkinTypeAdvice records');
 
+  // Seed forum categories
+  const forumCategories = [
+    { name: 'Pielęgnacja stóp', slug: 'pielegnacja-stop', description: 'Porady i pytania dotyczące pielęgnacji stóp', order: 1 },
+    { name: 'Pielęgnacja twarzy', slug: 'pielegnacja-twarzy', description: 'Pielęgnacja skóry twarzy, nawilżanie, oczyszczanie', order: 2 },
+    { name: 'Dłonie & Paznokcie', slug: 'dlonie-paznokcie', description: 'Manicure, pielęgnacja dłoni i paznokci', order: 3 },
+    { name: 'Pytania do kosmetologa', slug: 'pytania-do-kosmetologa', description: 'Zadaj pytanie kosmetologowi', order: 4 },
+    { name: 'Moje patenty na skórę', slug: 'moje-patenty-na-skore', description: 'Podziel się swoimi sprawdzonymi metodami pielęgnacyjnymi', order: 5 },
+  ];
+
+  for (const cat of forumCategories) {
+    await prisma.forumCategory.upsert({
+      where: { slug: cat.slug },
+      update: {},
+      create: cat,
+    });
+  }
+  console.log('Seeded 5 forum categories.');
+
   console.log('Seeding completed.');
 }
 

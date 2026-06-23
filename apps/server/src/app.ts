@@ -41,6 +41,7 @@ import skinWeatherRouter from './modules/skin-weather/skin-weather.router';
 import { academyRouter } from './modules/academy/academy.router';
 import marketingRouter from './modules/marketing/marketing.router';
 import beautyPlanRouter from './modules/beauty-plan/beauty-plan.router';
+import { forumRouter } from './modules/forum/forum.router';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -94,6 +95,7 @@ app.use('/api/skin-weather', skinWeatherRouter);
 app.use('/api/academy', academyRouter);
 app.use('/api/marketing', marketingRouter);
 app.use('/api/beauty-plans', beautyPlanRouter);
+app.use('/api/forum', forumRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
