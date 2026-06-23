@@ -70,7 +70,9 @@ export const useClientPanelEntry = () => {
 
     const navTimer = window.setTimeout(() => {
       const doc = document as DocumentWithViewTransition;
-      if (typeof doc.startViewTransition === 'function') {
+      const shouldUseNativeViewTransition = !isMobile && typeof doc.startViewTransition === 'function';
+
+      if (shouldUseNativeViewTransition) {
         doc.startViewTransition(() => {
           navigate(destination, { state: navigationState });
         });
