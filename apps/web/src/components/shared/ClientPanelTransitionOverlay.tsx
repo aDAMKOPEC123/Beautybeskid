@@ -47,11 +47,11 @@ const THEME_STYLES = {
 export const ClientPanelTransitionOverlay = () => {
   const { active, label, subtitle, theme, finish } = useClientPanelTransitionStore();
   const shouldReduce = useReducedMotion();
+  const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
 
   useEffect(() => {
     if (!active) return;
 
-    const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
     const transitionReset = isMobile ? MOBILE_TRANSITION_RESET_MS : DESKTOP_TRANSITION_RESET_MS;
     const timer = window.setTimeout(() => {
       finish();
@@ -62,9 +62,8 @@ export const ClientPanelTransitionOverlay = () => {
     };
   }, [active, finish]);
 
-  if (shouldReduce) return null;
+  if (shouldReduce || isMobile) return null;
 
-  const isMobile = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
   const currentTheme = THEME_STYLES[theme];
   const Icon = currentTheme.icon;
 

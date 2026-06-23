@@ -61,7 +61,7 @@ export const useClientPanelEntry = () => {
     closeMenu?.();
     timersRef.current.forEach((timer) => window.clearTimeout(timer));
 
-    if (shouldReduce) {
+    if (shouldReduce || isMobile) {
       navigate(destination, { state: navigationState });
       return;
     }
