@@ -35,10 +35,13 @@ export const forumController = {
   // ─── Threads ─────────────────────────────────────────────────────────────────
   getThreadsByCategory: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isAdmin = (req as any).user?.role === 'ADMIN';
+      const isAdmin = req.user?.role === 'ADMIN';
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      const sort = (req.query.sort as 'newest' | 'active' | 'popular') || 'newest';
+      const VALID_SORTS = ['newest', 'active', 'popular'] as const;
+      type SortType = typeof VALID_SORTS[number];
+      const sortParam = req.query.sort as string;
+      const sort: SortType = (VALID_SORTS as readonly string[]).includes(sortParam) ? sortParam as SortType : 'newest';
       const data = await forumService.getThreadsByCategory(req.params.slug, page, limit, sort, isAdmin);
       res.json(data);
     } catch (err) { next(err); }
@@ -46,15 +49,16 @@ export const forumController = {
 
   createThread: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
-      const data = await forumService.createThread(userId, req.body);
+      const userId = req.user!.id;
+      const isAnonymous = req.body.isAnonymous === true;
+      const data = await forumService.createThread(userId, { ...req.body, isAnonymous });
       res.status(201).json(data);
     } catch (err) { next(err); }
   },
 
   getThread: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isAdmin = (req as any).user?.role === 'ADMIN';
+      const isAdmin = req.user?.role === 'ADMIN';
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
       const data = await forumService.getThread(req.params.id, page, limit, isAdmin);
@@ -64,8 +68,8 @@ export const forumController = {
 
   deleteThread: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
-      const isAdmin = (req as any).user.role === 'ADMIN';
+      const userId = req.user!.id;
+      const isAdmin = req.user!.role === 'ADMIN';
       await forumService.softDeleteThread(userId, req.params.id, isAdmin);
       res.status(204).send();
     } catch (err) { next(err); }
@@ -94,7 +98,10 @@ export const forumController = {
 
   getAdminThreads: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const filter = (req.query.filter as 'all' | 'admin-mention' | 'deleted' | 'pinned') || 'all';
+      const VALID_FILTERS = ['all', 'admin-mention', 'deleted', 'pinned'] as const;
+      type FilterType = typeof VALID_FILTERS[number];
+      const filterParam = req.query.filter as string;
+      const filter: FilterType = (VALID_FILTERS as readonly string[]).includes(filterParam) ? filterParam as FilterType : 'all';
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
       const data = await forumService.getAdminThreads(filter, page, limit);
@@ -105,17 +112,18 @@ export const forumController = {
   // ─── Posts ───────────────────────────────────────────────────────────────────
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
-      const { content, isAnonymous } = req.body;
-      const data = await forumService.createPost(userId, req.params.id, content, isAnonymous ?? false);
+      const userId = req.user!.id;
+      const { content } = req.body;
+      const isAnonymous = req.body.isAnonymous === true;
+      const data = await forumService.createPost(userId, req.params.id, content, isAnonymous);
       res.status(201).json(data);
     } catch (err) { next(err); }
   },
 
   deletePost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
-      const isAdmin = (req as any).user.role === 'ADMIN';
+      const userId = req.user!.id;
+      const isAdmin = req.user!.role === 'ADMIN';
       await forumService.softDeletePost(userId, req.params.id, isAdmin);
       res.status(204).send();
     } catch (err) { next(err); }
@@ -123,7 +131,7 @@ export const forumController = {
 
   adminDeletePost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
+      const userId = req.user!.id;
       await forumService.softDeletePost(userId, req.params.id, true);
       res.status(204).send();
     } catch (err) { next(err); }
@@ -131,7 +139,7 @@ export const forumController = {
 
   adminDeleteThread: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
+      const userId = req.user!.id;
       await forumService.softDeleteThread(userId, req.params.id, true);
       res.status(204).send();
     } catch (err) { next(err); }
@@ -140,7 +148,7 @@ export const forumController = {
   // ─── Watch ───────────────────────────────────────────────────────────────────
   toggleWatch: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
+      const userId = req.user!.id;
       const data = await forumService.toggleWatch(userId, req.params.id);
       res.json(data);
     } catch (err) { next(err); }
@@ -148,7 +156,7 @@ export const forumController = {
 
   getWatchStatus: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user.id;
+      const userId = req.user!.id;
       const data = await forumService.getWatchStatus(userId, req.params.id);
       res.json(data);
     } catch (err) { next(err); }
