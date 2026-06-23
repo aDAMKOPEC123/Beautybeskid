@@ -57,7 +57,7 @@ export const employeesApi = {
     const res = await api.get('/employees/availability/month', { params });
     return res.data.data.availability;
   },
-  getWeekSlotsCount: async (): Promise<{ count: number; weekStart: string; weekEnd: string }> => {
+  getWeekSlotsCount: async (): Promise<{ count: number; availableDays: number; weekStart: string; weekEnd: string }> => {
     const res = await api.get('/employees/week-slots-count');
     return res.data.data;
   },

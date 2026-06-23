@@ -474,6 +474,7 @@ export function calculateWeekSlotsCount(scheduledMinutes: number, bookedMinutes:
 
 export const getWeekSlotsCount = async (): Promise<{
   count: number;
+  availableDays: number;
   weekStart: string;
   weekEnd: string;
 }> => {
@@ -487,6 +488,26 @@ export const getWeekSlotsCount = async (): Promise<{
   const weekEnd = new Date(weekStart);
   weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
   weekEnd.setUTCHours(23, 59, 59, 999);
+
+  const service = await prisma.service.findFirst({
+    where: { isActive: true },
+    orderBy: { durationMinutes: 'asc' },
+    select: { id: true },
+  });
+
+  const weekDates: string[] = [];
+  for (let d = new Date(weekStart); d <= weekEnd; d.setUTCDate(d.getUTCDate() + 1)) {
+    weekDates.push(d.toISOString().slice(0, 10));
+  }
+
+  const availableDays = service
+    ? (await Promise.all(
+        weekDates.map(async (dateStr) => {
+          const slots = await getAvailability(dateStr, service.id);
+          return slots.some((slot) => slot.available);
+        }),
+      )).filter(Boolean).length
+    : 0;
 
   // Query 1: day-specific overrides this week
   const workDayOverrides = await prisma.employeeWorkDay.findMany({
@@ -550,6 +571,7 @@ export const getWeekSlotsCount = async (): Promise<{
 
   return {
     count: calculateWeekSlotsCount(scheduledMinutes, bookedMinutes),
+    availableDays,
     weekStart: weekStart.toISOString(),
     weekEnd: weekEnd.toISOString(),
   };

@@ -216,18 +216,12 @@ const formatNextSlot = (date: string, time: string) => {
   return { day, time };
 };
 
-function getSlotsUrgency(count: number | undefined): { text: string; className: string } | null {
-  if (count === undefined || count === 0) return null;
-  if (count === 1) {
-    return { text: 'Ostatnie miejsce w tym tygodniu', className: 'text-[#A44437]' };
+function getBookingDaysSummary(availableDays: number | undefined): { text: string; className: string } | null {
+  if (availableDays === undefined || availableDays === 0) return null;
+  if (availableDays === 1) {
+    return { text: '1 dzień z możliwością rezerwacji w tym tygodniu', className: 'text-[#A44437]' };
   }
-  if (count <= 3) {
-    return { text: `Ostatnie ${count} miejsca w tym tygodniu`, className: 'text-[#A44437]' };
-  }
-  if (count <= 6) {
-    return { text: `Zostało ${count} wolnych terminów`, className: 'text-oak' };
-  }
-  return { text: `${count} wolnych terminów w tym tygodniu`, className: 'text-mink' };
+  return { text: `${availableDays} dni z możliwością rezerwacji w tym tygodniu`, className: 'text-mink' };
 }
 
 type DayStatus = 'off' | 'none' | 'partial' | 'available';
@@ -392,7 +386,7 @@ const BookingButton = ({
 const NextSlotCard = ({
   nextSlotLoading,
   formattedSlot,
-  urgency,
+  bookingDaysSummary,
   bookingTo,
   bookingState,
   isAuthenticated,
@@ -400,7 +394,7 @@ const NextSlotCard = ({
 }: {
   nextSlotLoading: boolean;
   formattedSlot: { day: string; time: string } | null;
-  urgency: { text: string; className: string } | null;
+  bookingDaysSummary: { text: string; className: string } | null;
   bookingTo: string;
   bookingState?: BookingState;
   isAuthenticated: boolean;
@@ -422,7 +416,7 @@ const NextSlotCard = ({
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-espresso/70">
               <Clock className="h-4 w-4 text-oak" />
               <span>{formattedSlot.time}</span>
-              {urgency && <span className={`text-xs ${urgency.className}`}>{urgency.text}</span>}
+              {bookingDaysSummary && <span className={`text-xs ${bookingDaysSummary.className}`}>{bookingDaysSummary.text}</span>}
             </div>
           </>
         ) : (
@@ -459,7 +453,7 @@ const NextSlotCard = ({
 const HeroSection = ({
   nextSlotLoading,
   formattedSlot,
-  urgency,
+  bookingDaysSummary,
   bookingTo,
   bookingState,
   isAuthenticated,
@@ -468,7 +462,7 @@ const HeroSection = ({
 }: {
   nextSlotLoading: boolean;
   formattedSlot: { day: string; time: string } | null;
-  urgency: { text: string; className: string } | null;
+  bookingDaysSummary: { text: string; className: string } | null;
   bookingTo: string;
   bookingState?: BookingState;
   isAuthenticated: boolean;
@@ -529,7 +523,7 @@ const HeroSection = ({
               <NextSlotCard
                 nextSlotLoading={nextSlotLoading}
                 formattedSlot={formattedSlot}
-                urgency={urgency}
+                bookingDaysSummary={bookingDaysSummary}
                 bookingTo={bookingTo}
                 bookingState={bookingState}
                 isAuthenticated={isAuthenticated}
@@ -572,7 +566,7 @@ const HeroSection = ({
               <NextSlotCard
                 nextSlotLoading={nextSlotLoading}
                 formattedSlot={formattedSlot}
-                urgency={urgency}
+                bookingDaysSummary={bookingDaysSummary}
                 bookingTo={bookingTo}
                 bookingState={bookingState}
                 isAuthenticated={isAuthenticated}
@@ -1493,7 +1487,7 @@ export const Home = () => {
     .slice(0, 3);
 
   const formattedSlot = nextSlot ? formatNextSlot(nextSlot.date, nextSlot.time) : null;
-  const urgency = getSlotsUrgency(weekSlots?.count);
+  const bookingDaysSummary = getBookingDaysSummary(weekSlots?.availableDays);
   const bookingTo = isAuthenticated ? '/rezerwacja' : '/auth/login';
   const bookingState = isAuthenticated ? undefined : { from: '/rezerwacja' };
 
@@ -1520,7 +1514,7 @@ export const Home = () => {
         <HeroSection
           nextSlotLoading={nextSlotLoading}
           formattedSlot={formattedSlot}
-          urgency={urgency}
+          bookingDaysSummary={bookingDaysSummary}
           bookingTo={bookingTo}
           bookingState={bookingState}
           isAuthenticated={isAuthenticated}
