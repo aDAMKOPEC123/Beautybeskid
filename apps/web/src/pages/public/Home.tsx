@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { PageSEO } from '@/components/shared/SEO';
 import { ConsultationModal } from '@/components/public/ConsultationModal';
+import { HeroSlider } from '@/components/public/HeroSlider';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import { Season, type Service } from '@cosmo/shared';
@@ -1560,6 +1561,7 @@ export const Home = () => {
       />
 
       <main className="flex-1">
+        <HeroSlider />
         <HeroSection
           nextSlotLoading={nextSlotLoading}
           formattedSlot={formattedSlot}
