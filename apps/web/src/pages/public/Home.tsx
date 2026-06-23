@@ -16,6 +16,7 @@ import {
   Hand,
   HeartHandshake,
   Leaf,
+  LayoutDashboard,
   MessageCircle,
   Phone,
   ShieldCheck,
@@ -30,6 +31,7 @@ import { ConsultationModal } from '@/components/public/ConsultationModal';
 import { HeroSlider } from '@/components/public/HeroSlider';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
+import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 import { Season, type Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
 
@@ -433,6 +435,48 @@ const BookingButton = ({
   </Button>
 );
 
+const MobileClientPanelCard = ({
+  isAuthenticated,
+  onOpenClientPanel,
+}: {
+  isAuthenticated: boolean;
+  onOpenClientPanel: () => void;
+}) => {
+  const shouldReduce = useReducedMotion();
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpenClientPanel}
+      whileTap={shouldReduce ? undefined : { scale: 0.985 }}
+      className="mt-4 flex w-full items-center gap-4 rounded-lg border border-espresso/12 bg-espresso p-4 text-left text-ivory shadow-[0_18px_48px_rgba(26,56,40,0.18)] md:hidden"
+    >
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-oak/18 text-oak">
+        <LayoutDashboard className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Panel klienta</span>
+        <span className="mt-1 block font-heading text-2xl font-bold leading-none">
+          {isAuthenticated ? 'Wróć do swojego konta' : 'Otwórz swoje konto'}
+        </span>
+        <span className="mt-2 block text-sm leading-relaxed text-ivory/72">
+          {isAuthenticated
+            ? 'Wizyty, historia, zalecenia i czat w jednym miejscu.'
+            : 'Zaloguj się i przejdź od razu do wizyt, historii oraz zaleceń.'}
+        </span>
+      </span>
+      <motion.span
+        aria-hidden="true"
+        animate={shouldReduce ? undefined : { x: [0, 5, 0] }}
+        transition={shouldReduce ? undefined : { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+        className="shrink-0 text-oak"
+      >
+        <ArrowRight className="h-5 w-5" />
+      </motion.span>
+    </motion.button>
+  );
+};
+
 const NextSlotCard = ({
   nextSlotLoading,
   formattedSlot,
@@ -509,6 +553,7 @@ const HeroSection = ({
   isAuthenticated,
   onConsultationClick,
   onCheckAvailability,
+  onOpenClientPanel,
 }: {
   nextSlotLoading: boolean;
   formattedSlot: { day: string; time: string } | null;
@@ -518,6 +563,7 @@ const HeroSection = ({
   isAuthenticated: boolean;
   onConsultationClick: () => void;
   onCheckAvailability: () => void;
+  onOpenClientPanel: () => void;
 }) => (
   <section className="premium-home-bg premium-animated-light relative overflow-hidden grain-overlay">
     <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
@@ -547,6 +593,11 @@ const HeroSection = ({
                 </a>
               </Button>
             </div>
+
+            <MobileClientPanelCard
+              isAuthenticated={isAuthenticated}
+              onOpenClientPanel={onOpenClientPanel}
+            />
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/60">
               <button
@@ -1518,6 +1569,7 @@ export const Home = () => {
   const [consultationOpen, setConsultationOpen] = useState(false);
   const [availabilityRequest, setAvailabilityRequest] = useState<AvailabilityRequest | null>(null);
   const { isAuthenticated } = useAuth();
+  const openClientPanel = useClientPanelEntry();
 
   const { data: nextSlot, isLoading: nextSlotLoading } = useQuery({
     queryKey: ['next-available-slot'],
@@ -1577,6 +1629,7 @@ export const Home = () => {
           isAuthenticated={isAuthenticated}
           onConsultationClick={() => setConsultationOpen(true)}
           onCheckAvailability={() => handleCheckAvailability()}
+          onOpenClientPanel={() => openClientPanel()}
         />
         <BenefitsStrip />
         <ServicesSection

@@ -10,6 +10,7 @@ import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import { api } from './lib/axios';
 import { getSocket } from './lib/socket';
+import { ClientPanelTransitionOverlay } from './components/shared/ClientPanelTransitionOverlay';
 import {
   clearChunkReloadMarks,
   getErrorMessage,
@@ -158,6 +159,7 @@ function App() {
         <HelmetProvider>
           <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />
+            <ClientPanelTransitionOverlay />
             <Toaster position="top-right" richColors />
           </QueryClientProvider>
         </HelmetProvider>

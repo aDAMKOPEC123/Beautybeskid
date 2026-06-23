@@ -20,6 +20,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string })?.from || '/';
+  const panelEntry = Boolean((location.state as { panelEntry?: boolean } | null)?.panelEntry);
   const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -66,7 +67,19 @@ export const Login = () => {
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
-          <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Logowanie</CardTitle>
+          {panelEntry && (
+            <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">
+              Wejście do panelu klienta
+            </p>
+          )}
+          <CardTitle className="text-3xl text-center font-heading text-primary font-bold">
+            {panelEntry ? 'Zaloguj się do panelu' : 'Logowanie'}
+          </CardTitle>
+          {panelEntry && (
+            <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">
+              Po zalogowaniu przejdziesz od razu do swojego konta, wizyt i zaleceń.
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
