@@ -596,21 +596,28 @@ const HeroSection = ({
         <FadeUp delay={0.1}>
           <div className="grid gap-4">
             <div className="relative overflow-hidden rounded-lg border border-white/70 bg-white shadow-[0_24px_90px_rgba(26,56,40,0.18)]">
-              <img
-                src={heroImage}
-                alt="Elegancki gabinet BeautyBeskid w Limanowej"
-                className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
-                loading="eager"
+              <HeroSlider
+                variant="hero-card"
+                fallback={
+                  <>
+                    <img
+                      src={heroImage}
+                      alt="Elegancki gabinet BeautyBeskid w Limanowej"
+                      className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
+                      loading="eager"
+                    />
+                    <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Premium care</p>
+                          <p className="mt-1 font-heading text-xl font-bold">Prowadzimy Cię krok po kroku</p>
+                        </div>
+                        <ShieldCheck className="h-7 w-7 shrink-0 text-oak" />
+                      </div>
+                    </div>
+                  </>
+                }
               />
-              <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Premium care</p>
-                    <p className="mt-1 font-heading text-xl font-bold">Prowadzimy Cię krok po kroku</p>
-                  </div>
-                  <ShieldCheck className="h-7 w-7 shrink-0 text-oak" />
-                </div>
-              </div>
             </div>
             <div className="hidden lg:block">
               <NextSlotCard
@@ -1561,7 +1568,6 @@ export const Home = () => {
       />
 
       <main className="flex-1">
-        <HeroSlider />
         <HeroSection
           nextSlotLoading={nextSlotLoading}
           formattedSlot={formattedSlot}

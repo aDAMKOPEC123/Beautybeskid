@@ -33,11 +33,106 @@ const POSITION_ICONS: Record<string, string> = {
   'bottom-left': '↙', 'bottom-center': '↓', 'bottom-right': '↘',
 };
 
+const PREVIEW_POSITION_CLASSES: Record<string, string> = {
+  'top-left': 'items-start justify-start text-left',
+  'top-center': 'items-start justify-center text-center',
+  'top-right': 'items-start justify-end text-right',
+  'middle-left': 'items-center justify-start text-left',
+  'middle-center': 'items-center justify-center text-center',
+  'middle-right': 'items-center justify-end text-right',
+  'bottom-left': 'items-end justify-start text-left',
+  'bottom-center': 'items-end justify-center text-center',
+  'bottom-right': 'items-end justify-end text-right',
+};
+
+const PREVIEW_BUTTON_JUSTIFY_CLASSES: Record<string, string> = {
+  'top-left': 'justify-start',
+  'top-center': 'justify-center',
+  'top-right': 'justify-end',
+  'middle-left': 'justify-start',
+  'middle-center': 'justify-center',
+  'middle-right': 'justify-end',
+  'bottom-left': 'justify-start',
+  'bottom-center': 'justify-center',
+  'bottom-right': 'justify-end',
+};
+
+const PREVIEW_FONT_CLASSES: Record<string, string> = {
+  heading: 'font-heading',
+  sans: 'font-sans',
+  elegant: 'font-light italic',
+};
+
 interface ButtonRow extends SlideButton {
   customHref?: boolean;
 }
 
 const emptyButton = (): ButtonRow => ({ label: '', href: DESTINATIONS[0].href, variant: 'default' });
+
+const SlideVisualPreview = ({
+  imagePath,
+  title,
+  heading,
+  subtitle,
+  textPosition,
+  fontStyle,
+  buttons,
+}: {
+  imagePath: string;
+  title?: string | null;
+  heading?: string | null;
+  subtitle?: string | null;
+  textPosition?: string | null;
+  fontStyle?: string | null;
+  buttons?: SlideButton[] | null;
+}) => {
+  const pos = textPosition ?? 'middle-center';
+  const posClass = PREVIEW_POSITION_CLASSES[pos] ?? PREVIEW_POSITION_CLASSES['middle-center'];
+  const buttonJustify = PREVIEW_BUTTON_JUSTIFY_CLASSES[pos] ?? 'justify-start';
+  const fontClass = PREVIEW_FONT_CLASSES[fontStyle ?? 'heading'] ?? PREVIEW_FONT_CLASSES.heading;
+
+  return (
+    <div className="relative h-52 overflow-hidden bg-muted sm:h-60">
+      <img
+        src={imagePath}
+        alt={title ?? 'Slajd'}
+        className="h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-espresso/20 via-espresso/25 to-espresso/80" />
+      <div className={cn('absolute inset-0 flex p-4', posClass)}>
+        <div className="max-w-[78%]">
+          {heading && (
+            <h3 className={cn('text-lg font-bold leading-tight text-white drop-shadow sm:text-xl', fontClass)}>
+              {heading}
+            </h3>
+          )}
+          {subtitle && (
+            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-white/90 drop-shadow">
+              {subtitle}
+            </p>
+          )}
+          {buttons && buttons.length > 0 && (
+            <div className={cn('mt-3 flex flex-wrap gap-2', buttonJustify)}>
+              {buttons.slice(0, 2).map((btn, i) => (
+                <span
+                  key={`${btn.label}-${i}`}
+                  className={cn(
+                    'rounded px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em]',
+                    btn.variant === 'outline'
+                      ? 'border border-white/70 bg-white/10 text-white'
+                      : 'bg-espresso text-ivory'
+                  )}
+                >
+                  {btn.label}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Reusable content fields component
 const ContentFields = ({
@@ -474,8 +569,12 @@ export const AdminHeroSlides = () => {
 
   return (
     <div className="space-y-8 animate-enter">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-primary">Slider Strony Głównej</h1>
+      <div className="max-w-3xl">
+        <h1 className="text-3xl font-heading font-bold text-primary">Slider w sekcji głównej</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Slajdy pojawiają się teraz jako kompaktowa karta w prawym panelu strony głównej, obok nagłówka
+          i najbliższego terminu. To nie jest już pełnoekranowy baner, więc tekst powinien być krótki i czytelny.
+        </p>
       </div>
 
       {/* Upload form */}
@@ -484,7 +583,8 @@ export const AdminHeroSlides = () => {
           <h2 className="text-lg font-semibold mb-1">Dodaj nowe zdjęcie</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Zalecany rozmiar: <span className="font-medium text-foreground">1920 × 1080 px</span> (proporcje 16:9).
-            Zdjęcia w innym formacie — przeciągnij, aby wybrać widoczny fragment.
+            Na stronie zdjęcie będzie pokazane w mniejszej karcie hero. Zdjęcia w innym formacie — przeciągnij,
+            aby wybrać widoczny fragment.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -606,11 +706,15 @@ export const AdminHeroSlides = () => {
                 )}
               >
                 <CardContent className="p-0">
-                  <div className="relative aspect-video bg-muted">
-                    <img
-                      src={slide.imagePath}
-                      alt={slide.title ?? 'Slajd'}
-                      className="w-full h-full object-cover"
+                  <div className="relative bg-muted">
+                    <SlideVisualPreview
+                      imagePath={slide.imagePath}
+                      title={slide.title}
+                      heading={slide.heading}
+                      subtitle={slide.subtitle}
+                      textPosition={slide.textPosition}
+                      fontStyle={slide.fontStyle}
+                      buttons={slide.buttons}
                     />
                     {slide.isMain && (
                       <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -621,11 +725,6 @@ export const AdminHeroSlides = () => {
                     {!slide.isActive && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                         <span className="text-white text-sm font-medium bg-black/60 px-3 py-1 rounded-full">Ukryte</span>
-                      </div>
-                    )}
-                    {slide.heading && (
-                      <div className="absolute bottom-2 left-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded truncate">
-                        {slide.heading}
                       </div>
                     )}
                   </div>
