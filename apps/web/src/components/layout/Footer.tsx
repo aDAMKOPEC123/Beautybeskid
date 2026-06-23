@@ -123,7 +123,12 @@ export const Footer = () => {
             <div className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
               <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               <span>
-                {SEO.address.street}<br />
+                {SEO.address.street ? (
+                  <>
+                    {SEO.address.street}
+                    <br />
+                  </>
+                ) : null}
                 {SEO.address.postalCode} {SEO.address.city}
               </span>
             </div>

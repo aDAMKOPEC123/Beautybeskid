@@ -12,7 +12,11 @@ interface Props {
 export const PageSEO = ({ title, description, canonical, ogImage, schema }: Props) => {
   const fullTitle = `${title} | ${cfg.siteName}`;
   const url = canonical ? `${cfg.domain}${canonical}` : cfg.domain;
-  const image = ogImage ?? `${cfg.domain}/images/og-salon.jpg`;
+  const image = ogImage
+    ? ogImage.startsWith('http')
+      ? ogImage
+      : `${cfg.domain}${ogImage}`
+    : `${cfg.domain}/images/og-salon.jpg`;
 
   return (
     <Helmet>

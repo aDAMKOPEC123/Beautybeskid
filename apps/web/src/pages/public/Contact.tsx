@@ -24,7 +24,7 @@ const localBusinessSchema = {
   email: SEO.email,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: SEO.address.street,
+    ...(SEO.address.street ? { streetAddress: SEO.address.street } : {}),
     addressLocality: SEO.address.city,
     postalCode: SEO.address.postalCode,
     addressRegion: SEO.address.region,
@@ -175,7 +175,9 @@ export const Contact = () => {
                 </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    <p className="text-sm font-medium mb-1" style={{ color: '#1A3828' }}>{SEO.address.street}</p>
+                    {SEO.address.street ? (
+                      <p className="text-sm font-medium mb-1" style={{ color: '#1A3828' }}>{SEO.address.street}</p>
+                    ) : null}
                     <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
                       {SEO.address.postalCode} {SEO.address.city}
                     </p>
