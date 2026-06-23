@@ -486,13 +486,12 @@ const HeroSection = ({
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
-              BeautyBeskid Limanowa. Aktualne zabiegi i wolne terminy u Wiktorii Ćwik.
+              BeautyBeskid Limanowa. Zabiegi, terminy i rezerwacja w jednym miejscu.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
-              W BeautyBeskid sprawdzisz dostępne terminy bez logowania i spokojnie wybierzesz usługę
-              aktywną w panelu admina. Usługi, które nie są jeszcze dodane i aktywowane w systemie,
-              pozostają wyszarzoną zapowiedzią.
+              Zobacz aktualną ofertę salonu, sprawdź wolne godziny w interaktywnym kalendarzu,
+              umów konsultację i poznaj najważniejsze informacje przed wizytą u Wiktorii Ćwik.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -1511,7 +1510,7 @@ export const Home = () => {
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
         title="Wiktoria Ćwik BeautyBeskid Limanowa"
-        description="BeautyBeskid Limanowa, Wiktoria Ćwik: sprawdź terminy bez logowania dla usług aktywnych w panelu admina. Podologia oraz kosmetologia są w przygotowaniu, jeśli nie są aktywne w systemie."
+        description="BeautyBeskid Limanowa, Wiktoria Ćwik: aktualna oferta zabiegów, interaktywny kalendarz wolnych terminów, konsultacje i rezerwacja online."
         canonical="/"
         ogImage={heroImage}
         schema={faqSchema}
