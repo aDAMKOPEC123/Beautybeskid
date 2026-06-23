@@ -37,34 +37,50 @@ const heroImage = '/images/beautybeskid-hero-premium.png';
 const faqItems = [
   {
     '@type': 'Question',
-    name: 'Czy BeautyBeskid to salon kosmetologiczny w Limanowej?',
+    name: 'Gdzie działa salon kosmetologiczny BeautyBeskid?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'BeautyBeskid w Limanowej prowadzi Wiktoria Ćwik. Na stronie znajdziesz aktualną ofertę, wolne terminy, konsultacje i najważniejsze informacje przed wizytą.',
+      text: 'BeautyBeskid to salon kosmetologiczny w Limanowej prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Na stronie znajdziesz aktualne zabiegi, wolne terminy, konsultacje i informacje potrzebne przed wizytą.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Czy mogę umówić bezpłatną konsultację przed zabiegiem?',
+    name: 'Jakie zabiegi są dostępne w BeautyBeskid Limanowa?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Nowe klientki mogą skorzystać z bezpłatnej konsultacji, podczas której dobieramy zabieg do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
+      text: 'Sekcja zabiegów pokazuje aktualne usługi dostępne do rezerwacji w BeautyBeskid Limanowa. Usługi w przygotowaniu, takie jak podologia lub osobna ścieżka kosmetologii, są widoczne jako wyszarzona zapowiedź do czasu uruchomienia zapisów.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Czy usługi widoczne na stronie są aktualne?',
+    name: 'Czy mogę sprawdzić wolne terminy bez logowania?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Sekcja zabiegów pokazuje usługi aktualnie dostępne do rezerwacji, a kalendarz wyświetla wolne godziny dla wybranego zabiegu.',
+      text: 'Tak. W BeautyBeskid możesz sprawdzić wolne terminy w interaktywnym kalendarzu bez logowania. Konto jest potrzebne dopiero wtedy, gdy chcesz potwierdzić rezerwację wizyty.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Kiedy warto umówić się do podologa w Limanowej?',
+    name: 'Czy mogę umówić konsultację kosmetologiczną w Limanowej?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Podologia w BeautyBeskid jest usługą w przygotowaniu. Jeśli interesuje Cię podolog Limanowa, zostaw kontakt lub obserwuj stronę, a poinformujemy o uruchomieniu zapisów.',
+      text: 'Tak. Nowe klientki mogą umówić bezpłatną konsultację kosmetologiczną w BeautyBeskid Limanowa. Podczas konsultacji dobieramy kierunek zabiegowy do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Dla jakich miejscowości jest BeautyBeskid Limanowa?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'BeautyBeskid przyjmuje klientki z Limanowej i okolic, między innymi z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Tymbarku, Dobrej, Jodłownika oraz Nowego Sącza.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Czy podologia w BeautyBeskid Limanowa jest już dostępna?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Podologia w BeautyBeskid Limanowa jest usługą w przygotowaniu. Do czasu uruchomienia zapisów pozostaje oznaczona jako zapowiedź, aby klientki widziały jasno, które usługi są aktualnie dostępne do rezerwacji.',
     },
   },
 ];
@@ -74,22 +90,55 @@ const faqSchema = {
   '@graph': [
     {
       '@type': 'BeautySalon',
+      '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
       name: 'BeautyBeskid',
+      url: 'https://kosmetologwiktoriacwik.pl/',
+      image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.png',
+      description:
+        'BeautyBeskid Limanowa to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Limanowa',
+        addressRegion: 'Małopolskie',
         addressCountry: 'PL',
       },
+      founder: {
+        '@type': 'Person',
+        name: 'Wiktoria Ćwik',
+        jobTitle: 'Dyplomowany kosmetolog',
+      },
+      knowsAbout: [
+        'kosmetolog Limanowa',
+        'salon kosmetologiczny Limanowa',
+        'konsultacja kosmetologiczna Limanowa',
+        'rezerwacja zabiegów online',
+        'podologia Limanowa',
+      ],
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
         bestRating: '5',
       },
-      areaServed: ['Limanowa', 'Laskowa', 'Mordarka', 'Tymbark', 'Dobra'],
+      areaServed: ['Limanowa', 'Laskowa', 'Mordarka', 'Słopnice', 'Mszana Dolna', 'Tymbark', 'Dobra', 'Jodłownik', 'Nowy Sącz'],
       makesOffer: [
-        'Wiktoria Ćwik kosmetolog Limanowa',
-        'podolog Limanowa wkrótce',
-        'aktywne usługi BeautyBeskid',
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Konsultacja kosmetologiczna',
+            areaServed: 'Limanowa',
+            provider: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Zabiegi kosmetologiczne dostępne do rezerwacji',
+            areaServed: 'Limanowa i okolice',
+            provider: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+          },
+        },
       ],
     },
     {
@@ -109,7 +158,7 @@ const heroTrust = [
 const benefits = [
   'komfortowa atmosfera',
   'indywidualnie dobrane zabiegi',
-  'opieka Wiktorii Ćwik',
+  'Opieka Dyplomowanego Kosmetologa',
   'efekty bez przypadkowych decyzji',
 ];
 
