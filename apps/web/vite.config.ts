@@ -13,7 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: false,
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,webp}'],
+        globIgnores: ['registerSW.js', 'sw.js'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       devOptions: { enabled: true, type: 'module' },
