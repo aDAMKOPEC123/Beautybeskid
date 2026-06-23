@@ -194,9 +194,9 @@ model User {
   refreshTokens          RefreshToken[]
   beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
   createdBeautyPlans     BeautyPlan[]       @relation("BeautyPlanCreatedBy")
-  forumThreads ForumThread[] @relation("ForumThreadAuthor")
-  forumPosts   ForumPost[]   @relation("ForumPostAuthor")
-  forumWatches ForumWatch[]  @relation("ForumWatchUser")
+  forumThreads   ForumThread[] @relation("ForumThreadAuthor")
+  forumPosts     ForumPost[]   @relation("ForumPostAuthor")
+  forumWatches   ForumWatch[]  @relation("ForumWatchUser")
 
   @@index([role])
 }
@@ -1381,6 +1381,8 @@ model ForumCategory {
   order       Int           @default(0)
   threads     ForumThread[]
   createdAt   DateTime      @default(now())
+
+  @@index([order])
 }
 
 model ForumThread {
@@ -1399,6 +1401,10 @@ model ForumThread {
   watches     ForumWatch[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([isDeleted])
+  @@index([authorId])
 }
 
 model ForumPost {
@@ -1413,6 +1419,10 @@ model ForumPost {
   thread        ForumThread @relation(fields: [threadId], references: [id])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+
+  @@index([threadId])
+  @@index([isDeleted])
+  @@index([authorId])
 }
 
 model ForumWatch {
@@ -1423,5 +1433,6 @@ model ForumWatch {
   thread    ForumThread @relation(fields: [threadId], references: [id])
   createdAt DateTime    @default(now())
 
+  @@index([threadId])
   @@unique([userId, threadId])
 }
