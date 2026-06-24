@@ -43,7 +43,7 @@ const faqItems = [
     name: 'Gdzie działa salon kosmetologiczny BeautyBeskid?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'BeautyBeskid to salon kosmetologiczny w Limanowej prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Na stronie znajdziesz aktualne zabiegi, wolne terminy, konsultacje i informacje potrzebne przed wizytą.',
+      text: 'BeautyBeskid to salon kosmetologiczny w Mordarce 505 koło Limanowej prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Na stronie znajdziesz aktualne zabiegi, wolne terminy, konsultacje i informacje potrzebne przed wizytą.',
     },
   },
   {
@@ -98,10 +98,12 @@ const faqSchema = {
       url: 'https://kosmetologwiktoriacwik.pl/',
       image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp',
       description:
-        'BeautyBeskid Limanowa to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
+        'BeautyBeskid w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
       address: {
         '@type': 'PostalAddress',
-        addressLocality: 'Limanowa',
+        streetAddress: 'Mordarka 505',
+        addressLocality: 'Mordarka',
+        postalCode: '34-600',
         addressRegion: 'Małopolskie',
         addressCountry: 'PL',
       },
@@ -122,6 +124,32 @@ const faqSchema = {
         ratingValue: '4.9',
         bestRating: '5',
       },
+      telephone: '+48532128227',
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 49.6986,
+        longitude: 20.4441,
+      },
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '09:00',
+          closes: '18:00',
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Saturday'],
+          opens: '09:00',
+          closes: '14:00',
+        },
+      ],
+      priceRange: '$$',
+      sameAs: [
+        'https://www.facebook.com/kosmetologwiktoriacwik/',
+        'https://www.instagram.com/kosmetolog__wiktoria_cwik/',
+        'https://www.tiktok.com/@wiktoriabeauty_brows',
+      ],
       areaServed: ['Limanowa', 'Laskowa', 'Mordarka', 'Słopnice', 'Mszana Dolna', 'Tymbark', 'Dobra', 'Jodłownik', 'Nowy Sącz'],
       makesOffer: [
         {
@@ -1704,8 +1732,8 @@ export const Home = () => {
   return (
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
-        title="Wiktoria Ćwik BeautyBeskid Limanowa"
-        description="BeautyBeskid Limanowa, Wiktoria Ćwik: aktualna oferta zabiegów, interaktywny kalendarz wolnych terminów, konsultacje i rezerwacja online."
+        title="Kosmetolog i salon beauty Limanowa — Wiktoria Ćwik BeautyBeskid"
+        description="BeautyBeskid Limanowa: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje oraz aktualna dostępność podologii dla Limanowej, Mordarki i okolic."
         canonical="/"
         ogImage={heroImage}
         schema={faqSchema}

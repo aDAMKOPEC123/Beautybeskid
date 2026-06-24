@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /user/
+Disallow: /auth/
 Sitemap: https://kosmetologwiktoriacwik.pl/sitemap.xml
 
 User-agent: GPTBot

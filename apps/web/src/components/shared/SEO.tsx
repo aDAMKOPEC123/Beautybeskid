@@ -22,8 +22,14 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema }: Prop
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content="index,follow,max-image-preview:large" />
+      <meta name="geo.region" content="PL-MA" />
+      <meta name="geo.placename" content={cfg.address.city} />
+      <meta name="geo.position" content={`${cfg.lat};${cfg.lon}`} />
+      <meta name="ICBM" content={`${cfg.lat}, ${cfg.lon}`} />
       <link rel="canonical" href={url} />
       <meta property="og:type" content="business.business" />
+      <meta property="og:site_name" content={cfg.siteName} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />

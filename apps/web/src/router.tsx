@@ -18,6 +18,7 @@ const PublicTerms = lazy(() => import('./pages/public/Terms').then(m => ({ defau
 const Contact = lazy(() => import('./pages/public/Contact').then(m => ({ default: m.Contact })));
 const About = lazy(() => import('./pages/public/About').then(m => ({ default: m.About })));
 const ServiceDetail = lazy(() => import('./pages/public/ServiceDetail').then(m => ({ default: m.ServiceDetail })));
+const LocalSeoPage = lazy(() => import('./pages/public/LocalSeoPage').then(m => ({ default: m.LocalSeoPage })));
 
 // Auth pages
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
@@ -123,6 +124,16 @@ export const router = createBrowserRouter([
       { path: 'regulamin', element: <S><PublicTerms /></S> },
       { path: 'kontakt', element: <S><Contact /></S> },
       { path: 'o-nas', element: <S><About /></S> },
+      { path: 'kosmetolog-limanowa', element: <S><LocalSeoPage pageKey="kosmetolog-limanowa" /></S> },
+      { path: 'kosmetolog-mordarka', element: <S><LocalSeoPage pageKey="kosmetolog-mordarka" /></S> },
+      { path: 'podolog-limanowa', element: <S><LocalSeoPage pageKey="podolog-limanowa" /></S> },
+      { path: 'podolog-mordarka', element: <S><LocalSeoPage pageKey="podolog-mordarka" /></S> },
+      { path: 'kosmetyczka-limanowa', element: <S><LocalSeoPage pageKey="kosmetyczka-limanowa" /></S> },
+      { path: 'kosmetyczka-mordarka', element: <S><LocalSeoPage pageKey="kosmetyczka-mordarka" /></S> },
+      { path: 'laminacja-brwi-limanowa', element: <S><LocalSeoPage pageKey="laminacja-brwi-limanowa" /></S> },
+      { path: 'laminacja-brwi-mordarka', element: <S><LocalSeoPage pageKey="laminacja-brwi-mordarka" /></S> },
+      { path: 'laminacja-rzes-limanowa', element: <S><LocalSeoPage pageKey="laminacja-rzes-limanowa" /></S> },
+      { path: 'laminacja-rzes-mordarka', element: <S><LocalSeoPage pageKey="laminacja-rzes-mordarka" /></S> },
       {
         path: 'auth',
         children: [

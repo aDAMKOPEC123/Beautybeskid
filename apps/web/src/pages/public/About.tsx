@@ -36,8 +36,10 @@ const ownerSchema = (ownerName: string, ownerTitle: string) => ({
     name: SEO.siteName,
     address: {
       '@type': 'PostalAddress',
+      ...(SEO.address.street ? { streetAddress: SEO.address.street } : {}),
       addressLocality: SEO.address.city,
       postalCode: SEO.address.postalCode,
+      addressRegion: SEO.address.region,
       addressCountry: 'PL',
     },
   },
@@ -73,7 +75,7 @@ export const About = () => {
     <>
       <PageSEO
         title="O nas — Salon Kosmetologiczny Limanowa"
-        description={`${about?.salonTagline || 'Poznaj nasz salon kosmetologiczny w Limanowej.'} Obsługujemy klientów z Limanowej, Laskowej, Mordarki, Dobrej i Tymbarku.`}
+        description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeautyBeskid w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
         canonical="/o-nas"
         schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka')}
       />

@@ -213,7 +213,7 @@ export const BlogPost = () => {
 `}</style>
       <PageSEO
         title={post.metaTitle ?? post.title}
-        description={post.metaDescription ?? post.excerpt ?? `Przeczytaj artykuł: ${post.title} na blogu salonu BeautyBeskid w Limanowej.`}
+        description={post.metaDescription ?? post.excerpt ?? `${post.title} — porada na blogu BeautyBeskid, salon kosmetologiczny w Limanowej (Mordarka 505). Pielęgnacja skóry, zabiegi i wskazówki eksperta.`}
         canonical={`/blog/${post.slug}`}
         ogImage={post.coverImage}
       />

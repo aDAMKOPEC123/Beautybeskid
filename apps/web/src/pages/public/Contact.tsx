@@ -2,6 +2,7 @@
 import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
+import { localAreas } from '@/lib/local-seo';
 import { useAuth } from '@/hooks/useAuth';
 
 const TikTokIcon = () => (
@@ -49,6 +50,27 @@ const localBusinessSchema = {
       closes: '14:00',
     },
   ],
+  areaServed: localAreas.map((name) => ({ '@type': 'Place', name })),
+  knowsAbout: [
+    'kosmetolog Limanowa',
+    'kosmetyczka Limanowa',
+    'podolog Limanowa',
+    'laminacja brwi Limanowa',
+    'laminacja rzęs Limanowa',
+    'kosmetolog Mordarka',
+    'kosmetyczka Mordarka',
+  ],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Usługi BeautyBeskid Limanowa',
+    itemListElement: [
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Konsultacja kosmetologiczna Limanowa' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Kosmetyczka Limanowa' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laminacja brwi Limanowa' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laminacja rzęs Limanowa' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Podologia Limanowa' } },
+    ],
+  },
   sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
   url: `${SEO.domain}/kontakt`,
 };
@@ -60,6 +82,8 @@ const cardStyle = {
   boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
 };
 
+const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(SEO.mapQuery)}&z=16&output=embed`;
+
 export const Contact = () => {
   const { isAuthenticated } = useAuth();
 
@@ -68,8 +92,8 @@ export const Contact = () => {
   return (
     <>
       <PageSEO
-        title="Kontakt — Kosmetolog Limanowa"
-        description="Skontaktuj się z salonem kosmetologicznym BeautyBeskid w Limanowej. Obsługujemy klientów z Limanowej, Laskowej, Mordarki, Dobrej, Tymbarku i okolic. Zadzwoń, napisz SMS lub wyślij wiadomość przez czat."
+        title="Kontakt — BeautyBeskid Mordarka 505 koło Limanowej"
+        description="Skontaktuj się z salonem kosmetologicznym BeautyBeskid, Mordarka 505. Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej, Tymbarku i okolic."
         canonical="/kontakt"
         schema={localBusinessSchema}
       />
@@ -87,8 +111,8 @@ export const Contact = () => {
             Kontakt
           </h1>
           <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
-            Salon kosmetologiczny w Limanowej — obsługujemy klientów z Laskowej, Mordarki, Dobrej,
-            Tymbarku i całej okolicy.
+            Salon kosmetologiczny w Mordarce 505 koło Limanowej — obsługujemy klientki z Limanowej,
+            Laskowej, Dobrej, Tymbarku i całej okolicy.
           </p>
         </div>
       </section>
@@ -175,12 +199,19 @@ export const Contact = () => {
                 </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    {SEO.address.street ? (
-                      <p className="text-sm font-medium mb-1" style={{ color: '#1A3828' }}>{SEO.address.street}</p>
-                    ) : null}
-                    <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
-                      {SEO.address.postalCode} {SEO.address.city}
-                    </p>
+                    <a
+                      href={SEO.googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="transition-colors hover:opacity-80"
+                    >
+                      {SEO.address.street ? (
+                        <p className="text-sm font-medium mb-1" style={{ color: '#1A3828' }}>{SEO.address.street}</p>
+                      ) : null}
+                      <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
+                        {SEO.address.postalCode} {SEO.address.city}
+                      </p>
+                    </a>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-3">
@@ -212,8 +243,8 @@ export const Contact = () => {
               {/* Google Maps */}
               <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <iframe
-                  title="Lokalizacja salonu BeautyBeskid — Limanowa"
-                  src={`https://maps.google.com/maps?q=${SEO.lat},${SEO.lon}&z=15&output=embed`}
+                  title="Lokalizacja salonu BeautyBeskid — Mordarka 505"
+                  src={googleMapsEmbedUrl}
                   width="100%"
                   height="400"
                   style={{ border: 0, display: 'block' }}

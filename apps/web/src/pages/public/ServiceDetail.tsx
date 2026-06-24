@@ -30,8 +30,8 @@ export const ServiceDetail = () => {
   return (
     <>
       <PageSEO
-        title={`${service.name} — BeautyBeskid Salon`}
-        description={service.description}
+        title={`${service.name} — BeautyBeskid Limanowa`}
+        description={service.description ? `${service.description} Zabieg dostępny w salonie BeautyBeskid w Limanowej (Mordarka 505).` : `${service.name} — zabieg w salonie BeautyBeskid w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`}
         canonical={`/uslugi/${service.slug}`}
         ogImage={service.imagePath}
       />
