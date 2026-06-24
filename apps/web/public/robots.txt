@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://cosmo.pl/sitemap.xml
+Sitemap: https://kosmetologwiktoriacwik.pl/sitemap.xml
 
 User-agent: GPTBot
 Allow: /
