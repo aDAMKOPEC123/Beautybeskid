@@ -14,11 +14,21 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H2FHJ657K3"></script>
+    <!-- Google Consent Mode + SecurePrivacy CMP + Google tag (gtag.js) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+    </script>
+    <script src="https://app.secureprivacy.ai/script/6a3bb5554868714881884e81.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H2FHJ657K3"></script>
+    <script>
       gtag('js', new Date());
 
       gtag('config', 'G-H2FHJ657K3');
