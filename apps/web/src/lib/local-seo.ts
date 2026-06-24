@@ -10,7 +10,11 @@ export type LocalSeoPageKey =
   | 'laminacja-brwi-limanowa'
   | 'laminacja-brwi-mordarka'
   | 'laminacja-rzes-limanowa'
-  | 'laminacja-rzes-mordarka';
+  | 'laminacja-rzes-mordarka'
+  | 'oprawa-oka-limanowa'
+  | 'oprawa-oka-mordarka'
+  | 'wrastajace-paznokcie-limanowa'
+  | 'wrastajace-paznokcie-mordarka';
 
 type LocalSeoFaq = {
   question: string;
@@ -92,6 +96,43 @@ const podologyFaq = (place: string): LocalSeoFaq[] => [
     question: 'Czy można sprawdzić aktualną dostępność podologii online?',
     answer:
       'Tak. Aktualne usługi i wolne terminy są widoczne w rezerwacji online. Jeśli podologia nie jest jeszcze aktywna w grafiku, możesz zostawić kontakt przez formularz konsultacyjny.',
+  },
+];
+
+
+const ingrowingNailsFaq = (place: string): LocalSeoFaq[] => [
+  {
+    question: `Czy BeautyBeskid pomaga z wrastającymi paznokciami w ${place}?`,
+    answer:
+      `Korekcja wrastających paznokci to element podologii, którą BeautyBeskid rozbudowuje jako osobną ścieżkę usług. Na stronie znajdziesz aktualny status dostępności i możliwość zostawienia kontaktu przed uruchomieniem zapisów.`,
+  },
+  {
+    question: 'Kiedy warto skonsultować wrastający paznokieć ze specjalistą?',
+    answer:
+      'Warto reagować przy bólu, zaczerwienieniu lub obrzęku wokół paznokcia, nawracającym problemie oraz gdy domowe metody nie pomagają. Im wcześniej, tym prościej i mniej inwazyjnie.',
+  },
+  {
+    question: 'Czy korekcja wrastającego paznokcia boli?',
+    answer:
+      'Profesjonalna korekcja nie powinna boleć — specjalista dobiera metodę do etapu problemu i ocenia stan paznokcia przed zabiegiem.',
+  },
+];
+
+const eyeFramingFaq = (place: string): LocalSeoFaq[] => [
+  {
+    question: `Co obejmuje oprawa oka w BeautyBeskid?`,
+    answer:
+      `Oprawa oka w BeautyBeskid łączy laminację brwi, stylizację brwi, laminację rzęs i pielęgnację okolicy oka jako zabieg lub dobierany zestaw. Zakres dobieramy do kształtu twarzy i oczekiwanego efektu.`,
+  },
+  {
+    question: `Czy mogę umówić oprawę oka z ${place}?`,
+    answer:
+      'Tak. Salon obsługuje klientki z Limanowej, Mordarki i okolic powiatu limanowskiego. Sprawdź aktualne usługi i dostępne godziny w rezerwacji online.',
+  },
+  {
+    question: 'Jak długo utrzymuje się efekt oprawa oka?',
+    answer:
+      'Laminacja brwi i rzęs utrzymuje się ok. 4–6 tygodni. Po zabiegu dostaniesz wskazówki, jak przedłużyć efekt bez codziennego stylizowania.',
   },
 ];
 
@@ -406,6 +447,148 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     faq: beautyFaq('laminację rzęs', 'Limanowej'),
     related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-limanowa'],
   },
+
+  'oprawa-oka-limanowa': {
+    slug: 'oprawa-oka-limanowa',
+    shortLabel: 'Oprawa oka Limanowa',
+    title: 'Oprawa oka Limanowa — laminacja brwi i rzęs BeautyBeskid',
+    description:
+      'Oprawa oka Limanowa: BeautyBeskid — laminacja brwi, stylizacja brwi, laminacja rzęs i pielęgnacja okolicy oka. Konsultacja, terminy online i rezerwacja.',
+    eyebrow: 'Oprawa oka Limanowa',
+    h1: 'Oprawa oka w Limanowej — laminacja brwi i rzęs',
+    lead:
+      'Oprawa oka to jeden z najprostszych sposobów na zadbany, świeży wygląd bez codziennego makijażu. BeautyBeskid łączy laminację brwi, stylizację i laminację rzęs w jednym miejscu.',
+    serviceName: 'Oprawa oka — stylizacja brwi i rzęs',
+    serviceType: 'Stylizacja brwi i rzęs',
+    location: 'Limanowa',
+    nearbyContext: limanowaContext,
+    heroPoints: [
+      'laminacja brwi i rzęs w jednym miejscu',
+      'naturalny efekt dopasowany do rysów twarzy',
+      'aktualne terminy i rezerwacja online',
+    ],
+    benefits: [
+      'Zadbane brwi i rzęsy bez codziennego stylizowania od zera.',
+      'Dobór zabiegu do kształtu twarzy i naturalnych włosków.',
+      'Zalecenia pielęgnacyjne po wizycie, które przedłużają efekt.',
+    ],
+    visitSteps: [
+      'Omawiamy stan brwi i rzęs oraz oczekiwany efekt.',
+      'Dobieramy zakres stylizacji dostępny w aktualnej ofercie.',
+      'Po zabiegu dostajesz zalecenia i możliwość zapisu na kolejną wizytę.',
+    ],
+    localCopy:
+      'Klientki z Limanowej szukają oprawa oka, mając na myśli naturalnie zadbane brwi i rzęsy bez widocznego makijażu. W BeautyBeskid w Mordarce 505 dobieramy laminację brwi, stylizację i laminację rzęs do realnych potrzeb każdej klientki.',
+    faq: eyeFramingFaq('Limanowej'),
+    related: ['laminacja-brwi-limanowa', 'laminacja-rzes-limanowa', 'kosmetyczka-limanowa'],
+  },
+  'oprawa-oka-mordarka': {
+    slug: 'oprawa-oka-mordarka',
+    shortLabel: 'Oprawa oka Mordarka',
+    title: 'Oprawa oka Mordarka — BeautyBeskid koło Limanowej',
+    description:
+      'Oprawa oka dla klientek z Mordarki. BeautyBeskid: laminacja brwi, stylizacja brwi i rzęs, konsultacja i rezerwacja online w rejonie Limanowej.',
+    eyebrow: 'Oprawa oka Mordarka',
+    h1: 'Oprawa oka dla klientek z Mordarki i okolic',
+    lead:
+      'Jeśli szukasz oprawa oka w Mordarce, BeautyBeskid w Mordarce 505 to wygodna opcja bez dojazdu do centrum — aktualna oferta, kontakt i terminy online.',
+    serviceName: 'Oprawa oka dla klientek z Mordarki',
+    serviceType: 'Stylizacja brwi i rzęs',
+    location: 'Mordarka',
+    nearbyContext: mordarkaContext,
+    heroPoints: [
+      'lokalny salon beauty blisko Mordarki',
+      'naturalny efekt bez codziennego makijażu',
+      'łatwe przejście do rezerwacji',
+    ],
+    benefits: [
+      'Brwi i rzęsy wyglądają zadbanie na co dzień.',
+      'Stały kontakt i historia wizyt w panelu klienta.',
+      'Wygodny dojazd bez szukania salonu w większym mieście.',
+    ],
+    visitSteps: [
+      'Sprawdzamy kondycję brwi i rzęs oraz preferowany efekt.',
+      'Wybieramy dostępne usługi z aktualnego grafiku salonu.',
+      'Omawiamy pielęgnację i termin kolejnej wizyty.',
+    ],
+    localCopy:
+      'Salon BeautyBeskid mieści się w Mordarce 505 — dla klientek z Mordarki i okolicznych wsi to wygodny wybór oprawa oka blisko domu. Laminacja brwi i rzęs, stylizacja okolicy oka i pełna oferta w jednym miejscu.',
+    faq: eyeFramingFaq('Mordarki'),
+    related: ['oprawa-oka-limanowa', 'laminacja-brwi-mordarka', 'laminacja-rzes-mordarka'],
+  },
+  'wrastajace-paznokcie-limanowa': {
+    slug: 'wrastajace-paznokcie-limanowa',
+    shortLabel: 'Wrastające paznokcie Limanowa',
+    title: 'Wrastające paznokcie Limanowa — podolog BeautyBeskid',
+    description:
+      'Wrastające paznokcie Limanowa: BeautyBeskid rozwija podologię jako osobną ścieżkę usług. Sprawdź dostępność i umów konsultację dla klientek z Limanowej i okolic.',
+    eyebrow: 'Wrastające paznokcie Limanowa',
+    h1: 'Wrastające paznokcie w Limanowej — konsultacja i korekcja',
+    lead:
+      'Wrastający paznokieć warto rozwiązać profesjonalnie zamiast odkładać. BeautyBeskid przygotowuje podologiczną ścieżkę usług z jasną informacją o dostępności dla klientek z Limanowej.',
+    serviceName: 'Korekcja wrastających paznokci',
+    serviceType: 'Podologia',
+    location: 'Limanowa',
+    nearbyContext: limanowaContext,
+    statusNote:
+      'Podologia, w tym korekcja wrastających paznokci, jest rozwijana jako osobna ścieżka usług. Jeśli zapisów nie ma jeszcze w grafiku, zostaw kontakt przez formularz konsultacyjny.',
+    heroPoints: [
+      'jasna informacja o dostępności podologii',
+      'korekcja bez długiego szukania specjalisty',
+      'kontakt dla klientek z Limanowej i powiatu limanowskiego',
+    ],
+    benefits: [
+      'Profesjonalna ocena problemu zamiast domowych metod.',
+      'Kontakt i konsultacja dostępne online lub telefonicznie.',
+      'Czytelna ścieżka do zapisu w momencie uruchomienia grafiku.',
+    ],
+    visitSteps: [
+      'Opisujesz problem i pytasz o aktualną dostępność.',
+      'Salon potwierdza możliwość zapisu lub dołącza do listy kontaktowej.',
+      'Przy aktywnym grafiku umawiasz konkretną godzinę online.',
+    ],
+    localCopy:
+      'Wrastające paznokcie to jeden z najczęstszych problemów podologicznych — i jeden z tych, które warto omówić ze specjalistą jak najwcześniej. BeautyBeskid w Mordarce 505 buduje podologiczną ścieżkę usług dla klientek z Limanowej i całego powiatu limanowskiego.',
+    faq: ingrowingNailsFaq('Limanowej'),
+    related: ['podolog-limanowa', 'wrastajace-paznokcie-mordarka', 'kosmetyczka-limanowa'],
+  },
+  'wrastajace-paznokcie-mordarka': {
+    slug: 'wrastajace-paznokcie-mordarka',
+    shortLabel: 'Wrastające paznokcie Mordarka',
+    title: 'Wrastające paznokcie Mordarka — podolog koło Limanowej',
+    description:
+      'Wrastające paznokcie dla klientek z Mordarki. BeautyBeskid: dostępność podologii, korekcja wrastających paznokci i rezerwacja online.',
+    eyebrow: 'Wrastające paznokcie Mordarka',
+    h1: 'Wrastające paznokcie dla klientek z Mordarki i okolic',
+    lead:
+      'Szukasz specjalisty od wrastających paznokci blisko Mordarki? BeautyBeskid w Mordarce 505 rozbudowuje podologię z jasną informacją o dostępności i wygodnym kontaktem.',
+    serviceName: 'Korekcja wrastających paznokci dla klientek z Mordarki',
+    serviceType: 'Podologia',
+    location: 'Mordarka',
+    nearbyContext: mordarkaContext,
+    statusNote:
+      'Korekcja wrastających paznokci wchodzi w skład podologii, którą BeautyBeskid aktywuje jako osobną ścieżkę. Sprawdź dostępność lub zostaw kontakt przez formularz.',
+    heroPoints: [
+      'lokalny specjalista blisko Mordarki',
+      'jasny status dostępności korekcji paznokci',
+      'kontakt bez szukania kilku numerów naraz',
+    ],
+    benefits: [
+      'Nie musisz jechać do Nowego Sącza po profesjonalną pomoc.',
+      'Wygodna ścieżka kontaktu i info o starcie zapisów.',
+      'Korekcja dobrana do etapu problemu, nie jednego szablonu.',
+    ],
+    visitSteps: [
+      'Zgłaszasz problem przez formularz lub telefon.',
+      'Salon ocenia dostępność i możliwość szybkiego zapisu.',
+      'Umawiasz wizytę online po uruchomieniu grafiku.',
+    ],
+    localCopy:
+      'Dla klientek z Mordarki i pobliskich miejscowości BeautyBeskid to wygodna opcja bez planowania dojazdu do centrum. Korekcja wrastających paznokci jest częścią podologicznej ścieżki usług — aktualna dostępność i kontakt zawsze widoczne na stronie.',
+    faq: ingrowingNailsFaq('Mordarki'),
+    related: ['wrastajace-paznokcie-limanowa', 'podolog-mordarka', 'kosmetyczka-mordarka'],
+  },
+
   'laminacja-rzes-mordarka': {
     slug: 'laminacja-rzes-mordarka',
     shortLabel: 'Laminacja rzęs Mordarka',

@@ -134,6 +134,10 @@ export const router = createBrowserRouter([
       { path: 'laminacja-brwi-mordarka', element: <S><LocalSeoPage pageKey="laminacja-brwi-mordarka" /></S> },
       { path: 'laminacja-rzes-limanowa', element: <S><LocalSeoPage pageKey="laminacja-rzes-limanowa" /></S> },
       { path: 'laminacja-rzes-mordarka', element: <S><LocalSeoPage pageKey="laminacja-rzes-mordarka" /></S> },
+      { path: 'oprawa-oka-limanowa', element: <S><LocalSeoPage pageKey="oprawa-oka-limanowa" /></S> },
+      { path: 'oprawa-oka-mordarka', element: <S><LocalSeoPage pageKey="oprawa-oka-mordarka" /></S> },
+      { path: 'wrastajace-paznokcie-limanowa', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-limanowa" /></S> },
+      { path: 'wrastajace-paznokcie-mordarka', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-mordarka" /></S> },
       {
         path: 'auth',
         children: [

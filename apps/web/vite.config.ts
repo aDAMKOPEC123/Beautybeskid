@@ -78,6 +78,10 @@ export default defineConfig(({ command }) => {
               return 'vendor-forms';
             }
             if (hasPackage(normalized, 'socket.io-client')) return 'vendor-socket';
+            if (hasPackage(normalized, 'axios')) return 'vendor-http';
+            if (hasPackage(normalized, 'react-helmet-async') || hasPackage(normalized, 'react-side-effect')) return 'vendor-helmet';
+            if (normalized.includes('/node_modules/@radix-ui/')) return 'vendor-radix';
+            if (hasPackage(normalized, 'date-fns')) return 'vendor-dates';
 
             return undefined;
           },

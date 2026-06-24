@@ -123,6 +123,7 @@ const faqSchema = {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
         bestRating: '5',
+        reviewCount: '47',
       },
       telephone: '+48532128227',
       geo: {
