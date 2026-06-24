@@ -126,7 +126,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po zabiegu dostajesz jasne zalecenia i możliwość powrotu do historii wizyt.',
     ],
     localCopy:
-      'Frazy takie jak kosmetolog Limanowa, salon kosmetologiczny Limanowa czy konsultacja kosmetologiczna Limanowa prowadzą do tej samej intencji: klientka chce znaleźć specjalistkę blisko siebie, z aktualnym grafikiem i konkretną ofertą.',
+      'Jako salon kosmetologiczny w Mordarce 505 obsługujemy klientki z Limanowej i całego powiatu limanowskiego. Niezależnie czy szukasz konsultacji, planu zabiegowego, czy regularnej opieki nad skórą — w BeautyBeskid znajdziesz konkretne terminy i aktualną ofertę.',
     faq: beautyFaq('konsultację kosmetologiczną', 'Limanowej'),
     related: ['kosmetyczka-limanowa', 'laminacja-brwi-limanowa', 'podolog-limanowa'],
   },
@@ -160,7 +160,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po wizycie otrzymujesz zalecenia i propozycję dalszej opieki.',
     ],
     localCopy:
-      'Strona odpowiada na lokalne wyszukiwania kosmetolog Mordarka, kosmetolog koło Mordarki oraz kosmetolog Limanowa dla osób, które chcą szybko znaleźć gabinet w najbliższej okolicy.',
+      'Mordarka leży w centrum powiatu limanowskiego, a salon BeautyBeskid jest dostępny bez długiego dojazdu. Dla klientek z Mordarki i okolicznych miejscowości oferujemy wygodne terminy, kontakt telefoniczny i rezerwację online.',
     faq: beautyFaq('konsultację kosmetologiczną', 'Mordarki'),
     related: ['kosmetolog-limanowa', 'kosmetyczka-mordarka', 'laminacja-brwi-mordarka'],
   },
@@ -196,7 +196,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Jeśli potrzebna jest konsultacja, przechodzisz przez prostą ścieżkę kontaktu.',
     ],
     localCopy:
-      'W wynikach Google dla podolog Limanowa mocno widoczne są katalogi i pojedyncze gabinety. Ta podstrona wzmacnia lokalną trafność BeautyBeskid bez ukrywania aktualnego statusu usługi.',
+      'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski — warto omówić ze specjalistą zamiast rozwiązywać samodzielnie. BeautyBeskid rozwija podologiczną ścieżkę usług, aby klientki z Limanowej i okolic miały dostęp do profesjonalnej pomocy blisko domu.',
     faq: podologyFaq('Limanowej'),
     related: ['podolog-mordarka', 'kosmetolog-limanowa', 'kosmetyczka-limanowa'],
   },
@@ -232,7 +232,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po uruchomieniu terminów wybierasz dogodną godzinę online.',
     ],
     localCopy:
-      'Podstrona wzmacnia widoczność na frazy podolog Mordarka, podologia Mordarka i podolog Limanowa, czyli zapytania osób szukających pomocy blisko domu.',
+      'Dla klientek z Mordarki i pobliskich wsi BeautyBeskid to wygodna opcja bez konieczności dojazdu do centrum Limanowej lub Nowego Sącza. Podologia jest rozwijana jako osobna ścieżka, z jasną informacją o dostępności i możliwością wcześniejszego kontaktu.',
     faq: podologyFaq('Mordarki'),
     related: ['podolog-limanowa', 'kosmetolog-mordarka', 'kosmetyczka-mordarka'],
   },
@@ -266,7 +266,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po wizycie masz dostęp do historii i zaleceń w panelu klienta.',
     ],
     localCopy:
-      'Ta podstrona odpowiada na popularne lokalne zapytania: kosmetyczka Limanowa, salon kosmetyczny Limanowa, zabiegi kosmetyczne Limanowa oraz kosmetyczka okolice Limanowej.',
+      'W BeautyBeskid podchodzimy do każdej klientki indywidualnie — czy szukasz zabiegu na wyjątkową okazję, regularnej pielęgnacji, czy po prostu chcesz sprawdzić aktualną ofertę. Obsługujemy klientki z Limanowej, Mordarki i całego powiatu limanowskiego.',
     faq: beautyFaq('zabieg kosmetyczny', 'Limanowej'),
     related: ['kosmetolog-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
   },
@@ -300,7 +300,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po wizycie salon może zapisać zalecenia i kolejne kroki.',
     ],
     localCopy:
-      'Strona wzmacnia lokalne wyszukiwania kosmetyczka Mordarka, salon kosmetyczny Mordarka oraz kosmetyczka Limanowa dla osób z pobliskich miejscowości.',
+      'Salon BeautyBeskid jest w zasięgu bez potrzeby planowania wyjazdu do większego miasta. Dla klientek z Mordarki i okolicznych wsi oferujemy czytelny grafik, kontakt i pełną ofertę zabiegową z możliwością rezerwacji online.',
     faq: beautyFaq('zabieg kosmetyczny', 'Mordarki'),
     related: ['kosmetyczka-limanowa', 'kosmetolog-mordarka', 'laminacja-rzes-mordarka'],
   },
@@ -334,7 +334,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po zabiegu dostajesz krótkie zalecenia pielęgnacyjne.',
     ],
     localCopy:
-      'Wyszukiwania laminacja brwi Limanowa i stylizacja brwi Limanowa często prowadzą do katalogów. Własna podstrona pozwala pokazać klientce konkretny gabinet, kontakt i rezerwację bez pośredników.',
+      'Laminacja brwi to jeden z najchętniej wybieranych zabiegów w naszym salonie — naturalnie ułożone brwi, które wyglądają zadbanie bez codziennego stylizowania. Obsługujemy klientki z Limanowej, Mordarki, Sowlin i całego powiatu limanowskiego.',
     faq: beautyFaq('laminację brwi', 'Limanowej'),
     related: ['laminacja-rzes-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-limanowa'],
   },
@@ -368,7 +368,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Omawiamy pielęgnację po laminacji.',
     ],
     localCopy:
-      'Podstrona odpowiada na frazy laminacja brwi Mordarka, brwi Mordarka i laminacja brwi Limanowa dla osób szukających usługi w najbliższym otoczeniu.',
+      'Dla klientek z Mordarki laminacja brwi w BeautyBeskid to bliski dojazd i konkretny efekt — bez szukania salonu w większym mieście. Gabinet mieści się w Mordarce 505, w sercu powiatu limanowskiego.',
     faq: beautyFaq('laminację brwi', 'Mordarki'),
     related: ['laminacja-brwi-limanowa', 'laminacja-rzes-mordarka', 'kosmetyczka-mordarka'],
   },
@@ -402,7 +402,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po wizycie dostajesz proste zalecenia pielęgnacyjne.',
     ],
     localCopy:
-      'Osoby wpisujące laminacja rzęs Limanowa, lifting rzęs Limanowa albo rzęsy Limanowa szukają konkretnej usługi i szybkiej możliwości zapisu. Ta strona skraca drogę od wyszukania do rezerwacji.',
+      'Laminacja rzęs sprawia, że spojrzenie wygląda bardziej otwarcie i świeżo — bez przedłużania ani codziennego tuszowania. W BeautyBeskid dobieramy skręt do naturalnych rzęs i oczekiwanego efektu, z aktualnym grafikiem dla klientek z Limanowej i okolic.',
     faq: beautyFaq('laminację rzęs', 'Limanowej'),
     related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-limanowa'],
   },
@@ -436,7 +436,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po wizycie omawiamy pielęgnację i trwałość efektu.',
     ],
     localCopy:
-      'Podstrona jest przygotowana pod zapytania laminacja rzęs Mordarka, lifting rzęs Mordarka i laminacja rzęs Limanowa, czyli lokalne frazy o wysokiej intencji rezerwacji.',
+      'Salon BeautyBeskid w Mordarce 505 to wygodna opcja dla klientek z całego powiatu limanowskiego. Laminacja rzęs jest dostępna w aktualnym grafiku — sprawdź terminy online lub zadzwoń, żeby omówić szczegóły.',
     faq: beautyFaq('laminację rzęs', 'Mordarki'),
     related: ['laminacja-rzes-limanowa', 'laminacja-brwi-mordarka', 'kosmetyczka-mordarka'],
   },
