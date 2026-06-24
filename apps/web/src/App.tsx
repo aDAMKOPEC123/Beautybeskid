@@ -9,6 +9,7 @@ import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
 import { api } from './lib/axios';
+import { trackPageView } from './lib/analytics';
 import {
   clearChunkReloadMarks,
   getErrorMessage,
@@ -179,6 +180,18 @@ function App() {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
       window.removeEventListener('error', handleWindowError);
     };
+  }, []);
+
+  useEffect(() => {
+    let currentPath = `${router.state.location.pathname}${router.state.location.search}${router.state.location.hash}`;
+
+    return router.subscribe((state) => {
+      const nextPath = `${state.location.pathname}${state.location.search}${state.location.hash}`;
+      if (nextPath === currentPath) return;
+
+      currentPath = nextPath;
+      window.setTimeout(() => trackPageView(state.location), 0);
+    });
   }, []);
 
   return (
