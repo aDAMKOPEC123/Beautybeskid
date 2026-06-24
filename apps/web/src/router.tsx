@@ -41,6 +41,11 @@ const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').th
 const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
 const UserBeautyPlan = lazy(() => import('./pages/user/BeautyPlan').then(m => ({ default: m.UserBeautyPlan })));
+const ForumHome = lazy(() => import('./pages/user/forum/ForumHome').then(m => ({ default: m.ForumHome })));
+const ForumCategory = lazy(() => import('./pages/user/forum/ForumCategory').then(m => ({ default: m.ForumCategory })));
+const ForumThread = lazy(() => import('./pages/user/forum/ForumThread').then(m => ({ default: m.ForumThread })));
+const ForumNewThread = lazy(() => import('./pages/user/forum/ForumNewThread').then(m => ({ default: m.ForumNewThread })));
+const AdminForum = lazy(() => import('./pages/admin/AdminForum').then(m => ({ default: m.AdminForum })));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard').then(m => ({ default: m.AdminDashboard })));
@@ -149,6 +154,10 @@ export const router = createBrowserRouter([
       { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
       { path: 'zalecenia', element: <S><UserBeautyPlan /></S> },
+      { path: 'forum', element: <S><ForumHome /></S> },
+      { path: 'forum/nowy', element: <S><ForumNewThread /></S> },
+      { path: 'forum/watek/:id', element: <S><ForumThread /></S> },
+      { path: 'forum/:categorySlug', element: <S><ForumCategory /></S> },
     ],
   },
   {
@@ -223,6 +232,7 @@ export const router = createBrowserRouter([
       { path: 'akademia/kurs/:id', element: <S><AdminCourseEditor /></S> },
       { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },
       { path: 'marketing', element: <S><Marketing /></S> },
+      { path: 'forum', element: <S><AdminForum /></S> },
     ],
   },
 ]);
