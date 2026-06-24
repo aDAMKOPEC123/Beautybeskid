@@ -40,6 +40,7 @@ import {
   Cloud,
   GraduationCap,
   Flower2,
+  MessageSquare,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -53,6 +54,7 @@ const NAV_LINKS = [
   { to: '/user/polecenia', label: 'Program Poleceń', icon: Users },
   { to: '/user/pogoda-skory', label: 'Twoja Skóra', icon: Cloud },
   { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
+  { to: '/user/forum', label: 'Forum', icon: MessageSquare },
   { to: '/akademia', label: 'Akademia', icon: GraduationCap },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Mój Profil', icon: UserIcon },

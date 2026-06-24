@@ -160,6 +160,7 @@ export const AdminLayout = () => {
           { to: '/admin/asortyment', label: 'Asortyment' },
           { to: '/admin/pogoda-skory', label: 'Pogoda skóry' },
           { to: '/admin/akademia', label: 'Akademia' },
+          { to: '/admin/forum', label: 'Forum' },
           { to: '/admin/marketing', label: 'Marketing' },
         ].map(({ to, label, badge }) => (
           <Link
@@ -378,6 +379,16 @@ export const AdminLayout = () => {
                   </Link>
                 </div>
               )}
+            </div>
+
+            {/* Forum */}
+            <div>
+              <Link
+                to="/admin/forum"
+                className="px-4 py-2 flex items-center text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                Forum
+              </Link>
             </div>
 
             {/* Diagnostyka */}
