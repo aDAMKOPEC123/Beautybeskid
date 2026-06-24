@@ -48,7 +48,7 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
       <div>
         <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>{employee.name}</p>
         {specialty && (
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{specialty}</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.72)' }}>{specialty}</p>
         )}
       </div>
     </div>
@@ -78,7 +78,7 @@ export const Footer = () => {
             >
               BeautyBeskid
             </Link>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.78)' }}>
               Salon kosmetologiczny w Limanowej. Aktualne zabiegi, konsultacje i rezerwacja online.
             </p>
             <div className="flex gap-4">
@@ -93,9 +93,9 @@ export const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label={label}
                   className="transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                  style={{ color: 'rgba(255,255,255,0.72)' }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
                 >
                   <Icon className="h-5 w-5" />
                 </a>
@@ -106,9 +106,9 @@ export const Footer = () => {
                 rel="noopener noreferrer"
                 aria-label="TikTok"
                 className="transition-colors"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
+                style={{ color: 'rgba(255,255,255,0.72)' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
               >
                 <TikTokIcon />
               </a>
@@ -120,7 +120,7 @@ export const Footer = () => {
             <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Kontakt
             </h3>
-            <div className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <div className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.78)' }}>
               <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               <span>
                 {SEO.address.street ? (
@@ -135,9 +135,9 @@ export const Footer = () => {
             <a
               href={`tel:${SEO.phone}`}
               className="flex items-center gap-2 text-sm transition-colors"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
+              style={{ color: 'rgba(255,255,255,0.78)' }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
             >
               <Phone className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               {SEO.phone}
@@ -145,9 +145,9 @@ export const Footer = () => {
             <a
               href={`mailto:${SEO.email}`}
               className="flex items-center gap-2 text-sm transition-colors"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
+              style={{ color: 'rgba(255,255,255,0.78)' }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
             >
               <Mail className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
               {SEO.email}
@@ -162,10 +162,10 @@ export const Footer = () => {
             <dl className="space-y-1.5">
               {SEO.openingHours.map(({ days, hours }) => (
                 <div key={days} className="flex justify-between gap-4 text-sm">
-                  <dt style={{ color: 'rgba(255,255,255,0.55)' }}>{days}</dt>
+                  <dt style={{ color: 'rgba(255,255,255,0.78)' }}>{days}</dt>
                   <dd
                     style={{
-                      color: hours === 'Nieczynne' ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.85)',
+                      color: hours === 'Nieczynne' ? '#FFB4AB' : 'rgba(255,255,255,0.9)',
                       fontWeight: 500,
                     }}
                   >
@@ -213,14 +213,14 @@ export const Footer = () => {
 
       {/* Copyright bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.72)' }}>
           <span>© {new Date().getFullYear()} BeautyBeskid. Wszelkie prawa zastrzeżone.</span>
           <Link
             to="/regulamin"
             className="transition-colors"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
+            style={{ color: 'rgba(255,255,255,0.72)' }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
           >
             Regulamin i polityka prywatności
           </Link>

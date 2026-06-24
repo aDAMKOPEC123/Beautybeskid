@@ -108,6 +108,9 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
               src={slide.imagePath}
               alt={slide.title ?? ''}
               className="w-full h-full object-cover"
+              loading={i === current ? 'eager' : 'lazy'}
+              decoding={i === current ? 'sync' : 'async'}
+              fetchPriority={i === current ? 'high' : 'low'}
               style={{
                 transform: i === current ? `scale(${scale})` : 'scale(1)',
                 willChange: i === current ? 'transform' : 'auto',

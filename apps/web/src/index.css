@@ -1,6 +1,4 @@
 /* apps/web/src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 /* Note: DM Sans does not have a "Condensed" axis. The eyebrow style is achieved
    via letter-spacing: 0.4em + font-size: 10px + uppercase — not a separate font file. */
 
@@ -85,7 +83,7 @@
     @apply text-[10px] font-eyebrow font-semibold tracking-[0.4em] uppercase text-caramel;
   }
 
-  /* Display heading — Cormorant Garamond italic */
+  /* Display heading — uses the same loaded serif family as headings. */
   .display {
     @apply font-display font-light italic leading-[1.05] tracking-[-0.02em];
   }
@@ -209,9 +207,9 @@
 
 /* Premium homepage conversion polish */
 @keyframes premium-light-drift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { transform: translate3d(-8%, 0, 0); }
+  50% { transform: translate3d(8%, 0, 0); }
+  100% { transform: translate3d(-8%, 0, 0); }
 }
 
 @keyframes premium-shine-sweep {
@@ -235,6 +233,8 @@
   background:
     linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.42) 22%, transparent 40%, rgba(196,150,90,0.16) 62%, transparent 78%);
   background-size: 220% 220%;
+  transform: translate3d(-8%, 0, 0);
+  will-change: transform;
   animation: premium-light-drift 12s ease-in-out infinite;
   opacity: 0.65;
 }

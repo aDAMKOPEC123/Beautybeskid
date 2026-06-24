@@ -56,6 +56,12 @@
    ```
 
 8. **Konfiguracja Nginx**
+   Gotowy plik konfiguracyjny z cache headers i gzip znajduje się w `deploy/nginx/cosmo.conf`.
+   Na serwerze możesz go skopiować poleceniem:
+   ```bash
+   sudo cp deploy/nginx/cosmo.conf /etc/nginx/sites-available/cosmo
+   ```
+
    Utwórz `/etc/nginx/sites-available/cosmo`:
    ```nginx
    # Rate limiting dla endpointów auth (10 req/min per IP)
@@ -73,10 +79,28 @@
            try_files $uri $uri/ /index.html;
        }
 
+       location /assets/ {
+           root /var/www/cosmo-app/apps/web/dist;
+           expires 1y;
+           add_header Cache-Control "public, max-age=31536000, immutable";
+       }
+
+       location /images/ {
+           root /var/www/cosmo-app/apps/web/dist;
+           expires 1y;
+           add_header Cache-Control "public, max-age=31536000, immutable";
+       }
+
+       location /icons/ {
+           root /var/www/cosmo-app/apps/web/dist;
+           expires 1y;
+           add_header Cache-Control "public, max-age=31536000, immutable";
+       }
+
        location /uploads/ {
            alias /var/www/cosmo-app/apps/server/uploads/;
-           expires 30d;
-           add_header Cache-Control "public, immutable";
+           expires 1y;
+           add_header Cache-Control "public, max-age=31536000, immutable";
        }
 
        location /api/auth/ {

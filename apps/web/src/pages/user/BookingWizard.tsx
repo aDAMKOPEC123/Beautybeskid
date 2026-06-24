@@ -131,8 +131,7 @@ function MiniCalendar({
               key={day.toISOString()}
               disabled={isPast || isRed}
               aria-label={format(day, 'd MMMM yyyy', { locale: pl })}
-              aria-selected={isSelected}
-              aria-disabled={isPast || isRed}
+              aria-pressed={isSelected}
               onClick={() => onSelect(day)}
               className="text-sm rounded-full w-8 h-8 mx-auto flex items-center justify-center transition-colors"
               style={

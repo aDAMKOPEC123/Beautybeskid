@@ -60,7 +60,8 @@ app.use(cookieParser());
 
 // Static files for uploads if needed
 app.use('/uploads', privateUploadMiddleware, express.static('uploads', {
-  maxAge: '1d',
+  maxAge: '1y',
+  immutable: true,
 }));
 
 // API Routes

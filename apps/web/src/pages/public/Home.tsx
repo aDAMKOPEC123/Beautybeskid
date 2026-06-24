@@ -35,7 +35,7 @@ import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 import { Season, type Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
 
-const heroImage = '/images/beautybeskid-hero-premium.png';
+const heroImage = '/images/beautybeskid-hero-premium.webp';
 
 const faqItems = [
   {
@@ -96,7 +96,7 @@ const faqSchema = {
       '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
       name: 'BeautyBeskid',
       url: 'https://kosmetologwiktoriacwik.pl/',
-      image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.png',
+      image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp',
       description:
         'BeautyBeskid Limanowa to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
       address: {
@@ -405,7 +405,7 @@ const SectionIntro = ({
 );
 
 const StarRow = ({ compact = false }: { compact?: boolean }) => (
-  <div className="flex items-center gap-1 text-oak" aria-label="Ocena 5 na 5">
+  <div className="flex items-center gap-1 text-oak" role="img" aria-label="Ocena 5 na 5">
     {[1, 2, 3, 4, 5].map((star) => (
       <Star key={star} className={compact ? 'h-3.5 w-3.5 fill-current' : 'h-4 w-4 fill-current'} />
     ))}
@@ -656,6 +656,10 @@ const HeroSection = ({
                       alt="Elegancki gabinet BeautyBeskid w Limanowej"
                       className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
                       loading="eager"
+                      decoding="sync"
+                      fetchPriority="high"
+                      width={1400}
+                      height={747}
                     />
                     <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
                       <div className="flex items-center justify-between gap-4">
@@ -893,7 +897,7 @@ const AvailabilityPreviewSection = ({
                           : 'border-espresso/8 bg-white text-espresso/70 hover:border-oak/35 hover:bg-white'
                       } ${isToday && !isSelected ? 'ring-1 ring-oak/60' : ''}`}
                       aria-label={formatAvailabilityDate(dateKey)}
-                      aria-selected={isSelected}
+                      aria-pressed={isSelected}
                     >
                       {day.getDate()}
                       {available && (
@@ -1528,7 +1532,7 @@ const FaqSection = () => {
             </h2>
           </div>
         </FadeUp>
-        <dl className="space-y-3">
+        <div className="space-y-3">
           {faqItems.map((item, index) => (
             <FadeUp key={item.name} delay={index * 0.04}>
               <details className="group overflow-hidden rounded-lg border border-espresso/10 bg-white shadow-sm">
@@ -1542,7 +1546,7 @@ const FaqSection = () => {
               </details>
             </FadeUp>
           ))}
-        </dl>
+        </div>
       </div>
     </section>
   );

@@ -1,22 +1,38 @@
 // filepath: apps/web/src/App.tsx
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
+import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
 import { api } from './lib/axios';
-import { getSocket } from './lib/socket';
-import { ClientPanelTransitionOverlay } from './components/shared/ClientPanelTransitionOverlay';
 import {
   clearChunkReloadMarks,
   getErrorMessage,
   isChunkLoadError,
   reloadOnceForChunkError,
 } from './lib/chunkRecovery';
+
+const ClientPanelTransitionOverlay = lazy(() =>
+  import('./components/shared/ClientPanelTransitionOverlay').then((module) => ({
+    default: module.ClientPanelTransitionOverlay,
+  }))
+);
+
+const DeferredClientPanelTransitionOverlay = () => {
+  const active = useClientPanelTransitionStore((state) => state.active);
+
+  if (!active) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <ClientPanelTransitionOverlay />
+    </Suspense>
+  );
+};
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -112,10 +128,12 @@ function App() {
         .then((res) => {
           setAccessToken(res.data.data.accessToken);
           setUser(res.data.data.user);
-          const sock = getSocket();
-          sock.auth = { token: res.data.data.accessToken };
-          sock.disconnect();
-          sock.connect();
+          return import('./lib/socket').then(({ getSocket }) => {
+            const sock = getSocket();
+            sock.auth = { token: res.data.data.accessToken };
+            sock.disconnect();
+            sock.connect();
+          });
         })
         .catch((err) => {
           // Only logout on confirmed 401; network errors keep the session alive.
@@ -155,15 +173,13 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <HelmetProvider>
-          <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-            <ClientPanelTransitionOverlay />
-            <Toaster position="top-right" richColors />
-          </QueryClientProvider>
-        </HelmetProvider>
-      </GoogleOAuthProvider>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <DeferredClientPanelTransitionOverlay />
+          <Toaster position="top-right" richColors />
+        </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

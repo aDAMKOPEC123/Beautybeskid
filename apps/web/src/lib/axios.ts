@@ -1,7 +1,6 @@
 // filepath: apps/web/src/lib/axios.ts
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
-import { getSocket } from './socket';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -68,6 +67,7 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
 
         // Re-auth WebSocket with new token
+        const { getSocket } = await import('./socket');
         const sock = getSocket();
         sock.auth = { token: newToken };
         if (sock.connected) {
