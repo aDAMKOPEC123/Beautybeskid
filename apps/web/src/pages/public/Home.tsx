@@ -290,6 +290,10 @@ const getActiveAdminServices = (availableServices: Service[]) =>
     .filter((service) => service.isActive)
     .sort((a, b) => a.name.localeCompare(b.name, 'pl'));
 
+const getServiceCategories = (services: Service[]) =>
+  Array.from(new Set(services.map((service) => service.category).filter(Boolean)))
+    .sort((a, b) => a.localeCompare(b, 'pl'));
+
 const serviceMatches = (service: Service, matchers: string[]) => {
   const haystack = normalizeText(`${service.name} ${service.category ?? ''} ${service.description ?? ''}`);
   return matchers.some((matcher) => haystack.includes(matcher));
@@ -723,11 +727,33 @@ const AvailabilityPreviewSection = ({
   onSelectService: (request: AvailabilityRequest) => void;
 }) => {
   const activeAdminServices = getActiveAdminServices(availableServices);
-  const selectedService = activeAdminServices.find((service) => service.id === request?.serviceId) ?? activeAdminServices[0] ?? null;
+  const requestedService = activeAdminServices.find((service) => service.id === request?.serviceId) ?? null;
+  const serviceCategories = getServiceCategories(activeAdminServices);
   const todayKey = toDateKey(new Date());
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => requestedService?.category ?? null);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(() => requestedService?.id ?? null);
   const [viewMonth, setViewMonth] = useState(() => getMonthStart(new Date()));
   const [selectedDate, setSelectedDate] = useState<string | null>(todayKey);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const selectedService = selectedServiceId
+    ? activeAdminServices.find((service) => service.id === selectedServiceId) ?? null
+    : null;
+  const servicesInSelectedCategory = selectedCategory
+    ? activeAdminServices.filter((service) => service.category === selectedCategory)
+    : [];
+
+  const handleSelectCategory = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedServiceId(null);
+    setSelectedTime(null);
+  };
+
+  const handleSelectService = (service: Service) => {
+    setSelectedCategory(service.category);
+    setSelectedServiceId(service.id);
+    setSelectedTime(null);
+    onSelectService({ serviceId: service.id, label: service.name });
+  };
 
   const year = viewMonth.getFullYear();
   const month = viewMonth.getMonth() + 1;
@@ -754,6 +780,20 @@ const AvailabilityPreviewSection = ({
   const reservationTarget = buildReservationTarget(selectedService?.id, selectedDate, selectedTime);
   const reservationTo = isAuthenticated ? reservationTarget : '/auth/login';
   const reservationState = isAuthenticated ? undefined : { from: reservationTarget };
+
+  useEffect(() => {
+    if (!request) {
+      setSelectedCategory(null);
+      setSelectedServiceId(null);
+      setSelectedTime(null);
+      return;
+    }
+
+    if (!requestedService) return;
+
+    setSelectedCategory(requestedService.category);
+    setSelectedServiceId(requestedService.id);
+  }, [request, requestedService]);
 
   useEffect(() => {
     const today = toDateKey(new Date());
@@ -792,12 +832,12 @@ const AvailabilityPreviewSection = ({
                 Sprawdź dostępny dzień i godzinę bez logowania
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ivory/68 md:text-base">
-                Wybierz usługę z aktualnej oferty, kliknij dostępny dzień w kalendarzu i zobacz wolne godziny.
+                Najpierw wybierz kategorię, potem konkretną usługę. Kalendarz pokaże wolne godziny tylko dla tego zabiegu.
                 Konto będzie potrzebne dopiero przy potwierdzeniu rezerwacji.
               </p>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-3">
               {servicesLoading ? (
                 <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68">
                   Ładuję aktualną ofertę...
@@ -807,23 +847,56 @@ const AvailabilityPreviewSection = ({
                   Brak usług dostępnych do rezerwacji. Kalendarz pojawi się, gdy oferta zostanie uzupełniona.
                 </div>
               ) : (
-                activeAdminServices.map((service) => (
-                  <button
-                    key={service.id}
-                    type="button"
-                    onClick={() => onSelectService({ serviceId: service.id, label: service.name })}
-                    className={`rounded-lg border px-4 py-3 text-left transition ${
-                      selectedService?.id === service.id
-                        ? 'border-oak bg-oak text-espresso shadow-[0_14px_35px_rgba(196,150,90,0.22)]'
-                        : 'border-white/12 bg-white/7 text-ivory/78 hover:border-oak/45 hover:bg-white/12'
-                    }`}
-                  >
-                    <span className="block text-sm font-semibold">{service.name}</span>
-                    <span className={`mt-1 block text-xs ${selectedService?.id === service.id ? 'text-espresso/62' : 'text-ivory/50'}`}>
-                      {service.category} · {service.durationMinutes} min
-                    </span>
-                  </button>
-                ))
+                <>
+                  <div className="rounded-lg border border-white/12 bg-white/7 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-oak">1. Kategoria</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {serviceCategories.map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => handleSelectCategory(category)}
+                          className={`min-h-[38px] rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                            selectedCategory === category
+                              ? 'border-oak bg-oak text-espresso shadow-[0_14px_35px_rgba(196,150,90,0.22)]'
+                              : 'border-white/12 bg-white/7 text-ivory/78 hover:border-oak/45 hover:bg-white/12'
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-white/12 bg-white/7 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-oak">2. Usługa</p>
+                    {selectedCategory ? (
+                      <div className="mt-3 grid max-h-[260px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                        {servicesInSelectedCategory.map((service) => (
+                          <button
+                            key={service.id}
+                            type="button"
+                            onClick={() => handleSelectService(service)}
+                            className={`rounded-lg border px-4 py-3 text-left transition ${
+                              selectedService?.id === service.id
+                                ? 'border-oak bg-oak text-espresso shadow-[0_14px_35px_rgba(196,150,90,0.22)]'
+                                : 'border-white/12 bg-white/7 text-ivory/78 hover:border-oak/45 hover:bg-white/12'
+                            }`}
+                          >
+                            <span className="block text-sm font-semibold">{service.name}</span>
+                            <span className={`mt-1 block text-xs ${selectedService?.id === service.id ? 'text-espresso/62' : 'text-ivory/50'}`}>
+                              {service.durationMinutes} min
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-ivory/58">
+                        Wybierz kategorię, a pokażemy krótszą listę usług.
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -845,7 +918,11 @@ const AvailabilityPreviewSection = ({
                 <div className="text-center">
                   <p className="font-heading text-2xl font-bold capitalize text-espresso">{formatMonthLabel(viewMonth)}</p>
                   <p className="mt-1 text-xs text-espresso/50">
-                    {monthFetching ? 'Aktualizuję dostępność...' : 'Zielone dni mają wolne godziny'}
+                    {selectedService
+                      ? monthFetching
+                        ? 'Aktualizuję dostępność...'
+                        : 'Zielone dni mają wolne godziny'
+                      : 'Wybierz usługę, aby aktywować kalendarz'}
                   </p>
                 </div>
                 <button
@@ -932,15 +1009,23 @@ const AvailabilityPreviewSection = ({
             <div className="flex min-h-[430px] flex-col rounded-lg border border-espresso/10 bg-white p-4 md:p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Wybrana usługa</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">
+                    {selectedService ? 'Wybrana usługa' : selectedCategory ? 'Wybierz usługę' : 'Wybierz kategorię'}
+                  </p>
                   <h3 className="mt-2 font-heading text-2xl font-bold text-espresso">
-                    {selectedService?.name ?? 'Brak aktywnej usługi'}
+                    {selectedService?.name ?? selectedCategory ?? 'Najpierw kategoria'}
                   </h3>
                   <p className="mt-1 text-sm text-espresso/55">
-                    {selectedService ? selectedDateLabel : 'Brak usługi dostępnej do rezerwacji'}
+                    {selectedService
+                      ? selectedDateLabel
+                      : selectedCategory
+                      ? 'Teraz wybierz usługę z tej kategorii'
+                      : 'Kategorie porządkują aktualną ofertę'}
                   </p>
                   <p className="mt-2 text-xs leading-relaxed text-espresso/48">
-                    Dostępne godziny są liczone dla wybranej usługi i jej czasu trwania.
+                    {selectedService
+                      ? 'Dostępne godziny są liczone dla wybranej usługi i jej czasu trwania.'
+                      : 'Po wyborze usługi aktywujemy kalendarz i wolne godziny.'}
                   </p>
                 </div>
                 <CalendarCheck className="h-8 w-8 shrink-0 text-oak" />
@@ -952,12 +1037,30 @@ const AvailabilityPreviewSection = ({
                     Ładuję aktualną ofertę...
                   </p>
                 ) : null}
-                {!servicesLoading && !selectedService ? (
+                {!servicesLoading && activeAdminServices.length === 0 ? (
                   <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
                     <div>
                       <p className="font-semibold text-espresso">Brak aktywnych usług do sprawdzenia</p>
                       <p className="mt-2 text-sm text-espresso/58">
                         Terminy pojawią się tutaj, gdy w ofercie będzie dostępna usługa do rezerwacji.
+                      </p>
+                    </div>
+                  </div>
+                ) : !selectedCategory ? (
+                  <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
+                    <div>
+                      <p className="font-semibold text-espresso">Wybierz kategorię</p>
+                      <p className="mt-2 text-sm text-espresso/58">
+                        Po wyborze kategorii pokażemy tylko pasujące usługi i odblokujemy sprawdzanie terminów.
+                      </p>
+                    </div>
+                  </div>
+                ) : !selectedService ? (
+                  <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
+                    <div>
+                      <p className="font-semibold text-espresso">Wybierz usługę</p>
+                      <p className="mt-2 text-sm text-espresso/58">
+                        Lista po lewej pokazuje usługi tylko z kategorii: {selectedCategory}.
                       </p>
                     </div>
                   </div>
@@ -1006,7 +1109,11 @@ const AvailabilityPreviewSection = ({
                       Wybrano: <strong className="text-espresso">{selectedDateLabel}, {selectedTime}</strong>
                     </span>
                   ) : (
-                    <span>Wybierz godzinę, aby przejść dalej z gotowym terminem.</span>
+                    <span>
+                      {selectedService
+                        ? 'Wybierz godzinę, aby przejść dalej z gotowym terminem.'
+                        : 'Wybierz kategorię i usługę, aby zobaczyć godziny.'}
+                    </span>
                   )}
                 </div>
                 <Button
@@ -1021,7 +1128,7 @@ const AvailabilityPreviewSection = ({
                     </Link>
                   ) : (
                     <span>
-                      Wybierz godzinę
+                      {selectedService ? 'Wybierz godzinę' : 'Wybierz usługę'}
                       <ArrowRight className="h-4 w-4" />
                     </span>
                   )}
@@ -1045,9 +1152,8 @@ const ServicesSection = ({
   onCheckAvailability: (request: AvailabilityRequest) => void;
 }) => {
   const activeAdminServices = getActiveAdminServices(availableServices);
-  const upcomingCards = upcomingServiceCards.filter(
-    (card) => !activeAdminServices.some((service) => serviceMatches(service, card.matchers))
-  );
+  const visibleServices = activeAdminServices.slice(0, 3);
+  const hiddenServicesCount = Math.max(activeAdminServices.length - visibleServices.length, 0);
 
   return (
     <section id="zabiegi" className="bg-ivory py-16 md:py-24">
@@ -1077,10 +1183,10 @@ const ServicesSection = ({
               </FadeUp>
             )}
 
-            {activeAdminServices.map((service, index) => {
+            {visibleServices.map((service, index) => {
               const Icon = getServiceIcon(service);
               return (
-                <FadeUp key={service.id} delay={index * 0.06} className={index === 0 ? 'md:col-span-2 xl:col-span-2' : ''}>
+                <FadeUp key={service.id} delay={index * 0.06}>
                   <article className="group flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(26,56,40,0.14)]">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-cream text-caramel transition-colors group-hover:bg-espresso group-hover:text-ivory">
@@ -1131,47 +1237,31 @@ const ServicesSection = ({
               );
             })}
 
-            {upcomingCards.map(({ title, shortTitle, description, price, time, effect, cta, Icon }, index) => (
-              <FadeUp key={title} delay={(activeAdminServices.length + index) * 0.06}>
-                <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-[#EEEEEA] p-5 opacity-75 grayscale shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/70 text-espresso/45">
-                      <Icon className="h-5 w-5" />
+            {hiddenServicesCount > 0 && (
+              <FadeUp delay={visibleServices.length * 0.06}>
+                <Link
+                  to="/uslugi"
+                  className="group flex h-full min-h-[260px] flex-col justify-between rounded-lg border border-oak/30 bg-espresso p-5 text-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-espresso/95 hover:shadow-[0_22px_55px_rgba(26,56,40,0.18)]"
+                >
+                  <div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-oak/18 text-oak transition-colors group-hover:bg-oak group-hover:text-espresso">
+                      <LayoutDashboard className="h-5 w-5" />
                     </div>
-                    <span className="rounded-full bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-espresso/45">
-                      Jeszcze niedostępne
-                    </span>
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-oak">
+                      +{hiddenServicesCount} w ofercie
+                    </p>
+                    <h3 className="mt-3 font-heading text-2xl font-bold">Zobacz wszystkie usługi</h3>
+                    <p className="mt-4 text-sm leading-relaxed text-ivory/68">
+                      Pełna lista zabiegów jest w zakładce usług, z filtrowaniem po kategoriach.
+                    </p>
                   </div>
-
-                  <div className="mt-5">
-                    <h3 className="font-heading text-2xl font-bold text-espresso/55">{shortTitle}</h3>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">{title}</p>
-                    <p className="mt-4 text-sm leading-relaxed text-espresso/50">{description}</p>
-                  </div>
-
-                  <div className="mt-5 grid gap-2 text-sm text-espresso/50 sm:grid-cols-3">
-                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
-                      <BadgeCheck className="h-4 w-4 text-espresso/35" />
-                      {price}
-                    </span>
-                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
-                      <Timer className="h-4 w-4 text-espresso/35" />
-                      {time}
-                    </span>
-                    <span className="flex items-center gap-2 rounded-lg bg-white/55 px-3 py-2">
-                      <Sparkles className="h-4 w-4 text-espresso/35" />
-                      {effect}
-                    </span>
-                  </div>
-
-                  <div className="mt-auto pt-5">
-                    <Button className="w-full gap-2 bg-white/70 text-espresso/45" disabled>
-                      {cta}
-                    </Button>
-                  </div>
-                </article>
+                  <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-oak">
+                    Przejdź do /uslugi
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
               </FadeUp>
-            ))}
+            )}
           </div>
         )}
       </div>
@@ -1605,9 +1695,7 @@ export const Home = () => {
   const bookingState = isAuthenticated ? undefined : { from: '/rezerwacja' };
 
   const handleCheckAvailability = (request?: AvailabilityRequest) => {
-    if (request) {
-      setAvailabilityRequest(request);
-    }
+    setAvailabilityRequest(request ?? null);
     window.setTimeout(() => {
       document.getElementById('terminy')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 0);
@@ -1646,7 +1734,7 @@ export const Home = () => {
           availableServices={allServices}
           servicesLoading={servicesLoading}
           isAuthenticated={isAuthenticated}
-          onSelectService={handleCheckAvailability}
+          onSelectService={(request) => setAvailabilityRequest(request)}
         />
         {isAuthenticated && (
           <SeasonalSection seasonalServices={seasonalServices} currentSeason={currentSeason} />

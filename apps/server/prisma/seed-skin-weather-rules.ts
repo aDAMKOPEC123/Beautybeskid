@@ -201,6 +201,64 @@ const rules = [
       uv: { min: 8, max: 11 },
     },
   },
+  // ── 17. Wiosna: deszcz + wilgotność + wracające UV ──────────────────────────
+  {
+    label: 'Wiosna — deszcz, wilgotność i powracające UV',
+    recommendation:
+      'Wiosną skóra często reaguje na zmienną pogodę: deszcz, wyższą wilgotność i wracające UV. Rano stosuj lekkie serum antyoksydacyjne oraz SPF 30-50, nawet gdy jest pochmurno. Po deszczu dokładnie oczyść twarz z pyłków i zanieczyszczeń, a wieczorem wybierz kojący krem z pantenolem lub beta-glukanem. Nie dokładaj wielu nowych kosmetyków naraz — bariera może być bardziej reaktywna.',
+    isActive: true,
+    sortOrder: 170,
+    conditions: ['temperature', 'uv', 'humidity', 'precip'],
+    thresholds: {
+      temperature: { min: 8, max: 20 },
+      uv: { min: 2, max: 6 },
+      humidity: { min: 55, max: 95 },
+      precip: { min: 30, max: 100 },
+    },
+  },
+  // ── 18. Lato: upał + wysokie UV + wilgotność ────────────────────────────────
+  {
+    label: 'Lato — upał, wysokie UV i lepka wilgotność',
+    recommendation:
+      'Latem połączenie upału, mocnego UV i wilgotności szybko nasila potliwość, przetłuszczanie i ryzyko przebarwień. Stosuj SPF 50+ w lekkiej formule i odnawiaj ochronę co 2 godziny. Wybierz żelowy krem nawilżający, serum z niacynamidem lub kwasem hialuronowym i ogranicz ciężki makijaż. Po powrocie do domu oczyść skórę dwuetapowo, a wieczorem nałóż kojącą pielęgnację z aloesem lub pantenolem.',
+    isActive: true,
+    sortOrder: 180,
+    conditions: ['temperature', 'uv', 'humidity'],
+    thresholds: {
+      temperature: { min: 27, max: 45 },
+      uv: { min: 6, max: 11 },
+      humidity: { min: 50, max: 100 },
+    },
+  },
+  // ── 19. Jesień: deszcz + wysoka wilgotność + niskie UV ──────────────────────
+  {
+    label: 'Jesień — deszcz, wilgotność i niskie UV',
+    recommendation:
+      'Jesienią deszcz, chłód i wysoka wilgotność osłabiają barierę skóry, a niskie UV sprzyja przebudowie pielęgnacji. Zamień bardzo lekkie kremy na formuły z ceramidami, cholesterolem i kwasem hialuronowym. Po deszczu myj twarz łagodnym żelem, żeby usunąć zanieczyszczenia z powietrza. To dobry czas na retinoidy lub delikatne kwasy wieczorem, ale SPF rano nadal zostaje obowiązkowy.',
+    isActive: true,
+    sortOrder: 190,
+    conditions: ['temperature', 'uv', 'humidity', 'precip'],
+    thresholds: {
+      temperature: { min: 4, max: 16 },
+      uv: { min: 0, max: 3 },
+      humidity: { min: 70, max: 100 },
+      precip: { min: 40, max: 100 },
+    },
+  },
+  // ── 20. Zima: niskie UV + mróz + suche powietrze ────────────────────────────
+  {
+    label: 'Zima — niskie UV, mróz i suche powietrze',
+    recommendation:
+      'Zimą niskie UV pozwala spokojniej planować regenerację, ale mróz i suche powietrze mocno naruszają barierę hydrolipidową. Rano nałóż bogatszy krem ochronny z ceramidami lub skwalanem, a na dzień dodaj SPF 30, szczególnie przy śniegu i jasnym niebie. Wieczorem postaw na odbudowę: humektant na lekko wilgotną skórę, potem krem okluzyjny. W ogrzewanych pomieszczeniach pomagają nawilżacz powietrza i balsam do ust.',
+    isActive: true,
+    sortOrder: 200,
+    conditions: ['temperature', 'uv', 'humidity'],
+    thresholds: {
+      temperature: { min: -20, max: 4 },
+      uv: { min: 0, max: 2 },
+      humidity: { min: 0, max: 45 },
+    },
+  },
 ];
 
 async function main() {

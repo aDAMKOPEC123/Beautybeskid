@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Navbar } from './Navbar';
@@ -14,6 +15,9 @@ const pageVariants = {
 export const PublicLayout = () => {
   const location = useLocation();
   const shouldReduce = useReducedMotion();
+  const isFirstRender = useRef(true);
+  useEffect(() => { isFirstRender.current = false; }, []);
+
   const activeVariants = shouldReduce
     ? { initial: {}, animate: {}, exit: {} }
     : pageVariants;
@@ -26,7 +30,7 @@ export const PublicLayout = () => {
           key={location.pathname}
           className="flex-1 pt-[72px]"
           variants={activeVariants}
-          initial="initial"
+          initial={isFirstRender.current ? false : 'initial'}
           animate="animate"
           exit="exit"
         >

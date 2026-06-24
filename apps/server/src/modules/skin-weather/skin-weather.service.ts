@@ -86,6 +86,24 @@ type ParamKey = 'temperature' | 'uv' | 'humidity' | 'aqi' | 'precip' | 'cloud';
 type ParamRange = { min: number; max: number };
 type RangeThresholds = Partial<Record<ParamKey, ParamRange>>;
 
+const PARAM_RANGE_SPAN: Record<ParamKey, number> = {
+  temperature: 65,
+  uv: 11,
+  humidity: 100,
+  aqi: 300,
+  precip: 100,
+  cloud: 100,
+};
+
+const VALID_PARAM_KEYS = new Set<ParamKey>([
+  'temperature',
+  'uv',
+  'humidity',
+  'aqi',
+  'precip',
+  'cloud',
+]);
+
 type RuleParams = {
   label: string;
   recommendation: string;
@@ -269,19 +287,75 @@ function checkRange(param: ParamKey, range: ParamRange, w: WeatherData): boolean
   return val >= range.min && val <= range.max;
 }
 
-const matchRulesToWeather = (rules: any[], weather: any, airQuality: any) => {
+function isParamKey(param: string): param is ParamKey {
+  return VALID_PARAM_KEYS.has(param as ParamKey);
+}
+
+function getRuleConditions(rule: any): ParamKey[] {
+  return ((rule.conditions ?? []) as string[]).filter(isParamKey);
+}
+
+function normalizeRuleText(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function isConditionSubset(candidate: ParamKey[], selected: ParamKey[]): boolean {
+  if (candidate.length > selected.length) return false;
+  const selectedSet = new Set(selected);
+  return candidate.every(param => selectedSet.has(param));
+}
+
+function getRuleSpecificity(rule: any): number {
+  const ranges = (rule.thresholds ?? {}) as RangeThresholds;
+  return getRuleConditions(rule).reduce((score, param) => {
+    const range = ranges[param];
+    if (!range) return score;
+    const maxSpan = PARAM_RANGE_SPAN[param] || 100;
+    const span = Math.max(range.max - range.min, 1);
+    return score + (maxSpan / span);
+  }, 0);
+}
+
+export const matchRulesToWeather = (rules: any[], weather: any, airQuality: any) => {
   const w = buildWeatherData(weather, airQuality);
-  return rules
-    .filter(r => r.isActive && r.conditions.length > 0)
+  const matchedRules = rules
+    .filter(r => r.isActive && getRuleConditions(r).length > 0)
     .filter(r => {
       const ranges = (r.thresholds ?? {}) as RangeThresholds;
-      return (r.conditions as ParamKey[]).every(param => {
+      return getRuleConditions(r).every(param => {
         const range = ranges[param];
         if (!range) return false;
         return checkRange(param, range, w);
       });
     })
-    .map(r => ({ label: r.label, recommendation: r.recommendation }));
+    .sort((a, b) => {
+      const conditionDiff = getRuleConditions(b).length - getRuleConditions(a).length;
+      if (conditionDiff !== 0) return conditionDiff;
+      const specificityDiff = getRuleSpecificity(b) - getRuleSpecificity(a);
+      if (specificityDiff !== 0) return specificityDiff;
+      return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    });
+
+  const selected: any[] = [];
+  const selectedConditionSets: ParamKey[][] = [];
+  const seenLabels = new Set<string>();
+  const seenRecommendations = new Set<string>();
+
+  for (const rule of matchedRules) {
+    const labelKey = normalizeRuleText(rule.label);
+    const recommendationKey = normalizeRuleText(rule.recommendation);
+    const conditions = getRuleConditions(rule);
+
+    if (seenLabels.has(labelKey) || seenRecommendations.has(recommendationKey)) continue;
+    if (selectedConditionSets.some(selectedConditions => isConditionSubset(conditions, selectedConditions))) continue;
+
+    selected.push(rule);
+    selectedConditionSets.push(conditions);
+    seenLabels.add(labelKey);
+    seenRecommendations.add(recommendationKey);
+  }
+
+  return selected.map(r => ({ label: r.label, recommendation: r.recommendation }));
 };
 
 // ── Scheduler ─────────────────────────────────────────────────────────────────

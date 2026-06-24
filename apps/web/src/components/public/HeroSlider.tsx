@@ -54,16 +54,6 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
 
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [scale, setScale] = useState(1.08);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const progress = Math.min(window.scrollY / 300, 1);
-      setScale(1.08 - 0.08 * progress);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const next = useCallback(() => setCurrent(c => (c + 1) % slides.length), [slides.length]);
   const prev = useCallback(() => setCurrent(c => (c - 1 + slides.length) % slides.length), [slides.length]);
@@ -108,14 +98,9 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
               src={slide.imagePath}
               alt={slide.title ?? ''}
               className="w-full h-full object-cover"
-              loading={i === current ? 'eager' : 'lazy'}
-              decoding={i === current ? 'sync' : 'async'}
-              fetchPriority={i === current ? 'high' : 'low'}
-              style={{
-                transform: i === current ? `scale(${scale})` : 'scale(1)',
-                willChange: i === current ? 'transform' : 'auto',
-                transition: 'none',
-              }}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding={i === 0 ? 'sync' : 'async'}
+              fetchPriority={i === 0 ? 'high' : 'low'}
             />
             <div
               className="absolute inset-0"
