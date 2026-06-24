@@ -98,8 +98,18 @@ class ErrorBoundary extends React.Component<
 function App() {
   const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
 
-  // Rebuild the auth session from the refresh cookie on every app start.
+  // Rebuild auth from the refresh cookie only when a session/protected route needs it.
   useEffect(() => {
+    const { accessToken, user } = useAuthStore.getState();
+    const protectedPath = ['/admin', '/employee', '/user', '/rezerwacja', '/akademia'].some((prefix) =>
+      window.location.pathname.startsWith(prefix),
+    );
+
+    if (!accessToken && !user && !protectedPath) {
+      hydrate();
+      return;
+    }
+
     api.post('/auth/refresh')
       .then((res) => {
         setAccessToken(res.data.data.accessToken);

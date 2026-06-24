@@ -96,7 +96,7 @@ const CourseDetail = lazy(() => import('./pages/academy/CourseDetail').then(m =>
 const LessonPlayer = lazy(() => import('./pages/academy/LessonPlayer').then(m => ({ default: m.LessonPlayer })));
 
 const Spinner = (
-  <div className="flex items-center justify-center min-h-[60vh]">
+  <div className="flex min-h-[calc(100svh-72px)] items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
   </div>
 );
