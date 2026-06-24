@@ -64,6 +64,7 @@ export function ForumThread() {
   const [replyContent, setReplyContent] = useState('');
   const [replyAnon, setReplyAnon] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [replyError, setReplyError] = useState('');
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -111,11 +112,14 @@ export function ForumThread() {
     e.preventDefault();
     if (!id || !replyContent.trim()) return;
     setSubmitting(true);
+    setReplyError('');
     try {
       const post = await forumApi.createPost(id, { content: replyContent, isAnonymous: replyAnon });
       setPosts(prev => [...prev, post]);
       setReplyContent('');
       setReplyAnon(false);
+    } catch {
+      setReplyError('Nie udało się wysłać odpowiedzi. Spróbuj ponownie.');
     } finally {
       setSubmitting(false);
     }
@@ -218,6 +222,7 @@ export function ForumThread() {
                 {submitting ? 'Wysyłanie...' : 'Odpowiedz'}
               </button>
             </div>
+            {replyError && <p className="text-xs text-red-500 mt-1">{replyError}</p>}
           </form>
         </div>
       )}

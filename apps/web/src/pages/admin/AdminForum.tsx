@@ -87,7 +87,7 @@ export function AdminForum() {
       ) : (
         <div className="space-y-2">
           {threads.map(thread => {
-            const hasMention = (thread as unknown as { mentionsAdmin?: boolean }).mentionsAdmin;
+            const hasMention = thread.mentionsAdmin;
             return (
               <div
                 key={thread.id}

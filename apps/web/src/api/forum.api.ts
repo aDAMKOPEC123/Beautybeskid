@@ -23,6 +23,7 @@ export interface ForumThread {
   isPinned: boolean;
   isLocked: boolean;
   isDeleted: boolean;
+  mentionsAdmin?: boolean;
   author: ForumAuthor;
   category: { id: string; name: string; slug: string };
   createdAt: string;
