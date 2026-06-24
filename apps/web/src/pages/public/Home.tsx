@@ -1,5 +1,4 @@
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -397,25 +396,9 @@ type FadeUpProps = {
   delay?: number;
 };
 
-const FadeUp = ({ children, className, delay = 0 }: FadeUpProps) => {
-  const shouldReduce = useReducedMotion();
-
-  if (shouldReduce) {
-    return <div className={className}>{children}</div>;
-  }
-
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+const FadeUp = ({ children, className }: FadeUpProps) => (
+  <div className={className}>{children}</div>
+);
 
 const SectionIntro = ({
   eyebrow,
@@ -474,15 +457,11 @@ const MobileClientPanelCard = ({
 }: {
   isAuthenticated: boolean;
   onOpenClientPanel: () => void;
-}) => {
-  const shouldReduce = useReducedMotion();
-
-  return (
-    <motion.button
+}) => (
+    <button
       type="button"
       onClick={onOpenClientPanel}
-      whileTap={shouldReduce ? undefined : { scale: 0.985 }}
-      className="mt-4 flex w-full items-center gap-4 rounded-lg border border-espresso/12 bg-espresso p-4 text-left text-ivory shadow-[0_18px_48px_rgba(26,56,40,0.18)] md:hidden"
+      className="mt-4 flex w-full items-center gap-4 rounded-lg border border-espresso/12 bg-espresso p-4 text-left text-ivory shadow-[0_18px_48px_rgba(26,56,40,0.18)] active:scale-[0.985] transition-transform md:hidden"
     >
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-oak/18 text-oak">
         <LayoutDashboard className="h-5 w-5" />
@@ -498,17 +477,11 @@ const MobileClientPanelCard = ({
             : 'Zaloguj się i przejdź od razu do wizyt, historii oraz zaleceń.'}
         </span>
       </span>
-      <motion.span
-        aria-hidden="true"
-        animate={shouldReduce ? undefined : { x: [0, 5, 0] }}
-        transition={shouldReduce ? undefined : { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-        className="shrink-0 text-oak"
-      >
+      <span aria-hidden="true" className="shrink-0 text-oak">
         <ArrowRight className="h-5 w-5" />
-      </motion.span>
-    </motion.button>
-  );
-};
+      </span>
+    </button>
+);
 
 const NextSlotCard = ({
   nextSlotLoading,

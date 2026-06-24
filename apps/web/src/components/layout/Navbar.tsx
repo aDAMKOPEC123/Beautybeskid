@@ -4,7 +4,6 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, LayoutDashboard } from 'lucide-react';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 
@@ -182,14 +181,9 @@ export const Navbar = () => {
                   {mobilePanelHint}
                 </span>
               </span>
-              <motion.span
-                aria-hidden="true"
-                animate={{ x: [0, 3, 0] }}
-                transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-                className="text-caramel"
-              >
+              <span aria-hidden="true" className="text-caramel">
                 <ArrowUpRight className="h-3.5 w-3.5" />
-              </motion.span>
+              </span>
             </button>
           </div>
 
@@ -254,16 +248,13 @@ export const Navbar = () => {
       </nav>
 
       {/* Mobile fullscreen overlay */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ clipPath: 'inset(0 0 100% 0)' }}
-            animate={{ clipPath: 'inset(0 0 0% 0)' }}
-            exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-50 flex flex-col"
-            style={{ background: '#1A3828' }}
-          >
+      <div
+        className={`fixed inset-0 z-50 flex flex-col transition-[clip-path] duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          mobileOpen ? '[clip-path:inset(0_0_0%_0)]' : '[clip-path:inset(0_0_100%_0)]'
+        } ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        aria-hidden={!mobileOpen}
+        style={{ background: '#1A3828' }}
+      >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
               <Link
@@ -338,9 +329,7 @@ export const Navbar = () => {
                 Zarezerwuj wizytę
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </>
   );
 };

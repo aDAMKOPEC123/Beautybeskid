@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CalendarCheck } from 'lucide-react';
 
 const HIDDEN_PATHS = ['/rezerwacja', '/auth', '/user', '/admin', '/employee'];
@@ -33,15 +32,11 @@ export const FloatingBookingCTA = () => {
   }, [isHome, isMobile]);
 
   return (
-    <AnimatePresence>
-      {visible && !isHidden && (
-        <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-          className="glass-dark fixed bottom-0 left-0 right-0 z-40 border-t border-oak/30 shadow-[0_-18px_45px_rgba(26,56,40,0.22)] md:bottom-5 md:left-auto md:right-5 md:w-[390px] md:rounded-lg md:border"
-        >
+    <div
+      className={`glass-dark fixed bottom-0 left-0 right-0 z-40 border-t border-oak/30 shadow-[0_-18px_45px_rgba(26,56,40,0.22)] md:bottom-5 md:left-auto md:right-5 md:w-[390px] md:rounded-lg md:border transition-transform duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+        visible && !isHidden ? 'translate-y-0' : 'translate-y-full'
+      }`}
+    >
           <div className="container flex items-center justify-between gap-4 py-3 md:px-4">
             <div className="min-w-0">
               <p className="mb-0.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-oak">
@@ -60,8 +55,6 @@ export const FloatingBookingCTA = () => {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 };
