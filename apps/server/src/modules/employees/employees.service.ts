@@ -266,6 +266,62 @@ export const deleteWorkDay = async (id: string, employeeId: string) => {
   return await prisma.employeeWorkDay.delete({ where: { id } });
 };
 
+export const upsertWeek = async (
+  employeeId: string,
+  days: Array<{
+    date: string;
+    isWorking: boolean;
+    timeBlocks?: TimeBlock[];
+    note?: string;
+  }>
+): Promise<void> => {
+  if (!days.length) return;
+  await prisma.$transaction(
+    days.map((d) => {
+      const normalized = normalizeDate(d.date);
+      return prisma.employeeWorkDay.upsert({
+        where: { employeeId_date: { employeeId, date: normalized } },
+        create: {
+          employeeId,
+          date: normalized,
+          isWorking: d.isWorking,
+          timeBlocks: (d.isWorking ? (d.timeBlocks ?? DEFAULT_TIME_BLOCKS) : null) as any,
+          note: d.note ?? null,
+        },
+        update: {
+          isWorking: d.isWorking,
+          timeBlocks: (d.isWorking ? (d.timeBlocks ?? DEFAULT_TIME_BLOCKS) : null) as any,
+          note: d.note ?? null,
+        },
+      });
+    })
+  );
+};
+
+export const blockMonth = async (
+  employeeId: string,
+  year: number,
+  month: number
+): Promise<void> => {
+  const start = new Date(Date.UTC(year, month - 1, 1));
+  const end = new Date(Date.UTC(year, month, 0)); // last day of month
+
+  const days: Date[] = [];
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    days.push(new Date(d));
+  }
+
+  await prisma.$transaction(
+    days.map((date) =>
+      prisma.employeeWorkDay.upsert({
+        where: { employeeId_date: { employeeId, date } },
+        create: { employeeId, date, isWorking: false, timeBlocks: null as any },
+        update: { isWorking: false, timeBlocks: null as any },
+      })
+    )
+  );
+};
+
 // ─── Availability ─────────────────────────────────────────────────────────────
 
 export interface WorkDayLike {
