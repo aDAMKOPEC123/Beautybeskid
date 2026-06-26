@@ -169,6 +169,28 @@ export const removeWorkDay = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const upsertWeekForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { days } = req.body;
+    if (!Array.isArray(days)) throw new AppError('days musi być tablicą', 400);
+    await employeesService.upsertWeek(req.params.id, days);
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const blockMonthForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { year, month } = req.body;
+    if (!year || !month) throw new AppError('year i month są wymagane', 400);
+    await employeesService.blockMonth(req.params.id, Number(year), Number(month));
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── Employee self-service ────────────────────────────────────────────────────
 
 export const getMySchedule = async (req: Request, res: Response, next: NextFunction) => {
@@ -200,6 +222,30 @@ export const removeMyWorkDay = async (req: Request, res: Response, next: NextFun
     const employee = await employeesService.getEmployeeByUserId(req.user!.id);
     await employeesService.deleteWorkDay(req.params.dayId, employee.id);
     res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const upsertMyWeek = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const employee = await employeesService.getEmployeeByUserId(req.user!.id);
+    const { days } = req.body;
+    if (!Array.isArray(days)) throw new AppError('days musi być tablicą', 400);
+    await employeesService.upsertWeek(employee.id, days);
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const blockMyMonth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const employee = await employeesService.getEmployeeByUserId(req.user!.id);
+    const { year, month } = req.body;
+    if (!year || !month) throw new AppError('year i month są wymagane', 400);
+    await employeesService.blockMonth(employee.id, Number(year), Number(month));
+    res.json({ status: 'success' });
   } catch (err) {
     next(err);
   }
