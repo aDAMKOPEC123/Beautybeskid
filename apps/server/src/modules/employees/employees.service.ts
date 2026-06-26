@@ -273,6 +273,18 @@ export const deleteWorkDay = async (id: string, employeeId: string) => {
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 
+export interface WorkDayLike {
+  isWorking: boolean;
+  timeBlocks: unknown;
+}
+
+export function resolveEmployeeBlocks(workDay: WorkDayLike | null): TimeBlock[] | null {
+  if (!workDay) return null;
+  if (!workDay.isWorking) return null;
+  const blocks = workDay.timeBlocks as TimeBlock[] | null;
+  return blocks && blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
+}
+
 const getAvailabilityForDuration = async (
   date: string,
   duration: number,
@@ -309,36 +321,13 @@ const getAvailabilityForDuration = async (
       .sort((a, b) => a.time.localeCompare(b.time));
   }
 
-  let blocks: TimeBlock[] = DEFAULT_TIME_BLOCKS;
+  const workDay = await prisma.employeeWorkDay.findUnique({
+    where: { employeeId_date: { employeeId, date: normalized } },
+  });
 
-  if (employeeId) {
-    // Check day-specific override first
-    const workDay = await prisma.employeeWorkDay.findUnique({
-      where: { employeeId_date: { employeeId, date: normalized } },
-    });
-
-    const dow = getDayOfWeek(normalized);
-    const weekly = await prisma.employeeWeeklySchedule.findUnique({
-      where: { employeeId_dayOfWeek: { employeeId, dayOfWeek: dow } },
-    });
-
-    const isWorking = workDay?.isWorking ?? weekly?.isWorking ?? true;
-    if (!isWorking) return [];
-
-    if (workDay) {
-      if (workDay.timeBlocks) {
-        blocks = workDay.timeBlocks as unknown as TimeBlock[];
-      } else if (weekly) {
-        // Override exists but no timeBlocks → fall through to weekly template
-        if (!weekly) return [];
-        blocks = weekly.timeBlocks as unknown as TimeBlock[];
-      }
-    } else {
-      // No override → use weekly template
-      if (!weekly) return [];
-      blocks = weekly.timeBlocks as unknown as TimeBlock[];
-    }
-  }
+  const resolved = resolveEmployeeBlocks(workDay);
+  if (resolved === null) return [];
+  const blocks: TimeBlock[] = resolved;
 
   // Existing appointments
   const existingAppointments = await prisma.appointment.findMany({
