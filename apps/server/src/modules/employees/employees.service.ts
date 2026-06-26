@@ -27,11 +27,6 @@ function normalizeDate(dateStr: string): Date {
   return d;
 }
 
-// dayOfWeek: 0=Mon, 1=Tue, ..., 6=Sun (from JS getDay: 0=Sun,1=Mon...)
-function getDayOfWeek(date: Date): number {
-  return (date.getUTCDay() + 6) % 7;
-}
-
 // ─── Employee CRUD ────────────────────────────────────────────────────────────
 
 export const getAllEmployees = async () => {
@@ -275,13 +270,13 @@ export const deleteWorkDay = async (id: string, employeeId: string) => {
 
 export interface WorkDayLike {
   isWorking: boolean;
-  timeBlocks: unknown;
+  timeBlocks: TimeBlock[] | null;
 }
 
 export function resolveEmployeeBlocks(workDay: WorkDayLike | null): TimeBlock[] | null {
   if (!workDay) return null;
   if (!workDay.isWorking) return null;
-  const blocks = workDay.timeBlocks as TimeBlock[] | null;
+  const blocks = workDay.timeBlocks;
   return blocks && blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
 }
 
@@ -325,7 +320,7 @@ const getAvailabilityForDuration = async (
     where: { employeeId_date: { employeeId, date: normalized } },
   });
 
-  const resolved = resolveEmployeeBlocks(workDay);
+  const resolved = resolveEmployeeBlocks(workDay as WorkDayLike | null);
   if (resolved === null) return [];
   const blocks: TimeBlock[] = resolved;
 
