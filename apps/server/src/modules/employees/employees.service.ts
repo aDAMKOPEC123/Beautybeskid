@@ -315,8 +315,8 @@ export const blockMonth = async (
     days.map((date) =>
       prisma.employeeWorkDay.upsert({
         where: { employeeId_date: { employeeId, date } },
-        create: { employeeId, date, isWorking: false, timeBlocks: null as any },
-        update: { isWorking: false, timeBlocks: null as any },
+        create: { employeeId, date, isWorking: false, timeBlocks: null as any, note: null },
+        update: { isWorking: false, timeBlocks: null as any, note: null },
       })
     )
   );
