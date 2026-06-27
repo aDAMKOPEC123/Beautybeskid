@@ -21,6 +21,8 @@ router.delete('/me/schedule/:dayId', authenticate, requireEmployee, ctrl.removeM
 router.get('/me/appointments', authenticate, requireEmployee, ctrl.getMyAppointments);
 router.get('/me/weekly-schedule', authenticate, requireEmployee, ctrl.getMyWeeklySchedule);
 router.put('/me/weekly-schedule', authenticate, requireEmployee, ctrl.upsertMyWeeklyDay);
+router.post('/me/schedule/week', authenticate, requireEmployee, ctrl.upsertMyWeek);
+router.post('/me/schedule/block-month', authenticate, requireEmployee, ctrl.blockMyMonth);
 
 // ─── Admin: employee CRUD + accounts + schedule ───────────────────────────────
 router.post('/', authenticate, requireAdmin, upload.single('avatar'), ctrl.create);
@@ -33,6 +35,8 @@ router.delete('/:id/account', authenticate, requireAdmin, ctrl.revokeAccount);
 router.get('/:id/schedule', authenticate, requireAdmin, ctrl.getSchedule);
 router.post('/:id/schedule', authenticate, requireAdmin, ctrl.upsertWorkDay);
 router.delete('/:id/schedule/:dayId', authenticate, requireAdmin, ctrl.removeWorkDay);
+router.post('/:id/schedule/week', authenticate, requireAdmin, ctrl.upsertWeekForEmployee);
+router.post('/:id/schedule/block-month', authenticate, requireAdmin, ctrl.blockMonthForEmployee);
 router.get('/:id/weekly-schedule', authenticate, requireAdmin, ctrl.getEmployeeWeeklySchedule);
 router.put('/:id/weekly-schedule', authenticate, requireAdmin, ctrl.upsertEmployeeWeeklyDay);
 
