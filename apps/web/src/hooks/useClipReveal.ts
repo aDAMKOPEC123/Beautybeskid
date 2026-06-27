@@ -16,6 +16,18 @@ export function useClipReveal<T extends HTMLElement = HTMLDivElement>(
     const el = ref.current;
     if (!el) return;
 
+    // If element is already in viewport, reveal immediately (avoids iOS Safari
+    // IntersectionObserver not firing for clip-path elements already visible)
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      if (delay > 0) {
+        const timer = setTimeout(() => setRevealed(true), delay);
+        return () => clearTimeout(timer);
+      }
+      setRevealed(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
