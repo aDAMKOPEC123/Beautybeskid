@@ -172,7 +172,7 @@ export const removeWorkDay = async (req: Request, res: Response, next: NextFunct
 export const upsertWeekForEmployee = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { days } = req.body;
-    if (!Array.isArray(days)) throw new AppError('days musi być tablicą', 400);
+    if (!Array.isArray(days) || days.length === 0) throw new AppError('days musi być niepustą tablicą', 400);
     await employeesService.upsertWeek(req.params.id, days);
     res.json({ status: 'success' });
   } catch (err) {
@@ -183,8 +183,12 @@ export const upsertWeekForEmployee = async (req: Request, res: Response, next: N
 export const blockMonthForEmployee = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { year, month } = req.body;
-    if (!year || !month) throw new AppError('year i month są wymagane', 400);
-    await employeesService.blockMonth(req.params.id, Number(year), Number(month));
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || m < 1 || m > 12) {
+      throw new AppError('year i month muszą być prawidłowymi liczbami całkowitymi (miesiąc 1–12)', 400);
+    }
+    await employeesService.blockMonth(req.params.id, y, m);
     res.json({ status: 'success' });
   } catch (err) {
     next(err);
@@ -231,7 +235,7 @@ export const upsertMyWeek = async (req: Request, res: Response, next: NextFuncti
   try {
     const employee = await employeesService.getEmployeeByUserId(req.user!.id);
     const { days } = req.body;
-    if (!Array.isArray(days)) throw new AppError('days musi być tablicą', 400);
+    if (!Array.isArray(days) || days.length === 0) throw new AppError('days musi być niepustą tablicą', 400);
     await employeesService.upsertWeek(employee.id, days);
     res.json({ status: 'success' });
   } catch (err) {
@@ -243,8 +247,12 @@ export const blockMyMonth = async (req: Request, res: Response, next: NextFuncti
   try {
     const employee = await employeesService.getEmployeeByUserId(req.user!.id);
     const { year, month } = req.body;
-    if (!year || !month) throw new AppError('year i month są wymagane', 400);
-    await employeesService.blockMonth(employee.id, Number(year), Number(month));
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || m < 1 || m > 12) {
+      throw new AppError('year i month muszą być prawidłowymi liczbami całkowitymi (miesiąc 1–12)', 400);
+    }
+    await employeesService.blockMonth(employee.id, y, m);
     res.json({ status: 'success' });
   } catch (err) {
     next(err);
