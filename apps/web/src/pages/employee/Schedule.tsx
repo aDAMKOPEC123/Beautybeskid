@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   format,
@@ -202,7 +202,7 @@ export const EmployeeSchedule = () => {
   // Re-sync local state when server data or week changes
   const dataKey = allWorkDays.map((w) => w.id + String(w.isWorking)).join(',');
   const weekKey = format(weekStart, 'yyyy-MM-dd');
-  useMemo(() => {
+  useEffect(() => {
     if (!isLoading) setDayStates(buildDayStates());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataKey, weekKey]);
