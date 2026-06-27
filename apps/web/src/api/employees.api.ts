@@ -30,6 +30,13 @@ export interface WorkDayInput {
   note?: string;
 }
 
+export interface WeekDayInput {
+  date: string;
+  isWorking: boolean;
+  timeBlocks?: TimeBlock[];
+  note?: string;
+}
+
 export const employeesApi = {
   // ── Public ──────────────────────────────────────────────────────────────────
   getNextAvailable: async (): Promise<{ date: string; time: string } | null> => {
@@ -126,6 +133,12 @@ export const employeesApi = {
   },
   deleteMyWorkDay: async (dayId: string) => {
     await api.delete(`/employees/me/schedule/${dayId}`);
+  },
+  upsertMyWeek: async (days: WeekDayInput[]): Promise<void> => {
+    await api.post('/employees/me/schedule/week', { days });
+  },
+  blockMyMonth: async (year: number, month: number): Promise<void> => {
+    await api.post('/employees/me/schedule/block-month', { year, month });
   },
   getMyAppointments: async () => {
     const res = await api.get('/employees/me/appointments');
