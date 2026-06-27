@@ -21,7 +21,7 @@ import { employeesApi, TimeBlock, WorkDay, WeekDayInput } from '@/api/employees.
 import { TimeBlocksEditor } from '@/components/schedule/TimeBlocksEditor';
 import { Button } from '@/components/ui/button';
 
-const DEFAULT_BLOCKS: TimeBlock[] = [{ start: '09:00', end: '18:00' }];
+const DEFAULT_BLOCKS: TimeBlock[] = Object.freeze([{ start: '09:00', end: '18:00' }]) as TimeBlock[];
 const DAY_NAMES = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
 function getWeekStart(date: Date): Date {
@@ -184,7 +184,13 @@ export const EmployeeSchedule = () => {
 
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-  const buildDayStates = (): Record<string, DayState> => {
+  const [dayStates, setDayStates] = useState<Record<string, DayState>>({});
+
+  // Re-sync local state when server data or week changes
+  const dataKey = allWorkDays.map((w) => w.id + String(w.isWorking)).join(',');
+  const weekKey = format(weekStart, 'yyyy-MM-dd');
+  useEffect(() => {
+    if (isLoading) return;
     const states: Record<string, DayState> = {};
     for (const day of weekDays) {
       const key = format(day, 'yyyy-MM-dd');
@@ -194,16 +200,7 @@ export const EmployeeSchedule = () => {
         timeBlocks: wd?.timeBlocks ?? DEFAULT_BLOCKS,
       };
     }
-    return states;
-  };
-
-  const [dayStates, setDayStates] = useState<Record<string, DayState>>(buildDayStates);
-
-  // Re-sync local state when server data or week changes
-  const dataKey = allWorkDays.map((w) => w.id + String(w.isWorking)).join(',');
-  const weekKey = format(weekStart, 'yyyy-MM-dd');
-  useEffect(() => {
-    if (!isLoading) setDayStates(buildDayStates());
+    setDayStates(states);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataKey, weekKey]);
 
@@ -317,20 +314,24 @@ export const EmployeeSchedule = () => {
         )}
 
         {/* Day rows */}
-        <div className="space-y-3">
-          {weekDays.map((day) => {
-            const key = format(day, 'yyyy-MM-dd');
-            return (
-              <DayRow
-                key={key}
-                date={day}
-                state={dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS }}
-                readonly={isPastWeek}
-                onChange={(patch) => updateDay(key, patch)}
-              />
-            );
-          })}
-        </div>
+        {(q1.isFetching || q2.isFetching) ? (
+          <div className="py-8 text-center text-sm text-muted-foreground animate-pulse">Ładowanie...</div>
+        ) : (
+          <div className="space-y-3">
+            {weekDays.map((day) => {
+              const key = format(day, 'yyyy-MM-dd');
+              return (
+                <DayRow
+                  key={key}
+                  date={day}
+                  state={dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS }}
+                  readonly={isPastWeek}
+                  onChange={(patch) => updateDay(key, patch)}
+                />
+              );
+            })}
+          </div>
+        )}
 
         {/* Save button */}
         {!isPastWeek && (
