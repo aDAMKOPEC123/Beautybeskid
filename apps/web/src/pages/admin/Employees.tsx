@@ -1,20 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   format,
-  startOfMonth,
-  endOfMonth,
+  startOfWeek,
+  endOfWeek,
   eachDayOfInterval,
-  getDay,
-  addMonths,
-  subMonths,
+  addWeeks,
+  subWeeks,
   isSameDay,
+  isBefore,
+  startOfToday,
+  getMonth,
+  getYear,
 } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Plus, ChevronLeft, ChevronRight, Trash2, Key, UserX, Pencil } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Trash2, Key, UserX, Pencil, Lock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { employeesApi, WorkDay, WeeklyScheduleEntry, TimeBlock } from '@/api/employees.api';
+import { employeesApi, WorkDay, TimeBlock, WeekDayInput } from '@/api/employees.api';
 import { TimeBlocksEditor } from '@/components/schedule/TimeBlocksEditor';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,357 +54,256 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const INPUT_CLS = 'w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary';
 
-// ─── Weekly Schedule Editor ───────────────────────────────────────────────────
+// ─── Admin week schedule editor ──────────────────────────────────────────────
 
-const DEFAULT_BLOCKS: TimeBlock[] = [{ start: '09:00', end: '18:00' }];
-const DAY_NAMES_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+const DEFAULT_BLOCKS: TimeBlock[] = Object.freeze([{ start: '09:00', end: '18:00' }]) as unknown as TimeBlock[];
+const DAY_NAMES = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
-function WeeklyScheduleEditor({ employeeId }: { employeeId: string }) {
-  const qc = useQueryClient();
-
-  const { data: schedule = [], isLoading } = useQuery<WeeklyScheduleEntry[]>({
-    queryKey: ['employee-weekly-schedule', employeeId],
-    queryFn: () => employeesApi.getWeeklySchedule(employeeId),
-  });
-
-  type DayState = { dayOfWeek: number; isWorking: boolean; timeBlocks: TimeBlock[] };
-
-  const buildDays = (src: WeeklyScheduleEntry[]): DayState[] =>
-    Array.from({ length: 7 }, (_, i) => {
-      const entry = src.find((e) => e.dayOfWeek === i);
-      return {
-        dayOfWeek: i,
-        isWorking: entry?.isWorking ?? false,
-        timeBlocks: entry?.timeBlocks ?? DEFAULT_BLOCKS,
-      };
-    });
-
-  const [days, setDays] = useState<DayState[]>(() => buildDays(schedule));
-
-  useEffect(() => {
-    setDays(buildDays(schedule));
-  }, [schedule]);
-
-  const [saving, setSaving] = useState(false);
-
-  const updateDay = (i: number, patch: Partial<DayState>) =>
-    setDays((prev) => prev.map((d) => (d.dayOfWeek === i ? { ...d, ...patch } : d)));
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      for (const day of days) {
-        await employeesApi.upsertEmployeeWeeklyDay(employeeId, day);
-      }
-      qc.invalidateQueries({ queryKey: ['employee-weekly-schedule', employeeId] });
-      toast.success('Harmonogram zapisany');
-    } catch {
-      toast.error('Błąd zapisu harmonogramu');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (isLoading) return <div className="text-center py-8 text-muted-foreground animate-pulse">Ładowanie...</div>;
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-3">
-        {days.map((day) => (
-          <div key={day.dayOfWeek} className="border rounded-xl p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-sm">{DAY_NAMES_FULL[day.dayOfWeek]}</span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => updateDay(day.dayOfWeek, { isWorking: true })}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                    day.isWorking ? 'bg-green-100 text-green-800 border-green-300' : 'border-border hover:bg-accent'
-                  }`}
-                >
-                  Pracuje
-                </button>
-                <button
-                  onClick={() => updateDay(day.dayOfWeek, { isWorking: false })}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                    !day.isWorking ? 'bg-red-100 text-red-700 border-red-200' : 'border-border hover:bg-accent'
-                  }`}
-                >
-                  Wolne
-                </button>
-              </div>
-            </div>
-            {day.isWorking && (
-              <TimeBlocksEditor
-                blocks={day.timeBlocks}
-                onChange={(blocks) => updateDay(day.dayOfWeek, { timeBlocks: blocks })}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
-      >
-        {saving ? 'Zapisywanie...' : 'Zapisz harmonogram'}
-      </button>
-    </div>
-  );
+interface DayState {
+  isWorking: boolean;
+  timeBlocks: TimeBlock[];
 }
 
-// ─── Schedule Calendar ────────────────────────────────────────────────────────
-
-function ScheduleCalendar({
-  employeeId,
-  onClose: _onClose,
+function AdminDayRow({
+  date,
+  state,
+  onChange,
 }: {
-  employeeId: string;
-  onClose: () => void;
+  date: Date;
+  state: DayState;
+  onChange: (patch: Partial<DayState>) => void;
 }) {
-  const qc = useQueryClient();
-  const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
-  const [editing, setEditing] = useState<{ date: Date; workDay?: WorkDay } | null>(null);
-  const [isWorking, setIsWorking] = useState(true);
-  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>(DEFAULT_BLOCKS);
-  const [note, setNote] = useState('');
-
-  const monthStr = format(viewMonth, 'yyyy-MM');
-
-  const { data: workDays = [] } = useQuery<WorkDay[]>({
-    queryKey: ['employee-schedule', employeeId, monthStr],
-    queryFn: () => employeesApi.getSchedule(employeeId, monthStr),
-  });
-
-  const { data: weeklySchedule = [] } = useQuery<WeeklyScheduleEntry[]>({
-    queryKey: ['employee-weekly-schedule', employeeId],
-    queryFn: () => employeesApi.getWeeklySchedule(employeeId),
-  });
-
-  const { mutate: upsert, isPending: upserting } = useMutation({
-    mutationFn: (data: any) => employeesApi.upsertWorkDay(employeeId, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['employee-schedule', employeeId] });
-      toast.success('Terminarz zapisany');
-      setEditing(null);
-    },
-    onError: () => toast.error('Błąd zapisu'),
-  });
-
-  const { mutate: removeDay } = useMutation({
-    mutationFn: (dayId: string) => employeesApi.deleteWorkDay(employeeId, dayId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['employee-schedule', employeeId] });
-      toast.success('Dzień usunięty');
-      setEditing(null);
-    },
-    onError: () => toast.error('Błąd usuwania'),
-  });
-
-  const days = eachDayOfInterval({ start: startOfMonth(viewMonth), end: endOfMonth(viewMonth) });
-  const firstOffset = (getDay(days[0]) + 6) % 7;
-  const DAY_NAMES = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
-
-  const openEdit = (day: Date) => {
-    const workDay = workDays.find((w) => isSameDay(new Date(w.date), day));
-    const dow = (day.getDay() + 6) % 7;
-    const templateDay = weeklySchedule.find((e) => e.dayOfWeek === dow);
-    const initBlocks = workDay?.timeBlocks ?? templateDay?.timeBlocks ?? DEFAULT_BLOCKS;
-    const initWorking = workDay?.isWorking ?? templateDay?.isWorking ?? true;
-    setIsWorking(initWorking);
-    setTimeBlocks(initBlocks);
-    setNote(workDay?.note ?? '');
-    setEditing({ date: day, workDay });
-  };
-
-  const handleSave = () => {
-    if (!editing) return;
-    upsert({
-      date: format(editing.date, 'yyyy-MM-dd'),
-      isWorking,
-      timeBlocks: isWorking ? timeBlocks : undefined,
-      note: note || undefined,
-    });
-  };
+  const label = DAY_NAMES[(date.getDay() + 6) % 7];
+  const dateLabel = format(date, 'd MMM', { locale: pl });
+  const isToday = isSameDay(date, new Date());
 
   return (
-    <div className="space-y-4">
-      {/* Month nav */}
-      <div className="flex items-center justify-between">
-        <button onClick={() => setViewMonth((m) => subMonths(m, 1))} className="p-1 rounded hover:bg-accent">
-          <ChevronLeft size={18} />
-        </button>
-        <span className="font-semibold capitalize">
-          {format(viewMonth, 'LLLL yyyy', { locale: pl })}
-        </span>
-        <button onClick={() => setViewMonth((m) => addMonths(m, 1))} className="p-1 rounded hover:bg-accent">
-          <ChevronRight size={18} />
-        </button>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-green-200 border border-green-400 inline-block" />Wyjątek: pracuje</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-100 border border-red-300 inline-block" />Wyjątek: wolne</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-green-50 border border-green-200 inline-block" />Wg harm. (pracuje)</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-orange-50 border border-orange-200 inline-block" />Wg harm. (wolne)</span>
-      </div>
-
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 mb-1 select-none">
-        {DAY_NAMES.map((d) => (
-          <div key={d} className="text-center text-xs text-muted-foreground font-medium py-1">{d}</div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-1 select-none">
-        {Array.from({ length: firstOffset }).map((_, i) => <div key={`b${i}`} />)}
-        {days.map((day) => {
-          const workDay = workDays.find((w) => isSameDay(new Date(w.date), day));
-          const dow = (day.getDay() + 6) % 7;
-          const weeklyEntry = weeklySchedule.find((e) => e.dayOfWeek === dow);
-          const isToday = isSameDay(day, new Date());
-
-          let bg: string;
-          let label: React.ReactNode = null;
-
-          if (workDay) {
-            // Override exists
-            bg = workDay.isWorking
-              ? 'bg-green-100 border-green-300 text-green-800'
-              : 'bg-red-50 border-red-200 text-red-700';
-            if (workDay.isWorking && workDay.timeBlocks?.length) {
-              label = <div className="text-[9px] leading-tight mt-0.5 opacity-80">{workDay.timeBlocks.map((b) => `${b.start}–${b.end}`).join(', ')}</div>;
-            } else if (!workDay.isWorking) {
-              label = <div className="text-[9px] leading-tight mt-0.5 opacity-80">Wolne</div>;
-            }
-          } else if (weeklyEntry) {
-            // Show weekly schedule
-            bg = weeklyEntry.isWorking
-              ? 'bg-green-50 border-green-200 text-green-700'
-              : 'bg-orange-50 border-orange-200 text-orange-700';
-            if (weeklyEntry.isWorking && weeklyEntry.timeBlocks?.length) {
-              label = <div className="text-[9px] leading-tight mt-0.5 opacity-60">{weeklyEntry.timeBlocks.map((b) => `${b.start}–${b.end}`).join(', ')}</div>;
-            } else if (!weeklyEntry.isWorking) {
-              label = <div className="text-[9px] leading-tight mt-0.5 opacity-60">Wg harm.</div>;
-            }
-          } else {
-            bg = 'bg-muted/30 border-border';
-          }
-
-          return (
-            <button
-              key={day.toISOString()}
-              onClick={() => openEdit(day)}
-              className={`border rounded-lg p-1 text-center text-xs cursor-pointer hover:opacity-80 transition-opacity min-h-[48px] ${bg} ${isToday ? 'ring-2 ring-primary' : ''}`}
-            >
-              <div className={`font-bold ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
-              {label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Edit panel */}
-      {editing && (
-        <div className="border rounded-xl p-4 bg-muted/20 space-y-4">
-          <p className="font-semibold">
-            {format(editing.date, 'EEEE, d MMMM yyyy', { locale: pl })}
-          </p>
-
-          {/* Weekly schedule info */}
-          {(() => {
-            const dow = (editing.date.getDay() + 6) % 7;
-            const templateDay = weeklySchedule.find((e) => e.dayOfWeek === dow);
-            if (!templateDay) return null;
-            return (
-              <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
-                Harmonogram tygodniowy:{' '}
-                {templateDay.isWorking
-                  ? templateDay.timeBlocks.map((b) => `${b.start}–${b.end}`).join(', ')
-                  : 'dzień wolny'}
-                . Zapis tutaj nadpisze ten dzień.
-              </p>
-            );
-          })()}
-
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium">Status:</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsWorking(true)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                  isWorking ? 'bg-green-100 text-green-800 border-green-300' : 'border-border hover:bg-accent'
-                }`}
-              >
-                Pracuje
-              </button>
-              <button
-                onClick={() => setIsWorking(false)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                  !isWorking ? 'bg-red-100 text-red-700 border-red-200' : 'border-border hover:bg-accent'
-                }`}
-              >
-                Wolne
-              </button>
-            </div>
-          </div>
-
-          {isWorking && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Godziny pracy</label>
-              <TimeBlocksEditor blocks={timeBlocks} onChange={setTimeBlocks} />
-            </div>
-          )}
-
-          <Field label="Notatka (opcjonalnie)">
-            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="np. zastępstwo" className={INPUT_CLS} />
-          </Field>
-
-          <div className="flex gap-2">
-            <Button onClick={handleSave} disabled={upserting} size="sm">
-              {upserting ? 'Zapisywanie...' : 'Zapisz'}
-            </Button>
-            {editing.workDay && (
-              <Button variant="outline" size="sm" onClick={() => removeDay(editing.workDay!.id)} className="text-destructive border-destructive/50">
-                <Trash2 size={14} className="mr-1" /> Usuń wpis
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>Anuluj</Button>
-          </div>
+    <div className={`border rounded-xl p-3 space-y-2 ${isToday ? 'ring-2 ring-primary' : ''}`}>
+      <div className="flex items-center gap-3">
+        <div className="w-36">
+          <p className="font-medium text-sm">{label}</p>
+          <p className={`text-xs ${isToday ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{dateLabel}</p>
         </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => onChange({ isWorking: true, timeBlocks: state.timeBlocks.length ? state.timeBlocks : DEFAULT_BLOCKS })}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+              state.isWorking ? 'bg-green-100 text-green-800 border-green-300' : 'border-border hover:bg-accent'
+            }`}
+          >
+            Pracuje
+          </button>
+          <button
+            onClick={() => onChange({ isWorking: false })}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+              !state.isWorking ? 'bg-red-100 text-red-700 border-red-200' : 'border-border hover:bg-accent'
+            }`}
+          >
+            Wolne
+          </button>
+        </div>
+      </div>
+      {state.isWorking && (
+        <TimeBlocksEditor
+          blocks={state.timeBlocks}
+          onChange={(blocks) => onChange({ timeBlocks: blocks })}
+        />
       )}
     </div>
   );
 }
 
-// ─── Schedule Modal Content (tabs) ────────────────────────────────────────────
+function getWeekStart(date: Date): Date {
+  return startOfWeek(date, { weekStartsOn: 1 });
+}
 
-function ScheduleModalContent({ employeeId, onClose }: { employeeId: string; onClose: () => void }) {
-  const [scheduleTab, setScheduleTab] = useState<'weekly' | 'calendar'>('weekly');
+function AdminBlockMonthModal({
+  year,
+  month,
+  onConfirm,
+  onCancel,
+  isPending,
+}: {
+  year: number;
+  month: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isPending: boolean;
+}) {
+  const monthLabel = format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: pl });
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+      <div className="bg-card border rounded-2xl p-6 shadow-xl max-w-sm w-full mx-4 space-y-4">
+        <div className="flex items-center gap-3">
+          <Lock size={20} className="text-destructive" />
+          <h3 className="font-semibold text-lg">Zablokuj miesiąc</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Wszystkie dni w miesiącu <strong className="capitalize">{monthLabel}</strong> zostaną oznaczone jako wolne.
+        </p>
+        <div className="flex gap-3">
+          <Button variant="destructive" disabled={isPending} onClick={onConfirm}>
+            {isPending ? 'Blokuję...' : 'Zablokuj'}
+          </Button>
+          <Button variant="ghost" onClick={onCancel}>Anuluj</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminWeekScheduleEditor({ employeeId }: { employeeId: string }) {
+  const qc = useQueryClient();
+  const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()));
+  const [showBlockModal, setShowBlockModal] = useState(false);
+
+  const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+  const today = startOfToday();
+  const isPastWeek = isBefore(weekEnd, today);
+
+  const month1 = format(weekStart, 'yyyy-MM');
+  const month2 = format(weekEnd, 'yyyy-MM');
+
+  const q1 = useQuery({
+    queryKey: ['employee-schedule', employeeId, month1],
+    queryFn: () => employeesApi.getSchedule(employeeId, month1),
+  });
+  const q2 = useQuery({
+    queryKey: ['employee-schedule', employeeId, month2],
+    queryFn: () => employeesApi.getSchedule(employeeId, month2),
+    enabled: month1 !== month2,
+  });
+
+  const isLoading = q1.isLoading || (month1 !== month2 && (q2.isLoading ?? false));
+  const allWorkDays: WorkDay[] = useMemo(() => {
+    const seen = new Set<string>();
+    const merged: WorkDay[] = [];
+    for (const wd of [...(q1.data ?? []), ...(q2.data ?? [])]) {
+      if (!seen.has(wd.id)) { seen.add(wd.id); merged.push(wd); }
+    }
+    return merged;
+  }, [q1.data, q2.data]);
+
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  const [dayStates, setDayStates] = useState<Record<string, DayState>>({});
+
+  const dataKey = allWorkDays.map((w) => w.id + String(w.isWorking)).join(',');
+  const weekKey = format(weekStart, 'yyyy-MM-dd');
+
+  useEffect(() => {
+    if (isLoading) return;
+    const states: Record<string, DayState> = {};
+    for (const day of weekDays) {
+      const key = format(day, 'yyyy-MM-dd');
+      const wd = allWorkDays.find((w) => isSameDay(new Date(w.date), day));
+      states[key] = { isWorking: wd?.isWorking ?? false, timeBlocks: wd?.timeBlocks ?? DEFAULT_BLOCKS };
+    }
+    setDayStates(states);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataKey, weekKey]);
+
+  const hasAnyConfig = weekDays.some((day) => allWorkDays.some((w) => isSameDay(new Date(w.date), day)));
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['employee-schedule', employeeId, month1] });
+    if (month1 !== month2) qc.invalidateQueries({ queryKey: ['employee-schedule', employeeId, month2] });
+  };
+
+  const { mutate: saveWeek, isPending: saving } = useMutation({
+    mutationFn: (days: WeekDayInput[]) => employeesApi.upsertWeekForEmployee(employeeId, days),
+    onSuccess: () => { invalidate(); toast.success('Tydzień zapisany'); },
+    onError: () => toast.error('Błąd zapisu'),
+  });
+
+  const blockYear = getYear(weekStart);
+  const blockMonth = getMonth(weekStart) + 1;
+
+  const { mutate: doBlock, isPending: blocking } = useMutation({
+    mutationFn: () => employeesApi.blockMonthForEmployee(employeeId, blockYear, blockMonth),
+    onSuccess: () => { invalidate(); setShowBlockModal(false); toast.success('Miesiąc zablokowany'); },
+    onError: () => toast.error('Błąd blokowania'),
+  });
+
+  const handleSave = () => {
+    const days: WeekDayInput[] = weekDays.map((day) => {
+      const key = format(day, 'yyyy-MM-dd');
+      const state = dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS };
+      return { date: key, isWorking: state.isWorking, timeBlocks: state.isWorking ? state.timeBlocks : undefined };
+    });
+    saveWeek(days);
+  };
+
+  const weekLabel = `${format(weekStart, 'd MMM', { locale: pl })} – ${format(weekEnd, 'd MMM yyyy', { locale: pl })}`;
+
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 border rounded-lg p-1 bg-muted/30">
-        <button
-          onClick={() => setScheduleTab('weekly')}
-          className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            scheduleTab === 'weekly' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
-          }`}
-        >
-          Harmonogram tygodniowy
-        </button>
-        <button
-          onClick={() => setScheduleTab('calendar')}
-          className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            scheduleTab === 'calendar' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
-          }`}
-        >
-          Wyjątki / Kalendarz
-        </button>
+      {/* Week nav */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1">
+          <button onClick={() => setWeekStart((w) => getWeekStart(subWeeks(w, 1)))} className="p-1.5 rounded hover:bg-accent">
+            <ChevronLeft size={16} />
+          </button>
+          <span className="font-semibold text-sm capitalize min-w-[160px] text-center">{weekLabel}</span>
+          <button onClick={() => setWeekStart((w) => getWeekStart(addWeeks(w, 1)))} className="p-1.5 rounded hover:bg-accent">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+        <Button variant="outline" size="sm" className="text-destructive border-destructive/30 gap-1" onClick={() => setShowBlockModal(true)}>
+          <Lock size={12} /> Zablokuj miesiąc
+        </Button>
       </div>
-      {scheduleTab === 'weekly'
-        ? <WeeklyScheduleEditor employeeId={employeeId} />
-        : <ScheduleCalendar employeeId={employeeId} onClose={onClose} />
-      }
+
+      {!hasAnyConfig && !isPastWeek && (
+        <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+          <AlertCircle size={14} className="mt-0.5 shrink-0" />
+          <span>Brak wpisów — klienci widzą brak terminów w tym tygodniu.</span>
+        </div>
+      )}
+
+      {isPastWeek && (
+        <div className="flex items-start gap-2 rounded-lg bg-muted/50 border px-3 py-2 text-xs text-muted-foreground">
+          <AlertCircle size={14} className="mt-0.5 shrink-0" />
+          <span>Miniony tydzień — tylko do odczytu.</span>
+        </div>
+      )}
+
+      {(q1.isFetching || q2.isFetching) ? (
+        <div className="py-6 text-center text-sm text-muted-foreground animate-pulse">Ładowanie...</div>
+      ) : (
+        <div className="space-y-2">
+          {weekDays.map((day) => {
+            const key = format(day, 'yyyy-MM-dd');
+            return (
+              <AdminDayRow
+                key={key}
+                date={day}
+                state={dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS }}
+                onChange={(patch) => setDayStates((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }))}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {!isPastWeek && (
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+        >
+          {saving ? 'Zapisuję...' : 'Zapisz tydzień'}
+        </button>
+      )}
+
+      {showBlockModal && (
+        <AdminBlockMonthModal
+          year={blockYear}
+          month={blockMonth}
+          onConfirm={doBlock}
+          onCancel={() => setShowBlockModal(false)}
+          isPending={blocking}
+        />
+      )}
     </div>
   );
 }
@@ -660,7 +562,7 @@ export const AdminEmployees = () => {
         title={`Terminarz — ${modal?.type === 'schedule' ? modal.employee.name : ''}`}
       >
         {modal?.type === 'schedule' && (
-          <ScheduleModalContent employeeId={modal.employee.id} onClose={() => setModal(null)} />
+          <AdminWeekScheduleEditor employeeId={modal.employee.id} />
         )}
       </Modal>
 

@@ -120,6 +120,13 @@ export const employeesApi = {
     return res.data.data.entry as WeeklyScheduleEntry;
   },
 
+  upsertWeekForEmployee: async (employeeId: string, days: WeekDayInput[]): Promise<void> => {
+    await api.post(`/employees/${employeeId}/schedule/week`, { days });
+  },
+  blockMonthForEmployee: async (employeeId: string, year: number, month: number): Promise<void> => {
+    await api.post(`/employees/${employeeId}/schedule/block-month`, { year, month });
+  },
+
   // ── My schedule (employee self-service) ──────────────────────────────────────
   getMySchedule: async (month?: string) => {
     const res = await api.get('/employees/me/schedule', {
