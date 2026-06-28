@@ -43,3 +43,4 @@ Thumbs.db
 # Misc
 nul
 *.tmp
+.worktrees/
