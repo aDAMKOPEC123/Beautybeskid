@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
 import { vouchersApi, type Voucher, type CreateVoucherPayload } from '@/api/vouchers.api';
 import { servicesApi } from '@/api/services.api';
+import { api } from '@/lib/axios';
 import { VoucherPreview } from '@/components/voucher/VoucherPreview';
+
+const downloadPdf = async (voucherId: string, code: string) => {
+  const res = await api.get(`/vouchers/${voucherId}/pdf`, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `voucher-${code}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 type Service = { id: string; name: string; isActive: boolean };
 
@@ -73,7 +84,7 @@ export function AdminVouchery() {
         validUntil: new Date(validUntil).toISOString(),
       };
       const voucher = await vouchersApi.create(payload);
-      window.open(vouchersApi.getPdfUrl(voucher.id), '_blank');
+      await downloadPdf(voucher.id, voucher.code);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };
       setError(e?.response?.data?.message ?? 'Błąd generowania vouchera');
@@ -264,14 +275,12 @@ export function AdminVouchery() {
                       </td>
                       <td className="py-2 px-3">
                         <div className="flex gap-2">
-                          <a
-                            href={vouchersApi.getPdfUrl(v.id)}
-                            target="_blank"
-                            rel="noreferrer"
+                          <button
+                            onClick={() => downloadPdf(v.id, v.code)}
                             className="text-xs px-2 py-1 rounded border border-border hover:bg-accent text-foreground"
                           >
                             ⬇ PDF
-                          </a>
+                          </button>
                           {deleteConfirm === v.id ? (
                             <>
                               <button onClick={() => handleDelete(v.id)} className="text-xs px-2 py-1 rounded bg-destructive text-white">Tak, usuń</button>
