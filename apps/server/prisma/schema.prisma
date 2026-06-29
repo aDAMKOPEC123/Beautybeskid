@@ -1456,11 +1456,12 @@ model Voucher {
   service        Service?      @relation("VoucherService", fields: [serviceId], references: [id])
   amount         Decimal?      @db.Decimal(10, 2)
   discountCodeId String?       @unique
-  discountCode   DiscountCode? @relation("VoucherDiscountCode", fields: [discountCodeId], references: [id])
+  discountCode   DiscountCode? @relation("VoucherDiscountCode", fields: [discountCodeId], references: [id], onDelete: Restrict)
   code           String        @unique
   validUntil     DateTime
   pdfPath        String?
   createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   createdById    String?
   createdBy      User?         @relation("VoucherCreatedBy", fields: [createdById], references: [id])
 }
