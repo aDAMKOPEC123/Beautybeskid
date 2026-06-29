@@ -47,6 +47,9 @@ export const validateCode = async (code: string, userId: string) => {
 
   if (!discountCode) throw new AppError('Nieprawidłowy kod rabatowy', 400);
   if (!discountCode.isActive) throw new AppError('Ten kod rabatowy jest nieaktywny', 400);
+  if (discountCode.expiresAt && discountCode.expiresAt < new Date()) {
+    throw new AppError('Ten kod rabatowy wygasł', 400);
+  }
   if (discountCode.lockedToUserId && discountCode.lockedToUserId !== userId) {
     throw new AppError('Ten kod rabatowy nie jest przeznaczony dla Ciebie', 403);
   }
