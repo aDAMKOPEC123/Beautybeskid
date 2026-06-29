@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // vi.mock MUST be at module top level (outside describe) for vitest hoisting to work
 vi.mock('../../config/prisma', () => ({
-  default: {
+  prisma: {
     voucher: {
       findUnique: vi.fn(),
       delete: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock('../../config/prisma', () => ({
 }));
 
 import { generateVoucherCode, buildVoucherCode, deleteVoucher } from './vouchers.service';
-import prisma from '../../config/prisma';
+import { prisma } from '../../config/prisma';
 
 describe('buildVoucherCode', () => {
   it('formats segments into VCH-XXXX-XXXX', () => {
