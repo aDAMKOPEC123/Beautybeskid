@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
 
 const PublicLayout = lazy(() => import('./components/layout/PublicLayout').then(m => ({ default: m.PublicLayout })));
 const UserLayout = lazy(() => import('./components/layout/UserLayout').then(m => ({ default: m.UserLayout })));
@@ -17,6 +18,7 @@ const PublicTerms = lazy(() => import('./pages/public/Terms').then(m => ({ defau
 const Contact = lazy(() => import('./pages/public/Contact').then(m => ({ default: m.Contact })));
 const About = lazy(() => import('./pages/public/About').then(m => ({ default: m.About })));
 const ServiceDetail = lazy(() => import('./pages/public/ServiceDetail').then(m => ({ default: m.ServiceDetail })));
+const LocalSeoPage = lazy(() => import('./pages/public/LocalSeoPage').then(m => ({ default: m.LocalSeoPage })));
 
 // Auth pages
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
@@ -39,6 +41,12 @@ const UserSkinJournal = lazy(() => import('./pages/user/SkinJournal').then(m => 
 const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').then(m => ({ default: m.HomecareRoutinePage })));
 const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
+const UserBeautyPlan = lazy(() => import('./pages/user/BeautyPlan').then(m => ({ default: m.UserBeautyPlan })));
+const ForumHome = lazy(() => import('./pages/user/forum/ForumHome').then(m => ({ default: m.ForumHome })));
+const ForumCategory = lazy(() => import('./pages/user/forum/ForumCategory').then(m => ({ default: m.ForumCategory })));
+const ForumThread = lazy(() => import('./pages/user/forum/ForumThread').then(m => ({ default: m.ForumThread })));
+const ForumNewThread = lazy(() => import('./pages/user/forum/ForumNewThread').then(m => ({ default: m.ForumNewThread })));
+const AdminForum = lazy(() => import('./pages/admin/AdminForum').then(m => ({ default: m.AdminForum })));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard').then(m => ({ default: m.AdminDashboard })));
@@ -66,10 +74,12 @@ const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications')
 const AdminBlogComments = lazy(() => import('./pages/admin/AdminBlogComments').then(m => ({ default: m.AdminBlogComments })));
 const AdminAssortment = lazy(() => import('./pages/admin/AdminAssortment').then(m => ({ default: m.AdminAssortment })));
 const SkinWeatherRules = lazy(() => import('./pages/admin/SkinWeatherRules').then(m => ({ default: m.SkinWeatherRules })));
+const AdminVouchery = lazy(() => import('./pages/admin/AdminVouchery').then(m => ({ default: m.AdminVouchery })));
 const AdminAkademia = lazy(() => import('./pages/admin/academy/AdminAkademia').then(m => ({ default: m.AdminAkademia })));
 const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEditor').then(m => ({ default: m.AdminCourseEditor })));
 const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
 const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
+const AdminBeautyPlans = lazy(() => import('./pages/admin/AdminBeautyPlans').then(m => ({ default: m.AdminBeautyPlans })));
 
 // Employee pages
 const EmployeeSchedule = lazy(() => import('./pages/employee/Schedule').then(m => ({ default: m.EmployeeSchedule })));
@@ -88,7 +98,7 @@ const CourseDetail = lazy(() => import('./pages/academy/CourseDetail').then(m =>
 const LessonPlayer = lazy(() => import('./pages/academy/LessonPlayer').then(m => ({ default: m.LessonPlayer })));
 
 const Spinner = (
-  <div className="flex items-center justify-center min-h-[60vh]">
+  <div className="flex min-h-[calc(100svh-72px)] items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
   </div>
 );
@@ -97,10 +107,13 @@ const S = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={Spinner}>{children}</Suspense>
 );
 
+const routeErrorElement = <RouteErrorFallback />;
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><Home /></S> },
       { path: 'uslugi', element: <S><ServiceList /></S> },
@@ -112,6 +125,20 @@ export const router = createBrowserRouter([
       { path: 'regulamin', element: <S><PublicTerms /></S> },
       { path: 'kontakt', element: <S><Contact /></S> },
       { path: 'o-nas', element: <S><About /></S> },
+      { path: 'kosmetolog-limanowa', element: <S><LocalSeoPage pageKey="kosmetolog-limanowa" /></S> },
+      { path: 'kosmetolog-mordarka', element: <S><LocalSeoPage pageKey="kosmetolog-mordarka" /></S> },
+      { path: 'podolog-limanowa', element: <S><LocalSeoPage pageKey="podolog-limanowa" /></S> },
+      { path: 'podolog-mordarka', element: <S><LocalSeoPage pageKey="podolog-mordarka" /></S> },
+      { path: 'kosmetyczka-limanowa', element: <S><LocalSeoPage pageKey="kosmetyczka-limanowa" /></S> },
+      { path: 'kosmetyczka-mordarka', element: <S><LocalSeoPage pageKey="kosmetyczka-mordarka" /></S> },
+      { path: 'laminacja-brwi-limanowa', element: <S><LocalSeoPage pageKey="laminacja-brwi-limanowa" /></S> },
+      { path: 'laminacja-brwi-mordarka', element: <S><LocalSeoPage pageKey="laminacja-brwi-mordarka" /></S> },
+      { path: 'laminacja-rzes-limanowa', element: <S><LocalSeoPage pageKey="laminacja-rzes-limanowa" /></S> },
+      { path: 'laminacja-rzes-mordarka', element: <S><LocalSeoPage pageKey="laminacja-rzes-mordarka" /></S> },
+      { path: 'oprawa-oka-limanowa', element: <S><LocalSeoPage pageKey="oprawa-oka-limanowa" /></S> },
+      { path: 'oprawa-oka-mordarka', element: <S><LocalSeoPage pageKey="oprawa-oka-mordarka" /></S> },
+      { path: 'wrastajace-paznokcie-limanowa', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-limanowa" /></S> },
+      { path: 'wrastajace-paznokcie-mordarka', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-mordarka" /></S> },
       {
         path: 'auth',
         children: [
@@ -126,6 +153,7 @@ export const router = createBrowserRouter([
   {
     path: '/user',
     element: <UserLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><UserDashboard /></S> },
       { path: 'wizyty', element: <S><UserAppointments /></S> },
@@ -141,16 +169,23 @@ export const router = createBrowserRouter([
       { path: 'rutyna', element: <S><HomecareRoutinePage /></S> },
       { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
+      { path: 'zalecenia', element: <S><UserBeautyPlan /></S> },
+      { path: 'forum', element: <S><ForumHome /></S> },
+      { path: 'forum/nowy', element: <S><ForumNewThread /></S> },
+      { path: 'forum/watek/:id', element: <S><ForumThread /></S> },
+      { path: 'forum/:categorySlug', element: <S><ForumCategory /></S> },
     ],
   },
   {
     path: '/rezerwacja',
     element: <UserLayout />,
+    errorElement: routeErrorElement,
     children: [{ index: true, element: <S><BookingWizard /></S> }],
   },
   {
     path: '/employee',
     element: <EmployeeLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <Navigate to="terminarz" replace /> },
       { path: 'terminarz', element: <S><EmployeeSchedule /></S> },
@@ -161,6 +196,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/akademia',
+    errorElement: routeErrorElement,
     children: [
       { path: 'brak-dostepu', element: <S><NoAccess /></S> },
       {
@@ -179,6 +215,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: <AdminLayout />,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><AdminDashboard /></S> },
       { path: 'wizyty', element: <S><AdminAppointments /></S> },
@@ -197,6 +234,7 @@ export const router = createBrowserRouter([
       { path: 'hero', element: <S><AdminHeroSlides /></S> },
       { path: 'polecane-zabiegi', element: <S><AdminRecommendedSlides /></S> },
       { path: 'kody-rabatowe', element: <S><AdminDiscountCodes /></S> },
+      { path: 'vouchery', element: <S><AdminVouchery /></S> },
       { path: 'regulamin', element: <S><AdminTerms /></S> },
       { path: 'o-nas', element: <S><AdminAbout /></S> },
       { path: 'konsultacje', element: <S><AdminConsultations /></S> },
@@ -206,10 +244,12 @@ export const router = createBrowserRouter([
       { path: 'powiadomienia', element: <S><AdminNotifications /></S> },
       { path: 'asortyment', element: <S><AdminAssortment /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherRules /></S> },
+      { path: 'beauty-plans', element: <S><AdminBeautyPlans /></S> },
       { path: 'akademia', element: <S><AdminAkademia /></S> },
       { path: 'akademia/kurs/:id', element: <S><AdminCourseEditor /></S> },
       { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },
       { path: 'marketing', element: <S><Marketing /></S> },
+      { path: 'forum', element: <S><AdminForum /></S> },
     ],
   },
 ]);

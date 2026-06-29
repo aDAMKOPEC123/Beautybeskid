@@ -80,7 +80,7 @@ export async function saveTree(req: Request, res: Response, next: NextFunction) 
       })),
     });
     const { nodes, edges } = schema.parse(req.body);
-    const quiz = await quizService.saveTree(req.params.id, nodes as any, edges);
+    const quiz = await quizService.saveTree(req.params.id, nodes as any, edges as any);
     res.json({ status: 'success', data: { quiz } });
   } catch (err) { next(err); }
 }

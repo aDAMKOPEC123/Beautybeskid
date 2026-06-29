@@ -15,7 +15,7 @@ export const UserProfile = () => {
   const { user } = useAuth();
   const setUser = useAuthStore((s) => s.setUser);
   const { startTour } = useTour();
-  const { isSupported, isSubscribed, permission, subscribe, unsubscribe } = usePushSubscription();
+  const { isSupported, isSubscribed, permission, isIOS, isStandalone, subscribe, unsubscribe } = usePushSubscription();
 
   const handleRestartTour = async () => {
     try {
@@ -384,7 +384,7 @@ export const UserProfile = () => {
       )}
 
       {/* Push notifications */}
-      {isSupported && (
+      {(isSupported || isIOS) && (
         <section className="mt-8">
           <h3
             className="text-sm font-semibold tracking-widest uppercase mb-4"
@@ -392,48 +392,74 @@ export const UserProfile = () => {
           >
             Powiadomienia push
           </h3>
-          <div
-            className="flex items-center justify-between p-4 rounded-2xl border"
-            style={{ borderColor: 'rgba(0,0,0,0.07)', background: 'rgba(250,250,249,0.8)' }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(196,150,90,0.1)' }}
-              >
-                {isSubscribed ? (
+          {isIOS && !isStandalone ? (
+            <div
+              className="p-4 rounded-2xl border"
+              style={{ borderColor: 'rgba(0,0,0,0.07)', background: 'rgba(250,250,249,0.8)' }}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="w-9 h-9 flex-shrink-0 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(196,150,90,0.1)' }}
+                >
                   <Bell size={18} style={{ color: '#C4965A' }} />
-                ) : (
-                  <BellOff size={18} style={{ color: 'rgba(20,40,28,0.35)' }} />
-                )}
-              </div>
-              <div>
-                <p className="text-sm font-medium" style={{ color: '#1A3828' }}>
-                  {isSubscribed ? 'Powiadomienia aktywne' : 'Powiadomienia wyłączone'}
-                </p>
-                <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                  {permission === 'denied'
-                    ? 'Zablokowane w ustawieniach przeglądarki'
-                    : isSubscribed
-                    ? 'Otrzymujesz powiadomienia o wizytach i promocjach'
-                    : 'Włącz, aby być na bieżąco z wizytami i promocjami'}
-                </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                    Powiadomienia na iPhone / iPad
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: 'rgba(20,40,28,0.55)', lineHeight: 1.5 }}>
+                    Aby włączyć powiadomienia, dodaj aplikację do ekranu głównego: w Safari kliknij{' '}
+                    <strong>Udostępnij</strong> → <strong>Dodaj do ekranu głównego</strong>, a następnie
+                    otwórz aplikację z ikony na ekranie i włącz powiadomienia tutaj.
+                  </p>
+                </div>
               </div>
             </div>
-            {permission !== 'denied' && (
-              <button
-                onClick={isSubscribed ? unsubscribe : subscribe}
-                className="text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
-                style={
-                  isSubscribed
-                    ? { background: 'rgba(0,0,0,0.05)', color: 'rgba(20,40,28,0.6)' }
-                    : { background: '#1A3828', color: '#fff' }
-                }
-              >
-                {isSubscribed ? 'Wyłącz' : 'Włącz'}
-              </button>
-            )}
-          </div>
+          ) : (
+            <div
+              className="flex items-center justify-between p-4 rounded-2xl border"
+              style={{ borderColor: 'rgba(0,0,0,0.07)', background: 'rgba(250,250,249,0.8)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(196,150,90,0.1)' }}
+                >
+                  {isSubscribed ? (
+                    <Bell size={18} style={{ color: '#C4965A' }} />
+                  ) : (
+                    <BellOff size={18} style={{ color: 'rgba(20,40,28,0.35)' }} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: '#1A3828' }}>
+                    {isSubscribed ? 'Powiadomienia aktywne' : 'Powiadomienia wyłączone'}
+                  </p>
+                  <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                    {permission === 'denied'
+                      ? 'Zablokowane w ustawieniach przeglądarki'
+                      : isSubscribed
+                      ? 'Otrzymujesz powiadomienia o wizytach i promocjach'
+                      : 'Włącz, aby być na bieżąco z wizytami i promocjami'}
+                  </p>
+                </div>
+              </div>
+              {permission !== 'denied' && (
+                <button
+                  onClick={isSubscribed ? unsubscribe : subscribe}
+                  className="text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
+                  style={
+                    isSubscribed
+                      ? { background: 'rgba(0,0,0,0.05)', color: 'rgba(20,40,28,0.6)' }
+                      : { background: '#1A3828', color: '#fff' }
+                  }
+                >
+                  {isSubscribed ? 'Wyłącz' : 'Włącz'}
+                </button>
+              )}
+            </div>
+          )}
         </section>
       )}
 

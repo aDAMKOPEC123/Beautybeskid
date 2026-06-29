@@ -1,7 +1,6 @@
 // filepath: apps/web/src/lib/axios.ts
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
-import { getSocket } from './socket';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -61,10 +60,14 @@ api.interceptors.response.use(
         const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
         const newToken = data.data.accessToken;
         useAuthStore.getState().setAccessToken(newToken);
+        if (data.data.user) {
+          useAuthStore.getState().setUser(data.data.user);
+        }
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
 
         // Re-auth WebSocket with new token
+        const { getSocket } = await import('./socket');
         const sock = getSocket();
         sock.auth = { token: newToken };
         if (sock.connected) {

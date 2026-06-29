@@ -30,6 +30,13 @@ export interface WorkDayInput {
   note?: string;
 }
 
+export interface WeekDayInput {
+  date: string;
+  isWorking: boolean;
+  timeBlocks?: TimeBlock[];
+  note?: string;
+}
+
 export const employeesApi = {
   // ── Public ──────────────────────────────────────────────────────────────────
   getNextAvailable: async (): Promise<{ date: string; time: string } | null> => {
@@ -57,7 +64,7 @@ export const employeesApi = {
     const res = await api.get('/employees/availability/month', { params });
     return res.data.data.availability;
   },
-  getWeekSlotsCount: async (): Promise<{ count: number; weekStart: string; weekEnd: string }> => {
+  getWeekSlotsCount: async (): Promise<{ count: number; availableDays: number; weekStart: string; weekEnd: string }> => {
     const res = await api.get('/employees/week-slots-count');
     return res.data.data;
   },
@@ -80,7 +87,7 @@ export const employeesApi = {
   },
 
   // ── Account management (admin) ───────────────────────────────────────────────
-  createAccount: async (employeeId: string, data: { email: string; password: string }) => {
+  createAccount: async (employeeId: string, data: { email: string; password?: string }) => {
     const res = await api.post(`/employees/${employeeId}/create-account`, data);
     return res.data.data.employee;
   },
@@ -113,6 +120,13 @@ export const employeesApi = {
     return res.data.data.entry as WeeklyScheduleEntry;
   },
 
+  upsertWeekForEmployee: async (employeeId: string, days: WeekDayInput[]): Promise<void> => {
+    await api.post(`/employees/${employeeId}/schedule/week`, { days });
+  },
+  blockMonthForEmployee: async (employeeId: string, year: number, month: number): Promise<void> => {
+    await api.post(`/employees/${employeeId}/schedule/block-month`, { year, month });
+  },
+
   // ── My schedule (employee self-service) ──────────────────────────────────────
   getMySchedule: async (month?: string) => {
     const res = await api.get('/employees/me/schedule', {
@@ -126,6 +140,12 @@ export const employeesApi = {
   },
   deleteMyWorkDay: async (dayId: string) => {
     await api.delete(`/employees/me/schedule/${dayId}`);
+  },
+  upsertMyWeek: async (days: WeekDayInput[]): Promise<void> => {
+    await api.post('/employees/me/schedule/week', { days });
+  },
+  blockMyMonth: async (year: number, month: number): Promise<void> => {
+    await api.post('/employees/me/schedule/block-month', { year, month });
   },
   getMyAppointments: async () => {
     const res = await api.get('/employees/me/appointments');

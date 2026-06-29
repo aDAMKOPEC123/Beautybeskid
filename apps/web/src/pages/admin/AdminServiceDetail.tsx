@@ -79,7 +79,7 @@ export const AdminServiceDetail = () => {
 
       <div className="space-y-4 pt-4 border-t" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
         <div>
-          <h2 className="text-base font-semibold">Rutyna pielęgnacyjna — szablon domyślny</h2>
+          <h2 className="text-base font-semibold">Rutyna pielęgnacyjna - szablon domyślny</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             Szablon wypełniany automatycznie przy zamknięciu wizyty. Pracownik może go edytować przed wysłaniem klientce.
           </p>

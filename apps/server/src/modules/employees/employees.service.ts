@@ -27,11 +27,6 @@ function normalizeDate(dateStr: string): Date {
   return d;
 }
 
-// dayOfWeek: 0=Mon, 1=Tue, ..., 6=Sun (from JS getDay: 0=Sun,1=Mon...)
-function getDayOfWeek(date: Date): number {
-  return (date.getUTCDay() + 6) % 7;
-}
-
 // ─── Employee CRUD ────────────────────────────────────────────────────────────
 
 export const getAllEmployees = async () => {
@@ -105,21 +100,53 @@ export const deleteEmployee = async (id: string) => {
 
 export const createEmployeeAccount = async (
   employeeId: string,
-  data: { email: string; password: string }
+  data: { email: string; password?: string }
 ) => {
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
   if (!employee) throw new AppError('Nie znaleziono pracownika', 404);
   if (employee.userId) throw new AppError('Pracownik ma już przypisane konto', 400);
 
-  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  const email = data.email.trim().toLowerCase();
+  if (!email) throw new AppError('Email jest wymagany', 400);
+
+  const existing = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } },
+    include: { employee: { select: { id: true, name: true } } },
+  });
+
+  if (existing?.employee) {
+    throw new AppError(`To konto jest juz przypisane do pracownika: ${existing.employee.name}`, 400);
+  }
+
+  if (existing) {
+    return await prisma.$transaction(async (tx) => {
+      // Existing ADMIN accounts keep admin privileges and become linked employee accounts too.
+      if (existing.role === 'USER') {
+        await tx.user.update({
+          where: { id: existing.id },
+          data: { role: 'EMPLOYEE' },
+        });
+      }
+
+      return await tx.employee.update({
+        where: { id: employeeId },
+        data: { userId: existing.id },
+        include: { user: { select: { id: true, email: true, role: true } } },
+      });
+    });
+  }
   if (existing) throw new AppError('Użytkownik z tym adresem email już istnieje', 400);
+
+  if (!data.password || data.password.length < 6) {
+    throw new AppError('Haslo jest wymagane dla nowego konta pracownika', 400);
+  }
 
   const passwordHash = await bcrypt.hash(data.password, 10);
 
   return await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
-        email: data.email,
+        email,
         passwordHash,
         name: employee.name,
         role: 'EMPLOYEE',
@@ -137,14 +164,17 @@ export const createEmployeeAccount = async (
 };
 
 export const revokeEmployeeAccount = async (employeeId: string) => {
-  const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    include: { user: { select: { role: true } } },
+  });
   if (!employee) throw new AppError('Nie znaleziono pracownika', 404);
   if (!employee.userId) throw new AppError('Pracownik nie ma przypisanego konta', 400);
 
   return await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: employee.userId! },
-      data: { role: 'USER' },
+      data: { role: employee.user?.role === 'ADMIN' ? 'ADMIN' : 'USER' },
     });
     return await tx.employee.update({
       where: { id: employeeId },
@@ -236,24 +266,82 @@ export const deleteWorkDay = async (id: string, employeeId: string) => {
   return await prisma.employeeWorkDay.delete({ where: { id } });
 };
 
+export const upsertWeek = async (
+  employeeId: string,
+  days: Array<{
+    date: string;
+    isWorking: boolean;
+    timeBlocks?: TimeBlock[];
+    note?: string;
+  }>
+): Promise<void> => {
+  if (!days.length) return;
+  await prisma.$transaction(
+    days.map((d) => {
+      const normalized = normalizeDate(d.date);
+      return prisma.employeeWorkDay.upsert({
+        where: { employeeId_date: { employeeId, date: normalized } },
+        create: {
+          employeeId,
+          date: normalized,
+          isWorking: d.isWorking,
+          timeBlocks: (d.isWorking ? (d.timeBlocks ?? DEFAULT_TIME_BLOCKS) : null) as any,
+          note: d.note ?? null,
+        },
+        update: {
+          isWorking: d.isWorking,
+          timeBlocks: (d.isWorking ? (d.timeBlocks ?? DEFAULT_TIME_BLOCKS) : null) as any,
+          note: d.note ?? null,
+        },
+      });
+    })
+  );
+};
+
+export const blockMonth = async (
+  employeeId: string,
+  year: number,
+  month: number
+): Promise<void> => {
+  const start = new Date(Date.UTC(year, month - 1, 1));
+  const end = new Date(Date.UTC(year, month, 0)); // last day of month
+
+  const days: Date[] = [];
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    days.push(new Date(d));
+  }
+
+  await prisma.$transaction(
+    days.map((date) =>
+      prisma.employeeWorkDay.upsert({
+        where: { employeeId_date: { employeeId, date } },
+        create: { employeeId, date, isWorking: false, timeBlocks: null as any, note: null },
+        update: { isWorking: false, timeBlocks: null as any, note: null },
+      })
+    )
+  );
+};
+
 // ─── Availability ─────────────────────────────────────────────────────────────
 
-export const getAvailability = async (
+export interface WorkDayLike {
+  isWorking: boolean;
+  timeBlocks: TimeBlock[] | null;
+}
+
+export function resolveEmployeeBlocks(workDay: WorkDayLike | null): TimeBlock[] | null {
+  if (!workDay) return null;
+  if (!workDay.isWorking) return null;
+  const blocks = workDay.timeBlocks;
+  return blocks && blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
+}
+
+const getAvailabilityForDuration = async (
   date: string,
-  serviceId: string,
-  employeeId?: string
+  duration: number,
+  employeeId?: string,
+  restrictedEmployeeIds: string[] = [],
 ): Promise<{ time: string; available: boolean }[]> => {
-  const service = await prisma.service.findUnique({
-    where: { id: serviceId },
-    select: { durationMinutes: true, employees: { select: { id: true } } },
-  });
-  if (!service) throw new AppError('Nie znaleziono usługi', 404);
-
-  // If no specific employee requested and service has assigned employees, use the first available
-  // (for multi-employee slot merging we check each assigned employee below)
-  const restrictedIds = service.employees.map((e) => e.id);
-
-  const duration = service.durationMinutes;
   const normalized = normalizeDate(date);
   const dayEnd = new Date(normalized);
   dayEnd.setUTCHours(23, 59, 59, 999);
@@ -261,8 +349,8 @@ export const getAvailability = async (
   // When no specific employee is selected, merge availability across all candidate employees.
   // Candidates = employees assigned to the service, or ALL active employees if none assigned.
   if (!employeeId) {
-    const candidateIds = restrictedIds.length > 0
-      ? restrictedIds
+    const candidateIds = restrictedEmployeeIds.length > 0
+      ? restrictedEmployeeIds
       : (await prisma.employee.findMany({
           where: { isActive: true },
           select: { id: true },
@@ -271,7 +359,7 @@ export const getAvailability = async (
     if (candidateIds.length === 0) return [];
 
     const allSlotSets = await Promise.all(
-      candidateIds.map((eid) => getAvailability(date, serviceId, eid))
+      candidateIds.map((eid) => getAvailabilityForDuration(date, duration, eid))
     );
     const timeMap = new Map<string, boolean>();
     for (const slotSet of allSlotSets) {
@@ -284,36 +372,13 @@ export const getAvailability = async (
       .sort((a, b) => a.time.localeCompare(b.time));
   }
 
-  let blocks: TimeBlock[] = DEFAULT_TIME_BLOCKS;
+  const workDay = await prisma.employeeWorkDay.findUnique({
+    where: { employeeId_date: { employeeId, date: normalized } },
+  });
 
-  if (employeeId) {
-    // Check day-specific override first
-    const workDay = await prisma.employeeWorkDay.findUnique({
-      where: { employeeId_date: { employeeId, date: normalized } },
-    });
-
-    const dow = getDayOfWeek(normalized);
-    const weekly = await prisma.employeeWeeklySchedule.findUnique({
-      where: { employeeId_dayOfWeek: { employeeId, dayOfWeek: dow } },
-    });
-
-    const isWorking = workDay?.isWorking ?? weekly?.isWorking ?? true;
-    if (!isWorking) return [];
-
-    if (workDay) {
-      if (workDay.timeBlocks) {
-        blocks = workDay.timeBlocks as unknown as TimeBlock[];
-      } else if (weekly) {
-        // Override exists but no timeBlocks → fall through to weekly template
-        if (!weekly) return [];
-        blocks = weekly.timeBlocks as unknown as TimeBlock[];
-      }
-    } else {
-      // No override → use weekly template
-      if (!weekly) return [];
-      blocks = weekly.timeBlocks as unknown as TimeBlock[];
-    }
-  }
+  const resolved = resolveEmployeeBlocks(workDay as WorkDayLike | null);
+  if (resolved === null) return [];
+  const blocks: TimeBlock[] = resolved;
 
   // Existing appointments
   const existingAppointments = await prisma.appointment.findMany({
@@ -354,15 +419,29 @@ export const getAvailability = async (
   return slots;
 };
 
+export const getAvailability = async (
+  date: string,
+  serviceId: string,
+  employeeId?: string
+): Promise<{ time: string; available: boolean }[]> => {
+  const service = await prisma.service.findUnique({
+    where: { id: serviceId },
+    select: { durationMinutes: true, employees: { select: { id: true } } },
+  });
+  if (!service) throw new AppError('Nie znaleziono usługi', 404);
+
+  const restrictedIds = service.employees.map((e) => e.id);
+  return getAvailabilityForDuration(date, service.durationMinutes, employeeId, restrictedIds);
+};
+
 // ─── Month availability ───────────────────────────────────────────────────────
 
 export type DayStatus = 'off' | 'none' | 'partial' | 'available';
 
-export const getMonthAvailability = async (
+const getMonthAvailabilityFromSlots = async (
   year: number,
   month: number,
-  serviceId: string,
-  employeeId?: string,
+  loadSlots: (date: string) => Promise<{ time: string; available: boolean }[]>,
 ): Promise<Record<string, DayStatus>> => {
   const start = new Date(Date.UTC(year, month - 1, 1));
   const end   = new Date(Date.UTC(year, month, 0));
@@ -376,7 +455,7 @@ export const getMonthAvailability = async (
 
   const results = await Promise.all(
     days.map(async (dateStr) => {
-      const slots = await getAvailability(dateStr, serviceId, employeeId);
+      const slots = await loadSlots(dateStr);
       const total = slots.length;
       const free  = slots.filter((s) => s.available).length;
       let status: DayStatus;
@@ -390,6 +469,14 @@ export const getMonthAvailability = async (
 
   return Object.fromEntries(results);
 };
+
+export const getMonthAvailability = async (
+  year: number,
+  month: number,
+  serviceId: string,
+  employeeId?: string,
+): Promise<Record<string, DayStatus>> =>
+  getMonthAvailabilityFromSlots(year, month, (dateStr) => getAvailability(dateStr, serviceId, employeeId));
 
 // ─── Next available slot ──────────────────────────────────────────────────────
 
@@ -427,6 +514,7 @@ export function calculateWeekSlotsCount(scheduledMinutes: number, bookedMinutes:
 
 export const getWeekSlotsCount = async (): Promise<{
   count: number;
+  availableDays: number;
   weekStart: string;
   weekEnd: string;
 }> => {
@@ -440,6 +528,26 @@ export const getWeekSlotsCount = async (): Promise<{
   const weekEnd = new Date(weekStart);
   weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
   weekEnd.setUTCHours(23, 59, 59, 999);
+
+  const service = await prisma.service.findFirst({
+    where: { isActive: true },
+    orderBy: { durationMinutes: 'asc' },
+    select: { id: true },
+  });
+
+  const weekDates: string[] = [];
+  for (let d = new Date(weekStart); d <= weekEnd; d.setUTCDate(d.getUTCDate() + 1)) {
+    weekDates.push(d.toISOString().slice(0, 10));
+  }
+
+  const availableDays = service
+    ? (await Promise.all(
+        weekDates.map(async (dateStr) => {
+          const slots = await getAvailability(dateStr, service.id);
+          return slots.some((slot) => slot.available);
+        }),
+      )).filter(Boolean).length
+    : 0;
 
   // Query 1: day-specific overrides this week
   const workDayOverrides = await prisma.employeeWorkDay.findMany({
@@ -503,6 +611,7 @@ export const getWeekSlotsCount = async (): Promise<{
 
   return {
     count: calculateWeekSlotsCount(scheduledMinutes, bookedMinutes),
+    availableDays,
     weekStart: weekStart.toISOString(),
     weekEnd: weekEnd.toISOString(),
   };

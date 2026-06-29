@@ -11,7 +11,7 @@ vi.mock('../../config/prisma', () => ({
 }));
 
 import { prisma } from '../../config/prisma';
-import { getSkinTypeAdvice, updateSkinTypeAdvice } from './skin-weather.service';
+import { getSkinTypeAdvice, matchRulesToWeather, updateSkinTypeAdvice } from './skin-weather.service';
 
 describe('getSkinTypeAdvice', () => {
   beforeEach(() => { vi.clearAllMocks(); });
@@ -53,5 +53,57 @@ describe('updateSkinTypeAdvice', () => {
     vi.mocked(prisma.skinTypeAdvice.upsert).mockResolvedValue(fakeRecord as any);
 
     await expect(updateSkinTypeAdvice('TLUSTA', '')).resolves.not.toThrow();
+  });
+});
+
+describe('matchRulesToWeather', () => {
+  it('keeps the most specific matching weather rule and skips broader repeats', () => {
+    const weather = {
+      current: {
+        temperature_2m: 31,
+        uv_index: 7,
+        relative_humidity_2m: 82,
+        precipitation_probability: 10,
+        cloud_cover: 20,
+      },
+    };
+    const airQuality = { current: { european_aqi: 20 } };
+    const rules = [
+      {
+        label: 'Upalny dzień',
+        recommendation: 'Ogólna porada na upał.',
+        isActive: true,
+        sortOrder: 1,
+        conditions: ['temperature'],
+        thresholds: { temperature: { min: 28, max: 45 } },
+      },
+      {
+        label: 'Silne UV',
+        recommendation: 'Ogólna porada na UV.',
+        isActive: true,
+        sortOrder: 2,
+        conditions: ['uv'],
+        thresholds: { uv: { min: 6, max: 11 } },
+      },
+      {
+        label: 'Lato — upał, wysokie UV i lepka wilgotność',
+        recommendation: 'Sezonowa porada na lato.',
+        isActive: true,
+        sortOrder: 180,
+        conditions: ['temperature', 'uv', 'humidity'],
+        thresholds: {
+          temperature: { min: 27, max: 45 },
+          uv: { min: 6, max: 11 },
+          humidity: { min: 50, max: 100 },
+        },
+      },
+    ];
+
+    expect(matchRulesToWeather(rules, weather, airQuality)).toEqual([
+      {
+        label: 'Lato — upał, wysokie UV i lepka wilgotność',
+        recommendation: 'Sezonowa porada na lato.',
+      },
+    ]);
   });
 });

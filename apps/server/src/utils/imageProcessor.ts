@@ -47,7 +47,7 @@ export const processAndSaveImage = async (
     await sharp(buffer)
       .extract({ left, top, width: cropW, height: cropH })
       .resize(outputW, outputH, { fit: 'fill' })
-      .webp({ quality: 85 })
+      .webp({ quality: 75 })
       .toFile(filepath);
   } else {
     await sharp(buffer)

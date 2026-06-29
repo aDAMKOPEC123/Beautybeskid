@@ -7,6 +7,7 @@ import { ServiceCard } from '@/components/ui/ServiceCard';
 import { ServiceListSkeleton } from '@/components/skeletons';
 import { useClipReveal } from '@/hooks/useClipReveal';
 import { GeoArc } from '@/components/shared/DecoElements';
+import { localSeoLinks } from '@/lib/local-seo';
 
 export const ServiceList = () => {
   const { data: services, isLoading } = useQuery({ queryKey: ['services'], queryFn: servicesApi.getAll });
@@ -33,8 +34,8 @@ export const ServiceList = () => {
   return (
     <>
       <PageSEO
-        title="Usługi — Kosmetologia i Podologia Limanowa"
-        description="Pełna oferta zabiegów kosmetycznych i podologicznych w Limanowej."
+        title="Usługi kosmetyczne Limanowa — kosmetologia, podologia, brwi i rzęsy"
+        description="BeautyBeskid Limanowa: aktualne usługi kosmetyczne, konsultacje kosmetologiczne, podologia, laminacja brwi i laminacja rzęs dla Limanowej, Mordarki i okolic."
         canonical="/uslugi"
       />
 
@@ -151,6 +152,36 @@ export const ServiceList = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14" style={{ background: '#E8F3EA' }} aria-labelledby="popular-local-services">
+        <div className="container">
+          <div className="mb-7 max-w-2xl">
+            <p className="eyebrow mb-3">Najczęściej szukane</p>
+            <h2
+              id="popular-local-services"
+              className="font-display text-4xl text-espresso leading-tight"
+              style={{ fontStyle: 'italic', fontWeight: 300 }}
+            >
+              Usługi BeautyBeskid w Limanowej, Mordarce i okolicach
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-mink">
+              Jeśli szukasz konkretnej usługi lokalnie, wybierz jedną z podstron przygotowanych pod najczęstsze zapytania klientek.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {localSeoLinks.map((link) => (
+              <a
+                key={link.to}
+                href={link.to}
+                className="flex items-center justify-between gap-4 rounded-lg border border-espresso/10 bg-white px-5 py-4 text-sm font-semibold text-espresso shadow-sm transition hover:-translate-y-0.5 hover:border-caramel"
+              >
+                {link.label}
+                <span aria-hidden="true" className="text-caramel">→</span>
+              </a>
+            ))}
           </div>
         </div>
       </section>

@@ -2,52 +2,101 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#C8956C" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="BeautyBeskid" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <title>BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny Limanowa</title>
-    <meta name="description" content="Profesjonalny salon kosmetologiczny i gabinet podologiczny w Limanowej. Zabiegi na twarz, brwi, rzęsy, manicure, pedicure, podologia. Obsługujemy Laskową, Mordarkę, Dobrą i okolice." />
+    <!-- Google Consent Mode + SecurePrivacy CMP + Google tag (gtag.js) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MT2NHRBC');</script>
+    <!-- End Google Tag Manager -->
+    <link rel="preconnect" href="https://app.secureprivacy.ai">
+    <link rel="preconnect" href="https://cmp.secureprivacy.ai">
+    <link rel="preconnect" href="https://api-prod.secureprivacy.ai">
+    <script defer src="https://app.secureprivacy.ai/script/6a3bb5554868714881884e81.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H2FHJ657K3"></script>
+    <script>
+      gtag('js', new Date());
+
+      gtag('config', 'G-H2FHJ657K3');
+    </script>
+    <title>BeautyBeskid — Kosmetolog i salon beauty Limanowa</title>
+    <meta name="description" content="BeautyBeskid Limanowa, Wiktoria Ćwik: kosmetolog, kosmetyczka, laminacja brwi i rzęs, podologia w aktualnej dostępności, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
     <!-- OG fallback -->
     <meta property="og:type" content="business.business" />
-    <meta property="og:site_name" content="BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny" />
-    <meta property="og:title" content="BeautyBeskid — Salon Kosmetologiczny &amp; Gabinet Podologiczny Limanowa" />
-    <meta property="og:description" content="Profesjonalny salon kosmetologiczny i gabinet podologiczny w Limanowej. Zabiegi na twarz, brwi, rzęsy, manicure, pedicure, podologia. Obsługujemy Laskową, Mordarkę, Dobrą i okolice." />
-    <meta property="og:image" content="https://cosmo.pl/images/og-salon.jpg" />
-    <meta property="og:url" content="https://cosmo.pl" />
+    <meta property="og:site_name" content="BeautyBeskid — Salon Kosmetologiczny Limanowa" />
+    <meta property="og:title" content="BeautyBeskid — Kosmetolog i salon beauty Limanowa" />
+    <meta property="og:description" content="BeautyBeskid Limanowa, Wiktoria Ćwik: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
+    <meta property="og:image" content="https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp" />
+    <meta property="og:url" content="https://kosmetologwiktoriacwik.pl/" />
     <meta property="og:locale" content="pl_PL" />
+    <link rel="preload" as="image" href="/images/beautybeskid-hero-premium.webp" type="image/webp" fetchpriority="high" />
     <!-- Google Fonts for Playfair Display & DM Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=optional" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=optional" rel="stylesheet"></noscript>
     <!-- BeautySalon / LocalBusiness JSON-LD (static — visible to non-JS bots) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BeautySalon",
-      "name": "BeautyBeskid — Salon Kosmetologiczny & Gabinet Podologiczny",
-      "url": "https://cosmo.pl",
-      "telephone": "+48000000000",
-      "email": "kontakt@cosmo.pl",
-      "image": "https://cosmo.pl/images/og-salon.jpg",
+      "name": "BeautyBeskid — Salon Kosmetologiczny Limanowa",
+      "url": "https://kosmetologwiktoriacwik.pl/",
+      "telephone": "+48532128227",
+      "email": "kontakt@kosmetologwiktoriacwik.pl",
+      "image": "https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp",
+      "description": "BeautyBeskid w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "ul. Przykładowa 1",
-        "addressLocality": "Limanowa",
+        "streetAddress": "Mordarka 505",
+        "addressLocality": "Mordarka",
         "postalCode": "34-600",
-        "addressRegion": "Małopolska",
+        "addressRegion": "Małopolskie",
         "addressCountry": "PL"
+      },
+      "founder": {
+        "@type": "Person",
+        "name": "Wiktoria Ćwik",
+        "jobTitle": "Dyplomowany kosmetolog"
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 49.7058,
-        "longitude": 20.4262
+        "latitude": 49.6986,
+        "longitude": 20.4441
       },
+      "knowsAbout": [
+        "kosmetolog Limanowa",
+        "kosmetyczka Limanowa",
+        "podolog Limanowa",
+        "laminacja brwi Limanowa",
+        "laminacja rzęs Limanowa",
+        "kosmetolog Mordarka",
+        "kosmetyczka Mordarka"
+      ],
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
@@ -69,24 +118,28 @@
       ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
-        "name": "Usługi salonu BeautyBeskid",
+        "name": "Aktualne usługi salonu BeautyBeskid",
         "itemListElement": [
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kosmetologia twarzy" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Podologia" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Stylizacja brwi i rzęs" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Manicure i pedicure" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Lifting i laminowanie rzęs" } }
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Konsultacja kosmetologiczna w Limanowej" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kosmetyczka Limanowa - zabiegi beauty" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laminacja brwi Limanowa" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laminacja rzęs Limanowa" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Podologia Limanowa - aktualna dostępność" } }
         ]
       },
       "sameAs": [
-        "https://www.facebook.com/cosmo",
-        "https://www.instagram.com/cosmo",
-        "https://www.google.com/maps/place/..."
+        "https://www.facebook.com/kosmetologwiktoriacwik/",
+        "https://www.instagram.com/kosmetolog__wiktoria_cwik/",
+        "https://www.tiktok.com/@wiktoriabeauty_brows"
       ]
     }
     </script>
   </head>
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MT2NHRBC"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

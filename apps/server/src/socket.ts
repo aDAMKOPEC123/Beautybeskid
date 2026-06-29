@@ -93,7 +93,7 @@ export const initializeSocket = (server: Server) => {
         return;
       }
       if (content.length > MAX_MESSAGE_LENGTH) {
-        return socket.emit('chat:error', { message: 'Wiadomość jest za długa (max 2000 znaków)' });
+        return (socket as any).emit('chat:error', { message: 'Wiadomość jest za długa (max 2000 znaków)' });
       }
       try {
         const room = await prisma.chatRoom.findUnique({ where: { id: roomId } });

@@ -58,6 +58,11 @@ export const usersApi = {
     return res.data;
   },
 
+  updateRole: async (id: string, role: 'USER' | 'ADMIN' | 'EMPLOYEE'): Promise<User> => {
+    const res = await api.patch(`/users/${id}/role`, { role });
+    return res.data.data.user;
+  },
+
   changePassword: async (data: { currentPassword: string; newPassword: string }) => {
     const res = await api.patch('/users/me/change-password', data);
     return res.data.data.user;

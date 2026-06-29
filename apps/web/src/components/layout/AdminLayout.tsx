@@ -25,7 +25,7 @@ export const AdminLayout = () => {
     () => ['/admin/wizyty', '/admin/konsultacje', '/admin/pracownicy', '/admin/praca'].some(p => location.pathname.startsWith(p))
   );
   const [klienciOpen, setKlienciOpen] = useState(
-    () => ['/admin/uzytkownicy', '/admin/recenzje'].some(p => location.pathname.startsWith(p))
+    () => ['/admin/uzytkownicy', '/admin/recenzje', '/admin/beauty-plans'].some(p => location.pathname.startsWith(p))
   );
   const [tresciOpen, setTresciOpen] = useState(
     () => ['/admin/hero', '/admin/polecane-zabiegi', '/admin/o-nas', '/admin/uslugi', '/admin/blog', '/admin/metamorfozy'].some(p => location.pathname.startsWith(p))
@@ -37,7 +37,7 @@ export const AdminLayout = () => {
     () => location.pathname.startsWith('/admin/akademia')
   );
   const [sprzedazOpen, setSprzedazOpen] = useState(
-    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment'].some(p => location.pathname.startsWith(p))
+    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'].some(p => location.pathname.startsWith(p))
   );
   const [ustawieniaOpen, setUstawieniaOpen] = useState(
     () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
@@ -150,7 +150,9 @@ export const AdminLayout = () => {
           { to: '/admin/metamorfozy', label: 'Metamorfozy' },
           { to: '/admin/lojalnosc', label: 'Lojalność' },
           { to: '/admin/kody-rabatowe', label: 'Kody' },
+          { to: '/admin/vouchery', label: 'Vouchery' },
           { to: '/admin/recenzje', label: 'Recenzje' },
+          { to: '/admin/beauty-plans', label: 'Beauty Plans' },
           { to: '/admin/quizy', label: 'Quizy' },
           { to: '/admin/hero', label: 'Slider' },
           { to: '/admin/polecane-zabiegi', label: 'Polecane' },
@@ -159,6 +161,7 @@ export const AdminLayout = () => {
           { to: '/admin/asortyment', label: 'Asortyment' },
           { to: '/admin/pogoda-skory', label: 'Pogoda skóry' },
           { to: '/admin/akademia', label: 'Akademia' },
+          { to: '/admin/forum', label: 'Forum' },
           { to: '/admin/marketing', label: 'Marketing' },
         ].map(({ to, label, badge }) => (
           <Link
@@ -321,6 +324,9 @@ export const AdminLayout = () => {
                   <Link to="/admin/recenzje" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Recenzje
                   </Link>
+                  <Link to="/admin/beauty-plans" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Beauty Plans
+                  </Link>
                 </div>
               )}
             </div>
@@ -376,6 +382,16 @@ export const AdminLayout = () => {
               )}
             </div>
 
+            {/* Forum */}
+            <div>
+              <Link
+                to="/admin/forum"
+                className="px-4 py-2 flex items-center text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
+              >
+                Forum
+              </Link>
+            </div>
+
             {/* Diagnostyka */}
             <div>
               <button
@@ -410,6 +426,9 @@ export const AdminLayout = () => {
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/kody-rabatowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Kody Rabatowe
+                  </Link>
+                  <Link to="/admin/vouchery" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Vouchery
                   </Link>
                   <Link to="/admin/lojalnosc" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Program Lojalnościowy

@@ -6,8 +6,8 @@ import { sendPushToAllUsers } from '../push/push.service';
 
 export const getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const data = await notificationsService.getNotifications(req.user!.id, page, limit);
     res.status(200).json({ status: 'success', data });
   } catch (error) {
@@ -38,6 +38,15 @@ export const getUnreadCount = async (req: Request, res: Response, next: NextFunc
   try {
     const count = await notificationsService.getUnreadCount(req.user!.id);
     res.status(200).json({ status: 'success', data: { count } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUnreadRouteCounts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const counts = await notificationsService.getUnreadRouteCounts(req.user!.id);
+    res.status(200).json({ status: 'success', data: { counts } });
   } catch (error) {
     next(error);
   }

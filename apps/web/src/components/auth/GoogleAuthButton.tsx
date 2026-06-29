@@ -1,5 +1,5 @@
 // filepath: apps/web/src/components/auth/GoogleAuthButton.tsx
-import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider, type CredentialResponse } from '@react-oauth/google';
 import { toast } from 'sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authApi } from '@/api/auth.api';
@@ -10,6 +10,7 @@ export const GoogleAuthButton = () => {
   const location = useLocation();
   const { setUser, setAccessToken } = useAuthStore();
   const from = (location.state as { from?: string } | null)?.from ?? '/user';
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const handleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!credentialResponse.credential) {
@@ -28,13 +29,19 @@ export const GoogleAuthButton = () => {
     }
   };
 
+  if (!clientId) {
+    return null;
+  }
+
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={() => toast.error('Logowanie przez Google nie powiodło się')}
-      useOneTap={false}
-      width="100%"
-      text="continue_with"
-    />
+    <GoogleOAuthProvider clientId={clientId}>
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={() => toast.error('Logowanie przez Google nie powiodło się')}
+        useOneTap={false}
+        width="100%"
+        text="continue_with"
+      />
+    </GoogleOAuthProvider>
   );
 };

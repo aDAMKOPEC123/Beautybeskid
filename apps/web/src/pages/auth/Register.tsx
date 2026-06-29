@@ -31,7 +31,7 @@ export const Register = () => {
     setAvatarPreview(URL.createObjectURL(file));
   };
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema)
   });
 

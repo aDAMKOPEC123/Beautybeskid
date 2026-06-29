@@ -27,13 +27,63 @@ export const ServiceDetail = () => {
   );
   if (!service) return <div className="p-8 text-center">Usługa nie została znaleziona.</div>;
 
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Service',
+        '@id': `https://kosmetologwiktoriacwik.pl/uslugi/${service.slug}#service`,
+        name: service.name,
+        ...(service.description ? { description: service.description } : {}),
+        serviceType: service.category,
+        provider: {
+          '@type': 'BeautySalon',
+          '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
+          name: 'BeautyBeskid',
+          url: 'https://kosmetologwiktoriacwik.pl',
+          telephone: '+48532128227',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Mordarka 505',
+            addressLocality: 'Mordarka',
+            postalCode: '34-600',
+            addressRegion: 'Małopolskie',
+            addressCountry: 'PL',
+          },
+        },
+        areaServed: 'Limanowa i okolice powiatu limanowskiego',
+        availableChannel: {
+          '@type': 'ServiceChannel',
+          serviceUrl: 'https://kosmetologwiktoriacwik.pl/rezerwacja',
+          servicePhone: '+48532128227',
+        },
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'PLN',
+          price: String(service.price),
+          availability: 'https://schema.org/InStock',
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+          { '@type': 'ListItem', position: 2, name: 'Usługi', item: 'https://kosmetologwiktoriacwik.pl/uslugi' },
+          { '@type': 'ListItem', position: 3, name: service.name, item: `https://kosmetologwiktoriacwik.pl/uslugi/${service.slug}` },
+        ],
+      },
+    ],
+  };
+
   return (
     <>
       <PageSEO
-        title={`${service.name} — BeautyBeskid Salon`}
-        description={service.description}
+        title={`${service.name} — BeautyBeskid Limanowa`}
+        description={service.description ? `${service.description} Zabieg dostępny w salonie BeautyBeskid w Limanowej (Mordarka 505).` : `${service.name} — zabieg w salonie BeautyBeskid w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`}
         canonical={`/uslugi/${service.slug}`}
         ogImage={service.imagePath}
+        schema={schema}
       />
 
       {/* Back link */}

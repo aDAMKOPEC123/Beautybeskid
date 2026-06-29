@@ -2,13 +2,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/axios';
 import { discountCodesApi } from '@/api/discount-codes.api';
-import { skinJournalApi } from '@/api/skin-journal.api';
-import { notificationsApi } from '@/api/notifications.api';
-import { homecareApi } from '@/api/homecare.api';
 import { authApi } from '@/api/auth.api';
 import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
@@ -26,6 +24,7 @@ import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
+import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
   LayoutDashboard,
   Calendar,
@@ -40,6 +39,8 @@ import {
   MessageCircle,
   Cloud,
   GraduationCap,
+  Flower2,
+  MessageSquare,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -52,10 +53,42 @@ const NAV_LINKS = [
   { to: '/user/produkty', label: 'Moje Produkty', icon: ShoppingBag },
   { to: '/user/polecenia', label: 'Program Poleceń', icon: Users },
   { to: '/user/pogoda-skory', label: 'Twoja Skóra', icon: Cloud },
+  { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
+  { to: '/user/forum', label: 'Forum', icon: MessageSquare },
   { to: '/akademia', label: 'Akademia', icon: GraduationCap },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Mój Profil', icon: UserIcon },
 ];
+
+const panelPageVariants = {
+  initial: { opacity: 0, y: 18, scale: 0.992 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.998,
+    transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
+  },
+};
+
+const panelPageReducedVariants = {
+  initial: { opacity: 0, y: 4 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.18, ease: 'easeOut' },
+  },
+  exit: {
+    opacity: 0,
+    y: -2,
+    transition: { duration: 0.12, ease: 'easeIn' },
+  },
+};
 
 const UserLayoutInner = () => {
   const { isAuthenticated, isLoading, user: storeUser, setUser, logout, isAdmin, isEmployee } = useAuth();
@@ -70,36 +103,20 @@ const UserLayoutInner = () => {
     logout();
     navigate('/');
   };
-  const { unreadCount, incrementUnread, setUnreadCount } = useChatStore();
+  const { incrementUnread, setUnreadCount } = useChatStore();
   const queryClient = useQueryClient();
-
-  const { data: journalUnread = 0 } = useQuery<number>({
-    queryKey: ['journal', 'unread'],
-    queryFn: skinJournalApi.getUnreadCount,
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-    staleTime: 30_000,
-  });
-
-  const { data: notifUnread = 0 } = useQuery<number>({
-    queryKey: ['notifications', 'unread-count'],
-    queryFn: () => notificationsApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-  });
-
-  const { data: routineUnread = 0 } = useQuery<number>({
-    queryKey: ['homecare-unread'],
-    queryFn: () => homecareApi.getUnreadCount(),
-    enabled: isAuthenticated,
-    refetchInterval: 30_000,
-  });
   const { data: chatRoom } = useQuery({
     queryKey: ['chat', 'my-room'],
     queryFn: chatApi.getMyRoom,
     enabled: isAuthenticated,
     staleTime: 30_000,
   });
+  const { getBadgeCount } = useUserMenuBadges();
+  const shouldReduce = useReducedMotion();
+  const activePageVariants = shouldReduce ? panelPageReducedVariants : panelPageVariants;
+  const navIndicatorTransition = shouldReduce
+    ? { duration: 0.16, ease: 'easeOut' }
+    : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   useEffect(() => {
     if (!chatRoom || !storeUser) return;
@@ -191,6 +208,7 @@ const UserLayoutInner = () => {
     };
     const onNotificationNew = () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-map'] });
       queryClient.invalidateQueries({ queryKey: ['homecare-unread'] });
     };
     sock.on('journal:new-comment', onJournalComment);
@@ -310,30 +328,31 @@ const UserLayoutInner = () => {
               <Link
                 key={to}
                 to={to}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-3 justify-between"
+                className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center gap-3 justify-between"
                 style={
                   isActive(to)
-                    ? { color: '#C4965A', background: 'rgba(196,150,90,0.08)', fontWeight: 600 }
+                    ? { color: '#C4965A', fontWeight: 600 }
                     : { color: 'rgba(20,40,28,0.6)' }
                 }
               >
-                <span className="flex items-center gap-3">
+                {isActive(to) && (
+                  <motion.span
+                    layoutId="user-sidebar-active-pill"
+                    className="absolute inset-0 rounded-xl"
+                    transition={navIndicatorTransition}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
+                      boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                    }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-3">
                   <Icon size={18} />
                   <span>{label}</span>
                 </span>
-                {to === '/user/dziennik' && journalUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {journalUnread > 9 ? '9+' : journalUnread}
-                  </span>
-                )}
-                {to === '/user/rutyna' && routineUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {routineUnread > 9 ? '9+' : routineUnread}
-                  </span>
-                )}
-                {to === '/user/powiadomienia' && notifUnread > 0 && (
-                  <span className="text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {notifUnread > 9 ? '9+' : notifUnread}
+                {getBadgeCount(to) > 0 && (
+                  <span className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
+                    {getBadgeCount(to) > 9 ? '9+' : getBadgeCount(to)}
                   </span>
                 )}
               </Link>
@@ -341,29 +360,39 @@ const UserLayoutInner = () => {
 
             <Link
               to="/user/chat"
-              className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between"
+              className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center justify-between"
               style={
                 isActive('/user/chat')
                   ? {
                       color: '#C4965A',
-                      background: 'rgba(196,150,90,0.08)',
                       fontWeight: 600,
                     }
-                  : {
+                : {
                       color: 'rgba(20,40,28,0.6)',
                     }
               }
             >
-              <span className="flex items-center gap-3">
+              {isActive('/user/chat') && (
+                <motion.span
+                  layoutId="user-sidebar-active-pill"
+                  className="absolute inset-0 rounded-xl"
+                  transition={navIndicatorTransition}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
+                    boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                  }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-3">
                 <MessageCircle size={18} />
                 <span>Czat</span>
               </span>
-              {unreadCount > 0 && (
+              {getBadgeCount('/user/chat') > 0 && (
                 <span
-                  className="text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
+                  className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
                   style={{ background: '#C4965A', color: '#fff' }}
                 >
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                  {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
                 </span>
               )}
             </Link>
@@ -381,9 +410,19 @@ const UserLayoutInner = () => {
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 pb-20 md:pb-0">
-          <Outlet />
-        </main>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.main
+            key={location.pathname}
+            className="flex-1 min-w-0 pb-20 md:pb-0"
+            variants={activePageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{ transformOrigin: 'top center' }}
+          >
+            <Outlet />
+          </motion.main>
+        </AnimatePresence>
       </div>
 
       <Footer />

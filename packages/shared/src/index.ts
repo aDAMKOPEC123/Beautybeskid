@@ -1,11 +1,15 @@
 // filepath: packages/shared/src/index.ts
-export * from './types/user.types';
-export * from './types/service.types';
+export { AccountStatus, LoyaltyTier, Role } from './types/user.types';
+export type { User } from './types/user.types';
+export { Season } from './types/service.types';
+export type { Service } from './types/service.types';
 export * from './types/blog.types';
 export * from './types/metamorphosis.types';
-export * from './types/loyalty.types';
+export { TransactionType } from './types/loyalty.types';
+export type { LoyaltyReward, LoyaltyTransaction } from './types/loyalty.types';
 export * from './types/chat.types';
-export * from './types/appointment.types';
+export { AppointmentStatus } from './types/appointment.types';
+export type { Appointment } from './types/appointment.types';
 
 export * from './schemas/auth.schema';
 export * from './schemas/service.schema';

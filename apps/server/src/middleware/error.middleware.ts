@@ -1,6 +1,7 @@
 // filepath: apps/server/src/middleware/error.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
+import multer from 'multer';
 import { env } from '../config/env';
 
 export class AppError extends Error {
@@ -21,6 +22,22 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      res.status(413).json({
+        status: 'error',
+        message: 'Plik jest za duży. Maksymalny rozmiar to 5 MB.'
+      });
+      return;
+    }
+
+    res.status(400).json({
+      status: 'error',
+      message: err.message || 'Nieprawidłowy plik.'
+    });
+    return;
+  }
+
   // Handle Prisma known errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2025') {

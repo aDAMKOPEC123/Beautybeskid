@@ -1,5 +1,4 @@
 // filepath: apps/web/src/pages/user/Dashboard.tsx
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';

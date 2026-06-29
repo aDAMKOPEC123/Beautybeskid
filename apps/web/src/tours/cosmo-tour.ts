@@ -8,7 +8,7 @@ async function navigateTo(path: string) {
 }
 
 /**
- * Builds the 11-step onboarding tour steps.
+ * Builds the 9-step onboarding tour steps.
  * @param onTourEnd - called when the tour is finished or skipped (marks onboardingCompleted)
  */
 export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
@@ -28,23 +28,7 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       element: '[data-tour="sidebar-booking-btn"]',
       popover: {
         title: 'Rezerwacja wizyty',
-        description: 'Tutaj zarezerwujesz wizytę w kilka kliknięć.',
-        nextBtnText: 'Dalej →',
-        doneBtnText: 'Pomiń tour',
-        onNextClick: async () => {
-          await navigateTo('/uslugi');
-          await waitForElement('[data-tour="services-list"]');
-          (window as any).__cosmoDriver?.moveNext();
-        },
-      },
-    },
-
-    // Step 3 — Services list
-    {
-      element: '[data-tour="services-list"]',
-      popover: {
-        title: 'Nasze usługi',
-        description: 'Przeglądaj nasze zabiegi i sprawdź szczegóły każdego z nich.',
+        description: 'Kliknij tutaj, żeby zarezerwować wizytę. Możesz też przeglądać wszystkie nasze zabiegi w zakładce "Usługi".',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -55,27 +39,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 4 — BookingWizard
+    // Step 3 — BookingWizard (UserLayout /rezerwacja)
     {
       element: '[data-tour="booking-wizard"]',
       popover: {
         title: 'Kreator rezerwacji',
-        description: 'Nasz kreator poprowadzi Cię przez rezerwację krok po kroku.',
-        nextBtnText: 'Dalej →',
-        doneBtnText: 'Pomiń tour',
-        onNextClick: async () => {
-          await waitForElement('[data-tour="service-quiz"]');
-          (window as any).__cosmoDriver?.moveNext();
-        },
-      },
-    },
-
-    // Step 5 — Service quiz (same page, conditional render — stable wrapper always in DOM)
-    {
-      element: '[data-tour="service-quiz"]',
-      popover: {
-        title: 'Quiz doboru zabiegu',
-        description: 'Nie wiesz co wybrać? Quiz dobierze zabieg idealnie do Twoich potrzeb.',
+        description: 'Wybierz zabieg, termin i pracownika. Kreator przeprowadzi Cię krok po kroku przez cały proces.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -86,12 +55,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 6 — Appointments list
+    // Step 4 — Appointments list
     {
       element: '[data-tour="appointments-list"]',
       popover: {
         title: 'Moje wizyty',
-        description: 'Tutaj znajdziesz wszystkie swoje wizyty — nadchodzące i historyczne.',
+        description: 'Tutaj znajdziesz wszystkie swoje wizyty — nadchodzące i historyczne. Możesz też anulować lub przełożyć wizytę.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -102,12 +71,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 7 — Loyalty points bar
+    // Step 5 — Loyalty points bar
     {
       element: '[data-tour="loyalty-points-bar"]',
       popover: {
         title: 'Program lojalnościowy',
-        description: 'Zbieraj punkty za każdą wizytę i wymieniaj je na nagrody.',
+        description: 'Za każdą wizytę zbierasz punkty. Wymieniaj je na nagrody i rabaty w naszym programie lojalnościowym.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -118,12 +87,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 8 — Chat window
+    // Step 6 — Chat window
     {
       element: '[data-tour="chat-window"]',
       popover: {
         title: 'Czat z salonem',
-        description: 'Napisz do nas bezpośrednio — odpowiemy najszybciej jak możemy.',
+        description: 'Masz pytanie? Napisz do nas bezpośrednio — odpowiemy najszybciej jak możemy.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -134,12 +103,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 9 — Skin journal
+    // Step 7 — Skin journal
     {
       element: '[data-tour="skin-journal"]',
       popover: {
         title: 'Dziennik skóry',
-        description: 'Prowadź swój osobisty dziennik skóry i śledź postępy leczenia.',
+        description: 'Prowadź swój osobisty dziennik skóry — dodawaj zdjęcia, nastrój i notatki, żeby śledzić postępy pielęgnacji.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -150,12 +119,12 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 10 — Profile form
+    // Step 8 — Profile form
     {
       element: '[data-tour="profile-form"]',
       popover: {
         title: 'Mój profil',
-        description: 'Uzupełnij swój profil i zarządzaj ustawieniami konta.',
+        description: 'Uzupełnij swoje dane, zarządzaj zgodami i ustawieniami powiadomień. Tu znajdziesz też historię wizyt i kartę klienta.',
         nextBtnText: 'Dalej →',
         doneBtnText: 'Pomiń tour',
         onNextClick: async () => {
@@ -164,7 +133,7 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
       },
     },
 
-    // Step 11 — Finish overlay (no element)
+    // Step 9 — Finish overlay (no element)
     {
       popover: {
         title: 'Gotowe! 🎉',

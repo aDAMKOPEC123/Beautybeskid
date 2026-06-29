@@ -3,6 +3,7 @@ import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { employeesApi } from '../../api/employees.api';
 import { SEO } from '../../lib/seo-config';
+import { localSeoLinks } from '../../lib/local-seo';
 
 const TikTokIcon = () => (
   <svg
@@ -48,12 +49,14 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
       <div>
         <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>{employee.name}</p>
         {specialty && (
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{specialty}</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.72)' }}>{specialty}</p>
         )}
       </div>
     </div>
   );
 };
+
+const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(SEO.mapQuery)}&z=16&output=embed`;
 
 export const Footer = () => {
   const { data: employees } = useQuery<Employee[]>({
@@ -68,7 +71,7 @@ export const Footer = () => {
     <footer style={{ backgroundColor: '#1A3828' }}>
       {/* Main grid */}
       <div className="container py-14">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Column 1 — Logo + description + social */}
           <div className="flex flex-col gap-5">
             <Link
@@ -78,8 +81,8 @@ export const Footer = () => {
             >
               BeautyBeskid
             </Link>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              Salon Kosmetologiczny & Gabinet Podologiczny w Limanowej. Zadbaj o siebie razem z nami.
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.78)' }}>
+              Salon kosmetologiczny w Mordarce koło Limanowej. Aktualne zabiegi, konsultacje i rezerwacja online.
             </p>
             <div className="flex gap-4">
               {[
@@ -93,9 +96,9 @@ export const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label={label}
                   className="transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                  style={{ color: 'rgba(255,255,255,0.72)' }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
                 >
                   <Icon className="h-5 w-5" />
                 </a>
@@ -106,9 +109,9 @@ export const Footer = () => {
                 rel="noopener noreferrer"
                 aria-label="TikTok"
                 className="transition-colors"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
+                style={{ color: 'rgba(255,255,255,0.72)' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.4)')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
               >
                 <TikTokIcon />
               </a>
@@ -120,36 +123,70 @@ export const Footer = () => {
             <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Kontakt
             </h3>
-            <div className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
-              <span>
-                {SEO.address.street}<br />
-                {SEO.address.postalCode} {SEO.address.city}
-              </span>
-            </div>
-            <a
-              href={`tel:${SEO.phone}`}
-              className="flex items-center gap-2 text-sm transition-colors"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
-            >
-              <Phone className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
-              {SEO.phone}
-            </a>
-            <a
-              href={`mailto:${SEO.email}`}
-              className="flex items-center gap-2 text-sm transition-colors"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')}
-            >
-              <Mail className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
-              {SEO.email}
-            </a>
+            <address className="not-italic flex flex-col gap-4">
+              <a
+                href={SEO.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2 text-sm transition-colors"
+                style={{ color: 'rgba(255,255,255,0.78)' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
+              >
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
+                <span>
+                  {SEO.address.street}
+                  <br />
+                  {SEO.address.postalCode} {SEO.address.city}
+                  <br />
+                  Polska
+                </span>
+              </a>
+              <a
+                href={`tel:${SEO.phone}`}
+                className="flex items-center gap-2 text-sm transition-colors"
+                style={{ color: 'rgba(255,255,255,0.78)' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
+              >
+                <Phone className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
+                {SEO.phone}
+              </a>
+              <a
+                href={`mailto:${SEO.email}`}
+                className="flex items-center gap-2 text-sm transition-colors"
+                style={{ color: 'rgba(255,255,255,0.78)' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
+              >
+                <Mail className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
+                {SEO.email}
+              </a>
+            </address>
           </div>
 
-          {/* Column 3 — Opening hours */}
+          {/* Column 3 — Local SEO links */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
+              Popularne usługi
+            </h3>
+            <nav className="grid gap-2" aria-label="Popularne usługi BeautyBeskid">
+              {localSeoLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-sm transition-colors"
+                  style={{ color: 'rgba(255,255,255,0.78)' }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Column 4 — Opening hours */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Godziny pracy
@@ -157,10 +194,10 @@ export const Footer = () => {
             <dl className="space-y-1.5">
               {SEO.openingHours.map(({ days, hours }) => (
                 <div key={days} className="flex justify-between gap-4 text-sm">
-                  <dt style={{ color: 'rgba(255,255,255,0.55)' }}>{days}</dt>
+                  <dt style={{ color: 'rgba(255,255,255,0.78)' }}>{days}</dt>
                   <dd
                     style={{
-                      color: hours === 'Nieczynne' ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.85)',
+                      color: hours === 'Nieczynne' ? '#FFB4AB' : 'rgba(255,255,255,0.9)',
                       fontWeight: 500,
                     }}
                   >
@@ -196,7 +233,7 @@ export const Footer = () => {
         >
           <iframe
             title="Lokalizacja salonu BeautyBeskid"
-            src={`https://maps.google.com/maps?q=${SEO.lat},${SEO.lon}&z=15&output=embed`}
+            src={googleMapsEmbedUrl}
             width="100%"
             height="280"
             style={{ border: 0, display: 'block' }}
@@ -208,14 +245,14 @@ export const Footer = () => {
 
       {/* Copyright bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.72)' }}>
           <span>© {new Date().getFullYear()} BeautyBeskid. Wszelkie prawa zastrzeżone.</span>
           <Link
             to="/regulamin"
             className="transition-colors"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
+            style={{ color: 'rgba(255,255,255,0.72)' }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
           >
             Regulamin i polityka prywatności
           </Link>

@@ -470,6 +470,34 @@ export const updateUser = async (id: string, data: UpdateUserData) => {
   });
 }
 
+export const updateUserRole = async (id: string, role: 'USER' | 'ADMIN' | 'EMPLOYEE') => {
+  if (!['USER', 'ADMIN', 'EMPLOYEE'].includes(role)) {
+    throw new AppError('Nieprawidlowa rola', 400);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  if (!user) throw new AppError('Uzytkownik nie istnieje', 404);
+
+  return prisma.user.update({
+    where: { id },
+    data: { role },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      role: true,
+      avatarPath: true,
+      loyaltyPoints: true,
+      loyaltyTier: true,
+      createdAt: true,
+      ambassadorCode: true,
+      referralCount: true,
+      accountStatus: true,
+    },
+  });
+};
+
 export const getPendingUsers = async () => {
   return prisma.user.findMany({
     where: { accountStatus: 'PENDING' },

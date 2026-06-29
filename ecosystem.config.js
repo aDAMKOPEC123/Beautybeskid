@@ -4,6 +4,7 @@ module.exports = {
       name: 'cosmo-server',
       script: 'dist/index.js',
       cwd: './apps/server',
+      node_args: '--env-file=.env',
       instances: 1,
       exec_mode: 'fork',
       env: {

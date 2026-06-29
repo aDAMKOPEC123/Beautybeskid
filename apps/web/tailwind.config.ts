@@ -16,7 +16,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
         heading: ['Playfair Display', 'serif'],
         eyebrow: ['DM Sans', 'sans-serif'],
         sans: ['DM Sans', 'sans-serif'],
@@ -123,8 +123,6 @@ export default {
   },
   plugins: [
     require("tailwindcss-animate"),
-    require("@tailwindcss/typography")({
-      target: 'legacy',
-    }),
+    require("@tailwindcss/typography"),
   ],
 }

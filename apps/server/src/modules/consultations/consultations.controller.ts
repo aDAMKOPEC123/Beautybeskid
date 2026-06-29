@@ -13,7 +13,7 @@ const createLeadSchema = z.object({
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = createLeadSchema.parse(req.body);
-    const lead = await consultationsService.createLead(data);
+    const lead = await consultationsService.createLead(data as any);
     res.status(201).json({ status: 'success', data: { lead } });
   } catch (error) {
     next(error);

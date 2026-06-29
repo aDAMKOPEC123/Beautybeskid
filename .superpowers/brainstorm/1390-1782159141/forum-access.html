@@ -1,0 +1,26 @@
+<h2>Gdzie forum jest dostępne?</h2>
+<p class="subtitle">Wybierz, skąd użytkownik może wejść na forum</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Tylko zalogowani — strefa użytkownika</h3>
+      <p>Forum jest wyłącznie pod <code>/user/forum</code>. Widoczne tylko po zalogowaniu. Goście w ogóle nie widzą forum.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Publiczny podgląd + logowanie do pisania</h3>
+      <p>Wątki widoczne publicznie pod <code>/forum</code> (jak blog). Czytanie bez logowania, ale dodawanie wątków/odpowiedzi wymaga konta.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrydowo — link w nawigacji + strefa użytkownika</h3>
+      <p>Link w głównej nawigacji prowadzi do <code>/forum</code> (publiczne). Zalogowani mają też skrót w panelu użytkownika <code>/user/forum</code>.</p>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import { employeesApi } from '@/api/employees.api';
 import { reviewsApi } from '@/api/reviews.api';
 import { useSocket } from '@/hooks/useSocket';
 import { Button } from '@/components/ui/button';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { AppointmentListSkeleton } from '@/components/skeletons';
 import { FollowUpReminderWidget } from '@/components/appointments/FollowUpReminderWidget';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
@@ -152,6 +153,7 @@ export const UserAppointments = () => {
             <button
               type="button"
               onClick={() => setHistoryOpen((v) => !v)}
+              aria-expanded={historyOpen}
               className="w-full flex items-center justify-between"
               style={{ background: 'rgba(196,150,90,0.08)', padding: '9px 14px' }}
             >
@@ -166,16 +168,20 @@ export const UserAppointments = () => {
               </div>
               <ChevronDown
                 size={16}
-                style={{ color: '#C4965A', transition: 'transform 0.2s', transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                className="transition-transform duration-300"
+                style={{ color: '#C4965A', transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
               />
             </button>
-            {historyOpen && (
-              <div className="grid gap-3" style={{ padding: '12px', background: 'rgba(196,150,90,0.04)' }}>
+            <AnimatedCollapse
+              open={historyOpen}
+              style={{ background: 'rgba(196,150,90,0.04)' }}
+              innerClassName="grid gap-3"
+              innerStyle={{ padding: '12px' }}
+            >
                 {past.map((a: any) => (
                   <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
                 ))}
-              </div>
-            )}
+            </AnimatedCollapse>
           </div>
         </section>
       )}

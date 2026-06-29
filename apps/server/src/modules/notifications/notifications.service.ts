@@ -62,6 +62,35 @@ export const getUnreadCount = async (userId: string) => {
   return await prisma.notification.count({ where: { userId, readAt: null } });
 };
 
+const normalizeNotificationPath = (url: string | null): string | null => {
+  if (!url) return null;
+
+  try {
+    return new URL(url, 'https://beautybeskid.local').pathname;
+  } catch {
+    return url.split(/[?#]/)[0] || null;
+  }
+};
+
+export const getUnreadRouteCounts = async (userId: string) => {
+  const notifications = await prisma.notification.findMany({
+    where: {
+      userId,
+      readAt: null,
+      url: { not: null },
+    },
+    select: { url: true },
+  });
+
+  return notifications.reduce<Record<string, number>>((acc, notification) => {
+    const normalizedPath = normalizeNotificationPath(notification.url);
+    if (!normalizedPath) return acc;
+
+    acc[normalizedPath] = (acc[normalizedPath] ?? 0) + 1;
+    return acc;
+  }, {});
+};
+
 export async function createAndEmitNotification(
   io: Server,
   data: {

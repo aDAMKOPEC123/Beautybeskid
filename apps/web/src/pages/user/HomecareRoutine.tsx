@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/hooks/useSocket';
 import { homecareApi } from '@/api/homecare.api';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Clock, Sun, ShoppingBag, ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
@@ -118,6 +119,7 @@ export const HomecareRoutinePage = () => {
                     <button
                       className="flex-1 flex items-center justify-between px-4 py-3 text-left min-h-[48px]"
                       onClick={() => setExpandedId(isOpen ? null : r.id)}
+                      aria-expanded={isOpen}
                     >
                       <span>
                         <span className="text-sm font-medium">{r.appointment.service.name}</span>
@@ -133,15 +135,18 @@ export const HomecareRoutinePage = () => {
                       <Trash2 size={14} />
                     </button>
                   </div>
-                  {isOpen && (
-                    <div className="px-4 pb-4 space-y-3 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+                  <AnimatedCollapse
+                    open={isOpen}
+                    className="border-t"
+                    style={{ borderColor: 'rgba(0,0,0,0.06)' }}
+                    innerClassName="px-4 pb-4 space-y-3"
+                  >
                       <div className="pt-3">
                         <RoutineSection icon={<Clock size={16} />} label="Pierwsze 48 godzin" content={r.first48h} />
                         <RoutineSection icon={<Sun size={16} />} label="Kolejne dni" content={r.followingDays} />
                         <RoutineSection icon={<ShoppingBag size={16} />} label="Zalecane produkty" content={r.products} />
                       </div>
-                    </div>
-                  )}
+                  </AnimatedCollapse>
                 </div>
               );
             })}

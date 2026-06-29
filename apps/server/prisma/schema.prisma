@@ -192,6 +192,12 @@ model User {
   lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
   refreshTokens          RefreshToken[]
+  beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
+  createdBeautyPlans     BeautyPlan[]       @relation("BeautyPlanCreatedBy")
+  forumThreads   ForumThread[] @relation("ForumThreadAuthor")
+  forumPosts     ForumPost[]   @relation("ForumPostAuthor")
+  forumWatches   ForumWatch[]  @relation("ForumWatchUser")
+  createdVouchers Voucher[]   @relation("VoucherCreatedBy")
 
   @@index([role])
 }
@@ -250,6 +256,10 @@ model Service {
   treatmentSeries TreatmentSeries[]
   happyHours        HappyHour[]       @relation("HappyHourServices")
   recommendedSlides RecommendedSlide[]
+  vouchers          Voucher[]         @relation("VoucherService")
+
+  @@index([category])
+  @@index([isActive])
 }
 
 model BlogPost {
@@ -272,6 +282,10 @@ model BlogPost {
   likes           BlogPostLike[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([category])
+  @@index([authorId])
 }
 
 model BlogPostLike {
@@ -484,6 +498,8 @@ model DiscountCode {
   usages         DiscountCodeUsage[]
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+  expiresAt      DateTime?
+  voucher        Voucher?            @relation("VoucherDiscountCode")
 }
 
 model DiscountCodeUsage {
@@ -627,6 +643,9 @@ model Quiz {
   edges     QuizEdge[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
+  @@index([bodyPart])
+  @@index([isActive])
 }
 
 model QuizNode {
@@ -1340,4 +1359,109 @@ model WynikPost {
   comments    Int?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+}
+
+model BeautyPlan {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation("UserBeautyPlans", fields: [userId], references: [id], onDelete: Cascade)
+  createdById  String
+  createdBy    User     @relation("BeautyPlanCreatedBy", fields: [createdById], references: [id])
+  title        String
+  intro        String?  @db.Text
+  sections     Json?
+  externalLinks Json?
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+}
+
+model ForumCategory {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  order       Int           @default(0)
+  threads     ForumThread[]
+  createdAt   DateTime      @default(now())
+
+  @@index([order])
+}
+
+model ForumThread {
+  id          String        @id @default(cuid())
+  title       String
+  content     String
+  isAnonymous Boolean       @default(false)
+  isPinned    Boolean       @default(false)
+  isLocked    Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
+  authorId    String
+  author      User          @relation("ForumThreadAuthor", fields: [authorId], references: [id])
+  categoryId  String
+  category    ForumCategory @relation(fields: [categoryId], references: [id])
+  posts       ForumPost[]
+  watches     ForumWatch[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([isDeleted])
+  @@index([authorId])
+}
+
+model ForumPost {
+  id            String      @id @default(cuid())
+  content       String
+  isAnonymous   Boolean     @default(false)
+  isDeleted     Boolean     @default(false)
+  mentionsAdmin Boolean     @default(false)
+  authorId      String
+  author        User        @relation("ForumPostAuthor", fields: [authorId], references: [id])
+  threadId      String
+  thread        ForumThread @relation(fields: [threadId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([threadId])
+  @@index([isDeleted])
+  @@index([authorId])
+}
+
+model ForumWatch {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation("ForumWatchUser", fields: [userId], references: [id])
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id])
+  createdAt DateTime    @default(now())
+
+  @@index([threadId])
+  @@unique([userId, threadId])
+}
+
+enum VoucherType {
+  SERVICE
+  CASH
+}
+
+model Voucher {
+  id             String        @id @default(cuid())
+  type           VoucherType
+  recipientName  String?
+  senderName     String?
+  message        String?
+  serviceId      String?
+  service        Service?      @relation("VoucherService", fields: [serviceId], references: [id])
+  amount         Decimal?      @db.Decimal(10, 2)
+  discountCodeId String?       @unique
+  discountCode   DiscountCode? @relation("VoucherDiscountCode", fields: [discountCodeId], references: [id], onDelete: Restrict)
+  code           String        @unique
+  validUntil     DateTime
+  pdfPath        String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  createdById    String?
+  createdBy      User?         @relation("VoucherCreatedBy", fields: [createdById], references: [id])
 }

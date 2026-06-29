@@ -516,7 +516,8 @@ export const AdminServices = () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       setModal({ type: 'closed' });
     },
-    onError: () => toast.error('Nie udalo sie dodac uslugi.'),
+    onError: (error: any) =>
+      toast.error(error?.response?.data?.message || 'Nie udalo sie dodac uslugi.'),
   });
 
   const updateMutation = useMutation<any, Error, { id: string; formData: FormData }>({
@@ -527,7 +528,8 @@ export const AdminServices = () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       setModal({ type: 'closed' });
     },
-    onError: () => toast.error('Nie udalo sie zaktualizowac uslugi.'),
+    onError: (error: any) =>
+      toast.error(error?.response?.data?.message || 'Nie udalo sie zaktualizowac uslugi.'),
   });
 
   const buildFormData = (values: FormValues) => {

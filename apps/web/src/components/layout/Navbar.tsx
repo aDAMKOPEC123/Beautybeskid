@@ -1,10 +1,11 @@
 ﻿// apps/web/src/components/layout/Navbar.tsx
-import { useState, useEffect, useRef } from 'react';
+import { type MouseEvent, useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowUpRight, LayoutDashboard } from 'lucide-react';
+import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 
 const NAV_LINKS = [
   { to: '/uslugi', label: 'Usługi', num: '01' },
@@ -26,7 +27,7 @@ const PanelLink = ({
   line1: string;
   line2: string;
   mobile?: boolean;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) => (
   <Link
     to={dest}
@@ -67,6 +68,7 @@ const PanelLink = ({
 export const Navbar = () => {
   const { isAuthenticated, isAdmin, isEmployee, logout } = useAuth();
   const navigate = useNavigate();
+  const openClientPanel = useClientPanelEntry();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const location = useLocation();
@@ -123,6 +125,19 @@ export const Navbar = () => {
   const appLine1 = isAdmin ? 'Panel admina →' : isEmployee ? 'Panel pracownika →' : 'Panel klienta →';
   const appLine2 = isAdmin ? 'panel administracyjny' : isEmployee ? 'panel pracownika' : (isAuthenticated ? 'moje konto' : 'zaloguj lub zarejestruj się');
   const appDest = isAuthenticated ? appLink : '/auth/login';
+  const mobilePanelTitle = isAdmin ? 'Panel admina' : isEmployee ? 'Panel pracownika' : 'Panel klienta';
+  const mobilePanelHint = isAdmin
+    ? 'ustawienia i grafik'
+    : isEmployee
+      ? 'grafik i wizyty'
+      : isAuthenticated
+        ? 'moje konto'
+        : 'otworz konto';
+
+  const handlePanelEntry = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, closeMenu?: () => void) => {
+    event.preventDefault();
+    openClientPanel({ closeMenu });
+  };
 
   return (
     <>
@@ -149,13 +164,27 @@ export const Navbar = () => {
           </Link>
 
           {/* Mobile center: Panel klienta */}
-          <div className="md:hidden flex-1 flex justify-center">
-            <Link
-              to={appDest}
-              style={{ color: '#C8956C', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none' }}
+          <div className="md:hidden flex-1 flex justify-center px-2">
+            <button
+              type="button"
+              onClick={(event) => handlePanelEntry(event)}
+              className="group flex min-w-0 max-w-[184px] items-center gap-2.5 rounded-full border border-white/12 bg-white/10 px-3.5 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur"
             >
-              {appLine1}
-            </Link>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-caramel/18 text-caramel">
+                <LayoutDashboard className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 text-left leading-none">
+                <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-caramel">
+                  {mobilePanelTitle}
+                </span>
+                <span className="mt-1 block truncate text-[9px] text-ivory/72">
+                  {mobilePanelHint}
+                </span>
+              </span>
+              <span aria-hidden="true" className="text-caramel">
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </span>
+            </button>
           </div>
 
           {/* Desktop links */}
@@ -181,7 +210,7 @@ export const Navbar = () => {
                 <Button variant="ghost-underline" size="sm" asChild data-tour="navbar-booking-btn">
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
-                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} />
+                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} onClick={(event) => handlePanelEntry(event)} />
                 <button
                   onClick={handleLogout}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
@@ -192,7 +221,7 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} />
+                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} onClick={(event) => handlePanelEntry(event)} />
                 <Button variant="ghost-underline" size="sm" asChild>
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
@@ -219,16 +248,13 @@ export const Navbar = () => {
       </nav>
 
       {/* Mobile fullscreen overlay */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ clipPath: 'inset(0 0 100% 0)' }}
-            animate={{ clipPath: 'inset(0 0 0% 0)' }}
-            exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-50 flex flex-col"
-            style={{ background: '#1A3828' }}
-          >
+      <div
+        className={`fixed inset-0 z-50 flex flex-col transition-[clip-path] duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          mobileOpen ? '[clip-path:inset(0_0_0%_0)]' : '[clip-path:inset(0_0_100%_0)]'
+        } ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        aria-hidden={!mobileOpen}
+        style={{ background: '#1A3828' }}
+      >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
               <Link
@@ -272,7 +298,13 @@ export const Navbar = () => {
             <div className="container pb-8 flex flex-col gap-3 border-t border-ivory/10 pt-6">
               {isAuthenticated ? (
                 <>
-                  <PanelLink dest={appDest} line1={appLine1} line2={appLine2} mobile onClick={() => setMobileOpen(false)} />
+                  <PanelLink
+                    dest={appDest}
+                    line1={appLine1}
+                    line2={appLine2}
+                    mobile
+                    onClick={(event) => handlePanelEntry(event, () => setMobileOpen(false))}
+                  />
                   <button
                     onClick={handleLogout}
                     className="text-[10px] tracking-[0.3em] uppercase text-ivory/60 hover:text-ivory transition-colors text-left py-2"
@@ -281,7 +313,13 @@ export const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} mobile onClick={() => setMobileOpen(false)} />
+                <PanelLink
+                  dest={appDest}
+                  line1={appLine1}
+                  line2={appLine2}
+                  mobile
+                  onClick={(event) => handlePanelEntry(event, () => setMobileOpen(false))}
+                />
               )}
               <Link
                 to="/rezerwacja"
@@ -291,9 +329,7 @@ export const Navbar = () => {
                 Zarezerwuj wizytę
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </>
   );
 };

@@ -63,11 +63,12 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
   try {
     const { name, bio, specialties } = req.body;
     if (!name) throw new AppError('Imię pracownika jest wymagane', 400);
-    const parsedSpecialties: string[] = Array.isArray(specialties)
-      ? specialties
-      : typeof specialties === 'string'
-      ? JSON.parse(specialties)
-      : [];
+    let parsedSpecialties: string[] = [];
+    if (Array.isArray(specialties)) {
+      parsedSpecialties = specialties;
+    } else if (typeof specialties === 'string') {
+      try { parsedSpecialties = JSON.parse(specialties); } catch { parsedSpecialties = []; }
+    }
     let employee = await employeesService.createEmployee({ name, bio, specialties: parsedSpecialties });
     if (req.file) {
       const avatarPath = await processAndSaveImage(req.file.buffer, 'employees');
@@ -86,7 +87,11 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
     if (name !== undefined) data.name = name;
     if (bio !== undefined) data.bio = bio;
     if (specialties !== undefined) {
-      data.specialties = Array.isArray(specialties) ? specialties : JSON.parse(specialties as string);
+      if (Array.isArray(specialties)) {
+        data.specialties = specialties;
+      } else {
+        try { data.specialties = JSON.parse(specialties as string); } catch { data.specialties = []; }
+      }
     }
     if (isActive !== undefined) data.isActive = isActive === 'true' || isActive === true;
 
@@ -114,7 +119,9 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
 
 export const createAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    // Existing accounts can be linked without a password; new accounts still fail min-length validation in the service.
+    if (!password) password = 'x';
     if (!email || !password) throw new AppError('Email i hasło są wymagane', 400);
     const employee = await employeesService.createEmployeeAccount(req.params.id, { email, password });
     res.status(201).json({ status: 'success', data: { employee } });
@@ -162,6 +169,32 @@ export const removeWorkDay = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const upsertWeekForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { days } = req.body;
+    if (!Array.isArray(days) || days.length === 0) throw new AppError('days musi być niepustą tablicą', 400);
+    await employeesService.upsertWeek(req.params.id, days);
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const blockMonthForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { year, month } = req.body;
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || m < 1 || m > 12) {
+      throw new AppError('year i month muszą być prawidłowymi liczbami całkowitymi (miesiąc 1–12)', 400);
+    }
+    await employeesService.blockMonth(req.params.id, y, m);
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── Employee self-service ────────────────────────────────────────────────────
 
 export const getMySchedule = async (req: Request, res: Response, next: NextFunction) => {
@@ -193,6 +226,34 @@ export const removeMyWorkDay = async (req: Request, res: Response, next: NextFun
     const employee = await employeesService.getEmployeeByUserId(req.user!.id);
     await employeesService.deleteWorkDay(req.params.dayId, employee.id);
     res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const upsertMyWeek = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const employee = await employeesService.getEmployeeByUserId(req.user!.id);
+    const { days } = req.body;
+    if (!Array.isArray(days) || days.length === 0) throw new AppError('days musi być niepustą tablicą', 400);
+    await employeesService.upsertWeek(employee.id, days);
+    res.json({ status: 'success' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const blockMyMonth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const employee = await employeesService.getEmployeeByUserId(req.user!.id);
+    const { year, month } = req.body;
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || m < 1 || m > 12) {
+      throw new AppError('year i month muszą być prawidłowymi liczbami całkowitymi (miesiąc 1–12)', 400);
+    }
+    await employeesService.blockMonth(employee.id, y, m);
+    res.json({ status: 'success' });
   } catch (err) {
     next(err);
   }

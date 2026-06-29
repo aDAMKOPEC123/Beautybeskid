@@ -105,8 +105,8 @@ export const getMyReferrals = async (req: Request, res: Response, next: NextFunc
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 50;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
     const result = await usersService.getAllUsers(page, limit);
     res.json({ status: 'success', data: result });
   } catch (error) {
@@ -156,6 +156,16 @@ export const adminCreateUser = async (req: Request, res: Response, next: NextFun
     const { name, email, phone, password } = req.body;
     const user = await authService.adminCreateUser({ name, email, phone, password });
     res.status(201).json({ status: 'success', data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { role } = req.body;
+    const user = await usersService.updateUserRole(req.params.id, role);
+    res.status(200).json({ status: 'success', data: { user } });
   } catch (error) {
     next(error);
   }
