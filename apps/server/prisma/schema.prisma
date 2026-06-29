@@ -197,6 +197,7 @@ model User {
   forumThreads   ForumThread[] @relation("ForumThreadAuthor")
   forumPosts     ForumPost[]   @relation("ForumPostAuthor")
   forumWatches   ForumWatch[]  @relation("ForumWatchUser")
+  createdVouchers Voucher[]   @relation("VoucherCreatedBy")
 
   @@index([role])
 }
@@ -255,6 +256,7 @@ model Service {
   treatmentSeries TreatmentSeries[]
   happyHours        HappyHour[]       @relation("HappyHourServices")
   recommendedSlides RecommendedSlide[]
+  vouchers          Voucher[]         @relation("VoucherService")
 
   @@index([category])
   @@index([isActive])
@@ -496,6 +498,8 @@ model DiscountCode {
   usages         DiscountCodeUsage[]
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+  expiresAt      DateTime?
+  voucher        Voucher?            @relation("VoucherDiscountCode")
 }
 
 model DiscountCodeUsage {
@@ -1435,4 +1439,28 @@ model ForumWatch {
 
   @@index([threadId])
   @@unique([userId, threadId])
+}
+
+enum VoucherType {
+  SERVICE
+  CASH
+}
+
+model Voucher {
+  id             String        @id @default(cuid())
+  type           VoucherType
+  recipientName  String?
+  senderName     String?
+  message        String?
+  serviceId      String?
+  service        Service?      @relation("VoucherService", fields: [serviceId], references: [id])
+  amount         Decimal?      @db.Decimal(10, 2)
+  discountCodeId String?       @unique
+  discountCode   DiscountCode? @relation("VoucherDiscountCode", fields: [discountCodeId], references: [id])
+  code           String        @unique
+  validUntil     DateTime
+  pdfPath        String?
+  createdAt      DateTime      @default(now())
+  createdById    String?
+  createdBy      User?         @relation("VoucherCreatedBy", fields: [createdById], references: [id])
 }
