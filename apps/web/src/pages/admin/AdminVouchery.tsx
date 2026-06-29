@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { vouchersApi, type Voucher, type CreateVoucherPayload } from '@/api/vouchers.api';
+import { servicesApi } from '@/api/services.api';
 import { VoucherPreview } from '@/components/voucher/VoucherPreview';
 
 type Service = { id: string; name: string; isActive: boolean };
@@ -33,9 +34,8 @@ export function AdminVouchery() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/services')
-      .then(r => r.json())
-      .then(d => setServices(Array.isArray(d) ? d.filter((s: Service) => s.isActive) : (d.data ?? []).filter((s: Service) => s.isActive)))
+    servicesApi.getAll()
+      .then(all => setServices(all.filter(s => s.isActive)))
       .catch(() => {});
   }, []);
 
