@@ -194,7 +194,7 @@ function PushBanner() {
           <p className="text-sm font-semibold" style={{ color: '#1A3828' }}>Powiadomienia zablokowane</p>
           <p className="text-xs mt-1 leading-relaxed" style={{ color: '#5A7A62' }}>
             Odblokuj w ustawieniach przeglądarki:{' '}
-            <span className="font-semibold">Ustawienia → Powiadomienia → BeautyBeskid → Zezwól</span>
+            <span className="font-semibold">Ustawienia → Powiadomienia → BeskidStudio By Wiktoria Ćwik → Zezwól</span>
           </p>
         </div>
       </div>

@@ -29,10 +29,10 @@ export const NextAppointmentHero = ({ upcoming }: Props) => {
         <span style={{ position:'absolute', top:-24, right:-24, width:100, height:100, borderRadius:'50%', border:'1px solid rgba(196,150,90,0.08)', pointerEvents:'none' }} />
 
         <p style={{ fontSize:'10px', color:'rgba(196,150,90,0.65)', letterSpacing:'0.18em', textTransform:'uppercase', marginBottom:'12px' }}>
-          Twoje konto BeautyBeskid
+          Twoje konto BeskidStudio By Wiktoria Ćwik
         </p>
         <p style={{ fontSize:'20px', fontWeight:700, color:'#fff', fontFamily:'var(--font-heading)', lineHeight:1.2, marginBottom:'8px' }}>
-          Witaj w BeautyBeskid 💚
+          Witaj w BeskidStudio By Wiktoria Ćwik 💚
         </p>
         <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', lineHeight:1.5, marginBottom:'20px' }}>
           Umów pierwszą wizytę i odkryj zabiegi dopasowane do Twoich potrzeb.

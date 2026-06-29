@@ -256,7 +256,7 @@ const UserLayoutInner = () => {
             className="font-display text-[13px] tracking-[0.45em] uppercase"
             style={{ color: '#F0EDE6', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.45em' }}
           >
-            BeautyBeskid
+            BeskidStudio
           </Link>
 
           <div className="flex items-center gap-5">

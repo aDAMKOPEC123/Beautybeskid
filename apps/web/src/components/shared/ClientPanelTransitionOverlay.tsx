@@ -129,7 +129,7 @@ export const ClientPanelTransitionOverlay = () => {
 
               <div className="mt-5 md:mt-6">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.28em] md:text-[10px] md:tracking-[0.32em]" style={{ color: currentTheme.accent }}>
-                  BeautyBeskid
+                  BeskidStudio By Wiktoria Ćwik
                 </p>
                 <h2 className="mt-2 font-heading text-[2rem] font-bold leading-[0.92] md:mt-3 md:text-4xl md:leading-none" style={{ color: currentTheme.ink }}>
                   {label}

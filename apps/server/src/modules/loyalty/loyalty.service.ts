@@ -173,7 +173,7 @@ export const activateCoupon = async (userId: string, data: RedeemRewardInput) =>
     });
 
     return await tx.userCoupon.create({
-      data: { userId, rewardId: reward.id, code: 'BeautyBeskid-' + generateCode(8) },
+      data: { userId, rewardId: reward.id, code: 'BeautyStudio By Wiktoria Ćwik-' + generateCode(8) },
       include: { reward: true }
     });
   });

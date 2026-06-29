@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "BeautyBeskid — Salon Kosmetologiczny",
-  "short_name": "BeautyBeskid",
-  "description": "Panel zarządzania salonem kosmetologicznym",
+  "name": "BeskidStudio By Wiktoria Ćwik — Salon Kosmetologiczny",
+  "short_name": "BeskidStudio",
+  "description": "Salon kosmetologiczny BeskidStudio by Wiktoria Ćwik — Limanowa",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useReducedMotion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelTransitionStore, type ClientPanelTheme } from '@/store/clientPanelTransition.store';
 
@@ -19,7 +18,7 @@ type DocumentWithViewTransition = Document & {
 export const useClientPanelEntry = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const shouldReduce = useReducedMotion();
+  const shouldReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const { isAuthenticated, isAdmin, isEmployee } = useAuth();
   const start = useClientPanelTransitionStore((state) => state.start);
   const timersRef = useRef<number[]>([]);

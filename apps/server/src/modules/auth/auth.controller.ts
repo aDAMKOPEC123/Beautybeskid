@@ -167,14 +167,14 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       where: { id: user.id },
       data: {
         resetToken: resetTokenHash,
-        resetTokenExp: new Date(Date.now() + 15 * 60 * 1000) // 15 mins
+        resetTokenExp: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
       }
     });
 
     const resetUrl = `${env.CLIENT_URL}/auth/reset-password?token=${resetToken}`;
     const message = `<p>Kliknij w link, aby zresetować hasło: <a href="${resetUrl}">${resetUrl}</a></p>`;
 
-    await sendEmail(user.email, 'Reset hasła - BeautyBeskid App', message);
+    await sendEmail(user.email, 'Reset hasła - BeautyStudio By Wiktoria Ćwik App', message);
 
     res.status(200).json({ status: 'success', message: 'Link zresetowania hasła wysłany na email.' });
   } catch (error) {

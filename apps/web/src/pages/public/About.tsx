@@ -75,7 +75,7 @@ export const About = () => {
     <>
       <PageSEO
         title="O nas — Salon Kosmetologiczny Limanowa"
-        description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeautyBeskid w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
+        description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
         canonical="/o-nas"
         schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka')}
       />
@@ -288,7 +288,7 @@ export const About = () => {
         <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container">
             <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
-              {about.featuresTitle || 'Dlaczego warto wybrać BeautyBeskid?'}
+              {about.featuresTitle || 'Dlaczego warto wybrać BeskidStudio By Wiktoria Ćwik?'}
             </h2>
             <p className="text-center text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Nowoczesna aplikacja to więcej niż rezerwacje — to pełne doświadczenie klienta.

@@ -112,7 +112,7 @@ export const registerUser = async (data: RegisterInput & {
     const verifyUrl = `${env.SERVER_URL ?? `http://localhost:${env.PORT || 3001}`}/api/auth/verify-email?token=${user.emailVerificationToken}`;
     sendEmail(
       user.email,
-      'Aktywuj swoje konto w BeautyBeskid',
+      'Aktywuj swoje konto w BeautyStudio By Wiktoria Ćwik',
       `<p>Witaj ${user.name},</p>
        <p>Kliknij poniższy link, aby aktywować swoje konto:</p>
        <p><a href="${verifyUrl}" style="background:#1A3828;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Aktywuj konto</a></p>

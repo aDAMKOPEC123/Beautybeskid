@@ -35,7 +35,7 @@ export const ServiceList = () => {
     <>
       <PageSEO
         title="Usługi kosmetyczne Limanowa — kosmetologia, podologia, brwi i rzęsy"
-        description="BeautyBeskid Limanowa: aktualne usługi kosmetyczne, konsultacje kosmetologiczne, podologia, laminacja brwi i laminacja rzęs dla Limanowej, Mordarki i okolic."
+        description="BeskidStudio By Wiktoria Ćwik Limanowa: aktualne usługi kosmetyczne, konsultacje kosmetologiczne, podologia, laminacja brwi i laminacja rzęs dla Limanowej, Mordarki i okolic."
         canonical="/uslugi"
       />
 
@@ -165,7 +165,7 @@ export const ServiceList = () => {
               className="font-display text-4xl text-espresso leading-tight"
               style={{ fontStyle: 'italic', fontWeight: 300 }}
             >
-              Usługi BeautyBeskid w Limanowej, Mordarce i okolicach
+              Usługi BeskidStudio By Wiktoria Ćwik w Limanowej, Mordarce i okolicach
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-mink">
               Jeśli szukasz konkretnej usługi lokalnie, wybierz jedną z podstron przygotowanych pod najczęstsze zapytania klientek.

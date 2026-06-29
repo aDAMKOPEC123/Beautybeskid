@@ -1,6 +1,6 @@
-# BeautyBeskid
+# BeautyStudio By Wiktoria Ćwik
 
-BeautyBeskid to salon kosmetologiczny w Limanowej prowadzony przez Wiktorie Cwik. Strona zawiera informacje o uslugach, wolnych terminach, rezerwacji online, konsultacjach i danych kontaktowych salonu.
+BeautyStudio By Wiktoria Ćwik to salon kosmetologiczny w Limanowej prowadzony przez Wiktorie Cwik. Strona zawiera informacje o uslugach, wolnych terminach, rezerwacji online, konsultacjach i danych kontaktowych salonu.
 
 ## Najwazniejsze adresy
 

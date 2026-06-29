@@ -116,7 +116,7 @@ export const UserAppointments = () => {
               Twoja historia zaczyna się teraz
             </h3>
             <p className="text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>
-              Umów pierwszą wizytę i odkryj pełne możliwości BeautyBeskid — śledzenie serii zabiegowych, punkty lojalnościowe i wiele więcej.
+              Umów pierwszą wizytę i odkryj pełne możliwości BeskidStudio By Wiktoria Ćwik — śledzenie serii zabiegowych, punkty lojalnościowe i wiele więcej.
             </p>
           </div>
           <Link

@@ -144,7 +144,7 @@ export const Register = () => {
                 <span className="text-sm text-foreground">
                   Akceptuję{' '}
                   <a href="/regulamin" target="_blank" className="text-primary underline hover:opacity-80">
-                    regulamin gabinetu BeautyBeskid
+                    regulamin gabinetu BeskidStudio By Wiktoria Ćwik
                   </a>{' '}
                   <span className="text-destructive font-bold">*</span>
                 </span>

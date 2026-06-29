@@ -515,8 +515,8 @@ export const approveUser = async (id: string) => {
 
   sendEmail(
     user.email,
-    'Konto zatwierdzone — BeautyBeskid',
-    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji BeautyBeskid zostało zatwierdzone. Możesz się teraz zalogować.</p>`
+    'Konto zatwierdzone — BeautyStudio By Wiktoria Ćwik',
+    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji BeautyStudio By Wiktoria Ćwik zostało zatwierdzone. Możesz się teraz zalogować.</p>`
   ).catch(err => console.warn('[WARN] approveUser: email send failed:', err.message));
 };
 
@@ -530,7 +530,7 @@ export const rejectUser = async (id: string) => {
   sendEmail(
     user.email,
     'Twoje konto zostało odrzucone',
-    '<p>Niestety, Twoje konto w salonie BeautyBeskid nie zostało zatwierdzone. Skontaktuj się z nami, aby dowiedzieć się więcej.</p>'
+    '<p>Niestety, Twoje konto w salonie BeautyStudio By Wiktoria Ćwik nie zostało zatwierdzone. Skontaktuj się z nami, aby dowiedzieć się więcej.</p>'
   ).catch(err => console.warn('[WARN] rejectUser: email send failed:', err.message));
 };
 

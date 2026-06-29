@@ -77,7 +77,7 @@ export const RecommendedSlider = () => {
   return (
     <div
       className="relative rounded-2xl overflow-hidden"
-      style={{ aspectRatio: '16/9' }}
+      style={{ aspectRatio: '16/9', maxHeight: '220px' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

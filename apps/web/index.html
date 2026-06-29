@@ -2,19 +2,19 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#C8956C" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="BeautyBeskid" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-title" content="BeskidStudio" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <!-- Google Consent Mode + SecurePrivacy CMP + Google tag (gtag.js) -->
+    <!-- Google Consent Mode v2 -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -23,8 +23,16 @@
         ad_user_data: 'denied',
         ad_personalization: 'denied',
         analytics_storage: 'denied',
-        wait_for_update: 500
+        wait_for_update: 2000
       });
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N52JVPSJBK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N52JVPSJBK');
     </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -33,27 +41,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MT2NHRBC');</script>
     <!-- End Google Tag Manager -->
-    <link rel="preconnect" href="https://app.secureprivacy.ai">
-    <link rel="preconnect" href="https://cmp.secureprivacy.ai">
-    <link rel="preconnect" href="https://api-prod.secureprivacy.ai">
-    <script defer src="https://app.secureprivacy.ai/script/6a3bb5554868714881884e81.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H2FHJ657K3"></script>
-    <script>
-      gtag('js', new Date());
-
-      gtag('config', 'G-H2FHJ657K3');
-    </script>
-    <title>BeautyBeskid — Kosmetolog i salon beauty Limanowa</title>
-    <meta name="description" content="BeautyBeskid Limanowa, Wiktoria Ćwik: kosmetolog, kosmetyczka, laminacja brwi i rzęs, podologia w aktualnej dostępności, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
+    <title>BeskidStudio By Wiktoria Ćwik — Kosmetolog i salon beauty Limanowa</title>
+    <meta name="description" content="BeskidStudio By Wiktoria Ćwik Limanowa: kosmetolog, kosmetyczka, laminacja brwi i rzęs, podologia w aktualnej dostępności, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
     <!-- OG fallback -->
     <meta property="og:type" content="business.business" />
-    <meta property="og:site_name" content="BeautyBeskid — Salon Kosmetologiczny Limanowa" />
-    <meta property="og:title" content="BeautyBeskid — Kosmetolog i salon beauty Limanowa" />
-    <meta property="og:description" content="BeautyBeskid Limanowa, Wiktoria Ćwik: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
+    <meta property="og:site_name" content="BeskidStudio By Wiktoria Ćwik — Salon Kosmetologiczny Limanowa" />
+    <meta property="og:title" content="BeskidStudio By Wiktoria Ćwik — Kosmetolog i salon beauty Limanowa" />
+    <meta property="og:description" content="BeskidStudio By Wiktoria Ćwik Limanowa: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje i rezerwacja online dla Limanowej, Mordarki i okolic." />
     <meta property="og:image" content="https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp" />
     <meta property="og:url" content="https://kosmetologwiktoriacwik.pl/" />
     <meta property="og:locale" content="pl_PL" />
-    <link rel="preload" as="image" href="/images/beautybeskid-hero-premium.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/beautybeskid-hero-mobile.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)" />
+    <link rel="preload" as="image" href="/images/beautybeskid-hero-premium.webp" type="image/webp" fetchpriority="high" media="(min-width: 769px)" />
     <!-- Google Fonts for Playfair Display & DM Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,12 +63,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     {
       "@context": "https://schema.org",
       "@type": "BeautySalon",
-      "name": "BeautyBeskid — Salon Kosmetologiczny Limanowa",
+      "name": "BeskidStudio By Wiktoria Ćwik — Salon Kosmetologiczny Limanowa",
       "url": "https://kosmetologwiktoriacwik.pl/",
       "telephone": "+48532128227",
       "email": "kontakt@kosmetologwiktoriacwik.pl",
       "image": "https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp",
-      "description": "BeautyBeskid w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.",
+      "description": "BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Mordarka 505",
@@ -118,7 +117,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
-        "name": "Aktualne usługi salonu BeautyBeskid",
+        "name": "Aktualne usługi salonu BeskidStudio By Wiktoria Ćwik",
         "itemListElement": [
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Konsultacja kosmetologiczna w Limanowej" } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kosmetyczka Limanowa - zabiegi beauty" } },

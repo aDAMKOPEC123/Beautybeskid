@@ -45,7 +45,7 @@ export function Certificates() {
               </div>
               <div className="space-y-1">
                 <h3 className="font-semibold text-sm">
-                  {cert.course?.title ?? cert.quiz?.title ?? 'Akademia BeautyBeskid'}
+                  {cert.course?.title ?? cert.quiz?.title ?? 'Akademia BeskidStudio By Wiktoria Ćwik'}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   Wydano: {format(new Date(cert.issuedAt), 'd MMMM yyyy', { locale: pl })}

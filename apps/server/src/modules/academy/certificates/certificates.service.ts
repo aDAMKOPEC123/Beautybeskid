@@ -35,8 +35,9 @@ const generatePDF = async (opts: {
   page.drawRectangle({ x: 20, y: 20, width: width - 40, height: height - 40, borderColor: gold, borderWidth: 3, color: rgb(1, 1, 1) });
   page.drawRectangle({ x: 30, y: 30, width: width - 60, height: height - 60, borderColor: gold, borderWidth: 1, color: rgb(1, 1, 1) });
 
-  // BeautyBeskid header
-  page.drawText('BeautyBeskid', { x: width / 2 - 60, y: height - 100, size: 36, font: fontBold, color: gold });
+  // BeautyStudio By Wiktoria Ćwik header
+  const brandWidth = fontBold.widthOfTextAtSize('BeautyStudio By Wiktoria Ćwik', 36);
+  page.drawText('BeautyStudio By Wiktoria Ćwik', { x: width / 2 - brandWidth / 2, y: height - 100, size: 36, font: fontBold, color: gold });
   page.drawText('Akademia Beauty', { x: width / 2 - 80, y: height - 130, size: 16, font: fontRegular, color: dark });
 
   // Certificate text
@@ -75,7 +76,7 @@ export const issueCertificate = async (
   });
   if (!user) throw new AppError('Nie znaleziono użytkownika', 404);
 
-  let title = 'Kurs Akademii BeautyBeskid';
+  let title = 'Kurs Akademii BeautyStudio By Wiktoria Ćwik';
   if (opts.courseId) {
     const course = await prisma.course.findUnique({ where: { id: opts.courseId }, select: { title: true } });
     if (course) title = course.title;
@@ -153,7 +154,7 @@ export const verifyCertificate = async (code: string) => {
   return {
     verificationCode: cert.verificationCode,
     recipientName: cert.user.name,
-    title: cert.course?.title ?? cert.quiz?.title ?? 'Akademia BeautyBeskid',
+    title: cert.course?.title ?? cert.quiz?.title ?? 'Akademia BeautyStudio By Wiktoria Ćwik',
     issuedAt: cert.issuedAt,
     type: cert.courseId ? 'course' : 'quiz',
   };

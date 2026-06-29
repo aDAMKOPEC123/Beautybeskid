@@ -62,7 +62,7 @@ const localBusinessSchema = {
   ],
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
-    name: 'Usługi BeautyBeskid Limanowa',
+    name: 'Usługi BeskidStudio By Wiktoria Ćwik Limanowa',
     itemListElement: [
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Konsultacja kosmetologiczna Limanowa' } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Kosmetyczka Limanowa' } },
@@ -92,8 +92,8 @@ export const Contact = () => {
   return (
     <>
       <PageSEO
-        title="Kontakt — BeautyBeskid Mordarka 505 koło Limanowej"
-        description="Skontaktuj się z salonem kosmetologicznym BeautyBeskid, Mordarka 505. Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej, Tymbarku i okolic."
+        title="Kontakt — BeskidStudio By Wiktoria Ćwik Mordarka 505 koło Limanowej"
+        description="Skontaktuj się z salonem kosmetologicznym BeskidStudio By Wiktoria Ćwik, Mordarka 505. Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej, Tymbarku i okolic."
         canonical="/kontakt"
         schema={localBusinessSchema}
       />
@@ -243,7 +243,7 @@ export const Contact = () => {
               {/* Google Maps */}
               <div className="overflow-hidden" style={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <iframe
-                  title="Lokalizacja salonu BeautyBeskid — Mordarka 505"
+                  title="Lokalizacja salonu BeskidStudio By Wiktoria Ćwik — Mordarka 505"
                   src={googleMapsEmbedUrl}
                   width="100%"
                   height="400"

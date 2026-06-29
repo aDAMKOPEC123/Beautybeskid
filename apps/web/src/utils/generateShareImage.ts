@@ -56,11 +56,11 @@ export async function generateShareImage(
   ctx.textAlign = 'left';
   ctx.fillText(title, PADDING, textY + 25);
 
-  // BeautyBeskid branding
+  // BeskidStudio branding
   ctx.fillStyle = '#C4965A';
   ctx.font = 'bold 20px "Playfair Display", serif';
   ctx.textAlign = 'right';
-  ctx.fillText('BeautyBeskid', WIDTH - PADDING, textY + 25);
+  ctx.fillText('BeskidStudio', WIDTH - PADDING, textY + 25);
 
   ctx.fillStyle = '#5A7A62';
   ctx.font = '14px "DM Sans", sans-serif';

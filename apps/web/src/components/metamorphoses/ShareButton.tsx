@@ -23,8 +23,8 @@ export const ShareButton = ({ beforeImage, afterImage, title }: ShareButtonProps
       // Try native Web Share API (mobile)
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          title: `${title} — BeautyBeskid Salon Kosmetyczny`,
-          text: 'Zobacz moją metamorfozę w BeautyBeskid!',
+          title: `${title} — BeskidStudio By Wiktoria Ćwik Salon Kosmetyczny`,
+          text: 'Zobacz moją metamorfozę w BeskidStudio By Wiktoria Ćwik!',
           files: [file],
         });
         toast.success('Udostępniono!');

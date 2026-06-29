@@ -16,7 +16,7 @@ export const UserReferrals = () => {
   });
 
   const shareText = data?.ambassadorCode
-    ? `Dołącz do BeautyBeskid z moim kodem polecenia: ${data.ambassadorCode}`
+    ? `Dołącz do BeskidStudio By Wiktoria Ćwik z moim kodem polecenia: ${data.ambassadorCode}`
     : '';
 
   const handleCopy = async () => {
@@ -83,7 +83,7 @@ export const UserReferrals = () => {
             Program Poleceń
           </h1>
           <p className="text-sm" style={{ color: '#5A7A62' }}>
-            Zarabiaj nagrody, polecając BeautyBeskid znajomym
+            Zarabiaj nagrody, polecając BeskidStudio By Wiktoria Ćwik znajomym
           </p>
         </div>
       </div>

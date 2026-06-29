@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { resetPasswordSchema } from '@cosmo/shared';
 import { authApi } from '@/api/auth.api';
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
+  const [expired, setExpired] = useState(false);
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -28,7 +29,12 @@ export const ResetPassword = () => {
       toast.success('Hasło zmienione. Możesz się zalogować.');
       navigate('/auth/login');
     } catch (e: any) {
-      toast.error(e.response?.data?.message || 'Wystąpił błąd.');
+      const msg: string = e.response?.data?.message || 'Wystąpił błąd.';
+      if (msg.toLowerCase().includes('wygasł') || msg.toLowerCase().includes('nieprawidłowy')) {
+        setExpired(true);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -39,6 +45,29 @@ export const ResetPassword = () => {
       <div className="flex justify-center p-8">
         <Card className="w-full max-w-md p-8 text-center text-destructive border-destructive">
           Nieprawidłowy link do resetu hasła (brak tokenu).
+        </Card>
+      </div>
+    );
+  }
+
+  if (expired) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
+        <Card className="w-full max-w-md animate-enter">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center font-heading text-destructive font-bold">Link wygasł</CardTitle>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              Link do resetu hasła jest ważny przez <strong>1 godzinę</strong>. Wyślij nowy link i spróbuj ponownie.
+            </p>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Button asChild className="w-full py-6 text-base font-semibold">
+              <Link to="/auth/forgot-password">Wyślij nowy link</Link>
+            </Button>
+            <Button asChild variant="ghost" className="w-full">
+              <Link to="/auth/login">Wróć do logowania</Link>
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );

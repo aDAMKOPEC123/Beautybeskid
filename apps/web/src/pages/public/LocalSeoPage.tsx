@@ -92,12 +92,15 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
 
           <aside className="relative">
             <div className="overflow-hidden rounded-lg border border-oak/25 bg-white shadow-[0_24px_80px_rgba(26,56,40,0.16)]">
-              <img
-                src={heroImage}
-                alt="BeautyBeskid Limanowa — gabinet kosmetologiczny"
-                className="aspect-[4/5] w-full object-cover"
-                loading="eager"
-              />
+              <picture>
+                <source media="(max-width: 768px)" srcSet="/images/beautybeskid-hero-mobile.webp" type="image/webp" />
+                <img
+                  src={heroImage}
+                  alt="BeskidStudio By Wiktoria Ćwik Limanowa — gabinet kosmetologiczny"
+                  className="aspect-[4/5] w-full object-cover"
+                  loading="eager"
+                />
+              </picture>
               <div className="grid gap-4 p-5">
                 <div className="flex items-start gap-3">
                   <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
@@ -129,7 +132,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
       <section className="bg-ivory py-16 md:py-20">
         <div className="container max-w-7xl px-5">
           <div className="mx-auto mb-10 max-w-3xl text-center">
-            <p className={sectionLabelClass}>Dlaczego BeautyBeskid</p>
+            <p className={sectionLabelClass}>Dlaczego BeskidStudio By Wiktoria Ćwik</p>
             <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">
               Lokalna usługa, jasny plan i spokojna decyzja
             </h2>
@@ -190,7 +193,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
           <div>
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Lokalny zasięg</p>
             <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
-              BeautyBeskid dla Limanowej, Mordarki i okolic
+              BeskidStudio By Wiktoria Ćwik dla Limanowej, Mordarki i okolic
             </h2>
             <p className="mt-5 text-base leading-relaxed text-ivory/70">
               {page.nearbyContext}
@@ -210,7 +213,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
               <div>
                 <h3 className="font-heading text-2xl font-bold">Najczęściej szukane w okolicy</h3>
                 <p className="mt-3 text-sm leading-relaxed text-ivory/68">
-                  Klientki trafiają tu, gdy szukają: {page.shortLabel}, {page.serviceType.toLowerCase()} {page.location}, BeautyBeskid {page.location}, salon beauty {page.location} oraz usług w okolicach Limanowej.
+                  Klientki trafiają tu, gdy szukają: {page.shortLabel}, {page.serviceType.toLowerCase()} {page.location}, BeskidStudio By Wiktoria Ćwik {page.location}, salon beauty {page.location} oraz usług w okolicach Limanowej.
                 </p>
               </div>
             </div>
@@ -259,7 +262,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
           <div>
             <p className={sectionLabelClass}>Rezerwacja</p>
             <h2 className="font-heading text-3xl font-bold text-espresso">
-              Sprawdź aktualne terminy w BeautyBeskid
+              Sprawdź aktualne terminy w BeskidStudio By Wiktoria Ćwik
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-espresso/62">
               Telefon: <a href={`tel:${SEO.phone}`} className="font-semibold text-espresso">{SEO.phone}</a> · Limanowa i okolice

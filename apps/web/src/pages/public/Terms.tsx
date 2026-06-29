@@ -12,7 +12,7 @@ export const PublicTerms = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-heading font-bold text-primary mb-8">Regulamin Gabinetu BeautyBeskid</h1>
+      <h1 className="text-3xl font-heading font-bold text-primary mb-8">Regulamin Gabinetu BeskidStudio By Wiktoria Ćwik</h1>
       {isLoading ? (
         <p className="text-muted-foreground animate-pulse">Wczytywanie regulaminu...</p>
       ) : data ? (

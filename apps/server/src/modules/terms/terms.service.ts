@@ -1,13 +1,13 @@
 ﻿// filepath: apps/server/src/modules/terms/terms.service.ts
 import { prisma } from '../../config/prisma';
 
-const DEFAULT_TERMS = `REGULAMIN GABINETU BeautyBeskid
+const DEFAULT_TERMS = `REGULAMIN GABINETU BeautyStudio By Wiktoria Ćwik
 
 §1. POSTANOWIENIA OGÓLNE
-Niniejszy regulamin określa zasady korzystania z usług gabinetu kosmetologicznego BeautyBeskid, w tym programu lojalnościowego, rabatów oraz systemu rezerwacji online.
+Niniejszy regulamin określa zasady korzystania z usług gabinetu kosmetologicznego BeautyStudio By Wiktoria Ćwik, w tym programu lojalnościowego, rabatów oraz systemu rezerwacji online.
 
 §2. USŁUGI KOSMETOLOGICZNE
-1. Gabinet BeautyBeskid świadczy profesjonalne usługi kosmetologiczne.
+1. Gabinet BeautyStudio By Wiktoria Ćwik świadczy profesjonalne usługi kosmetologiczne.
 2. Przed każdym zabiegiem przeprowadzany jest wywiad zdrowotny.
 3. Klient zobowiązany jest do poinformowania o alergiach, schorzeniach skóry oraz przyjmowanych lekach.
 
@@ -34,7 +34,7 @@ Niniejszy regulamin określa zasady korzystania z usług gabinetu kosmetologiczn
 3. Nieodwołanie wizyty może skutkować utratą punktów lojalnościowych lub blokadą konta.
 
 §7. OCHRONA DANYCH OSOBOWYCH
-1. Administratorem danych osobowych jest właściciel gabinetu BeautyBeskid.
+1. Administratorem danych osobowych jest właściciel gabinetu BeautyStudio By Wiktoria Ćwik.
 2. Dane przetwarzane są w celu realizacji usług, obsługi programu lojalnościowego i kontaktu z klientem.
 3. Klient ma prawo do wglądu, poprawy i usunięcia swoich danych.
 

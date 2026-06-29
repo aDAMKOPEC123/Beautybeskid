@@ -32,8 +32,8 @@ export const LoyaltyInfo = () => {
   return (
     <>
       <PageSEO
-        title="Program Lojalnościowy — BeautyBeskid Limanowa"
-        description="Zbieraj punkty za każdą wizytę w naszym salonie i wymieniaj je na nagrody. Program lojalnościowy BeautyBeskid w Limanowej."
+        title="Program Lojalnościowy — BeskidStudio By Wiktoria Ćwik Limanowa"
+        description="Zbieraj punkty za każdą wizytę w naszym salonie i wymieniaj je na nagrody. Program lojalnościowy BeskidStudio By Wiktoria Ćwik w Limanowej."
         canonical="/program-lojalnosciowy"
       />
 

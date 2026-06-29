@@ -22,7 +22,7 @@ export function AcademyLayout() {
       <header className="bg-card border-b sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <GraduationCap className="w-6 h-6 text-primary" />
-          <span className="font-heading font-semibold text-lg">Akademia BeautyBeskid</span>
+          <span className="font-heading font-semibold text-lg">Akademia BeskidStudio By Wiktoria Ćwik</span>
         </div>
       </header>
 

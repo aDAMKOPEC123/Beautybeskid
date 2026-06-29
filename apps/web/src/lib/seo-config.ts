@@ -1,5 +1,5 @@
 ﻿export const SEO = {
-  siteName: 'BeautyBeskid — Salon Kosmetologiczny Limanowa',
+  siteName: 'BeskidStudio By Wiktoria Ćwik — Salon Kosmetologiczny Limanowa',
   domain: 'https://kosmetologwiktoriacwik.pl',
   phone: '+48532128227',
   email: 'kontakt@kosmetologwiktoriacwik.pl',

@@ -40,7 +40,7 @@ export const ServiceDetail = () => {
         provider: {
           '@type': 'BeautySalon',
           '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
-          name: 'BeautyBeskid',
+          name: 'BeskidStudio By Wiktoria Ćwik',
           url: 'https://kosmetologwiktoriacwik.pl',
           telephone: '+48532128227',
           address: {
@@ -79,8 +79,8 @@ export const ServiceDetail = () => {
   return (
     <>
       <PageSEO
-        title={`${service.name} — BeautyBeskid Limanowa`}
-        description={service.description ? `${service.description} Zabieg dostępny w salonie BeautyBeskid w Limanowej (Mordarka 505).` : `${service.name} — zabieg w salonie BeautyBeskid w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`}
+        title={`${service.name} — BeskidStudio By Wiktoria Ćwik Limanowa`}
+        description={service.description ? `${service.description} Zabieg dostępny w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505).` : `${service.name} — zabieg w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`}
         canonical={`/uslugi/${service.slug}`}
         ogImage={service.imagePath}
         schema={schema}

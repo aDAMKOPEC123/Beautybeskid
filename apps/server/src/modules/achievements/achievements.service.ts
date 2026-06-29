@@ -18,9 +18,9 @@ interface AwardedAchievement {
 }
 
 const DEFAULT_ACHIEVEMENTS = [
-  { key: 'FIRST_VISIT', name: 'Pierwsza wizyta', description: 'Witaj w BeautyBeskid!', icon: '🌟', pointsBonus: 10, condition: { type: 'VISIT_COUNT', value: 1 }, sortOrder: 1 },
-  { key: 'LOYAL_10', name: 'Wierna klientka', description: '10 wizyt w BeautyBeskid', icon: '💎', pointsBonus: 20, condition: { type: 'VISIT_COUNT', value: 10 }, sortOrder: 2 },
-  { key: 'VIP_50', name: 'VIP', description: '50 wizyt w BeautyBeskid', icon: '🏆', pointsBonus: 50, condition: { type: 'VISIT_COUNT', value: 50 }, sortOrder: 3 },
+  { key: 'FIRST_VISIT', name: 'Pierwsza wizyta', description: 'Witaj w BeautyStudio By Wiktoria Ćwik!', icon: '🌟', pointsBonus: 10, condition: { type: 'VISIT_COUNT', value: 1 }, sortOrder: 1 },
+  { key: 'LOYAL_10', name: 'Wierna klientka', description: '10 wizyt w BeautyStudio By Wiktoria Ćwik', icon: '💎', pointsBonus: 20, condition: { type: 'VISIT_COUNT', value: 10 }, sortOrder: 2 },
+  { key: 'VIP_50', name: 'VIP', description: '50 wizyt w BeautyStudio By Wiktoria Ćwik', icon: '🏆', pointsBonus: 50, condition: { type: 'VISIT_COUNT', value: 50 }, sortOrder: 3 },
   { key: 'EXPLORER_3', name: 'Odkrywczyni', description: 'Wypróbuj 3 różne kategorie zabiegów', icon: '🎯', pointsBonus: 15, condition: { type: 'CATEGORY_COUNT', value: 3 }, sortOrder: 4 },
   { key: 'FULL_PACKAGE', name: 'Pełen pakiet', description: 'Zabieg z każdej kategorii', icon: '🌸', pointsBonus: 30, condition: { type: 'ALL_CATEGORIES' }, sortOrder: 5 },
   { key: 'FIRST_REVIEW', name: 'Głos ma znaczenie', description: 'Pierwsza recenzja', icon: '✍️', pointsBonus: 10, condition: { type: 'REVIEW_COUNT', value: 1 }, sortOrder: 6 },

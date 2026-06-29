@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { PageSEO } from '@/components/shared/SEO';
 import { ConsultationModal } from '@/components/public/ConsultationModal';
 import { HeroSlider } from '@/components/public/HeroSlider';
+import { googleReviewsApi, type GoogleReviewsData } from '@/api/google-reviews.api';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
@@ -39,18 +40,18 @@ const heroImage = '/images/beautybeskid-hero-premium.webp';
 const faqItems = [
   {
     '@type': 'Question',
-    name: 'Gdzie działa salon kosmetologiczny BeautyBeskid?',
+    name: 'Gdzie działa salon kosmetologiczny BeskidStudio By Wiktoria Ćwik?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'BeautyBeskid to salon kosmetologiczny w Mordarce 505 koło Limanowej prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Na stronie znajdziesz aktualne zabiegi, wolne terminy, konsultacje i informacje potrzebne przed wizytą.',
+      text: 'BeskidStudio By Wiktoria Ćwik to salon kosmetologiczny w Mordarce 505 koło Limanowej prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Na stronie znajdziesz aktualne zabiegi, wolne terminy, konsultacje i informacje potrzebne przed wizytą.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Jakie zabiegi są dostępne w BeautyBeskid Limanowa?',
+    name: 'Jakie zabiegi są dostępne w BeskidStudio By Wiktoria Ćwik Limanowa?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Sekcja zabiegów pokazuje aktualne usługi dostępne do rezerwacji w BeautyBeskid Limanowa. Usługi w przygotowaniu, takie jak podologia lub osobna ścieżka kosmetologii, są widoczne jako wyszarzona zapowiedź do czasu uruchomienia zapisów.',
+      text: 'Sekcja zabiegów pokazuje aktualne usługi dostępne do rezerwacji w BeskidStudio By Wiktoria Ćwik Limanowa. Usługi w przygotowaniu, takie jak podologia lub osobna ścieżka kosmetologii, są widoczne jako wyszarzona zapowiedź do czasu uruchomienia zapisów.',
     },
   },
   {
@@ -58,7 +59,7 @@ const faqItems = [
     name: 'Czy mogę sprawdzić wolne terminy bez logowania?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. W BeautyBeskid możesz sprawdzić wolne terminy w interaktywnym kalendarzu bez logowania. Konto jest potrzebne dopiero wtedy, gdy chcesz potwierdzić rezerwację wizyty.',
+      text: 'Tak. W BeskidStudio By Wiktoria Ćwik możesz sprawdzić wolne terminy w interaktywnym kalendarzu bez logowania. Konto jest potrzebne dopiero wtedy, gdy chcesz potwierdzić rezerwację wizyty.',
     },
   },
   {
@@ -66,38 +67,38 @@ const faqItems = [
     name: 'Czy mogę umówić konsultację kosmetologiczną w Limanowej?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Nowe klientki mogą umówić bezpłatną konsultację kosmetologiczną w BeautyBeskid Limanowa. Podczas konsultacji dobieramy kierunek zabiegowy do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
+      text: 'Tak. Nowe klientki mogą umówić bezpłatną konsultację kosmetologiczną w BeskidStudio By Wiktoria Ćwik Limanowa. Podczas konsultacji dobieramy kierunek zabiegowy do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Dla jakich miejscowości jest BeautyBeskid Limanowa?',
+    name: 'Dla jakich miejscowości jest BeskidStudio By Wiktoria Ćwik Limanowa?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'BeautyBeskid przyjmuje klientki z Limanowej i okolic, między innymi z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Tymbarku, Dobrej, Jodłownika oraz Nowego Sącza.',
+      text: 'BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i okolic, między innymi z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Tymbarku, Dobrej, Jodłownika oraz Nowego Sącza.',
     },
   },
   {
     '@type': 'Question',
-    name: 'Czy podologia w BeautyBeskid Limanowa jest już dostępna?',
+    name: 'Czy podologia w BeskidStudio By Wiktoria Ćwik Limanowa jest już dostępna?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Podologia w BeautyBeskid Limanowa jest usługą w przygotowaniu. Do czasu uruchomienia zapisów pozostaje oznaczona jako zapowiedź, aby klientki widziały jasno, które usługi są aktualnie dostępne do rezerwacji.',
+      text: 'Podologia w BeskidStudio By Wiktoria Ćwik Limanowa jest usługą w przygotowaniu. Do czasu uruchomienia zapisów pozostaje oznaczona jako zapowiedź, aby klientki widziały jasno, które usługi są aktualnie dostępne do rezerwacji.',
     },
   },
 ];
 
-const faqSchema = {
+const buildFaqSchema = (rating?: number, reviewCount?: number) => ({
   '@context': 'https://schema.org',
   '@graph': [
     {
       '@type': 'BeautySalon',
       '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
-      name: 'BeautyBeskid',
+      name: 'BeskidStudio By Wiktoria Ćwik',
       url: 'https://kosmetologwiktoriacwik.pl/',
       image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp',
       description:
-        'BeautyBeskid w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
+        'BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Mordarka 505',
@@ -120,9 +121,9 @@ const faqSchema = {
       ],
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: '4.9',
+        ratingValue: String(rating ?? 5),
         bestRating: '5',
-        reviewCount: '47',
+        reviewCount: String(reviewCount ?? 4),
       },
       telephone: '+48532128227',
       geo: {
@@ -177,7 +178,7 @@ const faqSchema = {
       mainEntity: faqItems,
     },
   ],
-};
+});
 
 const heroTrust = [
   { value: '4.9/5', label: 'ocena Google', Icon: Star },
@@ -560,6 +561,7 @@ const HeroSection = ({
   onConsultationClick,
   onCheckAvailability,
   onOpenClientPanel,
+  googleRating,
 }: {
   nextSlotLoading: boolean;
   formattedSlot: { day: string; time: string } | null;
@@ -567,6 +569,7 @@ const HeroSection = ({
   bookingTo: string;
   bookingState?: BookingState;
   isAuthenticated: boolean;
+  googleRating?: number;
   onConsultationClick: () => void;
   onCheckAvailability: () => void;
   onOpenClientPanel: () => void;
@@ -578,11 +581,11 @@ const HeroSection = ({
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-oak/25 bg-white/70 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-espresso/70 shadow-sm backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-oak" />
-              Wiktoria Ćwik · BeautyBeskid Limanowa
+              Wiktoria Ćwik · BeskidStudio By Wiktoria Ćwik Limanowa
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
-              BeautyBeskid Limanowa. Zabiegi, terminy i rezerwacja w jednym miejscu.
+              BeskidStudio By Wiktoria Ćwik Limanowa. Zabiegi, terminy i rezerwacja w jednym miejscu.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
@@ -642,7 +645,9 @@ const HeroSection = ({
               {heroTrust.map(({ value, label, Icon }) => (
                 <div key={label} className="rounded-lg border border-espresso/10 bg-white/65 p-3 shadow-sm backdrop-blur">
                   <Icon className="mb-2 h-4 w-4 text-oak" />
-                  <p className="font-heading text-xl font-bold text-espresso">{value}</p>
+                  <p className="font-heading text-xl font-bold text-espresso">
+                    {label === 'ocena Google' && googleRating ? googleRating.toFixed(1) + '/5' : value}
+                  </p>
                   <p className="mt-1 text-xs leading-snug text-espresso/58">{label}</p>
                 </div>
               ))}
@@ -657,16 +662,19 @@ const HeroSection = ({
                 variant="hero-card"
                 fallback={
                   <>
-                    <img
-                      src={heroImage}
-                      alt="Elegancki gabinet BeautyBeskid w Limanowej"
-                      className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
-                      loading="eager"
-                      decoding="sync"
-                      fetchPriority="high"
-                      width={1400}
-                      height={747}
-                    />
+                    <picture>
+                      <source media="(max-width: 768px)" srcSet="/images/beautybeskid-hero-mobile.webp" type="image/webp" />
+                      <img
+                        src={heroImage}
+                        alt="Elegancki gabinet BeskidStudio By Wiktoria Ćwik w Limanowej"
+                        className="h-[320px] w-full object-cover sm:h-[420px] lg:h-[540px]"
+                        loading="eager"
+                        decoding="sync"
+                        fetchPriority="high"
+                        width={1400}
+                        height={747}
+                      />
+                    </picture>
                     <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
                       <div className="flex items-center justify-between gap-4">
                         <div>
@@ -1164,7 +1172,7 @@ const ServicesSection = ({
           <SectionIntro
             eyebrow="Aktualne usługi"
             title="Zabiegi dostępne do rezerwacji"
-            description="Zobacz aktualną ofertę BeautyBeskid, wybierz zabieg i przejdź do kalendarza, aby sprawdzić najbliższe wolne godziny."
+            description="Zobacz aktualną ofertę BeskidStudio By Wiktoria Ćwik, wybierz zabieg i przejdź do kalendarza, aby sprawdzić najbliższe wolne godziny."
           />
         </FadeUp>
 
@@ -1286,7 +1294,7 @@ const SeasonalSection = ({
         <FadeUp>
           <SectionIntro
             eyebrow="Polecane zabiegi"
-            title={`${SEASON_LABELS[currentSeason]} w BeautyBeskid`}
+            title={`${SEASON_LABELS[currentSeason]} w BeskidStudio By Wiktoria Ćwik`}
             description="Zalogowane klientki widzą sezonowe propozycje z aktualnej oferty salonu."
             align="left"
           />
@@ -1374,9 +1382,22 @@ const ConsultationSection = ({
 
 const TestimonialsSection = ({
   onCheckAvailability,
+  googleData,
 }: {
   onCheckAvailability: () => void;
-}) => (
+  googleData?: GoogleReviewsData;
+}) => {
+  const rating = googleData?.rating?.toFixed(1) ?? '4.9';
+  const displayReviews = googleData?.reviews?.slice(0, 3) ?? testimonials.map(t => ({
+    author_name: t.author,
+    rating: 5,
+    text: t.quote,
+    time: 0,
+    relative_time_description: t.detail,
+    profile_photo_url: '',
+  }));
+
+  return (
   <section className="bg-ivory py-16 md:py-24">
     <div className="container max-w-7xl px-5">
       <FadeUp>
@@ -1389,10 +1410,12 @@ const TestimonialsSection = ({
           />
           <div className="rounded-lg border border-oak/25 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
-              <p className="font-heading text-4xl font-bold text-espresso">4.9</p>
+              <p className="font-heading text-4xl font-bold text-espresso">{rating}</p>
               <div>
                 <StarRow />
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">ocena Google</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">
+                  ocena Google{googleData ? ' (' + googleData.user_ratings_total + ' opinii)' : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -1400,16 +1423,16 @@ const TestimonialsSection = ({
       </FadeUp>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {testimonials.map((testimonial, index) => (
-          <FadeUp key={testimonial.author} delay={index * 0.08}>
+        {displayReviews.map((review, index) => (
+          <FadeUp key={review.author_name + index} delay={index * 0.08}>
             <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]">
               <StarRow compact />
               <p className="mt-5 flex-1 font-display text-[22px] italic leading-relaxed text-espresso">
-                “{testimonial.quote}”
+                "{review.text}"
               </p>
               <div className="mt-6 border-t border-espresso/10 pt-4">
-                <p className="text-sm font-semibold text-espresso">{testimonial.author}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{testimonial.detail}</p>
+                <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{review.relative_time_description}</p>
               </div>
             </article>
           </FadeUp>
@@ -1435,7 +1458,8 @@ const TestimonialsSection = ({
       </FadeUp>
     </div>
   </section>
-);
+  );
+};
 
 const ProcessSection = () => (
   <section className="bg-cream py-16 md:py-24">
@@ -1652,7 +1676,7 @@ const AreaSection = () => (
           Salon kosmetologiczny Limanowa i okolice
         </h2>
         <p className="mt-5 text-sm leading-relaxed text-espresso/64">
-          BeautyBeskid przyjmuje klientki z Limanowej i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
+          BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
           z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Nowego Sącza, Ujanowic, Dobrej, Kasiny Wielkiej, Sowlin,
           Tymbarku, Jodłownika oraz pobliskich miejscowości.
         </p>
@@ -1685,6 +1709,13 @@ export const Home = () => {
     staleTime: 10 * 60_000,
   });
 
+  const { data: googleReviews } = useQuery<GoogleReviewsData>({
+    queryKey: ['google-reviews'],
+    queryFn: googleReviewsApi.get,
+    staleTime: 24 * 60 * 60_000,
+    retry: false,
+  });
+
   const currentSeason = getCurrentSeason();
   const seasonalServices = allServices
     .filter((service) => service.isActive && service.seasons.includes(currentSeason))
@@ -1706,11 +1737,11 @@ export const Home = () => {
   return (
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
-        title="Kosmetolog i salon beauty Limanowa — Wiktoria Ćwik BeautyBeskid"
-        description="BeautyBeskid Limanowa: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje oraz aktualna dostępność podologii dla Limanowej, Mordarki i okolic."
+        title="Kosmetolog i salon beauty Limanowa — Wiktoria Ćwik BeskidStudio By Wiktoria Ćwik"
+        description="BeskidStudio By Wiktoria Ćwik Limanowa: kosmetolog, kosmetyczka, laminacja brwi i rzęs, konsultacje oraz aktualna dostępność podologii dla Limanowej, Mordarki i okolic."
         canonical="/"
         ogImage={heroImage}
-        schema={faqSchema}
+        schema={buildFaqSchema(googleReviews?.rating, googleReviews?.user_ratings_total)}
       />
 
       <main className="flex-1">
@@ -1724,6 +1755,7 @@ export const Home = () => {
           onConsultationClick={() => setConsultationOpen(true)}
           onCheckAvailability={() => handleCheckAvailability()}
           onOpenClientPanel={() => openClientPanel()}
+          googleRating={googleReviews?.rating}
         />
         <BenefitsStrip />
         <ServicesSection
@@ -1746,7 +1778,7 @@ export const Home = () => {
           bookingTo={bookingTo}
           bookingState={bookingState}
         />
-        <TestimonialsSection onCheckAvailability={() => handleCheckAvailability()} />
+        <TestimonialsSection onCheckAvailability={() => handleCheckAvailability()} googleData={googleReviews} />
         <ProcessSection />
         <ReservationFormSection
           onConsultationClick={() => setConsultationOpen(true)}

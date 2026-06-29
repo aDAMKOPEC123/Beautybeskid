@@ -79,7 +79,7 @@ export const Footer = () => {
               className="font-heading font-bold text-2xl"
               style={{ color: '#F4F9F5', letterSpacing: '-0.02em' }}
             >
-              BeautyBeskid
+              BeskidStudio By Wiktoria Ćwik
             </Link>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.78)' }}>
               Salon kosmetologiczny w Mordarce koło Limanowej. Aktualne zabiegi, konsultacje i rezerwacja online.
@@ -170,7 +170,7 @@ export const Footer = () => {
             <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C4965A' }}>
               Popularne usługi
             </h3>
-            <nav className="grid gap-2" aria-label="Popularne usługi BeautyBeskid">
+            <nav className="grid gap-2" aria-label="Popularne usługi BeskidStudio By Wiktoria Ćwik">
               {localSeoLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -232,7 +232,7 @@ export const Footer = () => {
           }}
         >
           <iframe
-            title="Lokalizacja salonu BeautyBeskid"
+            title="Lokalizacja salonu BeskidStudio By Wiktoria Ćwik"
             src={googleMapsEmbedUrl}
             width="100%"
             height="280"
@@ -246,7 +246,7 @@ export const Footer = () => {
       {/* Copyright bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', paddingBottom: '1rem' }}>
         <div className="container flex flex-col items-center justify-between gap-2 text-xs sm:flex-row" style={{ color: 'rgba(255,255,255,0.72)' }}>
-          <span>© {new Date().getFullYear()} BeautyBeskid. Wszelkie prawa zastrzeżone.</span>
+          <span>© {new Date().getFullYear()} BeskidStudio By Wiktoria Ćwik. Wszelkie prawa zastrzeżone.</span>
           <Link
             to="/regulamin"
             className="transition-colors"

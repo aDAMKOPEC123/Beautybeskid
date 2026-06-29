@@ -196,7 +196,7 @@ export const AdminAbout = () => {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label>Tytuł sekcji</Label>
-            <Input value={featuresTitle} onChange={(e) => setFeaturesTitle(e.target.value)} placeholder="Dlaczego warto wybrać BeautyBeskid?" />
+            <Input value={featuresTitle} onChange={(e) => setFeaturesTitle(e.target.value)} placeholder="Dlaczego warto wybrać BeskidStudio By Wiktoria Ćwik?" />
           </div>
 
           <div className="space-y-3">

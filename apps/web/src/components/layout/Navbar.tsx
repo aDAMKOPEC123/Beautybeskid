@@ -155,12 +155,9 @@ export const Navbar = () => {
       >
         <div className="container h-full flex items-center justify-between">
           {/* Logo */}
-          <Link
-            to="/"
-            className="font-display text-[13px] uppercase"
-            style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.08em' }}
-          >
-            BeautyBeskid
+          <Link to="/" className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="BeskidStudio" className="h-8 w-auto" />
+            <span className="font-display text-[13px] uppercase tracking-[0.08em]" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
           </Link>
 
           {/* Mobile center: Panel klienta */}
@@ -257,13 +254,9 @@ export const Navbar = () => {
       >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
-              <Link
-                to="/"
-                onClick={() => setMobileOpen(false)}
-                className="font-display text-[13px] tracking-[0.45em] uppercase text-ivory"
-                style={{ fontStyle: 'normal', fontWeight: 300 }}
-              >
-                BeautyBeskid
+              <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
+                <img src="/logo.png" alt="BeskidStudio" className="h-8 w-auto" />
+                <span className="font-display text-[13px] uppercase tracking-[0.08em] text-ivory" style={{ fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
               </Link>
               <button
                 onClick={() => setMobileOpen(false)}

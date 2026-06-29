@@ -16,7 +16,7 @@ export function buildTourSteps(_onTourEnd: () => void): DriveStep[] {
     // Step 1 — Welcome overlay (no element)
     {
       popover: {
-        title: 'Witaj w BeautyBeskid! 💆‍♀️',
+        title: 'Witaj w BeskidStudio By Wiktoria Ćwik! 💆‍♀️',
         description: 'Pokażemy Ci jak działa aplikacja. Możesz pominąć tour w dowolnej chwili.',
         nextBtnText: 'Zaczynamy →',
         doneBtnText: 'Pomiń tour',

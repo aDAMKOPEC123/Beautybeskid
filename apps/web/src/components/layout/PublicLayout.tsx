@@ -4,6 +4,7 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { FloatingBookingCTA } from '@/components/ui/FloatingBookingCTA';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
+import { CookieBanner } from '@/components/CookieBanner';
 
 export const PublicLayout = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ export const PublicLayout = () => {
       <Footer />
       <FloatingBookingCTA />
       <PwaInstallButton />
+      <CookieBanner />
       <ScrollRestoration />
     </div>
   );
