@@ -748,7 +748,7 @@ function StepConfirm({
   useEffect(() => {
     if (!preselectedCode || state.voucherData) return;
     setValidating(true);
-    loyaltyApi.validateVoucher(preselectedCode).then((data) => {
+    loyaltyApi.validateVoucher(preselectedCode, state.service?.id).then((data) => {
       onVoucherChange(data);
       toast.success(`Kod ${data.code} został automatycznie zastosowany!`);
     }).catch(() => {
@@ -781,7 +781,7 @@ function StepConfirm({
     if (!codeInput.trim()) return;
     setValidating(true);
     try {
-      const data = await loyaltyApi.validateVoucher(codeInput.trim());
+      const data = await loyaltyApi.validateVoucher(codeInput.trim(), state.service?.id);
       onVoucherChange(data);
       setShowInput(false);
       toast.success(`${data.type === 'COUPON' ? 'Kupon' : 'Kod'} ${data.code} zastosowany!`);

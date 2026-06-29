@@ -47,8 +47,8 @@ export const loyaltyApi = {
     const res = await api.get('/loyalty/stats');
     return res.data.data.stats;
   },
-  validateVoucher: async (code: string): Promise<ValidatedVoucher> => {
-    const res = await api.get('/loyalty/vouchers/validate', { params: { code } });
+  validateVoucher: async (code: string, serviceId?: string): Promise<ValidatedVoucher> => {
+    const res = await api.get('/loyalty/vouchers/validate', { params: { code, ...(serviceId && { serviceId }) } });
     return res.data.data.voucher;
   },
 };

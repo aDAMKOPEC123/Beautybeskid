@@ -41,9 +41,12 @@ export const deactivateCode = async (id: string) => {
   });
 };
 
-export const validateCode = async (code: string, userId: string) => {
+export const validateCode = async (code: string, userId: string, serviceId?: string) => {
   const normalized = code.trim().toUpperCase();
-  const discountCode = await prisma.discountCode.findUnique({ where: { code: normalized } });
+  const discountCode = await prisma.discountCode.findUnique({
+    where: { code: normalized },
+    include: { voucher: { select: { serviceId: true, service: { select: { name: true } } } } },
+  });
 
   if (!discountCode) throw new AppError('Nieprawidłowy kod rabatowy', 400);
   if (!discountCode.isActive) throw new AppError('Ten kod rabatowy jest nieaktywny', 400);
@@ -52,6 +55,13 @@ export const validateCode = async (code: string, userId: string) => {
   }
   if (discountCode.lockedToUserId && discountCode.lockedToUserId !== userId) {
     throw new AppError('Ten kod rabatowy nie jest przeznaczony dla Ciebie', 403);
+  }
+
+  // Voucher service restriction
+  const voucherServiceId = discountCode.voucher?.serviceId ?? null;
+  if (voucherServiceId && serviceId && voucherServiceId !== serviceId) {
+    const serviceName = discountCode.voucher?.service?.name ?? 'wybraną usługę';
+    throw new AppError(`Ten voucher jest przeznaczony wyłącznie na: ${serviceName}`, 400);
   }
 
   if (!discountCode.isMultiUse) {
@@ -66,6 +76,7 @@ export const validateCode = async (code: string, userId: string) => {
     code: discountCode.code,
     discountType: discountCode.discountType as 'PERCENTAGE' | 'AMOUNT',
     discountValue: Number(discountCode.discountValue),
+    restrictedToServiceId: voucherServiceId,
   };
 };
 

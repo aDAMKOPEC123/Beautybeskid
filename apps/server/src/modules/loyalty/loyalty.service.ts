@@ -197,7 +197,7 @@ export const markCouponUsed = async (couponId: string, appointmentId?: string) =
   });
 };
 
-export const validateVoucher = async (code: string, userId: string) => {
+export const validateVoucher = async (code: string, userId: string, serviceId?: string) => {
   const normalized = code.trim().toUpperCase();
 
   const coupon = await prisma.userCoupon.findFirst({
@@ -215,9 +215,10 @@ export const validateVoucher = async (code: string, userId: string) => {
       code: coupon.code!,
       discountType: coupon.reward.discountType as 'PERCENTAGE' | 'AMOUNT',
       discountValue: Number(coupon.reward.discountValue),
+      restrictedToServiceId: null as string | null,
     };
   }
 
-  const dc = await validateDiscountCode(normalized, userId);
+  const dc = await validateDiscountCode(normalized, userId, serviceId);
   return { type: 'DISCOUNT_CODE' as const, ...dc };
 };

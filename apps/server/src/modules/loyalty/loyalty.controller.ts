@@ -105,7 +105,8 @@ export const validateVoucher = async (req: Request, res: Response, next: NextFun
   try {
     const code = String(req.query.code || '');
     if (!code) throw new AppError('Brak kodu', 400);
-    const voucher = await loyaltyService.validateVoucher(code, req.user!.id);
+    const serviceId = req.query.serviceId ? String(req.query.serviceId) : undefined;
+    const voucher = await loyaltyService.validateVoucher(code, req.user!.id, serviceId);
     res.status(200).json({ status: 'success', data: { voucher } });
   } catch (error) {
     next(error);
