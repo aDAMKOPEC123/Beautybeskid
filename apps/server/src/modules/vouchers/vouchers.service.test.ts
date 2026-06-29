@@ -26,7 +26,7 @@ describe('buildVoucherCode', () => {
 describe('generateVoucherCode', () => {
   it('returns code matching VCH-XXXX-XXXX pattern', () => {
     const code = generateVoucherCode();
-    expect(code).toMatch(/^VCH-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+    expect(code).toMatch(/^VCH-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/);
   });
 
   it('returns unique codes on multiple calls', () => {
@@ -49,5 +49,15 @@ describe('deleteVoucher', () => {
       discountCode: { id: 'dc1', usages: [{ id: 'u1' }] },
     });
     await expect(deleteVoucher('v1')).rejects.toMatchObject({ statusCode: 400 });
+  });
+
+  it('deletes voucher and discountCode when unused', async () => {
+    const mockVoucher = {
+      id: 'v2', pdfPath: null, discountCodeId: 'dc2',
+      discountCode: { id: 'dc2', usages: [] },
+    };
+    (prisma.voucher.findUnique as any).mockResolvedValue(mockVoucher);
+    await expect(deleteVoucher('v2')).resolves.toBeUndefined();
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
   });
 });

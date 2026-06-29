@@ -78,7 +78,7 @@ export const createVoucher = async (data: CreateVoucherInput, adminId: string) =
         type: data.type,
         code,
         serviceId: data.serviceId,
-        amount: data.amount ? data.amount : undefined,
+        amount: data.amount,
         recipientName: data.recipientName,
         senderName: data.senderName,
         message: data.message,
