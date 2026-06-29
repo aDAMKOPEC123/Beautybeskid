@@ -42,6 +42,7 @@ import { academyRouter } from './modules/academy/academy.router';
 import marketingRouter from './modules/marketing/marketing.router';
 import beautyPlanRouter from './modules/beauty-plan/beauty-plan.router';
 import { forumRouter } from './modules/forum/forum.router';
+import vouchersRouter from './modules/vouchers/vouchers.router';
 
 import sitemapRouter from './modules/sitemap/sitemap.router';
 
@@ -99,6 +100,7 @@ app.use('/api/academy', academyRouter);
 app.use('/api/marketing', marketingRouter);
 app.use('/api/beauty-plans', beautyPlanRouter);
 app.use('/api/forum', forumRouter);
+app.use('/api/vouchers', vouchersRouter);
 
 // Sitemap (must be before 404 handler)
 app.use('/sitemap.xml', sitemapRouter);
