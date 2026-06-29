@@ -36,7 +36,7 @@ describe('generateVoucherCode', () => {
 });
 
 describe('deleteVoucher', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('throws 404 if voucher not found', async () => {
     (prisma.voucher.findUnique as any).mockResolvedValue(null);
