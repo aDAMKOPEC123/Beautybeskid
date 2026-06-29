@@ -74,6 +74,7 @@ const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications')
 const AdminBlogComments = lazy(() => import('./pages/admin/AdminBlogComments').then(m => ({ default: m.AdminBlogComments })));
 const AdminAssortment = lazy(() => import('./pages/admin/AdminAssortment').then(m => ({ default: m.AdminAssortment })));
 const SkinWeatherRules = lazy(() => import('./pages/admin/SkinWeatherRules').then(m => ({ default: m.SkinWeatherRules })));
+const AdminVouchery = lazy(() => import('./pages/admin/AdminVouchery').then(m => ({ default: m.AdminVouchery })));
 const AdminAkademia = lazy(() => import('./pages/admin/academy/AdminAkademia').then(m => ({ default: m.AdminAkademia })));
 const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEditor').then(m => ({ default: m.AdminCourseEditor })));
 const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
@@ -233,6 +234,7 @@ export const router = createBrowserRouter([
       { path: 'hero', element: <S><AdminHeroSlides /></S> },
       { path: 'polecane-zabiegi', element: <S><AdminRecommendedSlides /></S> },
       { path: 'kody-rabatowe', element: <S><AdminDiscountCodes /></S> },
+      { path: 'vouchery', element: <S><AdminVouchery /></S> },
       { path: 'regulamin', element: <S><AdminTerms /></S> },
       { path: 'o-nas', element: <S><AdminAbout /></S> },
       { path: 'konsultacje', element: <S><AdminConsultations /></S> },

@@ -37,7 +37,7 @@ export const AdminLayout = () => {
     () => location.pathname.startsWith('/admin/akademia')
   );
   const [sprzedazOpen, setSprzedazOpen] = useState(
-    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment'].some(p => location.pathname.startsWith(p))
+    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'].some(p => location.pathname.startsWith(p))
   );
   const [ustawieniaOpen, setUstawieniaOpen] = useState(
     () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
@@ -150,6 +150,7 @@ export const AdminLayout = () => {
           { to: '/admin/metamorfozy', label: 'Metamorfozy' },
           { to: '/admin/lojalnosc', label: 'Lojalność' },
           { to: '/admin/kody-rabatowe', label: 'Kody' },
+          { to: '/admin/vouchery', label: 'Vouchery' },
           { to: '/admin/recenzje', label: 'Recenzje' },
           { to: '/admin/beauty-plans', label: 'Beauty Plans' },
           { to: '/admin/quizy', label: 'Quizy' },
@@ -425,6 +426,9 @@ export const AdminLayout = () => {
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/kody-rabatowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Kody Rabatowe
+                  </Link>
+                  <Link to="/admin/vouchery" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Vouchery
                   </Link>
                   <Link to="/admin/lojalnosc" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Program Lojalnościowy
