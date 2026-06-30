@@ -43,6 +43,11 @@ export function AdminVouchery() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  // Adjust panel state
+  const [adjustId, setAdjustId] = useState<string | null>(null);
+  const [deductInput, setDeductInput] = useState('');
+  const [adjusting, setAdjusting] = useState(false);
+  const [adjustError, setAdjustError] = useState('');
 
   useEffect(() => {
     servicesApi.getAll()
@@ -101,6 +106,45 @@ export function AdminVouchery() {
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };
       alert(e?.response?.data?.message ?? 'Nie można usunąć vouchera');
+    }
+  };
+
+  const openAdjust = (id: string) => {
+    setAdjustId(id);
+    setDeductInput('');
+    setAdjustError('');
+    setDeleteConfirm(null);
+  };
+
+  const handleRealize = async (id: string) => {
+    setAdjusting(true);
+    setAdjustError('');
+    try {
+      const updated = await vouchersApi.adjust(id, 'realize');
+      setVouchers(prev => prev.map(v => v.id === updated.id ? { ...v, remainingAmount: updated.remainingAmount } : v));
+      setAdjustId(null);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setAdjustError(e?.response?.data?.message ?? 'Błąd');
+    } finally {
+      setAdjusting(false);
+    }
+  };
+
+  const handleDeduct = async (id: string) => {
+    const amount = parseFloat(deductInput);
+    if (!amount || amount <= 0) { setAdjustError('Podaj kwotę większą od zera'); return; }
+    setAdjusting(true);
+    setAdjustError('');
+    try {
+      const updated = await vouchersApi.adjust(id, 'deduct', amount);
+      setVouchers(prev => prev.map(v => v.id === updated.id ? { ...v, remainingAmount: updated.remainingAmount } : v));
+      setAdjustId(null);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setAdjustError(e?.response?.data?.message ?? 'Błąd');
+    } finally {
+      setAdjusting(false);
     }
   };
 
@@ -280,23 +324,73 @@ export function AdminVouchery() {
                       <td className="py-2 px-3 text-xs text-muted-foreground">
                         {new Date(v.validUntil).toLocaleDateString('pl-PL')}
                       </td>
-                      <td className="py-2 px-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => downloadPdf(v.id, v.code)}
-                            className="text-xs px-2 py-1 rounded border border-border hover:bg-accent text-foreground"
-                          >
-                            ⬇ PDF
-                          </button>
-                          {deleteConfirm === v.id ? (
-                            <>
-                              <button onClick={() => handleDelete(v.id)} className="text-xs px-2 py-1 rounded bg-destructive text-white">Tak, usuń</button>
-                              <button onClick={() => setDeleteConfirm(null)} className="text-xs px-2 py-1 rounded border border-border">Anuluj</button>
-                            </>
-                          ) : (
-                            <button onClick={() => setDeleteConfirm(v.id)} className="text-xs px-2 py-1 rounded border border-border text-muted-foreground hover:text-destructive hover:border-destructive">✕</button>
-                          )}
-                        </div>
+                      <td className="py-2 px-3 min-w-[220px]">
+                        {adjustId === v.id ? (
+                          <div className="flex flex-col gap-1.5 py-1">
+                            {adjustError && <p className="text-xs text-destructive">{adjustError}</p>}
+                            <div className="flex gap-1.5 flex-wrap">
+                              <button
+                                onClick={() => handleRealize(v.id)}
+                                disabled={adjusting}
+                                className="text-xs px-2 py-1 rounded bg-green-700 text-white hover:bg-green-800 disabled:opacity-50"
+                              >
+                                ✓ Zrealizowany
+                              </button>
+                              <button
+                                onClick={() => setAdjustId(null)}
+                                className="text-xs px-2 py-1 rounded border border-border text-muted-foreground"
+                              >
+                                Anuluj
+                              </button>
+                            </div>
+                            {v.type === 'CASH' && Number(v.remainingAmount ?? 0) > 0 && (
+                              <div className="flex gap-1.5 items-center">
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={Number(v.remainingAmount ?? 0)}
+                                  step={1}
+                                  placeholder="Odejmij zł"
+                                  value={deductInput}
+                                  onChange={e => setDeductInput(e.target.value)}
+                                  className="w-24 text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none focus:ring-1 focus:ring-caramel/40"
+                                />
+                                <button
+                                  onClick={() => handleDeduct(v.id)}
+                                  disabled={adjusting || !deductInput}
+                                  className="text-xs px-2 py-1 rounded border border-amber-500 text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                                >
+                                  − Odejmij
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex gap-1.5 flex-wrap">
+                            <button
+                              onClick={() => downloadPdf(v.id, v.code)}
+                              className="text-xs px-2 py-1 rounded border border-border hover:bg-accent text-foreground"
+                            >
+                              ⬇ PDF
+                            </button>
+                            {v.type === 'CASH' && (
+                              <button
+                                onClick={() => openAdjust(v.id)}
+                                className="text-xs px-2 py-1 rounded border border-caramel/50 text-caramel hover:bg-caramel/10"
+                              >
+                                ✎ Koryguj
+                              </button>
+                            )}
+                            {deleteConfirm === v.id ? (
+                              <>
+                                <button onClick={() => handleDelete(v.id)} className="text-xs px-2 py-1 rounded bg-destructive text-white">Tak, usuń</button>
+                                <button onClick={() => setDeleteConfirm(null)} className="text-xs px-2 py-1 rounded border border-border">Anuluj</button>
+                              </>
+                            ) : (
+                              <button onClick={() => { setDeleteConfirm(v.id); setAdjustId(null); }} className="text-xs px-2 py-1 rounded border border-border text-muted-foreground hover:text-destructive hover:border-destructive">✕</button>
+                            )}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -57,6 +57,17 @@ export const getPdf = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+export const adjust = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { action, amount } = req.body as { action: 'realize' | 'deduct'; amount?: number };
+    const voucher = await service.adjustVoucher(id, action, amount);
+    res.json({ status: 'success', data: { voucher } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const lookup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const code = String(req.query.code || '');

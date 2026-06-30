@@ -12,6 +12,7 @@ router.get('/lookup', authenticate, controller.lookup);
 router.use(authenticate, requireAdmin);
 router.post('/', controller.create);
 router.get('/', controller.list);
+router.patch('/:id/adjust', controller.adjust);
 router.get('/:id/pdf', controller.getPdf);
 router.delete('/:id', controller.remove);
 

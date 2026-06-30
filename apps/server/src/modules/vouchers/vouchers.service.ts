@@ -146,6 +146,26 @@ export const deleteVoucher = async (id: string) => {
   }
 };
 
+export const adjustVoucher = async (id: string, action: 'realize' | 'deduct', amount?: number) => {
+  const voucher = await prisma.voucher.findUnique({ where: { id } });
+  if (!voucher) throw new AppError('Voucher nie istnieje', 404);
+  if (voucher.type !== 'CASH') throw new AppError('Tylko vouchery gotówkowe można ręcznie korygować', 400);
+
+  if (action === 'realize') {
+    return prisma.voucher.update({ where: { id }, data: { remainingAmount: 0 } });
+  }
+
+  if (action === 'deduct') {
+    if (!amount || amount <= 0) throw new AppError('Podaj kwotę do odjęcia (> 0)', 400);
+    const current = Number(voucher.remainingAmount ?? 0);
+    if (current <= 0) throw new AppError('Voucher jest już w pełni wykorzystany', 400);
+    const newRemaining = Math.max(0, current - amount);
+    return prisma.voucher.update({ where: { id }, data: { remainingAmount: newRemaining } });
+  }
+
+  throw new AppError('Nieprawidłowa akcja', 400);
+};
+
 export const lookupVoucherByCode = async (code: string) => {
   const normalized = code.trim().toUpperCase();
   const voucher = await prisma.voucher.findUnique({
