@@ -1118,9 +1118,10 @@ export const BookingWizard = () => {
         finalCouponId = coupon.id;
       }
 
+      const svcPrice = state.service ? Number(state.service.price) : 0;
       const priceBeforeVoucher = state.appliedHappyHour
-        ? calcDiscountedPrice(basePrice, state.appliedHappyHour)
-        : basePrice;
+        ? calcDiscountedPrice(svcPrice, state.appliedHappyHour)
+        : svcPrice;
       const voucherUsedAmount = state.voucherData?.type === 'VOUCHER_CASH'
         ? Math.min(priceBeforeVoucher, state.voucherData.discountValue)
         : undefined;
