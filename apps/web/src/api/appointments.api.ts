@@ -33,6 +33,8 @@ export const appointmentsApi = {
     problemDescription?: string;
     couponId?: string | null;
     discountCodeId?: string | null;
+    voucherId?: string | null;
+    voucherUsedAmount?: number;
   }) => {
     const res = await api.post('/appointments', data);
     return res.data.data.appointment;

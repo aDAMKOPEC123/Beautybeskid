@@ -87,12 +87,14 @@ interface CreateAppointmentData {
   problemDescription?: string;
   couponId?: string;
   discountCodeId?: string;
+  voucherId?: string;
+  voucherUsedAmount?: number;
   treatmentSeriesId?: string;
   happyHourId?: string;
 }
 
 export const createAppointment = async (userId: string, data: CreateAppointmentData) => {
-  const { couponId, discountCodeId, treatmentSeriesId, happyHourId, ...rest } = data;
+  const { couponId, discountCodeId, voucherId, voucherUsedAmount, treatmentSeriesId, happyHourId, ...rest } = data;
 
   // BUG-01: Check slot availability before creating (best-effort — not serializable,
   // but catches the common case of same-slot double-booking)
@@ -153,6 +155,20 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
           update: {},
         });
       }
+    }
+
+    if (voucherId && voucherUsedAmount && voucherUsedAmount > 0) {
+      const v = await tx.voucher.findUnique({ where: { id: voucherId } });
+      if (!v || v.type !== 'CASH' || v.validUntil < new Date()) {
+        throw new AppError('Nieprawidłowy voucher gotówkowy', 400);
+      }
+      const current = Number(v.remainingAmount ?? 0);
+      if (current <= 0) throw new AppError('Ten voucher został już w pełni wykorzystany', 400);
+      const used = Math.min(voucherUsedAmount, current);
+      await tx.voucher.update({
+        where: { id: voucherId },
+        data: { remainingAmount: Math.max(0, current - used) },
+      });
     }
 
     await attachAppointmentToSeries(tx, {

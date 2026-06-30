@@ -25,9 +25,10 @@ export interface AmbassadorConfig {
 }
 
 export interface ValidatedVoucher {
-  type: 'COUPON' | 'DISCOUNT_CODE';
+  type: 'COUPON' | 'DISCOUNT_CODE' | 'VOUCHER_CASH';
   id: string;
   code: string;
   discountType: 'PERCENTAGE' | 'AMOUNT';
   discountValue: number;
+  restrictedToServiceId?: string | null;
 }

@@ -243,7 +243,7 @@ export function AdminVouchery() {
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    {['Typ', 'Usługa / Kwota', 'Dla', 'Kod', 'Wystawiony', 'Ważny do', 'Akcje'].map(h => (
+                    {['Typ', 'Usługa / Kwota', 'Pozostało', 'Dla', 'Kod', 'Wystawiony', 'Ważny do', 'Akcje'].map(h => (
                       <th key={h} className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -262,6 +262,13 @@ export function AdminVouchery() {
                       </td>
                       <td className="py-2 px-3 text-foreground">
                         {v.service?.name ?? (v.amount ? `${Number(v.amount).toFixed(0)} zł` : '—')}
+                      </td>
+                      <td className="py-2 px-3 text-xs">
+                        {v.type === 'CASH' && v.remainingAmount != null ? (
+                          <span className={Number(v.remainingAmount) <= 0 ? 'text-muted-foreground line-through' : Number(v.remainingAmount) < Number(v.amount) ? 'text-amber-600 font-medium' : 'text-green-700 font-medium'}>
+                            {Number(v.remainingAmount).toFixed(0)} zł
+                          </span>
+                        ) : '—'}
                       </td>
                       <td className="py-2 px-3 text-muted-foreground text-xs">
                         {[v.recipientName, v.senderName ? `od: ${v.senderName}` : null].filter(Boolean).join(' · ') || '—'}

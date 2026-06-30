@@ -1454,7 +1454,8 @@ model Voucher {
   message        String?
   serviceId      String?
   service        Service?      @relation("VoucherService", fields: [serviceId], references: [id])
-  amount         Decimal?      @db.Decimal(10, 2)
+  amount          Decimal?      @db.Decimal(10, 2)
+  remainingAmount Decimal?      @db.Decimal(10, 2)
   discountCodeId String?       @unique
   discountCode   DiscountCode? @relation("VoucherDiscountCode", fields: [discountCodeId], references: [id], onDelete: Restrict)
   code           String        @unique

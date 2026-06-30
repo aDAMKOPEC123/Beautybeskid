@@ -21,6 +21,7 @@ export type Voucher = {
   message: string | null;
   validUntil: string;
   amount: string | null;
+  remainingAmount: string | null;
   pdfPath: string | null;
   createdAt: string;
   service: { name: string } | null;

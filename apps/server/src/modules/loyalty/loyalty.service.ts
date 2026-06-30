@@ -219,6 +219,22 @@ export const validateVoucher = async (code: string, userId: string, serviceId?: 
     };
   }
 
+  // Check CASH voucher (no DiscountCode row — tracked directly on Voucher)
+  const cashVoucher = await prisma.voucher.findUnique({ where: { code: normalized } });
+  if (cashVoucher && cashVoucher.type === 'CASH') {
+    if (cashVoucher.validUntil < new Date()) throw new AppError('Ten voucher wygasł', 400);
+    const remaining = Number(cashVoucher.remainingAmount ?? 0);
+    if (remaining <= 0) throw new AppError('Ten voucher został już w pełni wykorzystany', 400);
+    return {
+      type: 'VOUCHER_CASH' as const,
+      id: cashVoucher.id,
+      code: cashVoucher.code,
+      discountType: 'AMOUNT' as const,
+      discountValue: remaining,
+      restrictedToServiceId: null as string | null,
+    };
+  }
+
   const dc = await validateDiscountCode(normalized, userId, serviceId);
   return { type: 'DISCOUNT_CODE' as const, ...dc };
 };

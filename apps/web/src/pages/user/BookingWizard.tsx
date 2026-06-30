@@ -47,6 +47,7 @@ interface WizardState {
   couponId: string | null;
   otherRewardId: string | null;
   discountCodeId: string | null;
+  voucherId: string | null;
   voucherData: ValidatedVoucher | null;
   appliedHappyHour: any | null;
 }
@@ -1037,6 +1038,7 @@ export const BookingWizard = () => {
     couponId: null,
     otherRewardId: null,
     discountCodeId: null,
+    voucherId: null,
     voucherData: null,
     appliedHappyHour: null,
   });
@@ -1116,6 +1118,13 @@ export const BookingWizard = () => {
         finalCouponId = coupon.id;
       }
 
+      const priceBeforeVoucher = state.appliedHappyHour
+        ? calcDiscountedPrice(basePrice, state.appliedHappyHour)
+        : basePrice;
+      const voucherUsedAmount = state.voucherData?.type === 'VOUCHER_CASH'
+        ? Math.min(priceBeforeVoucher, state.voucherData.discountValue)
+        : undefined;
+
       const appointment = await createAppointment({
         serviceId: state.service.id,
         treatmentSeriesId: state.seriesId || undefined,
@@ -1126,6 +1135,8 @@ export const BookingWizard = () => {
         problemDescription: state.problemDescription || undefined,
         couponId: finalCouponId || undefined,
         discountCodeId: state.discountCodeId || undefined,
+        voucherId: state.voucherId || undefined,
+        voucherUsedAmount,
         happyHourId: state.appliedHappyHour?.id ?? undefined,
       });
 
@@ -1213,6 +1224,7 @@ export const BookingWizard = () => {
               ...prev,
               couponId: voucher?.type === 'COUPON' ? voucher.id : null,
               discountCodeId: voucher?.type === 'DISCOUNT_CODE' ? voucher.id : null,
+              voucherId: voucher?.type === 'VOUCHER_CASH' ? voucher.id : null,
               voucherData: voucher,
             }))}
             user={user}
