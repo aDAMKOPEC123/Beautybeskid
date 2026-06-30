@@ -57,6 +57,17 @@ export const getPdf = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+export const lookup = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const code = String(req.query.code || '');
+    if (!code) { res.status(400).json({ status: 'error', message: 'Podaj kod vouchera' }); return; }
+    const voucher = await service.lookupVoucherByCode(code);
+    res.json({ status: 'success', data: { voucher } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const remove = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await service.deleteVoucher(req.params.id);

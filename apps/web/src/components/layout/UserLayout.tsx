@@ -41,6 +41,7 @@ import {
   GraduationCap,
   Flower2,
   MessageSquare,
+  Gift,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -52,6 +53,7 @@ const NAV_LINKS = [
   { to: '/user/rutyna', label: 'Moja Rutyna', icon: Sparkles },
   { to: '/user/produkty', label: 'Moje Produkty', icon: ShoppingBag },
   { to: '/user/polecenia', label: 'Program Poleceń', icon: Users },
+  { to: '/user/vouchery', label: 'Twoje Vouchery', icon: Gift },
   { to: '/user/pogoda-skory', label: 'Twoja Skóra', icon: Cloud },
   { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
   { to: '/user/forum', label: 'Forum', icon: MessageSquare },

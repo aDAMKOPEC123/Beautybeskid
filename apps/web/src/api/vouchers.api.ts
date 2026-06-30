@@ -43,4 +43,9 @@ export const vouchersApi = {
   },
 
   getPdfUrl: (id: string): string => `/api/vouchers/${id}/pdf`,
+
+  lookup: async (code: string): Promise<Voucher> => {
+    const res = await api.get('/vouchers/lookup', { params: { code } });
+    return res.data.data.voucher;
+  },
 };

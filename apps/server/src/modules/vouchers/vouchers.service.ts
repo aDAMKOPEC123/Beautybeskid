@@ -146,6 +146,16 @@ export const deleteVoucher = async (id: string) => {
   }
 };
 
+export const lookupVoucherByCode = async (code: string) => {
+  const normalized = code.trim().toUpperCase();
+  const voucher = await prisma.voucher.findUnique({
+    where: { code: normalized },
+    include: { service: { select: { name: true } } },
+  });
+  if (!voucher) throw new AppError('Nie znaleziono vouchera o podanym kodzie', 404);
+  return voucher;
+};
+
 export const getVoucherPdfPath = async (id: string): Promise<string> => {
   const voucher = await prisma.voucher.findUnique({
     where: { id },

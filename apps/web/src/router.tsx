@@ -42,6 +42,7 @@ const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').th
 const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
 const UserBeautyPlan = lazy(() => import('./pages/user/BeautyPlan').then(m => ({ default: m.UserBeautyPlan })));
+const UserVouchery = lazy(() => import('./pages/user/UserVouchery').then(m => ({ default: m.UserVouchery })));
 const ForumHome = lazy(() => import('./pages/user/forum/ForumHome').then(m => ({ default: m.ForumHome })));
 const ForumCategory = lazy(() => import('./pages/user/forum/ForumCategory').then(m => ({ default: m.ForumCategory })));
 const ForumThread = lazy(() => import('./pages/user/forum/ForumThread').then(m => ({ default: m.ForumThread })));
@@ -170,6 +171,7 @@ export const router = createBrowserRouter([
       { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
       { path: 'zalecenia', element: <S><UserBeautyPlan /></S> },
+      { path: 'vouchery', element: <S><UserVouchery /></S> },
       { path: 'forum', element: <S><ForumHome /></S> },
       { path: 'forum/nowy', element: <S><ForumNewThread /></S> },
       { path: 'forum/watek/:id', element: <S><ForumThread /></S> },
