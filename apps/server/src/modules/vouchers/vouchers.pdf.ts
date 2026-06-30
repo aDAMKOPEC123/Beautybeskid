@@ -47,7 +47,7 @@ export async function generateVoucherPdf(voucher: VoucherData): Promise<Buffer> 
 
   // Brand
   dt(page, 'BESKIDSTUDIO', { x: pad, y: height - 38, size: 9, font: bold, color: GREEN_ACTION, characterSpacing: 2 });
-  dt(page, 'Gabinet Kosmetologii Estetycznej', { x: pad, y: height - 52, size: 7, font: regular, color: MUTED });
+  dt(page, 'BeskidStudio By Wiktoria Cwik', { x: pad, y: height - 52, size: 7, font: regular, color: MUTED });
 
   page.drawLine({ start: { x: pad, y: height - 62 }, end: { x: leftW - pad, y: height - 62 }, thickness: 0.5, color: rgb(0.8, 0.9, 0.83) });
 
@@ -106,12 +106,29 @@ export async function generateVoucherPdf(voucher: VoucherData): Promise<Buffer> 
   const cx = leftW + (width - leftW) / 2;
   const cy = height / 2;
 
-  dt(page, '*', { x: cx - 4, y: cy + 48, size: 18, font: bold, color: OAK });
-  page.drawLine({ start: { x: cx, y: cy + 36 }, end: { x: cx, y: cy - 8 }, thickness: 0.7, color: rgb(0.6, 0.45, 0.28) });
-  dt(page, 'PIELEGNACJA', { x: cx - 34, y: cy - 20, size: 7, font: bold, color: IVORY, characterSpacing: 1.5 });
-  dt(page, '& RELAKS', { x: cx - 26, y: cy - 32, size: 7, font: bold, color: IVORY, characterSpacing: 1.5 });
-  page.drawLine({ start: { x: cx, y: cy - 44 }, end: { x: cx, y: cy - 78 }, thickness: 0.7, color: rgb(0.6, 0.45, 0.28) });
-  dt(page, 'kosmetologwiktoriacwik.pl', { x: cx - 62, y: cy - 92, size: 6, font: regular, color: IVORY });
+  // Decorative dots
+  for (let i = -1; i <= 1; i++) {
+    page.drawCircle({ x: cx + i * 10, y: cy + 72, size: i === 0 ? 2 : 1.2, color: i === 0 ? OAK : rgb(0.6, 0.45, 0.28) });
+  }
+  // Monogram circle
+  page.drawCircle({ x: cx, y: cy + 42, size: 24, color: FOREST, borderColor: OAK, borderWidth: 0.8 });
+  const bsSize = 14;
+  const bsW = bold.widthOfTextAtSize('BS', bsSize);
+  dt(page, 'BS', { x: cx - bsW / 2, y: cy + 37, size: bsSize, font: bold, color: OAK });
+  // Studio name
+  const nSize = 7.5;
+  dt(page, 'BESKID', { x: cx - bold.widthOfTextAtSize('BESKID', nSize) / 2, y: cy + 6, size: nSize, font: bold, color: IVORY, characterSpacing: 2 });
+  dt(page, 'STUDIO', { x: cx - bold.widthOfTextAtSize('STUDIO', nSize) / 2, y: cy - 6, size: nSize, font: bold, color: IVORY, characterSpacing: 2 });
+  // "by Wiktoria Cwik"
+  const byStr = 'by Wiktoria Cwik';
+  const bySize = 6.5;
+  dt(page, byStr, { x: cx - oblique.widthOfTextAtSize(byStr, bySize) / 2, y: cy - 22, size: bySize, font: oblique, color: OAK });
+  // Separator
+  page.drawLine({ start: { x: cx - 28, y: cy - 34 }, end: { x: cx + 28, y: cy - 34 }, thickness: 0.5, color: rgb(0.5, 0.38, 0.22) });
+  // URL
+  const urlStr = 'kosmetologwiktoriacwik.pl';
+  const urlSize = 5.5;
+  dt(page, urlStr, { x: cx - regular.widthOfTextAtSize(urlStr, urlSize) / 2, y: cy - 82, size: urlSize, font: regular, color: rgb(0.6, 0.72, 0.64) });
 
   const bytes = await pdfDoc.save();
   return Buffer.from(bytes);

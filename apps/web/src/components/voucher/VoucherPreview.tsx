@@ -56,10 +56,10 @@ export const VoucherPreview: React.FC<Props> = ({
 
         <div style={{ position: 'relative' }}>
           <div style={{ fontSize: '0.6em', fontWeight: 700, letterSpacing: '0.18em', color: '#3D7A54', textTransform: 'uppercase' }}>
-            ✦ BeskidStudio
+            BeskidStudio
           </div>
           <div style={{ fontSize: '0.5em', color: '#5A7A62', letterSpacing: '0.05em', marginTop: '1px' }}>
-            Gabinet Kosmetologii Estetycznej
+            BeskidStudio By Wiktoria Ćwik
           </div>
           <hr style={{ border: 'none', borderTop: '0.5px solid #C8E0CC', margin: '5% 0 4%' }} />
           <div style={{ fontSize: '0.52em', fontWeight: 700, letterSpacing: '0.18em', color: '#C4965A', textTransform: 'uppercase' }}>
@@ -136,14 +136,32 @@ export const VoucherPreview: React.FC<Props> = ({
           background: 'repeating-linear-gradient(45deg, rgba(196,150,90,0.03) 0, rgba(196,150,90,0.03) 1px, transparent 0, transparent 50%)',
           backgroundSize: '14px 14px',
         }} />
-        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 12%' }}>
-          <div style={{ fontSize: '1.2em', color: '#C4965A', marginBottom: '6px' }}>✦</div>
-          <div style={{ width: '1px', height: '20px', background: 'rgba(196,150,90,0.3)', margin: '0 auto 6px' }} />
-          <div style={{ fontSize: '0.45em', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(244,249,245,0.5)', lineHeight: 1.9 }}>
-            Pielęgnacja<br />& Relaks
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 8%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Decorative dot-dash row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+            <div style={{ width: '14px', height: '0.5px', background: 'rgba(196,150,90,0.45)' }} />
+            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#C4965A', opacity: 0.75 }} />
+            <div style={{ width: '14px', height: '0.5px', background: 'rgba(196,150,90,0.45)' }} />
           </div>
-          <div style={{ width: '1px', height: '16px', background: 'rgba(196,150,90,0.3)', margin: '6px auto' }} />
-          <div style={{ fontSize: '0.38em', color: 'rgba(244,249,245,0.3)', letterSpacing: '0.05em', wordBreak: 'break-all' }}>
+          {/* Monogram circle */}
+          <div style={{
+            width: '42px', height: '42px', borderRadius: '50%',
+            border: '1px solid rgba(196,150,90,0.6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(196,150,90,0.08)',
+            marginBottom: '7px',
+          }}>
+            <span style={{ fontSize: '0.95em', fontWeight: 800, color: '#C4965A', letterSpacing: '0.02em' }}>BS</span>
+          </div>
+          {/* Studio name */}
+          <div style={{ fontSize: '0.48em', fontWeight: 700, letterSpacing: '0.22em', color: '#F4F9F5', textTransform: 'uppercase', lineHeight: 1.45 }}>
+            Beskid<br />Studio
+          </div>
+          <div style={{ fontSize: '0.35em', color: 'rgba(196,150,90,0.88)', marginTop: '3px', fontStyle: 'italic', letterSpacing: '0.04em' }}>
+            by Wiktoria Ćwik
+          </div>
+          <div style={{ width: '28px', height: '0.5px', background: 'rgba(196,150,90,0.35)', margin: '7px auto 5px' }} />
+          <div style={{ fontSize: '0.32em', color: 'rgba(244,249,245,0.3)', letterSpacing: '0.04em', wordBreak: 'break-all' }}>
             kosmetologwiktoriacwik.pl
           </div>
         </div>
