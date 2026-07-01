@@ -32,10 +32,10 @@ export const PointsBar = ({
   const size = (radius + strokeWidth) * 2;
 
   return (
-    <div className="space-y-4" data-tour="loyalty-points-bar">
+    <div className="space-y-4">
       <div className="flex items-center gap-6">
         {/* Circular ring */}
-        <div className="shrink-0">
+        <div className="shrink-0" data-tour="loyalty-points-bar">
           <svg
             width={size}
             height={size}

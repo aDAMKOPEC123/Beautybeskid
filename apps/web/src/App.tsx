@@ -10,6 +10,7 @@ import { useAuthStore } from './store/auth.store';
 import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
 import { api } from './lib/axios';
 import { trackPageView } from './lib/analytics';
+import { TourProvider } from './contexts/TourContext';
 import {
   clearChunkReloadMarks,
   getErrorMessage,
@@ -198,7 +199,9 @@ function App() {
     <ErrorBoundary>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <TourProvider>
+            <RouterProvider router={router} />
+          </TourProvider>
           <DeferredClientPanelTransitionOverlay />
           <Toaster position="top-right" richColors />
         </QueryClientProvider>

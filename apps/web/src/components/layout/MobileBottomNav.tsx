@@ -257,6 +257,8 @@ export function MobileBottomNav() {
 
         <Link
           to="/rezerwacja"
+          data-tour="sidebar-booking-btn"
+          aria-label="Umów wizytę"
           className="flex h-12 w-12 -mt-4 items-center justify-center rounded-full shadow-md transition-transform active:scale-95"
           style={{ background: '#1A3828', color: '#fff' }}
         >

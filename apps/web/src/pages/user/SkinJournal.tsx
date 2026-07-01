@@ -412,7 +412,7 @@ export function UserSkinJournal() {
   });
 
   return (
-    <div data-tour="skin-journal" style={{ maxWidth: 680, margin: '0 auto', padding: '0 16px 40px' }}>
+    <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 16px 40px' }}>
       {/* Header */}
       <div className="journal-header">
         <div className="journal-header-left" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -420,7 +420,7 @@ export function UserSkinJournal() {
             <BookOpen size={22} color="#fff" />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 20, color: '#1A3828', margin: 0, fontWeight: 700 }}>
+            <h1 data-tour="skin-journal" style={{ width: 'fit-content', fontFamily: 'var(--font-heading, serif)', fontSize: 20, color: '#1A3828', margin: 0, fontWeight: 700 }}>
               Dziennik Kosmetologa
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

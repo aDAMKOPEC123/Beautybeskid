@@ -64,7 +64,6 @@ export const UserChat = () => {
   return (
     <div
       className="flex flex-col flex-1 min-h-0 overflow-hidden"
-      data-tour="chat-window"
       style={{
         borderRadius: 20,
         border: '1px solid rgba(0,0,0,0.07)',
@@ -77,7 +76,7 @@ export const UserChat = () => {
         className="p-4"
         style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <h2 className="font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
+        <h2 data-tour="chat-window" className="w-fit font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
           Czat z konsultantem
         </h2>
         <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>

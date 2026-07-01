@@ -1161,9 +1161,9 @@ export const BookingWizard = () => {
   };
 
   return (
-    <div data-tour="booking-wizard" className="max-w-4xl mx-auto space-y-8 animate-enter">
+    <div className="max-w-4xl mx-auto space-y-8 animate-enter">
       <div>
-        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
+        <h1 data-tour="booking-wizard" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Umów wizytę
         </h1>
         <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>

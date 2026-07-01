@@ -78,9 +78,9 @@ export const UserAppointments = () => {
   if (isLoading) return <AppointmentListSkeleton count={3} />;
 
   return (
-    <div className="space-y-8 animate-enter" data-tour="appointments-list">
+    <div className="space-y-8 animate-enter">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
+        <h1 data-tour="appointments-list" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Moje Wizyty
         </h1>
         <Link

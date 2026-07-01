@@ -19,7 +19,6 @@ import { getSocket } from '@/lib/socket';
 import { useAchievementNotifications } from '@/components/achievements/AchievementToast';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useTour } from '@/hooks/useTour';
-import { TourProvider } from '@/contexts/TourContext';
 import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
@@ -447,8 +446,4 @@ const UserLayoutInner = () => {
   );
 };
 
-export const UserLayout = () => (
-  <TourProvider>
-    <UserLayoutInner />
-  </TourProvider>
-);
+export const UserLayout = UserLayoutInner;

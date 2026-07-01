@@ -1,25 +1,41 @@
-// apps/web/src/tours/utils.ts
+function isVisible(element: Element): boolean {
+  const rect = element.getBoundingClientRect();
+  const style = window.getComputedStyle(element);
+
+  return rect.width > 0
+    && rect.height > 0
+    && style.display !== 'none'
+    && style.visibility !== 'hidden';
+}
+
+export function findVisibleElement(selector: string): Element | null {
+  return Array.from(document.querySelectorAll(selector)).find(isVisible) ?? null;
+}
 
 /**
- * Polls the DOM every 100ms until the element matching `selector` appears,
- * or until `timeout` ms elapses. Returns the element or null.
- *
- * Used between tour steps that require navigating to a new route —
- * driver.js calls onNextClick synchronously, but React Router navigation
- * takes time before the DOM element exists.
+ * Waits until a tour anchor is both mounted and visible. Lazy route chunks and
+ * API-backed screens can legitimately need more than a few seconds to render.
  */
-export function waitForElement(selector: string, timeout = 3000): Promise<Element | null> {
+export function waitForElement(selector: string, timeout = 10_000): Promise<Element | null> {
   return new Promise((resolve) => {
-    const start = Date.now();
+    const startedAt = Date.now();
+
     const poll = () => {
-      const el = document.querySelector(selector);
-      if (el) return resolve(el);
-      if (Date.now() - start > timeout) {
-        console.warn(`[Tour] Element "${selector}" not found within ${timeout}ms — skipping step`);
-        return resolve(null);
+      const element = findVisibleElement(selector);
+      if (element) {
+        resolve(element);
+        return;
       }
-      setTimeout(poll, 100);
+
+      if (Date.now() - startedAt >= timeout) {
+        console.warn(`[Tour] Element "${selector}" nie pojawił się w ciągu ${timeout} ms.`);
+        resolve(null);
+        return;
+      }
+
+      window.setTimeout(poll, 100);
     };
+
     poll();
   });
 }

@@ -173,8 +173,10 @@ export const UserProfile = () => {
     subtitle?: string,
     children?: React.ReactNode,
     headerAction?: React.ReactNode,
+    dataTour?: string,
   ) => (
     <div
+      data-tour={dataTour}
       className="max-w-xl rounded-[20px] overflow-hidden"
       style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', background: '#fff' }}
     >
@@ -200,7 +202,7 @@ export const UserProfile = () => {
   );
 
   return (
-    <div className="space-y-8 animate-enter" data-tour="profile-form">
+    <div className="space-y-8 animate-enter">
       <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>Twój Profil</h1>
 
       {/* Avatar */}
@@ -279,7 +281,8 @@ export const UserProfile = () => {
           style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
         >
           Edytuj dane
-        </button>
+        </button>,
+        'profile-form'
       )}
 
       {/* Patient card */}
