@@ -510,6 +510,60 @@ function Modal({
   );
 }
 
+function ServiceOrderControl({ service }: { service: any }) {
+  const [value, setValue] = useState(String(service.displayOrder ?? 1));
+
+  const mutation = useMutation<any, Error, number>({
+    mutationFn: (displayOrder) => {
+      const formData = new FormData();
+      formData.append('data', JSON.stringify({ displayOrder }));
+      return servicesApi.update(service.id, formData);
+    },
+    onSuccess: () => {
+      toast.success('Kolejnosc zostala zapisana.');
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+    onError: (error: any) => {
+      setValue(String(service.displayOrder ?? 1));
+      toast.error(error?.response?.data?.message || 'Nie udalo sie zapisac kolejnosci.');
+    },
+  });
+
+  const numericValue = Number(value);
+  const isValid = Number.isInteger(numericValue) && numericValue > 0;
+  const isUnchanged = numericValue === Number(service.displayOrder);
+
+  return (
+    <form
+      className="w-full space-y-1"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!isValid) {
+          toast.error('Kolejnosc musi byc dodatnia liczba calkowita');
+          return;
+        }
+        mutation.mutate(numericValue);
+      }}
+    >
+      <label className="block text-xs font-medium text-muted-foreground">Kolejnosc</label>
+      <div className="flex gap-2">
+        <input
+          type="number"
+          min="1"
+          step="1"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          aria-label={`Kolejnosc uslugi ${service.name}`}
+          className="min-w-0 w-20 rounded-md border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary sm:w-full"
+        />
+        <Button type="submit" size="sm" disabled={mutation.isPending || !isValid || isUnchanged}>
+          {mutation.isPending ? '...' : 'Zapisz'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export const AdminServices = () => {
   const [modal, setModal] = useState<ModalState>({ type: 'closed' });
 
@@ -639,9 +693,6 @@ export const AdminServices = () => {
                 <div className="p-5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-lg font-heading text-primary">{service.name}</h3>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/10">
-                      Kolejnosc: {service.displayOrder}
-                    </span>
                     {!service.isActive && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border">
                         Nieaktywna
@@ -698,6 +749,7 @@ export const AdminServices = () => {
                 </div>
 
                 <div className="p-5 flex sm:flex-col gap-2 bg-muted/10 border-l sm:-ml-px h-full justify-center">
+                  <ServiceOrderControl key={`${service.id}-${service.displayOrder}`} service={service} />
                   <Button
                     variant="outline"
                     size="sm"
