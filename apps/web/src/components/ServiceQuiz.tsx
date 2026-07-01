@@ -97,7 +97,7 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl max-w-lg w-full mx-4 p-6 space-y-5"
+        className="bg-white rounded-2xl max-w-lg max-h-[calc(100vh-2rem)] w-full mx-4 p-6 space-y-5 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
