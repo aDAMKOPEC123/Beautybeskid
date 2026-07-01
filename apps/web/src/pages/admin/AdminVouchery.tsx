@@ -152,7 +152,7 @@ export function AdminVouchery() {
   const labelCls = 'block text-xs font-medium text-muted-foreground mb-1 uppercase tracking-wider';
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl p-0 md:p-6">
       <h1 className="text-2xl font-semibold text-foreground mb-1">Vouchery Prezentowe</h1>
       <p className="text-sm text-muted-foreground mb-6">Generuj vouchery na usługi lub gotówkowe w formacie PDF A5</p>
 
@@ -175,7 +175,7 @@ export function AdminVouchery() {
 
       {/* GENERATOR TAB */}
       {tab === 'generator' && (
-        <div className="flex gap-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
           <div className="flex-1 space-y-4">
             <div>
               <label className={labelCls}>Typ vouchera</label>
@@ -219,7 +219,7 @@ export function AdminVouchery() {
 
             <hr className="border-border" />
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className={labelCls}>Dla kogo (opcjonalnie)</label>
                 <input className={inputCls} maxLength={80} placeholder="Ania" value={recipientName} onChange={e => setRecipientName(e.target.value)} />
@@ -260,7 +260,7 @@ export function AdminVouchery() {
           </div>
 
           {/* Live Preview */}
-          <div className="w-80 flex-shrink-0">
+          <div className="w-full flex-shrink-0 lg:w-80">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Podgląd</p>
             <VoucherPreview
               type={type}
@@ -284,7 +284,7 @@ export function AdminVouchery() {
             <p className="text-sm text-muted-foreground">Brak wygenerowanych voucherów.</p>
           ) : (
             <>
-              <table className="w-full text-sm border-collapse">
+              <table className="block w-full overflow-x-auto whitespace-nowrap border-collapse text-sm md:table md:whitespace-normal">
                 <thead>
                   <tr className="border-b border-border">
                     {['Typ', 'Usługa / Kwota', 'Pozostało', 'Dla', 'Kod', 'Wystawiony', 'Ważny do', 'Akcje'].map(h => (

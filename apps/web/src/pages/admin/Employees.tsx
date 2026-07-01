@@ -238,12 +238,12 @@ function AdminWeekScheduleEditor({ employeeId }: { employeeId: string }) {
   return (
     <div className="space-y-4">
       {/* Week nav */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-1">
           <button onClick={() => setWeekStart((w) => getWeekStart(subWeeks(w, 1)))} className="p-1.5 rounded hover:bg-accent">
             <ChevronLeft size={16} />
           </button>
-          <span className="font-semibold text-sm capitalize min-w-[160px] text-center">{weekLabel}</span>
+          <span className="min-w-0 text-center text-sm font-semibold capitalize sm:min-w-[160px]">{weekLabel}</span>
           <button onClick={() => setWeekStart((w) => getWeekStart(addWeeks(w, 1)))} className="p-1.5 rounded hover:bg-accent">
             <ChevronRight size={16} />
           </button>
@@ -443,9 +443,9 @@ export const AdminEmployees = () => {
 
   return (
     <div className="space-y-6 animate-enter">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-heading font-bold text-primary">Pracownicy</h1>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
           <Button variant="outline" onClick={() => setModal({ type: 'happy-hours' })}>
             ⭐ Happy Hours
           </Button>

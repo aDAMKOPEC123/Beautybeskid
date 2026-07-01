@@ -61,6 +61,8 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
   const [cardConditions, setCardConditions] = useState('');
   const [cardPreferences, setCardPreferences] = useState('');
   const [cardStaffNotes, setCardStaffNotes] = useState('');
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
   const [journalOpen, setJournalOpen] = useState(false);
 
   useEffect(() => {
@@ -69,6 +71,8 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
       setCardConditions(data.cardConditions ?? '');
       setCardPreferences(data.cardPreferences ?? '');
       setCardStaffNotes(data.cardStaffNotes ?? '');
+      setEditName(data.name ?? '');
+      setEditPhone(data.phone ?? '');
     }
   }, [data]);
 
@@ -79,6 +83,16 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
       queryClient.invalidateQueries({ queryKey: ['admin', 'user-details', userId] });
     },
     onError: () => toast.error('Nie udało się zapisać kartoteki.'),
+  });
+
+  const { mutate: saveBasic, isPending: savingBasic } = useMutation({
+    mutationFn: () => usersApi.updateUserBasic(userId, { name: editName.trim(), phone: editPhone.trim() || null }),
+    onSuccess: () => {
+      toast.success('Dane zaktualizowane.');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'user-details', userId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+    onError: () => toast.error('Nie udało się zaktualizować danych.'),
   });
 
   return (
@@ -108,6 +122,34 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                   <p className="text-xl font-bold">{data.name}</p>
                   <p className="text-muted-foreground text-sm">{data.email}</p>
                   {data.phone && <p className="text-muted-foreground text-sm">{data.phone}</p>}
+                </div>
+              </div>
+
+              {/* Edycja danych podstawowych */}
+              <div>
+                <h3 className="font-semibold text-base border-b pb-2 mb-3">Dane podstawowe</h3>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold uppercase text-muted-foreground">Imię i nazwisko</label>
+                    <input
+                      className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      placeholder="Imię i nazwisko"
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold uppercase text-muted-foreground">Numer telefonu</label>
+                    <input
+                      className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      placeholder="np. 600 123 456"
+                      value={editPhone}
+                      onChange={e => setEditPhone(e.target.value)}
+                    />
+                  </div>
+                  <Button size="sm" onClick={() => saveBasic()} disabled={savingBasic}>
+                    {savingBasic ? 'Zapisywanie...' : 'Zapisz dane'}
+                  </Button>
                 </div>
               </div>
 

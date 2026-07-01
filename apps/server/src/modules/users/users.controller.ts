@@ -194,6 +194,19 @@ export const searchUsers = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const adminUpdateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, phone } = req.body;
+    const data: Record<string, unknown> = {};
+    if (name !== undefined) data.name = name?.trim() || undefined;
+    if (phone !== undefined) data.phone = phone?.trim() || null;
+    const user = await usersService.updateUser(req.params.id, data);
+    res.status(200).json({ status: 'success', data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await usersService.deleteUser(req.params.id);

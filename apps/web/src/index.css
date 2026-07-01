@@ -205,6 +205,72 @@
   }
 }
 
+/* Admin PWA: mobile-only ergonomics. Desktop layout remains controlled by md+ utilities. */
+@media (max-width: 767px) {
+  .admin-shell {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .admin-main {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-main > * {
+    min-width: 0;
+  }
+
+  .admin-main h1 {
+    overflow-wrap: anywhere;
+    font-size: 1.5rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .admin-main h2,
+  .admin-main h3,
+  .admin-main p,
+  .admin-main td,
+  .admin-main th {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-main button,
+  .admin-main a,
+  .admin-shell nav a,
+  .admin-shell nav button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .admin-main .overflow-x-auto {
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-main > .space-y-6 > .flex.justify-between.items-center {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .admin-main > .space-y-6 > .flex.justify-between.items-center > div {
+    flex-wrap: wrap;
+  }
+
+  .admin-main .fixed.inset-0 {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .admin-main .fixed.inset-0 > div:not(.absolute):not([class*="inset-0"]) {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 72px) !important;
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+}
+
 /* Premium homepage conversion polish */
 @keyframes premium-light-drift {
   0% { transform: translate3d(-8%, 0, 0); }

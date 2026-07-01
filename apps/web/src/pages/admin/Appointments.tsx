@@ -391,7 +391,7 @@ export const AdminAppointments = () => {
 
   return (
     <div className="space-y-6 animate-enter">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Wizyty</h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -401,10 +401,10 @@ export const AdminAppointments = () => {
         </div>
 
         {/* View toggle */}
-        <div className="flex gap-1 border rounded-lg p-1 bg-muted/30">
+        <div className="flex w-full gap-1 rounded-lg border bg-muted/30 p-1 sm:w-auto">
           <button
             onClick={() => setView('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-none sm:py-1.5 ${
               view === 'list' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
             }`}
           >
@@ -412,7 +412,7 @@ export const AdminAppointments = () => {
           </button>
           <button
             onClick={() => setView('calendar')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-none sm:py-1.5 ${
               view === 'calendar' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
             }`}
           >
@@ -426,7 +426,7 @@ export const AdminAppointments = () => {
       ) : view === 'list' ? (
         <ListView appointments={appointments} />
       ) : (
-        <div className="h-[calc(100vh-120px)]">
+        <div className="h-[calc(100dvh-210px)] min-h-[420px] md:h-[calc(100vh-120px)]">
           <CalendarView
             appointments={appointments}
             services={services}

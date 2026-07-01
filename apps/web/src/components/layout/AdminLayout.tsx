@@ -1,7 +1,7 @@
 // filepath: apps/web/src/components/layout/AdminLayout.tsx
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -14,10 +14,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { consultationsApi } from '@/api/consultations.api';
 import { notificationsApi } from '@/api/notifications.api';
 
+type MobileAdminLink = { to: string; label: string; badge?: number };
+
 export const AdminLayout = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [komunikacjaOpen, setKomunikacjaOpen] = useState(
     () => ['/admin/powiadomienia', '/admin/chat'].some(p => location.pathname.startsWith(p))
   );
@@ -128,56 +131,177 @@ export const AdminLayout = () => {
   const komunikacjaBadge = adminNotifUnread + staffUnreadTotal;
   const wizytyBadge = unreadCount + newLeadsCount;
 
+  const mobileNavGroups: Array<{ label: string; links: MobileAdminLink[] }> = [
+    { label: 'Start', links: [{ to: '/admin', label: 'Dashboard' }] },
+    {
+      label: 'Komunikacja',
+      links: [
+        { to: '/admin/powiadomienia', label: 'Powiadomienia', badge: adminNotifUnread },
+        { to: '/admin/chat', label: 'Chat', badge: staffUnreadTotal },
+      ],
+    },
+    {
+      label: 'Wizyty i personel',
+      links: [
+        { to: '/admin/wizyty', label: 'Wizyty', badge: wizytyBadge },
+        { to: '/admin/konsultacje', label: 'Konsultacje', badge: newLeadsCount },
+        { to: '/admin/pracownicy', label: 'Pracownicy' },
+        { to: '/admin/praca', label: 'Praca' },
+      ],
+    },
+    {
+      label: 'Klienci',
+      links: [
+        { to: '/admin/uzytkownicy', label: 'Użytkownicy' },
+        { to: '/admin/recenzje', label: 'Recenzje' },
+        { to: '/admin/beauty-plans', label: 'Beauty Plans' },
+      ],
+    },
+    {
+      label: 'Treści',
+      links: [
+        { to: '/admin/hero', label: 'Slider strony głównej' },
+        { to: '/admin/polecane-zabiegi', label: 'Polecane zabiegi' },
+        { to: '/admin/o-nas', label: 'Strona „O nas”' },
+        { to: '/admin/uslugi', label: 'Usługi' },
+        { to: '/admin/blog', label: 'Blog' },
+        { to: '/admin/metamorfozy', label: 'Metamorfozy' },
+      ],
+    },
+    {
+      label: 'Diagnostyka',
+      links: [
+        { to: '/admin/quizy', label: 'Quizy' },
+        { to: '/admin/pogoda-skory', label: 'Pogoda skóry' },
+      ],
+    },
+    {
+      label: 'Sprzedaż',
+      links: [
+        { to: '/admin/kody-rabatowe', label: 'Kody rabatowe' },
+        { to: '/admin/vouchery', label: 'Vouchery' },
+        { to: '/admin/lojalnosc', label: 'Program lojalnościowy' },
+        { to: '/admin/asortyment', label: 'Asortyment' },
+      ],
+    },
+    {
+      label: 'Pozostałe',
+      links: [
+        { to: '/admin/akademia', label: 'Akademia' },
+        { to: '/admin/forum', label: 'Forum' },
+        { to: '/admin/marketing', label: 'Marketing' },
+        { to: '/admin/regulamin', label: 'Regulamin' },
+      ],
+    },
+  ];
+  const mobileLinks = mobileNavGroups.flatMap((group) => group.links);
+  const currentMobilePage = [...mobileLinks]
+    .sort((a, b) => b.to.length - a.to.length)
+    .find((link) => link.to === '/admin'
+      ? location.pathname === '/admin'
+      : location.pathname.startsWith(link.to));
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
   if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-muted/20 pt-[72px]">
+    <div className="admin-shell min-h-screen flex flex-col bg-muted/20 pt-[72px]">
       <ScrollToTop />
       <Navbar />
-      {/* Mobile horizontal nav — md:hidden */}
-      <nav className="md:hidden overflow-x-auto border-b bg-card flex gap-1 px-3 py-2 shrink-0" style={{ scrollbarWidth: 'none' }}>
-        {[
-          { to: '/admin', label: 'Dashboard' },
-          { to: '/admin/wizyty', label: 'Wizyty', badge: wizytyBadge },
-          { to: '/admin/konsultacje', label: 'Konsultacje', badge: newLeadsCount },
-          { to: '/admin/pracownicy', label: 'Pracownicy' },
-          { to: '/admin/uzytkownicy', label: 'Użytkownicy' },
-          { to: '/admin/chat', label: 'Chat', badge: staffUnreadTotal },
-          { to: '/admin/powiadomienia', label: 'Powiadomienia', badge: adminNotifUnread },
-          { to: '/admin/uslugi', label: 'Usługi' },
-          { to: '/admin/blog', label: 'Blog' },
-          { to: '/admin/metamorfozy', label: 'Metamorfozy' },
-          { to: '/admin/lojalnosc', label: 'Lojalność' },
-          { to: '/admin/kody-rabatowe', label: 'Kody' },
-          { to: '/admin/vouchery', label: 'Vouchery' },
-          { to: '/admin/recenzje', label: 'Recenzje' },
-          { to: '/admin/beauty-plans', label: 'Beauty Plans' },
-          { to: '/admin/quizy', label: 'Quizy' },
-          { to: '/admin/hero', label: 'Slider' },
-          { to: '/admin/polecane-zabiegi', label: 'Polecane' },
-          { to: '/admin/o-nas', label: 'O nas' },
-          { to: '/admin/regulamin', label: 'Regulamin' },
-          { to: '/admin/asortyment', label: 'Asortyment' },
-          { to: '/admin/pogoda-skory', label: 'Pogoda skóry' },
-          { to: '/admin/akademia', label: 'Akademia' },
-          { to: '/admin/forum', label: 'Forum' },
-          { to: '/admin/marketing', label: 'Marketing' },
-        ].map(({ to, label, badge }) => (
-          <Link
-            key={to}
-            to={to}
-            className="relative shrink-0 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors hover:bg-accent"
+      <div className="md:hidden shrink-0 border-b bg-card/95 px-3 py-2 shadow-sm backdrop-blur">
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Administracja</p>
+            <p className="truncate text-sm font-semibold text-primary">
+              {currentMobilePage?.label ?? 'Panel admina'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-semibold text-primary shadow-sm"
+            aria-label="Otwórz menu panelu admina"
+            aria-expanded={mobileMenuOpen}
           >
-            {label}
-            {badge != null && badge > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-destructive text-white text-[9px] rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
-                {badge > 9 ? '9+' : badge}
+            <Menu size={18} />
+            Menu
+            {komunikacjaBadge + wizytyBadge > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] text-white">
+                {komunikacjaBadge + wizytyBadge > 9 ? '9+' : komunikacjaBadge + wizytyBadge}
               </span>
             )}
-          </Link>
-        ))}
-      </nav>
+          </button>
+        </div>
+      </div>
+
+      <div
+        className={`fixed inset-x-0 bottom-0 top-[72px] z-[60] md:hidden ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        aria-hidden={!mobileMenuOpen}
+      >
+        <button
+          type="button"
+          aria-label="Zamknij menu panelu admina"
+          tabIndex={mobileMenuOpen ? 0 : -1}
+          onClick={() => setMobileMenuOpen(false)}
+          className={`absolute inset-0 bg-espresso/45 backdrop-blur-sm transition-opacity ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+        />
+        <aside
+          className={`absolute inset-y-0 right-0 flex w-[min(88vw,360px)] flex-col bg-card shadow-2xl transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          aria-label="Nawigacja panelu admina"
+        >
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Panel admina</p>
+              <p className="text-lg font-bold text-primary">Nawigacja</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              tabIndex={mobileMenuOpen ? 0 : -1}
+              className="flex h-11 w-11 items-center justify-center rounded-full border bg-background text-primary"
+              aria-label="Zamknij menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-3 py-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            {mobileNavGroups.map((group) => (
+              <div key={group.label} className="mb-4 last:mb-0">
+                <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {group.label}
+                </p>
+                <div className="space-y-1">
+                  {group.links.map(({ to, label, badge }) => {
+                    const isActive = to === '/admin'
+                      ? location.pathname === '/admin'
+                      : location.pathname.startsWith(to);
+                    return (
+                      <Link
+                        key={to}
+                        to={to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        tabIndex={mobileMenuOpen ? 0 : -1}
+                        className={`flex min-h-11 items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-primary text-primary-foreground shadow-sm' : 'text-foreground hover:bg-accent'}`}
+                      >
+                        <span>{label}</span>
+                        {badge != null && badge > 0 && (
+                          <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-destructive text-white'}`}>
+                            {badge > 9 ? '9+' : badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+        </aside>
+      </div>
 
       {isSupported && !isSubscribed && permission !== 'denied' && (
         <div className="md:hidden px-3 py-2 border-b bg-card">
@@ -487,7 +611,7 @@ export const AdminLayout = () => {
             </div>
           )}
         </aside>
-        <main className="flex-1 p-8 overflow-y-auto bg-background/50">
+        <main className="admin-main min-w-0 flex-1 overflow-y-auto bg-background/50 p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-5 md:p-8">
           <Outlet />
         </main>
       </div>

@@ -50,8 +50,8 @@ export default function AdminQuizzes() {
   const bodyPartEmoji = (bp: string) => BODY_PARTS.find((b) => b.value === bp)?.emoji ?? '';
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-3xl p-0 md:p-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: '#1A3828' }}>Quizy dopasowania</h1>
           <p className="text-sm mt-0.5" style={{ color: 'rgba(20,40,28,0.5)' }}>

@@ -122,7 +122,7 @@ export const AdminAbout = () => {
 
   return (
     <div className="max-w-3xl space-y-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Strona „O nas"</h1>
           <p className="text-sm text-muted-foreground mt-1">Edytuj treść wyświetlaną na stronie /o-nas</p>

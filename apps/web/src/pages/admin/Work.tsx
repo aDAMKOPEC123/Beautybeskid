@@ -170,16 +170,16 @@ export const AdminWork = () => {
 
   return (
     <div className="space-y-6 animate-enter">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-heading font-bold text-primary">Praca — dziś</h1>
         <p className="text-sm text-muted-foreground">
           {format(new Date(), "EEEE, d MMMM yyyy", { locale: pl })}
         </p>
       </div>
 
-      <div className="flex gap-6 h-[calc(100vh-180px)]">
+      <div className="flex h-auto flex-col gap-4 md:h-[calc(100vh-180px)] md:flex-row md:gap-6">
         {/* LEFT — harmonogram */}
-        <div className="w-80 flex flex-col gap-3">
+        <div className="flex w-full flex-col gap-3 md:w-80">
           {/* Selector pracownika */}
           <select
             className="w-full border rounded-md px-3 py-2 text-sm bg-background"
@@ -193,7 +193,7 @@ export const AdminWork = () => {
           </select>
 
           {/* Lista wizyt */}
-          <Card className="flex-1 overflow-hidden flex flex-col">
+          <Card className="flex max-h-[45dvh] flex-col overflow-hidden md:max-h-none md:flex-1">
             <CardHeader className="pb-2 pt-4 px-4">
               <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Harmonogram dnia ({appointments.length})
@@ -283,7 +283,7 @@ export const AdminWork = () => {
         </div>
 
         {/* RIGHT — karta klienta */}
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className="flex-1 space-y-4 md:overflow-y-auto">
           {!selected ? (
             <div className="h-full flex items-center justify-center text-muted-foreground">
               Brak wizyt do wyświetlenia

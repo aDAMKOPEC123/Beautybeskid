@@ -45,7 +45,7 @@ export function AdminCourseList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-semibold">Kursy ({courses.length})</h2>
         <Link
           to="/admin/akademia/kurs/nowy"

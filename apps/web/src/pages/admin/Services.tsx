@@ -496,15 +496,15 @@ function Modal({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-background rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
+      <div role="dialog" aria-modal="true" aria-label={title} className="w-full max-w-2xl max-h-[calc(100dvh-72px)] overflow-y-auto rounded-t-2xl bg-background shadow-xl sm:max-h-[90vh] sm:rounded-xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-4 py-4 sm:px-6">
           <h2 className="text-lg font-semibold font-heading">{title}</h2>
-          <button onClick={onClose} className="p-1 rounded hover:bg-accent">
+          <button onClick={onClose} className="p-2 rounded hover:bg-accent" aria-label="Zamknij formularz usługi">
             <X size={18} />
           </button>
         </div>
-        <div className="px-6 py-4">{children}</div>
+        <div className="px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-6">{children}</div>
       </div>
     </div>
   );
@@ -554,7 +554,7 @@ function ServiceOrderControl({ service }: { service: any }) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           aria-label={`Kolejnosc uslugi ${service.name}`}
-          className="min-w-0 w-20 rounded-md border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary sm:w-full"
+          className="min-w-0 w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
         <Button type="submit" size="sm" disabled={mutation.isPending || !isValid || isUnchanged}>
           {mutation.isPending ? '...' : 'Zapisz'}
@@ -748,7 +748,7 @@ export const AdminServices = () => {
                   )}
                 </div>
 
-                <div className="p-5 flex sm:flex-col gap-2 bg-muted/10 border-l sm:-ml-px h-full justify-center">
+                <div className="flex h-full flex-col justify-center gap-2 border-t bg-muted/10 p-4 sm:-ml-px sm:border-l sm:border-t-0 sm:p-5">
                   <ServiceOrderControl key={`${service.id}-${service.displayOrder}`} service={service} />
                   <Button
                     variant="outline"

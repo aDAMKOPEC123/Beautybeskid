@@ -8,7 +8,7 @@ import { BookingProposalPanel } from '@/components/chat/BookingProposalPanel';
 import { useChat } from '@/hooks/useChat';
 import { useChatStore } from '@/store/chat.store';
 import { useAuth } from '@/hooks/useAuth';
-import { Search, CalendarClock, Trash2 } from 'lucide-react';
+import { ArrowLeft, Search, CalendarClock, Trash2 } from 'lucide-react';
 
 export const AdminChat = () => {
   const { user } = useAuth();
@@ -75,10 +75,10 @@ export const AdminChat = () => {
   }, [messages]);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] rounded-3xl overflow-hidden border bg-background shadow-2xl animate-enter">
+    <div className="flex h-[calc(100dvh-165px)] min-h-[480px] overflow-hidden rounded-xl border bg-background shadow-2xl animate-enter md:h-[calc(100vh-8rem)] md:rounded-3xl">
       {/* Sidebar: Chat List */}
-      <div className="w-80 border-r bg-muted/20 flex flex-col">
-        <div className="p-6 border-b bg-card">
+      <div className={`${activeRoom ? 'hidden md:flex' : 'flex'} w-full flex-col border-r bg-muted/20 md:w-80`}>
+        <div className="border-b bg-card p-4 md:p-6">
           <h2 className="font-heading font-bold text-2xl text-primary mb-4">Wiadomości</h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
@@ -121,7 +121,7 @@ export const AdminChat = () => {
               <button
                 onClick={(e) => handleDeleteRoom(e, room)}
                 title="Usuń historię czatu"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-muted-foreground opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive md:opacity-0 md:group-hover:opacity-100"
               >
                 <Trash2 size={14} />
               </button>
@@ -136,11 +136,19 @@ export const AdminChat = () => {
       </div>
 
       {/* Main: Chat View */}
-      <div className="flex-1 flex flex-col bg-card/50 relative">
+      <div className={`${activeRoom ? 'flex' : 'hidden md:flex'} min-w-0 flex-1 flex-col bg-card/50 relative`}>
         {activeRoom ? (
           <>
-            <div className="p-6 border-b bg-background flex items-center justify-between shadow-sm z-10">
-              <h3 className="font-bold text-xl">
+            <div className="z-10 flex items-center gap-3 border-b bg-background p-3 shadow-sm md:p-6">
+              <button
+                type="button"
+                onClick={() => setActiveRoom(null)}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-primary md:hidden"
+                aria-label="Wróć do listy rozmów"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <h3 className="min-w-0 truncate font-bold text-lg md:text-xl">
                 {activeRoom.user.name}
                 <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full ml-3 hidden sm:inline-block">
                   Czat na żywo
@@ -148,7 +156,7 @@ export const AdminChat = () => {
               </h3>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5 bg-muted/10" ref={scrollRef}>
+            <div className="flex flex-1 flex-col gap-4 overflow-y-auto bg-muted/10 p-3 md:gap-5 md:p-6" ref={scrollRef}>
               {messages.map((msg, idx) => {
                 const firstUnread =
                   idx > 0 &&
@@ -166,7 +174,7 @@ export const AdminChat = () => {
               })}
             </div>
 
-            <div className="p-5 border-t bg-background space-y-3">
+            <div className="space-y-3 border-t bg-background p-3 pb-[calc(.75rem+env(safe-area-inset-bottom))] md:p-5">
               {showProposal && (
                 <BookingProposalPanel
                   onSend={(message) => sendMessage(message, activeRoom.id)}

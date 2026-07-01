@@ -37,6 +37,7 @@ router.post('/:id/reject', requireAdmin, usersController.rejectUser);
 router.patch('/:id/role', requireAdmin, usersController.updateUserRole);
 
 router.patch('/:id/card', requireStaff, usersController.updateUserCard);
+router.patch('/:id', requireAdmin, usersController.adminUpdateUser);
 router.get('/:id/recommendations', requireAdmin, recommendationsController.getByUser);
 router.get('/:id', requireAdmin, usersController.getUserDetails);
 router.delete('/:id', requireAdmin, usersController.deleteUser);

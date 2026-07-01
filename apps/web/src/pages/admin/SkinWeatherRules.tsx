@@ -542,8 +542,8 @@ export const SkinWeatherRules = () => {
     : EMPTY_FORM;
 
   return (
-    <div className="p-6 max-w-3xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-3xl p-0 md:p-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-sky-100 dark:bg-sky-900/30 rounded-xl"><Cloud className="h-5 w-5 text-sky-600 dark:text-sky-400" /></div>
           <div>
@@ -552,7 +552,7 @@ export const SkinWeatherRules = () => {
           </div>
         </div>
         {activeTab === 'rules' && (
-          <div className="flex items-center gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
             <button onClick={() => generateAllMutation.mutate()} disabled={generateAllMutation.isPending}
               className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-xl hover:bg-muted/40 transition-colors disabled:opacity-50">
               {generateAllMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
