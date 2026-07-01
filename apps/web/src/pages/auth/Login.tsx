@@ -16,13 +16,20 @@ import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { setAccessToken, setUser } = useAuth();
+  const { setAccessToken, setUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string })?.from || '/';
+  const from = (location.state as { from?: string })?.from || '/user';
   const panelEntry = Boolean((location.state as { panelEntry?: boolean } | null)?.panelEntry);
   const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/user', { replace: true });
+      return;
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {

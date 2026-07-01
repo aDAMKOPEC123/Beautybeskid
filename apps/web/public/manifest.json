@@ -3,7 +3,7 @@
   "name": "BeskidStudio By Wiktoria Ćwik — Salon Kosmetologiczny",
   "short_name": "BeskidStudio",
   "description": "Salon kosmetologiczny BeskidStudio by Wiktoria Ćwik — Limanowa",
-  "start_url": "/",
+  "start_url": "/auth/login",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
