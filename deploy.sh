@@ -9,7 +9,7 @@ set -e
 
 VPS="ubuntu@51.83.160.253"
 REMOTE_DIR="/home/ubuntu/cosmo-app"
-WEBROOT="/var/www/cosmo-app/dist"
+WEBROOT="/var/www/kosmetologwiktoriacwik.pl"
 
 MODE=${1:-"full"}
 
