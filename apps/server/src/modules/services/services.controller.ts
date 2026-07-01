@@ -17,6 +17,9 @@ const parseServicePayload = (req: Request) => {
   if (dataToValidate.durationMinutes !== undefined) {
     dataToValidate.durationMinutes = Number(dataToValidate.durationMinutes);
   }
+  if (dataToValidate.displayOrder !== undefined) {
+    dataToValidate.displayOrder = Number(dataToValidate.displayOrder);
+  }
   if (dataToValidate.recommendedIntervalDays !== undefined && dataToValidate.recommendedIntervalDays !== null) {
     dataToValidate.recommendedIntervalDays = Number(dataToValidate.recommendedIntervalDays);
   }

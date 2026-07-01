@@ -10,7 +10,11 @@ export const getAllServices = async () => {
   const [services, reviewAggregates] = await Promise.all([
     prisma.service.findMany({
       where: { isActive: true },
-      orderBy: { category: 'asc' },
+      orderBy: [
+        { displayOrder: 'asc' },
+        { category: 'asc' },
+        { name: 'asc' },
+      ],
       include: { employees: employeeSelect },
     }),
     prisma.review.groupBy({

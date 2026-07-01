@@ -233,6 +233,7 @@ model Service {
   price           Decimal  @db.Decimal(10,2)
   durationMinutes Int
   category        String
+  displayOrder    Int      @default(1)
   imagePath       String?
   isActive                Boolean  @default(true)
   detailedContent         String?
@@ -260,6 +261,7 @@ model Service {
 
   @@index([category])
   @@index([isActive])
+  @@index([displayOrder])
 }
 
 model BlogPost {

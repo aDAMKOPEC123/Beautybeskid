@@ -317,7 +317,7 @@ const normalizeText = (text: string) =>
 const getActiveAdminServices = (availableServices: Service[]) =>
   availableServices
     .filter((service) => service.isActive)
-    .sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+    .sort((a, b) => a.displayOrder - b.displayOrder || a.name.localeCompare(b.name, 'pl'));
 
 const getServiceCategories = (services: Service[]) =>
   Array.from(new Set(services.map((service) => service.category).filter(Boolean)))
@@ -1719,7 +1719,7 @@ export const Home = () => {
   const currentSeason = getCurrentSeason();
   const seasonalServices = allServices
     .filter((service) => service.isActive && service.seasons.includes(currentSeason))
-    .sort((a, b) => a.name.localeCompare(b.name, 'pl'))
+    .sort((a, b) => a.displayOrder - b.displayOrder || a.name.localeCompare(b.name, 'pl'))
     .slice(0, 3);
 
   const formattedSlot = nextSlot ? formatNextSlot(nextSlot.date, nextSlot.time) : null;

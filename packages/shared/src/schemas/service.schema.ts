@@ -8,6 +8,7 @@ const serviceSchemaBase = z.object({
   price: z.number().positive('Cena musi byc dodatnia'),
   durationMinutes: z.number().int().positive('Czas trwania musi byc dodatni'),
   category: z.string().min(2, 'Kategoria jest wymagana'),
+  displayOrder: z.number().int().positive('Kolejnosc musi byc dodatnia liczba calkowita').default(1),
   isActive: z.boolean().default(true),
   employeeIds: z.array(z.string()).optional(),
   detailedContent: z.string().nullable().optional(),

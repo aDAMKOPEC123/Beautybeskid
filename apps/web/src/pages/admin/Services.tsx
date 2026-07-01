@@ -20,6 +20,7 @@ interface FormValues {
   detailedContent: string;
   price: string;
   durationMinutes: string;
+  displayOrder: string;
   isActive: boolean;
   recommendedIntervalDays: string;
   isMultiVisit: boolean;
@@ -39,6 +40,7 @@ const EMPTY_FORM: FormValues = {
   detailedContent: '',
   price: '',
   durationMinutes: '',
+  displayOrder: '1',
   isActive: true,
   recommendedIntervalDays: '',
   isMultiVisit: false,
@@ -142,6 +144,10 @@ function ServiceForm({
       toast.error('Kategoria jest wymagana');
       return;
     }
+    if (!Number.isInteger(Number(values.displayOrder)) || Number(values.displayOrder) <= 0) {
+      toast.error('Kolejnosc musi byc dodatnia liczba calkowita');
+      return;
+    }
 
     if (values.isMultiVisit) {
       const numericIntervals = values.seriesIntervalsDays.map((entry) => Number(entry));
@@ -232,6 +238,22 @@ function ServiceForm({
             required
           />
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-sm font-medium">Kolejnosc wyswietlania *</label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          value={values.displayOrder}
+          onChange={(event) => set('displayOrder', event.target.value)}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          required
+        />
+        <p className="text-xs text-muted-foreground">
+          Im mniejszy numer, tym wyzej usluga pojawi sie w ofercie i podczas rezerwacji.
+        </p>
       </div>
 
       {!values.isMultiVisit && (
@@ -541,6 +563,7 @@ export const AdminServices = () => {
         description: values.description.trim(),
         price: Number(values.price),
         durationMinutes: Number(values.durationMinutes),
+        displayOrder: Number(values.displayOrder),
         category: values.category.trim(),
         isActive: values.isActive,
         recommendedIntervalDays:
@@ -571,6 +594,7 @@ export const AdminServices = () => {
       description: service.description ?? '',
       price: String(Number(service.price)),
       durationMinutes: String(service.durationMinutes),
+      displayOrder: String(service.displayOrder ?? 1),
       isActive: service.isActive ?? true,
       recommendedIntervalDays:
         service.recommendedIntervalDays !== null && service.recommendedIntervalDays !== undefined
@@ -615,6 +639,9 @@ export const AdminServices = () => {
                 <div className="p-5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-lg font-heading text-primary">{service.name}</h3>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/10">
+                      Kolejnosc: {service.displayOrder}
+                    </span>
                     {!service.isActive && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border">
                         Nieaktywna
