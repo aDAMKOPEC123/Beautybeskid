@@ -1,11 +1,12 @@
 import React, { lazy, Suspense } from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
 import { useAuthStore } from '@/store/auth.store';
 
 const HomeRoute = () => {
   const { accessToken, user } = useAuthStore();
-  if (accessToken && user) return <Navigate to="/user" replace />;
+  const location = useLocation();
+  if (accessToken && user && !(location.state as any)?.fromPanel) return <Navigate to="/user" replace />;
   return <Home />;
 };
 

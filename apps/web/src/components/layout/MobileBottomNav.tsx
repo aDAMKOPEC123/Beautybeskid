@@ -162,6 +162,7 @@ export function MobileBottomNav() {
                     <motion.div key={to} variants={activeItemVariants}>
                       <Link
                         to={to}
+                        state={to === '/' ? { fromPanel: true } : undefined}
                         onClick={() => setIsMoreOpen(false)}
                         className={cn(
                           'relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-all duration-300 active:scale-95',

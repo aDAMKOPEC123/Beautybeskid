@@ -404,6 +404,7 @@ const UserLayoutInner = () => {
             </Link>
             <Link
               to="/"
+              state={{ fromPanel: true }}
               className="px-4 py-2.5 rounded-xl text-sm transition-all duration-300 flex items-center gap-3 mt-1"
               style={{ color: 'rgba(20,40,28,0.45)' }}
             >
