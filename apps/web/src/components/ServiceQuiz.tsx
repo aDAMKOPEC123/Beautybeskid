@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { quizApi, type FullQuiz, type ApiQuizResult } from '@/api/quiz.api';
 
 interface Props {
@@ -11,10 +11,10 @@ interface Props {
 type BodyPart = 'STOPY' | 'TWARZ' | 'DLONIE' | 'DEKOLT' | null;
 
 const BODY_PARTS = [
-  { key: 'STOPY' as const, label: 'Stopy', emoji: '🦶', available: true },
-  { key: 'TWARZ' as const, label: 'Twarz', emoji: '🧖', available: false },
-  { key: 'DLONIE' as const, label: 'Dłonie', emoji: '💅', available: false },
-  { key: 'DEKOLT' as const, label: 'Dekolt', emoji: '✨', available: false },
+  { key: 'STOPY' as const, label: 'Stopy', emoji: '🦶' },
+  { key: 'TWARZ' as const, label: 'Twarz', emoji: '🧖' },
+  { key: 'DLONIE' as const, label: 'Dłonie', emoji: '💅' },
+  { key: 'DEKOLT' as const, label: 'Dekolt', emoji: '✨' },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -25,13 +25,18 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [depth, setDepth] = useState(0); // tracks progress for bar
 
-  // Fetch quizzes for selected body part
-  // NOTE: TanStack Query v5 removed onSuccess from useQuery — use useEffect instead
-  const { data: quizList = [], isLoading: loadingList } = useQuery({
-    queryKey: ['quizzes', bodyPart],
-    queryFn: () => quizApi.listByBodyPart(bodyPart!),
-    enabled: !!bodyPart,
+  // Availability follows published quizzes instead of a hardcoded body-part list.
+  const availabilityQueries = useQueries({
+    queries: BODY_PARTS.map(({ key }) => ({
+      queryKey: ['quizzes', key],
+      queryFn: () => quizApi.listByBodyPart(key),
+      staleTime: 60_000,
+    })),
   });
+  const selectedPartIndex = bodyPart === null ? -1 : BODY_PARTS.findIndex(({ key }) => key === bodyPart);
+  const selectedPartQuery = selectedPartIndex >= 0 ? availabilityQueries[selectedPartIndex] : null;
+  const quizList = selectedPartQuery?.data ?? [];
+  const loadingList = selectedPartQuery?.isLoading ?? false;
 
   useEffect(() => {
     if (quizList.length === 1) setSelectedQuizId(quizList[0].id);
@@ -82,7 +87,8 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
     };
   }
 
-  const loading = loadingList || loadingQuiz;
+  const loadingAvailability = availabilityQueries.some((query) => query.isLoading);
+  const loading = loadingAvailability || loadingList || loadingQuiz;
 
   return (
     <div
@@ -121,7 +127,10 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold" style={{ color: '#1A3828' }}>Jakiej części ciała dotyczy zabieg?</h2>
             <div className="grid grid-cols-2 gap-3">
-              {BODY_PARTS.map(({ key, label, emoji, available }) => (
+              {BODY_PARTS.map(({ key, label, emoji }, index) => {
+                const checking = availabilityQueries[index].isLoading;
+                const available = (availabilityQueries[index].data?.length ?? 0) > 0;
+                return (
                 <div key={key} className="relative">
                   <button
                     onClick={() => available ? setBodyPart(key) : undefined}
@@ -136,11 +145,12 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                   </button>
                   {!available && (
                     <span className="absolute top-2 right-2 text-xs font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(196,150,90,0.15)', color: '#C4965A' }}>
-                      Wkrótce
+                      {checking ? 'Sprawdzam' : 'Wkrótce'}
                     </span>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -191,6 +201,7 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
         {/* Result screen */}
         {!loading && currentNode?.type === 'RESULT' && (() => {
           const result = buildResult(currentNode as any);
+          const isSet = result.mainService?.name.toLocaleLowerCase('pl-PL').includes('set') ?? false;
           return (
             <div className="space-y-4">
               <div className="text-center space-y-1">
@@ -198,6 +209,19 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                 <h2 className="text-xl font-bold" style={{ color: '#1A3828' }}>{result.title}</h2>
                 <p className="text-sm font-medium" style={{ color: '#C4965A' }}>{result.subtitle}</p>
               </div>
+              {result.mainService && (
+                <div className="rounded-xl border px-4 py-3 flex items-center justify-between gap-3" style={{ borderColor: isSet ? 'rgba(196,150,90,0.45)' : 'rgba(0,0,0,0.1)' }}>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#C4965A' }}>
+                      {isSet ? 'Najlepsze dopasowanie · SET' : 'Najlepsze dopasowanie'}
+                    </p>
+                    <p className="text-sm font-semibold mt-0.5" style={{ color: '#1A3828' }}>{result.mainService.name}</p>
+                  </div>
+                  <span className="text-sm font-semibold whitespace-nowrap" style={{ color: '#1A3828' }}>
+                    {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(result.mainService.price))}
+                  </span>
+                </div>
+              )}
               <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(196,150,90,0.06)', border: '1px solid rgba(196,150,90,0.2)' }}>
                 <p className="text-sm" style={{ color: 'rgba(20,40,28,0.8)' }}>{result.description}</p>
                 {result.extras && (
@@ -206,14 +230,30 @@ export default function ServiceQuiz({ onClose, onAccept }: Props) {
                   </p>
                 )}
               </div>
+              {result.suggestions.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(20,40,28,0.45)' }}>Warto też rozważyć</p>
+                  {result.suggestions.map((suggestion) => (
+                    <div key={suggestion.id} className="flex items-center gap-2 text-sm" style={{ color: 'rgba(20,40,28,0.72)' }}>
+                      <span style={{ color: '#C4965A' }}>•</span>
+                      <span>{suggestion.name}</span>
+                      {suggestion.name.toLocaleLowerCase('pl-PL').includes('set') && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(196,150,90,0.15)', color: '#9B6F35' }}>SET</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="flex flex-col gap-2 pt-1">
-                <button
-                  onClick={() => onAccept(result)}
-                  className="w-full py-3 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
-                  style={{ background: '#1A3828', color: '#F4F9F5' }}
-                >
-                  Zarezerwuj ten zabieg
-                </button>
+                {result.mainService && (
+                  <button
+                    onClick={() => onAccept(result)}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
+                    style={{ background: '#1A3828', color: '#F4F9F5' }}
+                  >
+                    {isSet ? 'Wybieram ten SET' : 'Zarezerwuj ten zabieg'}
+                  </button>
+                )}
                 <button
                   onClick={onClose}
                   className="w-full py-3 rounded-xl text-sm font-medium border transition-opacity hover:opacity-70"

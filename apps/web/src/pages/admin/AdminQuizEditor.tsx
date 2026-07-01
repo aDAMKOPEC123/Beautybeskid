@@ -112,14 +112,6 @@ export default function AdminQuizEditor() {
 
   const saveMutation = useMutation({
     mutationFn: () => {
-      const resultNodes = nodes.filter((n) => n.type === 'RESULT');
-      const emptyResult = resultNodes.find((n) => {
-        const result = (n.data as any).result;
-        return !result?.mainServiceId && (!result?.suggestions || result.suggestions.length === 0);
-      });
-      if (emptyResult) {
-        throw new Error('Każdy węzeł wyniku musi mieć wybrany zabieg główny lub co najmniej jedną sugestię.');
-      }
       const { nodes: n, edges: e } = flowToPayload(nodes, edges);
       return quizApi.saveTree(id!, n, e);
     },

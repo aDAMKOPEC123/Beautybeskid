@@ -222,7 +222,7 @@ function StepService({
       >
         Nie wiesz, jaki zabieg wybrać?{' '}
         <span className="font-semibold" style={{ color: '#C4965A' }}>
-          Odpowiedz na 6 pytań →
+          Rozwiąż krótki quiz →
         </span>
       </button>
 
