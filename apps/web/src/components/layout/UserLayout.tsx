@@ -26,6 +26,7 @@ import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
+  Globe,
   LayoutDashboard,
   Calendar,
   Star,
@@ -280,13 +281,6 @@ const UserLayoutInner = () => {
                 Panel Pracownika
               </Link>
             )}
-            <Link
-              to="/"
-              className="hidden sm:block text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70"
-              style={{ color: 'rgba(240,237,230,0.65)' }}
-            >
-              ← Wizytówka
-            </Link>
             <button
               onClick={handleLogout}
               className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70"
@@ -408,6 +402,14 @@ const UserLayoutInner = () => {
               style={{ background: '#1A3828', color: '#fff' }}
             >
               + Umów wizytę
+            </Link>
+            <Link
+              to="/"
+              className="px-4 py-2.5 rounded-xl text-sm transition-all duration-300 flex items-center gap-3 mt-1"
+              style={{ color: 'rgba(20,40,28,0.45)' }}
+            >
+              <Globe size={18} />
+              <span>Wróć na stronę główną</span>
             </Link>
           </div>
         </aside>

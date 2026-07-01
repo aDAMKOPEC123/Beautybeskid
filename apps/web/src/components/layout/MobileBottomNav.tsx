@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
+  Globe,
   LayoutDashboard,
   Calendar,
   Plus,
@@ -32,6 +33,7 @@ const MORE_LINKS = [
   { to: '/akademia', label: 'Akademia', icon: GraduationCap },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Profil', icon: UserIcon },
+  { to: '/', label: 'Wizytówka', icon: Globe },
 ];
 
 const backdropVariants = {
