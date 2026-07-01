@@ -309,6 +309,7 @@ export const advanceTreatmentSeriesAfterCompletion = async (
   });
 
   if (!appointment?.service.isMultiVisit) return null;
+  if (!appointment.userId) return null; // guest appointment — no series tracking
 
   if (appointment.treatmentSeriesId) {
     const series = await db.treatmentSeries.findUnique({
@@ -349,7 +350,7 @@ export const advanceTreatmentSeriesAfterCompletion = async (
     return updatedSeries;
   }
 
-  const activeSeries = await getActiveSeriesForService(db, appointment.userId, appointment.serviceId);
+  const activeSeries = await getActiveSeriesForService(db, appointment.userId!, appointment.serviceId);
   if (activeSeries?.nextStep) {
     const existingUpcoming = await getUpcomingSeriesAppointment(db, activeSeries.id, activeSeries.nextStep);
     if (!existingUpcoming || existingUpcoming.id === appointment.id) {
@@ -365,7 +366,7 @@ export const advanceTreatmentSeriesAfterCompletion = async (
     }
   }
 
-  return createSeriesFromFirstCompletedAppointment(db, appointment);
+  return createSeriesFromFirstCompletedAppointment(db, { ...appointment, userId: appointment.userId! });
 };
 
 const buildSeriesReminderItems = async (userId: string, now: Date): Promise<SeriesReminderItem[]> => {
@@ -807,6 +808,7 @@ export const backfillTreatmentSeriesData = async () => {
     });
 
     for (const { userId } of users) {
+      if (!userId) continue;
       await prisma.$transaction((tx) => backfillSeriesForUserService(tx, userId, service));
     }
   }

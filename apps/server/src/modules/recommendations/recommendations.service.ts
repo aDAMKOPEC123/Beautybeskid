@@ -11,6 +11,7 @@ export const addRecommendation = async (
 ) => {
   const appointment = await prisma.appointment.findUnique({ where: { id: appointmentId } });
   if (!appointment) throw new AppError('Wizyta nie znaleziona', 404);
+  if (!appointment.userId) throw new AppError('Nie można dodać rekomendacji do wizyty zewnętrznej klientki', 400);
 
   const recommendation = await prisma.appointmentRecommendation.create({
     data: {

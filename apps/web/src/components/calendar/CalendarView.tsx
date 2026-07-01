@@ -188,7 +188,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         employeeColor: color,
         hasAllergies: false,
         hasNotes: !!appt.notes || !!appt.staffNote,
-        phone: appt.user?.phone ?? undefined,
+        phone: appt.user?.phone ?? appt.clientPhone ?? undefined,
         _raw: appt,
       },
     }];

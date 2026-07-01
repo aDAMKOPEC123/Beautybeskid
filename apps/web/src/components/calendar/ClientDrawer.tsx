@@ -19,7 +19,9 @@ export function ClientDrawer({ appointment, onClose }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('Wizyta');
   const navigate = useNavigate();
 
-  const user = appointment.user; // { name, email, phone } from getAll include
+  const user = appointment.user; // { name, email, phone } from getAll include — null for guest appointments
+  const displayName = (appointment as any).clientName ?? user?.name ?? '—';
+  const displayPhone = (appointment as any).clientPhone ?? user?.phone ?? '';
 
   return (
     <>
@@ -39,8 +41,8 @@ export function ClientDrawer({ appointment, onClose }: Props) {
         {/* Header */}
         <div className="p-3 border-b border-gray-100 flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="font-bold text-sm text-gray-900 truncate">{user?.name ?? '—'}</div>
-            <div className="text-xs text-gray-500">{user?.phone ?? ''}</div>
+            <div className="font-bold text-sm text-gray-900 truncate">{displayName}</div>
+            <div className="text-xs text-gray-500">{displayPhone}</div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button

@@ -54,7 +54,8 @@ export const sendRoutine = async (appointmentId: string) => {
     data: { sentAt: new Date() },
   });
 
-  const userId = routine.appointment.user.id;
+  const userId = routine.appointment.user?.id;
+  if (!userId) return updated;
   const serviceName = routine.appointment.service.name;
 
   try {

@@ -367,39 +367,13 @@ export const createExternalClientAppointment = async (data: {
   date: string;
   notes?: string;
 }) => {
-  let user = null;
-
-  if (data.clientEmail) {
-    user = await prisma.user.findUnique({ where: { email: data.clientEmail } });
-  }
-  if (!user) {
-    user = await prisma.user.findFirst({ where: { phone: data.clientPhone }, orderBy: { createdAt: 'desc' } });
-  }
-  if (!user) {
-    const email = data.clientEmail || `${data.clientPhone.replace(/\D/g, '')}@external.cosmo`;
-    let ambassadorCode: string;
-    while (true) {
-      ambassadorCode = generateCode(8);
-      const exists = await prisma.user.findUnique({ where: { ambassadorCode } });
-      if (!exists) break;
-    }
-    user = await prisma.user.create({
-      data: {
-        name: data.clientName,
-        phone: data.clientPhone,
-        email,
-        passwordHash: null,
-        accountStatus: 'ACTIVE',
-        ambassadorCode,
-        termsAcceptedAt: new Date(),
-      },
-    });
-  }
-
   const result = await prisma.$transaction(async (tx) => {
     const appointment = await tx.appointment.create({
       data: {
-        userId: user!.id,
+        userId: null,
+        clientName: data.clientName,
+        clientPhone: data.clientPhone,
+        clientEmail: data.clientEmail || null,
         serviceId: data.serviceId,
         employeeId: data.employeeId || null,
         date: new Date(data.date),
@@ -411,12 +385,6 @@ export const createExternalClientAppointment = async (data: {
         employee: { select: { id: true, name: true, avatarPath: true } },
         user: { select: { name: true, email: true, phone: true } },
       },
-    });
-
-    await attachAppointmentToSeries(tx, {
-      appointmentId: appointment.id,
-      userId: user!.id,
-      serviceId: data.serviceId,
     });
 
     return tx.appointment.findUniqueOrThrow({
@@ -487,7 +455,7 @@ export const approveReschedule = async (id: string) => {
     },
   });
 
-  try {
+  if (updated.user) try {
     const io = getIO();
     await createAndEmitNotification(io, {
       userId: updated.user.id,
@@ -527,7 +495,7 @@ export const rejectReschedule = async (id: string) => {
   try {
     const io = getIO();
     await createAndEmitNotification(io, {
-      userId: appointment.userId,
+      userId: appointment.userId!,
       type: 'GENERIC',
       title: 'Zmiana terminu odrzucona',
       body: 'Twoja prośba o zmianę terminu wizyty została odrzucona. Wizyta odbywa się w pierwotnym terminie.',
@@ -591,30 +559,34 @@ export const updateStatus = async (
     }
 
     if (status === 'COMPLETED' && existing.status !== 'COMPLETED' && appointment.service) {
-      await advanceTreatmentSeriesAfterCompletion(tx, appointment.id);
-
-      const points = Math.floor(Number(appointment.service.price));
-
-      await tx.loyaltyTransaction.create({
-        data: {
-          userId: appointment.user.id,
-          points,
-          type: 'EARN',
-          description: `Punkty za wizyte: ${appointment.service.name}`,
-        },
-      });
-
-      // Tier is based on total loyalty points after this visit
-      const newPointsTotal = (appointment.user.loyaltyPoints ?? 0) + points;
-      const newTier = getTierForPoints(newPointsTotal);
-      if (newTier !== existing.user.loyaltyTier) {
-        tierChanged = true;
+      if (appointment.userId) {
+        await advanceTreatmentSeriesAfterCompletion(tx, appointment.id);
       }
 
-      await tx.user.update({
-        where: { id: appointment.user.id },
-        data: { loyaltyPoints: { increment: points }, loyaltyTier: newTier },
-      });
+      if (appointment.user) {
+        const points = Math.floor(Number(appointment.service.price));
+
+        await tx.loyaltyTransaction.create({
+          data: {
+            userId: appointment.user.id,
+            points,
+            type: 'EARN',
+            description: `Punkty za wizyte: ${appointment.service.name}`,
+          },
+        });
+
+        // Tier is based on total loyalty points after this visit
+        const newPointsTotal = (appointment.user.loyaltyPoints ?? 0) + points;
+        const newTier = getTierForPoints(newPointsTotal);
+        if (newTier !== existing.user!.loyaltyTier) {
+          tierChanged = true;
+        }
+
+        await tx.user.update({
+          where: { id: appointment.user.id },
+          data: { loyaltyPoints: { increment: points }, loyaltyTier: newTier },
+        });
+      }
 
       // Find existing routine and mark as sent if not already sent
       const existingRoutine = await tx.homecareRoutine.findUnique({
@@ -637,7 +609,7 @@ export const updateStatus = async (
     };
   });
 
-  if (result.wasNewlyCompleted) {
+  if (result.wasNewlyCompleted && result.appointment.user) {
     try {
       const newAchievements = await checkAndAward(result.appointment.user.id);
       if (newAchievements.length > 0) {
@@ -659,19 +631,19 @@ export const updateStatus = async (
     }
   }
 
-  if (result.routineAutoSent) {
+  if (result.routineAutoSent && result.appointment.user) {
     try {
       const io = getIO();
       const apt = result.appointment;
       const serviceName = apt.service?.name ?? 'Usługa';
       await createAndEmitNotification(io, {
-        userId: apt.user.id,
+        userId: apt.user!.id,
         type: 'GENERIC',
         title: 'Twoja rutyna pielęgnacyjna jest gotowa 💆‍♀️',
         body: `Sprawdź co robić po zabiegu: ${serviceName}`,
         url: '/user/rutyna',
       });
-      await sendPushToUser(apt.user.id, {
+      await sendPushToUser(apt.user!.id, {
         title: 'Twoja rutyna pielęgnacyjna jest gotowa 💆‍♀️',
         body: `Sprawdź co robić po zabiegu: ${serviceName}`,
         url: '/user/rutyna',
@@ -681,33 +653,33 @@ export const updateStatus = async (
     }
   }
 
-  try {
+  if (result.appointment.user) try {
     const io = getIO();
     const apt = result.appointment;
     const dateStr = apt.date.toISOString().slice(0, 10);
     const serviceName = apt.service?.name ?? 'Usługa';
     if (status === 'CONFIRMED') {
       await createAndEmitNotification(io, {
-        userId: apt.user.id,
+        userId: apt.user!.id,
         type: 'APPOINTMENT_CONFIRMED',
         title: 'Wizyta potwierdzona',
         body: `Twoja wizyta: ${serviceName} — ${dateStr}`,
         url: '/user/wizyty',
       });
-      await sendPushToUser(apt.user.id, {
+      await sendPushToUser(apt.user!.id, {
         title: 'Wizyta potwierdzona',
         body: `Twoja wizyta na ${serviceName} została potwierdzona`,
         url: '/user/wizyty',
       });
     } else if (status === 'CANCELLED') {
       await createAndEmitNotification(io, {
-        userId: apt.user.id,
+        userId: apt.user!.id,
         type: 'APPOINTMENT_CANCELLED',
         title: 'Wizyta odwołana',
         body: `Twoja wizyta: ${serviceName} — ${dateStr}`,
         url: '/user/wizyty',
       });
-      await sendPushToUser(apt.user.id, {
+      await sendPushToUser(apt.user!.id, {
         title: 'Wizyta odwołana',
         body: `Twoja wizyta na ${serviceName} została odwołana`,
         url: '/user/wizyty',
@@ -715,7 +687,7 @@ export const updateStatus = async (
     }
     if (result.tierChanged) {
       await createAndEmitNotification(io, {
-        userId: apt.user.id,
+        userId: apt.user!.id,
         type: 'LOYALTY_TIER_UP',
         title: 'Nowy poziom lojalności!',
         body: 'Gratulacje! Osiągnąłeś nowy poziom w programie lojalnościowym.',
