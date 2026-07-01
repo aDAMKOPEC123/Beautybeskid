@@ -1,6 +1,13 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
+import { useAuthStore } from '@/store/auth.store';
+
+const HomeRoute = () => {
+  const { accessToken, user } = useAuthStore();
+  if (accessToken && user) return <Navigate to="/user" replace />;
+  return <Home />;
+};
 
 const PublicLayout = lazy(() => import('./components/layout/PublicLayout').then(m => ({ default: m.PublicLayout })));
 const UserLayout = lazy(() => import('./components/layout/UserLayout').then(m => ({ default: m.UserLayout })));
@@ -116,7 +123,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     errorElement: routeErrorElement,
     children: [
-      { index: true, element: <S><Home /></S> },
+      { index: true, element: <S><HomeRoute /></S> },
       { path: 'uslugi', element: <S><ServiceList /></S> },
       { path: 'uslugi/:slug', element: <S><ServiceDetail /></S> },
       { path: 'blog', element: <S><BlogList /></S> },
