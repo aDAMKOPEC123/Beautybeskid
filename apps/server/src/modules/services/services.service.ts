@@ -64,13 +64,28 @@ export const createService = async (data: CreateServiceInput) => {
   }
 
   const { employeeIds, ...rest } = data;
-  return await prisma.service.create({
-    data: {
-      ...rest,
-      slug,
-      ...(employeeIds?.length ? { employees: { connect: employeeIds.map((id) => ({ id })) } } : {}),
-    },
-    include: { employees: employeeSelect },
+  return await prisma.$transaction(async (tx) => {
+    const occupiedPosition = await tx.service.findFirst({
+      where: { displayOrder: data.displayOrder },
+      select: { id: true },
+    });
+
+    if (occupiedPosition) {
+      const lastPosition = await tx.service.aggregate({ _max: { displayOrder: true } });
+      await tx.service.update({
+        where: { id: occupiedPosition.id },
+        data: { displayOrder: (lastPosition._max.displayOrder ?? 0) + 1 },
+      });
+    }
+
+    return tx.service.create({
+      data: {
+        ...rest,
+        slug,
+        ...(employeeIds?.length ? { employees: { connect: employeeIds.map((id) => ({ id })) } } : {}),
+      },
+      include: { employees: employeeSelect },
+    });
   });
 };
 
@@ -88,16 +103,44 @@ export const updateService = async (id: string, data: UpdateServiceInput) => {
   }
 
   const { employeeIds, ...rest } = data;
-  return await prisma.service.update({
-    where: { id },
-    data: {
-      ...rest,
-      ...(slug && { slug }),
-      ...(employeeIds !== undefined
-        ? { employees: { set: employeeIds.map((eid) => ({ id: eid })) } }
-        : {}),
-    },
-    include: { employees: employeeSelect },
+  const updateData = {
+    ...rest,
+    ...(slug && { slug }),
+    ...(employeeIds !== undefined
+      ? { employees: { set: employeeIds.map((eid) => ({ id: eid })) } }
+      : {}),
+  };
+
+  return await prisma.$transaction(async (tx) => {
+    if (data.displayOrder !== undefined) {
+      const currentService = await tx.service.findUnique({
+        where: { id },
+        select: { displayOrder: true },
+      });
+      if (!currentService) throw new AppError('UsĹ‚uga nie znaleziona', 404);
+
+      if (currentService.displayOrder !== data.displayOrder) {
+        const occupiedPosition = await tx.service.findFirst({
+          where: { displayOrder: data.displayOrder, id: { not: id } },
+          select: { id: true },
+        });
+
+        if (occupiedPosition) {
+          const lastPosition = await tx.service.aggregate({ _max: { displayOrder: true } });
+          await tx.service.update({ where: { id }, data: { displayOrder: 0 } });
+          await tx.service.update({
+            where: { id: occupiedPosition.id },
+            data: { displayOrder: (lastPosition._max.displayOrder ?? 0) + 1 },
+          });
+        }
+      }
+    }
+
+    return tx.service.update({
+      where: { id },
+      data: updateData,
+      include: { employees: employeeSelect },
+    });
   });
 };
 
