@@ -7,7 +7,7 @@ import {
   isSameDay,
 } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { ChevronDown, Calendar, List } from 'lucide-react';
+import { ChevronDown, Calendar, List, Pencil, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { appointmentsApi } from '@/api/appointments.api';
@@ -126,6 +126,45 @@ function StatusSelect({ appointmentId, current }: { appointmentId: string; curre
 
 function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: boolean }) {
   const qc = useQueryClient();
+  const [editingTime, setEditingTime] = useState(false);
+
+  const apptStart = new Date(a.date);
+  const apptDuration = (a.customDurationMinutes ?? a.service?.durationMinutes ?? 0) as number;
+  const apptEnd = new Date(apptStart.getTime() + apptDuration * 60_000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const [editDate, setEditDate] = useState(
+    `${apptStart.getFullYear()}-${pad(apptStart.getMonth() + 1)}-${pad(apptStart.getDate())}`
+  );
+  const [editTimeFrom, setEditTimeFrom] = useState(`${pad(apptStart.getHours())}:${pad(apptStart.getMinutes())}`);
+  const [editTimeTo, setEditTimeTo] = useState(`${pad(apptEnd.getHours())}:${pad(apptEnd.getMinutes())}`);
+
+  const editDuration = Math.max(
+    (() => {
+      const [fh, fm] = editTimeFrom.split(':').map(Number);
+      const [th, tm] = editTimeTo.split(':').map(Number);
+      return (th * 60 + tm) - (fh * 60 + fm);
+    })(),
+    1,
+  );
+
+  const updateTimeMutation = useMutation({
+    mutationFn: () => {
+      const [dh, dm] = editTimeFrom.split(':').map(Number);
+      const newStart = new Date(editDate);
+      newStart.setHours(dh, dm, 0, 0);
+      return appointmentsApi.updateTime(a.id, {
+        date: newStart.toISOString(),
+        customDurationMinutes: editDuration,
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['appointments'] });
+      setEditingTime(false);
+      toast.success('Czas wizyty zaktualizowany');
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Błąd aktualizacji czasu'),
+  });
+
   const { mutate: approveMutate, isPending: isApproving } = useMutation({
     mutationFn: () => appointmentsApi.approveReschedule(a.id),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['appointments'] }); toast.success('Zmiana terminu zatwierdzona'); },
@@ -191,12 +230,76 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
           )}
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <div className="text-right">
-            <p className="text-xs font-medium">
-              {format(new Date(a.date), 'dd.MM.yyyy', { locale: pl })}
-            </p>
-            <p className="text-sm font-bold">{format(new Date(a.date), 'HH:mm')}</p>
-          </div>
+          {editingTime ? (
+            <div className="text-right space-y-1">
+              <input
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+                className="text-xs border border-input rounded px-2 py-1 bg-background w-full"
+              />
+              <div className="flex gap-1 items-center">
+                <input
+                  type="time"
+                  value={editTimeFrom}
+                  onChange={(e) => {
+                    const [oh, om] = editTimeFrom.split(':').map(Number);
+                    const [th, tm] = editTimeTo.split(':').map(Number);
+                    const dur = (th * 60 + tm) - (oh * 60 + om);
+                    const [nh, nm] = e.target.value.split(':').map(Number);
+                    const newEnd = nh * 60 + nm + Math.max(dur, 1);
+                    setEditTimeFrom(e.target.value);
+                    setEditTimeTo(`${pad(Math.floor(newEnd / 60) % 24)}:${pad(newEnd % 60)}`);
+                  }}
+                  className="text-xs border border-input rounded px-1 py-1 bg-background w-20"
+                />
+                <span className="text-xs text-muted-foreground">–</span>
+                <input
+                  type="time"
+                  value={editTimeTo}
+                  onChange={(e) => setEditTimeTo(e.target.value)}
+                  className="text-xs border border-input rounded px-1 py-1 bg-background w-20"
+                />
+              </div>
+              <div className="text-xs text-violet-600 text-center">{editDuration} min</div>
+              <div className="flex gap-1 justify-end">
+                <button
+                  onClick={() => setEditingTime(false)}
+                  className="text-xs px-2 py-1 rounded border border-input hover:bg-accent flex items-center gap-0.5"
+                >
+                  <X size={11} /> Anuluj
+                </button>
+                <button
+                  onClick={() => updateTimeMutation.mutate()}
+                  disabled={updateTimeMutation.isPending}
+                  className="text-xs px-2 py-1 rounded bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 flex items-center gap-0.5"
+                >
+                  <Check size={11} /> Zapisz
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-right group">
+              <p className="text-xs font-medium">
+                {format(new Date(a.date), 'dd.MM.yyyy', { locale: pl })}
+              </p>
+              <div className="flex items-center gap-1 justify-end">
+                <p className="text-sm font-bold">{format(new Date(a.date), 'HH:mm')}</p>
+                {apptDuration > 0 && (
+                  <span className="text-xs text-muted-foreground">({apptDuration} min)</span>
+                )}
+                {['PENDING', 'CONFIRMED'].includes(a.status) && (
+                  <button
+                    onClick={() => setEditingTime(true)}
+                    className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Edytuj czas"
+                  >
+                    <Pencil size={11} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           <StatusBadge status={a.status} />
           <StatusSelect appointmentId={a.id} current={a.status} />
           {a.rescheduleStatus === 'PENDING' && (

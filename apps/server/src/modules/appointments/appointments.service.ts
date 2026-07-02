@@ -78,6 +78,54 @@ export const updateStaffNote = async (id: string, staffNote: string) => {
   });
 };
 
+export const updateAppointmentTime = async (
+  id: string,
+  data: { date?: string; customDurationMinutes?: number },
+) => {
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+    include: {
+      service: { select: { durationMinutes: true } },
+    },
+  });
+  if (!appointment) throw new AppError('Wizyta nie istnieje', 404);
+
+  const newDate = data.date ? new Date(data.date) : new Date(appointment.date);
+  const newDuration =
+    data.customDurationMinutes ??
+    appointment.customDurationMinutes ??
+    appointment.service?.durationMinutes ??
+    60;
+
+  // Conflict check (skip for same appointment)
+  if (appointment.employeeId) {
+    const newEnd = new Date(newDate.getTime() + newDuration * 60_000);
+    const conflictBuffer = newDuration * 60_000;
+    const conflict = await prisma.appointment.findFirst({
+      where: {
+        id: { not: id },
+        employeeId: appointment.employeeId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        date: {
+          gte: new Date(newDate.getTime() - conflictBuffer),
+          lt: newEnd,
+        },
+      },
+      select: { id: true, date: true },
+    });
+    if (conflict) throw new AppError('Wybrany termin koliduje z inną wizytą', 409);
+  }
+
+  return prisma.appointment.update({
+    where: { id },
+    data: {
+      ...(data.date ? { date: newDate } : {}),
+      customDurationMinutes: newDuration,
+    },
+    include: todayInclude,
+  });
+};
+
 interface CreateAppointmentData {
   serviceId: string;
   employeeId?: string;

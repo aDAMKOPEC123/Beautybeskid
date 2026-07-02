@@ -76,6 +76,10 @@ export const appointmentsApi = {
     const res = await api.post('/appointments/admin/external', data);
     return res.data.data.appointment;
   },
+  updateTime: async (id: string, data: { date?: string; customDurationMinutes?: number }) => {
+    const res = await api.patch(`/appointments/${id}/time`, data);
+    return res.data.data.appointment;
+  },
   remove: async (id: string) => {
     await api.delete(`/appointments/${id}`);
   },

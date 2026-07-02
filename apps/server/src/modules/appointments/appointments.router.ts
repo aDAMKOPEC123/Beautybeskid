@@ -24,6 +24,7 @@ router.post('/admin', requireAdmin, appointmentsController.createAdmin);
 router.post('/admin/external', requireAdmin, appointmentsController.createExternal);
 router.patch('/:id/status', requireAdmin, appointmentsController.updateStatus);
 router.patch('/:id/staff-note', requireAdmin, appointmentsController.updateStaffNote);
+router.patch('/:id/time', requireAdmin, appointmentsController.updateTime);
 router.get('/:id/recommendations', requireStaff, recommendationsController.getForAppointment);
 router.post('/:id/recommendations', requireStaff, recommendationsController.addRecommendation);
 router.delete('/:id/recommendations/:recId', authenticate, recommendationsController.deleteRecommendation);

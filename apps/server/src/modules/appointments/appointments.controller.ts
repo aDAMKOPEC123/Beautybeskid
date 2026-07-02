@@ -161,6 +161,20 @@ export const updateStaffNote = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const updateTime = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const appointment = await appointmentsService.updateAppointmentTime(req.params.id, {
+      date: req.body.date,
+      customDurationMinutes: req.body.customDurationMinutes,
+    });
+    getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to('employee:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    res.json({ status: 'success', data: { appointment } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const requestReschedule = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const appointment = await appointmentsService.requestReschedule(req.params.id, req.user!.id, req.body.date);
