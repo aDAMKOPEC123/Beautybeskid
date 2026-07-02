@@ -119,6 +119,7 @@ const spaTemplate = template
   .replace(/<div id="root">[\s\S]*?<\/div>/, '<div id="root"></div>');
 
 await writeFile(path.join(DIST_DIR, 'spa.html'), spaTemplate);
+await writeFile(path.join(DIST_DIR, 'private-spa.html'), spaTemplate);
 
 const renderPage = (page) => {
   const canonical = `${DOMAIN}${page.path === '/' ? '/' : page.path}`;
