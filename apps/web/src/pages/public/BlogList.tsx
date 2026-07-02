@@ -240,8 +240,8 @@ export const BlogList = () => {
   }
 `}</style>
       <PageSEO
-        title="Blog kosmetyczny — Porady i Aktualności"
-        description="Artykuły o pielęgnacji skóry, zabiegach kosmetycznych i podologii. Porady eksperta z Limanowej."
+        title="Blog kosmetologiczny"
+        description="Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach, brwiach, rzęsach i podologii. Przeczytaj artykuły Wiktorii Ćwik."
         canonical="/blog"
       />
 

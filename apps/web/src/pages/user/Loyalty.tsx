@@ -7,7 +7,7 @@ import { PointsBar } from '@/components/loyalty/PointsBar';
 import { LoyaltyBadge } from '@/components/loyalty/LoyaltyBadge';
 import { toast } from 'sonner';
 import { queryClient } from '@/lib/queryClient';
-import { Gift } from 'lucide-react';
+import { Gift, Sparkles } from 'lucide-react';
 
 const TIER_NAMES: Record<string, string> = {
   BRONZE: 'Brąz',
@@ -50,18 +50,24 @@ export const UserLoyalty = () => {
   const nextTier = getNextTier(completedVisits);
 
   const catalogRewards = rewards?.filter((r: any) => r.isActive && (r.discountType === 'PERCENTAGE' || r.discountType === 'AMOUNT'));
+  const nextReward = [...(catalogRewards ?? [])]
+    .filter((reward: any) => reward.pointsCost > (user?.loyaltyPoints ?? 0))
+    .sort((a: any, b: any) => a.pointsCost - b.pointsCost)[0];
+  const rewardProgress = nextReward
+    ? Math.min(100, ((user?.loyaltyPoints ?? 0) / nextReward.pointsCost) * 100)
+    : 100;
 
   return (
-    <div className="space-y-12 animate-enter">
+    <div className="space-y-8 animate-enter">
       {/* Header + PointsBar */}
       <div>
-        <h1 className="text-3xl font-heading font-bold mb-6 flex items-center gap-3" style={{ color: '#1A3828' }}>
+        <h1 className="text-3xl font-heading font-bold mb-5 flex flex-wrap items-center gap-3" style={{ color: '#1A3828' }}>
           Mój Portfel Lojalnościowy <LoyaltyBadge tier={user?.loyaltyTier as any} />
         </h1>
 
         {/* Dark gradient loyalty points card */}
         <div
-          className="rounded-2xl p-8 mb-8"
+          className="grid gap-6 rounded-2xl p-6 mb-5 sm:grid-cols-[0.8fr_1.2fr] sm:items-center"
           style={{
             background: 'linear-gradient(135deg, #0f2418 0%, #1A3828 100%)',
             boxShadow: '0 8px 32px rgba(26,56,40,0.25)',
@@ -69,27 +75,28 @@ export const UserLoyalty = () => {
             overflow: 'hidden',
           }}
         >
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex items-end gap-4 sm:block">
             <span
-              className="font-display text-5xl text-ivory"
+              className="font-display text-5xl text-ivory sm:text-6xl"
               style={{ fontWeight: 300 }}
             >
               {user?.loyaltyPoints ?? 0}
             </span>
             <span
-              className="eyebrow mt-1"
-              style={{ color: 'rgba(250,247,242,0.4)' }}
+              className="mb-1 text-sm sm:mb-0 sm:mt-1 sm:block"
+              style={{ color: 'rgba(250,247,242,0.68)' }}
             >
               punktów
             </span>
             <div
+              className="hidden sm:inline-block"
               style={{
                 background: 'rgba(250,247,242,0.06)',
                 border: '1px solid rgba(26,56,40,0.25)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                display: 'inline-block',
                 padding: '6px 14px',
+                marginTop: 16,
               }}
             >
               <span
@@ -100,14 +107,39 @@ export const UserLoyalty = () => {
               </span>
             </div>
           </div>
+          <div className="rounded-2xl border p-4" style={{ borderColor: 'rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)' }}>
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(196,150,90,0.18)', color: '#D9B57B' }}>
+                <Sparkles size={19} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold uppercase tracking-[0.12em]" style={{ color: 'rgba(255,255,255,0.56)' }}>
+                  {nextReward ? 'Najbliższa nagroda' : 'Wszystkie nagrody są w zasięgu'}
+                </p>
+                <p className="mt-1 font-semibold text-white">{nextReward?.name ?? 'Możesz wybrać dowolną nagrodę'}</p>
+                {nextReward && (
+                  <>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }}>
+                      <div className="h-full rounded-full" style={{ width: `${rewardProgress}%`, background: '#C4965A' }} />
+                    </div>
+                    <p className="mt-2 text-sm" style={{ color: 'rgba(255,255,255,0.68)' }}>
+                      Brakuje {nextReward.pointsCost - (user?.loyaltyPoints ?? 0)} pkt
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <PointsBar
-          completedVisits={completedVisits}
-          nextTierVisits={nextTier.threshold}
-          currentTierName={TIER_NAMES[user?.loyaltyTier || 'BRONZE']}
-          nextTierName={nextTier.name}
-        />
+        <div className="rounded-2xl border bg-white p-5" style={{ borderColor: 'rgba(26,56,40,0.1)' }}>
+          <PointsBar
+            completedVisits={completedVisits}
+            nextTierVisits={nextTier.threshold}
+            currentTierName={TIER_NAMES[user?.loyaltyTier || 'BRONZE']}
+            nextTierName={nextTier.name}
+          />
+        </div>
         {nextTier.name !== 'Maksymalny Poziom' && completedVisits >= nextTier.threshold * 0.8 && completedVisits < nextTier.threshold && (
           <div
             className="mt-4 rounded-2xl p-4"
@@ -133,7 +165,7 @@ export const UserLoyalty = () => {
           <div className="animate-pulse" style={{ color: 'rgba(20,40,28,0.5)' }}>Wczytywanie...</div>
         ) : coupons?.length === 0 ? (
           <div
-            className="p-8 rounded-2xl text-center space-y-3"
+            className="p-6 rounded-2xl text-center space-y-3"
             style={{ background: 'rgba(196,150,90,0.04)', border: '1px solid rgba(196,150,90,0.2)' }}
           >
             <div
@@ -146,7 +178,7 @@ export const UserLoyalty = () => {
               <p className="font-semibold text-sm mb-1" style={{ color: '#1A3828' }}>
                 Odbierz nagrodę za lojalność
               </p>
-              <p className="text-xs" style={{ color: 'rgba(20,40,28,0.55)' }}>
+              <p className="text-sm" style={{ color: 'rgba(20,40,28,0.65)' }}>
                 Masz <strong style={{ color: '#C4965A' }}>{user?.loyaltyPoints ?? 0} punktów</strong> — aktywuj nagrodę z katalogu poniżej i używaj przy następnej wizycie.
               </p>
             </div>

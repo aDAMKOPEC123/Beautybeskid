@@ -74,7 +74,7 @@ export const About = () => {
   return (
     <>
       <PageSEO
-        title="O nas — Salon Kosmetologiczny Limanowa"
+        title="Wiktoria Ćwik – kosmetolog Limanowa | O salonie"
         description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
         canonical="/o-nas"
         schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka')}

@@ -10,7 +10,6 @@ import { discountCodesApi } from '@/api/discount-codes.api';
 import { authApi } from '@/api/auth.api';
 import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
-import { Footer } from './Footer';
 import { MobileBottomNav } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useChatStore } from '@/store/chat.store';
@@ -42,25 +41,42 @@ import {
   Flower2,
   MessageSquare,
   Gift,
+  LogOut,
 } from 'lucide-react';
 
-const NAV_LINKS = [
-  { to: '/user', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/user/wizyty', label: 'Moje Wizyty', icon: Calendar },
-  { to: '/user/lojalnosc', label: 'Punkty', icon: Star },
-  { to: '/user/historia', label: 'Moja Historia', icon: Clock },
-  { to: '/user/dziennik', label: 'Dziennik', icon: BookOpen },
-  { to: '/user/rutyna', label: 'Moja Rutyna', icon: Sparkles },
-  { to: '/user/produkty', label: 'Moje Produkty', icon: ShoppingBag },
-  { to: '/user/polecenia', label: 'Program Poleceń', icon: Users },
-  { to: '/user/vouchery', label: 'Twoje Vouchery', icon: Gift },
-  { to: '/user/pogoda-skory', label: 'Twoja Skóra', icon: Cloud },
-  { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
-  { to: '/user/forum', label: 'Forum', icon: MessageSquare },
-  { to: '/akademia', label: 'Akademia', icon: GraduationCap },
-  { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
-  { to: '/user/profil', label: 'Mój Profil', icon: UserIcon },
-];
+const NAV_GROUPS = [
+  {
+    label: 'Najważniejsze',
+    links: [
+      { to: '/user', label: 'Pulpit', icon: LayoutDashboard },
+      { to: '/user/wizyty', label: 'Moje wizyty', icon: Calendar },
+      { to: '/user/lojalnosc', label: 'Punkty i nagrody', icon: Star },
+      { to: '/user/chat', label: 'Czat z gabinetem', icon: MessageCircle },
+    ],
+  },
+  {
+    label: 'Moja pielęgnacja',
+    links: [
+      { to: '/user/historia', label: 'Historia zabiegów', icon: Clock },
+      { to: '/user/dziennik', label: 'Dziennik skóry', icon: BookOpen },
+      { to: '/user/rutyna', label: 'Rutyna domowa', icon: Sparkles },
+      { to: '/user/produkty', label: 'Moje produkty', icon: ShoppingBag },
+      { to: '/user/pogoda-skory', label: 'Profil skóry', icon: Cloud },
+      { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
+    ],
+  },
+  {
+    label: 'Więcej',
+    links: [
+      { to: '/user/polecenia', label: 'Program poleceń', icon: Users },
+      { to: '/user/vouchery', label: 'Vouchery', icon: Gift },
+      { to: '/user/forum', label: 'Forum', icon: MessageSquare },
+      { to: '/akademia', label: 'Akademia', icon: GraduationCap },
+      { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
+      { to: '/user/profil', label: 'Ustawienia konta', icon: UserIcon },
+    ],
+  },
+] as const;
 
 const panelPageVariants = {
   initial: { opacity: 0, y: 18, scale: 0.992 },
@@ -239,6 +255,7 @@ const UserLayoutInner = () => {
 
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
+  const isTaskFlow = location.pathname === '/rezerwacja' || location.pathname.startsWith('/user/chat');
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -261,7 +278,7 @@ const UserLayoutInner = () => {
             BeskidStudio
           </Link>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2 sm:gap-4">
             {isAdmin && (
               <Link
                 to="/admin"
@@ -280,12 +297,25 @@ const UserLayoutInner = () => {
                 Panel Pracownika
               </Link>
             )}
+            <Link
+              to="/user/profil"
+              className="min-h-11 inline-flex items-center gap-2 rounded-full px-3 text-sm transition-colors hover:bg-white/10"
+              style={{ color: 'rgba(240,237,230,0.82)' }}
+              aria-label="Otwórz ustawienia konta"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-full" style={{ background: 'rgba(196,150,90,0.18)', color: '#D9B57B' }}>
+                <UserIcon size={15} />
+              </span>
+              <span className="hidden sm:inline max-w-36 truncate">{storeUser?.name}</span>
+            </Link>
             <button
               onClick={handleLogout}
-              className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70"
-              style={{ color: 'rgba(240,237,230,0.65)' }}
+              className="min-h-11 inline-flex items-center gap-2 rounded-full px-3 text-xs font-semibold transition-colors hover:bg-white/10"
+              style={{ color: 'rgba(240,237,230,0.78)' }}
+              aria-label="Wyloguj się"
             >
-              Wyloguj
+              <LogOut size={16} />
+              <span className="hidden sm:inline">Wyloguj</span>
             </button>
           </div>
         </div>
@@ -313,84 +343,50 @@ const UserLayoutInner = () => {
         </Link>
       )}
 
-      <div className="container flex-1 flex py-8 gap-8">
+      <div className="container flex-1 flex py-6 lg:py-8 gap-8">
         <aside
-          className="w-64 hidden md:flex flex-col gap-1 pr-6"
+          className="w-64 hidden lg:flex flex-col gap-4 pr-4 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain"
           style={{ borderRight: '1px solid rgba(0,0,0,0.08)' }}
         >
-          <nav className="flex flex-col gap-1">
-            {NAV_LINKS.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center gap-3 justify-between"
-                style={
-                  isActive(to)
-                    ? { color: '#C4965A', fontWeight: 600 }
-                    : { color: 'rgba(20,40,28,0.6)' }
-                }
-              >
-                {isActive(to) && (
-                  <motion.span
-                    layoutId="user-sidebar-active-pill"
-                    className="absolute inset-0 rounded-xl"
-                    transition={navIndicatorTransition}
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
-                      boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
-                    }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-3">
-                  <Icon size={18} />
-                  <span>{label}</span>
-                </span>
-                {getBadgeCount(to) > 0 && (
-                  <span className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
-                    {getBadgeCount(to) > 9 ? '9+' : getBadgeCount(to)}
-                  </span>
-                )}
-              </Link>
+          <nav className="flex flex-col gap-4" aria-label="Menu panelu klienta">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label}>
+                <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: 'rgba(20,40,28,0.46)' }}>
+                  {group.label}
+                </p>
+                <div className="flex flex-col gap-0.5">
+                  {group.links.map(({ to, label, icon: Icon }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className="relative isolate min-h-11 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:translate-x-0.5 flex items-center gap-3 justify-between"
+                      style={isActive(to) ? { color: '#9A6C32', fontWeight: 700 } : { color: 'rgba(20,40,28,0.72)' }}
+                    >
+                      {isActive(to) && (
+                        <motion.span
+                          layoutId="user-sidebar-active-pill"
+                          className="absolute inset-0 rounded-xl"
+                          transition={navIndicatorTransition}
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
+                            boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.18)',
+                          }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-3">
+                        <Icon size={18} />
+                        <span>{label}</span>
+                      </span>
+                      {getBadgeCount(to) > 0 && (
+                        <span className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold" style={{ background: '#C4965A', color: '#fff' }}>
+                          {getBadgeCount(to) > 9 ? '9+' : getBadgeCount(to)}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
-
-            <Link
-              to="/user/chat"
-              className="relative isolate px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:translate-x-1 flex items-center justify-between"
-              style={
-                isActive('/user/chat')
-                  ? {
-                      color: '#C4965A',
-                      fontWeight: 600,
-                    }
-                : {
-                      color: 'rgba(20,40,28,0.6)',
-                    }
-              }
-            >
-              {isActive('/user/chat') && (
-                <motion.span
-                  layoutId="user-sidebar-active-pill"
-                  className="absolute inset-0 rounded-xl"
-                  transition={navIndicatorTransition}
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(196,150,90,0.18) 0%, rgba(196,150,90,0.08) 100%)',
-                    boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
-                  }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-3">
-                <MessageCircle size={18} />
-                <span>Czat</span>
-              </span>
-              {getBadgeCount('/user/chat') > 0 && (
-                <span
-                  className="relative z-10 text-xs rounded-full px-1.5 py-0.5 font-bold animate-pulse"
-                  style={{ background: '#C4965A', color: '#fff' }}
-                >
-                  {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
-                </span>
-              )}
-            </Link>
           </nav>
 
           <div className="mt-4">
@@ -417,7 +413,7 @@ const UserLayoutInner = () => {
         <AnimatePresence mode="wait" initial={false}>
           <motion.main
             key={location.pathname}
-            className="flex-1 min-w-0 pb-20 md:pb-0"
+            className="flex-1 min-w-0"
             variants={activePageVariants}
             initial="initial"
             animate="animate"
@@ -429,8 +425,17 @@ const UserLayoutInner = () => {
         </AnimatePresence>
       </div>
 
-      <Footer />
-      <div className="h-16 md:hidden" aria-hidden="true" />
+      {!isTaskFlow && <footer className="border-t" style={{ borderColor: 'rgba(26,56,40,0.09)', background: 'rgba(255,255,255,0.58)' }}>
+        <div className="container flex flex-col gap-3 py-6 text-sm sm:flex-row sm:items-center sm:justify-between" style={{ color: 'rgba(20,40,28,0.62)' }}>
+          <p>© {new Date().getFullYear()} BeskidStudio By Wiktoria Ćwik</p>
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Linki pomocnicze panelu">
+            <Link to="/kontakt" className="transition-colors hover:text-foreground">Kontakt</Link>
+            <Link to="/regulamin" className="transition-colors hover:text-foreground">Regulamin i prywatność</Link>
+            <Link to="/" state={{ fromPanel: true }} className="transition-colors hover:text-foreground">Strona główna</Link>
+          </nav>
+        </div>
+      </footer>}
+      <div className="h-16 lg:hidden" aria-hidden="true" />
       <ReviewPromptModal />
       <MobileBottomNav />
       <PwaInstallButton />

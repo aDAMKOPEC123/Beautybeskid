@@ -4,7 +4,6 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import { ChevronRight } from 'lucide-react';
 
 export interface TileData {
   key: string;
@@ -36,8 +35,6 @@ export function TileCarousel({ tiles }: TileCarouselProps) {
 
   if (tiles.length === 0) return null;
 
-  const isLast = activeIndex >= tiles.length - 1;
-
   return (
     <div>
       {/* Wrapper z overflow:hidden — twardy limit szerokości karuzeli */}
@@ -58,13 +55,9 @@ export function TileCarousel({ tiles }: TileCarouselProps) {
         <div
           ref={trackRef}
           onScroll={handleScroll}
-          className="tile-track"
+          className="tile-track grid grid-flow-col auto-cols-[100%] overflow-x-auto md:grid-flow-row md:auto-cols-auto md:grid-cols-2 md:overflow-visible md:gap-3"
           style={{
-            display: 'grid',
-            gridAutoFlow: 'column',
-            gridAutoColumns: '100%',
             width: '100%',
-            overflowX: 'auto',
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
             // @ts-ignore vendor prefix
@@ -81,42 +74,12 @@ export function TileCarousel({ tiles }: TileCarouselProps) {
         </div>
 
         {/* Wskaźnik "przesuń w prawo" */}
-        {tiles.length > 1 && (
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 52,
-              pointerEvents: 'none',
-              background:
-                'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.92) 65%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              paddingRight: 8,
-              opacity: isLast ? 0 : 1,
-              transition: 'opacity 0.3s ease',
-            }}
-          >
-            <ChevronRight
-              size={20}
-              style={{
-                color: 'rgba(26,56,40,0.55)',
-                animation: isLast
-                  ? 'none'
-                  : 'swipeHint 1.5s ease-in-out infinite',
-              }}
-            />
-          </div>
-        )}
       </div>
 
       {/* Doty + licznik — poza overflow:hidden żeby były zawsze widoczne */}
       {tiles.length > 1 && (
         <div
+          className="md:hidden"
           style={{
             display: 'flex',
             justifyContent: 'center',
@@ -131,23 +94,33 @@ export function TileCarousel({ tiles }: TileCarouselProps) {
               onClick={() => scrollTo(i)}
               aria-label={`Kafelek ${i + 1}`}
               style={{
-                width: i === activeIndex ? 22 : 6,
-                height: 6,
-                borderRadius: 100,
-                background:
-                  i === activeIndex ? '#1A3828' : 'rgba(26,56,40,0.15)',
+                width: 28,
+                height: 28,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'transparent',
                 border: 'none',
                 padding: 0,
                 cursor: 'pointer',
-                transition:
-                  'width 0.38s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease',
               }}
-            />
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: i === activeIndex ? 22 : 6,
+                  height: 6,
+                  borderRadius: 100,
+                  background: i === activeIndex ? '#1A3828' : 'rgba(26,56,40,0.18)',
+                  transition: 'width 0.38s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease',
+                }}
+              />
+            </button>
           ))}
           <span
             style={{
               marginLeft: 5,
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 600,
               color: 'rgba(26,56,40,0.3)',
             }}

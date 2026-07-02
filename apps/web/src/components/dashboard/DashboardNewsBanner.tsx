@@ -14,7 +14,7 @@ const SlideButtonLink = ({ btn }: { btn: SlideButton }) => {
       ? { background: '#C4965A', color: '#fff' }
       : { border: '1px solid rgba(255,255,255,0.4)', color: 'rgba(255,255,255,0.9)' };
   const className =
-    'px-4 py-2 rounded-full text-[9px] font-bold tracking-[0.08em] uppercase transition-opacity hover:opacity-80';
+    'inline-flex min-h-10 items-center px-4 py-2 rounded-full text-[11px] font-bold tracking-[0.06em] uppercase transition-opacity hover:opacity-80';
 
   if (isInternal) {
     return (
@@ -28,6 +28,16 @@ const SlideButtonLink = ({ btn }: { btn: SlideButton }) => {
       {btn.label}
     </a>
   );
+};
+
+const isPresentableSlide = (slide: HeroSlide) => {
+  const heading = slide.heading?.trim() ?? '';
+  const subtitle = slide.subtitle?.trim() ?? '';
+  const mentionedYears = `${heading} ${subtitle}`.match(/20\d{2}/g)?.map(Number) ?? [];
+  const isStale = mentionedYears.some((year) => year < new Date().getFullYear());
+  const hasUsefulCopy = heading.length >= 6 || subtitle.length >= 16;
+  const hasAction = Boolean(slide.buttons?.some((button) => button.label?.trim() && button.href?.trim()));
+  return !isStale && (hasUsefulCopy || hasAction);
 };
 
 // Single slide layer — absolute positioned, fades in/out via opacity.
@@ -53,7 +63,7 @@ const SlideLayer = ({ slide, active }: { slide: HeroSlide; active: boolean }) =>
       {/* Text content — bottom-left. Label always visible; heading/subtitle/buttons conditional. */}
       <div className="absolute inset-0 flex flex-col justify-end p-[14px_16px]">
         <p
-          className="text-[8px] font-bold uppercase mb-1"
+          className="text-[10px] font-bold uppercase mb-1.5"
           style={{ color: '#C4965A', letterSpacing: '0.22em', fontFamily: 'sans-serif' }}
         >
           ✦ Nowości &amp; Aktualności
@@ -67,7 +77,7 @@ const SlideLayer = ({ slide, active }: { slide: HeroSlide; active: boolean }) =>
           </p>
         )}
         {slide.subtitle && (
-          <p className="text-[9px] mb-2.5" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'sans-serif' }}>
+          <p className="text-xs mb-3 leading-relaxed" style={{ color: 'rgba(255,255,255,0.76)', fontFamily: 'sans-serif' }}>
             {slide.subtitle}
           </p>
         )}
@@ -89,6 +99,7 @@ export const DashboardNewsBanner = () => {
     queryFn: heroApi.getSlides,
     staleTime: 5 * 60 * 1000,
   });
+  const visibleSlides = slides.filter(isPresentableSlide);
 
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -96,26 +107,26 @@ export const DashboardNewsBanner = () => {
   const [restartKey, setRestartKey] = useState(0);
 
   const next = useCallback(() => {
-    setCurrent(c => (c + 1) % slides.length);
+    setCurrent(c => (c + 1) % visibleSlides.length);
     setRestartKey(k => k + 1);
-  }, [slides.length]);
+  }, [visibleSlides.length]);
   const prev = useCallback(() => {
-    setCurrent(c => (c - 1 + slides.length) % slides.length);
+    setCurrent(c => (c - 1 + visibleSlides.length) % visibleSlides.length);
     setRestartKey(k => k + 1);
-  }, [slides.length]);
+  }, [visibleSlides.length]);
 
   // Clamp current index when slides list shrinks (e.g. admin removes a slide during session)
   useEffect(() => {
-    setCurrent(c => (slides.length > 0 ? Math.min(c, slides.length - 1) : 0));
-  }, [slides.length]);
+    setCurrent(c => (visibleSlides.length > 0 ? Math.min(c, visibleSlides.length - 1) : 0));
+  }, [visibleSlides.length]);
 
   // Autoplay — cleared on unmount to prevent memory leaks.
   // restartKey in deps ensures the interval is reset from zero on dot click.
   useEffect(() => {
-    if (slides.length <= 1 || paused) return;
+    if (visibleSlides.length <= 1 || paused) return;
     const id = setInterval(next, 5000);
     return () => clearInterval(id);
-  }, [slides.length, paused, next, restartKey]);
+  }, [visibleSlides.length, paused, next, restartKey]);
 
   // Loading skeleton
   if (isLoading) {
@@ -123,7 +134,7 @@ export const DashboardNewsBanner = () => {
       <div style={{ borderRadius: 18, border: '1.5px solid rgba(26,56,40,0.22)', background: '#fff', overflow: 'hidden' }}>
         <div style={{ background: 'rgba(232,243,234,0.8)', padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A3828', flexShrink: 0 }} />
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.5)' }}>Nowości</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.68)' }}>Nowości</span>
         </div>
         <div className="w-full animate-pulse" style={{ height: '160px', background: 'rgba(0,0,0,0.08)' }} />
       </div>
@@ -131,16 +142,16 @@ export const DashboardNewsBanner = () => {
   }
 
   // Hidden when no active slides
-  if (!slides.length) return null;
+  if (!visibleSlides.length) return null;
 
-  const showNav = slides.length > 1;
+  const showNav = visibleSlides.length > 1;
 
   return (
     <div style={{ borderRadius: 18, border: '1.5px solid rgba(26,56,40,0.22)', background: '#fff', overflow: 'hidden' }}>
       {/* Nagłówek */}
       <div style={{ background: 'rgba(232,243,234,0.8)', padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
         <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A3828', flexShrink: 0 }} />
-        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.5)' }}>Nowości</span>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,56,40,0.68)' }}>Nowości</span>
       </div>
       <section
         aria-label="Nowości i aktualności"
@@ -151,7 +162,7 @@ export const DashboardNewsBanner = () => {
       onTouchStart={() => setPaused(true)}
       onTouchEnd={() => setPaused(false)}
     >
-      {slides.map((slide, i) => (
+      {visibleSlides.map((slide, i) => (
         <SlideLayer key={slide.id} slide={slide} active={i === current} />
       ))}
 
@@ -192,7 +203,7 @@ export const DashboardNewsBanner = () => {
             className="absolute flex flex-col"
             style={{ right: '36px', top: '50%', transform: 'translateY(-50%)', gap: '5px' }}
           >
-            {slides.map((_, i) => (
+            {visibleSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => { setCurrent(i); setRestartKey(k => k + 1); }}

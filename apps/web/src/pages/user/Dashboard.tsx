@@ -1,6 +1,7 @@
 // filepath: apps/web/src/pages/user/Dashboard.tsx
 import { useQuery } from '@tanstack/react-query';
-import { Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, CalendarDays, Star, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { appointmentsApi } from '@/api/appointments.api';
 import { DashboardSkeleton } from '@/components/skeletons';
@@ -15,9 +16,11 @@ import { LastVisitCard } from '@/components/dashboard/LastVisitCard';
 import { JournalPreviewCard } from '@/components/dashboard/JournalPreviewCard';
 import { HomecarePreviewCard } from '@/components/dashboard/HomecarePreviewCard';
 import { SectionGroup } from '@/components/dashboard/SectionGroup';
+import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 
 export const UserDashboard = () => {
   const { user } = useAuth();
+  const { getBadgeCount } = useUserMenuBadges();
 
   const { data: appointments = [], isLoading } = useQuery<any[]>({
     queryKey: ['appointments', 'me'],
@@ -30,11 +33,12 @@ export const UserDashboard = () => {
   );
 
   const lastCompleted = appointments.find((a: any) => a.status === 'COMPLETED') ?? null;
+  const notificationCount = getBadgeCount('/user/powiadomienia');
 
   if (isLoading) return <DashboardSkeleton />;
 
   return (
-    <div className="space-y-3 animate-enter">
+    <div className="space-y-5 animate-enter">
 
       {/* Header */}
       <div>
@@ -47,12 +51,51 @@ export const UserDashboard = () => {
         </p>
       </div>
 
-      {/* News banner */}
-      <DashboardNewsBanner />
-
-
       {/* Hero — next appointment */}
       <NextAppointmentHero upcoming={upcoming} />
+
+      {/* Najważniejsze skróty */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3" aria-label="Najważniejsze informacje">
+        {[
+          {
+            to: '/user/wizyty',
+            icon: CalendarDays,
+            label: 'Nadchodzące wizyty',
+            shortLabel: 'Wizyty',
+            value: upcoming.length,
+          },
+          {
+            to: '/user/lojalnosc',
+            icon: Star,
+            label: 'Punkty lojalnościowe',
+            shortLabel: 'Punkty',
+            value: user?.loyaltyPoints ?? 0,
+          },
+          {
+            to: '/user/powiadomienia',
+            icon: Bell,
+            label: 'Nowe powiadomienia',
+            shortLabel: 'Nowe',
+            value: notificationCount,
+          },
+        ].map(({ to, icon: Icon, label, shortLabel, value }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border bg-white px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:shadow-sm sm:min-h-20 sm:flex-row sm:justify-start sm:px-4 sm:text-left"
+            style={{ borderColor: 'rgba(26,56,40,0.12)' }}
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10" style={{ background: 'rgba(196,150,90,0.12)', color: '#A87538' }}>
+              <Icon size={19} />
+            </span>
+            <span className="min-w-0">
+              <strong className="block text-lg leading-none sm:text-xl" style={{ color: '#1A3828' }}>{value}</strong>
+              <span className="mt-1 block text-xs sm:hidden" style={{ color: 'rgba(20,40,28,0.68)' }}>{shortLabel}</span>
+              <span className="mt-1 hidden text-sm sm:block" style={{ color: 'rgba(20,40,28,0.66)' }}>{label}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
 
       {/* Historia wizyt */}
       <SectionGroup
@@ -63,6 +106,9 @@ export const UserDashboard = () => {
           { key: 'reviews', content: <PendingReviews /> },
         ]}
       />
+
+      {/* Aktualności są dodatkiem, nie głównym zadaniem użytkownika */}
+      <DashboardNewsBanner />
 
       {/* Pielęgnacja skóry */}
       <SectionGroup

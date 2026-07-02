@@ -4,6 +4,7 @@ import {
   clearChunkReloadMarks,
   getErrorMessage,
   isChunkLoadError,
+  markDocumentNoIndex,
   reloadOnceForChunkError,
 } from '@/lib/chunkRecovery';
 
@@ -13,6 +14,7 @@ export const RouteErrorFallback = () => {
   const isChunkError = isChunkLoadError(error);
 
   useEffect(() => {
+    markDocumentNoIndex();
     if (isChunkError) {
       reloadOnceForChunkError('route');
     }
@@ -20,12 +22,12 @@ export const RouteErrorFallback = () => {
 
   const status = isRouteErrorResponse(error) ? error.status : null;
   const title = isChunkError
-    ? 'Aktualizujemy aplikację'
+    ? 'Nie udało się załadować strony'
     : status === 404
       ? 'Nie znaleziono strony'
       : 'Coś poszło nie tak';
   const description = isChunkError
-    ? 'Po ostatnim wdrożeniu przeglądarka próbowała otworzyć starszy plik aplikacji. Odśwież stronę, żeby pobrać najnowszą wersję.'
+    ? 'Odśwież stronę, aby spróbować ponownie. Jeśli problem się powtórzy, wróć za kilka minut.'
     : status === 404
       ? 'Ta sekcja nie istnieje albo została przeniesiona.'
       : 'Aplikacja napotkała błąd w tej sekcji. Możesz odświeżyć stronę albo wrócić do panelu.';

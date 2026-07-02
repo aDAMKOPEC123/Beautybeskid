@@ -46,7 +46,7 @@ export function SectionGroup({ title, color, children, tiles }: SectionGroupProp
       <div
         style={{
           background: t.headBg,
-          padding: '9px 12px',
+          padding: '11px 14px',
           display: 'flex',
           alignItems: 'center',
           gap: 7,
@@ -63,11 +63,11 @@ export function SectionGroup({ title, color, children, tiles }: SectionGroupProp
         />
         <span
           style={{
-            fontSize: 9,
+            fontSize: 11,
             fontWeight: 700,
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
-            color: t.titleColor,
+            color: color === 'green' ? 'rgba(26,56,40,0.68)' : t.titleColor,
           }}
         >
           {title}
@@ -76,7 +76,7 @@ export function SectionGroup({ title, color, children, tiles }: SectionGroupProp
 
       {/* Treść */}
       {usesCarousel ? (
-        <div style={{ padding: '10px 0 14px' }}>
+        <div style={{ padding: '12px' }}>
           <TileCarousel tiles={tiles!} />
         </div>
       ) : (

@@ -20,6 +20,9 @@ import {
   GraduationCap,
   Cloud,
   Clock,
+  Gift,
+  Flower2,
+  MessageSquare,
 } from 'lucide-react';
 
 const MORE_LINKS = [
@@ -29,7 +32,10 @@ const MORE_LINKS = [
   { to: '/user/rutyna', label: 'Rutyna', icon: Sparkles },
   { to: '/user/produkty', label: 'Produkty', icon: ShoppingBag },
   { to: '/user/polecenia', label: 'Polecenia', icon: Users },
-  { to: '/user/pogoda-skory', label: 'Skora', icon: Cloud },
+  { to: '/user/vouchery', label: 'Vouchery', icon: Gift },
+  { to: '/user/pogoda-skory', label: 'Skóra', icon: Cloud },
+  { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
+  { to: '/user/forum', label: 'Forum', icon: MessageSquare },
   { to: '/akademia', label: 'Akademia', icon: GraduationCap },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil', label: 'Profil', icon: UserIcon },
@@ -112,6 +118,8 @@ export function MobileBottomNav() {
 
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
+  const isMoreRoute = MORE_LINKS.some(({ to }) => to !== '/' && isActive(to));
+  const isMoreActive = isMoreOpen || isMoreRoute;
 
   useEffect(() => {
     setIsMoreOpen(false);
@@ -121,14 +129,10 @@ export function MobileBottomNav() {
     if (!isMoreOpen) return;
 
     const previousOverflow = document.body.style.overflow;
-    const previousTouchAction = document.body.style.touchAction;
-
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.body.style.touchAction = previousTouchAction;
     };
   }, [isMoreOpen]);
 
@@ -138,7 +142,7 @@ export function MobileBottomNav() {
         {isMoreOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] lg:hidden"
               onClick={() => setIsMoreOpen(false)}
               variants={activeBackdropVariants}
               initial="hidden"
@@ -147,14 +151,14 @@ export function MobileBottomNav() {
             />
 
             <motion.div
-              className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl p-4 shadow-xl md:hidden"
+              className="fixed bottom-16 left-0 right-0 z-50 max-h-[calc(100svh-5rem)] overflow-y-auto overscroll-contain rounded-t-2xl p-4 pb-6 shadow-xl lg:hidden"
               style={{ background: '#F4F9F5', borderTop: '1px solid rgba(0,0,0,0.07)' }}
               variants={activePanelVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
                 {MORE_LINKS.map(({ to, label, icon: Icon }) => {
                   const count = getBadgeCount(to);
 
@@ -202,7 +206,7 @@ export function MobileBottomNav() {
       </AnimatePresence>
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 lg:hidden"
         style={{
           height: '64px',
           background: '#F4F9F5',
@@ -212,7 +216,7 @@ export function MobileBottomNav() {
       >
         <Link
           to="/user"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
           style={{ color: isActive('/user') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user') && !isMoreOpen && (
@@ -226,12 +230,12 @@ export function MobileBottomNav() {
             />
           )}
           <LayoutDashboard size={22} />
-          <span className="relative z-10">Glowna</span>
+          <span className="relative z-10">Główna</span>
         </Link>
 
         <Link
           to="/user/wizyty"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
           style={{ color: isActive('/user/wizyty') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user/wizyty') && !isMoreOpen && (
@@ -268,7 +272,7 @@ export function MobileBottomNav() {
 
         <Link
           to="/user/chat"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
           style={{ color: isActive('/user/chat') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user/chat') && !isMoreOpen && (
@@ -296,10 +300,10 @@ export function MobileBottomNav() {
         <button
           onClick={() => setIsMoreOpen((open) => !open)}
           aria-expanded={isMoreOpen}
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] transition-colors"
-          style={{ color: isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
+          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
+          style={{ color: isMoreActive ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
-          {isMoreOpen && (
+          {isMoreActive && (
             <motion.span
               layoutId="user-mobile-nav-active"
               className="absolute inset-x-0 -inset-y-1 rounded-2xl"
@@ -310,7 +314,7 @@ export function MobileBottomNav() {
             />
           )}
           {isMoreOpen ? <X size={22} /> : <UserIcon size={22} />}
-          <span className="relative z-10">Wiecej</span>
+          <span className="relative z-10">Więcej</span>
           {moreBadge > 0 && !isMoreOpen && (
             <span
               className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"

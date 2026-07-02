@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { SEO as cfg } from '@/lib/seo-config';
 
@@ -10,13 +11,34 @@ interface Props {
 }
 
 export const PageSEO = ({ title, description, canonical, ogImage, schema }: Props) => {
-  const fullTitle = `${title} | ${cfg.siteName}`;
+  const alreadyBranded = /BeskidStudio|Wiktoria Ćwik/i.test(title);
+  const fullTitle = alreadyBranded ? title : `${title} | Wiktoria Ćwik`;
   const url = canonical ? `${cfg.domain}${canonical}` : cfg.domain;
   const image = ogImage
     ? ogImage.startsWith('http')
       ? ogImage
       : `${cfg.domain}${ogImage}`
     : `${cfg.domain}/images/og-salon.jpg`;
+
+  useEffect(() => {
+    const selectors = [
+      'meta[name="description"]',
+      'meta[name="robots"]',
+      'link[rel="canonical"]',
+      'meta[property="og:type"]',
+      'meta[property="og:site_name"]',
+      'meta[property="og:title"]',
+      'meta[property="og:description"]',
+      'meta[property="og:url"]',
+      'meta[property="og:image"]',
+      'meta[property="og:locale"]',
+    ];
+
+    selectors.forEach((selector) => {
+      const elements = Array.from(document.head.querySelectorAll(selector));
+      elements.slice(0, -1).forEach((element) => element.remove());
+    });
+  }, [description, fullTitle, image, url]);
 
   return (
     <Helmet>

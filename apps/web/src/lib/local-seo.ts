@@ -142,7 +142,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'Kosmetolog Limanowa',
     title: 'Kosmetolog Limanowa — konsultacje i zabiegi',
     description:
-      'Kosmetolog Limanowa: BeskidStudio By Wiktoria Ćwik Wiktoria Ćwik. Konsultacje, indywidualny plan zabiegowy, rezerwacja online i opieka dla klientek z Limanowej, Mordarki i okolic.',
+      'Kosmetolog Limanowa: BeskidStudio Wiktoria Ćwik. Konsultacje, indywidualny plan zabiegowy, rezerwacja online i opieka dla klientek z Limanowej, Mordarki i okolic.',
     eyebrow: 'Kosmetolog Limanowa',
     h1: 'Kosmetolog w Limanowej dla świadomej pielęgnacji skóry',
     lead:

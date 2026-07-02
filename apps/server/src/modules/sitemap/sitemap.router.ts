@@ -40,8 +40,6 @@ function escapeXml(str: string): string {
 
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    const today = toXmlDate(new Date());
-
     const [posts, services] = await Promise.all([
       prisma.blogPost.findMany({
         where: { isPublished: true },
@@ -59,7 +57,6 @@ router.get('/', async (_req: Request, res: Response) => {
         ({ loc, priority, changefreq }) => `
   <url>
     <loc>${DOMAIN}${escapeXml(loc)}</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`,

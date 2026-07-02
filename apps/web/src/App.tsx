@@ -15,6 +15,7 @@ import {
   clearChunkReloadMarks,
   getErrorMessage,
   isChunkLoadError,
+  markDocumentNoIndex,
   reloadOnceForChunkError,
 } from './lib/chunkRecovery';
 
@@ -55,6 +56,7 @@ class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error) {
     console.error('App error:', error);
+    markDocumentNoIndex();
     if (isChunkLoadError(error)) {
       reloadOnceForChunkError('app');
     }
@@ -66,11 +68,11 @@ class ErrorBoundary extends React.Component<
         <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center">
           <div className="max-w-md rounded-3xl border bg-card p-8 shadow-xl">
             <h1 className="text-2xl font-heading font-semibold">
-              {this.state.isChunkError ? 'Aktualizujemy aplikację' : 'Coś poszło nie tak'}
+              {this.state.isChunkError ? 'Nie udało się załadować strony' : 'Coś poszło nie tak'}
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               {this.state.isChunkError
-                ? 'Przeglądarka ma jeszcze starszą wersję plików. Odśwież stronę, żeby pobrać aktualną aplikację.'
+                ? 'Odśwież stronę, aby spróbować ponownie. Jeśli problem się powtórzy, wróć za kilka minut.'
                 : 'Aplikacja napotkała błąd. Odświeżenie strony zwykle rozwiązuje ten problem.'}
             </p>
             {import.meta.env.DEV && this.state.errorMessage && (

@@ -29,7 +29,6 @@ import { Input } from '@/components/ui/input';
 import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
-import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,7 +51,20 @@ interface WizardState {
   appliedHappyHour: any | null;
 }
 
-const STEPS = ['Usługa', 'Pracownik', 'Termin', 'Uwagi', 'Potwierdzenie'];
+const STEPS = ['Usługa', 'Specjalista', 'Termin', 'Dane', 'Potwierdzenie'];
+
+const formatContentLabel = (value?: string | null) => {
+  const clean = value?.trim() ?? '';
+  return clean ? clean.charAt(0).toLocaleUpperCase('pl-PL') + clean.slice(1) : '';
+};
+
+const getServiceDescription = (description?: string | null) => {
+  const clean = description?.trim() ?? '';
+  const looksLikePlaceholder = clean.length > 16 && !/\s/.test(clean);
+  return !clean || looksLikePlaceholder
+    ? 'Szczegóły zabiegu omówimy podczas konsultacji.'
+    : clean;
+};
 
 // ─── Mini Calendar ────────────────────────────────────────────────────────────
 
@@ -91,7 +103,7 @@ function MiniCalendar({
         <button
           onClick={() => setViewMonth((m) => subMonths(m, 1))}
           aria-label="Poprzedni miesiąc"
-          className="p-1 rounded-lg hover:opacity-60 transition-opacity"
+          className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5 transition-colors"
           style={{ color: '#1A3828' }}
         >
           <ChevronLeft size={18} />
@@ -102,7 +114,7 @@ function MiniCalendar({
         <button
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
           aria-label="Następny miesiąc"
-          className="p-1 rounded-lg hover:opacity-60 transition-opacity"
+          className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5 transition-colors"
           style={{ color: '#1A3828' }}
         >
           <ChevronRight size={18} />
@@ -134,7 +146,7 @@ function MiniCalendar({
               aria-label={format(day, 'd MMMM yyyy', { locale: pl })}
               aria-pressed={isSelected}
               onClick={() => onSelect(day)}
-              className="text-sm rounded-full w-8 h-8 mx-auto flex items-center justify-center transition-colors"
+              className="text-sm rounded-full w-full max-w-9 min-h-9 mx-auto flex items-center justify-center transition-colors"
               style={
                 isSelected
                   ? { background: '#1A3828', color: '#fff' }
@@ -143,7 +155,7 @@ function MiniCalendar({
                   : isPast
                   ? { color: 'rgba(20,40,28,0.25)', cursor: 'not-allowed' }
                   : isRed
-                  ? { background: 'rgba(239,68,68,0.08)', color: '#DC2626', cursor: 'not-allowed' }
+                  ? { background: 'rgba(26,56,40,0.05)', color: 'rgba(20,40,28,0.35)', cursor: 'not-allowed' }
                   : isGreen
                   ? { background: 'rgba(34,197,94,0.1)', color: '#15803d', cursor: 'pointer' }
                   : { color: '#1A3828', cursor: 'pointer' }
@@ -264,7 +276,7 @@ function StepService({
                 : { borderColor: 'rgba(0,0,0,0.15)', color: 'rgba(20,40,28,0.7)' }
             }
           >
-            {cat || 'Wszystkie'}
+            {cat ? formatContentLabel(cat) : 'Wszystkie'}
           </button>
         ))}
       </div>
@@ -274,10 +286,12 @@ function StepService({
         {filtered.map((service: any) => {
           const isSelected = selected?.id === service.id;
           return (
-            <div
+            <button
+              type="button"
               key={service.id}
               onClick={() => onSelect(service)}
-              className="rounded-2xl cursor-pointer overflow-hidden transition-all"
+              aria-pressed={isSelected}
+              className="w-full rounded-2xl cursor-pointer overflow-hidden text-left transition-all"
               style={{
                 background: '#fff',
                 border: isSelected
@@ -301,12 +315,12 @@ function StepService({
               <div className="p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-tight" style={{ color: '#1A3828' }}>
-                    {service.name}
+                    {formatContentLabel(service.name)}
                   </h3>
                   {isSelected && <CheckCircle2 size={18} style={{ color: '#C4965A', flexShrink: 0, marginTop: 2 }} />}
                 </div>
                 <p className="text-xs line-clamp-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                  {service.description}
+                  {getServiceDescription(service.description)}
                 </p>
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center gap-2">
@@ -324,7 +338,7 @@ function StepService({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -380,10 +394,12 @@ function StepEmployee({
         {filteredEmployees.map((emp: any) => {
           const isSelected = selected === emp.id;
           return (
-            <div
+            <button
+              type="button"
               key={emp.id}
               onClick={() => onSelect(emp)}
-              className="p-4 flex gap-4 items-start"
+              aria-pressed={isSelected}
+              className="w-full p-4 flex gap-4 items-start text-left"
               style={cardStyle(isSelected)}
             >
               <div className="w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: 'rgba(196,150,90,0.1)' }}>
@@ -416,8 +432,16 @@ function StepEmployee({
                     ))}
                   </div>
                 )}
+                <span
+                  className="mt-3 inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold"
+                  style={isSelected
+                    ? { background: '#1A3828', color: '#fff' }
+                    : { background: 'rgba(26,56,40,0.07)', color: 'rgba(20,40,28,0.72)' }}
+                >
+                  {isSelected ? 'Wybrano' : 'Wybierz specjalistę'}
+                </span>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -494,7 +518,7 @@ function StepDate({
     <div className="grid md:grid-cols-2 gap-8">
       {/* Calendar */}
       <div
-        className="rounded-xl p-5"
+        className="rounded-xl p-3 sm:p-5"
         style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)' }}
       >
         <MiniCalendar
@@ -1169,17 +1193,56 @@ export const BookingWizard = () => {
         <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>
       </div>
 
-      {/* Step progress dots */}
-      <div className="flex items-center justify-center gap-2 mb-6">
-        {Array.from({ length: STEPS.length }).map((_, idx) => (
-          <span key={idx} className={cn('rounded-full transition-all duration-300',
-            idx === step - 1 ? 'w-4 h-2 bg-caramel' : idx < step - 1 ? 'w-2 h-2 bg-caramel/60' : 'w-2 h-2 bg-caramel/25'
-          )} />
-        ))}
+      {/* Czytelny postęp rezerwacji */}
+      <div className="space-y-3">
+      <ol className="grid grid-cols-5 gap-1" aria-label={`Krok ${step} z ${STEPS.length}: ${STEPS[step - 1]}`}>
+        {STEPS.map((label, idx) => {
+          const currentStep = idx + 1;
+          const isCurrent = currentStep === step;
+          const isComplete = currentStep < step;
+          return (
+            <li key={label} className="relative flex min-w-0 flex-col items-center gap-2 text-center">
+              {idx > 0 && (
+                <span
+                  aria-hidden
+                  className="absolute right-1/2 top-4 h-px w-full"
+                  style={{ background: isComplete || isCurrent ? 'rgba(196,150,90,0.65)' : 'rgba(26,56,40,0.14)' }}
+                />
+              )}
+              <span
+                className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold"
+                style={isCurrent
+                  ? { background: '#1A3828', borderColor: '#1A3828', color: '#fff' }
+                  : isComplete
+                  ? { background: '#C4965A', borderColor: '#C4965A', color: '#fff' }
+                  : { background: '#F4F9F5', borderColor: 'rgba(26,56,40,0.18)', color: 'rgba(20,40,28,0.55)' }}
+              >
+                {isComplete ? <CheckCircle2 size={16} /> : currentStep}
+              </span>
+              <span className="hidden truncate text-xs font-semibold sm:block" style={{ color: isCurrent ? '#1A3828' : 'rgba(20,40,28,0.58)' }}>
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      <p className="text-center text-sm font-semibold sm:hidden" style={{ color: '#1A3828' }}>
+        Krok {step} z {STEPS.length} · {STEPS[step - 1]}
+      </p>
       </div>
 
+      {state.service && step > 1 && (
+        <div className="flex flex-col gap-1 rounded-2xl border bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: 'rgba(26,56,40,0.12)' }}>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(20,40,28,0.48)' }}>Wybrana usługa</p>
+            <p className="mt-1 font-semibold" style={{ color: '#1A3828' }}>{formatContentLabel(state.service.name)}</p>
+          </div>
+          <p className="font-heading text-lg font-bold" style={{ color: '#A87538' }}>{Number(state.service.price).toFixed(2)} zł</p>
+        </div>
+      )}
+
       {/* Step content */}
-      <div className="min-h-[400px]">
+      <div className="min-h-[240px]">
         {step === 1 && (
           <StepService
             selected={state.service}
@@ -1237,12 +1300,12 @@ export const BookingWizard = () => {
       {/* Navigation buttons */}
       <div
         ref={navRef}
-        className="flex justify-between pt-6"
+        className="flex items-center justify-between gap-3 pt-6"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <button
-          onClick={() => (step === 1 ? navigate('/uslugi') : setStep((s) => s - 1))}
-          className="px-8 py-3 border border-espresso text-espresso text-[10px] tracking-[0.25em] uppercase hover:bg-espresso hover:text-ivory transition-colors"
+          onClick={() => (step === 1 ? navigate('/user/wizyty') : setStep((s) => s - 1))}
+          className="min-h-12 rounded-full px-6 py-3 border border-espresso text-espresso text-xs font-semibold hover:bg-espresso hover:text-ivory transition-colors"
         >
           {step === 1 ? 'Anuluj' : 'Wróć'}
         </button>
@@ -1251,7 +1314,9 @@ export const BookingWizard = () => {
           <button
             onClick={() => setStep((s) => s + 1)}
             disabled={!canProceed()}
-            className="px-8 py-3 bg-espresso text-ivory text-[10px] tracking-[0.25em] uppercase hover:bg-espresso/90 transition-colors disabled:opacity-40 w-full sm:w-auto min-h-[52px]"
+            aria-hidden={floatingVisible && canProceed() ? true : undefined}
+            tabIndex={floatingVisible && canProceed() ? -1 : undefined}
+            className="min-h-12 rounded-full px-8 py-3 bg-espresso text-ivory text-xs font-semibold hover:bg-espresso/90 transition-colors disabled:opacity-40 sm:w-auto"
           >
             Dalej
           </button>
@@ -1259,7 +1324,9 @@ export const BookingWizard = () => {
           <button
             onClick={handleConfirm}
             disabled={isPending || !canProceed()}
-            className="px-8 py-3 bg-espresso text-ivory text-[10px] tracking-[0.25em] uppercase hover:bg-espresso/90 transition-colors disabled:opacity-40 w-full sm:w-auto min-h-[52px]"
+            aria-hidden={floatingVisible && canProceed() ? true : undefined}
+            tabIndex={floatingVisible && canProceed() ? -1 : undefined}
+            className="min-h-12 rounded-full px-8 py-3 bg-espresso text-ivory text-xs font-semibold hover:bg-espresso/90 transition-colors disabled:opacity-40 sm:w-auto"
           >
             {isPending ? 'Rezerwowanie...' : 'Potwierdź rezerwację'}
           </button>
@@ -1267,18 +1334,13 @@ export const BookingWizard = () => {
       </div>
 
       {/* Floating "Dalej" button — mobile only, hides when static nav is visible */}
-      <div
-        className="fixed bottom-20 inset-x-0 flex justify-center md:hidden z-50 pointer-events-none"
-      >
-        <div
-          className="pointer-events-auto transition-transform duration-300 ease-in-out"
-          style={{ transform: floatingVisible && canProceed() ? 'translateY(0)' : 'translateY(200px)' }}
-        >
+      {floatingVisible && canProceed() && (
+      <div className="fixed bottom-20 inset-x-0 z-50 flex justify-center pointer-events-none lg:hidden">
+        <div className="pointer-events-auto">
           {step < STEPS.length ? (
             <button
               onClick={() => setStep((s) => s + 1)}
-              className="px-10 py-3.5 bg-espresso text-ivory text-[10px] tracking-[0.25em] uppercase shadow-lg"
-              style={{ borderRadius: 2 }}
+              className="min-h-12 rounded-full px-10 py-3.5 bg-espresso text-ivory text-xs font-semibold shadow-lg"
             >
               Dalej →
             </button>
@@ -1286,14 +1348,14 @@ export const BookingWizard = () => {
             <button
               onClick={handleConfirm}
               disabled={isPending}
-              className="px-10 py-3.5 bg-espresso text-ivory text-[10px] tracking-[0.25em] uppercase shadow-lg disabled:opacity-40"
-              style={{ borderRadius: 2 }}
+              className="min-h-12 rounded-full px-10 py-3.5 bg-espresso text-ivory text-xs font-semibold shadow-lg disabled:opacity-40"
             >
               {isPending ? 'Rezerwowanie...' : 'Potwierdź →'}
             </button>
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -21,7 +21,9 @@ export default defineConfig(({ command }) => {
         strategies: 'injectManifest',
         srcDir: 'src',
         filename: 'sw.ts',
-        registerType: 'autoUpdate',
+        // Keep the previous precache alive for tabs opened before a deploy.
+        // The new worker activates after those tabs close, avoiding stale chunk errors.
+        registerType: 'prompt',
         injectRegister: false,
         manifest: false,
         injectManifest: {

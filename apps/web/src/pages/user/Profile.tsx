@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '@/api/users.api';
 import { api } from '@/lib/axios';
-import { Loader2, Bell, BellOff, X } from 'lucide-react';
+import { Bell, BellOff, ClipboardList, Loader2, ShieldCheck, SlidersHorizontal, UserRound, X } from 'lucide-react';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { toast } from 'sonner';
 import { useTour } from '@/hooks/useTour';
@@ -56,6 +56,7 @@ export const UserProfile = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [activeTab, setActiveTab] = useState<'account' | 'card' | 'preferences' | 'security'>('account');
 
   useEffect(() => {
     if (profile) {
@@ -181,13 +182,13 @@ export const UserProfile = () => {
       style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', background: '#fff' }}
     >
       <div
-        className="px-6 py-5"
+        className="px-4 py-4 sm:px-6 sm:py-5"
         style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
             <DecoLine />
-            <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
+            <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-caramel sm:tracking-[0.35em]">
               {title}
             </span>
           </div>
@@ -205,11 +206,42 @@ export const UserProfile = () => {
     <div className="space-y-8 animate-enter">
       <h1 className="text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>Twój Profil</h1>
 
+      <nav className="grid grid-cols-2 gap-2 sm:flex sm:max-w-3xl sm:overflow-x-auto" aria-label="Sekcje profilu">
+        {[
+          { id: 'account' as const, label: 'Konto', icon: UserRound },
+          { id: 'card' as const, label: 'Kartoteka', icon: ClipboardList },
+          { id: 'preferences' as const, label: 'Zgody i powiadomienia', icon: SlidersHorizontal },
+          { id: 'security' as const, label: 'Bezpieczeństwo', icon: ShieldCheck },
+        ].map(({ id, label, icon: Icon }) => {
+          const isActiveTab = activeTab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setActiveTab(id)}
+              aria-current={isActiveTab ? 'page' : undefined}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border px-2 text-center text-xs font-semibold leading-tight transition-colors sm:min-h-11 sm:shrink-0 sm:rounded-full sm:px-4 sm:text-sm"
+              style={isActiveTab
+                ? { background: '#1A3828', borderColor: '#1A3828', color: '#fff' }
+                : { background: '#fff', borderColor: 'rgba(26,56,40,0.14)', color: 'rgba(20,40,28,0.72)' }}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          );
+        })}
+      </nav>
+
       {/* Avatar */}
+      {activeTab === 'account' && (
+      <>
       <div className="flex flex-col items-center gap-3">
-        <div
+        <button
+          type="button"
           className="relative w-24 h-24 rounded-full cursor-pointer group"
           onClick={() => !isPending && fileInputRef.current?.click()}
+          disabled={isPending}
+          aria-label="Zmień zdjęcie profilowe"
         >
           {user?.avatarPath ? (
             <img
@@ -237,7 +269,7 @@ export const UserProfile = () => {
               <Loader2 className="w-6 h-6 text-white animate-spin" />
             </div>
           )}
-        </div>
+        </button>
 
         <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>Kliknij, aby zmienić zdjęcie profilowe</p>
         {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
@@ -263,30 +295,32 @@ export const UserProfile = () => {
           ].map(({ label, value }, idx, arr) => (
             <div
               key={label}
-              className="grid grid-cols-3 py-5 px-6 transition-colors"
+              className="flex flex-col gap-1 py-4 px-4 transition-colors sm:grid sm:grid-cols-3 sm:px-6 sm:py-5"
               style={{
                 borderBottom: idx < arr.length - 1 ? '1px solid rgba(0,0,0,0.06)' : undefined,
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0.02)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = ''; }}
             >
-              <span className="font-medium flex items-center" style={{ color: 'rgba(20,40,28,0.5)' }}>{label}</span>
-              <span className="col-span-2 font-semibold text-lg" style={{ color: '#1A3828' }}>{value}</span>
+              <span className="font-medium flex items-center text-sm" style={{ color: 'rgba(20,40,28,0.55)' }}>{label}</span>
+              <span className="font-semibold text-base sm:col-span-2 sm:text-lg" style={{ color: '#1A3828' }}>{value}</span>
             </div>
           ))}
         </div>,
         <button
           onClick={() => setIsEditModalOpen(true)}
-          className="text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
+          className="min-h-11 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
           style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#1A3828' }}
         >
           Edytuj dane
         </button>,
         'profile-form'
       )}
+      </>
+      )}
 
       {/* Patient card */}
-      {cardSection(
+      {activeTab === 'card' && cardSection(
         'Kartoteka',
         'Uzupełnij informacje, które pomogą nam lepiej dopasować zabiegi do Twoich potrzeb.',
         <div className="p-6 space-y-4">
@@ -324,6 +358,8 @@ export const UserProfile = () => {
       )}
 
       {/* Consents */}
+      {activeTab === 'preferences' && (
+      <>
       {cardSection(
         'Zgody',
         'Możesz w dowolnym momencie zmienić swoje zgody opcjonalne.',
@@ -375,14 +411,19 @@ export const UserProfile = () => {
         'Regulamin',
         `Wersja: ${terms.version} · Ostatnia aktualizacja: ${new Date(terms.updatedAt).toLocaleDateString('pl-PL')}`,
         <div className="p-6">
-          <div className="max-h-96 overflow-y-auto pr-1">
-            <pre
-              className="whitespace-pre-wrap text-xs leading-relaxed font-sans"
-              style={{ color: 'rgba(20,40,28,0.55)' }}
-            >
-              {terms.content}
-            </pre>
-          </div>
+          <details className="group rounded-xl border px-4 py-3" style={{ borderColor: 'rgba(26,56,40,0.12)', background: '#F4F9F5' }}>
+            <summary className="cursor-pointer text-sm font-semibold" style={{ color: '#1A3828' }}>
+              Przeczytaj pełną treść regulaminu
+            </summary>
+            <div className="mt-4 max-h-96 overflow-y-auto border-t pt-4 pr-1" style={{ borderColor: 'rgba(26,56,40,0.1)' }}>
+              <pre
+                className="whitespace-pre-wrap text-sm leading-relaxed font-sans"
+                style={{ color: 'rgba(20,40,28,0.68)' }}
+              >
+                {terms.content}
+              </pre>
+            </div>
+          </details>
         </div>
       )}
 
@@ -465,8 +506,12 @@ export const UserProfile = () => {
           )}
         </section>
       )}
+      </>
+      )}
 
       {/* Change password */}
+      {activeTab === 'security' && (
+      <>
       {cardSection(
         'Zmiana hasła',
         undefined,
@@ -516,6 +561,8 @@ export const UserProfile = () => {
           Powtórz przewodnik po aplikacji
         </button>
       </div>
+      </>
+      )}
 
       {/* Edit personal data modal — rendered via portal to avoid z-index issues inside scrollable container */}
       {isEditModalOpen && createPortal(

@@ -41,3 +41,17 @@ export const clearChunkReloadMarks = () => {
     }
   }
 };
+
+export const markDocumentNoIndex = () => {
+  if (typeof document === 'undefined') return;
+
+  let robotsMeta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+  if (!robotsMeta) {
+    robotsMeta = document.createElement('meta');
+    robotsMeta.name = 'robots';
+    document.head.appendChild(robotsMeta);
+  }
+
+  robotsMeta.content = 'noindex,nofollow,noarchive';
+  document.title = 'Strona chwilowo niedostępna | BeskidStudio';
+};

@@ -70,6 +70,9 @@ export const RecommendedSlider = () => {
   }
 
   const slide: RecommendedSlide = slides[current];
+  const slideCopy = /\b(teraz|natychmiast|idź|idz|musisz)\b/i.test(slide.description)
+    ? 'Zabieg dobrany do aktualnych potrzeb Twojej skóry.'
+    : slide.description;
 
   const prev = () => setCurrent((c) => (c - 1 + count) % count);
   const next = () => setCurrent((c) => (c + 1) % count);
@@ -108,7 +111,7 @@ export const RecommendedSlider = () => {
             {slide.service.name}
           </h3>
           <p className="text-white/80 text-[12px] leading-relaxed line-clamp-2">
-            {slide.description}
+            {slideCopy}
           </p>
         </div>
 
@@ -133,14 +136,14 @@ export const RecommendedSlider = () => {
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className="transition-all"
+                  aria-label={`Pokaż polecany zabieg ${i + 1}`}
+                  className="flex h-8 w-8 items-center justify-center transition-all"
                   style={{
-                    width: i === current ? 16 : 6,
-                    height: 4,
-                    borderRadius: 2,
-                    background: i === current ? '#C4965A' : 'rgba(255,255,255,0.4)',
+                    background: 'transparent',
                   }}
-                />
+                >
+                  <span aria-hidden style={{ width: i === current ? 16 : 6, height: 4, borderRadius: 2, background: i === current ? '#C4965A' : 'rgba(255,255,255,0.55)' }} />
+                </button>
               ))}
             </div>
           )}
@@ -152,13 +155,15 @@ export const RecommendedSlider = () => {
         <>
           <button
             onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+            aria-label="Poprzedni polecany zabieg"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/35 text-white flex items-center justify-center hover:bg-black/55 transition-colors"
           >
             <ChevronLeft size={14} />
           </button>
           <button
             onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+            aria-label="Następny polecany zabieg"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/35 text-white flex items-center justify-center hover:bg-black/55 transition-colors"
           >
             <ChevronRight size={14} />
           </button>
