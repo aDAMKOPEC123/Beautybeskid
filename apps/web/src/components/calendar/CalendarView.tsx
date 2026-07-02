@@ -10,6 +10,7 @@ import { DateClickArg } from '@fullcalendar/interaction';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
+import { Calendar, UserPlus, Zap } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
@@ -81,6 +82,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [externalModal, setExternalModal] = useState<{ date?: string; time?: string; employeeId?: string } | null>(null);
   const [hhPanelOpen, setHhPanelOpen] = useState(false);
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
+  const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
@@ -199,12 +201,18 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   }, []);
 
   const handleDateClick = useCallback((info: DateClickArg) => {
-    if (!hhPanelOpen) return;
-    setHhPrefill({
-      date: info.date,
-      hour: info.date.getHours(),
-      minute: info.date.getMinutes(),
-    });
+    if (hhPanelOpen) {
+      setHhPrefill({ date: info.date, hour: info.date.getHours(), minute: info.date.getMinutes() });
+      return;
+    }
+    // Single click — show slot action menu
+    const date = info.dateStr.includes('T') ? info.dateStr.split('T')[0] : info.dateStr;
+    const h = String(info.date.getHours()).padStart(2, '0');
+    const m = String(info.date.getMinutes()).padStart(2, '0');
+    const resourceId = (info as any).resource?.id;
+    const x = info.jsEvent?.clientX ?? window.innerWidth / 2;
+    const y = info.jsEvent?.clientY ?? window.innerHeight / 2;
+    setSlotMenu({ date, time: `${h}:${m}`, employeeId: resourceId, x, y });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hhPanelOpen]);
 
@@ -213,7 +221,9 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     const date = arg.startStr.split('T')[0];
     const time = arg.startStr.split('T')[1]?.substring(0, 5);
     const resourceId = (arg as any).resource?.id;
-    setAddModal({ date, time, employeeId: resourceId });
+    const x = (arg as any).jsEvent?.clientX ?? window.innerWidth / 2;
+    const y = (arg as any).jsEvent?.clientY ?? window.innerHeight / 2;
+    setSlotMenu({ date, time, employeeId: resourceId, x, y });
   }, [hhPanelOpen]);
 
   const switchView = (v: CalView) => {
@@ -416,6 +426,52 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           employees={employees}
           services={services}
         />
+      )}
+
+      {/* Slot action menu */}
+      {slotMenu && (
+        <div className="fixed inset-0 z-40" onClick={() => setSlotMenu(null)}>
+          <div
+            className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50"
+            style={{
+              left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
+              top: Math.min(slotMenu.y + 8, window.innerHeight - 160),
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
+              {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
+            </p>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+            >
+              <Calendar size={15} className="text-primary" />
+              Dodaj wizytę
+            </button>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+            >
+              <UserPlus size={15} className="text-violet-500" />
+              Klientka z zewnątrz
+            </button>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => {
+                const d = slotMenu.time
+                  ? new Date(`${slotMenu.date}T${slotMenu.time}`)
+                  : new Date(slotMenu.date);
+                setHhPanelOpen(true);
+                setHhPrefill({ date: d, hour: d.getHours(), minute: d.getMinutes() });
+                setSlotMenu(null);
+              }}
+            >
+              <Zap size={15} className="text-amber-500" />
+              Happy Hours
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Happy Hour Panel */}
