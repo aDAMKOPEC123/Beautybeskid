@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { isAxiosError } from 'axios';
 import {
-  Cloud, Sun, MapPin, Bell, BellOff,
+  Cloud, Sun, MapPin,
   ChevronDown, ChevronUp, Loader2, RefreshCw,
   Settings, Pencil, X, Sparkles, Droplets, FlaskConical, Ban, Scissors,
 } from 'lucide-react';
@@ -282,7 +282,6 @@ export const SkinWeatherProfile = () => {
   // ── Collapsible settings state ──
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsConcerns, setSettingsConcerns] = useState<string[]>([]);
-  const [settingsNotifications, setSettingsNotifications] = useState(false);
 
   // ── Derived ──
   const hasProfile = !isLoading && !!profile;
@@ -298,7 +297,6 @@ export const SkinWeatherProfile = () => {
       locationLat: 0,
       locationLng: 0,
       cityName: 'Wykrywanie...',
-      notificationsEnabled: false,
     });
   }
 
@@ -310,7 +308,6 @@ export const SkinWeatherProfile = () => {
         locationLat: Number(profile?.locationLat) || 0,
         locationLng: Number(profile?.locationLng) || 0,
         cityName: profile?.cityName || 'Wykrywanie...',
-        notificationsEnabled: profile?.notificationsEnabled ?? false,
       },
       {
         onSuccess: () => {
@@ -329,7 +326,6 @@ export const SkinWeatherProfile = () => {
         locationLat: Number(profile?.locationLat) || 0,
         locationLng: Number(profile?.locationLng) || 0,
         cityName: profile?.cityName || 'Wykrywanie...',
-        notificationsEnabled: profile?.notificationsEnabled ?? false,
       },
       {
         onSuccess: () => {
@@ -347,7 +343,6 @@ export const SkinWeatherProfile = () => {
       locationLat: Number(profile?.locationLat) || 0,
       locationLng: Number(profile?.locationLng) || 0,
       cityName: profile?.cityName || 'Wykrywanie...',
-      notificationsEnabled: settingsNotifications,
     });
   }
 
@@ -360,7 +355,6 @@ export const SkinWeatherProfile = () => {
   function openSettings() {
     // Sync from profile when opening
     setSettingsConcerns(profile?.skinConcerns ?? []);
-    setSettingsNotifications(profile?.notificationsEnabled ?? false);
     setSettingsOpen(true);
   }
 
@@ -562,31 +556,6 @@ export const SkinWeatherProfile = () => {
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Notifications toggle */}
-            <div className="flex items-center justify-between p-4 bg-muted/20 rounded-xl border border-border/40">
-              <div className="flex items-center gap-3">
-                {settingsNotifications
-                  ? <Bell className="h-4 w-4" />
-                  : <BellOff className="h-4 w-4 text-muted-foreground" />}
-                <div>
-                  <p className="text-sm font-medium">Powiadomienia push</p>
-                  <p className="text-xs text-muted-foreground">Prognoza na 13:00, wysyłana o 6:00</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSettingsNotifications(v => !v)}
-                className={`relative w-10 h-5 rounded-full transition-colors ${
-                  settingsNotifications ? 'bg-foreground' : 'bg-border'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-4 h-4 bg-background rounded-full shadow transition-transform ${
-                    settingsNotifications ? 'translate-x-5' : ''
-                  }`}
-                />
-              </button>
             </div>
 
             {/* Location info (read-only) */}

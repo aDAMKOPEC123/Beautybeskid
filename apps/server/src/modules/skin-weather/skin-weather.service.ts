@@ -402,7 +402,9 @@ export const processSkinWeatherReports = async () => {
         },
       });
 
-      if (profile.notificationsEnabled && sections.length > 0) {
+      // A saved push subscription is the user's consent. Weather notifications
+      // do not require a second, feature-specific opt-in.
+      if (sections.length > 0) {
         await sendPushToUser(profile.userId, {
           title: 'Pogoda dla Twojej skóry o 13:00',
           body: sections[0].label,
