@@ -30,10 +30,18 @@ export function ExternalClientModal({
 }: Props) {
   if (!open) return null;
 
-  const defaultTime = prefillTime ?? '09:00';
+  const defaultTimeFrom = prefillTime ?? '09:00';
   const defaultDate = prefillDate
     ? format(new Date(prefillDate), 'yyyy-MM-dd')
     : format(new Date(), 'yyyy-MM-dd');
+
+  const defaultService = services[0];
+  const defaultDuration = defaultService?.durationMinutes ?? 60;
+  const defaultTimeTo = (() => {
+    const [h, m] = defaultTimeFrom.split(':').map(Number);
+    const totalMins = h * 60 + m + defaultDuration;
+    return `${String(Math.floor(totalMins / 60) % 24).padStart(2, '0')}:${String(totalMins % 60).padStart(2, '0')}`;
+  })();
 
   const [step, setStep] = useState<Step>('form');
   const [copied, setCopied] = useState(false);
@@ -41,20 +49,53 @@ export function ExternalClientModal({
 
   const [form, setForm] = useState({
     date: defaultDate,
-    time: defaultTime,
-    employeeId: prefillEmployeeId ?? '',
-    serviceId: services[0]?.id ?? '',
+    timeFrom: defaultTimeFrom,
+    timeTo: defaultTimeTo,
+    employeeId: prefillEmployeeId ?? employees[0]?.id ?? '',
+    serviceId: defaultService?.id ?? '',
     clientName: '',
     clientPhone: '',
     clientEmail: '',
     notes: '',
   });
 
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  // When service changes, update timeTo to respect new service duration
+  const handleServiceChange = (serviceId: string) => {
+    const svc = services.find((s: any) => s.id === serviceId);
+    if (svc) {
+      const [h, m] = form.timeFrom.split(':').map(Number);
+      const totalMins = h * 60 + m + (svc.durationMinutes ?? 60);
+      const newTimeTo = `${String(Math.floor(totalMins / 60) % 24).padStart(2, '0')}:${String(totalMins % 60).padStart(2, '0')}`;
+      setForm((f) => ({ ...f, serviceId, timeTo: newTimeTo }));
+    } else {
+      set('serviceId', serviceId);
+    }
+  };
+
+  // When timeFrom changes, shift timeTo by the same duration
+  const handleTimeFromChange = (newTimeFrom: string) => {
+    const [oh, om] = form.timeFrom.split(':').map(Number);
+    const [th, tm] = form.timeTo.split(':').map(Number);
+    const duration = (th * 60 + tm) - (oh * 60 + om);
+    const [nh, nm] = newTimeFrom.split(':').map(Number);
+    const newTotal = nh * 60 + nm + Math.max(duration, 15);
+    const newTimeTo = `${String(Math.floor(newTotal / 60) % 24).padStart(2, '0')}:${String(newTotal % 60).padStart(2, '0')}`;
+    setForm((f) => ({ ...f, timeFrom: newTimeFrom, timeTo: newTimeTo }));
+  };
+
+  const computedDuration = (() => {
+    const [fh, fm] = form.timeFrom.split(':').map(Number);
+    const [th, tm] = form.timeTo.split(':').map(Number);
+    return Math.max((th * 60 + tm) - (fh * 60 + fm), 1);
+  })();
+
   const qc = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => {
-      const [h, m] = form.time.split(':');
+      const [h, m] = form.timeFrom.split(':').map(Number);
       const dateToUse = prefillDate ? new Date(prefillDate) : new Date(form.date);
       dateToUse.setHours(Number(h), Number(m), 0, 0);
 
@@ -66,6 +107,7 @@ export function ExternalClientModal({
         employeeId: form.employeeId || undefined,
         date: dateToUse.toISOString(),
         notes: form.notes || undefined,
+        customDurationMinutes: computedDuration,
       });
     },
     onSuccess: (appt) => {
@@ -78,8 +120,6 @@ export function ExternalClientModal({
       toast.error(msg ?? 'Błąd podczas dodawania wizyty');
     },
   });
-
-  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   const buildSummaryText = (appt: any) => {
     const apptDate = new Date(appt.date);
@@ -148,11 +188,11 @@ export function ExternalClientModal({
         {step === 'form' && (
           <>
             <p className="text-xs text-muted-foreground">
-              Wizyta dla klientki spoza systemu. Konto zostanie utworzone automatycznie na podstawie podanych danych.
+              Wizyta dla klientki spoza systemu — bez konta w aplikacji.
             </p>
 
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              <div className={prefillDate ? 'col-span-2' : ''}>
                 <label className="text-xs text-muted-foreground">Data</label>
                 {prefillDate ? (
                   <input
@@ -169,26 +209,41 @@ export function ExternalClientModal({
                   />
                 )}
               </div>
+              {!prefillDate && <div />}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-muted-foreground">Godzina</label>
+                <label className="text-xs text-muted-foreground">Godzina od</label>
                 <input
                   type="time"
-                  value={form.time}
-                  onChange={(e) => set('time', e.target.value)}
+                  value={form.timeFrom}
+                  onChange={(e) => handleTimeFromChange(e.target.value)}
+                  className="w-full text-sm border border-input rounded-md px-3 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">
+                  Godzina do <span className="text-violet-500">({computedDuration} min)</span>
+                </label>
+                <input
+                  type="time"
+                  value={form.timeTo}
+                  onChange={(e) => set('timeTo', e.target.value)}
                   className="w-full text-sm border border-input rounded-md px-3 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Pracownik</label>
+              <label className="text-xs text-muted-foreground">Pracownik *</label>
               <select
                 value={form.employeeId}
                 onChange={(e) => set('employeeId', e.target.value)}
                 className="w-full text-sm border border-input rounded-md px-3 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value="">— brak —</option>
-                {employees.map((emp) => (
+                <option value="">— wybierz pracownika —</option>
+                {employees.map((emp: any) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.name}
                   </option>
@@ -200,10 +255,10 @@ export function ExternalClientModal({
               <label className="text-xs text-muted-foreground">Zabieg</label>
               <select
                 value={form.serviceId}
-                onChange={(e) => set('serviceId', e.target.value)}
+                onChange={(e) => handleServiceChange(e.target.value)}
                 className="w-full text-sm border border-input rounded-md px-3 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                {services.map((s) => (
+                {services.map((s: any) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
@@ -259,7 +314,7 @@ export function ExternalClientModal({
               </Button>
               <Button
                 size="sm"
-                disabled={isPending || !form.clientName || !form.clientPhone || !form.serviceId}
+                disabled={isPending || !form.clientName || !form.clientPhone || !form.serviceId || !form.employeeId || computedDuration < 1}
                 onClick={() => mutate()}
                 className="bg-violet-600 hover:bg-violet-700 text-white"
               >

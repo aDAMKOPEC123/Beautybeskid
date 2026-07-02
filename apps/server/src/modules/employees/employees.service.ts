@@ -406,7 +406,8 @@ const getAvailabilityForDuration = async (
       const isPast = slotStart <= now;
       const isOccupied = !isPast && existingAppointments.some((apt) => {
         const aptStart = new Date(apt.date);
-        const aptEnd = addMinutes(aptStart, apt.service.durationMinutes);
+        const aptDuration = (apt as any).customDurationMinutes ?? apt.service.durationMinutes;
+        const aptEnd = addMinutes(aptStart, aptDuration);
         return slotStart < aptEnd && slotEnd > aptStart;
       });
       const hh = Math.floor(currentMinutes / 60).toString().padStart(2, '0');

@@ -71,6 +71,7 @@ export const appointmentsApi = {
     employeeId?: string;
     date: string;
     notes?: string;
+    customDurationMinutes?: number;
   }) => {
     const res = await api.post('/appointments/admin/external', data);
     return res.data.data.appointment;

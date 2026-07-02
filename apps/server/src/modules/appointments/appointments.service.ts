@@ -366,7 +366,28 @@ export const createExternalClientAppointment = async (data: {
   employeeId?: string;
   date: string;
   notes?: string;
+  customDurationMinutes?: number;
 }) => {
+  // Conflict check (best-effort, same as createAppointment)
+  if (data.employeeId) {
+    const service = await prisma.service.findUnique({
+      where: { id: data.serviceId },
+      select: { durationMinutes: true },
+    });
+    const apptStart = new Date(data.date);
+    const durationMs = (data.customDurationMinutes ?? service?.durationMinutes ?? 60) * 60_000;
+    const apptEnd = new Date(apptStart.getTime() + durationMs);
+    const conflict = await prisma.appointment.findFirst({
+      where: {
+        employeeId: data.employeeId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        date: { gte: new Date(apptStart.getTime() - durationMs), lt: apptEnd },
+      },
+      select: { id: true },
+    });
+    if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+  }
+
   const result = await prisma.$transaction(async (tx) => {
     const appointment = await tx.appointment.create({
       data: {
@@ -374,6 +395,7 @@ export const createExternalClientAppointment = async (data: {
         clientName: data.clientName,
         clientPhone: data.clientPhone,
         clientEmail: data.clientEmail || null,
+        customDurationMinutes: data.customDurationMinutes ?? null,
         serviceId: data.serviceId,
         employeeId: data.employeeId || null,
         date: new Date(data.date),

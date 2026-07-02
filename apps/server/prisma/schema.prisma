@@ -450,9 +450,10 @@ model Appointment {
   id                 String            @id @default(cuid())
   userId             String?
   user               User?             @relation(fields: [userId], references: [id])
-  clientName         String?
-  clientPhone        String?
-  clientEmail        String?
+  clientName            String?
+  clientPhone           String?
+  clientEmail           String?
+  customDurationMinutes Int?
   serviceId          String
   service            Service           @relation(fields: [serviceId], references: [id])
   employeeId         String?
