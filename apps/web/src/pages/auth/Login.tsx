@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
+import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
 import { getPanelPath } from '@/lib/panel-routing';
 
 export const Login = () => {
@@ -39,6 +40,13 @@ export const Login = () => {
     }
     if (searchParams.get('error') === 'invalid-token') {
       toast.error('Link aktywacyjny jest nieprawidłowy lub został już użyty.');
+      setSearchParams({}, { replace: true });
+    }
+    const facebookError = searchParams.get('facebookError');
+    if (facebookError) {
+      toast.error(
+        facebookErrorMessages[facebookError] ?? facebookErrorMessages['facebook-failed'],
+      );
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -130,7 +138,10 @@ export const Login = () => {
               <span className="bg-background px-2 text-muted-foreground">lub</span>
             </div>
           </div>
-          <GoogleAuthButton />
+          <div className="space-y-3">
+            <GoogleAuthButton />
+            <FacebookAuthButton mode="login" returnTo={from} />
+          </div>
         </CardContent>
         <CardFooter className="justify-center text-sm text-muted-foreground border-t pt-6 bg-muted/10 rounded-b-xl">
           Nie masz konta? <Link to="/auth/register" className="ml-2 font-bold text-primary hover:underline">Zarejestruj się</Link>

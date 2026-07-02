@@ -36,6 +36,7 @@ const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Lo
 const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword').then(m => ({ default: m.ResetPassword })));
+const FacebookCallback = lazy(() => import('./pages/auth/FacebookCallback').then(m => ({ default: m.FacebookCallback })));
 
 // User pages
 const UserDashboard = lazy(() => import('./pages/user/Dashboard').then(m => ({ default: m.UserDashboard })));
@@ -159,6 +160,7 @@ export const router = createBrowserRouter([
           { path: 'register', element: <S><Register /></S> },
           { path: 'forgot-password', element: <S><ForgotPassword /></S> },
           { path: 'reset-password', element: <S><ResetPassword /></S> },
+          { path: 'facebook/callback', element: <S><FacebookCallback /></S> },
         ],
       },
     ],

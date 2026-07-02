@@ -17,6 +17,10 @@ const envSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().min(1).optional(),
   VAPID_EMAIL: z.string().min(1).optional(),
   GOOGLE_CLIENT_ID: z.string().min(10),
+  FACEBOOK_APP_ID: z.string().min(5).optional(),
+  FACEBOOK_APP_SECRET: z.string().min(10).optional(),
+  FACEBOOK_REDIRECT_URI: z.string().url().optional(),
+  FACEBOOK_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/).default('v23.0'),
 });
 
 const _env = envSchema.superRefine((data, ctx) => {
@@ -26,6 +30,14 @@ const _env = envSchema.superRefine((data, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'Musisz podać wszystkie trzy klucze VAPID (PUBLIC_KEY, PRIVATE_KEY, EMAIL) lub żadnego',
+    });
+  }
+
+  const facebookCredentials = [data.FACEBOOK_APP_ID, data.FACEBOOK_APP_SECRET];
+  if (facebookCredentials.filter(Boolean).length === 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'FACEBOOK_APP_ID i FACEBOOK_APP_SECRET muszą być ustawione razem',
     });
   }
 }).safeParse(process.env);

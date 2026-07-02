@@ -65,4 +65,12 @@ export const authApi = {
 
   loginWithGoogle: (credential: string) =>
     api.post<AuthResponseEnvelope>('/auth/google', { credential }).then((r) => r.data.data),
+
+  getFacebookStatus: () =>
+    api
+      .get<{ status: 'success'; data: { enabled: boolean } }>('/auth/facebook/status')
+      .then((r) => r.data.data),
+
+  refreshSession: () =>
+    api.post<AuthResponseEnvelope>('/auth/refresh').then((r) => r.data.data),
 };

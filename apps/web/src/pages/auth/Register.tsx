@@ -1,8 +1,8 @@
 ﻿// filepath: apps/web/src/pages/auth/Register.tsx
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { registerSchema, RegisterInput } from '@cosmo/shared';
 import { authApi } from '@/api/auth.api';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Camera, ImageIcon, UserRound } from 'lucide-react';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
+import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
 
 export const Register = () => {
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,16 @@ export const Register = () => {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const facebookError = searchParams.get('facebookError');
+    if (!facebookError) return;
+    toast.error(
+      facebookErrorMessages[facebookError] ?? facebookErrorMessages['facebook-failed'],
+    );
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -31,7 +42,7 @@ export const Register = () => {
     setAvatarPreview(URL.createObjectURL(file));
   };
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema)
   });
 
@@ -193,7 +204,16 @@ export const Register = () => {
               <span className="bg-background px-2 text-muted-foreground">lub</span>
             </div>
           </div>
-          <GoogleAuthButton />
+          <div className="space-y-3">
+            <GoogleAuthButton />
+            <FacebookAuthButton
+              mode="register"
+              termsAccepted={termsAccepted}
+              marketingConsent={marketingConsent}
+              photoConsent={photoConsent}
+              ambassadorCode={watch('ambassadorCode')}
+            />
+          </div>
         </CardContent>
         <CardFooter className="justify-center text-sm text-muted-foreground border-t pt-6 bg-muted/10 rounded-b-xl">
           Masz już konto? <Link to="/auth/login" className="ml-2 font-bold text-primary hover:underline">Zaloguj się</Link>

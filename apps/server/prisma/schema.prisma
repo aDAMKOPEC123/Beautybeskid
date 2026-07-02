@@ -123,6 +123,7 @@ model User {
   email          String    @unique
   passwordHash   String?
   googleId       String?  @unique
+  facebookId     String?  @unique
   emailVerificationToken  String?  @unique
   name           String
   phone          String?

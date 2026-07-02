@@ -8,6 +8,7 @@ import { RegisterInput, LoginInput } from '@cosmo/shared';
 import { generateCode } from '../../utils/generateCode';
 import { createWelcomeCodeForUser } from '../discount-codes/discount-codes.service';
 import { verifyGoogleToken } from './google.strategy';
+import { FacebookAuthError, FacebookProfile } from './facebook.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
 
@@ -34,6 +35,15 @@ export const toAuthUser = (user: {
   referralCount: user.referralCount,
   mustChangePassword: user.mustChangePassword,
 });
+
+const generateUniqueAmbassadorCode = async (): Promise<string> => {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = generateCode(8);
+    const existing = await prisma.user.findUnique({ where: { ambassadorCode: code } });
+    if (!existing) return code;
+  }
+  throw new AppError('Nie udało się wygenerować kodu ambasadora', 500);
+};
 
 export const registerUser = async (data: RegisterInput & {
   ambassadorCode?: string;
@@ -132,7 +142,7 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
     throw new AppError('Nieprawidłowy email lub hasło', 401);
   }
   if (!raw.passwordHash) {
-    throw new AppError('To konto używa logowania przez Google. Zaloguj się przyciskiem "Zaloguj z Google".', 401);
+    throw new AppError('To konto używa logowania społecznościowego. Wybierz odpowiedni przycisk logowania.', 401);
   }
   if (!(await bcrypt.compare(data.password, raw.passwordHash))) {
     throw new AppError('Nieprawidłowy email lub hasło', 401);
@@ -175,15 +185,6 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
 export const loginWithGoogle = async (credential: string) => {
   const { googleId, email, name, picture } = await verifyGoogleToken(credential);
 
-  const generateAmbassadorCode = async (): Promise<string> => {
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const code = generateCode(8);
-      const existing = await prisma.user.findUnique({ where: { ambassadorCode: code } });
-      if (!existing) return code;
-    }
-    throw new AppError('Nie udało się wygenerować kodu ambasadora', 500);
-  };
-
   // Find by googleId first, then by email (merge case)
   let user = await prisma.user.findFirst({
     where: { OR: [{ googleId }, { email }] },
@@ -207,7 +208,7 @@ export const loginWithGoogle = async (credential: string) => {
     }
   } else {
     // New user — create with ACTIVE status immediately (Google verifies identity)
-    const ambassadorCode = await generateAmbassadorCode();
+    const ambassadorCode = await generateUniqueAmbassadorCode();
     user = await prisma.user.create({
       data: {
         email,
@@ -223,6 +224,122 @@ export const loginWithGoogle = async (credential: string) => {
         photoConsent: false,
       },
     });
+  }
+
+  const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
+  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+
+  return {
+    user: toAuthUser(user),
+    accessToken,
+    refreshToken,
+  };
+};
+
+export const loginWithFacebook = async (
+  profile: FacebookProfile,
+  options: {
+    mode: 'login' | 'register';
+    termsAccepted: boolean;
+    marketingConsent: boolean;
+    photoConsent: boolean;
+    ambassadorCode?: string;
+  },
+) => {
+  const [byFacebookId, byEmail] = await Promise.all([
+    prisma.user.findUnique({ where: { facebookId: profile.facebookId } }),
+    prisma.user.findUnique({ where: { email: profile.email } }),
+  ]);
+
+  if (byFacebookId && byEmail && byFacebookId.id !== byEmail.id) {
+    throw new FacebookAuthError(
+      'facebook-account-conflict',
+      'Konto Facebook jest już połączone z innym użytkownikiem',
+      409,
+    );
+  }
+
+  let user = byFacebookId ?? byEmail;
+  let created = false;
+
+  if (user) {
+    if (user.facebookId && user.facebookId !== profile.facebookId) {
+      throw new FacebookAuthError(
+        'facebook-account-conflict',
+        'Ten adres email jest już połączony z innym kontem Facebook',
+        409,
+      );
+    }
+    if (user.accountStatus === 'REJECTED') {
+      throw new FacebookAuthError('facebook-account-blocked', 'Konto zostało zablokowane', 403);
+    }
+
+    if (!user.facebookId || user.accountStatus === 'PENDING') {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          facebookId: user.facebookId ?? profile.facebookId,
+          accountStatus: 'ACTIVE',
+          emailVerificationToken: null,
+        },
+      });
+    }
+  } else {
+    if (options.mode !== 'register' || !options.termsAccepted) {
+      throw new FacebookAuthError(
+        'facebook-registration-required',
+        'Najpierw zaakceptuj regulamin i zarejestruj konto przez Facebook',
+        403,
+      );
+    }
+
+    const ambassadorCode = await generateUniqueAmbassadorCode();
+    const referrer = options.ambassadorCode
+      ? await prisma.user.findUnique({
+          where: { ambassadorCode: options.ambassadorCode.trim().toUpperCase() },
+        })
+      : null;
+
+    user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: profile.email,
+          name: profile.name,
+          passwordHash: null,
+          facebookId: profile.facebookId,
+          avatarPath: profile.picture ?? null,
+          accountStatus: 'ACTIVE',
+          ambassadorCode,
+          referredById: referrer?.id ?? null,
+          termsAcceptedAt: new Date(),
+          marketingConsent: options.marketingConsent,
+          photoConsent: options.photoConsent,
+        },
+      });
+
+      if (referrer) {
+        await createWelcomeCodeForUser(tx, newUser.id, referrer.id);
+      }
+
+      return newUser;
+    });
+    created = true;
+  }
+
+  if (created) {
+    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+      .then((admins) => {
+        if (admins.length === 0) return;
+        return prisma.notification.createMany({
+          data: admins.map((admin) => ({
+            userId: admin.id,
+            type: 'GENERIC' as const,
+            title: 'Nowa rejestracja',
+            body: `Nowa rejestracja przez Facebook: ${user.name} (${user.email})`,
+          })),
+        });
+      })
+      .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);

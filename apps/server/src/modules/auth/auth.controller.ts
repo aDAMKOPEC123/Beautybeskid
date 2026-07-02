@@ -10,6 +10,13 @@ import { sendEmail } from '../../utils/email';
 import { processAndSaveImage } from '../../utils/imageProcessor';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import {
+  createFacebookAuthorizationUrl,
+  FacebookAuthError,
+  FacebookAuthErrorCode,
+  fetchFacebookProfile,
+  isFacebookConfigured,
+} from './facebook.strategy';
 
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
@@ -17,6 +24,93 @@ const buildRefreshCookieOptions = (maxAge: number) => ({
   sameSite: 'strict' as const,
   maxAge,
 });
+
+const FACEBOOK_STATE_COOKIE = 'facebookOAuthState';
+const FACEBOOK_CONTEXT_COOKIE = 'facebookOAuthContext';
+const FACEBOOK_OAUTH_TTL_MS = 10 * 60 * 1000;
+
+type FacebookOAuthContext = {
+  mode: 'login' | 'register';
+  returnTo: string;
+  termsAccepted: boolean;
+  marketingConsent: boolean;
+  photoConsent: boolean;
+  ambassadorCode?: string;
+};
+
+const facebookOAuthCookieOptions = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  maxAge: FACEBOOK_OAUTH_TTL_MS,
+  path: '/api/auth/facebook',
+};
+
+const sanitizeReturnTo = (value: unknown) => {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/user';
+  return value.slice(0, 500);
+};
+
+const redirectFacebookResult = (
+  res: Response,
+  path: '/auth/login' | '/auth/register' | '/auth/facebook/callback',
+  params: Record<string, string>,
+) => {
+  const url = new URL(path, env.CLIENT_URL);
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  return res.redirect(url.toString());
+};
+
+const clearFacebookOAuthCookies = (res: Response) => {
+  const options = { path: facebookOAuthCookieOptions.path };
+  res.clearCookie(FACEBOOK_STATE_COOKIE, options);
+  res.clearCookie(FACEBOOK_CONTEXT_COOKIE, options);
+};
+
+const parseFacebookContext = (req: Request): FacebookOAuthContext => {
+  const returnedState = typeof req.query.state === 'string' ? req.query.state : '';
+  const expectedState = req.cookies?.[FACEBOOK_STATE_COOKIE];
+  const contextToken = req.cookies?.[FACEBOOK_CONTEXT_COOKIE];
+
+  if (!returnedState || !expectedState || !contextToken) {
+    throw new FacebookAuthError('facebook-invalid-state', 'Sesja logowania przez Facebook wygasła', 400);
+  }
+
+  const returnedBuffer = Buffer.from(returnedState);
+  const expectedBuffer = Buffer.from(expectedState);
+  if (
+    returnedBuffer.length !== expectedBuffer.length ||
+    !crypto.timingSafeEqual(returnedBuffer, expectedBuffer)
+  ) {
+    throw new FacebookAuthError('facebook-invalid-state', 'Nieprawidłowy stan logowania Facebook', 400);
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = verifyToken(contextToken, env.JWT_SECRET);
+  } catch {
+    throw new FacebookAuthError('facebook-invalid-state', 'Sesja logowania przez Facebook wygasła', 400);
+  }
+
+  if (!decoded || typeof decoded !== 'object') {
+    throw new FacebookAuthError('facebook-invalid-state', 'Nieprawidłowy kontekst logowania Facebook', 400);
+  }
+
+  const context = decoded as Partial<FacebookOAuthContext>;
+  if (context.mode !== 'login' && context.mode !== 'register') {
+    throw new FacebookAuthError('facebook-invalid-state', 'Nieprawidłowy tryb logowania Facebook', 400);
+  }
+
+  return {
+    mode: context.mode,
+    returnTo: sanitizeReturnTo(context.returnTo),
+    termsAccepted: context.termsAccepted === true,
+    marketingConsent: context.marketingConsent === true,
+    photoConsent: context.photoConsent === true,
+    ambassadorCode:
+      typeof context.ambassadorCode === 'string' ? context.ambassadorCode.slice(0, 32) : undefined,
+  };
+};
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -244,6 +338,101 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const facebookStatus = (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'success',
+    data: { enabled: isFacebookConfigured() },
+  });
+};
+
+export const startFacebookAuth = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!isFacebookConfigured()) {
+      throw new FacebookAuthError(
+        'facebook-unavailable',
+        'Logowanie przez Facebook nie jest jeszcze skonfigurowane',
+        503,
+      );
+    }
+
+    const mode = req.query.mode === 'register' ? 'register' : 'login';
+    const termsAccepted = req.query.termsAccepted === 'true';
+    if (mode === 'register' && !termsAccepted) {
+      return redirectFacebookResult(res, '/auth/register', {
+        facebookError: 'facebook-registration-required',
+      });
+    }
+
+    const state = crypto.randomBytes(32).toString('hex');
+    const context: FacebookOAuthContext = {
+      mode,
+      returnTo: sanitizeReturnTo(req.query.returnTo),
+      termsAccepted,
+      marketingConsent: req.query.marketingConsent === 'true',
+      photoConsent: req.query.photoConsent === 'true',
+      ambassadorCode:
+        typeof req.query.ambassadorCode === 'string'
+          ? req.query.ambassadorCode.trim().toUpperCase().slice(0, 32)
+          : undefined,
+    };
+    const contextToken = signToken(context, env.JWT_SECRET, '10m');
+
+    res.cookie(FACEBOOK_STATE_COOKIE, state, facebookOAuthCookieOptions);
+    res.cookie(FACEBOOK_CONTEXT_COOKIE, contextToken, facebookOAuthCookieOptions);
+    return res.redirect(createFacebookAuthorizationUrl(state));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const facebookCallback = async (req: Request, res: Response) => {
+  let context: FacebookOAuthContext | undefined;
+
+  try {
+    context = parseFacebookContext(req);
+    clearFacebookOAuthCookies(res);
+
+    if (req.query.error) {
+      throw new FacebookAuthError('facebook-denied', 'Logowanie przez Facebook zostało anulowane', 400);
+    }
+
+    const code = typeof req.query.code === 'string' ? req.query.code : '';
+    if (!code) {
+      throw new FacebookAuthError('facebook-failed', 'Facebook nie zwrócił kodu autoryzacyjnego', 400);
+    }
+
+    const profile = await fetchFacebookProfile(code);
+    const result = await authService.loginWithFacebook(profile, context);
+    const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+
+    res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
+    const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash,
+        userId: result.user.id,
+        expiresAt: new Date(Date.now() + tokenTtlMs),
+      },
+    });
+
+    return redirectFacebookResult(res, '/auth/facebook/callback', {
+      next: context.returnTo,
+    });
+  } catch (error) {
+    clearFacebookOAuthCookies(res);
+    if (!(error instanceof FacebookAuthError)) {
+      console.error('[Facebook OAuth] Callback failed:', error);
+    }
+    const errorCode: FacebookAuthErrorCode =
+      error instanceof FacebookAuthError ? error.code : 'facebook-failed';
+    const target =
+      errorCode === 'facebook-registration-required' || context?.mode === 'register'
+        ? '/auth/register'
+        : '/auth/login';
+    return redirectFacebookResult(res, target, { facebookError: errorCode });
   }
 };
 
