@@ -84,7 +84,7 @@ export const AdminDashboard = () => {
               >
                 <div>
                   <p className="font-semibold text-primary">{a.service.name}</p>
-                  <p className="text-sm font-medium mt-1">Klient: {a.user.name} <span className="text-muted-foreground font-normal">({a.user.email})</span></p>
+                  <p className="text-sm font-medium mt-1">Klient: {a.user?.name ?? (a as any).clientName ?? '—'} <span className="text-muted-foreground font-normal">{a.user?.email ? `(${a.user.email})` : ''}</span></p>
                   <p className="text-xs text-muted-foreground mt-1 bg-background inline-block px-2 py-1 rounded-sm border">{new Date(a.date).toLocaleString('pl-PL')}</p>
                 </div>
                 <div className="flex items-center gap-4 self-start md:self-auto">
