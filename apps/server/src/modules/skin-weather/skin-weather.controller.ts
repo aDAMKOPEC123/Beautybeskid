@@ -61,8 +61,8 @@ export const generateMyReport = async (req: Request, res: Response, next: NextFu
 
 export const generateAllReports = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    service.processSkinWeatherReports(); // fire and forget
-    res.json({ message: 'Generowanie raportów rozpoczęte' });
+    await service.processSkinWeatherReports(true);
+    res.json({ message: 'Raporty wygenerowane i powiadomienia wysłane' });
   } catch (err) {
     next(err);
   }

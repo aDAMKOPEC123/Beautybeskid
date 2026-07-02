@@ -518,7 +518,7 @@ export const SkinWeatherRules = () => {
 
   const generateAllMutation = useMutation({
     mutationFn: skinWeatherApi.generateAllReports,
-    onSuccess: () => toast.success('Generowanie raportów rozpoczęte (działa w tle)'),
+    onSuccess: () => toast.success('Raporty wygenerowane i powiadomienia wysłane'),
     onError: (err) => { const msg = isAxiosError(err) ? err.response?.data?.message : null; toast.error(msg ?? 'Błąd generowania'); },
   });
 

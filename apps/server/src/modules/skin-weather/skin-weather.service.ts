@@ -360,7 +360,7 @@ export const matchRulesToWeather = (rules: any[], weather: any, airQuality: any)
 
 // ── Scheduler ─────────────────────────────────────────────────────────────────
 
-export const processSkinWeatherReports = async () => {
+export const processSkinWeatherReports = async (force = false) => {
   console.log('[SkinWeather] Processing daily reports...');
   const today = startOfDay(new Date());
 
@@ -380,7 +380,7 @@ export const processSkinWeatherReports = async () => {
       const existing = await prisma.skinWeatherReport.findUnique({
         where: { userId_reportDate: { userId: profile.userId, reportDate: today } },
       });
-      if (existing) continue;
+      if (existing && !force) continue;
 
       const lat = Number(profile.locationLat);
       const lng = Number(profile.locationLng);
@@ -393,8 +393,14 @@ export const processSkinWeatherReports = async () => {
 
       const sections = matchRulesToWeather(rules, weather, airQuality);
 
-      await prisma.skinWeatherReport.create({
-        data: {
+      await prisma.skinWeatherReport.upsert({
+        where: { userId_reportDate: { userId: profile.userId, reportDate: today } },
+        update: {
+          weatherData: weather,
+          reportData: { sections },
+          generatedAt: new Date(),
+        },
+        create: {
           userId: profile.userId,
           reportDate: today,
           weatherData: weather,
@@ -404,13 +410,11 @@ export const processSkinWeatherReports = async () => {
 
       // A saved push subscription is the user's consent. Weather notifications
       // do not require a second, feature-specific opt-in.
-      if (sections.length > 0) {
-        await sendPushToUser(profile.userId, {
-          title: 'Pogoda dla Twojej skóry o 13:00',
-          body: sections[0].label,
-          url: '/user/pogoda-skory',
-        });
-      }
+      await sendPushToUser(profile.userId, {
+        title: 'Pogoda dla Twojej skóry o 13:00',
+        body: sections[0]?.label ?? 'Twój dzisiejszy raport pogodowy jest już gotowy.',
+        url: '/user/pogoda-skory',
+      });
 
       console.log(`[SkinWeather] Report generated for user ${profile.userId}`);
     } catch (err) {
