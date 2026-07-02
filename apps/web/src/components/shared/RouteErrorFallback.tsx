@@ -7,11 +7,14 @@ import {
   markDocumentNoIndex,
   reloadOnceForChunkError,
 } from '@/lib/chunkRecovery';
+import { useAuth } from '@/hooks/useAuth';
+import { getPanelPath } from '@/lib/panel-routing';
 
 export const RouteErrorFallback = () => {
   const error = useRouteError();
   const location = useLocation();
   const isChunkError = isChunkLoadError(error);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     markDocumentNoIndex();
@@ -32,6 +35,9 @@ export const RouteErrorFallback = () => {
       ? 'Ta sekcja nie istnieje albo została przeniesiona.'
       : 'Aplikacja napotkała błąd w tej sekcji. Możesz odświeżyć stronę albo wrócić do panelu.';
   const details = import.meta.env.DEV ? getErrorMessage(error) : '';
+  const returnToHome = status === 404 || !isAuthenticated;
+  const returnPath = returnToHome ? '/' : getPanelPath(user?.role);
+  const returnLabel = returnToHome ? 'Wróć na stronę główną' : 'Wróć do panelu';
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-6">
@@ -58,10 +64,10 @@ export const RouteErrorFallback = () => {
             Odśwież aplikację
           </button>
           <Link
-            to="/admin"
+            to={returnPath}
             className="w-full sm:w-auto rounded-full border px-5 py-2.5 text-sm font-semibold transition hover:bg-accent"
           >
-            Wróć do panelu
+            {returnLabel}
           </Link>
         </div>
       </div>

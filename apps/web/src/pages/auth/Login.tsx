@@ -12,24 +12,25 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
+import { getPanelPath } from '@/lib/panel-routing';
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { setAccessToken, setUser, isAuthenticated } = useAuth();
+  const { user, setAccessToken, setUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string })?.from || '/user';
+  const from = (location.state as { from?: string })?.from;
   const panelEntry = Boolean((location.state as { panelEntry?: boolean } | null)?.panelEntry);
   const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/user', { replace: true });
+      navigate(from || getPanelPath(user?.role), { replace: true });
       return;
     }
-  }, [isAuthenticated, navigate]);
+  }, [from, isAuthenticated, navigate, user?.role]);
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
@@ -62,7 +63,7 @@ export const Login = () => {
       if (isSupported && permission !== 'denied') {
         setTimeout(() => subscribe(), 1000);
       }
-      navigate(from, { replace: true });
+      navigate(from || getPanelPath(res.user?.role), { replace: true });
     } catch (e: any) {
       toast.error(e.response?.data?.message || 'Błąd logowania');
     } finally {
@@ -91,11 +92,13 @@ export const Login = () => {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <Input type="email" placeholder="Twój email" className="bg-muted/50 py-6" {...register('email')} />
+              <label htmlFor="login-email" className="sr-only">Adres email</label>
+              <Input id="login-email" type="email" autoComplete="email" placeholder="Twój email" className="bg-muted/50 py-6" {...register('email')} />
               {errors.email && <span className="text-xs text-destructive mt-1 block px-1">{errors.email.message as string}</span>}
             </div>
             <div>
-              <Input type="password" placeholder="Hasło" className="bg-muted/50 py-6" {...register('password')} />
+              <label htmlFor="login-password" className="sr-only">Hasło</label>
+              <Input id="login-password" type="password" autoComplete="current-password" placeholder="Hasło" className="bg-muted/50 py-6" {...register('password')} />
               {errors.password && <span className="text-xs text-destructive mt-1 block px-1">{errors.password.message as string}</span>}
             </div>
             <div className="flex items-center justify-between">

@@ -2,11 +2,14 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
 import { useAuthStore } from '@/store/auth.store';
+import { getPanelPath } from '@/lib/panel-routing';
 
 const HomeRoute = () => {
   const { accessToken, user } = useAuthStore();
   const location = useLocation();
-  if (accessToken && user && !(location.state as any)?.fromPanel) return <Navigate to="/user" replace />;
+  if (accessToken && user && !(location.state as any)?.fromPanel) {
+    return <Navigate to={getPanelPath(user.role)} replace />;
+  }
   return <Home />;
 };
 
@@ -125,6 +128,7 @@ export const router = createBrowserRouter([
     errorElement: routeErrorElement,
     children: [
       { index: true, element: <S><HomeRoute /></S> },
+      { path: 'home', element: <Navigate to="/" replace /> },
       { path: 'uslugi', element: <S><ServiceList /></S> },
       { path: 'uslugi/:slug', element: <S><ServiceDetail /></S> },
       { path: 'blog', element: <S><BlogList /></S> },

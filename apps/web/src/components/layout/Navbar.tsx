@@ -70,6 +70,9 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const openClientPanel = useClientPanelEntry();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   const location = useLocation();
 
@@ -109,6 +112,52 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const menu = mobileMenuRef.current;
+    if (!menu) return;
+    if (mobileOpen) menu.removeAttribute('inert');
+    else menu.setAttribute('inert', '');
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.body.style.overflow = 'hidden';
+    closeMenuButtonRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(
+        mobileMenuRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? [],
+      ).filter((element) => element.tabIndex !== -1);
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      previousFocus?.focus();
+    };
+  }, [mobileOpen]);
+
   const handleLogout = async () => {
     try {
       await authApi.logout();
@@ -132,7 +181,7 @@ export const Navbar = () => {
       ? 'grafik i wizyty'
       : isAuthenticated
         ? 'moje konto'
-        : 'otworz konto';
+        : 'otwórz konto';
 
   const handlePanelEntry = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, closeMenu?: () => void) => {
     event.preventDefault();
@@ -155,30 +204,30 @@ export const Navbar = () => {
       >
         <div className="container h-full flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to="/" className="flex shrink-0 items-center gap-2.5">
             <img src="/logo.png" alt="BeskidStudio" className="h-8 w-auto" />
-            <span className="font-display text-[13px] uppercase tracking-[0.08em]" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
+            <span className="hidden font-display text-[13px] uppercase tracking-[0.08em] md:inline" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
           </Link>
 
           {/* Mobile center: Panel klienta */}
-          <div className="md:hidden flex-1 flex justify-center px-2">
+          <div className="flex min-w-0 flex-1 justify-center px-2 md:hidden">
             <button
               type="button"
               onClick={(event) => handlePanelEntry(event)}
-              className="group flex min-w-0 max-w-[184px] items-center gap-2.5 rounded-full border border-white/12 bg-white/10 px-3.5 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur"
+              className="group flex w-full min-w-0 max-w-[176px] items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur min-[390px]:max-w-[184px]"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-caramel/18 text-caramel">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-oak/20 text-oak">
                 <LayoutDashboard className="h-4 w-4" />
               </span>
               <span className="min-w-0 text-left leading-none">
-                <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-caramel">
+                <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-oak">
                   {mobilePanelTitle}
                 </span>
-                <span className="mt-1 block truncate text-[9px] text-ivory/72">
+                <span className="mt-1 block truncate text-[9px] text-[rgba(244,249,245,0.76)]">
                   {mobilePanelHint}
                 </span>
               </span>
-              <span aria-hidden="true" className="text-caramel">
+              <span aria-hidden="true" className="ml-auto shrink-0 text-oak">
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </span>
             </button>
@@ -228,9 +277,12 @@ export const Navbar = () => {
 
           {/* Hamburger — mobile only */}
           <button
-            className="md:hidden flex flex-col gap-1.5 p-2"
+            ref={menuButtonRef}
+            className="flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 md:hidden"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Zamknij menu' : 'Otwórz menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
           >
             <span
               className="block h-px w-[22px] transition-all duration-300"
@@ -246,7 +298,9 @@ export const Navbar = () => {
 
       {/* Mobile fullscreen overlay */}
       <div
-        className={`fixed inset-0 z-50 flex flex-col transition-[clip-path] duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+        ref={mobileMenuRef}
+        id="mobile-navigation"
+        className={`fixed inset-0 z-[60] flex flex-col transition-[clip-path] duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
           mobileOpen ? '[clip-path:inset(0_0_0%_0)]' : '[clip-path:inset(0_0_100%_0)]'
         } ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
         aria-hidden={!mobileOpen}
@@ -259,6 +313,7 @@ export const Navbar = () => {
                 <span className="font-display text-[13px] uppercase tracking-[0.08em] text-ivory" style={{ fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
               </Link>
               <button
+                ref={closeMenuButtonRef}
                 onClick={() => setMobileOpen(false)}
                 className="text-ivory text-2xl leading-none p-2"
                 aria-label="Zamknij menu"

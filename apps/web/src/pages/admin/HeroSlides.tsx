@@ -12,7 +12,7 @@ const TARGET_RATIO = 16 / 9;
 
 const DESTINATIONS = [
   { label: 'Usługi', href: '/uslugi' },
-  { label: 'Rezerwacja online', href: '/user/wizyty' },
+  { label: 'Rezerwacja online', href: '/rezerwacja' },
   { label: 'Galeria przed/po', href: '/metamorfozy' },
   { label: 'Blog', href: '/blog' },
   { label: 'Program lojalnościowy', href: '/program-lojalnosciowy' },

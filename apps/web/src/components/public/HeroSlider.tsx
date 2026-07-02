@@ -67,6 +67,7 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
   if (!slides.length) return fallback;
 
   const isCompact = variant === 'hero-card';
+  const HeadingTag = isCompact ? 'h2' : 'h1';
 
   return (
     <div
@@ -86,6 +87,12 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
         return (
           <div
             key={slide.id}
+            ref={(element) => {
+              if (!element) return;
+              if (i === current) element.removeAttribute('inert');
+              else element.setAttribute('inert', '');
+            }}
+            aria-hidden={i !== current}
             className={`absolute inset-0 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
             {/* Decorative arc overlay */}
@@ -116,7 +123,7 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
                   {slide.heading && (
                     <>
                       <DecoLine className={isCompact ? 'mb-3' : 'mb-4'} />
-                      <h1
+                      <HeadingTag
                         className={cn(
                           'font-bold text-white drop-shadow-md',
                           isCompact ? 'mb-3 text-2xl sm:text-3xl lg:text-4xl' : 'mb-4 text-3xl md:text-5xl',
@@ -124,7 +131,7 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
                         )}
                       >
                         {slide.heading}
-                      </h1>
+                      </HeadingTag>
                     </>
                   )}
                   {slide.subtitle && (
