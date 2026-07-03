@@ -1,5 +1,6 @@
 // filepath: apps/web/src/pages/user/Loyalty.tsx
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { loyaltyApi } from '@/api/loyalty.api';
 import { useAuth } from '@/hooks/useAuth';
 import { RewardCard } from '@/components/loyalty/RewardCard';
@@ -224,6 +225,15 @@ export const UserLoyalty = () => {
                       Kopiuj
                     </button>
                   </div>
+                )}
+                {coupon.code && (
+                  <Link
+                    to={`/rezerwacja?code=${coupon.code}`}
+                    className="block w-full text-center py-2.5 rounded-xl text-[13px] font-semibold transition-opacity hover:opacity-80 mt-2"
+                    style={{ background: '#1A3828', color: '#fff' }}
+                  >
+                    Zarezerwuj z tym kodem
+                  </Link>
                 )}
                 <div className="flex items-center justify-between text-xs pt-1" style={{ color: 'rgba(20,40,28,0.45)' }}>
                   <span>{DISCOUNT_LABELS[coupon.reward.discountType] ?? coupon.reward.discountType}</span>
