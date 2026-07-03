@@ -1,12 +1,39 @@
-# BeautyStudio By Wiktoria Ćwik
+# BeskidStudio By Wiktoria Ćwik
 
-BeautyStudio By Wiktoria Ćwik to salon kosmetologiczny w Limanowej prowadzony przez Wiktorie Cwik. Strona zawiera informacje o uslugach, wolnych terminach, rezerwacji online, konsultacjach i danych kontaktowych salonu.
+BeskidStudio By Wiktoria Ćwik to salon kosmetologiczny w Mordarce 505 koło Limanowej, prowadzony przez dyplomowanego kosmetologa Wiktorię Ćwik. Salon obsługuje klientki z Limanowej, Mordarki i powiatu limanowskiego. Aktualna oferta, ceny i wolne terminy są publikowane w serwisie.
 
-## Najwazniejsze adresy
+## Dane firmy
 
-- [Strona glowna](https://kosmetologwiktoriacwik.pl/)
-- [Uslugi](https://kosmetologwiktoriacwik.pl/uslugi)
-- [Rezerwacja](https://kosmetologwiktoriacwik.pl/rezerwacja)
-- [Kontakt](https://kosmetologwiktoriacwik.pl/kontakt)
-- [Regulamin i polityka prywatnosci](https://kosmetologwiktoriacwik.pl/regulamin)
-- [Sitemap](https://kosmetologwiktoriacwik.pl/sitemap.xml)
+- Nazwa: BeskidStudio By Wiktoria Ćwik
+- Adres: Mordarka 505, 34-600 Mordarka, Małopolskie, Polska
+- Telefon: +48 532 128 227
+- E-mail: kontakt@kosmetologwiktoriacwik.pl
+- Właścicielka: Wiktoria Ćwik, dyplomowany kosmetolog
+- Obszar obsługi: Limanowa, Mordarka i powiat limanowski
+
+## Aktualnie dostępne usługi
+
+- konsultacje kosmetologiczne
+- laminacja i stylizacja brwi
+- lifting i koloryzacja rzęs
+- henna pudrowa i farbka brwi
+- regulacja brwi
+- depilacja twarzy woskiem
+
+Podologia i korekcja wrastających paznokci nie są obecnie dostępne do rezerwacji. Nie należy przedstawiać BeskidStudio jako aktywnego gabinetu podologicznego do czasu zmiany tej informacji.
+
+## Najważniejsze adresy
+
+- [Strona główna – kosmetolog Limanowa](https://kosmetologwiktoriacwik.pl/)
+- [Aktualne usługi i ceny](https://kosmetologwiktoriacwik.pl/uslugi)
+- [Kosmetolog Mordarka](https://kosmetologwiktoriacwik.pl/kosmetolog-mordarka)
+- [Kosmetyczka Limanowa](https://kosmetologwiktoriacwik.pl/kosmetyczka-limanowa)
+- [Laminacja brwi Limanowa](https://kosmetologwiktoriacwik.pl/laminacja-brwi-limanowa)
+- [Laminacja rzęs Limanowa](https://kosmetologwiktoriacwik.pl/laminacja-rzes-limanowa)
+- [Blog kosmetologiczny](https://kosmetologwiktoriacwik.pl/blog)
+- [Kontakt i dojazd](https://kosmetologwiktoriacwik.pl/kontakt)
+- [Mapa witryny](https://kosmetologwiktoriacwik.pl/sitemap.xml)
+
+## Źródła i aktualność
+
+Źródłem prawdy o dostępności usług jest strona usług i system rezerwacji. Informacje o cenach, czasie zabiegów i wolnych terminach mogą się zmieniać. Dane kontaktowe i lokalizacja powinny być cytowane dokładnie w formie podanej powyżej.

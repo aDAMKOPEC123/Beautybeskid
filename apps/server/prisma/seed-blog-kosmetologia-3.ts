@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -74,9 +74,9 @@ const articles = [
     slug: 'laminacja-brwi-rzes-lash-lift-limanowa',
     category: 'Brwi i rzęsy',
     title: 'Laminacja brwi i rzęs — jak działa, ile trwa efekt i dla kogo to zabieg?',
-    metaTitle: 'Laminacja brwi i rzęs Limanowa — Salon BeautyBeskid | Lash lift, brow lifting',
+    metaTitle: 'Laminacja brwi i rzęs Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Lash lift, brow lifting',
     metaDescription:
-      'Laminacja brwi i rzęs w Limanowej — efekt uniesionych, wyraźnych rzęs i idealnie ułożonych brwi bez codziennego makijażu. Salon BeautyBeskid przyjmuje klientki z powiatu limanowskiego.',
+      'Laminacja brwi i rzęs w Limanowej — efekt uniesionych, wyraźnych rzęs i idealnie ułożonych brwi bez codziennego makijażu. Salon BeskidStudio By Wiktoria Ćwik przyjmuje klientki z powiatu limanowskiego.',
     excerpt:
       'Budzisz się rano i Twoje rzęsy już wyglądają jak po tuszy, a brwi jak po precyzyjnym uczesaniu. Laminacja brwi i rzęs to jeden z tych zabiegów, które zmieniają poranną rutynę na zawsze.',
     readingTime: 5,
@@ -148,7 +148,7 @@ const articles = [
         { t: '. Przedłużanie dokłada włoski z zewnątrz. Laminacja jest szybsza, tańsza w utrzymaniu, nie wymaga uzupełnień co 2–3 tygodnie i nie osłabia własnych rzęs (przy prawidłowym wykonaniu). Przedłużanie daje bardziej dramatyczny efekt — ale wymaga regularnej konserwacji.' },
       ),
 
-      h2('Laminacja w salonie BeautyBeskid w Limanowej'),
+      h2('Laminacja w salonie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Wykonujemy laminację rzęs i brwi, możesz umówić oba zabiegi w jednej wizycie. Przyjmujemy klientki z Limanowej, Dobrej, Laskowej, Mszany Dolnej i całego powiatu. Rezerwacja online — bez kolejek, z punktualną obsługą.',
       ),
@@ -160,9 +160,9 @@ const articles = [
     slug: 'regulacja-brwi-modelowanie-ksztalt-limanowa',
     category: 'Brwi i rzęsy',
     title: 'Regulacja brwi — jak znaleźć idealny kształt i dlaczego warto oddać to specjaliście?',
-    metaTitle: 'Regulacja brwi Limanowa — Salon BeautyBeskid | Modelowanie brwi, woskowanie, pęseta',
+    metaTitle: 'Regulacja brwi Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Modelowanie brwi, woskowanie, pęseta',
     metaDescription:
-      'Profesjonalna regulacja i modelowanie brwi w Limanowej. Salon BeautyBeskid dobiera kształt do rysów twarzy. Woskowanie, pęseta, nici. Klientki z Mordarki, Laskowej, Nowego Sącza i okolic.',
+      'Profesjonalna regulacja i modelowanie brwi w Limanowej. Salon BeskidStudio By Wiktoria Ćwik dobiera kształt do rysów twarzy. Woskowanie, pęseta, nici. Klientki z Mordarki, Laskowej, Nowego Sącza i okolic.',
     excerpt:
       'Brwi to jedyna część twarzy, którą możesz celowo zmieniać i kształtować. Jeden milimetr w złą stronę — i twarz wygląda zupełnie inaczej. Oto wszystko, co musisz wiedzieć o regulacji brwi.',
     readingTime: 4,
@@ -222,7 +222,7 @@ const articles = [
         'Przez czas odrastania kształt można maskować henna, cieniem do brwi lub makijażem permanentnym',
       ),
 
-      h2('Regulacja brwi w salonie BeautyBeskid w Limanowej'),
+      h2('Regulacja brwi w salonie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Modelujemy brwi woskiem lub pęsetą, dobieramy kształt do rysów twarzy. Możesz łączyć regulację z henna, laminacją lub makijażem permanentnym w jednej wizycie. Przyjmujemy klientki z Limanowej, Mordarki, Laskowej i Nowego Sącza. Rezerwacja online.',
       ),
@@ -234,9 +234,9 @@ const articles = [
     slug: 'koreanska-laminacja-brwi-roznica-limanowa',
     category: 'Brwi i rzęsy',
     title: 'Koreańska laminacja brwi — czym różni się od zwykłej i dlaczego cały świat o niej mówi?',
-    metaTitle: 'Koreańska laminacja brwi Limanowa — Salon BeautyBeskid | K-beauty brow lamination',
+    metaTitle: 'Koreańska laminacja brwi Limanowa — Salon BeskidStudio By Wiktoria Ćwik | K-beauty brow lamination',
     metaDescription:
-      'Koreańska laminacja brwi w Limanowej — co wyróżnia ją spośród zwykłej laminacji? Salon BeautyBeskid wyjaśnia różnice i wykonuje zabieg dla klientek z powiatu limanowskiego.',
+      'Koreańska laminacja brwi w Limanowej — co wyróżnia ją spośród zwykłej laminacji? Salon BeskidStudio By Wiktoria Ćwik wyjaśnia różnice i wykonuje zabieg dla klientek z powiatu limanowskiego.',
     excerpt:
       'Zwykła laminacja brwi jest świetna. Koreańska wersja jest inna — i nie chodzi tylko o kraj pochodzenia. To inny protokół, inna filozofia efektu i inaczej przygotowana skóra. Sprawdzamy, co naprawdę różni te dwa zabiegi.',
     readingTime: 5,
@@ -307,7 +307,7 @@ const articles = [
         'Dowiedz się, czy zabieg obejmuje regulację kształtu brwi i henna/tint',
       ),
 
-      h2('Koreańska laminacja brwi w salonie BeautyBeskid w Limanowej'),
+      h2('Koreańska laminacja brwi w salonie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Wykonujemy laminację brwi w protokole wzbogaconym o etap intensywnej odżywki i keratyny. Efekt: błyszczące, ułożone brwi z realnie odżywionymi włoskami. Przyjmujemy klientki z Limanowej, Nowego Sącza, Mszany Dolnej i okolic. Zarezerwuj online.',
       ),
@@ -319,9 +319,9 @@ const articles = [
     slug: 'pedicure-rodzaje-efekty-pielegnacja-stop-limanowa',
     category: 'Zabiegi na stopy',
     title: 'Pedicure — rodzaje, efekty i dlaczego warto dbać o stopy przez cały rok',
-    metaTitle: 'Pedicure Limanowa — Salon BeautyBeskid | Pedicure klasyczny, SPA, hybrydowy',
+    metaTitle: 'Pedicure Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Pedicure klasyczny, SPA, hybrydowy',
     metaDescription:
-      'Pedicure w Limanowej — klasyczny, SPA i hybrydowy. Salon BeautyBeskid kompleksowo pielęgnuje stopy dla klientek z Mordarki, Dobrej, Laskowej i całego powiatu limanowskiego.',
+      'Pedicure w Limanowej — klasyczny, SPA i hybrydowy. Salon BeskidStudio By Wiktoria Ćwik kompleksowo pielęgnuje stopy dla klientek z Mordarki, Dobrej, Laskowej i całego powiatu limanowskiego.',
     excerpt:
       'Stopy pracują ciężej niż jakikolwiek inny fragment ciała — i są najczęściej zaniedbywane. Regularny pedicure to nie tylko kwestia estetyki. To zdrowie paznokci, skóry i komfort każdego kroku.',
     readingTime: 5,
@@ -382,7 +382,7 @@ const articles = [
         'Odpowiednie obuwie — buty za ciasne to główna przyczyna modzeli, wrastających paznokci i odcisków',
       ),
 
-      h2('Pedicure SPA i hybrydowy w salonie BeautyBeskid w Limanowej'),
+      h2('Pedicure SPA i hybrydowy w salonie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Oferujemy pedicure klasyczny, SPA i hybrydowy. Przy każdym zabiegu dbamy o pełne opracowanie skóry i paznokci. Przyjmujemy klientki z Limanowej, Mordarki, Dobrej, Jodłownika i okolic powiatu limanowskiego. Rezerwacja online.',
       ),
@@ -394,9 +394,9 @@ const articles = [
     slug: 'podolog-problemy-ze-stopami-kiedy-isc-limanowa',
     category: 'Zabiegi na stopy',
     title: 'Podolog — czym się zajmuje i kiedy wizyta jest koniecznością, a nie luksusem?',
-    metaTitle: 'Podolog Limanowa — Salon BeautyBeskid | Wrastające paznokcie, modzele, odciski',
+    metaTitle: 'Podolog Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Wrastające paznokcie, modzele, odciski',
     metaDescription:
-      'Podolog w Limanowej — wrastające paznokcie, modzele, odciski, pękające pięty. Gabinet BeautyBeskid oferuje pedicure podologiczny dla klientek z Nowego Sącza, Mszany Dolnej i powiatu limanowskiego.',
+      'Podolog w Limanowej — wrastające paznokcie, modzele, odciski, pękające pięty. Gabinet BeskidStudio By Wiktoria Ćwik oferuje pedicure podologiczny dla klientek z Nowego Sącza, Mszany Dolnej i powiatu limanowskiego.',
     excerpt:
       'Większość problemów ze stopami ignorujemy, dopóki nie zaczną naprawdę boleć. Podolog to specjalista, który zajmuje się właśnie tym — i wiele schorzeń można rozwiązać szybciej, niż myślisz.',
     readingTime: 6,
@@ -479,7 +479,7 @@ const articles = [
         'Deformacje palców (paluch koślawy, palce młoteczkowe) powodujące otarcia',
       ),
 
-      h2('Podologia w salonie BeautyBeskid w Limanowej'),
+      h2('Podologia w salonie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Oferujemy pedicure podologiczny i kosmetyczny. Opracowujemy wrastające paznokcie, modzele, odciski i pęknięte pięty. Przyjmujemy klientki i klientów z Limanowej, Nowego Sącza, Mszany Dolnej, Łososiny Dolnej i całego powiatu limanowskiego. Przy pierwszej wizycie wykonujemy pełną ocenę stóp i dobieramy plan pielęgnacji. Rezerwacja online.',
       ),

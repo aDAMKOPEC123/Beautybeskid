@@ -20,6 +20,7 @@ const TikTokIcon = () => (
 const localBusinessSchema = {
   '@context': 'https://schema.org',
   '@type': 'BeautySalon',
+  '@id': `${SEO.domain}/#beautysalon`,
   name: SEO.siteName,
   telephone: SEO.phone,
   email: SEO.email,
@@ -54,7 +55,6 @@ const localBusinessSchema = {
   knowsAbout: [
     'kosmetolog Limanowa',
     'kosmetyczka Limanowa',
-    'podolog Limanowa',
     'laminacja brwi Limanowa',
     'laminacja rzęs Limanowa',
     'kosmetolog Mordarka',
@@ -68,11 +68,10 @@ const localBusinessSchema = {
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Kosmetyczka Limanowa' } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laminacja brwi Limanowa' } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laminacja rzęs Limanowa' } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Podologia Limanowa' } },
     ],
   },
   sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
-  url: `${SEO.domain}/kontakt`,
+  url: SEO.domain,
 };
 
 const cardStyle = {

@@ -18,7 +18,7 @@ export const MetamorphosesGallery = () => {
     <>
       <PageSEO
         title="Efekty zabiegów i metamorfozy Limanowa"
-        description="Zobacz spektakularne efekty zabiegów kosmetycznych i podologicznych. Galeria przed i po z naszego salonu w Limanowej."
+        description="Zobacz efekty zabiegów kosmetycznych oraz stylizacji brwi i rzęs. Galeria przed i po z BeskidStudio koło Limanowej."
         canonical="/metamorfozy"
       />
 

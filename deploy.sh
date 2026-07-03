@@ -23,22 +23,27 @@ git -C "$(dirname "$0")" push origin main
 echo "[2/4] Pulling on VPS..."
 ssh "$VPS" "cd $REMOTE_DIR && git pull origin main"
 
-# 3. Build & deploy frontend
-if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
-  echo "[3/4] Building frontend..."
-  ssh "$VPS" "cd $REMOTE_DIR/apps/web && pnpm build"
-  echo "      Copying to webroot..."
-  ssh "$VPS" "sudo cp -r $REMOTE_DIR/apps/web/dist/* $WEBROOT/"
-  echo "      Frontend deployed."
-fi
-
-# 4. Build & restart backend
+# 3. Apply database migrations, then build and restart the backend.
+# The frontend SEO build reads current public services and posts from the API,
+# so the migrated backend data must be available first.
 if [ "$MODE" = "full" ] || [ "$MODE" = "backend" ]; then
-  echo "[4/4] Building backend..."
-  ssh "$VPS" "cd $REMOTE_DIR/apps/server && pnpm build"
+  echo "[3/4] Migrating and building backend..."
+  ssh "$VPS" "cd $REMOTE_DIR/apps/server && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"
   echo "      Restarting PM2..."
   ssh "$VPS" "pm2 restart cosmo-server"
   echo "      Backend deployed."
+fi
+
+# 4. Build the crawlable frontend from the current production API.
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+  echo "[4/4] Building frontend..."
+  ssh "$VPS" "cd $REMOTE_DIR/apps/web && pnpm build"
+  echo "      Synchronizing webroot..."
+  # Remove stale generated pages for deleted or deactivated CMS entries.
+  ssh "$VPS" "sudo rsync -a --delete $REMOTE_DIR/apps/web/dist/ $WEBROOT/"
+  echo "      Installing nginx configuration..."
+  ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/cosmo.conf /etc/nginx/sites-available/kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
+  echo "      Frontend deployed."
 fi
 
 echo ""

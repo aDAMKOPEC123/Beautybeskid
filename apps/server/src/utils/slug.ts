@@ -4,7 +4,10 @@ export const createSlug = (text: string): string => {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ł/g, 'l')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/[\s-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 };

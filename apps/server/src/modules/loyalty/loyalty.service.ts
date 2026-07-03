@@ -1,4 +1,4 @@
-﻿// filepath: apps/server/src/modules/loyalty/loyalty.service.ts
+// filepath: apps/server/src/modules/loyalty/loyalty.service.ts
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { AdjustPointsInput, RedeemRewardInput } from '@cosmo/shared';
@@ -173,7 +173,7 @@ export const activateCoupon = async (userId: string, data: RedeemRewardInput) =>
     });
 
     return await tx.userCoupon.create({
-      data: { userId, rewardId: reward.id, code: 'BeautyStudio By Wiktoria Ćwik-' + generateCode(8) },
+      data: { userId, rewardId: reward.id, code: 'BeskidStudio By Wiktoria Ćwik-' + generateCode(8) },
       include: { reward: true }
     });
   });

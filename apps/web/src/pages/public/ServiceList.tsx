@@ -35,7 +35,7 @@ export const ServiceList = () => {
     <>
       <PageSEO
         title="Usługi kosmetyczne Limanowa"
-        description="Usługi kosmetyczne koło Limanowej: konsultacje, pielęgnacja skóry, laminacja brwi i rzęs oraz podologia zgodnie z aktualną dostępnością. Sprawdź ofertę."
+        description="Usługi kosmetyczne koło Limanowej: konsultacje, pielęgnacja skóry, laminacja brwi i rzęs, henna, regulacja i depilacja twarzy. Sprawdź ofertę."
         canonical="/uslugi"
       />
 
@@ -51,7 +51,7 @@ export const ServiceList = () => {
             Nasze Usługi
           </h1>
           <p className="text-mink text-lg max-w-lg mx-auto font-light">
-            Profesjonalne zabiegi kosmetyczne i podologiczne wykonywane z pasją i precyzją.
+            Profesjonalne zabiegi kosmetyczne wykonywane z pasją, wiedzą i precyzją.
           </p>
         </div>
       </section>

@@ -14,20 +14,11 @@ const staticUrls = [
   { loc: '/o-nas', priority: '0.7', changefreq: 'monthly' },
   { loc: '/kontakt', priority: '0.6', changefreq: 'yearly' },
   { loc: '/regulamin', priority: '0.3', changefreq: 'yearly' },
-  { loc: '/kosmetolog-limanowa', priority: '0.95', changefreq: 'weekly' },
   { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly' },
   { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly' },
-  { loc: '/kosmetyczka-mordarka', priority: '0.86', changefreq: 'weekly' },
   { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/laminacja-brwi-mordarka', priority: '0.84', changefreq: 'weekly' },
   { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/laminacja-rzes-mordarka', priority: '0.84', changefreq: 'weekly' },
-  { loc: '/podolog-limanowa', priority: '0.86', changefreq: 'weekly' },
-  { loc: '/podolog-mordarka', priority: '0.80', changefreq: 'weekly' },
   { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/oprawa-oka-mordarka', priority: '0.84', changefreq: 'weekly' },
-  { loc: '/wrastajace-paznokcie-limanowa', priority: '0.86', changefreq: 'weekly' },
-  { loc: '/wrastajace-paznokcie-mordarka', priority: '0.80', changefreq: 'weekly' },
 ];
 
 function toXmlDate(date: Date): string {
@@ -47,6 +38,7 @@ router.get('/', async (_req: Request, res: Response) => {
         orderBy: { updatedAt: 'desc' },
       }),
       prisma.service.findMany({
+        where: { isActive: true },
         select: { slug: true, updatedAt: true },
         orderBy: { name: 'asc' },
       }),

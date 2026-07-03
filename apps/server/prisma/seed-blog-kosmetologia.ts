@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -76,9 +76,9 @@ const articles = [
     slug: 'skinboosters-mezoterapia-hialuronowa-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Skinboosters — kiedy krem już nie wystarcza',
-    metaTitle: 'Skinboosters Limanowa — Gabinet BeautyBeskid | Mezoterapia hialuronowa',
+    metaTitle: 'Skinboosters Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | Mezoterapia hialuronowa',
     metaDescription:
-      'Skinboosters w Limanowej — głębokie nawilżenie skóry kwasem hialuronowym. Gabinet BeautyBeskid oferuje mezoterapię hialuronową dla klientek z Mszany Dolnej, Nowego Sącza i okolic.',
+      'Skinboosters w Limanowej — głębokie nawilżenie skóry kwasem hialuronowym. Gabinet BeskidStudio By Wiktoria Ćwik oferuje mezoterapię hialuronową dla klientek z Mszany Dolnej, Nowego Sącza i okolic.',
     excerpt:
       'Masz dobre kosmetyki, regularnie stosujesz serum, a skóra wciąż wygląda zmęczona i szara? To znak, że potrzebuje czegoś, co działa głębiej. Skinboosters to odpowiedź.',
     readingTime: 5,
@@ -138,7 +138,7 @@ const articles = [
 
       h2('Zarezerwuj wizytę w Limanowej'),
       p(
-        'Gabinet BeautyBeskid w Limanowej wykonuje mezoterapię hialuronową dla klientek z całego powiatu. Z Mszany Dolnej dojedziesz w ok. 15 minut, z Nowego Sącza — ok. 30 minut, z Tymbarku — ok. 20 minut. Umów wizytę online — efekty pojawią się szybciej, niż się spodziewasz.',
+        'Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej wykonuje mezoterapię hialuronową dla klientek z całego powiatu. Z Mszany Dolnej dojedziesz w ok. 15 minut, z Nowego Sącza — ok. 30 minut, z Tymbarku — ok. 20 minut. Umów wizytę online — efekty pojawią się szybciej, niż się spodziewasz.',
       ),
     ),
   },
@@ -148,9 +148,9 @@ const articles = [
     slug: 'peeling-chemiczny-kwasy-aha-bha-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Kwasy AHA i BHA w kosmetologii — co właściwie robią ze skórą?',
-    metaTitle: 'Peeling chemiczny Limanowa — Salon BeautyBeskid | Kwasy AHA, BHA, TCA',
+    metaTitle: 'Peeling chemiczny Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Kwasy AHA, BHA, TCA',
     metaDescription:
-      'Peeling chemiczny kwasami AHA i BHA w Limanowej. Gabinet BeautyBeskid pomaga walczyć z przebarwieniami, rozszerzonymi porami i niejednolitą cerą. Klientki z Łososiny Dolnej, Ujanowic i okolic.',
+      'Peeling chemiczny kwasami AHA i BHA w Limanowej. Gabinet BeskidStudio By Wiktoria Ćwik pomaga walczyć z przebarwieniami, rozszerzonymi porami i niejednolitą cerą. Klientki z Łososiny Dolnej, Ujanowic i okolic.',
     excerpt:
       'Kwasy w kosmetologii brzmią groźnie — tymczasem to jedne z najlepiej przebadanych i najskuteczniejszych składników, jakie w ogóle istnieją. Tylko trzeba wiedzieć, którego użyć i kiedy.',
     readingTime: 5,
@@ -210,7 +210,7 @@ const articles = [
         'Isotretynoina w ciągu ostatnich 6 miesięcy',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — dobieramy kwas do Twojej cery'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — dobieramy kwas do Twojej cery'),
       p(
         'Przyjmujemy klientki z Łososiny Dolnej, Ujanowic, Jodłownika i całego powiatu. Każdy peeling chemiczny poprzedza konsultacja i ocena cery — nie stosujemy gotowych schematów. Umów wizytę online.',
       ),
@@ -222,9 +222,9 @@ const articles = [
     slug: 'dermapen-mikronakluwanie-twarzy-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Dermapen — jak setki mikroigieł może przywrócić skórze młodość',
-    metaTitle: 'Dermapen Limanowa — Gabinet BeautyBeskid | Mikronakłuwanie twarzy',
+    metaTitle: 'Dermapen Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | Mikronakłuwanie twarzy',
     metaDescription:
-      'Dermapen w Limanowej — stymulacja kolagenu metodą mikronakłuwania. Skuteczny na blizny potrądzikowe, zmarszczki i rozstępy. Gabinet BeautyBeskid przyjmuje klientki z Mordarki, Tymbarku i okolic.',
+      'Dermapen w Limanowej — stymulacja kolagenu metodą mikronakłuwania. Skuteczny na blizny potrądzikowe, zmarszczki i rozstępy. Gabinet BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Mordarki, Tymbarku i okolic.',
     excerpt:
       'Setki igiełek wbijające się w skórę. Brzmi jak ostatnia rzecz, którą chciałabyś zrobić swojej twarzy. A jednak dermapen to jeden z najlepiej działających zabiegów we współczesnej kosmetologii.',
     readingTime: 5,
@@ -283,7 +283,7 @@ const articles = [
 
       h2('Umów się w Limanowej'),
       p(
-        'Gabinet BeautyBeskid w Limanowej wykonuje zabiegi dermapenem dla klientek z całego powiatu. Z Mordarki dojedziesz w 10 minut, z Tymbarku — ok. 20 minut. Zarezerwuj termin online.',
+        'Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej wykonuje zabiegi dermapenem dla klientek z całego powiatu. Z Mordarki dojedziesz w 10 minut, z Tymbarku — ok. 20 minut. Zarezerwuj termin online.',
       ),
     ),
   },
@@ -293,9 +293,9 @@ const articles = [
     slug: 'powiekszanie-ust-kwas-hialuronowy-limanowa',
     category: 'Medycyna estetyczna',
     title: 'Powiększanie ust — jak uniknąć efektu "za dużo"?',
-    metaTitle: 'Powiększanie ust Limanowa — Gabinet BeautyBeskid | Filler ust kwas hialuronowy',
+    metaTitle: 'Powiększanie ust Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | Filler ust kwas hialuronowy',
     metaDescription:
-      'Powiększanie ust kwasem hialuronowym w Limanowej. Naturalny efekt, odwracalny zabieg. Gabinet BeautyBeskid przyjmuje klientki z Nowego Sącza, Mszany Dolnej i całego powiatu limanowskiego.',
+      'Powiększanie ust kwasem hialuronowym w Limanowej. Naturalny efekt, odwracalny zabieg. Gabinet BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Nowego Sącza, Mszany Dolnej i całego powiatu limanowskiego.',
     excerpt:
       'Filler do ust nadal kojarzą się niektórym z przesadnie wydętymi ustami ze zdjęć. Tymczasem dobry zabieg powinien być właściwie niewidoczny — powinnaś wyglądać jak Ty, tylko lepiej.',
     readingTime: 5,
@@ -350,7 +350,7 @@ const articles = [
         'Kwas hialuronowy można w każdej chwili rozpuścić enzymem (hialuronidazą). To sprawia, że cały zabieg jest w pełni odwracalny. Jeśli efekt Ci nie odpowiada lub chcesz zacząć od nowa — to możliwe.',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — najpierw konsultacja'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — najpierw konsultacja'),
       p(
         'Przyjmujemy klientki z Nowego Sącza, Mszany Dolnej, Słopnic i całego regionu. Przed każdym zabiegiem przeprowadzamy szczegółową konsultację i omawiamy oczekiwany efekt. Rezerwacja online dostępna przez całą dobę.',
       ),
@@ -362,9 +362,9 @@ const articles = [
     slug: 'ombre-powder-brows-makijaz-permanentny-brwi-limanowa',
     category: 'Brwi i rzęsy',
     title: 'Ombre Powder Brows — brwi, które budzą zachwyt i nie wymagają codziennego malowania',
-    metaTitle: 'Makijaż permanentny brwi Limanowa — Salon BeautyBeskid | Ombre Powder Brows PMU',
+    metaTitle: 'Makijaż permanentny brwi Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Ombre Powder Brows PMU',
     metaDescription:
-      'Ombre Powder Brows w Limanowej — naturalne, trwałe brwi bez codziennego malowania. Salon BeautyBeskid wykonuje makijaż permanentny dla klientek z Jodłownika, Laskowej i okolic.',
+      'Ombre Powder Brows w Limanowej — naturalne, trwałe brwi bez codziennego malowania. Salon BeskidStudio By Wiktoria Ćwik wykonuje makijaż permanentny dla klientek z Jodłownika, Laskowej i okolic.',
     excerpt:
       'Rano wstajesz i brwi są. Nie trzeba nic robić — wyglądają jak delikatnie zacienione cieniem, idealnie symetryczne. To właśnie obiecuje technika ombre powder brows. I dotrzymuje obietnicy.',
     readingTime: 5,
@@ -411,7 +411,7 @@ const articles = [
         'Niektóre leki i kwasy w pielęgnacji mogą przyspieszyć wyblakanie — warto poinformować specjalistkę',
       ),
 
-      h2('Salon BeautyBeskid w Limanowej — przyjmujemy z Jodłownika, Laskowej i okolic'),
+      h2('Salon BeskidStudio By Wiktoria Ćwik w Limanowej — przyjmujemy z Jodłownika, Laskowej i okolic'),
       p(
         'Dojazd z Jodłownika i Laskowej zajmuje ok. 10–15 minut. Zarezerwuj termin online i zacznij poranne rutyny od nowa — bez kredki do brwi.',
       ),
@@ -423,9 +423,9 @@ const articles = [
     slug: 'depilacja-laserowa-co-warto-wiedziec-limanowa',
     category: 'Medycyna estetyczna',
     title: 'Depilacja laserowa — co naprawdę dzieje się ze skórą podczas zabiegu?',
-    metaTitle: 'Depilacja laserowa Limanowa — Salon BeautyBeskid | Trwała depilacja lazer',
+    metaTitle: 'Depilacja laserowa Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Trwała depilacja lazer',
     metaDescription:
-      'Depilacja laserowa w Limanowej — skuteczna redukcja owłosienia na nogach, pachach, twarzy i bikini. Salon BeautyBeskid przyjmuje klientki z Nowego Sącza, Tymbarku i całego powiatu.',
+      'Depilacja laserowa w Limanowej — skuteczna redukcja owłosienia na nogach, pachach, twarzy i bikini. Salon BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Nowego Sącza, Tymbarku i całego powiatu.',
     excerpt:
       'Depilacja laserowa to nie magia. To fizyka — konkretny mechanizm, konkretne efekty i konkretne ograniczenia. Zanim zapiszesz się na pierwszą sesję, dowiedz się, jak to naprawdę działa.',
     readingTime: 5,
@@ -480,7 +480,7 @@ const articles = [
         'Między sesjami: tylko golenie lub krem depilacyjny — nigdy woskiem ani epilatorem',
       ),
 
-      h2('Salon BeautyBeskid w Limanowej — bezpłatna konsultacja przed cyklem'),
+      h2('Salon BeskidStudio By Wiktoria Ćwik w Limanowej — bezpłatna konsultacja przed cyklem'),
       p(
         'Zapraszamy klientki z Nowego Sącza, Tymbarku, Łososiny Dolnej i całego powiatu. Na konsultacji ocenimy kolor Twojej skóry i owłosienia, dobierzemy parametry i wyjaśnimy, czego realnie oczekiwać. Rezerwacja online przez całą dobę.',
       ),
@@ -492,9 +492,9 @@ const articles = [
     slug: 'tradzik-rozowaty-pielegnacja-cery-kosmetologia',
     category: 'Pielęgnacja skóry',
     title: 'Trądzik różowaty — jak przestać walczyć ze skórą i zacząć jej słuchać',
-    metaTitle: 'Trądzik różowaty pielęgnacja — Salon BeautyBeskid Limanowa | Cera wrażliwa rosacea',
+    metaTitle: 'Trądzik różowaty pielęgnacja — Salon BeskidStudio By Wiktoria Ćwik Limanowa | Cera wrażliwa rosacea',
     metaDescription:
-      'Trądzik różowaty wymaga specjalnej pielęgnacji. Gabinet BeautyBeskid w Limanowej oferuje zabiegi dla cery naczyniowej i wrażliwej. Przyjmujemy klientki z Mszany Dolnej, Słopnic i okolic.',
+      'Trądzik różowaty wymaga specjalnej pielęgnacji. Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej oferuje zabiegi dla cery naczyniowej i wrażliwej. Przyjmujemy klientki z Mszany Dolnej, Słopnic i okolic.',
     excerpt:
       'Rumień, który nie znika. Naczynka przy nosie. Skóra, która reaguje na wszystko — wiatr, gorącą herbatę, stres. Rosacea jest przewlekła, ale można z nią żyć bez codziennej walki. Trzeba tylko wiedzieć, jak.',
     readingTime: 5,
@@ -556,7 +556,7 @@ const articles = [
         'Jeśli rosacea ma fazę zapalną — grudki, krostki, phyma (zgrubienia na nosie) — konieczne jest leczenie farmakologiczne. Kosmetolog wspomaga leczenie, ale nie zastępuje dermatologa w zaawansowanych przypadkach.',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Przyjmujemy klientki z Mszany Dolnej, Słopnic, Ujanowic i okolic. Zabiegi dla cery z rosacea zawsze poprzedza konsultacja i ocena. Umów się online.',
       ),
@@ -568,9 +568,9 @@ const articles = [
     slug: 'retinol-pielegnacja-twarzy-jak-stosowac',
     category: 'Pielęgnacja skóry',
     title: 'Retinol — dlaczego połowa kobiet rezygnuje po tygodniu (i jak tego uniknąć)',
-    metaTitle: 'Retinol pielęgnacja twarzy — Salon BeautyBeskid Limanowa | Anti-aging witamina A',
+    metaTitle: 'Retinol pielęgnacja twarzy — Salon BeskidStudio By Wiktoria Ćwik Limanowa | Anti-aging witamina A',
     metaDescription:
-      'Jak stosować retinol w pielęgnacji twarzy? Gabinet BeautyBeskid w Limanowej podpowiada, jak bezpiecznie wprowadzić retinol do rutyny i jakie zabiegi z retinolem oferujemy.',
+      'Jak stosować retinol w pielęgnacji twarzy? Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej podpowiada, jak bezpiecznie wprowadzić retinol do rutyny i jakie zabiegi z retinolem oferujemy.',
     excerpt:
       'Retinol to najlepiej przebadany składnik anti-aging w historii kosmetologii. Ma jedną wadę: jeśli zaczniesz źle, skóra się zbuntuje. Dlatego warto wiedzieć dokładnie, jak go wprowadzić.',
     readingTime: 5,
@@ -628,7 +628,7 @@ const articles = [
 
       h2('Gabinetowe zabiegi z retinolem — szybsza droga'),
       p(
-        'Peelingi z kwasem retinowym stosowane przez kosmetologa działają głębiej i szybciej niż domowe serum. W gabinecie BeautyBeskid w Limanowej dobieramy stężenie do historii Twojej skóry i jej aktualnej kondycji. Umów konsultację online.',
+        'Peelingi z kwasem retinowym stosowane przez kosmetologa działają głębiej i szybciej niż domowe serum. W gabinecie BeskidStudio By Wiktoria Ćwik w Limanowej dobieramy stężenie do historii Twojej skóry i jej aktualnej kondycji. Umów konsultację online.',
       ),
     ),
   },
@@ -638,9 +638,9 @@ const articles = [
     slug: 'masaz-twarzy-kobido-lifting-bez-skalpela-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Masaż Kobido — 500 lat japońskiej tradycji w służbie owalu twarzy',
-    metaTitle: 'Masaż Kobido Limanowa — Gabinet BeautyBeskid | Lifting twarzy bez operacji',
+    metaTitle: 'Masaż Kobido Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | Lifting twarzy bez operacji',
     metaDescription:
-      'Masaż twarzy Kobido w Limanowej — naturalny lifting, drenaż limfatyczny i poprawa owalu twarzy. Gabinet BeautyBeskid przyjmuje klientki z Kasiny Wielkiej, Słopnic i okolic powiatu limanowskiego.',
+      'Masaż twarzy Kobido w Limanowej — naturalny lifting, drenaż limfatyczny i poprawa owalu twarzy. Gabinet BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Kasiny Wielkiej, Słopnic i okolic powiatu limanowskiego.',
     excerpt:
       'Kobido to najstarszy znany protokół masażu twarzy — stworzony ponad 500 lat temu dla japońskich cesarzowych. Efekt liftingujący, który czujesz już po wyjściu z gabinetu. Bez igieł. Bez skalpela.',
     readingTime: 4,
@@ -690,7 +690,7 @@ const articles = [
 
       h2('Zarezerwuj masaż Kobido w Limanowej'),
       p(
-        'Salon BeautyBeskid przyjmuje klientki z Kasiny Wielkiej, Słopnic, Ujanowic i całego regionu. Z Kasiny Wielkiej dojazd to ok. 20 minut. Umów się online i sprawdź, co potrafi japońska technika sprzed 5 wieków.',
+        'Salon BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Kasiny Wielkiej, Słopnic, Ujanowic i całego regionu. Z Kasiny Wielkiej dojazd to ok. 20 minut. Umów się online i sprawdź, co potrafi japońska technika sprzed 5 wieków.',
       ),
     ),
   },
@@ -700,9 +700,9 @@ const articles = [
     slug: 'fototerapia-led-kolory-swiatla-skora-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Fototerapia LED — kolorowe światło, które naprawdę naprawia skórę',
-    metaTitle: 'Fototerapia LED Limanowa — Gabinet BeautyBeskid | Terapia światłem skóra twarzy',
+    metaTitle: 'Fototerapia LED Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | Terapia światłem skóra twarzy',
     metaDescription:
-      'Fototerapia LED w Limanowej — redukcja trądziku, poprawa kolorytu, efekt anti-aging. Gabinet BeautyBeskid oferuje zabiegi LED dla klientek z Dobrej, Tymbarku i okolic powiatu limanowskiego.',
+      'Fototerapia LED w Limanowej — redukcja trądziku, poprawa kolorytu, efekt anti-aging. Gabinet BeskidStudio By Wiktoria Ćwik oferuje zabiegi LED dla klientek z Dobrej, Tymbarku i okolic powiatu limanowskiego.',
     excerpt:
       'Leżysz 20 minut pod kolorową lampą. Nic nie czujesz, nic nie boli, nie ma żadnej rekonwalescencji. I mimo to efekty są naprawdę imponujące. Jak to możliwe?',
     readingTime: 4,
@@ -752,7 +752,7 @@ const articles = [
         'Skóra po zabiegach laserowych, dermapenie lub peelingach — LED przyspiesza gojenie',
       ),
 
-      h2('Fototerapia LED w gabinecie BeautyBeskid w Limanowej'),
+      h2('Fototerapia LED w gabinecie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Oferujemy zabiegi LED zarówno jako samodzielną terapię, jak i w połączeniu z innymi zabiegami. Przyjmujemy klientki z Dobrej, Tymbarku, Łososiny Dolnej i całego powiatu. Umów wizytę online.',
       ),

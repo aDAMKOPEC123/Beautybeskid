@@ -1,4 +1,4 @@
-﻿import { prisma } from '../../config/prisma';
+import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCode } from '../../utils/generateCode';
 import { sendEmail } from '../../utils/email';
@@ -515,8 +515,8 @@ export const approveUser = async (id: string) => {
 
   sendEmail(
     user.email,
-    'Konto zatwierdzone — BeautyStudio By Wiktoria Ćwik',
-    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji BeautyStudio By Wiktoria Ćwik zostało zatwierdzone. Możesz się teraz zalogować.</p>`
+    'Konto zatwierdzone — BeskidStudio By Wiktoria Ćwik',
+    `<p>Cześć ${user.name},</p><p>Twoje konto w aplikacji BeskidStudio By Wiktoria Ćwik zostało zatwierdzone. Możesz się teraz zalogować.</p>`
   ).catch(err => console.warn('[WARN] approveUser: email send failed:', err.message));
 };
 
@@ -530,7 +530,7 @@ export const rejectUser = async (id: string) => {
   sendEmail(
     user.email,
     'Twoje konto zostało odrzucone',
-    '<p>Niestety, Twoje konto w salonie BeautyStudio By Wiktoria Ćwik nie zostało zatwierdzone. Skontaktuj się z nami, aby dowiedzieć się więcej.</p>'
+    '<p>Niestety, Twoje konto w salonie BeskidStudio By Wiktoria Ćwik nie zostało zatwierdzone. Skontaktuj się z nami, aby dowiedzieć się więcej.</p>'
   ).catch(err => console.warn('[WARN] rejectUser: email send failed:', err.message));
 };
 

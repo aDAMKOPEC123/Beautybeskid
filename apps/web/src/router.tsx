@@ -3,6 +3,8 @@ import { createBrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
 import { useAuthStore } from '@/store/auth.store';
 import { getPanelPath } from '@/lib/panel-routing';
+import { PublicLayout } from './components/layout/PublicLayout';
+import { Home } from './pages/public/Home';
 
 const HomeRoute = () => {
   const { accessToken, user } = useAuthStore();
@@ -13,13 +15,11 @@ const HomeRoute = () => {
   return <Home />;
 };
 
-const PublicLayout = lazy(() => import('./components/layout/PublicLayout').then(m => ({ default: m.PublicLayout })));
 const UserLayout = lazy(() => import('./components/layout/UserLayout').then(m => ({ default: m.UserLayout })));
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout').then(m => ({ default: m.AdminLayout })));
 const EmployeeLayout = lazy(() => import('./components/layout/EmployeeLayout').then(m => ({ default: m.EmployeeLayout })));
 
 // Public pages
-const Home = lazy(() => import('./pages/public/Home').then(m => ({ default: m.Home })));
 const ServiceList = lazy(() => import('./pages/public/ServiceList').then(m => ({ default: m.ServiceList })));
 const BlogList = lazy(() => import('./pages/public/BlogList').then(m => ({ default: m.BlogList })));
 const BlogPost = lazy(() => import('./pages/public/BlogPost').then(m => ({ default: m.BlogPost })));
@@ -141,18 +141,18 @@ export const router = createBrowserRouter([
       { path: 'regulamin', element: <S><PublicTerms /></S> },
       { path: 'kontakt', element: <S><Contact /></S> },
       { path: 'o-nas', element: <S><About /></S> },
-      { path: 'kosmetolog-limanowa', element: <S><LocalSeoPage pageKey="kosmetolog-limanowa" /></S> },
+      { path: 'kosmetolog-limanowa', element: <Navigate to="/" replace /> },
       { path: 'kosmetolog-mordarka', element: <S><LocalSeoPage pageKey="kosmetolog-mordarka" /></S> },
       { path: 'podolog-limanowa', element: <S><LocalSeoPage pageKey="podolog-limanowa" /></S> },
       { path: 'podolog-mordarka', element: <S><LocalSeoPage pageKey="podolog-mordarka" /></S> },
       { path: 'kosmetyczka-limanowa', element: <S><LocalSeoPage pageKey="kosmetyczka-limanowa" /></S> },
-      { path: 'kosmetyczka-mordarka', element: <S><LocalSeoPage pageKey="kosmetyczka-mordarka" /></S> },
+      { path: 'kosmetyczka-mordarka', element: <Navigate to="/kosmetyczka-limanowa" replace /> },
       { path: 'laminacja-brwi-limanowa', element: <S><LocalSeoPage pageKey="laminacja-brwi-limanowa" /></S> },
-      { path: 'laminacja-brwi-mordarka', element: <S><LocalSeoPage pageKey="laminacja-brwi-mordarka" /></S> },
+      { path: 'laminacja-brwi-mordarka', element: <Navigate to="/laminacja-brwi-limanowa" replace /> },
       { path: 'laminacja-rzes-limanowa', element: <S><LocalSeoPage pageKey="laminacja-rzes-limanowa" /></S> },
-      { path: 'laminacja-rzes-mordarka', element: <S><LocalSeoPage pageKey="laminacja-rzes-mordarka" /></S> },
+      { path: 'laminacja-rzes-mordarka', element: <Navigate to="/laminacja-rzes-limanowa" replace /> },
       { path: 'oprawa-oka-limanowa', element: <S><LocalSeoPage pageKey="oprawa-oka-limanowa" /></S> },
-      { path: 'oprawa-oka-mordarka', element: <S><LocalSeoPage pageKey="oprawa-oka-mordarka" /></S> },
+      { path: 'oprawa-oka-mordarka', element: <Navigate to="/oprawa-oka-limanowa" replace /> },
       { path: 'wrastajace-paznokcie-limanowa', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-limanowa" /></S> },
       { path: 'wrastajace-paznokcie-mordarka', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-mordarka" /></S> },
       {

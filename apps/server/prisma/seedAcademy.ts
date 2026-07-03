@@ -1,4 +1,4 @@
-﻿import { PrismaClient, Difficulty, CourseStatus, LessonType, QuestionType } from '@prisma/client';
+import { PrismaClient, Difficulty, CourseStatus, LessonType, QuestionType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -2902,14 +2902,14 @@ async function seedCourse(data: CourseData) {
 }
 
 async function main() {
-  console.log('🌱 Seedowanie Akademii BeautyBeskid...\n');
+  console.log('🌱 Seedowanie Akademii BeskidStudio By Wiktoria Ćwik...\n');
 
   const courses = [course1, course2, course3, course4, course5, course6, course7, course8];
   for (const course of courses) {
     await seedCourse(course);
   }
 
-  console.log('\n✅ Seedowanie Akademii BeautyBeskid (kursy 1–8) zakończone pomyślnie.');
+  console.log('\n✅ Seedowanie Akademii BeskidStudio By Wiktoria Ćwik (kursy 1–8) zakończone pomyślnie.');
 }
 
 main()

@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -74,9 +74,9 @@ const articles = [
     slug: 'mikrodermabrazja-diamentowa-pielegnacja-skory-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Mikrodermabrazja diamentowa — dlaczego to wciąż jeden z najpopularniejszych zabiegów na świecie?',
-    metaTitle: 'Mikrodermabrazja diamentowa Limanowa — Salon BeautyBeskid | Głębokie złuszczanie skóry',
+    metaTitle: 'Mikrodermabrazja diamentowa Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Głębokie złuszczanie skóry',
     metaDescription:
-      'Mikrodermabrazja diamentowa w Limanowej — głęboka pielęgnacja, wygładzanie skóry, redukcja przebarwień. Salon BeautyBeskid przyjmuje klientki z Mordarki, Laskowej i powiatu limanowskiego.',
+      'Mikrodermabrazja diamentowa w Limanowej — głęboka pielęgnacja, wygładzanie skóry, redukcja przebarwień. Salon BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Mordarki, Laskowej i powiatu limanowskiego.',
     excerpt:
       'Istnieje od lat 90. Przeżyła wszystkie kosmetologiczne trendy. I nadal jest jednym z najchętniej wybieranych zabiegów. Mikrodermabrazja diamentowa ma coś, czego nie zastąpił żaden nowotwór — natychmiastowy, namacalny efekt.',
     readingTime: 4,
@@ -131,7 +131,7 @@ const articles = [
 
       h2('Zarezerwuj wizytę w Limanowej'),
       p(
-        'Gabinet BeautyBeskid w Limanowej wykonuje mikrodermabrazję diamentową dla klientek z Mordarki, Laskowej, Dobrej i całego powiatu. Wyjdziesz z gabinetu z natychmiastowo gładszą skórą. Umów wizytę online.',
+        'Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej wykonuje mikrodermabrazję diamentową dla klientek z Mordarki, Laskowej, Dobrej i całego powiatu. Wyjdziesz z gabinetu z natychmiastowo gładszą skórą. Umów wizytę online.',
       ),
     ),
   },
@@ -141,9 +141,9 @@ const articles = [
     slug: 'pielegnacja-skory-po-40-anti-aging-zabiegi',
     category: 'Pielęgnacja skóry',
     title: 'Pielęgnacja skóry po 40 — co naprawdę działa, a co to tylko ładne opakowanie?',
-    metaTitle: 'Pielęgnacja skóry po 40 Limanowa — Salon BeautyBeskid | Anti-aging zabiegi kosmetyczne',
+    metaTitle: 'Pielęgnacja skóry po 40 Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Anti-aging zabiegi kosmetyczne',
     metaDescription:
-      'Jak pielęgnować skórę po 40. roku życia? Salon BeautyBeskid w Limanowej oferuje zabiegi anti-aging i doradztwo pielęgnacyjne dla klientek z Nowego Sącza, Mszany Dolnej i okolic.',
+      'Jak pielęgnować skórę po 40. roku życia? Salon BeskidStudio By Wiktoria Ćwik w Limanowej oferuje zabiegi anti-aging i doradztwo pielęgnacyjne dla klientek z Nowego Sącza, Mszany Dolnej i okolic.',
     excerpt:
       'Po czterdziestce zmieniają się zasady gry. Kosmetyki, które działały w dwudziestce, mogą nie dawać efektów. Za to metody, które wcześniej wydawały się przesadą — zaczynają mieć sens.',
     readingTime: 5,
@@ -201,7 +201,7 @@ const articles = [
         { t: ', nie cena ani opakowanie. Warto czytać skład (INCI). Z drugiej strony — żaden krem nie dotrze tam, gdzie dotrze zabieg gabinetowy. Najlepsze efekty daje połączenie dobrej pielęgnacji domowej z regularnymi wizytami u kosmetologa.' },
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — pielęgnacja dojrzałej skóry'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — pielęgnacja dojrzałej skóry'),
       p(
         'Przyjmujemy klientki z Nowego Sącza, Mszany Dolnej, Słopnic i całego regionu. Podczas konsultacji oceniamy stan skóry i układamy plan — zarówno zabiegowy, jak i domowej pielęgnacji. Umów się online.',
       ),
@@ -213,9 +213,9 @@ const articles = [
     slug: 'kwas-hialuronowy-nawilzenie-skory-co-warto-wiedziec',
     category: 'Pielęgnacja skóry',
     title: 'Kwas hialuronowy — dlaczego jedno serum to za mało?',
-    metaTitle: 'Kwas hialuronowy Limanowa — Salon BeautyBeskid | Nawilżanie skóry zabiegi i kosmetyki',
+    metaTitle: 'Kwas hialuronowy Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Nawilżanie skóry zabiegi i kosmetyki',
     metaDescription:
-      'Kwas hialuronowy w pielęgnacji i zabiegach gabinetowych — co wybrać i jak działa? Gabinet BeautyBeskid w Limanowej wyjaśnia i oferuje zabiegi hialuronowe dla klientek z całego powiatu.',
+      'Kwas hialuronowy w pielęgnacji i zabiegach gabinetowych — co wybrać i jak działa? Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej wyjaśnia i oferuje zabiegi hialuronowe dla klientek z całego powiatu.',
     excerpt:
       'Kwas hialuronowy jest w każdym drugim kosmetyku. Ale większość z nas stosuje go źle — na suchą skórę, bez uszczelnienia kremem, w zbyt małej ilości. Wyjaśniamy, jak naprawdę działa.',
     readingTime: 4,
@@ -268,7 +268,7 @@ const articles = [
         { t: ' — żadne serum tego nie naprawi. Tu potrzebne są zabiegi gabinetowe: mezoterapia hialuronowa lub skinboosters, które działają na poziomie tkanki, nie naskórka.' },
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — mezoterapia i skinboosters'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — mezoterapia i skinboosters'),
       p(
         'Wykonujemy zabiegi hialuronowe dla klientek z Łososiny Dolnej, Ujanowic, Jodłownika i całego powiatu. Konsultacja kosmetologiczna poprzedza każdy zabieg. Zarezerwuj termin online.',
       ),
@@ -280,9 +280,9 @@ const articles = [
     slug: 'trendy-paznokcie-stylizacja-2025-limanowa',
     category: 'Paznokcie',
     title: 'Paznokcie 2025 — 5 trendów, które warto znać przed następną wizytą',
-    metaTitle: 'Modne paznokcie 2025 Limanowa — Salon BeautyBeskid | Stylizacja i wzory paznokci',
+    metaTitle: 'Modne paznokcie 2025 Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Stylizacja i wzory paznokci',
     metaDescription:
-      'Jakie wzory i kolory paznokci są modne w 2025 roku? Salon BeautyBeskid w Limanowej śledzi trendy i oferuje najnowsze stylizacje dla klientek z Tymbarku, Dobrej i okolic.',
+      'Jakie wzory i kolory paznokci są modne w 2025 roku? Salon BeskidStudio By Wiktoria Ćwik w Limanowej śledzi trendy i oferuje najnowsze stylizacje dla klientek z Tymbarku, Dobrej i okolic.',
     excerpt:
       'Chrome, aura nails, glazed donut, minimalizm i boxy shape — trendy w paznokciach 2025 roku. Jeden z nich zaskakuje prostotą, inny wymaga precyzji i doświadczenia stylisty.',
     readingTime: 4,
@@ -334,7 +334,7 @@ const articles = [
         { t: ' to sygnał niedoborów lub uszkodzenia płytki. Regularny olejek do skórek, rękawiczki przy pracach domowych i przerwy od hybryd to prosta profilaktyka.' },
       ),
 
-      h2('Salon BeautyBeskid w Limanowej — śledzimy trendy na bieżąco'),
+      h2('Salon BeskidStudio By Wiktoria Ćwik w Limanowej — śledzimy trendy na bieżąco'),
       p(
         'Przyjmujemy klientki z Tymbarku, Dobrej, Łososiny Dolnej i całego powiatu. Zapytaj nas o chrome, aura nails lub glazed donut — dobierzemy stylizację do Twoich rąk i gustu. Rezerwacja online.',
       ),
@@ -346,9 +346,9 @@ const articles = [
     slug: 'krem-z-filtrem-spf-codzienna-pielegnacja-dlaczego-wazny',
     category: 'Pielęgnacja skóry',
     title: 'Krem z filtrem — jedyny kosmetyk, którego naprawdę nie można pominąć',
-    metaTitle: 'Krem SPF filtr UV pielęgnacja — Salon BeautyBeskid Limanowa | Ochrona przeciwsłoneczna',
+    metaTitle: 'Krem SPF filtr UV pielęgnacja — Salon BeskidStudio By Wiktoria Ćwik Limanowa | Ochrona przeciwsłoneczna',
     metaDescription:
-      'Dlaczego krem z filtrem SPF to najważniejszy kosmetyk w pielęgnacji twarzy? Gabinet BeautyBeskid w Limanowej tłumaczy i poleca produkty dla klientek z Mszany Dolnej, Nowego Sącza i okolic.',
+      'Dlaczego krem z filtrem SPF to najważniejszy kosmetyk w pielęgnacji twarzy? Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej tłumaczy i poleca produkty dla klientek z Mszany Dolnej, Nowego Sącza i okolic.',
     excerpt:
       'Możesz stosować najdroższe serum z witaminą C i retinol za 200 złotych — ale jeśli nie nakładasz filtru, większość tej pracy idzie na marne. SPF to fundament, nie dodatek.',
     readingTime: 4,
@@ -401,7 +401,7 @@ const articles = [
         'Filtry chemiczne nakładaj 20–30 minut przed wyjściem na słońce',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — dobieramy filtr do Twojego rodzaju cery'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — dobieramy filtr do Twojego rodzaju cery'),
       p(
         'Lekki fluid dla cery tłustej, bogaty krem dla suchej, mineralny dla wrażliwej i z rosacea — na konsultacji pomożemy Ci wybrać produkt, który będziesz chciała stosować każdego dnia. Zapraszamy klientki z Mszany Dolnej, Nowego Sącza i całego regionu. Umów wizytę online.',
       ),
@@ -413,9 +413,9 @@ const articles = [
     slug: 'oczyszczanie-twarzy-zabieg-hydrabrazja-kawitacja-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Oczyszczanie twarzy w gabinecie — kiedy domowa pielęgnacja przestaje wystarczać',
-    metaTitle: 'Oczyszczanie twarzy Limanowa — Salon BeautyBeskid | Hydrabrazja i kawitacja',
+    metaTitle: 'Oczyszczanie twarzy Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Hydrabrazja i kawitacja',
     metaDescription:
-      'Głębokie oczyszczanie twarzy w Limanowej — hydrabrazja, kawitacja, usuwanie zaskórników. Salon BeautyBeskid oferuje profesjonalne zabiegi oczyszczające dla klientek z Laskowej, Mordarki i powiatu.',
+      'Głębokie oczyszczanie twarzy w Limanowej — hydrabrazja, kawitacja, usuwanie zaskórników. Salon BeskidStudio By Wiktoria Ćwik oferuje profesjonalne zabiegi oczyszczające dla klientek z Laskowej, Mordarki i powiatu.',
     excerpt:
       'Żel myjący dociera do powierzchni skóry. Kawitacja i hydrabrazja — do wnętrza porów. Jeśli masz zaskórniki, które wracają co miesiąc mimo starannego oczyszczania w domu, to właśnie o to chodzi.',
     readingTime: 5,
@@ -462,7 +462,7 @@ const articles = [
         'Przez tydzień: filtr SPF każdego ranka — świeżo oczyszczona skóra jest wrażliwsza na UV',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Przyjmujemy klientki z Laskowej, Mordarki, Jodłownika i całego powiatu limanowskiego. Dobieramy metodę oczyszczania indywidualnie do Twojego rodzaju cery. Zarezerwuj termin online.',
       ),
@@ -474,9 +474,9 @@ const articles = [
     slug: 'pielegnacja-skory-tlustej-rozszerzone-pory-porady',
     category: 'Pielęgnacja skóry',
     title: 'Cera tłusta — dlaczego im bardziej ją suszysz, tym bardziej się przetłuszcza?',
-    metaTitle: 'Cera tłusta rozszerzone pory — Salon BeautyBeskid Limanowa | Pielęgnacja i zabiegi',
+    metaTitle: 'Cera tłusta rozszerzone pory — Salon BeskidStudio By Wiktoria Ćwik Limanowa | Pielęgnacja i zabiegi',
     metaDescription:
-      'Jak pielęgnować cerę tłustą i zmniejszyć rozszerzone pory? Gabinet BeautyBeskid w Limanowej oferuje zabiegi dla skóry tłustej i trądzikowej dla klientek z Tymbarku, Słopnic i okolic.',
+      'Jak pielęgnować cerę tłustą i zmniejszyć rozszerzone pory? Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej oferuje zabiegi dla skóry tłustej i trądzikowej dla klientek z Tymbarku, Słopnic i okolic.',
     excerpt:
       'Błyszcząca T-strefa, zaskórniki co miesiąc, makijaż zsuwający się po południu. I do tego mit, że cera tłusta "sama się nawilża", przez co wielu osób pomija nawilżanie. To błąd, który pogłębia problem.',
     readingTime: 5,
@@ -534,7 +534,7 @@ const articles = [
         'Dermapen z niacynamidem — wzmacnia ściany porów i ogranicza ich rozszerzanie w dłuższej perspektywie',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — strategia dla Twojej cery'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — strategia dla Twojej cery'),
       p(
         'Przyjmujemy klientki z Tymbarku, Słopnic, Ujanowic i całego powiatu. Konsultacja + ocena cery + plan pielęgnacji — indywidualnie, nie według gotowego szablonu. Umów wizytę online.',
       ),
@@ -546,9 +546,9 @@ const articles = [
     slug: 'henna-brwi-rzes-naturalny-efekt-limanowa',
     category: 'Brwi i rzęsy',
     title: 'Henna brwi i rzęs — 30 minut w salonie, kilka tygodni bez makijażu',
-    metaTitle: 'Henna brwi i rzęs Limanowa — Salon BeautyBeskid | Trwałe zabarwienie brwi rzęs',
+    metaTitle: 'Henna brwi i rzęs Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Trwałe zabarwienie brwi rzęs',
     metaDescription:
-      'Henna brwi i rzęs w Limanowej — ciemniejszy, wyraźniejszy kolor na 3–5 tygodni. Salon BeautyBeskid wykonuje zabarwienie brwi i rzęs dla klientek z Dobrej, Jodłownika i okolic.',
+      'Henna brwi i rzęs w Limanowej — ciemniejszy, wyraźniejszy kolor na 3–5 tygodni. Salon BeskidStudio By Wiktoria Ćwik wykonuje zabarwienie brwi i rzęs dla klientek z Dobrej, Jodłownika i okolic.',
     excerpt:
       'Henna brwi to zabieg, który trwa pół godziny i eliminuje codzienne malowanie brwi przez kilka tygodni. Dla osób z jasnym owłosieniem — mała rewolucja w porannej rutynie.',
     readingTime: 4,
@@ -590,10 +590,10 @@ const articles = [
       pb(
         { t: 'Zdecydowanie tak — i to połączenie daje wyjątkowy efekt. ' },
         { t: 'Laminowanie układa i usztywnia włoski', b: true },
-        { t: ', henna zabarwia je i skórę. Razem: idealnie ułożone i wyraźnie zabarwione brwi. W salonie BeautyBeskid możesz umówić oba zabiegi podczas jednej wizyty.' },
+        { t: ', henna zabarwia je i skórę. Razem: idealnie ułożone i wyraźnie zabarwione brwi. W salonie BeskidStudio By Wiktoria Ćwik możesz umówić oba zabiegi podczas jednej wizyty.' },
       ),
 
-      h2('Salon BeautyBeskid w Limanowej — henna i tint dla klientek z całego powiatu'),
+      h2('Salon BeskidStudio By Wiktoria Ćwik w Limanowej — henna i tint dla klientek z całego powiatu'),
       p(
         'Wykonujemy henna brwi i rzęs oraz barwienie tyntem. Dobieramy odcień do naturalnego koloru włosów i karnacji. Przyjmujemy klientki z Dobrej, Jodłownika, Laskowej i okolic. Rezerwacja online — punktualna obsługa bez kolejek.',
       ),
@@ -605,9 +605,9 @@ const articles = [
     slug: 'zabiegi-na-cellulit-co-naprawde-dziala-limanowa',
     category: 'Pielęgnacja ciała',
     title: 'Cellulit — co naprawdę działa, a co jest tylko ładnym opakowaniem obietnic?',
-    metaTitle: 'Zabiegi na cellulit Limanowa — Salon BeautyBeskid | Skuteczna redukcja cellulitu',
+    metaTitle: 'Zabiegi na cellulit Limanowa — Salon BeskidStudio By Wiktoria Ćwik | Skuteczna redukcja cellulitu',
     metaDescription:
-      'Skuteczne zabiegi na cellulit w Limanowej — kawitacja, drenaż limfatyczny, masaż bańką. Gabinet BeautyBeskid przyjmuje klientki z Mszany Dolnej, Łososiny Dolnej i całego powiatu.',
+      'Skuteczne zabiegi na cellulit w Limanowej — kawitacja, drenaż limfatyczny, masaż bańką. Gabinet BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Mszany Dolnej, Łososiny Dolnej i całego powiatu.',
     excerpt:
       'Cellulit dotyka ponad 85% kobiet — niezależnie od wagi i wieku. Rynek jest zalany kremami i suplementami obiecującymi cuda. Sprawdzamy, co faktycznie przynosi zmianę, a co tylko ją symuluje.',
     readingTime: 5,
@@ -658,7 +658,7 @@ const articles = [
         'Zabiegi kosmetologiczne działają najlepiej jako uzupełnienie, nie zamiast zdrowego trybu życia',
       ),
 
-      h2('Gabinet BeautyBeskid w Limanowej — kompleksowy program anti-cellulit'),
+      h2('Gabinet BeskidStudio By Wiktoria Ćwik w Limanowej — kompleksowy program anti-cellulit'),
       p(
         'Oferujemy drenaż limfatyczny, kawitację i masaż bańką dla klientek z Mszany Dolnej, Łososiny Dolnej, Tymbarku i całego powiatu. Dobieramy plan indywidualnie do stopnia nasilenia cellulitu. Umów wizytę online.',
       ),
@@ -670,9 +670,9 @@ const articles = [
     slug: 'karboksyterapia-co2-zastosowanie-efekty-limanowa',
     category: 'Zabiegi na twarz',
     title: 'Karboksyterapia — jak CO₂ podbija świat kosmetologii',
-    metaTitle: 'Karboksyterapia Limanowa — Gabinet BeautyBeskid | CO2 twarz cellulit rozstępy',
+    metaTitle: 'Karboksyterapia Limanowa — Gabinet BeskidStudio By Wiktoria Ćwik | CO2 twarz cellulit rozstępy',
     metaDescription:
-      'Karboksyterapia w Limanowej — zabiegi CO2 na twarz, cellulit i rozstępy. Gabinet BeautyBeskid przyjmuje klientki z Kasiny Wielkiej, Ujanowic i całego powiatu limanowskiego.',
+      'Karboksyterapia w Limanowej — zabiegi CO2 na twarz, cellulit i rozstępy. Gabinet BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Kasiny Wielkiej, Ujanowic i całego powiatu limanowskiego.',
     excerpt:
       'Dwutlenek węgla pod skórą brzmi niepokojąco — dopóki nie zobaczysz efektów. Karboksyterapia to jeden z niewielu zabiegów, który jednocześnie odmładza twarz, redukuje cellulit i poprawia wygląd rozstępów.',
     readingTime: 5,
@@ -727,7 +727,7 @@ const articles = [
         'Sesja uzupełniająca co 3–6 miesięcy podtrzymuje wyniki',
       ),
 
-      h2('Karboksyterapia w gabinecie BeautyBeskid w Limanowej'),
+      h2('Karboksyterapia w gabinecie BeskidStudio By Wiktoria Ćwik w Limanowej'),
       p(
         'Przyjmujemy klientki z Kasiny Wielkiej, Ujanowic, Słopnic i całego powiatu limanowskiego. Z Kasiny Wielkiej dojazd to ok. 20 minut, z Ujanowic — ok. 15 minut. Zarezerwuj wizytę online i odkryj, co CO₂ może zrobić dla Twojej skóry.',
       ),

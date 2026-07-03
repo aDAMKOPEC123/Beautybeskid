@@ -31,8 +31,48 @@ const sectionLabelClass = 'mb-3 text-[10px] font-semibold uppercase tracking-[0.
 
 export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
   const page = localSeoPages[pageKey];
+
+  if (page.indexable === false && !page.redirectTo) {
+    return (
+      <div className="bg-ivory text-espresso">
+        <PageSEO
+          title={`${page.shortLabel} — usługa niedostępna`}
+          description="Podologia nie jest obecnie dostępna do rezerwacji w BeskidStudio. Sprawdź aktualną ofertę zabiegów beauty lub skontaktuj się z salonem."
+          canonical={`/${page.slug}`}
+          noIndex
+        />
+        <section className="container flex min-h-[70svh] max-w-3xl flex-col items-center justify-center px-5 py-20 text-center">
+          <p className={sectionLabelClass}>Aktualna dostępność</p>
+          <h1 className="font-heading text-4xl font-bold leading-tight text-espresso sm:text-5xl">
+            Podologia nie jest obecnie dostępna
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-espresso/68">
+            Nie prowadzimy teraz zapisów na konsultacje podologiczne ani korekcję wrastających paznokci.
+            Gdy usługa zostanie uruchomiona, jej dostępność pojawi się w aktualnej ofercie i kalendarzu.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" className="gap-2 bg-espresso text-ivory hover:bg-espresso/90" asChild>
+              <Link to="/uslugi">
+                Zobacz dostępne usługi
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+              <Link to="/kontakt">
+                Kontakt z salonem
+                <Phone className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   const schema = buildLocalSeoSchema(page);
-  const relatedPages = page.related.map((key) => localSeoPages[key]);
+  const relatedPages = page.related
+    .map((key) => localSeoPages[key])
+    .filter((related) => related.indexable !== false && !related.redirectTo);
 
   return (
     <div className="bg-ivory text-espresso">
@@ -42,6 +82,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         canonical={`/${page.slug}`}
         ogImage={heroImage}
         schema={schema}
+        noIndex={page.indexable === false}
       />
 
       <section className="relative overflow-hidden bg-cream">

@@ -27,7 +27,26 @@ export default defineConfig(({ command }) => {
         injectRegister: false,
         manifest: false,
         injectManifest: {
-          globPatterns: ['**/*.{js,css,ico,png,svg,webp}'],
+          // Cache only the public app shell. Precaching every admin, academy and
+          // editor chunk made a first public visit download several megabytes.
+          globPatterns: [
+            'index.html',
+            'manifest.json',
+            'favicon.{ico,svg}',
+            'apple-touch-icon.png',
+            'icons/*.png',
+            'logo-64.webp',
+            'images/beautybeskid-hero-*.webp',
+            'assets/index-*.{js,css}',
+            'assets/vendor-react-*.js',
+            'assets/vendor-query-*.js',
+            'assets/vendor-http-*.js',
+            'assets/vendor-state-*.js',
+            'assets/vendor-utils-*.js',
+            'assets/vendor-helmet-*.js',
+            'assets/vendor-icons-*.js',
+            'assets/vendor-toast-*.js',
+          ],
           globIgnores: ['registerSW.js', 'sw.js'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         },

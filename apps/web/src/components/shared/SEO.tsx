@@ -8,9 +8,10 @@ interface Props {
   canonical?: string;
   ogImage?: string;
   schema?: object;
+  noIndex?: boolean;
 }
 
-export const PageSEO = ({ title, description, canonical, ogImage, schema }: Props) => {
+export const PageSEO = ({ title, description, canonical, ogImage, schema, noIndex = false }: Props) => {
   const alreadyBranded = /BeskidStudio|Wiktoria Ćwik/i.test(title);
   const fullTitle = alreadyBranded ? title : `${title} | Wiktoria Ćwik`;
   const url = canonical ? `${cfg.domain}${canonical}` : cfg.domain;
@@ -18,7 +19,7 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema }: Prop
     ? ogImage.startsWith('http')
       ? ogImage
       : `${cfg.domain}${ogImage}`
-    : `${cfg.domain}/images/og-salon.jpg`;
+    : `${cfg.domain}/images/beautybeskid-hero-premium.webp`;
 
   useEffect(() => {
     const selectors = [
@@ -44,7 +45,10 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema }: Prop
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      <meta name="robots" content="index,follow,max-image-preview:large" />
+      <meta
+        name="robots"
+        content={noIndex ? 'noindex,nofollow,noarchive' : 'index,follow,max-image-preview:large'}
+      />
       <meta name="geo.region" content="PL-MA" />
       <meta name="geo.placename" content={cfg.address.city} />
       <meta name="geo.position" content={`${cfg.lat};${cfg.lon}`} />

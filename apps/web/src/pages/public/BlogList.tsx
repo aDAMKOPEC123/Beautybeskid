@@ -185,7 +185,7 @@ export const BlogList = () => {
             Blog Kosmetologiczny
           </h1>
           <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
-            Artykuły o pielęgnacji skóry, zabiegach i podologii — porady eksperta z Limanowej.
+            Artykuły o pielęgnacji skóry, zabiegach oraz stylizacji brwi i rzęs — porady kosmetologa z Limanowej.
           </p>
         </div>
       </section>
@@ -241,7 +241,7 @@ export const BlogList = () => {
 `}</style>
       <PageSEO
         title="Blog kosmetologiczny"
-        description="Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach, brwiach, rzęsach i podologii. Przeczytaj artykuły Wiktorii Ćwik."
+        description="Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach oraz stylizacji brwi i rzęs. Przeczytaj artykuły Wiktorii Ćwik."
         canonical="/blog"
       />
 
@@ -258,7 +258,7 @@ export const BlogList = () => {
             Blog Kosmetologiczny
           </h1>
           <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
-            Artykuły o pielęgnacji skóry, zabiegach i podologii — porady eksperta z Limanowej.
+            Artykuły o pielęgnacji skóry, zabiegach oraz stylizacji brwi i rzęs — porady kosmetologa z Limanowej.
           </p>
 
           {/* Search + filters */}

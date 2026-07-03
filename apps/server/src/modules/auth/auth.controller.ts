@@ -1,4 +1,4 @@
-﻿// filepath: apps/server/src/modules/auth/auth.controller.ts
+// filepath: apps/server/src/modules/auth/auth.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '@cosmo/shared';
@@ -394,7 +394,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     const resetUrl = `${env.CLIENT_URL}/auth/reset-password?token=${resetToken}`;
     const message = `<p>Kliknij w link, aby zresetować hasło: <a href="${resetUrl}">${resetUrl}</a></p>`;
 
-    await sendEmail(user.email, 'Reset hasła - BeautyStudio By Wiktoria Ćwik App', message);
+    await sendEmail(user.email, 'Reset hasła - BeskidStudio By Wiktoria Ćwik App', message);
 
     res.status(200).json({ status: 'success', message: 'Link zresetowania hasła wysłany na email.' });
   } catch (error) {

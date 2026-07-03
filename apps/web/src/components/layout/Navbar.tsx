@@ -205,7 +205,7 @@ export const Navbar = () => {
         <div className="container h-full flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center gap-2.5">
-            <img src="/logo.png" alt="BeskidStudio" className="h-8 w-auto" />
+            <img src="/logo-64.webp" alt="BeskidStudio" width="32" height="32" className="h-8 w-8" />
             <span className="hidden font-display text-[13px] uppercase tracking-[0.08em] md:inline" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
           </Link>
 
@@ -309,7 +309,7 @@ export const Navbar = () => {
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
               <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
-                <img src="/logo.png" alt="BeskidStudio" className="h-8 w-auto" />
+                <img src="/logo-64.webp" alt="BeskidStudio" width="32" height="32" className="h-8 w-8" />
                 <span className="font-display text-[13px] uppercase tracking-[0.08em] text-ivory" style={{ fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
               </Link>
               <button

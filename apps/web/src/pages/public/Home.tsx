@@ -34,6 +34,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 import { Season, type Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
+import { SEO } from '@/lib/seo-config';
 
 const heroImage = '/images/beautybeskid-hero-premium.webp';
 
@@ -51,7 +52,7 @@ const faqItems = [
     name: 'Jakie zabiegi są dostępne w BeskidStudio By Wiktoria Ćwik Limanowa?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Sekcja zabiegów pokazuje aktualne usługi dostępne do rezerwacji w BeskidStudio By Wiktoria Ćwik Limanowa. Usługi w przygotowaniu, takie jak podologia lub osobna ścieżka kosmetologii, są widoczne jako wyszarzona zapowiedź do czasu uruchomienia zapisów.',
+      text: 'Sekcja zabiegów pokazuje aktualne usługi dostępne do rezerwacji w BeskidStudio By Wiktoria Ćwik Limanowa. Ceny, czas zabiegów i terminy są aktualizowane na bieżąco w systemie rezerwacji.',
     },
   },
   {
@@ -67,7 +68,7 @@ const faqItems = [
     name: 'Czy mogę umówić konsultację kosmetologiczną w Limanowej?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Nowe klientki mogą umówić bezpłatną konsultację kosmetologiczną w BeskidStudio By Wiktoria Ćwik Limanowa. Podczas konsultacji dobieramy kierunek zabiegowy do potrzeb skóry, paznokci lub stóp bez presji i zobowiązań.',
+      text: 'Tak. Nowe klientki mogą umówić bezpłatną konsultację kosmetologiczną w BeskidStudio By Wiktoria Ćwik Limanowa. Podczas konsultacji dobieramy kierunek zabiegowy do potrzeb skóry oraz aktualnie dostępnych zabiegów bez presji i zobowiązań.',
     },
   },
   {
@@ -78,17 +79,9 @@ const faqItems = [
       text: 'BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i okolic, między innymi z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Tymbarku, Dobrej, Jodłownika oraz Nowego Sącza.',
     },
   },
-  {
-    '@type': 'Question',
-    name: 'Czy podologia w BeskidStudio By Wiktoria Ćwik Limanowa jest już dostępna?',
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: 'Podologia w BeskidStudio By Wiktoria Ćwik Limanowa jest usługą w przygotowaniu. Do czasu uruchomienia zapisów pozostaje oznaczona jako zapowiedź, aby klientki widziały jasno, które usługi są aktualnie dostępne do rezerwacji.',
-    },
-  },
 ];
 
-const buildFaqSchema = (rating?: number, reviewCount?: number) => ({
+const buildFaqSchema = () => ({
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -117,19 +110,12 @@ const buildFaqSchema = (rating?: number, reviewCount?: number) => ({
         'salon kosmetologiczny Limanowa',
         'konsultacja kosmetologiczna Limanowa',
         'rezerwacja zabiegów online',
-        'podologia Limanowa',
       ],
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: String(rating ?? 5),
-        bestRating: '5',
-        reviewCount: String(reviewCount ?? 4),
-      },
-      telephone: '+48532128227',
+      telephone: SEO.phone,
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 49.6986,
-        longitude: 20.4441,
+        latitude: SEO.lat,
+        longitude: SEO.lon,
       },
       openingHoursSpecification: [
         {
@@ -196,8 +182,8 @@ const benefits = [
 
 const upcomingServiceCards = [
   {
-    title: 'Podolog Limanowa',
-    shortTitle: 'Podologia',
+    title: 'Podologia — planowana usługa',
+    shortTitle: 'Podologia w przygotowaniu',
     description: 'Usługa jest jeszcze niedostępna. Przygotowujemy ją tak, aby była prowadzona spokojnie, bezpiecznie i profesjonalnie.',
     price: 'wkrótce',
     time: 'zapisy wkrótce',
@@ -1343,8 +1329,8 @@ const ConsultationSection = ({
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-ivory/72">
               Przyjdź na spokojną konsultację. Dobierzemy aktywną usługę do Twoich potrzeb,
-              wyjaśnimy możliwe efekty i zaproponujemy plan bez presji. Jeśli interesuje Cię podologia
-              lub kosmetologia, zapiszemy Twoje zainteresowanie na start zapisów.
+              wyjaśnimy możliwe efekty i zaproponujemy plan bez presji. Jeśli interesuje Cię usługa,
+              której nie ma jeszcze w grafiku, możesz zapytać o planowany termin uruchomienia.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button
@@ -1741,7 +1727,7 @@ export const Home = () => {
         description="Kosmetolog Wiktoria Ćwik koło Limanowej. Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry oraz rezerwacja online."
         canonical="/"
         ogImage={heroImage}
-        schema={buildFaqSchema(googleReviews?.rating, googleReviews?.user_ratings_total)}
+        schema={buildFaqSchema()}
       />
 
       <main className="flex-1">
