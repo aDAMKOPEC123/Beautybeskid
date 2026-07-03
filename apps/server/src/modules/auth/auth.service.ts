@@ -11,6 +11,7 @@ import { GooglePayload } from './google.strategy';
 import { FacebookAuthError, FacebookProfile } from './facebook.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
+import { getIO } from '../../socket';
 
 export const toAuthUser = (user: {
   id: string;
@@ -112,6 +113,7 @@ export const registerUser = async (data: RegisterInput & {
         })),
       });
     })
+    .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
     .catch(() => {/* ignore — don't fail registration */});
 
   // Send verification email (fire-and-forget — don't fail registration if email fails)
@@ -287,6 +289,7 @@ export const loginWithGoogle = async (
           })),
         });
       })
+      .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
       .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
   }
 
@@ -419,6 +422,7 @@ export const loginWithFacebook = async (
           })),
         });
       })
+      .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
       .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
   }
 
