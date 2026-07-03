@@ -1219,16 +1219,16 @@ export const BookingWizard = () => {
               >
                 {isComplete ? <CheckCircle2 size={16} /> : currentStep}
               </span>
-              <span className="hidden truncate text-xs font-semibold sm:block" style={{ color: isCurrent ? '#1A3828' : 'rgba(20,40,28,0.58)' }}>
+              <span
+                className="truncate text-[9px] leading-tight font-medium"
+                style={{ color: isCurrent ? '#1A3828' : 'rgba(20,40,28,0.45)' }}
+              >
                 {label}
               </span>
             </li>
           );
         })}
       </ol>
-      <p className="text-center text-sm font-semibold sm:hidden" style={{ color: '#1A3828' }}>
-        Krok {step} z {STEPS.length} · {STEPS[step - 1]}
-      </p>
       </div>
 
       {state.service && step > 1 && (
