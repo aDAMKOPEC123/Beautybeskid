@@ -25,22 +25,27 @@ import {
   MessageSquare,
 } from 'lucide-react';
 
-const MORE_LINKS = [
-  { to: '/user/lojalnosc', label: 'Punkty', icon: Star },
-  { to: '/user/historia', label: 'Historia', icon: Clock },
-  { to: '/user/dziennik', label: 'Dziennik', icon: BookOpen },
-  { to: '/user/rutyna', label: 'Rutyna', icon: Sparkles },
-  { to: '/user/produkty', label: 'Produkty', icon: ShoppingBag },
-  { to: '/user/polecenia', label: 'Polecenia', icon: Users },
-  { to: '/user/vouchery', label: 'Vouchery', icon: Gift },
-  { to: '/user/pogoda-skory', label: 'Skóra', icon: Cloud },
-  { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
-  { to: '/user/forum', label: 'Forum', icon: MessageSquare },
-  { to: '/akademia', label: 'Akademia', icon: GraduationCap },
+const MORE_LINKS_PRIMARY = [
+  { to: '/user/lojalnosc',    label: 'Punkty',         icon: Star },
+  { to: '/user/polecenia',    label: 'Polecenia',      icon: Users },
+  { to: '/user/vouchery',     label: 'Vouchery',       icon: Gift },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
-  { to: '/user/profil', label: 'Profil', icon: UserIcon },
-  { to: '/', label: 'Wizytówka', icon: Globe },
-];
+  { to: '/user/profil',       label: 'Profil',         icon: UserIcon },
+  { to: '/user/historia',     label: 'Historia',       icon: Clock },
+  { to: '/user/dziennik',     label: 'Dziennik',       icon: BookOpen },
+  { to: '/user/rutyna',       label: 'Rutyna',         icon: Sparkles },
+  { to: '/user/produkty',     label: 'Produkty',       icon: ShoppingBag },
+  { to: '/user/pogoda-skory', label: 'Skóra',          icon: Cloud },
+  { to: '/user/zalecenia',    label: 'Beauty Plan',    icon: Flower2 },
+  { to: '/',                  label: 'Wizytówka',      icon: Globe },
+] as const;
+
+const MORE_LINKS_SECONDARY = [
+  { to: '/user/forum',  label: 'Forum',    icon: MessageSquare },
+  { to: '/akademia',    label: 'Akademia', icon: GraduationCap },
+] as const;
+
+const ALL_MORE_LINKS = [...MORE_LINKS_PRIMARY, ...MORE_LINKS_SECONDARY] as const;
 
 const backdropVariants = {
   hidden: { opacity: 0 },
@@ -118,7 +123,7 @@ export function MobileBottomNav() {
 
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
-  const isMoreRoute = MORE_LINKS.some(({ to }) => to !== '/' && isActive(to));
+  const isMoreRoute = ALL_MORE_LINKS.some(({ to }) => to !== '/' && isActive(to));
   const isMoreActive = isMoreOpen || isMoreRoute;
 
   useEffect(() => {
@@ -158,47 +163,71 @@ export function MobileBottomNav() {
               animate="visible"
               exit="exit"
             >
-              <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
-                {MORE_LINKS.map(({ to, label, icon: Icon }) => {
-                  const count = getBadgeCount(to);
+              <div className="space-y-4">
+                {/* Primary links */}
+                <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
+                  {MORE_LINKS_PRIMARY.map(({ to, label, icon: Icon }) => {
+                    const count = getBadgeCount(to);
+                    return (
+                      <motion.div key={to} variants={activeItemVariants}>
+                        <Link
+                          to={to}
+                          state={to === '/' ? { fromPanel: true } : undefined}
+                          onClick={() => setIsMoreOpen(false)}
+                          className={cn(
+                            'relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-all duration-300 active:scale-95',
+                            isActive(to) ? 'font-semibold' : 'opacity-60',
+                          )}
+                          style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
+                        >
+                          {isActive(to) && (
+                            <motion.span
+                              layoutId="user-mobile-more-active"
+                              className="absolute inset-0 rounded-xl"
+                              transition={navIndicatorTransition}
+                              style={{
+                                background: 'linear-gradient(135deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
+                                boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                              }}
+                            />
+                          )}
+                          <Icon size={22} />
+                          <span className="relative z-10 text-center leading-tight">{label}</span>
+                          {count > 0 && (
+                            <span
+                              className="absolute right-1 top-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
+                              style={{ background: '#C4965A', color: '#fff' }}
+                            >
+                              {count > 9 ? '9+' : count}
+                            </span>
+                          )}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
 
-                  return (
-                    <motion.div key={to} variants={activeItemVariants}>
-                      <Link
-                        to={to}
-                        state={to === '/' ? { fromPanel: true } : undefined}
-                        onClick={() => setIsMoreOpen(false)}
-                        className={cn(
-                          'relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-all duration-300 active:scale-95',
-                          isActive(to) ? 'font-semibold' : 'opacity-60',
-                        )}
-                        style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
-                      >
-                        {isActive(to) && (
-                          <motion.span
-                            layoutId="user-mobile-more-active"
-                            className="absolute inset-0 rounded-xl"
-                            transition={navIndicatorTransition}
-                            style={{
-                              background: 'linear-gradient(135deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-                              boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
-                            }}
-                          />
-                        )}
-                        <Icon size={22} />
-                        <span className="relative z-10 text-center leading-tight">{label}</span>
-                        {count > 0 && (
-                          <span
-                            className="absolute right-1 top-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
-                            style={{ background: '#C4965A', color: '#fff' }}
-                          >
-                            {count > 9 ? '9+' : count}
-                          </span>
-                        )}
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+                {/* Secondary links */}
+                <div>
+                  <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(20,40,28,0.35)' }}>
+                    Odkryj
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
+                    {MORE_LINKS_SECONDARY.map(({ to, label, icon: Icon }) => (
+                      <motion.div key={to} variants={activeItemVariants}>
+                        <Link
+                          to={to}
+                          onClick={() => setIsMoreOpen(false)}
+                          className="relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs opacity-50 transition-all duration-300 active:scale-95"
+                          style={{ color: '#1A3828' }}
+                        >
+                          <Icon size={22} />
+                          <span className="text-center leading-tight">{label}</span>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
           </>
