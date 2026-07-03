@@ -5,7 +5,6 @@ import { authApi } from '@/api/auth.api';
 type FacebookAuthButtonProps = {
   mode: 'login' | 'register';
   returnTo?: string;
-  termsAccepted?: boolean;
   marketingConsent?: boolean;
   photoConsent?: boolean;
   ambassadorCode?: string;
@@ -38,7 +37,6 @@ export const facebookErrorMessages: Record<string, string> = {
 export const FacebookAuthButton = ({
   mode,
   returnTo,
-  termsAccepted = false,
   marketingConsent = false,
   photoConsent = false,
   ambassadorCode,
@@ -64,7 +62,8 @@ export const FacebookAuthButton = ({
     if (returnTo) url.searchParams.set('returnTo', returnTo);
 
     if (mode === 'register') {
-      url.searchParams.set('termsAccepted', String(termsAccepted));
+      // Clicking the clearly labelled registration button is the affirmative acceptance action.
+      url.searchParams.set('termsAccepted', 'true');
       url.searchParams.set('marketingConsent', String(marketingConsent));
       url.searchParams.set('photoConsent', String(photoConsent));
       if (ambassadorCode?.trim()) {
@@ -79,7 +78,6 @@ export const FacebookAuthButton = ({
     <Button
       type="button"
       onClick={startFacebookAuth}
-      disabled={mode === 'register' && !termsAccepted}
       className="w-full bg-[#1877F2] py-6 text-sm normal-case tracking-normal text-white hover:bg-[#166FE5]"
     >
       <span

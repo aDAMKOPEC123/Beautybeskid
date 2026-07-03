@@ -73,4 +73,16 @@ export const authApi = {
 
   refreshSession: () =>
     api.post<AuthResponseEnvelope>('/auth/refresh').then((r) => r.data.data),
+
+  getFacebookRegistration: () =>
+    api
+      .get<{ status: 'success'; data: { name: string; email: string } }>(
+        '/auth/facebook/registration',
+      )
+      .then((r) => r.data.data),
+
+  completeFacebookRegistration: (data: { name: string; phone: string }) =>
+    api
+      .post<AuthResponseEnvelope>('/auth/facebook/registration', data)
+      .then((r) => r.data.data),
 };

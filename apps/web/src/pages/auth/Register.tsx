@@ -186,7 +186,7 @@ export const Register = () => {
               </label>
 
               <p className="text-xs text-muted-foreground pl-1">
-                <span className="text-destructive font-bold">*</span> Pole wymagane
+                <span className="text-destructive font-bold">*</span> Pole wymagane przy rejestracji formularzem
               </p>
             </div>
 
@@ -208,11 +208,17 @@ export const Register = () => {
             <GoogleAuthButton />
             <FacebookAuthButton
               mode="register"
-              termsAccepted={termsAccepted}
               marketingConsent={marketingConsent}
               photoConsent={photoConsent}
               ambassadorCode={watch('ambassadorCode')}
             />
+            <p className="px-2 text-center text-xs leading-relaxed text-muted-foreground">
+              Kontynuując przez Google lub Facebook, akceptujesz{' '}
+              <a href="/regulamin" target="_blank" rel="noreferrer" className="text-primary underline hover:opacity-80">
+                regulamin i politykę prywatności
+              </a>
+              . Zgody opcjonalne nie są udzielane automatycznie.
+            </p>
           </div>
         </CardContent>
         <CardFooter className="justify-center text-sm text-muted-foreground border-t pt-6 bg-muted/10 rounded-b-xl">

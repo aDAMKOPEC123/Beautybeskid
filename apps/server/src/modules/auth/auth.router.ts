@@ -16,6 +16,8 @@ router.post('/google', authRateLimiter, authController.googleAuth);
 router.get('/facebook/status', authController.facebookStatus);
 router.get('/facebook', authRateLimiter, authController.startFacebookAuth);
 router.get('/facebook/callback', authRateLimiter, authController.facebookCallback);
+router.get('/facebook/registration', authRateLimiter, authController.facebookRegistrationDetails);
+router.post('/facebook/registration', authRateLimiter, authController.completeFacebookRegistration);
 router.get('/verify-email', authController.verifyEmail);
 
 export default router;

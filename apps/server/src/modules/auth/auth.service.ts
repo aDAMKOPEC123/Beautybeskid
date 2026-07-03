@@ -236,16 +236,7 @@ export const loginWithGoogle = async (credential: string) => {
   };
 };
 
-export const loginWithFacebook = async (
-  profile: FacebookProfile,
-  options: {
-    mode: 'login' | 'register';
-    termsAccepted: boolean;
-    marketingConsent: boolean;
-    photoConsent: boolean;
-    ambassadorCode?: string;
-  },
-) => {
+const findFacebookAccount = async (profile: FacebookProfile) => {
   const [byFacebookId, byEmail] = await Promise.all([
     prisma.user.findUnique({ where: { facebookId: profile.facebookId } }),
     prisma.user.findUnique({ where: { email: profile.email } }),
@@ -259,17 +250,37 @@ export const loginWithFacebook = async (
     );
   }
 
-  let user = byFacebookId ?? byEmail;
+  const user = byFacebookId ?? byEmail;
+  if (user?.facebookId && user.facebookId !== profile.facebookId) {
+    throw new FacebookAuthError(
+      'facebook-account-conflict',
+      'Ten adres email jest już połączony z innym kontem Facebook',
+      409,
+    );
+  }
+
+  return user;
+};
+
+export const hasExistingFacebookAccount = async (profile: FacebookProfile) =>
+  Boolean(await findFacebookAccount(profile));
+
+export const loginWithFacebook = async (
+  profile: FacebookProfile,
+  options: {
+    mode: 'login' | 'register';
+    termsAccepted: boolean;
+    marketingConsent: boolean;
+    photoConsent: boolean;
+    ambassadorCode?: string;
+    name?: string;
+    phone?: string;
+  },
+) => {
+  let user = await findFacebookAccount(profile);
   let created = false;
 
   if (user) {
-    if (user.facebookId && user.facebookId !== profile.facebookId) {
-      throw new FacebookAuthError(
-        'facebook-account-conflict',
-        'Ten adres email jest już połączony z innym kontem Facebook',
-        409,
-      );
-    }
     if (user.accountStatus === 'REJECTED') {
       throw new FacebookAuthError('facebook-account-blocked', 'Konto zostało zablokowane', 403);
     }
@@ -292,6 +303,15 @@ export const loginWithFacebook = async (
         403,
       );
     }
+    const registrationName = options.name?.trim();
+    const registrationPhone = options.phone?.trim();
+    if (!registrationName || !registrationPhone) {
+      throw new FacebookAuthError(
+        'facebook-registration-required',
+        'Uzupełnij imię, nazwisko i numer telefonu',
+        400,
+      );
+    }
 
     const ambassadorCode = await generateUniqueAmbassadorCode();
     const referrer = options.ambassadorCode
@@ -304,7 +324,8 @@ export const loginWithFacebook = async (
       const newUser = await tx.user.create({
         data: {
           email: profile.email,
-          name: profile.name,
+          name: registrationName,
+          phone: registrationPhone,
           passwordHash: null,
           facebookId: profile.facebookId,
           avatarPath: profile.picture ?? null,

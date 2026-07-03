@@ -10,10 +10,12 @@ import { sendEmail } from '../../utils/email';
 import { processAndSaveImage } from '../../utils/imageProcessor';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
 import {
   createFacebookAuthorizationUrl,
   FacebookAuthError,
   FacebookAuthErrorCode,
+  FacebookProfile,
   fetchFacebookProfile,
   isFacebookConfigured,
 } from './facebook.strategy';
@@ -27,7 +29,9 @@ const buildRefreshCookieOptions = (maxAge: number) => ({
 
 const FACEBOOK_STATE_COOKIE = 'facebookOAuthState';
 const FACEBOOK_CONTEXT_COOKIE = 'facebookOAuthContext';
+const FACEBOOK_REGISTRATION_COOKIE = 'facebookRegistration';
 const FACEBOOK_OAUTH_TTL_MS = 10 * 60 * 1000;
+const FACEBOOK_REGISTRATION_TTL_MS = 15 * 60 * 1000;
 
 type FacebookOAuthContext = {
   mode: 'login' | 'register';
@@ -38,12 +42,37 @@ type FacebookOAuthContext = {
   ambassadorCode?: string;
 };
 
+type FacebookRegistrationPayload = {
+  profile: FacebookProfile;
+  context: FacebookOAuthContext;
+};
+
+const facebookRegistrationFormSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(3, 'Podaj imię i nazwisko')
+    .max(100, 'Imię i nazwisko jest za długie')
+    .refine((value) => /^\S+\s+\S+/.test(value), 'Podaj imię i nazwisko'),
+  phone: z
+    .string()
+    .trim()
+    .min(7, 'Podaj prawidłowy numer telefonu')
+    .max(30, 'Numer telefonu jest za długi')
+    .regex(/^[+0-9()\s-]+$/, 'Podaj prawidłowy numer telefonu'),
+});
+
 const facebookOAuthCookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   maxAge: FACEBOOK_OAUTH_TTL_MS,
   path: '/api/auth/facebook',
+};
+
+const facebookRegistrationCookieOptions = {
+  ...facebookOAuthCookieOptions,
+  maxAge: FACEBOOK_REGISTRATION_TTL_MS,
 };
 
 const sanitizeReturnTo = (value: unknown) => {
@@ -53,7 +82,7 @@ const sanitizeReturnTo = (value: unknown) => {
 
 const redirectFacebookResult = (
   res: Response,
-  path: '/auth/login' | '/auth/register' | '/auth/facebook/callback',
+  path: '/auth/login' | '/auth/register' | '/auth/facebook/callback' | '/auth/facebook/complete',
   params: Record<string, string>,
 ) => {
   const url = new URL(path, env.CLIENT_URL);
@@ -65,6 +94,51 @@ const clearFacebookOAuthCookies = (res: Response) => {
   const options = { path: facebookOAuthCookieOptions.path };
   res.clearCookie(FACEBOOK_STATE_COOKIE, options);
   res.clearCookie(FACEBOOK_CONTEXT_COOKIE, options);
+};
+
+const clearFacebookRegistrationCookie = (res: Response) => {
+  res.clearCookie(FACEBOOK_REGISTRATION_COOKIE, { path: facebookRegistrationCookieOptions.path });
+};
+
+const persistAuthSession = async (
+  res: Response,
+  result: { refreshToken: string; user: { id: string } },
+) => {
+  const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+  res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
+  const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash,
+      userId: result.user.id,
+      expiresAt: new Date(Date.now() + tokenTtlMs),
+    },
+  });
+};
+
+const parseFacebookRegistration = (req: Request): FacebookRegistrationPayload => {
+  const token = req.cookies?.[FACEBOOK_REGISTRATION_COOKIE];
+  if (!token) {
+    throw new AppError('Rejestracja przez Facebook wygasła. Rozpocznij ją ponownie.', 410);
+  }
+
+  try {
+    const decoded = verifyToken(token, env.JWT_SECRET) as Partial<FacebookRegistrationPayload>;
+    if (
+      !decoded.profile ||
+      typeof decoded.profile.facebookId !== 'string' ||
+      typeof decoded.profile.email !== 'string' ||
+      typeof decoded.profile.name !== 'string' ||
+      !decoded.context ||
+      decoded.context.mode !== 'register' ||
+      decoded.context.termsAccepted !== true
+    ) {
+      throw new Error('Invalid registration payload');
+    }
+    return decoded as FacebookRegistrationPayload;
+  } catch {
+    throw new AppError('Rejestracja przez Facebook wygasła. Rozpocznij ją ponownie.', 410);
+  }
 };
 
 const parseFacebookContext = (req: Request): FacebookOAuthContext => {
@@ -405,18 +479,22 @@ export const facebookCallback = async (req: Request, res: Response) => {
     }
 
     const profile = await fetchFacebookProfile(code);
-    const result = await authService.loginWithFacebook(profile, context);
-    const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+    if (context.mode === 'register' && !(await authService.hasExistingFacebookAccount(profile))) {
+      const registrationToken = signToken(
+        { profile, context } satisfies FacebookRegistrationPayload,
+        env.JWT_SECRET,
+        '15m',
+      );
+      res.cookie(
+        FACEBOOK_REGISTRATION_COOKIE,
+        registrationToken,
+        facebookRegistrationCookieOptions,
+      );
+      return redirectFacebookResult(res, '/auth/facebook/complete', {});
+    }
 
-    res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
-    const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
-    await prisma.refreshToken.create({
-      data: {
-        tokenHash,
-        userId: result.user.id,
-        expiresAt: new Date(Date.now() + tokenTtlMs),
-      },
-    });
+    const result = await authService.loginWithFacebook(profile, context);
+    await persistAuthSession(res, result);
 
     return redirectFacebookResult(res, '/auth/facebook/callback', {
       next: context.returnTo,
@@ -433,6 +511,47 @@ export const facebookCallback = async (req: Request, res: Response) => {
         ? '/auth/register'
         : '/auth/login';
     return redirectFacebookResult(res, target, { facebookError: errorCode });
+  }
+};
+
+export const facebookRegistrationDetails = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { profile } = parseFacebookRegistration(req);
+    res.status(200).json({
+      status: 'success',
+      data: { name: profile.name, email: profile.email },
+    });
+  } catch (error) {
+    clearFacebookRegistrationCookie(res);
+    next(error);
+  }
+};
+
+export const completeFacebookRegistration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const form = facebookRegistrationFormSchema.parse(req.body);
+    const { profile, context } = parseFacebookRegistration(req);
+    const result = await authService.loginWithFacebook(profile, {
+      ...context,
+      name: form.name,
+      phone: form.phone,
+    });
+    await persistAuthSession(res, result);
+    clearFacebookRegistrationCookie(res);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
