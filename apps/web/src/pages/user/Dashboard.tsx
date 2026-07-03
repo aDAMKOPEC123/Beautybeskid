@@ -1,7 +1,8 @@
 // filepath: apps/web/src/pages/user/Dashboard.tsx
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Bell, CalendarDays, Star, Users } from 'lucide-react';
+import { Bell, CalendarDays, Star, Users, Share2, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { appointmentsApi } from '@/api/appointments.api';
 import { DashboardSkeleton } from '@/components/skeletons';
@@ -20,6 +21,22 @@ import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 
 export const UserDashboard = () => {
   const { user } = useAuth();
+
+  const handleAmbassadorShare = async () => {
+    const code = user?.ambassadorCode;
+    if (!code) return;
+    const text = `Dołącz do BeskidStudio By Wiktoria Cwik z moim kodem polecenia: ${code}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+        return;
+      } catch {
+        // fall through to clipboard
+      }
+    }
+    await navigator.clipboard.writeText(code);
+    toast.success('Kod skopiowany do schowka!');
+  };
   const { getBadgeCount } = useUserMenuBadges();
 
   const { data: appointments = [], isLoading } = useQuery<any[]>({
@@ -154,6 +171,36 @@ export const UserDashboard = () => {
                 <p style={{ fontSize: '12px', color: 'rgba(20,40,28,0.65)' }}>
                   Zaproszono: <span style={{ fontWeight: 700, color: '#1A3828' }}>{user?.referralCount ?? 0}</span> osób
                 </p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <button
+                    onClick={handleAmbassadorShare}
+                    style={{
+                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      background: '#1A3828', color: '#fff', borderRadius: '100px',
+                      fontSize: '12px', fontWeight: 600, padding: '8px 12px', border: 'none', cursor: 'pointer',
+                      minHeight: '36px',
+                    }}
+                  >
+                    <Share2 size={13} />
+                    Udostępnij
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!user?.ambassadorCode) return;
+                      await navigator.clipboard.writeText(user.ambassadorCode);
+                      toast.success('Skopiowano!');
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: '1px solid rgba(26,56,40,0.2)', borderRadius: '100px',
+                      padding: '8px 12px', cursor: 'pointer', background: 'transparent', color: '#1A3828',
+                      minHeight: '36px',
+                    }}
+                    title="Kopiuj kod"
+                  >
+                    <Copy size={13} />
+                  </button>
+                </div>
               </div>
             ),
           },
