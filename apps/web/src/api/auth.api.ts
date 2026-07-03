@@ -18,6 +18,14 @@ type AuthResponseEnvelope = {
   data: AuthResponseData;
 };
 
+type GoogleAuthResponseEnvelope = {
+  status: string;
+  data:
+    | AuthResponseData
+    | { requiresRegistration: true }
+    | { requiresCompletion: true };
+};
+
 export const authApi = {
   login: async (data: LoginInput) => {
     const res = await api.post<AuthResponseEnvelope>('/auth/login', data);
@@ -63,8 +71,13 @@ export const authApi = {
     return res.data.data.user;
   },
 
-  loginWithGoogle: (credential: string) =>
-    api.post<AuthResponseEnvelope>('/auth/google', { credential }).then((r) => r.data.data),
+  loginWithGoogle: (data: {
+    credential: string;
+    mode: 'login' | 'register';
+    marketingConsent?: boolean;
+    photoConsent?: boolean;
+    ambassadorCode?: string;
+  }) => api.post<GoogleAuthResponseEnvelope>('/auth/google', data).then((r) => r.data.data),
 
   getFacebookStatus: () =>
     api
@@ -84,5 +97,17 @@ export const authApi = {
   completeFacebookRegistration: (data: { name: string; phone: string }) =>
     api
       .post<AuthResponseEnvelope>('/auth/facebook/registration', data)
+      .then((r) => r.data.data),
+
+  getGoogleRegistration: () =>
+    api
+      .get<{ status: 'success'; data: { name: string; email: string } }>(
+        '/auth/google/registration',
+      )
+      .then((r) => r.data.data),
+
+  completeGoogleRegistration: (data: { name: string; phone: string }) =>
+    api
+      .post<AuthResponseEnvelope>('/auth/google/registration', data)
       .then((r) => r.data.data),
 };

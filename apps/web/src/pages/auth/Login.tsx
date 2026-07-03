@@ -139,7 +139,7 @@ export const Login = () => {
             </div>
           </div>
           <div className="space-y-3">
-            <GoogleAuthButton />
+            <GoogleAuthButton mode="login" />
             <FacebookAuthButton mode="login" returnTo={from} />
           </div>
         </CardContent>

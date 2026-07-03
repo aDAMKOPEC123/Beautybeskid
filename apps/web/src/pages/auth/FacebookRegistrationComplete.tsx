@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/store/auth.store';
 
-export const FacebookRegistrationComplete = () => {
+type Provider = 'Facebook' | 'Google';
+
+const SocialRegistrationComplete = ({ provider }: { provider: Provider }) => {
   const navigate = useNavigate();
   const { setAccessToken, setUser } = useAuthStore();
   const [name, setName] = useState('');
@@ -18,8 +20,12 @@ export const FacebookRegistrationComplete = () => {
 
   useEffect(() => {
     let active = true;
-    authApi
-      .getFacebookRegistration()
+    const request =
+      provider === 'Facebook'
+        ? authApi.getFacebookRegistration()
+        : authApi.getGoogleRegistration();
+
+    request
       .then((data) => {
         if (!active) return;
         setName(data.name);
@@ -27,7 +33,7 @@ export const FacebookRegistrationComplete = () => {
       })
       .catch(() => {
         if (!active) return;
-        toast.error('Rejestracja przez Facebook wygasła. Rozpocznij ją ponownie.');
+        toast.error(`Rejestracja przez ${provider} wygasła. Rozpocznij ją ponownie.`);
         navigate('/auth/register', { replace: true });
       })
       .finally(() => {
@@ -37,7 +43,7 @@ export const FacebookRegistrationComplete = () => {
     return () => {
       active = false;
     };
-  }, [navigate]);
+  }, [navigate, provider]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -52,10 +58,11 @@ export const FacebookRegistrationComplete = () => {
 
     try {
       setSubmitting(true);
-      const result = await authApi.completeFacebookRegistration({
-        name: name.trim(),
-        phone: phone.trim(),
-      });
+      const form = { name: name.trim(), phone: phone.trim() };
+      const result =
+        provider === 'Facebook'
+          ? await authApi.completeFacebookRegistration(form)
+          : await authApi.completeGoogleRegistration(form);
       setAccessToken(result.accessToken);
       setUser(result.user);
       toast.success('Konto zostało utworzone.');
@@ -89,11 +96,11 @@ export const FacebookRegistrationComplete = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="facebook-name" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="social-name" className="mb-1.5 block text-sm font-medium">
                 Imię i nazwisko
               </label>
               <Input
-                id="facebook-name"
+                id="social-name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 autoComplete="name"
@@ -102,11 +109,11 @@ export const FacebookRegistrationComplete = () => {
               />
             </div>
             <div>
-              <label htmlFor="facebook-phone" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="social-phone" className="mb-1.5 block text-sm font-medium">
                 Numer telefonu
               </label>
               <Input
-                id="facebook-phone"
+                id="social-phone"
                 type="tel"
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
@@ -117,11 +124,11 @@ export const FacebookRegistrationComplete = () => {
               />
             </div>
             <div>
-              <label htmlFor="facebook-email" className="mb-1.5 block text-sm font-medium">
-                Email z Facebooka
+              <label htmlFor="social-email" className="mb-1.5 block text-sm font-medium">
+                Email z konta {provider}
               </label>
               <Input
-                id="facebook-email"
+                id="social-email"
                 type="email"
                 value={email}
                 className="bg-muted/30 py-6 text-muted-foreground"
@@ -144,3 +151,11 @@ export const FacebookRegistrationComplete = () => {
     </div>
   );
 };
+
+export const FacebookRegistrationComplete = () => (
+  <SocialRegistrationComplete provider="Facebook" />
+);
+
+export const GoogleRegistrationComplete = () => (
+  <SocialRegistrationComplete provider="Google" />
+);

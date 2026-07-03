@@ -5,7 +5,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 
-export const GoogleAuthButton = () => {
+type GoogleAuthButtonProps = {
+  mode: 'login' | 'register';
+  marketingConsent?: boolean;
+  photoConsent?: boolean;
+  ambassadorCode?: string;
+};
+
+export const GoogleAuthButton = ({
+  mode,
+  marketingConsent = false,
+  photoConsent = false,
+  ambassadorCode,
+}: GoogleAuthButtonProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser, setAccessToken } = useAuthStore();
@@ -18,7 +30,22 @@ export const GoogleAuthButton = () => {
       return;
     }
     try {
-      const data = await authApi.loginWithGoogle(credentialResponse.credential);
+      const data = await authApi.loginWithGoogle({
+        credential: credentialResponse.credential,
+        mode,
+        marketingConsent,
+        photoConsent,
+        ambassadorCode,
+      });
+      if ('requiresRegistration' in data) {
+        toast.info('To konto nie jest jeszcze zarejestrowane. Kontynuuj w formularzu rejestracji.');
+        navigate('/auth/register', { replace: true });
+        return;
+      }
+      if ('requiresCompletion' in data) {
+        navigate('/auth/google/complete', { replace: true });
+        return;
+      }
       setUser(data.user);
       setAccessToken(data.accessToken);
       navigate(from, { replace: true });

@@ -38,6 +38,7 @@ const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword').then(m =
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword').then(m => ({ default: m.ResetPassword })));
 const FacebookCallback = lazy(() => import('./pages/auth/FacebookCallback').then(m => ({ default: m.FacebookCallback })));
 const FacebookRegistrationComplete = lazy(() => import('./pages/auth/FacebookRegistrationComplete').then(m => ({ default: m.FacebookRegistrationComplete })));
+const GoogleRegistrationComplete = lazy(() => import('./pages/auth/FacebookRegistrationComplete').then(m => ({ default: m.GoogleRegistrationComplete })));
 
 // User pages
 const UserDashboard = lazy(() => import('./pages/user/Dashboard').then(m => ({ default: m.UserDashboard })));
@@ -163,6 +164,7 @@ export const router = createBrowserRouter([
           { path: 'reset-password', element: <S><ResetPassword /></S> },
           { path: 'facebook/callback', element: <S><FacebookCallback /></S> },
           { path: 'facebook/complete', element: <S><FacebookRegistrationComplete /></S> },
+          { path: 'google/complete', element: <S><GoogleRegistrationComplete /></S> },
         ],
       },
     ],

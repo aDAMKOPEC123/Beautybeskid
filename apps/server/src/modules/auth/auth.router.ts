@@ -13,6 +13,8 @@ router.post('/refresh', authRateLimiter, authController.refresh);
 router.post('/forgot-password', authRateLimiter, authController.forgotPassword);
 router.post('/reset-password', authRateLimiter, authController.resetPassword);
 router.post('/google', authRateLimiter, authController.googleAuth);
+router.get('/google/registration', authRateLimiter, authController.googleRegistrationDetails);
+router.post('/google/registration', authRateLimiter, authController.completeGoogleRegistration);
 router.get('/facebook/status', authController.facebookStatus);
 router.get('/facebook', authRateLimiter, authController.startFacebookAuth);
 router.get('/facebook/callback', authRateLimiter, authController.facebookCallback);

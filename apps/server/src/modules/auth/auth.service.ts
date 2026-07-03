@@ -7,7 +7,7 @@ import { env } from '../../config/env';
 import { RegisterInput, LoginInput } from '@cosmo/shared';
 import { generateCode } from '../../utils/generateCode';
 import { createWelcomeCodeForUser } from '../discount-codes/discount-codes.service';
-import { verifyGoogleToken } from './google.strategy';
+import { GooglePayload } from './google.strategy';
 import { FacebookAuthError, FacebookProfile } from './facebook.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
@@ -182,17 +182,42 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
   };
 };
 
-export const loginWithGoogle = async (credential: string) => {
-  const { googleId, email, name, picture } = await verifyGoogleToken(credential);
+const findGoogleAccount = async (profile: GooglePayload) => {
+  const [byGoogleId, byEmail] = await Promise.all([
+    prisma.user.findUnique({ where: { googleId: profile.googleId } }),
+    prisma.user.findUnique({ where: { email: profile.email } }),
+  ]);
 
-  // Find by googleId first, then by email (merge case)
-  let user = await prisma.user.findFirst({
-    where: { OR: [{ googleId }, { email }] },
-  });
+  if (byGoogleId && byEmail && byGoogleId.id !== byEmail.id) {
+    throw new AppError('Konto Google jest już połączone z innym użytkownikiem', 409);
+  }
+
+  const user = byGoogleId ?? byEmail;
+  if (user?.googleId && user.googleId !== profile.googleId) {
+    throw new AppError('Ten adres email jest już połączony z innym kontem Google', 409);
+  }
+  return user;
+};
+
+export const hasExistingGoogleAccount = async (profile: GooglePayload) =>
+  Boolean(await findGoogleAccount(profile));
+
+export const loginWithGoogle = async (
+  profile: GooglePayload,
+  options: {
+    mode: 'login' | 'register';
+    termsAccepted: boolean;
+    marketingConsent: boolean;
+    photoConsent: boolean;
+    ambassadorCode?: string;
+    name?: string;
+    phone?: string;
+  },
+) => {
+  let user = await findGoogleAccount(profile);
+  let created = false;
 
   if (user) {
-    // Merge: link Google to existing account and activate if pending
-    // Note: if user already has a different googleId, we preserve it (first Google account wins)
     if (user.accountStatus === 'REJECTED') {
       throw new AppError('Konto zostało zablokowane', 403);
     }
@@ -200,40 +225,74 @@ export const loginWithGoogle = async (credential: string) => {
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
-          googleId: user.googleId ?? googleId,
+          googleId: user.googleId ?? profile.googleId,
           accountStatus: 'ACTIVE',
           emailVerificationToken: null,
         },
       });
     }
   } else {
-    // New user — create with ACTIVE status immediately (Google verifies identity)
+    if (options.mode !== 'register' || !options.termsAccepted) {
+      throw new AppError('Najpierw zarejestruj konto przez Google', 403);
+    }
+    const registrationName = options.name?.trim();
+    const registrationPhone = options.phone?.trim();
+    if (!registrationName || !registrationPhone) {
+      throw new AppError('Uzupełnij imię, nazwisko i numer telefonu', 400);
+    }
+
     const ambassadorCode = await generateUniqueAmbassadorCode();
-    user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash: null,
-        googleId,
-        avatarPath: picture ?? null,
-        accountStatus: 'ACTIVE',
-        ambassadorCode,
-        // termsAcceptedAt auto-set: Google verifies identity
-        termsAcceptedAt: new Date(),
-        marketingConsent: false,
-        photoConsent: false,
-      },
+    const referrer = options.ambassadorCode
+      ? await prisma.user.findUnique({
+          where: { ambassadorCode: options.ambassadorCode.trim().toUpperCase() },
+        })
+      : null;
+
+    user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: profile.email,
+          name: registrationName,
+          phone: registrationPhone,
+          passwordHash: null,
+          googleId: profile.googleId,
+          avatarPath: profile.picture ?? null,
+          accountStatus: 'ACTIVE',
+          ambassadorCode,
+          referredById: referrer?.id ?? null,
+          termsAcceptedAt: new Date(),
+          marketingConsent: options.marketingConsent,
+          photoConsent: options.photoConsent,
+        },
+      });
+
+      if (referrer) {
+        await createWelcomeCodeForUser(tx, newUser.id, referrer.id);
+      }
+      return newUser;
     });
+    created = true;
+  }
+
+  if (created) {
+    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+      .then((admins) => {
+        if (admins.length === 0) return;
+        return prisma.notification.createMany({
+          data: admins.map((admin) => ({
+            userId: admin.id,
+            type: 'GENERIC' as const,
+            title: 'Nowa rejestracja',
+            body: `Nowa rejestracja przez Google: ${user.name} (${user.email})`,
+          })),
+        });
+      })
+      .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
   const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
-
-  return {
-    user: toAuthUser(user),
-    accessToken,
-    refreshToken,
-  };
+  return { user: toAuthUser(user), accessToken, refreshToken };
 };
 
 const findFacebookAccount = async (profile: FacebookProfile) => {

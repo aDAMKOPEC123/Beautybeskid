@@ -205,7 +205,12 @@ export const Register = () => {
             </div>
           </div>
           <div className="space-y-3">
-            <GoogleAuthButton />
+            <GoogleAuthButton
+              mode="register"
+              marketingConsent={marketingConsent}
+              photoConsent={photoConsent}
+              ambassadorCode={watch('ambassadorCode')}
+            />
             <FacebookAuthButton
               mode="register"
               marketingConsent={marketingConsent}

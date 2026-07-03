@@ -19,6 +19,7 @@ import {
   fetchFacebookProfile,
   isFacebookConfigured,
 } from './facebook.strategy';
+import { GooglePayload, verifyGoogleToken } from './google.strategy';
 
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
@@ -30,6 +31,7 @@ const buildRefreshCookieOptions = (maxAge: number) => ({
 const FACEBOOK_STATE_COOKIE = 'facebookOAuthState';
 const FACEBOOK_CONTEXT_COOKIE = 'facebookOAuthContext';
 const FACEBOOK_REGISTRATION_COOKIE = 'facebookRegistration';
+const GOOGLE_REGISTRATION_COOKIE = 'googleRegistration';
 const FACEBOOK_OAUTH_TTL_MS = 10 * 60 * 1000;
 const FACEBOOK_REGISTRATION_TTL_MS = 15 * 60 * 1000;
 
@@ -45,6 +47,19 @@ type FacebookOAuthContext = {
 type FacebookRegistrationPayload = {
   profile: FacebookProfile;
   context: FacebookOAuthContext;
+};
+
+type GoogleRegistrationContext = {
+  mode: 'login' | 'register';
+  termsAccepted: boolean;
+  marketingConsent: boolean;
+  photoConsent: boolean;
+  ambassadorCode?: string;
+};
+
+type GoogleRegistrationPayload = {
+  profile: GooglePayload;
+  context: GoogleRegistrationContext;
 };
 
 const facebookRegistrationFormSchema = z.object({
@@ -75,6 +90,14 @@ const facebookRegistrationCookieOptions = {
   maxAge: FACEBOOK_REGISTRATION_TTL_MS,
 };
 
+const googleRegistrationCookieOptions = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge: FACEBOOK_REGISTRATION_TTL_MS,
+  path: '/api/auth/google',
+};
+
 const sanitizeReturnTo = (value: unknown) => {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/user';
   return value.slice(0, 500);
@@ -98,6 +121,10 @@ const clearFacebookOAuthCookies = (res: Response) => {
 
 const clearFacebookRegistrationCookie = (res: Response) => {
   res.clearCookie(FACEBOOK_REGISTRATION_COOKIE, { path: facebookRegistrationCookieOptions.path });
+};
+
+const clearGoogleRegistrationCookie = (res: Response) => {
+  res.clearCookie(GOOGLE_REGISTRATION_COOKIE, { path: googleRegistrationCookieOptions.path });
 };
 
 const persistAuthSession = async (
@@ -138,6 +165,31 @@ const parseFacebookRegistration = (req: Request): FacebookRegistrationPayload =>
     return decoded as FacebookRegistrationPayload;
   } catch {
     throw new AppError('Rejestracja przez Facebook wygasła. Rozpocznij ją ponownie.', 410);
+  }
+};
+
+const parseGoogleRegistration = (req: Request): GoogleRegistrationPayload => {
+  const token = req.cookies?.[GOOGLE_REGISTRATION_COOKIE];
+  if (!token) {
+    throw new AppError('Rejestracja przez Google wygasła. Rozpocznij ją ponownie.', 410);
+  }
+
+  try {
+    const decoded = verifyToken(token, env.JWT_SECRET) as Partial<GoogleRegistrationPayload>;
+    if (
+      !decoded.profile ||
+      typeof decoded.profile.googleId !== 'string' ||
+      typeof decoded.profile.email !== 'string' ||
+      typeof decoded.profile.name !== 'string' ||
+      !decoded.context ||
+      decoded.context.mode !== 'register' ||
+      decoded.context.termsAccepted !== true
+    ) {
+      throw new Error('Invalid registration payload');
+    }
+    return decoded as GoogleRegistrationPayload;
+  } catch {
+    throw new AppError('Rejestracja przez Google wygasła. Rozpocznij ją ponownie.', 410);
   }
 };
 
@@ -389,19 +441,41 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
       throw new AppError('Brak tokenu Google', 400);
     }
 
-    const result = await authService.loginWithGoogle(credential);
+    const mode = req.body.mode === 'register' ? 'register' : 'login';
+    const profile = await verifyGoogleToken(credential);
+    const context: GoogleRegistrationContext = {
+      mode,
+      termsAccepted: mode === 'register',
+      marketingConsent: req.body.marketingConsent === true,
+      photoConsent: req.body.photoConsent === true,
+      ambassadorCode:
+        typeof req.body.ambassadorCode === 'string'
+          ? req.body.ambassadorCode.trim().toUpperCase().slice(0, 32)
+          : undefined,
+    };
 
-    const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
-    res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
+    if (!(await authService.hasExistingGoogleAccount(profile))) {
+      if (mode === 'login') {
+        return res.status(200).json({
+          status: 'registration_required',
+          data: { requiresRegistration: true },
+        });
+      }
 
-    const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
-    await prisma.refreshToken.create({
-      data: {
-        tokenHash,
-        userId: result.user.id,
-        expiresAt: new Date(Date.now() + tokenTtlMs),
-      },
-    });
+      const registrationToken = signToken(
+        { profile, context } satisfies GoogleRegistrationPayload,
+        env.JWT_SECRET,
+        '15m',
+      );
+      res.cookie(GOOGLE_REGISTRATION_COOKIE, registrationToken, googleRegistrationCookieOptions);
+      return res.status(202).json({
+        status: 'completion_required',
+        data: { requiresCompletion: true },
+      });
+    }
+
+    const result = await authService.loginWithGoogle(profile, context);
+    await persistAuthSession(res, result);
 
     res.status(200).json({
       status: 'success',
@@ -457,6 +531,47 @@ export const startFacebookAuth = (req: Request, res: Response, next: NextFunctio
     res.cookie(FACEBOOK_STATE_COOKIE, state, facebookOAuthCookieOptions);
     res.cookie(FACEBOOK_CONTEXT_COOKIE, contextToken, facebookOAuthCookieOptions);
     return res.redirect(createFacebookAuthorizationUrl(state));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleRegistrationDetails = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { profile } = parseGoogleRegistration(req);
+    res.status(200).json({
+      status: 'success',
+      data: { name: profile.name, email: profile.email },
+    });
+  } catch (error) {
+    clearGoogleRegistrationCookie(res);
+    next(error);
+  }
+};
+
+export const completeGoogleRegistration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const form = facebookRegistrationFormSchema.parse(req.body);
+    const { profile, context } = parseGoogleRegistration(req);
+    const result = await authService.loginWithGoogle(profile, {
+      ...context,
+      name: form.name,
+      phone: form.phone,
+    });
+    await persistAuthSession(res, result);
+    clearGoogleRegistrationCookie(res);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
+    });
   } catch (error) {
     next(error);
   }
