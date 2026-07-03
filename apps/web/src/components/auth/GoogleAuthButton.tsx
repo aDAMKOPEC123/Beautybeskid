@@ -37,11 +37,6 @@ export const GoogleAuthButton = ({
         photoConsent,
         ambassadorCode,
       });
-      if ('requiresRegistration' in data) {
-        toast.info('To konto nie jest jeszcze zarejestrowane. Kontynuuj w formularzu rejestracji.');
-        navigate('/auth/register', { replace: true });
-        return;
-      }
       if ('requiresCompletion' in data) {
         navigate('/auth/google/complete', { replace: true });
         return;

@@ -59,11 +59,10 @@ export const FacebookAuthButton = ({
     const apiBase = import.meta.env.VITE_API_URL || '/api';
     const url = new URL(`${apiBase.replace(/\/$/, '')}/auth/facebook`, window.location.origin);
     url.searchParams.set('mode', mode);
+    url.searchParams.set('termsAccepted', 'true');
     if (returnTo) url.searchParams.set('returnTo', returnTo);
 
     if (mode === 'register') {
-      // Clicking the clearly labelled registration button is the affirmative acceptance action.
-      url.searchParams.set('termsAccepted', 'true');
       url.searchParams.set('marketingConsent', String(marketingConsent));
       url.searchParams.set('photoConsent', String(photoConsent));
       if (ambassadorCode?.trim()) {

@@ -22,7 +22,6 @@ type GoogleAuthResponseEnvelope = {
   status: string;
   data:
     | AuthResponseData
-    | { requiresRegistration: true }
     | { requiresCompletion: true };
 };
 

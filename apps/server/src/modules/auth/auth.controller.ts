@@ -445,7 +445,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     const profile = await verifyGoogleToken(credential);
     const context: GoogleRegistrationContext = {
       mode,
-      termsAccepted: mode === 'register',
+      termsAccepted: true,
       marketingConsent: req.body.marketingConsent === true,
       photoConsent: req.body.photoConsent === true,
       ambassadorCode:
@@ -455,15 +455,13 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     };
 
     if (!(await authService.hasExistingGoogleAccount(profile))) {
-      if (mode === 'login') {
-        return res.status(200).json({
-          status: 'registration_required',
-          data: { requiresRegistration: true },
-        });
-      }
-
+      const registrationContext: GoogleRegistrationContext = {
+        ...context,
+        mode: 'register',
+        termsAccepted: true,
+      };
       const registrationToken = signToken(
-        { profile, context } satisfies GoogleRegistrationPayload,
+        { profile, context: registrationContext } satisfies GoogleRegistrationPayload,
         env.JWT_SECRET,
         '15m',
       );
@@ -507,18 +505,11 @@ export const startFacebookAuth = (req: Request, res: Response, next: NextFunctio
     }
 
     const mode = req.query.mode === 'register' ? 'register' : 'login';
-    const termsAccepted = req.query.termsAccepted === 'true';
-    if (mode === 'register' && !termsAccepted) {
-      return redirectFacebookResult(res, '/auth/register', {
-        facebookError: 'facebook-registration-required',
-      });
-    }
-
     const state = crypto.randomBytes(32).toString('hex');
     const context: FacebookOAuthContext = {
       mode,
       returnTo: sanitizeReturnTo(req.query.returnTo),
-      termsAccepted,
+      termsAccepted: true,
       marketingConsent: req.query.marketingConsent === 'true',
       photoConsent: req.query.photoConsent === 'true',
       ambassadorCode:
@@ -594,9 +585,14 @@ export const facebookCallback = async (req: Request, res: Response) => {
     }
 
     const profile = await fetchFacebookProfile(code);
-    if (context.mode === 'register' && !(await authService.hasExistingFacebookAccount(profile))) {
+    if (!(await authService.hasExistingFacebookAccount(profile))) {
+      const registrationContext: FacebookOAuthContext = {
+        ...context,
+        mode: 'register',
+        termsAccepted: true,
+      };
       const registrationToken = signToken(
-        { profile, context } satisfies FacebookRegistrationPayload,
+        { profile, context: registrationContext } satisfies FacebookRegistrationPayload,
         env.JWT_SECRET,
         '15m',
       );

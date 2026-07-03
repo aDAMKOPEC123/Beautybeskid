@@ -141,6 +141,13 @@ export const Login = () => {
           <div className="space-y-3">
             <GoogleAuthButton mode="login" />
             <FacebookAuthButton mode="login" returnTo={from} />
+            <p className="px-2 text-center text-xs leading-relaxed text-muted-foreground">
+              Jeśli nie masz jeszcze konta, kontynuując przez Google lub Facebook utworzysz je i akceptujesz{' '}
+              <a href="/regulamin" target="_blank" rel="noreferrer" className="text-primary underline hover:opacity-80">
+                regulamin i politykę prywatności
+              </a>
+              .
+            </p>
           </div>
         </CardContent>
         <CardFooter className="justify-center text-sm text-muted-foreground border-t pt-6 bg-muted/10 rounded-b-xl">
