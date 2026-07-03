@@ -74,6 +74,8 @@ export const UserAppointments = () => {
   const past = appointments.filter(
     (a: any) => a.status === 'CANCELLED' || a.status === 'COMPLETED'
   );
+  const lastPast = past.slice(0, 1);   // always visible
+  const olderPast = past.slice(1);     // inside collapse
 
   if (isLoading) return <AppointmentListSkeleton count={3} />;
 
@@ -146,38 +148,53 @@ export const UserAppointments = () => {
       {past.length > 0 && (
         <section>
           <div style={{ borderRadius: 18, border: '1.5px solid rgba(196,150,90,0.4)', overflow: 'hidden' }}>
-            <button
-              type="button"
-              onClick={() => setHistoryOpen((v) => !v)}
-              aria-expanded={historyOpen}
-              className="w-full flex items-center justify-between"
-              style={{ background: 'rgba(196,150,90,0.08)', padding: '9px 14px' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#C4965A', flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#A87538' }}>
-                  Historia wizyt
-                </span>
-                <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(196,150,90,0.18)', color: '#C4965A', borderRadius: 99, padding: '1px 6px' }}>
-                  {past.length}
-                </span>
-              </div>
-              <ChevronDown
-                size={16}
-                className="transition-transform duration-300"
-                style={{ color: '#C4965A', transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-              />
-            </button>
-            <AnimatedCollapse
-              open={historyOpen}
-              style={{ background: 'rgba(196,150,90,0.04)' }}
-              innerClassName="grid gap-3"
-              innerStyle={{ padding: '12px' }}
-            >
-                {past.map((a: any) => (
-                  <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
-                ))}
-            </AnimatedCollapse>
+            {/* Section header */}
+            <div style={{ background: 'rgba(196,150,90,0.08)', padding: '9px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#C4965A', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#A87538' }}>
+                Historia wizyt
+              </span>
+              <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(196,150,90,0.18)', color: '#C4965A', borderRadius: 99, padding: '1px 6px' }}>
+                {past.length}
+              </span>
+            </div>
+
+            {/* Last completed — always visible */}
+            <div className="grid gap-3" style={{ padding: '12px', background: 'rgba(196,150,90,0.04)' }}>
+              {lastPast.map((a: any) => (
+                <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
+              ))}
+            </div>
+
+            {/* Older history — collapsible */}
+            {olderPast.length > 0 && (
+              <>
+                <AnimatedCollapse
+                  open={historyOpen}
+                  style={{ background: 'rgba(196,150,90,0.04)' }}
+                  innerClassName="grid gap-3"
+                  innerStyle={{ padding: '0 12px 12px' }}
+                >
+                  {olderPast.map((a: any) => (
+                    <AppointmentCard key={a.id} appointment={a} hasPendingReview={pendingReviews.some((p) => p.id === a.id)} />
+                  ))}
+                </AnimatedCollapse>
+                <button
+                  type="button"
+                  onClick={() => setHistoryOpen((v) => !v)}
+                  aria-expanded={historyOpen}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-colors hover:opacity-70"
+                  style={{ color: '#A87538', borderTop: '1px solid rgba(196,150,90,0.15)' }}
+                >
+                  <ChevronDown
+                    size={14}
+                    className="transition-transform duration-300"
+                    style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  />
+                  {historyOpen ? 'Zwiń historię' : `Pokaż starsze wizyty (${olderPast.length})`}
+                </button>
+              </>
+            )}
           </div>
         </section>
       )}
