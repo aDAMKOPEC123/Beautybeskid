@@ -33,7 +33,15 @@ vi.mock('../../config/prisma', () => ({
     },
     user: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
+    forumReaction: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
+    },
+    $queryRaw: vi.fn(),
   },
 }));
 
@@ -67,6 +75,9 @@ import {
   lockThread,
   moveThread,
   deleteCategory,
+  reactToPost,
+  searchThreads,
+  getUserThreads,
 } from './forum.service';
 
 const mockCategory = {
@@ -348,5 +359,85 @@ describe('deleteCategory', () => {
     await deleteCategory('cat1');
 
     expect(prisma.forumCategory.delete).toHaveBeenCalledWith({ where: { id: 'cat1' } });
+  });
+});
+
+describe('reactToPost', () => {
+  const mockPost = { id: 'p1', content: 'x', isDeleted: false };
+
+  it('creates reaction when none exists (toggle on)', async () => {
+    vi.mocked(prisma.forumPost.findFirst).mockResolvedValue(mockPost as any);
+    vi.mocked(prisma.forumReaction.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.forumReaction.create).mockResolvedValue({} as any);
+    vi.mocked(prisma.forumReaction.findMany).mockResolvedValue([
+      { type: 'LIKE', userId: 'u1' },
+    ] as any);
+
+    const result = await reactToPost('u1', 'p1', 'LIKE');
+
+    expect(prisma.forumReaction.create).toHaveBeenCalled();
+    expect(result.reacted).toBe(true);
+    expect(result.counts.LIKE).toBe(1);
+  });
+
+  it('deletes reaction when it exists (toggle off)', async () => {
+    vi.mocked(prisma.forumPost.findFirst).mockResolvedValue(mockPost as any);
+    vi.mocked(prisma.forumReaction.findFirst).mockResolvedValue({ id: 'r1', type: 'LIKE' } as any);
+    vi.mocked(prisma.forumReaction.delete).mockResolvedValue({} as any);
+    vi.mocked(prisma.forumReaction.findMany).mockResolvedValue([] as any);
+
+    const result = await reactToPost('u1', 'p1', 'LIKE');
+
+    expect(prisma.forumReaction.delete).toHaveBeenCalledWith({ where: { id: 'r1' } });
+    expect(result.reacted).toBe(false);
+    expect(result.counts.LIKE).toBe(0);
+  });
+
+  it('throws 404 for deleted or missing post', async () => {
+    vi.mocked(prisma.forumPost.findFirst).mockResolvedValue(null);
+    await expect(reactToPost('u1', 'bad', 'LIKE')).rejects.toThrow('Post nie istnieje');
+  });
+});
+
+describe('searchThreads', () => {
+  it('throws 400 when query is too short', async () => {
+    await expect(searchThreads('a', [], undefined, 1, 20)).rejects.toThrow('Wpisz co najmniej 2 znaki');
+  });
+
+  it('returns paginated results for valid query', async () => {
+    vi.mocked(prisma.forumThread.findMany).mockResolvedValue([mockThread] as any);
+    vi.mocked(prisma.forumThread.count).mockResolvedValue(1);
+
+    const result = await searchThreads('retinol', [], undefined, 1, 20);
+
+    expect(prisma.forumThread.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isDeleted: false }),
+      })
+    );
+    expect(result.data).toHaveLength(1);
+    expect(result.totalPages).toBe(1);
+    expect(result.total).toBe(1);
+  });
+});
+
+describe('getUserThreads', () => {
+  it('throws 404 for nonexistent user', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    await expect(getUserThreads('bad-id', 1, 10)).rejects.toThrow('Użytkownik nie istnieje');
+  });
+
+  it('returns user threads and postCount', async () => {
+    const user = { id: 'u1', name: 'Kasia', avatarPath: null, createdAt: new Date() };
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(user as any);
+    vi.mocked(prisma.forumThread.findMany).mockResolvedValue([mockThread] as any);
+    vi.mocked(prisma.forumThread.count).mockResolvedValue(1);
+    vi.mocked(prisma.forumPost.count).mockResolvedValue(42);
+
+    const result = await getUserThreads('u1', 1, 10);
+
+    expect(result.user).toEqual(user);
+    expect(result.postCount).toBe(42);
+    expect(result.data).toHaveLength(1);
   });
 });
