@@ -191,6 +191,31 @@ export const BlogPost = () => {
   );
   if (!post) return <div className="p-8 text-center">Wpis nie został znaleziony.</div>;
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `https://kosmetologwiktoriacwik.pl/blog/${post.slug}#article`,
+    headline: post.title,
+    description: post.metaDescription ?? post.excerpt,
+    datePublished: post.createdAt,
+    dateModified: post.updatedAt,
+    mainEntityOfPage: `https://kosmetologwiktoriacwik.pl/blog/${post.slug}`,
+    ...(post.coverImage ? { image: post.coverImage.startsWith('http') ? post.coverImage : `https://kosmetologwiktoriacwik.pl${post.coverImage}` } : {}),
+    author: {
+      '@type': 'Person',
+      '@id': 'https://kosmetologwiktoriacwik.pl/o-nas#person',
+      name: post.author?.name ?? 'Wiktoria Ćwik',
+      jobTitle: 'Dyplomowany kosmetolog',
+      url: 'https://kosmetologwiktoriacwik.pl/o-nas',
+      sameAs: [
+        'https://www.facebook.com/kosmetologwiktoriacwik/',
+        'https://www.instagram.com/kosmetolog__wiktoria_cwik/',
+        'https://www.tiktok.com/@wiktoriabeauty_brows',
+      ],
+    },
+    publisher: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+  };
+
   return (
     <>
       <style>{`
@@ -216,6 +241,11 @@ export const BlogPost = () => {
         description={post.metaDescription ?? post.excerpt ?? `${post.title} — porada na blogu BeskidStudio By Wiktoria Ćwik, salon kosmetologiczny w Limanowej (Mordarka 505). Pielęgnacja skóry, zabiegi i wskazówki eksperta.`}
         canonical={`/blog/${post.slug}`}
         ogImage={post.coverImage}
+        schema={articleSchema}
+        type="article"
+        publishedTime={post.createdAt}
+        modifiedTime={post.updatedAt}
+        author="Wiktoria Ćwik"
       />
 
       {/* Back link */}
@@ -255,6 +285,12 @@ export const BlogPost = () => {
               isPending={likeMutation.isPending}
             />
           </div>
+          <p className="mb-5 text-sm" style={{ color: 'rgba(20,40,28,0.72)' }}>
+            Autor: <Link to="/o-nas" className="font-semibold underline decoration-caramel/50 underline-offset-4">{post.author?.name ?? 'Wiktoria Ćwik'}, dyplomowany kosmetolog</Link>
+            {post.updatedAt && post.updatedAt !== post.createdAt
+              ? ` · aktualizacja ${format(new Date(post.updatedAt), 'dd.MM.yyyy')}`
+              : ''}
+          </p>
           {post.tags?.length > 0 && (
             <div className="flex justify-center flex-wrap gap-2">
               {post.tags.map((tag: any) => (

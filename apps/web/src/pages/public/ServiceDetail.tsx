@@ -1,6 +1,7 @@
 ﻿import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { servicesApi } from '@/api/services.api';
+import { reviewsApi } from '@/api/reviews.api';
 import { formatPrice } from '@/lib/utils';
 import { Clock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +19,12 @@ export const ServiceDetail = () => {
     queryKey: ['service', slug],
     queryFn: () => servicesApi.getOne(slug!),
     enabled: !!slug,
+  });
+
+  const { data: reviewsData } = useQuery({
+    queryKey: ['reviews-aggregate', service?.id],
+    queryFn: () => reviewsApi.getServiceReviews(service!.id, 1, 1),
+    enabled: !!service?.id,
   });
 
   if (isLoading) return (
@@ -64,6 +71,15 @@ export const ServiceDetail = () => {
           price: String(service.price),
           availability: 'https://schema.org/InStock',
         },
+        ...(reviewsData && reviewsData.aggregate.count > 0 ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: reviewsData.aggregate.avgRating.toFixed(1),
+            reviewCount: reviewsData.aggregate.count,
+            bestRating: '5',
+            worstRating: '1',
+          },
+        } : {}),
       },
       {
         '@type': 'BreadcrumbList',
@@ -79,11 +95,14 @@ export const ServiceDetail = () => {
   return (
     <>
       <PageSEO
-        title={`${service.name} — BeskidStudio By Wiktoria Ćwik Limanowa`}
+        title={service.slug === 'laminacja-brwi'
+          ? 'Laminacja brwi — cena, czas i rezerwacja | BeskidStudio'
+          : `${service.name} — BeskidStudio By Wiktoria Ćwik Limanowa`}
         description={service.description ? `${service.description} Zabieg dostępny w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505).` : `${service.name} — zabieg w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`}
         canonical={`/uslugi/${service.slug}`}
         ogImage={service.imagePath}
         schema={schema}
+        noIndex={service.slug === 'inne'}
       />
 
       {/* Back link */}
@@ -112,7 +131,7 @@ export const ServiceDetail = () => {
               />
             </div>
           )}
-          <p className="eyebrow mb-4">{service.category} · {service.durationMinutes} min</p>
+          <p className="eyebrow mb-4">{service.category} · {service.durationMinutes} min · Limanowa</p>
           <h1
             className="font-display text-4xl md:text-6xl text-espresso"
             style={{ fontStyle: 'italic', fontWeight: 300 }}

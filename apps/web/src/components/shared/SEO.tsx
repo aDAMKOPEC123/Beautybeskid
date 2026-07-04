@@ -9,9 +9,13 @@ interface Props {
   ogImage?: string;
   schema?: object;
   noIndex?: boolean;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
 }
 
-export const PageSEO = ({ title, description, canonical, ogImage, schema, noIndex = false }: Props) => {
+export const PageSEO = ({ title, description, canonical, ogImage, schema, noIndex = false, type = 'website', publishedTime, modifiedTime, author }: Props) => {
   const alreadyBranded = /BeskidStudio|Wiktoria Ćwik/i.test(title);
   const fullTitle = alreadyBranded ? title : `${title} | Wiktoria Ćwik`;
   const url = canonical ? `${cfg.domain}${canonical}` : cfg.domain;
@@ -32,7 +36,12 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       'meta[property="og:description"]',
       'meta[property="og:url"]',
       'meta[property="og:image"]',
+      'meta[property="og:image:alt"]',
       'meta[property="og:locale"]',
+      'meta[name="twitter:card"]',
+      'meta[name="twitter:title"]',
+      'meta[name="twitter:description"]',
+      'meta[name="twitter:image"]',
     ];
 
     selectors.forEach((selector) => {
@@ -54,15 +63,26 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       <meta name="geo.position" content={`${cfg.lat};${cfg.lon}`} />
       <meta name="ICBM" content={`${cfg.lat}, ${cfg.lon}`} />
       <link rel="canonical" href={url} />
-      <meta property="og:type" content="business.business" />
+      <meta property="og:type" content={type} />
       <meta property="og:site_name" content={cfg.siteName} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={`${fullTitle} — BeskidStudio`} />
       <meta property="og:locale" content="pl_PL" />
+      {type === 'article' && publishedTime && (
+        <meta property="article:published_time" content={publishedTime} />
+      )}
+      {type === 'article' && modifiedTime && (
+        <meta property="article:modified_time" content={modifiedTime} />
+      )}
+      {type === 'article' && author && (
+        <meta property="article:author" content={author} />
+      )}
+      {type === 'article' && (
+        <meta property="article:section" content="Kosmetologia" />
+      )}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />

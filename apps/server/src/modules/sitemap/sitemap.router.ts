@@ -5,20 +5,28 @@ const router = Router();
 
 const DOMAIN = 'https://kosmetologwiktoriacwik.pl';
 
+const STATIC_LASTMOD = '2026-07-04';
+
 const staticUrls = [
-  { loc: '/', priority: '1.0', changefreq: 'weekly' },
-  { loc: '/uslugi', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/blog', priority: '0.8', changefreq: 'daily' },
-  { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/program-lojalnosciowy', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/o-nas', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/kontakt', priority: '0.6', changefreq: 'yearly' },
+  { loc: '/', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/uslugi', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/blog', priority: '0.8', changefreq: 'daily', lastmod: STATIC_LASTMOD },
+  { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/program-lojalnosciowy', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
+  { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
+  { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
   { loc: '/regulamin', priority: '0.3', changefreq: 'yearly' },
-  { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly' },
-  { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly' },
-  { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly' },
-  { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly' },
+  // Local SEO landing pages — primary targets
+  { loc: '/kosmetolog-limanowa', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/kosmetyczka-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-brwi-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-rzes-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/oprawa-oka-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
 ];
 
 function toXmlDate(date: Date): string {
@@ -38,7 +46,8 @@ router.get('/', async (_req: Request, res: Response) => {
         orderBy: { updatedAt: 'desc' },
       }),
       prisma.service.findMany({
-        where: { isActive: true },
+        // Generic/internal categories must not become thin indexable landing pages.
+        where: { isActive: true, slug: { notIn: ['inne'] } },
         select: { slug: true, updatedAt: true },
         orderBy: { name: 'asc' },
       }),
@@ -46,10 +55,10 @@ router.get('/', async (_req: Request, res: Response) => {
 
     const staticEntries = staticUrls
       .map(
-        ({ loc, priority, changefreq }) => `
+        ({ loc, priority, changefreq, lastmod }) => `
   <url>
     <loc>${DOMAIN}${escapeXml(loc)}</loc>
-    <changefreq>${changefreq}</changefreq>
+    ${lastmod ? `<lastmod>${lastmod}</lastmod>\n    ` : ''}<changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`,
       )
