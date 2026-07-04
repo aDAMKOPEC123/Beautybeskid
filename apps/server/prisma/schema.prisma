@@ -198,6 +198,7 @@ model User {
   forumThreads   ForumThread[] @relation("ForumThreadAuthor")
   forumPosts     ForumPost[]   @relation("ForumPostAuthor")
   forumWatches   ForumWatch[]  @relation("ForumWatchUser")
+  forumReactions ForumReaction[] @relation("ForumReactionUser")
   createdVouchers Voucher[]   @relation("VoucherCreatedBy")
 
   @@index([role])
@@ -1389,6 +1390,8 @@ model ForumCategory {
   slug        String        @unique
   description String?
   order       Int           @default(0)
+  icon        String?
+  color       String?
   threads     ForumThread[]
   createdAt   DateTime      @default(now())
 
@@ -1403,6 +1406,8 @@ model ForumThread {
   isPinned    Boolean       @default(false)
   isLocked    Boolean       @default(false)
   isDeleted   Boolean       @default(false)
+  viewCount   Int           @default(0)
+  tags        String[]
   authorId    String
   author      User          @relation("ForumThreadAuthor", fields: [authorId], references: [id])
   categoryId  String
@@ -1423,6 +1428,9 @@ model ForumPost {
   isAnonymous   Boolean     @default(false)
   isDeleted     Boolean     @default(false)
   mentionsAdmin Boolean     @default(false)
+  quotedPostId   String?
+  quotedContent  String?
+  reactions      ForumReaction[]
   authorId      String
   author        User        @relation("ForumPostAuthor", fields: [authorId], references: [id])
   threadId      String
@@ -1445,6 +1453,25 @@ model ForumWatch {
 
   @@index([threadId])
   @@unique([userId, threadId])
+}
+
+enum ReactionType {
+  LIKE
+  HEART
+  HELPFUL
+}
+
+model ForumReaction {
+  id        String       @id @default(cuid())
+  userId    String
+  postId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  user      User         @relation("ForumReactionUser", fields: [userId], references: [id], onDelete: Cascade)
+  post      ForumPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId, type])
+  @@index([postId])
 }
 
 enum VoucherType {
