@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { loadAnalytics } from '@/lib/analytics';
 
 declare global {
   interface Window {
@@ -6,13 +7,23 @@ declare global {
   }
 }
 
-const COOKIE_KEY = 'cookie_consent_accepted';
+const COOKIE_KEY = 'cookie_consent_choice';
+const LEGACY_COOKIE_KEY = 'cookie_consent_accepted';
+
+type ConsentChoice = 'accepted' | 'essential' | null;
+
+const readConsent = (): ConsentChoice => {
+  if (typeof window === 'undefined') return null;
+  const choice = localStorage.getItem(COOKIE_KEY);
+  if (choice === 'accepted' || choice === 'essential') return choice;
+  return localStorage.getItem(LEGACY_COOKIE_KEY) ? 'accepted' : null;
+};
 
 export const CookieBanner = () => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => readConsent() === null);
 
   useEffect(() => {
-    if (localStorage.getItem(COOKIE_KEY)) {
+    if (readConsent() === 'accepted') {
       if (typeof window.gtag === 'function') {
         window.gtag('consent', 'update', {
           ad_storage: 'granted',
@@ -21,13 +32,13 @@ export const CookieBanner = () => {
           analytics_storage: 'granted',
         });
       }
-    } else {
-      setVisible(true);
+      void loadAnalytics();
     }
   }, []);
 
   const accept = () => {
-    localStorage.setItem(COOKIE_KEY, '1');
+    localStorage.setItem(COOKIE_KEY, 'accepted');
+    localStorage.removeItem(LEGACY_COOKIE_KEY);
     setVisible(false);
     if (typeof window.gtag === 'function') {
       window.gtag('consent', 'update', {
@@ -37,6 +48,13 @@ export const CookieBanner = () => {
         analytics_storage: 'granted',
       });
     }
+    void loadAnalytics();
+  };
+
+  const keepEssentialOnly = () => {
+    localStorage.setItem(COOKIE_KEY, 'essential');
+    localStorage.removeItem(LEGACY_COOKIE_KEY);
+    setVisible(false);
   };
 
   if (!visible) return null;
@@ -51,12 +69,22 @@ export const CookieBanner = () => {
         </a>
         .
       </p>
-      <button
-        onClick={accept}
-        className="shrink-0 bg-[#C8956C] hover:bg-[#b07d58] text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
-      >
-        Akceptuję
-      </button>
+      <div className="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          onClick={keepEssentialOnly}
+          className="rounded-full border border-white/35 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+        >
+          Tylko niezbędne
+        </button>
+        <button
+          type="button"
+          onClick={accept}
+          className="rounded-full bg-[#8A5F35] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#704825]"
+        >
+          Akceptuję
+        </button>
+      </div>
     </div>
   );
 };

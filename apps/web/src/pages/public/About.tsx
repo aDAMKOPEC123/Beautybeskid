@@ -26,14 +26,21 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?:
   badge: BadgeCheck,
 };
 
-const ownerSchema = (ownerName: string, ownerTitle: string) => ({
+const ownerSchema = (ownerName: string, ownerTitle: string, ownerPhoto?: string) => ({
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': `${SEO.domain}/o-nas#person`,
   name: ownerName,
   jobTitle: ownerTitle,
+  url: `${SEO.domain}/o-nas`,
+  ...(ownerPhoto ? { image: ownerPhoto.startsWith('http') ? ownerPhoto : `${SEO.domain}${ownerPhoto}` } : {}),
+  sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
+  knowsAbout: ['kosmetologia', 'pielęgnacja skóry', 'laminacja brwi', 'lifting rzęs', 'stylizacja brwi'],
   worksFor: {
     '@type': 'BeautySalon',
+    '@id': `${SEO.domain}/#beautysalon`,
     name: SEO.siteName,
+    url: SEO.domain,
     address: {
       '@type': 'PostalAddress',
       ...(SEO.address.street ? { streetAddress: SEO.address.street } : {}),
@@ -77,7 +84,7 @@ export const About = () => {
         title="Wiktoria Ćwik – kosmetolog Limanowa | O salonie"
         description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
         canonical="/o-nas"
-        schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka')}
+        schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka', about?.ownerPhoto ?? undefined)}
       />
 
       {/* Hero */}

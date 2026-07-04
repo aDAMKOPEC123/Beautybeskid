@@ -334,3 +334,8 @@
     opacity: 0.35;
   }
 }
+
+/* Oak remains a light decorative background, but text/icons need WCAG AA contrast. */
+.text-oak {
+  color: #8a5f35;
+}

@@ -1,0 +1,9 @@
+[Unit]
+Description=Update cloudflared from the official Cloudflare APT repository
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/apt-get update
+ExecStart=/usr/bin/apt-get install --only-upgrade --yes cloudflared
+ExecStartPost=/usr/bin/systemctl try-restart cloudflared-cosmo.service

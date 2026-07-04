@@ -3,7 +3,6 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
-import { Toaster } from 'sonner';
 import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
@@ -24,6 +23,23 @@ const ClientPanelTransitionOverlay = lazy(() =>
     default: module.ClientPanelTransitionOverlay,
   }))
 );
+const Toaster = lazy(() => import('sonner').then((module) => ({ default: module.Toaster })));
+
+const DeferredToaster = () => {
+  const [ready, setReady] = React.useState(false);
+
+  useEffect(() => {
+    const windowWithIdle = window as Window & { requestIdleCallback?: (callback: () => void) => number };
+    if (windowWithIdle.requestIdleCallback) {
+      const id = windowWithIdle.requestIdleCallback(() => setReady(true));
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(() => setReady(true), 1500);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  return ready ? <Suspense fallback={null}><Toaster position="top-right" richColors /></Suspense> : null;
+};
 
 const DeferredClientPanelTransitionOverlay = () => {
   const active = useClientPanelTransitionStore((state) => state.active);
@@ -205,7 +221,7 @@ function App() {
             <RouterProvider router={router} />
           </TourProvider>
           <DeferredClientPanelTransitionOverlay />
-          <Toaster position="top-right" richColors />
+          <DeferredToaster />
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>

@@ -15,6 +15,7 @@ const corePages = [
     heading: 'Kosmetolog Limanowa – Wiktoria Ćwik',
     lead: 'BeskidStudio w Mordarce koło Limanowej. Konsultacje, zabiegi kosmetologiczne, stylizacja brwi i rzęs oraz wygodna rezerwacja online.',
     items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Rezerwacja online'],
+    bodyText: 'Każdą wizytę zaczynamy od rozmowy o potrzebach skóry lub oczekiwanym efekcie stylizacji. Dzięki temu zabieg jest dopasowany do konkretnej osoby, a nie wybierany przypadkowo. W serwisie sprawdzisz aktualną ofertę, ceny, czas zabiegów i wolne terminy. Salon znajduje się w Mordarce 505, kilka minut od Limanowej, i obsługuje klientki z całego powiatu limanowskiego.',
   },
   {
     path: '/uslugi',
@@ -23,6 +24,7 @@ const corePages = [
     heading: 'Usługi kosmetyczne – Limanowa i Mordarka',
     lead: 'Sprawdź aktualne zabiegi BeskidStudio Wiktoria Ćwik, ich czas, ceny oraz najbliższe terminy.',
     items: ['Konsultacja kosmetologiczna', 'Laminacja brwi', 'Lifting rzęs', 'Henna i regulacja brwi'],
+    bodyText: 'Oferta jest połączona bezpośrednio z systemem rezerwacji, dlatego pokazuje aktywne usługi i aktualne ceny. Na stronie każdego zabiegu znajdziesz opis efektu, czas wykonania, wskazania oraz informacje potrzebne przed wizytą. Jeśli nie wiesz, którą usługę wybrać, zacznij od konsultacji lub skontaktuj się z salonem.',
   },
   {
     path: '/kontakt',
@@ -31,6 +33,7 @@ const corePages = [
     heading: 'Kontakt i dojazd do BeskidStudio',
     lead: 'Salon mieści się pod adresem Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.',
     items: ['Telefon: +48 532 128 227', 'E-mail: kontakt@kosmetologwiktoriacwik.pl', 'Poniedziałek–piątek: 09:00–18:00', 'Sobota: 09:00–14:00'],
+    bodyText: 'Do BeskidStudio przyjeżdżają klientki z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i pobliskich miejscowości. Termin możesz sprawdzić online, a pytania dotyczące dojazdu, przygotowania do zabiegu lub wyboru usługi zadać telefonicznie albo przez czat po zalogowaniu.',
   },
   {
     path: '/blog',
@@ -39,6 +42,7 @@ const corePages = [
     heading: 'Blog kosmetologiczny Wiktorii Ćwik',
     lead: 'Praktyczne wskazówki o świadomej pielęgnacji skóry, przygotowaniu do zabiegów oraz opiece po wizycie.',
     items: ['Pielęgnacja skóry', 'Kosmetologia', 'Brwi i rzęsy', 'Zalecenia po zabiegach'],
+    bodyText: 'Artykuły przygotowuje Wiktoria Ćwik, dyplomowany kosmetolog i właścicielka BeskidStudio. Znajdziesz tu odpowiedzi na pytania o przebieg zabiegów, trwałość efektów, pielęgnację domową i przeciwwskazania. Informacje mają pomóc w świadomym przygotowaniu do wizyty, ale nie zastępują indywidualnej konsultacji.',
   },
   {
     path: '/o-nas',
@@ -47,6 +51,7 @@ const corePages = [
     heading: 'Wiktoria Ćwik – kosmetolog koło Limanowej',
     lead: 'BeskidStudio łączy profesjonalną konsultację, indywidualny plan pielęgnacji i opiekę także po wizycie.',
     items: ['Indywidualne konsultacje', 'Jasny plan pielęgnacji', 'Bezpieczne procedury', 'Kontakt po zabiegu'],
+    bodyText: 'Salon prowadzi Wiktoria Ćwik, dyplomowany kosmetolog. W pracy stawia na spokojną konsultację, realistyczne omówienie efektów oraz czytelne zalecenia po zabiegu. Klientki mogą wrócić do historii wizyt, zaleceń i kontaktu z salonem w swoim panelu online.',
   },
   {
     path: '/metamorfozy',
@@ -55,6 +60,7 @@ const corePages = [
     heading: 'Efekty zabiegów – metamorfozy',
     lead: 'Galeria efektów pracy BeskidStudio Wiktoria Ćwik dla klientek z Limanowej, Mordarki i okolic.',
     items: ['Efekty przed i po', 'Naturalne rezultaty', 'Indywidualnie dobrane zabiegi'],
+    bodyText: 'Zdjęcia pokazują rzeczywiste rezultaty zabiegów wykonanych w salonie. Efekt zawsze zależy od stanu wyjściowego, indywidualnych cech i prawidłowej pielęgnacji po wizycie, dlatego fotografie są przykładem, a nie obietnicą identycznego rezultatu u każdej osoby.',
   },
   {
     path: '/program-lojalnosciowy',
@@ -63,6 +69,7 @@ const corePages = [
     heading: 'Program lojalnościowy BeskidStudio',
     lead: 'Punkty za wizyty, polecenia i aktywność możesz wymieniać na nagrody dostępne w panelu klienta.',
     items: ['Punkty za wizyty', 'Nagrody w panelu klienta', 'Historia punktów online'],
+    bodyText: 'Po zalogowaniu sprawdzisz saldo punktów, historię transakcji i dostępne nagrody. Program jest częścią panelu klienta BeskidStudio i pomaga planować kolejne wizyty bez papierowych kart. Aktualne zasady oraz wartość nagród są zawsze widoczne w aplikacji.',
   },
   {
     path: '/regulamin',
@@ -71,22 +78,29 @@ const corePages = [
     heading: 'Regulamin i polityka prywatności',
     lead: 'Zasady korzystania z serwisu, rezerwacji wizyt oraz informacje dotyczące przetwarzania danych.',
     items: ['Zasady rezerwacji', 'Płatności i odwołanie wizyty', 'Prywatność i dane osobowe'],
+    bodyText: 'Dokument opisuje zasady umawiania i odwoływania wizyt, korzystania z konta klienta, płatności oraz przetwarzania danych osobowych. Data i numer aktualnej wersji są publikowane bezpośrednio na stronie regulaminu.',
   },
 ];
 
 const localPages = [
-  ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Konsultacje kosmetologiczne i indywidualnie dobrane zabiegi blisko Limanowej.'],
-  ['kosmetyczka-limanowa', 'Kosmetyczka Limanowa', 'Aktualne zabiegi beauty, konsultacje oraz stylizacja brwi i rzęs.'],
-  ['laminacja-brwi-limanowa', 'Laminacja brwi Limanowa', 'Stylizacja i laminacja brwi dopasowana do rysów twarzy.'],
-  ['laminacja-rzes-limanowa', 'Laminacja rzęs Limanowa', 'Naturalny lifting i laminacja rzęs z zaleceniami pielęgnacyjnymi.'],
-  ['oprawa-oka-limanowa', 'Oprawa oka Limanowa', 'Laminacja, lifting, henna i regulacja dopasowane do oczekiwanego efektu.'],
-].map(([slug, label, offer]) => ({
+  ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Konsultacje kosmetologiczne i indywidualnie dobrane zabiegi blisko Limanowej.', 'BeskidStudio znajduje się w Mordarce 505 i zapewnia lokalny dostęp do konsultacji kosmetologicznych bez dojazdu do większego miasta. Podczas pierwszej rozmowy omawiamy potrzeby skóry, dotychczasową pielęgnację, oczekiwania i przeciwwskazania. Następnie wybieramy aktualnie dostępny zabieg oraz realny plan dalszej pielęgnacji.'],
+  ['kosmetyczka-limanowa', 'Kosmetyczka Limanowa', 'Aktualne zabiegi beauty, konsultacje oraz stylizacja brwi i rzęs.', 'Klientki z Limanowej mogą sprawdzić ofertę, ceny i terminy BeskidStudio online. Salon w pobliskiej Mordarce wykonuje aktualnie dostępne zabiegi beauty, laminację i stylizację brwi, lifting rzęs, hennę oraz depilację twarzy woskiem. Każda usługa ma osobną stronę z czasem, ceną i opisem.'],
+  ['laminacja-brwi-limanowa', 'Laminacja brwi w Limanowej — dojazd i FAQ', 'Lokalny przewodnik po laminacji brwi: przebieg, dojazd z Limanowej, przygotowanie i rezerwacja.', 'Ten lokalny przewodnik wyjaśnia, jak wygląda wizyta na laminację brwi w BeskidStudio, jak dojechać z Limanowej i gdzie sprawdzić wolne terminy. Sam cennik, czas zabiegu oraz szczegółowy opis aktualnej usługi znajdują się na stronie zabiegu. Efekt dobieramy do naturalnego kierunku włosków, rysów twarzy i oczekiwanego sposobu codziennej stylizacji.'],
+  ['laminacja-rzes-limanowa', 'Laminacja rzęs Limanowa', 'Naturalny lifting i laminacja rzęs z zaleceniami pielęgnacyjnymi.', 'Laminacja rzęs podkreśla naturalne włoski przez ich uniesienie, ułożenie i pielęgnację. Przed zabiegiem oceniamy kondycję rzęs oraz omawiamy oczekiwany efekt i przeciwwskazania. Po wizycie klientka otrzymuje jasne zalecenia, które pomagają utrzymać rezultat. Terminy dla Limanowej i okolic są widoczne online.'],
+  ['oprawa-oka-limanowa', 'Oprawa oka Limanowa', 'Laminacja, lifting, henna i regulacja dopasowane do oczekiwanego efektu.', 'Oprawa oka może obejmować laminację brwi, lifting rzęs, koloryzację, hennę lub regulację. Zakres dobieramy do naturalnego kształtu brwi i rzęs oraz rezultatu, jaki chcesz osiągnąć. Aktualne zestawy, ceny i czas wykonania są publikowane w ofercie BeskidStudio dla klientek z Limanowej i powiatu limanowskiego.'],
+].map(([slug, label, offer, bodyText]) => ({
   path: `/${slug}`,
   title: `${label} | Wiktoria Ćwik`,
   description: `${label}: ${offer} BeskidStudio koło Limanowej. Sprawdź terminy online.`,
   heading: `${label} – BeskidStudio Wiktoria Ćwik`,
   lead: offer,
+  bodyText,
   items: ['Mordarka 505, 34-600 Mordarka', 'Rezerwacja online', 'Telefon: +48 532 128 227'],
+  faq: [
+    { question: `Gdzie znajduje się ${label}?`, answer: 'Zabiegi wykonujemy w BeskidStudio przy Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.' },
+    { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Aktualna cena, czas zabiegu i wolne godziny są publikowane na stronie usług oraz w systemie rezerwacji online.' },
+    { question: 'Czy przed pierwszą wizytą można skonsultować wybór zabiegu?', answer: 'Tak. Jeśli nie wiesz, co wybrać, skontaktuj się z salonem lub umów konsultację przed rezerwacją właściwego zabiegu.' },
+  ],
 }));
 
 const unavailablePages = [
@@ -138,6 +152,61 @@ const richTextToText = (value) => {
   }
 };
 
+const safeHref = (value) => {
+  const href = String(value ?? '').trim();
+  return /^(https?:\/\/|\/|mailto:|tel:)/i.test(href) ? href : '';
+};
+
+const renderRichTextNode = (node) => {
+  if (!node || typeof node !== 'object') return '';
+
+  if (node.type === 'text') {
+    let html = escapeHtml(node.text ?? '');
+    for (const mark of node.marks ?? []) {
+      if (mark.type === 'bold') html = `<strong>${html}</strong>`;
+      if (mark.type === 'italic') html = `<em>${html}</em>`;
+      if (mark.type === 'link') {
+        const href = safeHref(mark.attrs?.href);
+        if (href) html = `<a href="${escapeHtml(href)}">${html}</a>`;
+      }
+    }
+    return html;
+  }
+
+  if (node.type === 'hardBreak') return '<br />';
+
+  const children = (node.content ?? []).map(renderRichTextNode).join('');
+  switch (node.type) {
+    case 'doc': return children;
+    case 'paragraph': return children ? `<p>${children}</p>` : '';
+    case 'heading': {
+      const level = Math.min(4, Math.max(2, Number(node.attrs?.level) || 2));
+      return `<h${level}>${children}</h${level}>`;
+    }
+    case 'bulletList': return `<ul>${children}</ul>`;
+    case 'orderedList': return `<ol>${children}</ol>`;
+    case 'listItem': return `<li>${children}</li>`;
+    case 'blockquote': return `<blockquote>${children}</blockquote>`;
+    case 'image': {
+      const src = safeHref(node.attrs?.src);
+      if (!src) return '';
+      const alt = escapeHtml(node.attrs?.alt || 'Zdjęcie ilustrujące artykuł');
+      return `<figure><img src="${escapeHtml(src)}" alt="${alt}" loading="lazy" /></figure>`;
+    }
+    default: return children;
+  }
+};
+
+const richTextToHtml = (value) => {
+  if (!value) return '';
+  try {
+    const document = typeof value === 'string' ? JSON.parse(value) : value;
+    return renderRichTextNode(document);
+  } catch {
+    return `<p>${escapeHtml(cleanText(value))}</p>`;
+  }
+};
+
 const fetchApi = async (pathname) => {
   const response = await fetch(`${API_ORIGIN}${pathname}`, {
     headers: { Accept: 'application/json', 'User-Agent': 'BeskidStudio-SEO-Builder/1.0' },
@@ -164,11 +233,17 @@ const loadDynamicPages = async () => {
       );
       return {
         path: `/uslugi/${service.slug}`,
-        title: `${service.name} Limanowa | BeskidStudio`,
+        title: service.slug === 'laminacja-brwi'
+          ? 'Laminacja brwi — cena, czas i rezerwacja | BeskidStudio'
+          : `${service.name} Limanowa | BeskidStudio`,
         description,
         heading: `${service.name} – Limanowa i okolice`,
         lead: description,
         bodyText: truncate(richTextToText(service.detailedContent), 2400),
+        bodyHtml: richTextToHtml(service.detailedContent),
+        ogImage: service.imagePath,
+        imageAlt: `${service.name} w BeskidStudio koło Limanowej`,
+        noIndex: service.slug === 'inne',
         items: [`Cena: ${service.price} zł`, `Czas zabiegu: ${service.durationMinutes} min`, `Kategoria: ${service.category}`],
         schema: {
           '@context': 'https://schema.org',
@@ -209,6 +284,13 @@ const loadDynamicPages = async () => {
         heading: post.title,
         lead: truncate(post.excerpt || description, 360),
         bodyText: truncate(richTextToText(post.content), 6000),
+        bodyHtml: richTextToHtml(post.content),
+        ogImage: post.coverImage,
+        imageAlt: post.title,
+        ogType: 'article',
+        author: post.author?.name || 'Wiktoria Ćwik',
+        publishedAt: post.createdAt,
+        modifiedAt: post.updatedAt,
         items: [post.category, `${post.readingTime || 5} min czytania`, 'Autor: Wiktoria Ćwik'],
         schema: {
           '@context': 'https://schema.org',
@@ -220,7 +302,18 @@ const loadDynamicPages = async () => {
               description,
               datePublished: post.createdAt,
               dateModified: post.updatedAt,
-              author: { '@type': 'Person', name: post.author?.name || 'Wiktoria Ćwik' },
+              author: {
+                '@type': 'Person',
+                '@id': `${DOMAIN}/o-nas#person`,
+                name: post.author?.name || 'Wiktoria Ćwik',
+                url: `${DOMAIN}/o-nas`,
+                jobTitle: 'Dyplomowany kosmetolog',
+                sameAs: [
+                  'https://www.facebook.com/kosmetologwiktoriacwik/',
+                  'https://www.instagram.com/kosmetolog__wiktoria_cwik/',
+                  'https://www.tiktok.com/@wiktoriabeauty_brows',
+                ],
+              },
               publisher: { '@id': `${DOMAIN}/#beautysalon` },
               mainEntityOfPage: `${DOMAIN}/blog/${post.slug}`,
               ...(post.coverImage ? { image: absoluteUrl(post.coverImage) } : {}),
@@ -252,25 +345,58 @@ function breadcrumbSchema(pagePath, labels) {
   };
 }
 
-const staticContent = ({ heading, lead, items, bodyText }) => `
+const staticContent = ({
+  heading,
+  lead,
+  items = [],
+  bodyText,
+  bodyHtml,
+  faq = [],
+  author,
+  publishedAt,
+  modifiedAt,
+}) => {
+  const textParagraphs = bodyText
+    ? cleanText(bodyText).split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')
+    : '';
+  const articleBody = bodyHtml || textParagraphs;
+  const dateLine = publishedAt
+    ? `<p style="font-size:14px;color:#496255">Opublikowano: <time datetime="${escapeHtml(publishedAt)}">${escapeHtml(new Date(publishedAt).toLocaleDateString('pl-PL'))}</time>${modifiedAt ? ` · Aktualizacja: <time datetime="${escapeHtml(modifiedAt)}">${escapeHtml(new Date(modifiedAt).toLocaleDateString('pl-PL'))}</time>` : ''}</p>`
+    : '';
+
+  return `
       <main data-seo-static-content style="max-width:960px;margin:0 auto;padding:48px 24px;font-family:Arial,sans-serif;color:#173b2a">
-        <p style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9b6d3f">BeskidStudio Wiktoria Ćwik</p>
-        <h1 style="font-size:clamp(32px,6vw,58px);line-height:1.08;margin:12px 0 18px">${escapeHtml(heading)}</h1>
-        <p style="max-width:720px;font-size:18px;line-height:1.65;color:#496255">${escapeHtml(lead)}</p>
-        ${bodyText ? `<div style="max-width:760px;font-size:16px;line-height:1.75;color:#334c40"><p>${escapeHtml(bodyText)}</p></div>` : ''}
-        <ul style="margin:28px 0;padding-left:22px;line-height:1.9">${items.filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+        <header>
+          <p style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#76502f">BeskidStudio Wiktoria Ćwik</p>
+          <h1 style="font-size:clamp(32px,6vw,58px);line-height:1.08;margin:12px 0 18px">${escapeHtml(heading)}</h1>
+          <p style="max-width:760px;font-size:18px;line-height:1.65;color:#3d594a">${escapeHtml(lead)}</p>
+          ${author ? `<p style="font-size:15px"><strong>Autor:</strong> <a href="/o-nas">${escapeHtml(author)}, dyplomowany kosmetolog</a></p>` : ''}
+          ${dateLine}
+        </header>
+        ${articleBody ? `<article style="max-width:780px;font-size:16px;line-height:1.75;color:#294438">${articleBody}</article>` : ''}
+        <section aria-labelledby="seo-key-facts">
+          <h2 id="seo-key-facts" style="margin-top:34px">Najważniejsze informacje</h2>
+          <ul style="margin:18px 0;padding-left:22px;line-height:1.9">${items.filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+          <p style="max-width:780px;line-height:1.75">BeskidStudio mieści się przy Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej. Aktualne ceny, czas usług i wolne terminy są publikowane w systemie rezerwacji.</p>
+        </section>
+        ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
-          <a href="/uslugi">Usługi</a><a href="/kontakt">Kontakt</a><a href="/blog">Blog</a><a href="/rezerwacja">Umów wizytę</a>
+          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a>
         </nav>
-        <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a></address>
+        <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a> · <a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a></address>
       </main>`;
+};
 
 const spaTemplate = template
   .replace(/\s*<(?:meta|link)[^>]*data-rh="true"[^>]*>/g, '')
+  .replace('</head>', '    <meta name="robots" content="noindex,nofollow,noarchive" />\n  </head>')
   .replace(/<div id="root">[\s\S]*?<\/div>/, '<div id="root"></div>');
 
 const renderPage = (page) => {
   const canonical = `${DOMAIN}${page.path === '/' ? '/' : page.path}`;
+  const socialImage = absoluteUrl(page.ogImage) || `${DOMAIN}/images/beautybeskid-hero-premium.webp`;
+  const imageAlt = page.imageAlt || `${page.title} — BeskidStudio`;
+  const ogType = page.ogType || 'business.business';
   const schema = page.schema || {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -286,11 +412,17 @@ const renderPage = (page) => {
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
     .replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${escapeHtml(page.description)}" data-rh="true" />`)
     .replace(/<meta name="robots"[^>]*>/, `<meta name="robots" content="${robots}" data-rh="true" />`)
+    .replace(/<meta property="og:type"[^>]*>/, `<meta property="og:type" content="${ogType}" data-rh="true" />`)
     .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(page.title)}" data-rh="true" />`)
     .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(page.description)}" data-rh="true" />`)
     .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${canonical}" data-rh="true" />`)
+    .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(socialImage)}" data-rh="true" />`)
+    .replace(/<meta property="og:image:alt"[^>]*>/, `<meta property="og:image:alt" content="${escapeHtml(imageAlt)}" data-rh="true" />`)
+    .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(page.title)}" data-rh="true" />`)
+    .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(page.description)}" data-rh="true" />`)
+    .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(socialImage)}" data-rh="true" />`)
     .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}" data-rh="true" />`)
-    .replace('</head>', `    <script type="application/ld+json" data-generated-seo>${serializedSchema}</script>\n  </head>`)
+    .replace('</head>', `${page.author ? `    <meta name="author" content="${escapeHtml(page.author)}" />\n` : ''}${page.publishedAt ? `    <meta property="article:published_time" content="${escapeHtml(page.publishedAt)}" />\n` : ''}${page.modifiedAt ? `    <meta property="article:modified_time" content="${escapeHtml(page.modifiedAt)}" />\n` : ''}    <script type="application/ld+json" data-generated-seo>${serializedSchema}</script>\n  </head>`)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${staticContent(page)}\n    </div>`);
 };
 
@@ -326,4 +458,4 @@ await writeFile(path.join(DIST_DIR, '404.html'), renderPage(notFoundPage));
 
 for (const page of pages) await writePage(page);
 
-console.log(`Generated ${pages.length} crawlable SEO entry pages (${dynamicPages.length} dynamic).`);
+console.log(`Generated ${pages.length} SEO entry pages (${dynamicPages.length} dynamic).`);

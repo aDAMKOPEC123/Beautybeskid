@@ -60,7 +60,7 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
 
   useEffect(() => {
     if (slides.length <= 1 || paused) return;
-    const id = setInterval(next, 5000);
+    const id = setInterval(next, 8000);
     return () => clearInterval(id);
   }, [slides.length, paused, next]);
 
@@ -102,7 +102,7 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
               style={{ width: isCompact ? 56 : 80, height: isCompact ? 56 : 80 }}
             />
             <img
-              src={slide.imagePath}
+              src={i === current ? slide.imagePath : undefined}
               alt={slide.title ?? ''}
               className="w-full h-full object-cover"
               loading={i === 0 ? 'eager' : 'lazy'}

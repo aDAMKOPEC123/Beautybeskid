@@ -6,16 +6,16 @@ const prisma = new PrismaClient();
 const QUIZ_TITLE = 'Dobierz zabieg — oprawa oka i depilacja twarzy';
 
 const SERVICE_SLUGS = {
-  hennaLiftSet: 'henna-brwi-lifting-rzs-set',
-  lamiSet: 'lamiset-laminacja-brwi-lifting-rzs',
-  browLaminationColor: 'laminacja-brwi-z-koloryzacj',
+  hennaLiftSet: 'henna-brwi-lifting-rzes-set',
+  lamiSet: 'lamiset-laminacja-brwi-lifting-rzes',
+  browLaminationColor: 'laminacja-brwi-z-koloryzacja',
   browLamination: 'laminacja-brwi',
-  lashLiftColor: 'lifting-rzs-z-koloryzacj',
+  lashLiftColor: 'lifting-rzes-z-koloryzacja',
   powderHenna: 'henna-pudrowa',
   tint: 'farbka',
   browShape: 'regulacja-brwi-woskpseta',
   faceWax: 'depilacja-twarzy-woskiem',
-  upperLipWax: 'depilacja-wsika',
+  upperLipWax: 'depilacja-wasika',
 } as const;
 
 type ServiceKey = keyof typeof SERVICE_SLUGS;

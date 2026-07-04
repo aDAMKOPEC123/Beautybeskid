@@ -46,5 +46,13 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "      Frontend deployed."
 fi
 
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+  echo "Checking the local production origin..."
+  ssh "$VPS" "curl --fail --silent --show-error -H 'Host: kosmetologwiktoriacwik.pl' http://127.0.0.1:8080/ >/dev/null"
+fi
+
+echo "Checking Cloudflare Tunnel when installed..."
+ssh "$VPS" "if systemctl is-active --quiet cloudflared-cosmo.service; then curl --fail --silent --show-error http://127.0.0.1:20241/ready >/dev/null; fi"
+
 echo ""
 echo "=== Deploy complete ==="

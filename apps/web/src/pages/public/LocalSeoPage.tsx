@@ -119,6 +119,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                   <Phone className="h-4 w-4" />
                 </Link>
               </Button>
+              {page.slug === 'laminacja-brwi-limanowa' ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/uslugi/laminacja-brwi">Cena i szczegóły zabiegu</Link>
+                </Button>
+              ) : null}
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">

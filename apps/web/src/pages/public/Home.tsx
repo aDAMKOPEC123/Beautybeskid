@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
+import { lazy, Suspense, type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -26,17 +26,26 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageSEO } from '@/components/shared/SEO';
-import { ConsultationModal } from '@/components/public/ConsultationModal';
 import { HeroSlider } from '@/components/public/HeroSlider';
 import { googleReviewsApi, type GoogleReviewsData } from '@/api/google-reviews.api';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
-import { Season, type Service } from '@cosmo/shared';
+import type { Season as SeasonType, Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
 import { SEO } from '@/lib/seo-config';
 
 const heroImage = '/images/beautybeskid-hero-premium.webp';
+const ConsultationModal = lazy(() =>
+  import('@/components/public/ConsultationModal').then((module) => ({ default: module.ConsultationModal })),
+);
+const Season = {
+  SPRING: 'SPRING' as SeasonType,
+  SUMMER: 'SUMMER' as SeasonType,
+  AUTUMN: 'AUTUMN' as SeasonType,
+  WINTER: 'WINTER' as SeasonType,
+} as const;
+type Season = SeasonType;
 
 const faqItems = [
   {
@@ -102,8 +111,11 @@ const buildFaqSchema = () => ({
       },
       founder: {
         '@type': 'Person',
+        '@id': 'https://kosmetologwiktoriacwik.pl/o-nas#person',
         name: 'Wiktoria Ćwik',
         jobTitle: 'Dyplomowany kosmetolog',
+        url: 'https://kosmetologwiktoriacwik.pl/o-nas',
+        sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
       },
       knowsAbout: [
         'kosmetolog Limanowa',
@@ -266,7 +278,7 @@ function getCurrentSeason(): Season {
   return Season.WINTER;
 }
 
-const SEASON_LABELS: Record<Season, string> = {
+const SEASON_LABELS: Record<string, string> = {
   [Season.SPRING]: 'Wiosna',
   [Season.SUMMER]: 'Lato',
   [Season.AUTUMN]: 'Jesień',
@@ -402,7 +414,7 @@ const SectionIntro = ({
     <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">{eyebrow}</p>
     <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">{title}</h2>
     {description && (
-      <p className="mt-4 text-base leading-relaxed text-espresso/65 md:text-lg">{description}</p>
+      <p className="mt-4 text-base leading-relaxed text-espresso/75 md:text-lg">{description}</p>
     )}
   </div>
 );
@@ -450,11 +462,11 @@ const MobileClientPanelCard = ({
       onClick={onOpenClientPanel}
       className="mt-4 flex w-full items-center gap-4 rounded-lg border border-espresso/12 bg-espresso p-4 text-left text-ivory shadow-[0_18px_48px_rgba(26,56,40,0.18)] active:scale-[0.985] transition-transform md:hidden"
     >
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-oak/18 text-oak">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-oak/18 text-[#DDB87F]">
         <LayoutDashboard className="h-5 w-5" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Panel klienta</span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#DDB87F]">Panel klienta</span>
         <span className="mt-1 block font-heading text-2xl font-bold leading-none">
           {isAuthenticated ? 'Wróć do swojego konta' : 'Otwórz swoje konto'}
         </span>
@@ -464,7 +476,7 @@ const MobileClientPanelCard = ({
             : 'Zaloguj się i przejdź od razu do wizyt, historii oraz zaleceń.'}
         </span>
       </span>
-      <span aria-hidden="true" className="shrink-0 text-oak">
+      <span aria-hidden="true" className="shrink-0 text-[#DDB87F]">
         <ArrowRight className="h-5 w-5" />
       </span>
     </button>
@@ -664,10 +676,10 @@ const HeroSection = ({
                     <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-oak">Premium care</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#DDB87F]">Premium care</p>
                           <p className="mt-1 font-heading text-xl font-bold">Prowadzimy Cię krok po kroku</p>
                         </div>
-                        <ShieldCheck className="h-7 w-7 shrink-0 text-oak" />
+                        <ShieldCheck className="h-7 w-7 shrink-0 text-[#DDB87F]" />
                       </div>
                     </div>
                   </>
@@ -698,7 +710,7 @@ const BenefitsStrip = () => (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {benefits.map((benefit) => (
           <div key={benefit} className="flex items-center gap-3 text-sm text-ivory/82">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-oak/18 text-oak">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-oak/18 text-[#DDB87F]">
               <CheckCircle2 className="h-4 w-4" />
             </span>
             <span>{benefit}</span>
@@ -821,7 +833,7 @@ const AvailabilityPreviewSection = ({
         <FadeUp>
           <div className="mb-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
             <div>
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#DDB87F]">
                 Kalendarz terminów
               </p>
               <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
@@ -845,7 +857,7 @@ const AvailabilityPreviewSection = ({
               ) : (
                 <>
                   <div className="rounded-lg border border-white/12 bg-white/7 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-oak">1. Kategoria</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#DDB87F]">1. Kategoria</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {serviceCategories.map((category) => (
                         <button
@@ -865,7 +877,7 @@ const AvailabilityPreviewSection = ({
                   </div>
 
                   <div className="rounded-lg border border-white/12 bg-white/7 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-oak">2. Usługa</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#DDB87F]">2. Usługa</p>
                     {selectedCategory ? (
                       <div className="mt-3 grid max-h-[260px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                         {servicesInSelectedCategory.map((service) => (
@@ -913,7 +925,7 @@ const AvailabilityPreviewSection = ({
                 </button>
                 <div className="text-center">
                   <p className="font-heading text-2xl font-bold capitalize text-espresso">{formatMonthLabel(viewMonth)}</p>
-                  <p className="mt-1 text-xs text-espresso/50">
+                  <p className="mt-1 text-xs text-espresso/75">
                     {selectedService
                       ? monthFetching
                         ? 'Aktualizuję dostępność...'
@@ -931,7 +943,7 @@ const AvailabilityPreviewSection = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-espresso/45">
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-espresso/75">
                 {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((day) => (
                   <span key={day} className="py-2">{day}</span>
                 ))}
@@ -986,7 +998,7 @@ const AvailabilityPreviewSection = ({
                 })}
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-3 text-xs text-espresso/55">
+              <div className="mt-4 flex flex-wrap gap-3 text-xs text-espresso/75">
                 <span className="inline-flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-green-600" />
                   Dostępne
@@ -1011,7 +1023,7 @@ const AvailabilityPreviewSection = ({
                   <h3 className="mt-2 font-heading text-2xl font-bold text-espresso">
                     {selectedService?.name ?? selectedCategory ?? 'Najpierw kategoria'}
                   </h3>
-                  <p className="mt-1 text-sm text-espresso/55">
+                  <p className="mt-1 text-sm text-espresso/75">
                     {selectedService
                       ? selectedDateLabel
                       : selectedCategory
@@ -1240,10 +1252,10 @@ const ServicesSection = ({
                   className="group flex h-full min-h-[260px] flex-col justify-between rounded-lg border border-oak/30 bg-espresso p-5 text-ivory shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-espresso/95 hover:shadow-[0_22px_55px_rgba(26,56,40,0.18)]"
                 >
                   <div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-oak/18 text-oak transition-colors group-hover:bg-oak group-hover:text-espresso">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-oak/18 text-[#DDB87F] transition-colors group-hover:bg-oak group-hover:text-espresso">
                       <LayoutDashboard className="h-5 w-5" />
                     </div>
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-oak">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-[#DDB87F]">
                       +{hiddenServicesCount} w ofercie
                     </p>
                     <h3 className="mt-3 font-heading text-2xl font-bold">Zobacz wszystkie usługi</h3>
@@ -1251,7 +1263,7 @@ const ServicesSection = ({
                       Pełna lista zabiegów jest w zakładce usług, z filtrowaniem po kategoriach.
                     </p>
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-oak">
+                  <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#DDB87F]">
                     Przejdź do /uslugi
                     <ArrowRight className="h-4 w-4" />
                   </span>
@@ -1323,7 +1335,7 @@ const ConsultationSection = ({
       <FadeUp>
         <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_24px_80px_rgba(26,56,40,0.22)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
           <div>
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Bezpłatna konsultacja</p>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#DDB87F]">Bezpłatna konsultacja</p>
             <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
               Nie wiesz, jaki zabieg wybrać?
             </h2>
@@ -1355,7 +1367,7 @@ const ConsultationSection = ({
           <div className="grid gap-3">
             {consultationArguments.map((item) => (
               <div key={item} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/8 p-4">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#DDB87F]" />
                 <p className="text-sm leading-relaxed text-ivory/78">{item}</p>
               </div>
             ))}
@@ -1429,7 +1441,7 @@ const TestimonialsSection = ({
         <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-lg border border-oak/20 bg-cream p-5 text-center md:flex-row md:text-left">
           <div>
             <p className="font-heading text-2xl font-bold text-espresso">Chcesz sprawdzić najbliższy termin?</p>
-            <p className="mt-1 text-sm text-espresso/60">Najpierw zobacz godziny bez logowania, a konto założysz dopiero przy rezerwacji.</p>
+                <p className="mt-1 text-sm text-espresso/75">Najpierw zobacz godziny bez logowania, a konto założysz dopiero przy rezerwacji.</p>
           </div>
           <Button
             type="button"
@@ -1583,7 +1595,7 @@ const ReservationFormSection = ({
 
           <FadeUp delay={0.08}>
             <aside className="h-full rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_22px_70px_rgba(26,56,40,0.18)] md:p-8">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-oak/18 text-oak">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-oak/18 text-[#DDB87F]">
                 <Sparkles className="h-6 w-6" />
               </div>
               <h3 className="mt-6 font-heading text-3xl font-bold">Bezpłatna konsultacja</h3>
@@ -1593,7 +1605,7 @@ const ReservationFormSection = ({
               <ul className="mt-6 grid gap-3">
                 {consultationArguments.map((argument) => (
                   <li key={argument} className="flex items-start gap-3 text-sm text-ivory/78">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#DDB87F]" />
                     <span>{argument}</span>
                   </li>
                 ))}
@@ -1777,7 +1789,11 @@ export const Home = () => {
         <AreaSection />
       </main>
 
-      <ConsultationModal open={consultationOpen} onClose={() => setConsultationOpen(false)} />
+      {consultationOpen ? (
+        <Suspense fallback={null}>
+          <ConsultationModal open onClose={() => setConsultationOpen(false)} />
+        </Suspense>
+      ) : null}
     </div>
   );
 };

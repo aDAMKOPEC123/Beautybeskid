@@ -207,7 +207,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Mordarka leży w centrum powiatu limanowskiego, a salon BeskidStudio By Wiktoria Ćwik jest dostępny bez długiego dojazdu. Dla klientek z Mordarki i okolicznych miejscowości oferujemy wygodne terminy, kontakt telefoniczny i rezerwację online.',
     faq: beautyFaq('konsultację kosmetologiczną', 'Mordarki'),
-    related: ['kosmetolog-limanowa', 'kosmetyczka-mordarka', 'laminacja-brwi-mordarka'],
+    related: ['kosmetyczka-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
   },
   'podolog-limanowa': {
     slug: 'podolog-limanowa',
@@ -243,7 +243,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski — warto omówić ze specjalistą zamiast rozwiązywać samodzielnie. BeskidStudio By Wiktoria Ćwik rozwija podologiczną ścieżkę usług, aby klientki z Limanowej i okolic miały dostęp do profesjonalnej pomocy blisko domu.',
     faq: podologyFaq('Limanowej'),
-    related: ['podolog-mordarka', 'kosmetolog-limanowa', 'kosmetyczka-limanowa'],
+    related: ['podolog-mordarka', 'kosmetolog-mordarka', 'kosmetyczka-limanowa'],
     indexable: false,
   },
   'podolog-mordarka': {
@@ -280,7 +280,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Dla klientek z Mordarki i pobliskich wsi BeskidStudio By Wiktoria Ćwik to wygodna opcja bez konieczności dojazdu do centrum Limanowej lub Nowego Sącza. Podologia jest rozwijana jako osobna ścieżka, z jasną informacją o dostępności i możliwością wcześniejszego kontaktu.',
     faq: podologyFaq('Mordarki'),
-    related: ['podolog-limanowa', 'kosmetolog-mordarka', 'kosmetyczka-mordarka'],
+    related: ['podolog-limanowa', 'kosmetolog-mordarka', 'kosmetyczka-limanowa'],
     indexable: false,
   },
   'kosmetyczka-limanowa': {
@@ -315,7 +315,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'W BeskidStudio By Wiktoria Ćwik podchodzimy do każdej klientki indywidualnie — czy szukasz zabiegu na wyjątkową okazję, regularnej pielęgnacji, czy po prostu chcesz sprawdzić aktualną ofertę. Obsługujemy klientki z Limanowej, Mordarki i całego powiatu limanowskiego.',
     faq: beautyFaq('zabieg kosmetyczny', 'Limanowej'),
-    related: ['kosmetolog-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
+    related: ['kosmetolog-mordarka', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
   },
   'kosmetyczka-mordarka': {
     slug: 'kosmetyczka-mordarka',
@@ -349,18 +349,18 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Salon BeskidStudio By Wiktoria Ćwik jest w zasięgu bez potrzeby planowania wyjazdu do większego miasta. Dla klientek z Mordarki i okolicznych wsi oferujemy czytelny grafik, kontakt i pełną ofertę zabiegową z możliwością rezerwacji online.',
     faq: beautyFaq('zabieg kosmetyczny', 'Mordarki'),
-    related: ['kosmetyczka-limanowa', 'kosmetolog-mordarka', 'laminacja-rzes-mordarka'],
+    related: ['kosmetyczka-limanowa', 'kosmetolog-mordarka', 'laminacja-rzes-limanowa'],
     indexable: false,
     redirectTo: '/kosmetyczka-limanowa',
   },
   'laminacja-brwi-limanowa': {
     slug: 'laminacja-brwi-limanowa',
     shortLabel: 'Laminacja brwi Limanowa',
-    title: 'Laminacja brwi Limanowa — stylizacja brwi',
+    title: 'Laminacja brwi w Limanowej — dojazd, przygotowanie i FAQ',
     description:
-      'Laminacja brwi Limanowa: naturalnie ułożone brwi, konsultacja, aktualne terminy i rezerwacja online w BeskidStudio By Wiktoria Ćwik dla Limanowej, Mordarki i okolic.',
+      'Laminacja brwi w Limanowej: dojazd do BeskidStudio, przygotowanie, przebieg, FAQ oraz przejście do aktualnej ceny i rezerwacji online.',
     eyebrow: 'Laminacja brwi Limanowa',
-    h1: 'Laminacja brwi w Limanowej — naturalny efekt i wygodna rezerwacja',
+    h1: 'Laminacja brwi w Limanowej — dojazd, przygotowanie i odpowiedzi',
     lead:
       'Laminacja brwi porządkuje kierunek włosków i pomaga uzyskać bardziej zadbany, pełniejszy wygląd bez codziennego układania od zera.',
     serviceName: 'Laminacja brwi',
@@ -385,7 +385,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Laminacja brwi to jeden z najchętniej wybieranych zabiegów w naszym salonie — naturalnie ułożone brwi, które wyglądają zadbanie bez codziennego stylizowania. Obsługujemy klientki z Limanowej, Mordarki, Sowlin i całego powiatu limanowskiego.',
     faq: beautyFaq('laminację brwi', 'Limanowej'),
-    related: ['laminacja-rzes-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-limanowa'],
+    related: ['laminacja-rzes-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-mordarka'],
   },
   'laminacja-brwi-mordarka': {
     slug: 'laminacja-brwi-mordarka',
@@ -419,7 +419,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Dla klientek z Mordarki laminacja brwi w BeskidStudio By Wiktoria Ćwik to bliski dojazd i konkretny efekt — bez szukania salonu w większym mieście. Gabinet mieści się w Mordarce 505, w sercu powiatu limanowskiego.',
     faq: beautyFaq('laminację brwi', 'Mordarki'),
-    related: ['laminacja-brwi-limanowa', 'laminacja-rzes-mordarka', 'kosmetyczka-mordarka'],
+    related: ['laminacja-brwi-limanowa', 'laminacja-rzes-limanowa', 'kosmetyczka-limanowa'],
     indexable: false,
     redirectTo: '/laminacja-brwi-limanowa',
   },
@@ -455,7 +455,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Laminacja rzęs sprawia, że spojrzenie wygląda bardziej otwarcie i świeżo — bez przedłużania ani codziennego tuszowania. W BeskidStudio By Wiktoria Ćwik dobieramy skręt do naturalnych rzęs i oczekiwanego efektu, z aktualnym grafikiem dla klientek z Limanowej i okolic.',
     faq: beautyFaq('laminację rzęs', 'Limanowej'),
-    related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-limanowa'],
+    related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-mordarka'],
   },
 
   'oprawa-oka-limanowa': {
@@ -524,7 +524,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Salon BeskidStudio By Wiktoria Ćwik mieści się w Mordarce 505 — dla klientek z Mordarki i okolicznych wsi to wygodny wybór oprawa oka blisko domu. Laminacja brwi i rzęs, stylizacja okolicy oka i pełna oferta w jednym miejscu.',
     faq: eyeFramingFaq('Mordarki'),
-    related: ['oprawa-oka-limanowa', 'laminacja-brwi-mordarka', 'laminacja-rzes-mordarka'],
+    related: ['oprawa-oka-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
     indexable: false,
     redirectTo: '/oprawa-oka-limanowa',
   },
@@ -599,7 +599,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Dla klientek z Mordarki i pobliskich miejscowości BeskidStudio By Wiktoria Ćwik to wygodna opcja bez planowania dojazdu do centrum. Korekcja wrastających paznokci jest częścią podologicznej ścieżki usług — aktualna dostępność i kontakt zawsze widoczne na stronie.',
     faq: ingrowingNailsFaq('Mordarki'),
-    related: ['wrastajace-paznokcie-limanowa', 'podolog-mordarka', 'kosmetyczka-mordarka'],
+    related: ['wrastajace-paznokcie-limanowa', 'podolog-mordarka', 'kosmetyczka-limanowa'],
     indexable: false,
   },
 
@@ -635,7 +635,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Salon BeskidStudio By Wiktoria Ćwik w Mordarce 505 to wygodna opcja dla klientek z całego powiatu limanowskiego. Laminacja rzęs jest dostępna w aktualnym grafiku — sprawdź terminy online lub zadzwoń, żeby omówić szczegóły.',
     faq: beautyFaq('laminację rzęs', 'Mordarki'),
-    related: ['laminacja-rzes-limanowa', 'laminacja-brwi-mordarka', 'kosmetyczka-mordarka'],
+    related: ['laminacja-rzes-limanowa', 'laminacja-brwi-limanowa', 'kosmetyczka-limanowa'],
     indexable: false,
     redirectTo: '/laminacja-rzes-limanowa',
   },
@@ -660,7 +660,7 @@ export const buildLocalSeoSchema = (page: LocalSeoPageConfig) => {
         '@type': 'BeautySalon',
         '@id': salonId,
         name: SEO.siteName,
-        alternateName: ['BeskidStudio By Wiktoria Ćwik', 'Wiktoria Ćwik BeskidStudio By Wiktoria Ćwik'],
+        alternateName: ['BeskidStudio', 'BeskidStudio By Wiktoria Ćwik'],
         url: SEO.domain,
         telephone: SEO.phone,
         email: SEO.email,
@@ -680,9 +680,13 @@ export const buildLocalSeoSchema = (page: LocalSeoPageConfig) => {
         },
         founder: {
           '@type': 'Person',
+          '@id': `${SEO.domain}/o-nas#person`,
           name: SEO.owner.name,
           jobTitle: SEO.owner.role,
+          url: `${SEO.domain}/o-nas`,
+          sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
         },
+        priceRange: '$$',
         areaServed: localAreas.map((name) => ({ '@type': 'Place', name })),
         knowsAbout: [
           'kosmetolog Limanowa',

@@ -1,5 +1,8 @@
 # Instrukcja Wdrożenia na mikr.us (VPS)
 
+> Opcjonalne, bezpłatne wystawienie produkcji przez Cloudflare Tunnel wraz z
+> automatyczną usługą systemd opisuje `deploy/cloudflare/README.md`.
+
 1. **Wymagania Systemowe**
    - Node.js 20 LTS
    - Nginx
