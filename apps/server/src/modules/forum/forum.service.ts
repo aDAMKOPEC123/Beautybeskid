@@ -21,12 +21,28 @@ function detectsAdminMention(content: string): boolean {
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export const getCategories = async () => {
-  return prisma.forumCategory.findMany({
+  const categories = await prisma.forumCategory.findMany({
     orderBy: { order: 'asc' },
     include: {
       _count: { select: { threads: { where: { isDeleted: false } } } },
     },
   });
+
+  return Promise.all(
+    categories.map(async (cat) => {
+      const [postCount, lastThread] = await Promise.all([
+        prisma.forumPost.count({
+          where: { thread: { categoryId: cat.id }, isDeleted: false },
+        }),
+        prisma.forumThread.findFirst({
+          where: { categoryId: cat.id, isDeleted: false },
+          orderBy: { createdAt: 'desc' },
+          select: { title: true, createdAt: true },
+        }),
+      ]);
+      return { ...cat, postCount, lastThread };
+    })
+  );
 };
 
 export const createCategory = async (data: {
@@ -95,20 +111,48 @@ export const getThreadsByCategory = async (
     prisma.forumThread.count({ where }),
   ]);
 
-  const masked = threads.map((t) => ({
-    ...t,
-    author: maskAuthor(t.isAnonymous, isAdmin, t.author),
-  }));
+  const masked = await Promise.all(
+    threads.map(async (t) => {
+      const lastPost = await prisma.forumPost.findFirst({
+        where: { threadId: t.id, isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          author: { select: { id: true, name: true } },
+          createdAt: true,
+          isAnonymous: true,
+        },
+      });
+      return {
+        ...t,
+        author: maskAuthor(t.isAnonymous, isAdmin, t.author),
+        lastPost: lastPost
+          ? {
+              author:
+                lastPost.isAnonymous && !isAdmin
+                  ? { name: 'Anonim' }
+                  : lastPost.author,
+              createdAt: lastPost.createdAt,
+            }
+          : null,
+      };
+    })
+  );
 
   return { data: masked, totalPages: Math.ceil(total / limit) };
 };
 
 export const createThread = async (
   userId: string,
-  data: { categoryId: string; title: string; content: string; isAnonymous: boolean }
+  data: { categoryId: string; title: string; content: string; isAnonymous: boolean; tags?: string[] }
 ) => {
   const category = await prisma.forumCategory.findUnique({ where: { id: data.categoryId } });
   if (!category) throw new AppError('Kategoria nie istnieje', 404);
+
+  const rawTags = data.tags ?? [];
+  const normalizedTags = rawTags
+    .map((t: string) => t.trim().toLowerCase().replace(/\s+/g, '-'))
+    .filter((t: string) => t.length > 0 && t.length <= 30);
+  const tags = [...new Set(normalizedTags)].slice(0, 5);
 
   const thread = await prisma.forumThread.create({
     data: {
@@ -117,6 +161,7 @@ export const createThread = async (
       isAnonymous: data.isAnonymous,
       authorId: userId,
       categoryId: data.categoryId,
+      tags,
     },
     include: THREAD_INCLUDE,
   });
@@ -133,8 +178,15 @@ export const getThread = async (
   threadId: string,
   page: number,
   limit: number,
-  isAdmin = false
+  isAdmin = false,
+  currentUserId?: string
 ) => {
+  // Increment view count (non-blocking)
+  prisma.forumThread.update({
+    where: { id: threadId },
+    data: { viewCount: { increment: 1 } },
+  }).catch(() => {});
+
   const thread = await prisma.forumThread.findFirst({
     where: { id: threadId, isDeleted: false },
     include: {
@@ -148,7 +200,21 @@ export const getThread = async (
   const [posts, total] = await Promise.all([
     prisma.forumPost.findMany({
       where,
-      include: { author: { select: { id: true, name: true, avatarPath: true, role: true } } },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatarPath: true,
+            role: true,
+            createdAt: true,
+            _count: { select: { forumPosts: { where: { isDeleted: false } } } },
+          },
+        },
+        reactions: {
+          select: { userId: true, type: true },
+        },
+      },
       orderBy: { createdAt: 'asc' },
       skip: (page - 1) * limit,
       take: limit,
@@ -161,10 +227,26 @@ export const getThread = async (
     author: maskAuthor(thread.isAnonymous, isAdmin, thread.author),
   };
 
-  const maskedPosts = posts.map((p) => ({
-    ...p,
-    author: maskAuthor(p.isAnonymous, isAdmin, p.author),
-  }));
+  const maskedPosts = posts.map((p) => {
+    const reactionTypes = ['LIKE', 'HEART', 'HELPFUL'] as const;
+    const reactions = reactionTypes.reduce(
+      (acc, type) => {
+        const matching = p.reactions.filter((r) => r.type === type);
+        acc[type] = {
+          count: matching.length,
+          reacted: currentUserId ? matching.some((r) => r.userId === currentUserId) : false,
+        };
+        return acc;
+      },
+      {} as Record<string, { count: number; reacted: boolean }>
+    );
+
+    return {
+      ...p,
+      author: maskAuthor(p.isAnonymous, isAdmin, p.author),
+      reactions,
+    };
+  });
 
   return {
     thread: maskedThread,
@@ -178,7 +260,9 @@ export const createPost = async (
   userId: string,
   threadId: string,
   content: string,
-  isAnonymous: boolean
+  isAnonymous: boolean,
+  quotedPostId?: string,
+  quotedContent?: string
 ) => {
   const thread = await prisma.forumThread.findFirst({
     where: { id: threadId, isDeleted: false },
@@ -189,7 +273,15 @@ export const createPost = async (
   const mentionsAdmin = detectsAdminMention(content);
 
   const post = await prisma.forumPost.create({
-    data: { content, isAnonymous, mentionsAdmin, authorId: userId, threadId },
+    data: {
+      content,
+      isAnonymous,
+      mentionsAdmin,
+      authorId: userId,
+      threadId,
+      quotedPostId: quotedPostId ?? null,
+      quotedContent: quotedContent ? quotedContent.slice(0, 300) : null,
+    },
     include: { author: { select: { id: true, name: true, avatarPath: true, role: true } } },
   });
 
