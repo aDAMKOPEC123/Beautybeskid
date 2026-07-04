@@ -428,3 +428,129 @@ export const getAdminThreads = async (
 
   return { data: threads, totalPages: Math.ceil(total / limit) };
 };
+
+// ─── Reactions ────────────────────────────────────────────────────────────────
+
+type ReactionTypeStr = 'LIKE' | 'HEART' | 'HELPFUL';
+
+export const reactToPost = async (userId: string, postId: string, type: ReactionTypeStr) => {
+  const post = await prisma.forumPost.findFirst({ where: { id: postId, isDeleted: false } });
+  if (!post) throw new AppError('Post nie istnieje', 404);
+
+  const existing = await prisma.forumReaction.findFirst({
+    where: { userId, postId, type },
+  });
+
+  if (existing) {
+    await prisma.forumReaction.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.forumReaction.create({ data: { userId, postId, type } });
+  }
+
+  const allReactions = await prisma.forumReaction.findMany({ where: { postId } });
+  const counts = (['LIKE', 'HEART', 'HELPFUL'] as const).reduce(
+    (acc, t) => {
+      acc[t] = allReactions.filter((r) => r.type === t).length;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  return { reacted: !existing, type, counts };
+};
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+export const searchThreads = async (
+  q: string,
+  tags: string[],
+  categoryId: string | undefined,
+  page: number,
+  limit: number
+) => {
+  if (q.length < 2) throw new AppError('Wpisz co najmniej 2 znaki', 400);
+
+  const where: any = {
+    isDeleted: false,
+    OR: [
+      { title: { contains: q, mode: 'insensitive' } },
+      { content: { contains: q, mode: 'insensitive' } },
+    ],
+  };
+  if (tags.length > 0) where.tags = { hasSome: tags };
+  if (categoryId) where.categoryId = categoryId;
+
+  const [threads, total] = await Promise.all([
+    prisma.forumThread.findMany({
+      where,
+      include: THREAD_INCLUDE,
+      orderBy: { updatedAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.forumThread.count({ where }),
+  ]);
+
+  const data = threads.map((t) => ({
+    ...t,
+    author: maskAuthor(t.isAnonymous, false, t.author),
+  }));
+
+  return { data, totalPages: Math.ceil(total / limit), total };
+};
+
+// ─── Tags ─────────────────────────────────────────────────────────────────────
+
+export const getPopularTags = async (): Promise<{ tag: string; count: number }[]> => {
+  const result = await prisma.$queryRaw<{ tag: string; count: bigint }[]>`
+    SELECT unnest(tags) as tag, COUNT(*) as count
+    FROM "ForumThread"
+    WHERE "isDeleted" = false
+    GROUP BY tag
+    ORDER BY count DESC
+    LIMIT 20
+  `;
+  return result.map((r) => ({ tag: r.tag, count: Number(r.count) }));
+};
+
+// ─── User profile ─────────────────────────────────────────────────────────────
+
+export const getUserThreads = async (userId: string, page: number, limit: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, avatarPath: true, createdAt: true },
+  });
+  if (!user) throw new AppError('Użytkownik nie istnieje', 404);
+
+  const where = { authorId: userId, isAnonymous: false, isDeleted: false };
+  const [threads, total, postCount] = await Promise.all([
+    prisma.forumThread.findMany({
+      where,
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        _count: { select: { posts: { where: { isDeleted: false } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.forumThread.count({ where }),
+    prisma.forumPost.count({ where: { authorId: userId, isAnonymous: false, isDeleted: false } }),
+  ]);
+
+  return { user, postCount, data: threads, totalPages: Math.ceil(total / limit) };
+};
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+
+export const getForumStats = async () => {
+  const [threadCount, postCount, userCountResult] = await Promise.all([
+    prisma.forumThread.count({ where: { isDeleted: false } }),
+    prisma.forumPost.count({ where: { isDeleted: false } }),
+    prisma.forumPost.groupBy({
+      by: ['authorId'],
+      where: { isAnonymous: false, isDeleted: false },
+    }),
+  ]);
+  return { threadCount, postCount, userCount: userCountResult.length };
+};
