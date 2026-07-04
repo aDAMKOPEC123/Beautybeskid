@@ -2,51 +2,150 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { forumApi, ForumPost, ForumThread as ForumThreadType } from '@/api/forum.api';
 import { useAuthStore } from '@/store/auth.store';
+import { getRankLabel } from './ForumHome';
+
+interface QuoteState {
+  postId: string;
+  content: string;
+  authorName: string;
+}
+
+function ReactionButton({
+  emoji,
+  count,
+  reacted,
+  onClick,
+}: {
+  emoji: string;
+  count: number;
+  reacted: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-colors ${
+        reacted ? 'bg-purple-100 text-purple-700' : 'text-gray-400 hover:bg-gray-100'
+      }`}
+    >
+      <span>{emoji}</span>
+      <span>{count}</span>
+    </button>
+  );
+}
 
 function ForumPostItem({
   post,
   currentUserId,
   isAdmin,
   onDelete,
+  onQuote,
+  onReact,
 }: {
   post: ForumPost;
   currentUserId: string;
   isAdmin: boolean;
   onDelete: (id: string) => void;
+  onQuote: (state: QuoteState) => void;
+  onReact: (postId: string, type: 'LIKE' | 'HEART' | 'HELPFUL') => void;
 }) {
   const canDelete = isAdmin || post.author.id === currentUserId;
+  const postCount = post.author._count?.forumPosts ?? 0;
+  const rankLabel = getRankLabel(postCount);
+  const canClickProfile = !post.isAnonymous && post.author.id;
 
   return (
-    <div className={`bg-white rounded-xl border p-4 ${post.mentionsAdmin ? 'border-l-4 border-l-purple-400 border-gray-200' : 'border-gray-200'}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-xs shrink-0">
+    <div
+      className={`bg-white rounded-xl border p-4 ${
+        post.mentionsAdmin ? 'border-l-4 border-l-purple-400 border-gray-200' : 'border-gray-200'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {/* Author column — desktop */}
+        <div className="shrink-0 w-24 text-center hidden sm:block">
+          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-sm mx-auto mb-1">
             {post.author.name.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-800">{post.author.name}</span>
-              {post.mentionsAdmin && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
-                  Kosmetolog
-                </span>
+          {canClickProfile ? (
+            <Link
+              to={`/user/forum/uzytkownik/${post.author.id}`}
+              className="text-xs font-medium text-gray-800 hover:text-purple-600 leading-tight block"
+            >
+              {post.author.name}
+            </Link>
+          ) : (
+            <span className="text-xs font-medium text-gray-800 leading-tight">{post.author.name}</span>
+          )}
+          <span className="text-xs text-purple-600 font-medium block mt-0.5">{rankLabel}</span>
+          <span className="text-xs text-gray-400 block">{postCount} postów</span>
+          {post.author.createdAt && (
+            <span className="text-xs text-gray-300 block">
+              od {new Date(post.author.createdAt).toLocaleDateString('pl-PL', { month: 'short', year: 'numeric' })}
+            </span>
+          )}
+        </div>
+
+        {/* Content column */}
+        <div className="flex-1 min-w-0">
+          {/* Mobile author row */}
+          <div className="flex items-center gap-2 mb-2 sm:hidden">
+            <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-xs shrink-0">
+              {post.author.name.charAt(0).toUpperCase()}
+            </div>
+            <span className="text-sm font-medium text-gray-800">{post.author.name}</span>
+            <span className="text-xs text-purple-600">{rankLabel}</span>
+          </div>
+
+          {/* Quoted block */}
+          {post.quotedContent && (
+            <div className="border-l-4 border-gray-300 bg-gray-50 rounded-r-lg px-3 py-2 mb-3">
+              <p className="text-xs text-gray-500 italic mb-1">Cytowany post:</p>
+              <p className="text-xs text-gray-600 whitespace-pre-wrap line-clamp-3">{post.quotedContent}</p>
+            </div>
+          )}
+
+          <p className="text-gray-700 text-sm whitespace-pre-wrap">{post.content}</p>
+
+          <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
+            <div className="flex items-center gap-1">
+              <ReactionButton
+                emoji="👍"
+                count={post.reactions.LIKE.count}
+                reacted={post.reactions.LIKE.reacted}
+                onClick={() => onReact(post.id, 'LIKE')}
+              />
+              <ReactionButton
+                emoji="❤️"
+                count={post.reactions.HEART.count}
+                reacted={post.reactions.HEART.reacted}
+                onClick={() => onReact(post.id, 'HEART')}
+              />
+              <ReactionButton
+                emoji="💡"
+                count={post.reactions.HELPFUL.count}
+                reacted={post.reactions.HELPFUL.reacted}
+                onClick={() => onReact(post.id, 'HELPFUL')}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString('pl-PL')}</span>
+              <button
+                onClick={() =>
+                  onQuote({ postId: post.id, content: post.content.slice(0, 300), authorName: post.author.name })
+                }
+                className="text-xs text-gray-400 hover:text-purple-600"
+              >
+                Cytuj
+              </button>
+              {canDelete && (
+                <button onClick={() => onDelete(post.id)} className="text-xs text-red-400 hover:text-red-600">
+                  Usuń
+                </button>
               )}
             </div>
-            <span className="text-xs text-gray-400">
-              {new Date(post.createdAt).toLocaleString('pl-PL')}
-            </span>
           </div>
         </div>
-        {canDelete && (
-          <button
-            onClick={() => onDelete(post.id)}
-            className="text-xs text-red-400 hover:text-red-600 shrink-0"
-          >
-            Usuń
-          </button>
-        )}
       </div>
-      <p className="mt-3 text-gray-700 text-sm whitespace-pre-wrap">{post.content}</p>
     </div>
   );
 }
@@ -65,6 +164,7 @@ export function ForumThread() {
   const [replyAnon, setReplyAnon] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [replyError, setReplyError] = useState('');
+  const [quoteState, setQuoteState] = useState<QuoteState | null>(null);
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -89,23 +189,36 @@ export function ForumThread() {
 
   const handleDeletePost = async (postId: string) => {
     if (!window.confirm('Usunąć tę odpowiedź?')) return;
-    if (isAdmin) {
-      await forumApi.adminDeletePost(postId);
-    } else {
-      await forumApi.deletePost(postId);
-    }
-    setPosts(prev => prev.filter(p => p.id !== postId));
+    if (isAdmin) await forumApi.adminDeletePost(postId);
+    else await forumApi.deletePost(postId);
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
   };
 
   const handleDeleteThread = async () => {
     if (!thread) return;
     if (!window.confirm('Usunąć ten wątek?')) return;
-    if (isAdmin) {
-      await forumApi.adminDeleteThread(thread.id);
-    } else {
-      await forumApi.deleteThread(thread.id);
-    }
+    if (isAdmin) await forumApi.adminDeleteThread(thread.id);
+    else await forumApi.deleteThread(thread.id);
     navigate('/user/forum');
+  };
+
+  const handleReact = async (postId: string, type: 'LIKE' | 'HEART' | 'HELPFUL') => {
+    const result = await forumApi.reactToPost(postId, type);
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id !== postId) return p;
+        return {
+          ...p,
+          reactions: {
+            ...p.reactions,
+            [type]: {
+              count: result.counts[type] ?? 0,
+              reacted: result.reacted && result.type === type,
+            },
+          },
+        };
+      })
+    );
   };
 
   const handleSubmitReply = async (e: React.FormEvent) => {
@@ -114,10 +227,16 @@ export function ForumThread() {
     setSubmitting(true);
     setReplyError('');
     try {
-      const post = await forumApi.createPost(id, { content: replyContent, isAnonymous: replyAnon });
-      setPosts(prev => [...prev, post]);
+      const post = await forumApi.createPost(id, {
+        content: replyContent,
+        isAnonymous: replyAnon,
+        quotedPostId: quoteState?.postId,
+        quotedContent: quoteState?.content,
+      });
+      setPosts((prev) => [...prev, post]);
       setReplyContent('');
       setReplyAnon(false);
+      setQuoteState(null);
     } catch {
       setReplyError('Nie udało się wysłać odpowiedzi. Spróbuj ponownie.');
     } finally {
@@ -168,50 +287,102 @@ export function ForumThread() {
             )}
           </div>
         </div>
-        <h1 className="text-xl font-bold text-gray-800 mb-3">{thread.title}</h1>
+
+        <h1 className="text-xl font-bold text-gray-800 mb-2">{thread.title}</h1>
+
+        {thread.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {thread.tags.map((tag) => (
+              <Link
+                key={tag}
+                to={`/user/forum/szukaj?tags=${encodeURIComponent(tag)}`}
+                className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
+
         <p className="text-gray-700 text-sm whitespace-pre-wrap mb-3">{thread.content}</p>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="flex items-center gap-3 text-xs text-gray-400">
           <span>{thread.author.name}</span>
           <span>·</span>
           <span>{new Date(thread.createdAt).toLocaleDateString('pl-PL')}</span>
+          <span>·</span>
+          <span>👁 {thread.viewCount} wyświetleń</span>
         </div>
       </div>
 
       <div className="space-y-3 mb-4">
-        {posts.map(post => (
+        {posts.map((post) => (
           <ForumPostItem
             key={post.id}
             post={post}
             currentUserId={user?.id ?? ''}
             isAdmin={isAdmin}
             onDelete={handleDeletePost}
+            onQuote={setQuoteState}
+            onReact={handleReact}
           />
         ))}
       </div>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mb-4">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 text-sm rounded-lg border disabled:opacity-40 hover:bg-gray-50">← Poprzednia</button>
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-4 py-2 text-sm rounded-lg border disabled:opacity-40 hover:bg-gray-50"
+          >
+            ← Poprzednia
+          </button>
           <span className="px-4 py-2 text-sm text-gray-500">{page} / {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 text-sm rounded-lg border disabled:opacity-40 hover:bg-gray-50">Następna →</button>
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-4 py-2 text-sm rounded-lg border disabled:opacity-40 hover:bg-gray-50"
+          >
+            Następna →
+          </button>
         </div>
       )}
 
       {!thread.isLocked && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:static md:border md:rounded-xl md:p-5">
           <form onSubmit={handleSubmitReply}>
+            {quoteState && (
+              <div className="flex items-start gap-2 mb-2 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500 mb-1">
+                    Cytujesz: <span className="font-medium">{quoteState.authorName}</span>
+                  </p>
+                  <p className="text-xs text-gray-600 line-clamp-2">{quoteState.content}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setQuoteState(null)}
+                  className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <textarea
               value={replyContent}
-              onChange={e => setReplyContent(e.target.value)}
-              placeholder="Napisz odpowiedź..."
+              onChange={(e) => setReplyContent(e.target.value)}
+              placeholder="Napisz odpowiedź... (użyj @admin jeśli potrzebujesz pomocy)"
               rows={3}
               className="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
             <div className="flex items-center justify-between mt-2">
               <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input type="checkbox" checked={replyAnon} onChange={e => setReplyAnon(e.target.checked)} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={replyAnon}
+                  onChange={(e) => setReplyAnon(e.target.checked)}
+                  className="rounded"
+                />
                 Anonimowo
               </label>
               <button
