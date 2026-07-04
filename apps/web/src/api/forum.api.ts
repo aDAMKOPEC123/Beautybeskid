@@ -4,6 +4,8 @@ export interface ForumAuthor {
   id: string | null;
   name: string;
   avatarPath: string | null;
+  createdAt?: string;
+  _count?: { forumPosts: number };
 }
 
 export interface ForumCategory {
@@ -11,8 +13,12 @@ export interface ForumCategory {
   name: string;
   slug: string;
   description: string | null;
+  icon: string | null;
+  color: string | null;
   order: number;
   _count?: { threads: number };
+  postCount?: number;
+  lastThread?: { title: string; createdAt: string } | null;
 }
 
 export interface ForumThread {
@@ -23,12 +29,21 @@ export interface ForumThread {
   isPinned: boolean;
   isLocked: boolean;
   isDeleted: boolean;
+  tags: string[];
+  viewCount: number;
   mentionsAdmin?: boolean;
   author: ForumAuthor;
   category: { id: string; name: string; slug: string };
   createdAt: string;
   updatedAt: string;
   _count?: { posts: number };
+  lastPost?: { author: { name: string }; createdAt: string } | null;
+}
+
+export interface ReactionCounts {
+  LIKE: { count: number; reacted: boolean };
+  HEART: { count: number; reacted: boolean };
+  HELPFUL: { count: number; reacted: boolean };
 }
 
 export interface ForumPost {
@@ -37,10 +52,31 @@ export interface ForumPost {
   isAnonymous: boolean;
   isDeleted: boolean;
   mentionsAdmin: boolean;
+  quotedPostId: string | null;
+  quotedContent: string | null;
   author: ForumAuthor;
   threadId: string;
   createdAt: string;
   updatedAt: string;
+  reactions: ReactionCounts;
+}
+
+export interface ForumTag {
+  tag: string;
+  count: number;
+}
+
+export interface ForumStats {
+  threadCount: number;
+  postCount: number;
+  userCount: number;
+}
+
+export interface ForumUserProfile {
+  user: { id: string; name: string; avatarPath: string | null; createdAt: string };
+  postCount: number;
+  data: ForumThread[];
+  totalPages: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -72,7 +108,7 @@ export const forumApi = {
 
   updateCategory: async (
     id: string,
-    data: Partial<{ name: string; slug: string; description: string; order: number }>,
+    data: Partial<{ name: string; slug: string; description: string; order: number; icon: string; color: string }>,
   ): Promise<ForumCategory> => {
     const res = await api.patch(`/forum/categories/${id}`, data);
     return res.data;
@@ -104,6 +140,7 @@ export const forumApi = {
     content: string;
     categoryId: string;
     isAnonymous?: boolean;
+    tags?: string[];
   }): Promise<ForumThread> => {
     const res = await api.post('/forum/threads', data);
     return res.data;
@@ -131,7 +168,7 @@ export const forumApi = {
   // Posts
   createPost: async (
     threadId: string,
-    data: { content: string; isAnonymous?: boolean },
+    data: { content: string; isAnonymous?: boolean; quotedPostId?: string; quotedContent?: string },
   ): Promise<ForumPost> => {
     const res = await api.post(`/forum/threads/${threadId}/posts`, data);
     return res.data;
@@ -139,6 +176,15 @@ export const forumApi = {
 
   deletePost: async (id: string): Promise<void> => {
     await api.delete(`/forum/posts/${id}`);
+  },
+
+  // Reactions
+  reactToPost: async (
+    postId: string,
+    type: 'LIKE' | 'HEART' | 'HELPFUL',
+  ): Promise<{ reacted: boolean; type: string; counts: Record<string, number> }> => {
+    const res = await api.post(`/forum/posts/${postId}/react`, { type });
+    return res.data;
   },
 
   // Watch
@@ -149,6 +195,40 @@ export const forumApi = {
 
   getWatchStatus: async (threadId: string): Promise<{ watching: boolean }> => {
     const res = await api.get(`/forum/threads/${threadId}/watch`);
+    return res.data;
+  },
+
+  // Search
+  search: async (params: {
+    q: string;
+    tags?: string[];
+    categoryId?: string;
+    page?: number;
+  }): Promise<PaginatedResponse<ForumThread> & { total: number }> => {
+    const res = await api.get('/forum/search', {
+      params: { ...params, tags: params.tags?.join(',') },
+    });
+    return res.data;
+  },
+
+  // Tags
+  getPopularTags: async (): Promise<ForumTag[]> => {
+    const res = await api.get('/forum/tags');
+    return res.data;
+  },
+
+  // Stats
+  getStats: async (): Promise<ForumStats> => {
+    const res = await api.get('/forum/stats');
+    return res.data;
+  },
+
+  // User profile
+  getUserThreads: async (
+    userId: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<ForumUserProfile> => {
+    const res = await api.get(`/forum/users/${userId}/threads`, { params });
     return res.data;
   },
 
