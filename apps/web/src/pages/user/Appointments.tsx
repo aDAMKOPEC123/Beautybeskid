@@ -332,23 +332,30 @@ function AppointmentCard({ appointment: a, hasPendingReview }: { appointment: an
                 />
               </div>
             ) : (
-              <div className="px-5 pb-4 pt-3 flex gap-2">
-                {hasPendingReview && (
-                  <button
-                    onClick={() => setReviewOpen(true)}
-                    className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold border transition-opacity hover:opacity-80"
-                    style={{ borderColor: '#C4965A', color: '#C4965A' }}
-                  >
-                    ★ Oceń wizytę
-                  </button>
+              <div className="px-5 pb-4 pt-3 space-y-2">
+                {a.service?.price && (
+                  <p className="text-[11px] font-semibold text-center" style={{ color: '#C4965A' }}>
+                    +{Math.floor(Number(a.service.price))} pkt lojalnościowych za tę wizytę
+                  </p>
                 )}
-                <Link
-                  to="/rezerwacja"
-                  className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-80"
-                  style={{ background: '#1A3828', color: '#fff' }}
-                >
-                  Rezerwuj znowu
-                </Link>
+                <div className="flex gap-2">
+                  {hasPendingReview && (
+                    <button
+                      onClick={() => setReviewOpen(true)}
+                      className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold border transition-opacity hover:opacity-80"
+                      style={{ borderColor: '#C4965A', color: '#C4965A' }}
+                    >
+                      ★ Oceń wizytę
+                    </button>
+                  )}
+                  <Link
+                    to={`/rezerwacja?serviceId=${a.serviceId}${a.employeeId ? `&employeeId=${a.employeeId}` : ''}`}
+                    className="flex-1 text-center py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-80"
+                    style={{ background: '#1A3828', color: '#fff' }}
+                  >
+                    Rezerwuj znowu
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -606,6 +613,13 @@ function RescheduleModal({
           <strong style={{ color: '#1A3828' }}>
             {format(new Date(appointment.date), "d MMMM yyyy 'o' HH:mm", { locale: pl })}
           </strong>
+        </p>
+
+        <p
+          className="text-[12px] rounded-xl px-3 py-2.5 leading-relaxed"
+          style={{ background: 'rgba(196,150,90,0.08)', color: '#92400E', border: '1px solid rgba(196,150,90,0.2)' }}
+        >
+          Zmiana terminu wymaga potwierdzenia przez salon. Po wysłaniu wniosku otrzymasz powiadomienie z odpowiedzią.
         </p>
 
         <div>
