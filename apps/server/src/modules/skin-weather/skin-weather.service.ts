@@ -426,17 +426,25 @@ export const processSkinWeatherReports = async (force = false) => {
 };
 
 export const initializeSkinWeatherScheduler = () => {
-  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const scheduleNext = () => {
+    // Re-anchor to next 07:00 Warsaw time after every run — no drift, survives restarts
+    const now = new Date();
+    const warsawNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }));
+    const next7 = new Date(warsawNow);
+    next7.setHours(7, 0, 0, 0);
+    if (next7 <= warsawNow) next7.setDate(next7.getDate() + 1);
+    const delay = next7.getTime() - warsawNow.getTime();
 
-  // Calculate delay until next 4:00 UTC (= 6:00 PL)
-  const now = new Date();
-  const next4UTC = new Date(now);
-  next4UTC.setUTCHours(4, 0, 0, 0);
-  if (next4UTC <= now) next4UTC.setUTCDate(next4UTC.getUTCDate() + 1);
-  const delay = next4UTC.getTime() - now.getTime();
+    setTimeout(async () => {
+      await processSkinWeatherReports();
+      scheduleNext();
+    }, delay);
+
+    console.log(`[SkinWeather] Next run in ${Math.round(delay / 60000)} min (07:00 Warsaw).`);
+  };
 
   // On startup: run if any profile lacks a report for today
-  const today = startOfDay(now);
+  const today = startOfDay(new Date());
   (async () => {
     try {
       const usersWithReport = await prisma.skinWeatherReport
@@ -445,18 +453,13 @@ export const initializeSkinWeatherScheduler = () => {
       const missing = await prisma.skinWeatherProfile.findFirst({
         where: coveredIds.length > 0 ? { NOT: { userId: { in: coveredIds } } } : {},
       });
-      if (missing) processSkinWeatherReports();
+      if (missing) await processSkinWeatherReports();
     } catch (err) {
       console.error('[SkinWeather] Startup check error:', err);
     }
   })();
 
-  setTimeout(() => {
-    processSkinWeatherReports();
-    setInterval(processSkinWeatherReports, MS_PER_DAY);
-  }, delay);
-
-  console.log(`[SkinWeather] Scheduler initialized. Next run in ${Math.round(delay / 60000)} minutes.`);
+  scheduleNext();
 };
 
 // ── Skin Type Advice ──────────────────────────────────────────────────────────
