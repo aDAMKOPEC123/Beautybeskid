@@ -61,6 +61,8 @@ const ForumHome = lazy(() => import('./pages/user/forum/ForumHome').then(m => ({
 const ForumCategory = lazy(() => import('./pages/user/forum/ForumCategory').then(m => ({ default: m.ForumCategory })));
 const ForumThread = lazy(() => import('./pages/user/forum/ForumThread').then(m => ({ default: m.ForumThread })));
 const ForumNewThread = lazy(() => import('./pages/user/forum/ForumNewThread').then(m => ({ default: m.ForumNewThread })));
+const ForumSearch = lazy(() => import('./pages/user/forum/ForumSearch').then(m => ({ default: m.ForumSearch })));
+const ForumUserProfile = lazy(() => import('./pages/user/forum/ForumUserProfile').then(m => ({ default: m.ForumUserProfile })));
 const AdminForum = lazy(() => import('./pages/admin/AdminForum').then(m => ({ default: m.AdminForum })));
 
 // Admin pages
@@ -192,6 +194,8 @@ export const router = createBrowserRouter([
       { path: 'vouchery', element: <S><UserVouchery /></S> },
       { path: 'forum', element: <S><ForumHome /></S> },
       { path: 'forum/nowy', element: <S><ForumNewThread /></S> },
+      { path: 'forum/szukaj', element: <S><ForumSearch /></S> },
+      { path: 'forum/uzytkownik/:userId', element: <S><ForumUserProfile /></S> },
       { path: 'forum/watek/:id', element: <S><ForumThread /></S> },
       { path: 'forum/:categorySlug', element: <S><ForumCategory /></S> },
     ],
