@@ -61,7 +61,7 @@ export const forumController = {
       const isAdmin = req.user?.role === 'ADMIN';
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      const data = await forumService.getThread(req.params.id, page, limit, isAdmin);
+      const data = await forumService.getThread(req.params.id, page, limit, isAdmin, req.user?.id);
       res.json(data);
     } catch (err) { next(err); }
   },
@@ -113,9 +113,9 @@ export const forumController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.id;
-      const { content } = req.body;
+      const { content, quotedPostId, quotedContent } = req.body;
       const isAnonymous = req.body.isAnonymous === true;
-      const data = await forumService.createPost(userId, req.params.id, content, isAnonymous);
+      const data = await forumService.createPost(userId, req.params.id, content, isAnonymous, quotedPostId, quotedContent);
       res.status(201).json(data);
     } catch (err) { next(err); }
   },
@@ -142,6 +142,60 @@ export const forumController = {
       const userId = req.user!.id;
       await forumService.softDeleteThread(userId, req.params.id, true);
       res.status(204).send();
+    } catch (err) { next(err); }
+  },
+
+  // ─── Reactions ───────────────────────────────────────────────────────────────
+  reactToPost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const { type } = req.body;
+      if (!['LIKE', 'HEART', 'HELPFUL'].includes(type)) {
+        return res.status(400).json({ message: 'Nieprawidłowy typ reakcji' });
+      }
+      const data = await forumService.reactToPost(userId, req.params.id, type);
+      res.json(data);
+    } catch (err) { next(err); }
+  },
+
+  // ─── Search ──────────────────────────────────────────────────────────────────
+  searchThreads: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const q = (req.query.q as string) ?? '';
+      const tags = req.query.tags
+        ? (req.query.tags as string).split(',').filter(Boolean)
+        : [];
+      const categoryId = req.query.categoryId as string | undefined;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const data = await forumService.searchThreads(q, tags, categoryId, page, limit);
+      res.json(data);
+    } catch (err) { next(err); }
+  },
+
+  // ─── Tags ────────────────────────────────────────────────────────────────────
+  getPopularTags: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await forumService.getPopularTags();
+      res.json(data);
+    } catch (err) { next(err); }
+  },
+
+  // ─── User profile ─────────────────────────────────────────────────────────────
+  getUserThreads: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const data = await forumService.getUserThreads(req.params.userId, page, limit);
+      res.json(data);
+    } catch (err) { next(err); }
+  },
+
+  // ─── Stats ───────────────────────────────────────────────────────────────────
+  getForumStats: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await forumService.getForumStats();
+      res.json(data);
     } catch (err) { next(err); }
   },
 

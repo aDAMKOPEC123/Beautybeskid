@@ -33,6 +33,15 @@ router.get('/threads/:id/watch', c.getWatchStatus);
 // ─── Posts ────────────────────────────────────────────────────────────────────
 router.post('/threads/:id/posts', c.createPost);
 router.delete('/posts/:id', c.deletePost);
+router.post('/posts/:id/react', c.reactToPost);
+
+// ─── Search, Tags, Stats ──────────────────────────────────────────────────────
+router.get('/search', c.searchThreads);
+router.get('/tags', c.getPopularTags);
+router.get('/stats', c.getForumStats);
+
+// ─── User profile ─────────────────────────────────────────────────────────────
+router.get('/users/:userId/threads', c.getUserThreads);
 
 // ─── Admin endpoints ──────────────────────────────────────────────────────────
 router.get('/admin/threads', requireAdmin, c.getAdminThreads);
