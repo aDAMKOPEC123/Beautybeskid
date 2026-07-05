@@ -214,6 +214,7 @@ export const BlogPost = () => {
       ],
     },
     publisher: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+    isAccessibleForFree: true,
   };
 
   return (

@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /auth/
+Disallow: /user/
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /akademia/brak-dostepu
 Sitemap: https://kosmetologwiktoriacwik.pl/sitemap.xml
 
 User-agent: GPTBot

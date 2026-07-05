@@ -1598,7 +1598,7 @@ const ReservationFormSection = ({
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-oak/18 text-[#DDB87F]">
                 <Sparkles className="h-6 w-6" />
               </div>
-              <h3 className="mt-6 font-heading text-3xl font-bold">Bezpłatna konsultacja</h3>
+              <h2 className="mt-6 font-heading text-3xl font-bold">Bezpłatna konsultacja</h2>
               <p className="mt-3 text-sm leading-relaxed text-ivory/70">
                 Dla nowych klientek to najprostszy sposób, aby zacząć bez niepewności i bez wybierania usługi na ślepo.
               </p>

@@ -1,5 +1,6 @@
 ﻿import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/axios';
+import { PageSEO } from '@/components/shared/SEO';
 
 export const PublicTerms = () => {
   const { data, isLoading } = useQuery({
@@ -12,6 +13,11 @@ export const PublicTerms = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <PageSEO
+        title="Regulamin gabinetu kosmetologicznego BeskidStudio By Wiktoria Ćwik"
+        description="Regulamin i warunki korzystania z usług salonu kosmetologicznego BeskidStudio By Wiktoria Ćwik w Mordarce koło Limanowej."
+        canonical="/regulamin"
+      />
       <h1 className="text-3xl font-heading font-bold text-primary mb-8">Regulamin Gabinetu BeskidStudio By Wiktoria Ćwik</h1>
       {isLoading ? (
         <p className="text-muted-foreground animate-pulse">Wczytywanie regulaminu...</p>

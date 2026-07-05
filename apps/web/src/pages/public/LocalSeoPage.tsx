@@ -119,9 +119,21 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                   <Phone className="h-4 w-4" />
                 </Link>
               </Button>
-              {page.slug === 'laminacja-brwi-limanowa' ? (
+              {page.slug.startsWith('laminacja-brwi') ? (
                 <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
                   <Link to="/uslugi/laminacja-brwi">Cena i szczegóły zabiegu</Link>
+                </Button>
+              ) : page.slug.startsWith('laminacja-rzes') ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/uslugi/laminacja-rzes">Cena i szczegóły zabiegu</Link>
+                </Button>
+              ) : page.slug.startsWith('oprawa-oka') ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/uslugi">Zobacz pełną ofertę zabiegów</Link>
+                </Button>
+              ) : page.slug.startsWith('wrastajace-paznokcie') ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/uslugi">Sprawdź dostępne zabiegi</Link>
                 </Button>
               ) : null}
             </div>

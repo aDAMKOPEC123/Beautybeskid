@@ -37,6 +37,9 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       'meta[property="og:url"]',
       'meta[property="og:image"]',
       'meta[property="og:image:alt"]',
+      'meta[property="og:image:width"]',
+      'meta[property="og:image:height"]',
+      'meta[property="og:image:type"]',
       'meta[property="og:locale"]',
       'meta[name="twitter:card"]',
       'meta[name="twitter:title"]',
@@ -70,6 +73,9 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
       <meta property="og:image:alt" content={`${fullTitle} — BeskidStudio`} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:type" content="image/webp" />
       <meta property="og:locale" content="pl_PL" />
       {type === 'article' && publishedTime && (
         <meta property="article:published_time" content={publishedTime} />

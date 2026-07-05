@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Camera, ImageIcon, UserRound } from 'lucide-react';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
+import { PageSEO } from '@/components/shared/SEO';
 
 export const Register = () => {
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,11 @@ export const Register = () => {
 
   return (
     <>
+      <PageSEO
+        title="Rejestracja"
+        description="Zarejestruj się w salonie BeskidStudio By Wiktoria Ćwik i zarezerwuj wizytę online."
+        noIndex
+      />
       {emailSent ? (
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
           <Card className="w-full max-w-md animate-enter">

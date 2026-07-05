@@ -9,6 +9,7 @@ import { authApi } from '@/api/auth.api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { PageSEO } from '@/components/shared/SEO';
 
 export const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,11 @@ export const ForgotPassword = () => {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
+      <PageSEO
+        title="Resetowanie hasła"
+        description="Zresetuj hasło do konta w BeskidStudio By Wiktoria Ćwik."
+        noIndex
+      />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
           <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Zresetuj hasło</CardTitle>

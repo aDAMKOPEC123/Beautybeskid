@@ -9,6 +9,7 @@ import { authApi } from '@/api/auth.api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageSEO } from '@/components/shared/SEO';
 
 export const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ export const ResetPassword = () => {
   if (!token) {
     return (
       <div className="flex justify-center p-8">
+        <PageSEO title="Reset hasła" description="Resetowanie hasła." noIndex />
         <Card className="w-full max-w-md p-8 text-center text-destructive border-destructive">
           Nieprawidłowy link do resetu hasła (brak tokenu).
         </Card>
@@ -75,6 +77,7 @@ export const ResetPassword = () => {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
+      <PageSEO title="Nowe hasło" description="Ustaw nowe hasło do konta." noIndex />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
           <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Nowe Hasło</CardTitle>

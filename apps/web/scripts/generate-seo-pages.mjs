@@ -28,7 +28,7 @@ const corePages = [
   },
   {
     path: '/kontakt',
-    title: 'Kontakt i dojazd | Kosmetolog Limanowa',
+    title: 'Kontakt i dojazd – salon kosmetyczny Mordarka',
     description: 'BeskidStudio Wiktoria Ćwik, Mordarka 505 koło Limanowej. Telefon 532 128 227, mapa dojazdu, godziny otwarcia i rezerwacja wizyty online.',
     heading: 'Kontakt i dojazd do BeskidStudio',
     lead: 'Salon mieści się pod adresem Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.',
@@ -46,7 +46,7 @@ const corePages = [
   },
   {
     path: '/o-nas',
-    title: 'Wiktoria Ćwik – kosmetolog Limanowa | O salonie',
+    title: 'O salonie BeskidStudio – poznaj Wiktorię Ćwik',
     description: 'Poznaj Wiktorię Ćwik i BeskidStudio w Mordarce koło Limanowej. Indywidualne konsultacje, spokojna atmosfera i świadoma pielęgnacja.',
     heading: 'Wiktoria Ćwik – kosmetolog koło Limanowej',
     lead: 'BeskidStudio łączy profesjonalną konsultację, indywidualny plan pielęgnacji i opiekę także po wizycie.',

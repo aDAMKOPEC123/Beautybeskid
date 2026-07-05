@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
 import { getPanelPath } from '@/lib/panel-routing';
+import { PageSEO } from '@/components/shared/SEO';
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -81,6 +82,11 @@ export const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
+      <PageSEO
+        title="Logowanie"
+        description="Zaloguj się do swojego konta w salonie BeskidStudio By Wiktoria Ćwik."
+        noIndex
+      />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
           {panelEntry && (

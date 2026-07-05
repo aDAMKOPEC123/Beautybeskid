@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 import { getPanelPath } from '@/lib/panel-routing';
+import { PageSEO } from '@/components/shared/SEO';
 
 const safeNextPath = (value: string | null) => {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return null;
@@ -41,6 +42,7 @@ export const FacebookCallback = () => {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-4">
+      <PageSEO title="Logowanie przez Facebook" description="Trwa logowanie." noIndex />
       <div className="text-center">
         <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-primary/20 border-b-primary" />
         <p className="mt-4 text-sm text-muted-foreground">Kończymy logowanie przez Facebook…</p>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/store/auth.store';
+import { PageSEO } from '@/components/shared/SEO';
 
 type Provider = 'Facebook' | 'Google';
 
@@ -84,6 +85,7 @@ const SocialRegistrationComplete = ({ provider }: { provider: Provider }) => {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-4">
+      <PageSEO title="Dokończ rejestrację" description="Uzupełnij dane rejestracyjne." noIndex />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
           <CardTitle className="text-center font-heading text-3xl font-bold text-primary">
