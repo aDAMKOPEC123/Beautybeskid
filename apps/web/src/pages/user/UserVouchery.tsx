@@ -1,8 +1,20 @@
 import { useState, useEffect } from 'react';
 import { vouchersApi, type Voucher } from '@/api/vouchers.api';
-import { Gift, Ticket, Clock, CheckCircle, XCircle, ChevronRight, Trash2 } from 'lucide-react';
+import { Gift, Ticket, Clock, CheckCircle, XCircle, ChevronRight, Trash2, FileText, Loader2 } from 'lucide-react';
 
 const STORAGE_KEY = 'cosmo_tracked_vouchers';
+const VOUCHER_CODE_LENGTH = 11;
+
+function formatVoucherCode(value: string): string {
+  const compact = value
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, VOUCHER_CODE_LENGTH);
+
+  return [compact.slice(0, 3), compact.slice(3, 7), compact.slice(7, 11)]
+    .filter(Boolean)
+    .join('-');
+}
 
 function loadTracked(): string[] {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
@@ -36,6 +48,8 @@ const statusColor: Record<string, string> = {
 };
 
 function VoucherCard({ voucher, onRemove }: { voucher: Voucher; onRemove: () => void }) {
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
   const status = voucherStatus(voucher);
   const isCash = voucher.type === 'CASH';
   const amount = Number(voucher.amount ?? 0);
@@ -43,24 +57,62 @@ function VoucherCard({ voucher, onRemove }: { voucher: Voucher; onRemove: () => 
   const used = amount - remaining;
   const pct = amount > 0 ? Math.round((remaining / amount) * 100) : 0;
 
+  const handleOpenPdf = async () => {
+    const previewWindow = window.open('about:blank', '_blank');
+    if (previewWindow) {
+      previewWindow.opener = null;
+      previewWindow.document.title = 'Ładowanie vouchera…';
+    }
+
+    setPdfError('');
+    setPdfLoading(true);
+    try {
+      const pdf = await vouchersApi.getPdfByCode(voucher.code);
+      const url = URL.createObjectURL(pdf);
+
+      if (previewWindow) {
+        previewWindow.location.href = url;
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.click();
+      }
+
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch {
+      previewWindow?.close();
+      setPdfError('Nie udało się otworzyć pliku PDF. Spróbuj ponownie.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   return (
     <div className={`rounded-xl border bg-card overflow-hidden shadow-sm transition-opacity ${status === 'used' || status === 'expired' ? 'opacity-60' : ''}`}>
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-muted/30">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 border-b border-border/60 bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
           {isCash ? (
             <Ticket className="w-4 h-4 text-caramel" />
           ) : (
             <Gift className="w-4 h-4 text-caramel" />
           )}
-          <span className="font-mono text-sm font-semibold tracking-wider text-foreground">{voucher.code}</span>
+          <span className="min-w-0 break-all font-mono text-sm font-semibold tracking-wider text-foreground">{voucher.code}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 sm:justify-end">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${statusColor[status]}`}>
             {statusLabel[status]}
           </span>
-          <button onClick={onRemove} title="Usuń z listy" className="text-muted-foreground hover:text-destructive transition-colors">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button
+            type="button"
+            onClick={onRemove}
+            title="Usuń z listy"
+            aria-label={`Usuń voucher ${voucher.code} z listy`}
+            className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive sm:mr-0 sm:min-h-8 sm:min-w-8"
+          >
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -83,7 +135,7 @@ function VoucherCard({ voucher, onRemove }: { voucher: Voucher; onRemove: () => 
         {/* Value */}
         {isCash ? (
           <div>
-            <div className="flex justify-between items-end mb-1.5">
+            <div className="mb-1.5 flex flex-col gap-0.5 min-[360px]:flex-row min-[360px]:items-end min-[360px]:justify-between">
               <span className="text-xs text-muted-foreground">Pozostało</span>
               <span className="text-lg font-bold text-foreground">
                 {remaining.toFixed(0)} <span className="text-sm font-normal text-muted-foreground">/ {amount.toFixed(0)} zł</span>
@@ -113,13 +165,24 @@ function VoucherCard({ voucher, onRemove }: { voucher: Voucher; onRemove: () => 
         )}
 
         {/* Validity */}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 border-t border-border/40 pt-2 text-xs text-muted-foreground">
           <Clock className="w-3 h-3 shrink-0" />
           Ważny do:{' '}
           <span className={new Date(voucher.validUntil) < new Date() ? 'text-destructive font-medium' : 'font-medium text-foreground'}>
             {new Date(voucher.validUntil).toLocaleDateString('pl-PL', { day: '2-digit', month: 'long', year: 'numeric' })}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={handleOpenPdf}
+          disabled={pdfLoading}
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-caramel/30 bg-caramel/5 px-4 py-2.5 text-sm font-semibold text-caramel transition-colors hover:bg-caramel/10 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+        >
+          {pdfLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          {pdfLoading ? 'Otwieram PDF…' : 'Zobacz voucher PDF'}
+        </button>
+        {pdfError && <p className="text-xs text-destructive" role="alert">{pdfError}</p>}
       </div>
     </div>
   );
@@ -145,7 +208,7 @@ export function UserVouchery() {
   }, [trackedCodes]);
 
   const handleAdd = async () => {
-    const code = codeInput.trim().toUpperCase();
+    const code = formatVoucherCode(codeInput);
     if (!code) return;
     if (trackedCodes.includes(code)) { setError('Ten kod jest już na liście'); return; }
     setError('');
@@ -197,11 +260,11 @@ export function UserVouchery() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+    <div className="mx-auto w-full max-w-2xl space-y-6 py-4 sm:space-y-8 sm:px-4 sm:py-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
-          <Gift className="w-6 h-6 text-caramel" /> Twoje Vouchery
+        <h1 className="flex items-center gap-2 text-xl font-semibold text-foreground sm:text-2xl">
+          <Gift className="h-5 w-5 shrink-0 text-caramel sm:h-6 sm:w-6" /> Twoje Vouchery
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Wpisz kod vouchera, aby sprawdzić stan i śledzić jego użycie.
@@ -209,21 +272,26 @@ export function UserVouchery() {
       </div>
 
       {/* Input */}
-      <div className="rounded-xl border bg-card p-4 space-y-3">
+      <div className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
         <p className="text-sm font-medium text-foreground">Dodaj voucher do śledzenia</p>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
-            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm font-mono tracking-widest uppercase placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-caramel/40"
+            className="min-h-11 min-w-0 w-full flex-1 rounded-md border border-border bg-background px-3 py-2 font-mono text-base uppercase tracking-[0.12em] placeholder:font-sans placeholder:text-sm placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-caramel/40 sm:text-sm"
             placeholder="np. VCH-ABCD-1234"
             value={codeInput}
-            onChange={(e) => { setCodeInput(e.target.value); setError(''); }}
+            onChange={(e) => { setCodeInput(formatVoucherCode(e.target.value)); setError(''); }}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            maxLength={20}
+            maxLength={32}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-label="Kod vouchera"
           />
           <button
+            type="button"
             onClick={handleAdd}
             disabled={loading || !codeInput.trim()}
-            className="px-4 py-2 rounded-md bg-caramel text-white text-sm font-semibold hover:bg-walnut transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md bg-caramel px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {loading ? 'Sprawdzam…' : <><ChevronRight className="w-4 h-4" /> Dodaj</>}
           </button>
@@ -253,14 +321,14 @@ export function UserVouchery() {
               </div>
             );
             if (v === 'error') return (
-              <div key={code} className="rounded-xl border bg-card px-4 py-3 flex items-center justify-between">
-                <div>
-                  <span className="font-mono text-sm text-destructive">{code}</span>
+              <div key={code} className="flex flex-col gap-3 rounded-xl border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <span className="break-all font-mono text-sm text-destructive">{code}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">Nie udało się pobrać danych</p>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => handleRefresh(code)} disabled={refreshing === code} className="text-xs text-caramel hover:underline">{refreshing === code ? 'Odświeżam…' : 'Spróbuj ponownie'}</button>
-                  <button onClick={() => handleRemove(code)} className="text-muted-foreground hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
+                <div className="flex items-center justify-between gap-2 sm:justify-end">
+                  <button onClick={() => handleRefresh(code)} disabled={refreshing === code} className="min-h-11 text-xs text-caramel hover:underline">{refreshing === code ? 'Odświeżam…' : 'Spróbuj ponownie'}</button>
+                  <button onClick={() => handleRemove(code)} aria-label={`Usuń voucher ${code} z listy`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                 </div>
               </div>
             );

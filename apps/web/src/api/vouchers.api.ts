@@ -53,4 +53,12 @@ export const vouchersApi = {
     const res = await api.get('/vouchers/lookup', { params: { code } });
     return res.data.data.voucher;
   },
+
+  getPdfByCode: async (code: string): Promise<Blob> => {
+    const res = await api.get('/vouchers/lookup/pdf', {
+      params: { code },
+      responseType: 'blob',
+    });
+    return res.data;
+  },
 };

@@ -57,6 +57,25 @@ export const getPdf = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+export const getPdfByCode = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const code = String(req.query.code || '');
+    if (!code) {
+      res.status(400).json({ status: 'error', message: 'Podaj kod vouchera' });
+      return;
+    }
+
+    const voucher = await service.lookupVoucherByCode(code);
+    const filePath = await service.getVoucherPdfPath(voucher.id);
+    res.setHeader('Content-Disposition', `inline; filename="voucher-${voucher.code}.pdf"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.sendFile(path.resolve(filePath));
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const adjust = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

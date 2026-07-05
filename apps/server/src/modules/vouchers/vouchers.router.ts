@@ -7,6 +7,7 @@ const router = Router();
 
 // Public (authenticated) route — accessible to all logged-in users
 router.get('/lookup', authenticate, controller.lookup);
+router.get('/lookup/pdf', authenticate, controller.getPdfByCode);
 
 // Admin-only routes
 router.use(authenticate, requireAdmin);
