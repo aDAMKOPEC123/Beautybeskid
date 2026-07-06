@@ -24,8 +24,9 @@ import { GooglePayload, verifyGoogleToken } from './google.strategy';
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   maxAge,
+  ...(env.NODE_ENV === 'production' && { domain: '.kosmetologwiktoriacwik.pl' }),
 });
 
 const FACEBOOK_STATE_COOKIE = 'facebookOAuthState';
