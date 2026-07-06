@@ -6,6 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string().url(),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
+  ACADEMY_URL: z.string().url().optional(),
   SERVER_URL: z.string().url().optional(),
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('15m'),

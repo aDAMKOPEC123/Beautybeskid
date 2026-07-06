@@ -55,7 +55,7 @@ app.use(helmet());
 app.use(compression());
 app.use(pinoHttp());
 app.use(cors({
-  origin: env.CLIENT_URL,
+  origin: [env.CLIENT_URL, ...(env.ACADEMY_URL ? [env.ACADEMY_URL] : [])],
   credentials: true
 }));
 app.use(express.json());

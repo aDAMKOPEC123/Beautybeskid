@@ -14,7 +14,7 @@ let io: SocketIOServer<ClientToServerEvents, ServerToClientEvents>;
 export const initializeSocket = (server: Server) => {
   io = new SocketIOServer<ClientToServerEvents, ServerToClientEvents>(server, {
     cors: {
-      origin: env.CLIENT_URL,
+      origin: [env.CLIENT_URL, ...(env.ACADEMY_URL ? [env.ACADEMY_URL] : [])],
       credentials: true
     }
   });
