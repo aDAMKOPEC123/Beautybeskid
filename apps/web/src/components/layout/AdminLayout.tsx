@@ -40,7 +40,7 @@ export const AdminLayout = () => {
     () => location.pathname.startsWith('/admin/akademia')
   );
   const [sprzedazOpen, setSprzedazOpen] = useState(
-    () => ['/admin/kody-rabatowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'].some(p => location.pathname.startsWith(p))
+    () => ['/admin/kody-rabatowe', '/admin/promocje-sklepowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'].some(p => location.pathname.startsWith(p))
   );
   const [ustawieniaOpen, setUstawieniaOpen] = useState(
     () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
@@ -179,6 +179,7 @@ export const AdminLayout = () => {
       label: 'Sprzedaż',
       links: [
         { to: '/admin/kody-rabatowe', label: 'Kody rabatowe' },
+        { to: '/admin/promocje-sklepowe', label: 'Promocje sklepowe' },
         { to: '/admin/vouchery', label: 'Vouchery' },
         { to: '/admin/lojalnosc', label: 'Program lojalnościowy' },
         { to: '/admin/asortyment', label: 'Asortyment' },
@@ -550,6 +551,9 @@ export const AdminLayout = () => {
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link to="/admin/kody-rabatowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Kody Rabatowe
+                  </Link>
+                  <Link to="/admin/promocje-sklepowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
+                    Promocje sklepowe
                   </Link>
                   <Link to="/admin/vouchery" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Vouchery

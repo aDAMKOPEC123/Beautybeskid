@@ -18,6 +18,7 @@ import { JournalPreviewCard } from '@/components/dashboard/JournalPreviewCard';
 import { HomecarePreviewCard } from '@/components/dashboard/HomecarePreviewCard';
 import { SectionGroup } from '@/components/dashboard/SectionGroup';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
+import { StorePromotionsTile } from '@/components/dashboard/StorePromotionsTile';
 
 export const UserDashboard = () => {
   const { user } = useAuth();
@@ -144,6 +145,7 @@ export const UserDashboard = () => {
         title="Dla Ciebie"
         color="caramel"
         tiles={[
+          { key: 'store-promotions', content: <StorePromotionsTile /> },
           { key: 'recommended', content: <RecommendedSlider /> },
           {
             key: 'ambassador',

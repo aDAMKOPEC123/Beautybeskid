@@ -41,6 +41,7 @@ import {
   Flower2,
   MessageSquare,
   Gift,
+  BadgePercent,
   LogOut,
 } from 'lucide-react';
 
@@ -70,6 +71,7 @@ const NAV_GROUPS = [
     links: [
       { to: '/user/polecenia', label: 'Program poleceń', icon: Users },
       { to: '/user/vouchery', label: 'Vouchery', icon: Gift },
+      { to: '/user/promocje-sklepowe', label: 'Promocje sklepowe', icon: BadgePercent },
       { to: '/user/forum', label: 'Forum', icon: MessageSquare },
       { to: '/akademia', label: 'Akademia', icon: GraduationCap },
       { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },

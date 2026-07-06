@@ -9,6 +9,8 @@ interface ChatMessageProps {
   message: ChatMessagePayload;
   isOwn: boolean;
   showNewMarker?: boolean;
+  showAvatar?: boolean;
+  dateLabel?: string | null;
 }
 
 function Avatar({ name, avatarPath }: { name?: string; avatarPath?: string | null }) {
@@ -21,46 +23,58 @@ function Avatar({ name, avatarPath }: { name?: string; avatarPath?: string | nul
       <img
         src={avatarPath}
         alt={name}
-        className="w-8 h-8 rounded-full object-cover shrink-0"
+        className="w-9 h-9 rounded-full object-cover shrink-0"
       />
     );
   }
 
   return (
-    <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+    <div className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
       {initials}
     </div>
   );
 }
 
-const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
 
 function renderWithLinks(text: string): React.ReactNode[] {
-  return text.split(URL_REGEX).map((part, i) =>
-    URL_REGEX.test(part) ? (
-      <a
-        key={i}
-        href={part}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline underline-offset-2 break-all hover:opacity-80"
-        onClick={e => e.stopPropagation()}
-      >
-        {part}
-      </a>
-    ) : (
-      <span key={i}>{part}</span>
-    )
-  );
+  const parts = text.split(URL_PATTERN);
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 break-all hover:opacity-80"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part ? <span key={i}>{part}</span> : null;
+  });
 }
 
-export const ChatMessage = ({ message, isOwn, showNewMarker }: ChatMessageProps) => {
+export const ChatMessage = ({ message, isOwn, showNewMarker, showAvatar = true, dateLabel }: ChatMessageProps) => {
   const isRead = message.readAt != null;
   const senderName = message.sender?.name;
   const avatarPath = message.sender?.avatarPath;
 
   return (
     <>
+      {dateLabel && (
+        <div className="flex items-center gap-3 my-3">
+          <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.08)' }} />
+          <span className="text-[11px] font-medium whitespace-nowrap" style={{ color: 'rgba(20,40,28,0.45)' }}>
+            {dateLabel}
+          </span>
+          <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.08)' }} />
+        </div>
+      )}
+
       {showNewMarker && (
         <div className="flex items-center gap-3 my-2">
           <div className="flex-1 h-px bg-border" />
@@ -71,15 +85,17 @@ export const ChatMessage = ({ message, isOwn, showNewMarker }: ChatMessageProps)
         </div>
       )}
 
-      <div className={cn('flex gap-2 max-w-[80%]', isOwn ? 'self-end flex-row-reverse' : 'self-start flex-row')}>
-        {/* Avatar */}
-        <div className="mt-auto mb-4">
-          <Avatar name={senderName} avatarPath={avatarPath} />
+      <div className={cn('flex gap-2 max-w-[85%] sm:max-w-[75%]', isOwn ? 'self-end flex-row-reverse' : 'self-start flex-row')}>
+        {/* Avatar — only rendered on last message in a group */}
+        <div className="mt-auto mb-4 w-9 shrink-0">
+          {showAvatar ? (
+            <Avatar name={senderName} avatarPath={avatarPath} />
+          ) : null}
         </div>
 
         {/* Bubble */}
-        <div className={cn('flex flex-col', isOwn ? 'items-end' : 'items-start')}>
-          {senderName && !isOwn && (
+        <div className={cn('flex flex-col min-w-0', isOwn ? 'items-end' : 'items-start')}>
+          {senderName && !isOwn && showAvatar && (
             <span className="text-[11px] text-muted-foreground font-medium px-1 mb-0.5">
               {senderName}
             </span>
@@ -87,7 +103,7 @@ export const ChatMessage = ({ message, isOwn, showNewMarker }: ChatMessageProps)
 
           <div
             className={cn(
-              'px-3 py-2 rounded-2xl text-sm',
+              'px-3 py-2 rounded-2xl text-sm min-w-0',
               isOwn
                 ? 'bg-primary text-primary-foreground rounded-tr-sm shadow-sm'
                 : 'bg-muted rounded-tl-sm border'
@@ -97,8 +113,8 @@ export const ChatMessage = ({ message, isOwn, showNewMarker }: ChatMessageProps)
               <a href={message.attachmentUrl} target="_blank" rel="noopener noreferrer">
                 <img
                   src={message.attachmentUrl}
-                  alt="załącznik"
-                  className="max-w-xs max-h-64 rounded-lg mb-1 object-cover"
+                  alt="zalacznik"
+                  className="max-w-full max-h-64 rounded-lg mb-1 object-cover"
                 />
               </a>
             )}
@@ -106,20 +122,20 @@ export const ChatMessage = ({ message, isOwn, showNewMarker }: ChatMessageProps)
               <video
                 src={message.attachmentUrl}
                 controls
-                className="max-w-xs max-h-64 rounded-lg mb-1"
+                className="max-w-full max-h-64 rounded-lg mb-1"
               />
             )}
             {message.content && <span className="break-words">{renderWithLinks(message.content)}</span>}
           </div>
 
-          <div className="flex items-center gap-1 mt-1 px-1">
-            <span className="text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1 mt-0.5 px-1">
+            <span className="text-[11px] text-muted-foreground">
               {format(new Date(message.createdAt), 'HH:mm')}
             </span>
             {isOwn && (
               isRead
-                ? <CheckCheck size={12} className="text-primary" />
-                : <Check size={12} className="text-muted-foreground" />
+                ? <CheckCheck size={13} className="text-primary" />
+                : <Check size={13} className="text-muted-foreground" />
             )}
           </div>
         </div>

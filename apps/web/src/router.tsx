@@ -57,6 +57,7 @@ const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m =
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
 const UserBeautyPlan = lazy(() => import('./pages/user/BeautyPlan').then(m => ({ default: m.UserBeautyPlan })));
 const UserVouchery = lazy(() => import('./pages/user/UserVouchery').then(m => ({ default: m.UserVouchery })));
+const UserStorePromotions = lazy(() => import('./pages/user/StorePromotions').then(m => ({ default: m.UserStorePromotions })));
 const ForumHome = lazy(() => import('./pages/user/forum/ForumHome').then(m => ({ default: m.ForumHome })));
 const ForumCategory = lazy(() => import('./pages/user/forum/ForumCategory').then(m => ({ default: m.ForumCategory })));
 const ForumThread = lazy(() => import('./pages/user/forum/ForumThread').then(m => ({ default: m.ForumThread })));
@@ -97,6 +98,7 @@ const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEd
 const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
 const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
 const AdminBeautyPlans = lazy(() => import('./pages/admin/AdminBeautyPlans').then(m => ({ default: m.AdminBeautyPlans })));
+const AdminStorePromotions = lazy(() => import('./pages/admin/StorePromotions').then(m => ({ default: m.AdminStorePromotions })));
 
 // Employee pages
 const EmployeeSchedule = lazy(() => import('./pages/employee/Schedule').then(m => ({ default: m.EmployeeSchedule })));
@@ -192,6 +194,7 @@ export const router = createBrowserRouter([
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },
       { path: 'zalecenia', element: <S><UserBeautyPlan /></S> },
       { path: 'vouchery', element: <S><UserVouchery /></S> },
+      { path: 'promocje-sklepowe', element: <S><UserStorePromotions /></S> },
       { path: 'forum', element: <S><ForumHome /></S> },
       { path: 'forum/nowy', element: <S><ForumNewThread /></S> },
       { path: 'forum/szukaj', element: <S><ForumSearch /></S> },
@@ -258,6 +261,7 @@ export const router = createBrowserRouter([
       { path: 'hero', element: <S><AdminHeroSlides /></S> },
       { path: 'polecane-zabiegi', element: <S><AdminRecommendedSlides /></S> },
       { path: 'kody-rabatowe', element: <S><AdminDiscountCodes /></S> },
+      { path: 'promocje-sklepowe', element: <S><AdminStorePromotions /></S> },
       { path: 'vouchery', element: <S><AdminVouchery /></S> },
       { path: 'regulamin', element: <S><AdminTerms /></S> },
       { path: 'o-nas', element: <S><AdminAbout /></S> },

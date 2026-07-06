@@ -17,3 +17,5 @@ export * from './schemas/blog.schema';
 export * from './schemas/loyalty.schema';
 export * from './types/discount-codes.types';
 export * from './schemas/discount-codes.schema';
+export * from './types/store-promotions.types';
+export * from './schemas/store-promotions.schema';

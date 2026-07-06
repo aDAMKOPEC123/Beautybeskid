@@ -23,12 +23,14 @@ import {
   Gift,
   Flower2,
   MessageSquare,
+  BadgePercent,
 } from 'lucide-react';
 
 const MORE_LINKS_PRIMARY = [
   { to: '/user/lojalnosc',    label: 'Punkty',         icon: Star },
   { to: '/user/polecenia',    label: 'Polecenia',      icon: Users },
   { to: '/user/vouchery',     label: 'Vouchery',       icon: Gift },
+  { to: '/user/promocje-sklepowe', label: 'Promocje',  icon: BadgePercent },
   { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
   { to: '/user/profil',       label: 'Profil',         icon: UserIcon },
   { to: '/user/historia',     label: 'Historia',       icon: Clock },
