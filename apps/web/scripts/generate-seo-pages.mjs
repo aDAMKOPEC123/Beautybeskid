@@ -409,9 +409,9 @@ const staticContent = ({
         </section>` : ''}
         ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
-          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a>
+          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a><!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a><!--/email_off-->
         </nav>
-        <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a> · <a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a></address>
+        <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a> · <!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a><!--/email_off--></address>
       </main>`;
 };
 
