@@ -39,8 +39,13 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "[4/4] Building frontend..."
   ssh "$VPS" "cd $REMOTE_DIR/apps/web && pnpm build"
   echo "      Synchronizing webroot..."
-  # Remove stale generated pages for deleted or deactivated CMS entries.
-  ssh "$VPS" "sudo rsync -a --delete $REMOTE_DIR/apps/web/dist/ $WEBROOT/"
+  # Remove stale generated pages, but keep old content-hashed JS/CSS for open
+  # browser tabs. Deleting those assets during a deploy makes lazy imports fail
+  # until every existing tab reloads.
+  ssh "$VPS" "sudo rsync -a --delete --exclude='assets/' $REMOTE_DIR/apps/web/dist/ $WEBROOT/"
+  ssh "$VPS" "sudo mkdir -p $WEBROOT/assets && sudo rsync -a $REMOTE_DIR/apps/web/dist/assets/ $WEBROOT/assets/"
+  # Bound disk usage while retaining enough history for long-lived/PWA tabs.
+  ssh "$VPS" "sudo find $WEBROOT/assets -type f -mtime +30 -delete"
   echo "      Installing nginx configuration..."
   ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/cosmo.conf /etc/nginx/sites-available/kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
   echo "      Frontend deployed."

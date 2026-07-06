@@ -28,7 +28,10 @@ const loadScript = (src: string, id: string) =>
     script.async = true;
     script.src = src;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Nie udało się załadować ${id}`));
+    script.onerror = () => {
+      script.remove();
+      reject(new Error(`Nie udało się załadować ${id}`));
+    };
     document.head.appendChild(script);
   });
 
@@ -58,7 +61,16 @@ export function loadAnalytics() {
   analyticsLoadPromise = Promise.all([
     loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`, 'ga4-script'),
     loadScript(`https://www.googletagmanager.com/gtm.js?id=${GTM_CONTAINER_ID}`, 'gtm-script'),
-  ]).then(() => undefined);
+  ])
+    .then(() => undefined)
+    .catch((error) => {
+      // Analytics is optional and may be blocked by privacy extensions or DNS.
+      // Do not turn that into an unhandled application error; allow a later retry.
+      analyticsLoadPromise = null;
+      if (import.meta.env.DEV) {
+        console.warn('Analytics scripts could not be loaded:', error);
+      }
+    });
 
   return analyticsLoadPromise;
 }
