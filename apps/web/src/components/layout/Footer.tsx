@@ -95,7 +95,7 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="transition-colors"
+                  className="flex h-11 w-11 items-center justify-center rounded-full transition-colors"
                   style={{ color: 'rgba(255,255,255,0.72)' }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
@@ -108,7 +108,7 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full transition-colors"
                 style={{ color: 'rgba(255,255,255,0.72)' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}
@@ -249,7 +249,7 @@ export const Footer = () => {
           <span>© {new Date().getFullYear()} BeskidStudio By Wiktoria Ćwik. Wszelkie prawa zastrzeżone.</span>
           <Link
             to="/regulamin"
-            className="transition-colors"
+            className="inline-flex min-h-11 items-center transition-colors"
             style={{ color: 'rgba(255,255,255,0.72)' }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.72)')}

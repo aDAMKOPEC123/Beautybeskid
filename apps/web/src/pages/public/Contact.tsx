@@ -1,5 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
 import { localAreas } from '@/lib/local-seo';
@@ -126,7 +126,7 @@ export const Contact = () => {
               <div className="p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-4">
                   <Phone className="h-5 w-5" style={{ color: '#C4965A' }} />
-                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Telefon</h2>
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Telefon i e-mail</h2>
                 </div>
                 <p className="text-3xl font-bold tracking-wide mb-5" style={{ color: '#1A3828' }}>{phoneDisplay}</p>
                 <div className="flex flex-wrap gap-3">
@@ -143,6 +143,14 @@ export const Contact = () => {
                     style={{ border: '1px solid rgba(0,0,0,0.15)', color: '#1A3828' }}
                   >
                     Wyślij SMS
+                  </a>
+                  <a
+                    href={`mailto:${SEO.email}`}
+                    className="inline-flex min-h-11 items-center gap-2 break-all rounded-full px-6 py-2.5 text-sm font-semibold transition-colors"
+                    style={{ border: '1px solid rgba(0,0,0,0.15)', color: '#1A3828' }}
+                  >
+                    <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {SEO.email}
                   </a>
                 </div>
               </div>

@@ -182,9 +182,14 @@ export const HeroSlider = ({ variant = 'full', className, fallback = null }: Her
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className={`h-2 rounded-full transition-all ${i === current ? 'w-6 bg-white' : 'w-2 bg-white/50'}`}
+                className="flex h-11 w-11 items-center justify-center rounded-full"
                 aria-label={`Slajd ${i + 1}`}
-              />
+              >
+                <span
+                  className={`h-2 rounded-full transition-all ${i === current ? 'w-6 bg-white' : 'w-2 bg-white/50'}`}
+                  aria-hidden="true"
+                />
+              </button>
             ))}
           </div>
         </>

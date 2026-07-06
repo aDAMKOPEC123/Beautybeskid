@@ -339,3 +339,34 @@
 .text-oak {
   color: #8a5f35;
 }
+
+/* Public pages: readable labels and comfortable touch targets on small screens. */
+@media (max-width: 768px) {
+  .public-site button,
+  .public-site [role='button'] {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .public-site nav a,
+  .public-site a[href^='tel:'],
+  .public-site a[href^='mailto:'],
+  .public-site a[href^='sms:'] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  .public-site .eyebrow {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+
+  .public-site [class~='text-[9px]'],
+  .public-site [class~='text-[10px]'],
+  .public-site [class~='text-[11px]'] {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+}

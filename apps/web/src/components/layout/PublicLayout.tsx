@@ -12,7 +12,7 @@ export const PublicLayout = () => {
   useEffect(() => { isFirstRender.current = false; }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-ivory overflow-x-hidden">
+    <div className="public-site min-h-screen flex flex-col bg-ivory overflow-x-hidden">
       <Navbar />
       <main
         key={location.pathname}

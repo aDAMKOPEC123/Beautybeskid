@@ -24,6 +24,11 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       ? ogImage
       : `${cfg.domain}${ogImage}`
     : `${cfg.domain}/images/beautybeskid-hero-premium.webp`;
+  const imageType = image.toLowerCase().match(/\.png(?:\?|$)/)
+    ? 'image/png'
+    : image.toLowerCase().match(/\.jpe?g(?:\?|$)/)
+      ? 'image/jpeg'
+      : 'image/webp';
 
   useEffect(() => {
     const selectors = [
@@ -36,6 +41,7 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       'meta[property="og:description"]',
       'meta[property="og:url"]',
       'meta[property="og:image"]',
+      'meta[property="og:image:secure_url"]',
       'meta[property="og:image:alt"]',
       'meta[property="og:image:width"]',
       'meta[property="og:image:height"]',
@@ -45,6 +51,7 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       'meta[name="twitter:title"]',
       'meta[name="twitter:description"]',
       'meta[name="twitter:image"]',
+      'meta[name="twitter:image:alt"]',
     ];
 
     selectors.forEach((selector) => {
@@ -72,10 +79,11 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:secure_url" content={image} />
       <meta property="og:image:alt" content={`${fullTitle} — BeskidStudio`} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:type" content="image/webp" />
+      <meta property="og:image:type" content={imageType} />
       <meta property="og:locale" content="pl_PL" />
       {type === 'article' && publishedTime && (
         <meta property="article:published_time" content={publishedTime} />
@@ -93,6 +101,7 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+      <meta name="twitter:image:alt" content={`${fullTitle} — BeskidStudio`} />
       {schema && (
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       )}

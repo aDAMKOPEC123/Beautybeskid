@@ -33,7 +33,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 import type { Season as SeasonType, Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
-import { SEO } from '@/lib/seo-config';
 
 const heroImage = '/images/beautybeskid-hero-premium.webp';
 const ConsultationModal = lazy(() =>
@@ -92,90 +91,8 @@ const faqItems = [
 
 const buildFaqSchema = () => ({
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'BeautySalon',
-      '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon',
-      name: 'BeskidStudio By Wiktoria Ćwik',
-      url: 'https://kosmetologwiktoriacwik.pl/',
-      image: 'https://kosmetologwiktoriacwik.pl/images/beautybeskid-hero-premium.webp',
-      description:
-        'BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej to salon kosmetologiczny prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Strona umożliwia sprawdzenie aktualnych zabiegów, wolnych terminów i rezerwację online.',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: 'Mordarka 505',
-        addressLocality: 'Mordarka',
-        postalCode: '34-600',
-        addressRegion: 'Małopolskie',
-        addressCountry: 'PL',
-      },
-      founder: {
-        '@type': 'Person',
-        '@id': 'https://kosmetologwiktoriacwik.pl/o-nas#person',
-        name: 'Wiktoria Ćwik',
-        jobTitle: 'Dyplomowany kosmetolog',
-        url: 'https://kosmetologwiktoriacwik.pl/o-nas',
-        sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
-      },
-      knowsAbout: [
-        'kosmetolog Limanowa',
-        'salon kosmetologiczny Limanowa',
-        'konsultacja kosmetologiczna Limanowa',
-        'rezerwacja zabiegów online',
-      ],
-      telephone: SEO.phone,
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: SEO.lat,
-        longitude: SEO.lon,
-      },
-      openingHoursSpecification: [
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-          opens: '09:00',
-          closes: '18:00',
-        },
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: ['Saturday'],
-          opens: '09:00',
-          closes: '14:00',
-        },
-      ],
-      priceRange: '$$',
-      sameAs: [
-        'https://www.facebook.com/kosmetologwiktoriacwik/',
-        'https://www.instagram.com/kosmetolog__wiktoria_cwik/',
-        'https://www.tiktok.com/@wiktoriabeauty_brows',
-      ],
-      areaServed: ['Limanowa', 'Laskowa', 'Mordarka', 'Słopnice', 'Mszana Dolna', 'Tymbark', 'Dobra', 'Jodłownik', 'Nowy Sącz'],
-      makesOffer: [
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: 'Konsultacja kosmetologiczna',
-            areaServed: 'Limanowa',
-            provider: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: 'Zabiegi kosmetologiczne dostępne do rezerwacji',
-            areaServed: 'Limanowa i okolice',
-            provider: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
-          },
-        },
-      ],
-    },
-    {
-      '@type': 'FAQPage',
-      mainEntity: faqItems,
-    },
-  ],
+  '@type': 'FAQPage',
+  mainEntity: faqItems,
 });
 
 const heroTrust = [
@@ -619,7 +536,7 @@ const HeroSection = ({
                 <Link
                   to="/auth/register"
                   state={{ from: '/rezerwacja' }}
-                  className="inline-flex items-center gap-1 font-semibold text-oak hover:text-espresso"
+                  className="inline-flex min-h-11 items-center gap-1 font-semibold text-oak hover:text-espresso"
                 >
                   Zarejestruj się
                   <ArrowRight className="h-3.5 w-3.5" />

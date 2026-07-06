@@ -345,6 +345,25 @@ function breadcrumbSchema(pagePath, labels) {
   };
 }
 
+const staticPageStyles = `<script data-seo-app-shell>document.documentElement.classList.add('seo-js')</script>
+<style data-seo-static-styles>
+  .seo-js [data-seo-static-content]{display:none}
+  [data-seo-static-content]{box-sizing:border-box;width:100%;max-width:960px;margin:0 auto;padding:48px 24px;font-family:Arial,sans-serif;color:#173b2a}
+  [data-seo-static-content] *{box-sizing:border-box}
+  [data-seo-static-content] a{color:#245f3b;text-decoration-thickness:2px;text-underline-offset:3px}
+  [data-seo-static-content] nav a{display:inline-flex;min-height:44px;align-items:center;border:1px solid #bfd1c4;border-radius:8px;padding:10px 14px;font-size:16px;font-weight:700}
+  [data-seo-static-content] address a{display:inline-flex;min-height:44px;align-items:center;padding:8px 2px}
+  [data-seo-static-content] article img{display:block;max-width:100%;height:auto}
+  @media(max-width:640px){
+    [data-seo-static-content]{padding:32px 20px;font-size:16px;overflow-wrap:anywhere}
+    [data-seo-static-content] header>p:first-child{font-size:14px!important;line-height:1.5}
+    [data-seo-static-content] article{font-size:17px!important;line-height:1.75!important}
+    [data-seo-static-content] nav{gap:8px!important}
+    [data-seo-static-content] nav a{width:100%;min-height:48px}
+    [data-seo-static-content] address{display:flex;flex-direction:column;gap:2px}
+  }
+</style>`;
+
 const staticContent = ({
   heading,
   lead,
@@ -355,6 +374,7 @@ const staticContent = ({
   author,
   publishedAt,
   modifiedAt,
+  noIndex = false,
 }) => {
   const textParagraphs = bodyText
     ? cleanText(bodyText).split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')
@@ -365,7 +385,7 @@ const staticContent = ({
     : '';
 
   return `
-      <main data-seo-static-content style="max-width:960px;margin:0 auto;padding:48px 24px;font-family:Arial,sans-serif;color:#173b2a">
+      <main data-seo-static-content>
         <header>
           <p style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#76502f">BeskidStudio Wiktoria Ćwik</p>
           <h1 style="font-size:clamp(32px,6vw,58px);line-height:1.08;margin:12px 0 18px">${escapeHtml(heading)}</h1>
@@ -379,9 +399,17 @@ const staticContent = ({
           <ul style="margin:18px 0;padding-left:22px;line-height:1.9">${items.filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
           <p style="max-width:780px;line-height:1.75">BeskidStudio mieści się przy Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej. Aktualne ceny, czas usług i wolne terminy są publikowane w systemie rezerwacji.</p>
         </section>
+        ${!noIndex ? `<section aria-labelledby="seo-how-to-use">
+          <h2 id="seo-how-to-use">Jak korzystać ze strony BeskidStudio</h2>
+          <p>Przed wyborem terminu sprawdź aktualną ofertę usług, opis zabiegu, czas trwania oraz cenę. Informacje na stronach usług są połączone z systemem salonu, dlatego pomagają porównać dostępne możliwości bez zgadywania. Jeżeli nie masz pewności, który zabieg odpowiada potrzebom Twojej skóry, brwi lub rzęs, zacznij od kontaktu z salonem albo konsultacji. Podczas rozmowy można omówić oczekiwany efekt, dotychczasową pielęgnację i najważniejsze przeciwwskazania.</p>
+          <h2>Rezerwacja i przygotowanie do wizyty</h2>
+          <p>Wolne godziny sprawdzisz online. Konto klienta jest potrzebne dopiero do potwierdzenia rezerwacji i późniejszego dostępu do historii wizyt oraz zaleceń. Przed spotkaniem przeczytaj opis wybranej usługi i przygotuj informacje o stosowanej pielęgnacji, wcześniejszych zabiegach oraz ewentualnych reakcjach skóry. Jeśli termin trzeba zmienić lub potrzebujesz wskazówek dotyczących przygotowania, zadzwoń pod numer +48 532 128 227 albo napisz na adres kontakt@kosmetologwiktoriacwik.pl.</p>
+          <h2>Salon blisko Limanowej</h2>
+          <p>BeskidStudio znajduje się w Mordarce 505, 34-600 Mordarka, kilka minut od Limanowej. Z salonu korzystają klientki z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i innych miejscowości powiatu limanowskiego. Na stronie kontaktowej znajdziesz mapę dojazdu, godziny pracy oraz bezpośrednie przyciski do telefonu i wiadomości e-mail. Dzięki temu wszystkie informacje potrzebne przed wizytą są dostępne w jednym miejscu także na telefonie.</p>
+        </section>` : ''}
         ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
-          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a>
+          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a>
         </nav>
         <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a> · <a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a></address>
       </main>`;
@@ -397,6 +425,11 @@ const renderPage = (page) => {
   const socialImage = absoluteUrl(page.ogImage) || `${DOMAIN}/images/beautybeskid-hero-premium.webp`;
   const imageAlt = page.imageAlt || `${page.title} — BeskidStudio`;
   const ogType = page.ogType || 'business.business';
+  const imageType = /\.png(?:\?|$)/i.test(socialImage)
+    ? 'image/png'
+    : /\.jpe?g(?:\?|$)/i.test(socialImage)
+      ? 'image/jpeg'
+      : 'image/webp';
   const schema = page.schema || {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -417,12 +450,15 @@ const renderPage = (page) => {
     .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(page.description)}" data-rh="true" />`)
     .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${canonical}" data-rh="true" />`)
     .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(socialImage)}" data-rh="true" />`)
+    .replace(/<meta property="og:site_name"[^>]*>/, '<meta property="og:site_name" content="BeskidStudio By Wiktoria Ćwik" data-rh="true" />')
+    .replace(/<meta property="og:locale"[^>]*>/, '<meta property="og:locale" content="pl_PL" data-rh="true" />')
     .replace(/<meta property="og:image:alt"[^>]*>/, `<meta property="og:image:alt" content="${escapeHtml(imageAlt)}" data-rh="true" />`)
+    .replace(/<meta property="og:image:type"[^>]*>/, `<meta property="og:image:type" content="${imageType}" data-rh="true" />`)
     .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(page.title)}" data-rh="true" />`)
     .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(page.description)}" data-rh="true" />`)
     .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(socialImage)}" data-rh="true" />`)
     .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}" data-rh="true" />`)
-    .replace('</head>', `${page.author ? `    <meta name="author" content="${escapeHtml(page.author)}" />\n` : ''}${page.publishedAt ? `    <meta property="article:published_time" content="${escapeHtml(page.publishedAt)}" />\n` : ''}${page.modifiedAt ? `    <meta property="article:modified_time" content="${escapeHtml(page.modifiedAt)}" />\n` : ''}    <script type="application/ld+json" data-generated-seo>${serializedSchema}</script>\n  </head>`)
+    .replace('</head>', `${page.author ? `    <meta name="author" content="${escapeHtml(page.author)}" />\n` : ''}${page.publishedAt ? `    <meta property="article:published_time" content="${escapeHtml(page.publishedAt)}" />\n` : ''}${page.modifiedAt ? `    <meta property="article:modified_time" content="${escapeHtml(page.modifiedAt)}" />\n` : ''}    <meta property="og:image:secure_url" content="${escapeHtml(socialImage)}" />\n    <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />\n    ${staticPageStyles}\n    <script type="application/ld+json" data-generated-seo>${serializedSchema}</script>\n  </head>`)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${staticContent(page)}\n    </div>`);
 };
 

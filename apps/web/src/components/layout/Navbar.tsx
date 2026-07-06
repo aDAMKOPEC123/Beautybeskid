@@ -43,7 +43,7 @@ const PanelLink = ({
     <span
       style={{
         color: '#C8956C',
-        fontSize: mobile ? '12px' : '10px',
+        fontSize: '12px',
         letterSpacing: '0.2em',
         textTransform: 'uppercase',
         borderBottom: '1px solid #C8956C',
@@ -55,7 +55,7 @@ const PanelLink = ({
     <span
       style={{
         color: mobile ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.45)',
-        fontSize: mobile ? '9px' : '8px',
+        fontSize: '12px',
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
       }}
@@ -204,7 +204,7 @@ export const Navbar = () => {
       >
         <div className="container h-full flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center gap-2.5">
+          <Link to="/" className="flex min-h-11 shrink-0 items-center gap-2.5">
             <img src="/logo-64.webp" alt="BeskidStudio" width="32" height="32" className="h-8 w-8" />
             <span className="hidden font-display text-[13px] uppercase tracking-[0.08em] md:inline" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
           </Link>
@@ -308,7 +308,7 @@ export const Navbar = () => {
       >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
-              <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
+              <Link to="/" onClick={() => setMobileOpen(false)} className="flex min-h-11 items-center gap-2.5">
                 <img src="/logo-64.webp" alt="BeskidStudio" width="32" height="32" className="h-8 w-8" />
                 <span className="font-display text-[13px] uppercase tracking-[0.08em] text-ivory" style={{ fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
               </Link>

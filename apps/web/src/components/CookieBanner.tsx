@@ -64,7 +64,7 @@ export const CookieBanner = () => {
       <p className="text-sm text-center sm:text-left flex-1">
         Ta strona używa plików cookie w celu zapewnienia prawidłowego działania oraz analizy ruchu.
         Korzystając ze strony, akceptujesz naszą{' '}
-        <a href="/regulamin" className="underline hover:text-[#C8956C]">
+        <a href="/regulamin" className="inline-flex min-h-11 items-center underline hover:text-[#C8956C]">
           politykę prywatności
         </a>
         .
