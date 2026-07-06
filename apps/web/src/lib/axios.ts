@@ -35,6 +35,52 @@ function addRefreshSubscriber(resolve: (token: string) => void, reject: (err: un
   refreshSubscribers.push({ resolve, reject });
 }
 
+/**
+ * Coordinated token refresh — single entry point used by both the
+ * response interceptor (on 401) and the visibilitychange handler.
+ * Guards against concurrent refresh calls that would invalidate
+ * rotated tokens on the backend.
+ */
+export function refreshSession(): Promise<string> {
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      addRefreshSubscriber(resolve, reject);
+    });
+  }
+
+  isRefreshing = true;
+
+  return api
+    .post('/auth/refresh', {}, { withCredentials: true })
+    .then(async ({ data }) => {
+      const newToken: string = data.data.accessToken;
+      useAuthStore.getState().setAccessToken(newToken);
+      if (data.data.user) {
+        useAuthStore.getState().setUser(data.data.user);
+      }
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+
+      // Re-auth WebSocket with new token
+      const { getSocket } = await import('./socket');
+      const sock = getSocket();
+      sock.auth = { token: newToken };
+      if (sock.connected) {
+        sock.disconnect();
+        sock.connect();
+      }
+
+      onRefreshed(newToken);
+      return newToken;
+    })
+    .catch((err) => {
+      onRefreshFailed(err);
+      throw err;
+    })
+    .finally(() => {
+      isRefreshing = false;
+    });
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -43,47 +89,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && !originalRequest.url?.includes('/auth/login')) {
       originalRequest._retry = true;
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          addRefreshSubscriber(
-            (token: string) => {
-              originalRequest.headers['Authorization'] = `Bearer ${token}`;
-              resolve(api(originalRequest));
-            },
-            (err: unknown) => reject(err),
-          );
-        });
-      }
-
-      isRefreshing = true;
       try {
-        const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
-        const newToken = data.data.accessToken;
-        useAuthStore.getState().setAccessToken(newToken);
-        if (data.data.user) {
-          useAuthStore.getState().setUser(data.data.user);
-        }
-        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        const newToken = await refreshSession();
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-
-        // Re-auth WebSocket with new token
-        const { getSocket } = await import('./socket');
-        const sock = getSocket();
-        sock.auth = { token: newToken };
-        if (sock.connected) {
-          sock.disconnect();
-          sock.connect();
-        }
-
-        onRefreshed(newToken);
         return api(originalRequest);
       } catch (refreshError) {
-        onRefreshFailed(refreshError);
         useAuthStore.getState().logout();
         window.location.href = '/auth/login';
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
     return Promise.reject(error);

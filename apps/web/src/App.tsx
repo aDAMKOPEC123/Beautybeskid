@@ -7,7 +7,7 @@ import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
-import { api } from './lib/axios';
+import { refreshSession } from './lib/axios';
 import { trackPageView } from './lib/analytics';
 import { TourProvider } from './contexts/TourContext';
 import {
@@ -116,7 +116,7 @@ class ErrorBoundary extends React.Component<
 }
 
 function App() {
-  const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
+  const { hydrate, logout } = useAuthStore();
 
   // Rebuild auth from the refresh cookie only when a session/protected route needs it.
   useEffect(() => {
@@ -130,13 +130,8 @@ function App() {
       return;
     }
 
-    api.post('/auth/refresh')
-      .then((res) => {
-        setAccessToken(res.data.data.accessToken);
-        setUser(res.data.data.user);
-      })
+    refreshSession()
       .catch((err) => {
-        // Clear stale auth state only on confirmed unauthorized sessions.
         if (err?.response?.status === 401) {
           logout();
         }
@@ -144,9 +139,10 @@ function App() {
       .finally(() => {
         hydrate();
       });
-  }, [hydrate, logout, setAccessToken, setUser]);
+  }, [hydrate, logout]);
 
   // PWA: refresh token and reconnect socket when app becomes visible again.
+  // Uses the shared refreshSession() to avoid racing with the axios interceptor.
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState !== 'visible') return;
@@ -154,28 +150,16 @@ function App() {
       const { accessToken } = useAuthStore.getState();
       if (!accessToken) return;
 
-      api.post('/auth/refresh')
-        .then((res) => {
-          setAccessToken(res.data.data.accessToken);
-          setUser(res.data.data.user);
-          return import('./lib/socket').then(({ getSocket }) => {
-            const sock = getSocket();
-            sock.auth = { token: res.data.data.accessToken };
-            sock.disconnect();
-            sock.connect();
-          });
-        })
-        .catch((err) => {
-          // Only logout on confirmed 401; network errors keep the session alive.
-          if (err?.response?.status === 401) {
-            logout();
-          }
-        });
+      refreshSession().catch((err) => {
+        if (err?.response?.status === 401) {
+          logout();
+        }
+      });
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [logout, setAccessToken, setUser]);
+  }, [logout]);
 
   useEffect(() => {
     const recoverFromChunkError = (error: unknown) => {
