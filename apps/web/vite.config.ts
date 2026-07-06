@@ -21,16 +21,17 @@ export default defineConfig(({ command }) => {
         strategies: 'injectManifest',
         srcDir: 'src',
         filename: 'sw.ts',
-        // Keep the previous precache alive for tabs opened before a deploy.
-        // The new worker activates after those tabs close, avoiding stale chunk errors.
-        registerType: 'prompt',
+        // Activate new workers promptly. Old content-hashed assets are retained by
+        // deploy.sh, so open tabs can finish while new navigations use the new build.
+        registerType: 'autoUpdate',
         injectRegister: false,
         manifest: false,
         injectManifest: {
           // Cache only the public app shell. Precaching every admin, academy and
           // editor chunk made a first public visit download several megabytes.
           globPatterns: [
-            'index.html',
+            // Never precache HTML. A cached document can reference JavaScript chunks
+            // from an older deployment and make lazy routes fail with HTTP 404.
             'manifest.json',
             'favicon.{ico,svg}',
             'apple-touch-icon.png',

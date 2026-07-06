@@ -34,6 +34,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const ALL_STATUSES = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'NO_SHOW'] as const;
+const ARCHIVED_STATUSES = ['CANCELLED', 'COMPLETED', 'NO_SHOW'];
 
 // ─── Price helpers ─────────────────────────────────────────────────────────────
 
@@ -362,11 +363,10 @@ function ListView({ appointments }: { appointments: any[] }) {
       (!filterEmployee || a.employee?.name === filterEmployee)
   );
 
-  const ARCHIVED_STATUSES = ['COMPLETED', 'NO_SHOW'];
   const activeFiltered = filtered.filter((a) => !ARCHIVED_STATUSES.includes(a.status));
   const archivedFiltered = filtered.filter((a) => ARCHIVED_STATUSES.includes(a.status));
 
-  const isArchivedFilter = filterStatus === 'COMPLETED' || filterStatus === 'NO_SHOW';
+  const isArchivedFilter = ARCHIVED_STATUSES.includes(filterStatus);
 
   return (
     <div className="space-y-4">
