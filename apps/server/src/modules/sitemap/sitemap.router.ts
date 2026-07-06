@@ -16,17 +16,13 @@ const staticUrls = [
   { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
   { loc: '/regulamin', priority: '0.3', changefreq: 'yearly' },
-  // Local SEO landing pages — primary targets
-  { loc: '/kosmetolog-limanowa', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  // Canonical local SEO landing pages only. Redirect sources belong in Nginx,
+  // never in the sitemap, because Google should index their final destinations.
   { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/kosmetyczka-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/laminacja-brwi-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/laminacja-rzes-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/oprawa-oka-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
 ];
 
 function toXmlDate(date: Date): string {
