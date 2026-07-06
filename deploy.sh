@@ -55,9 +55,13 @@ echo "Checking Cloudflare Tunnel when installed..."
 ssh "$VPS" "if systemctl is-active --quiet cloudflared-cosmo.service; then curl --fail --silent --show-error http://127.0.0.1:20241/ready >/dev/null; fi"
 
 echo "Checking that every sitemap URL returns 200 without a redirect..."
+SITEMAP_XML=$(
+  curl --fail --silent --show-error \
+    --retry 12 --retry-delay 2 --retry-all-errors \
+    https://kosmetologwiktoriacwik.pl/sitemap.xml
+)
 mapfile -t SITEMAP_URLS < <(
-  curl --fail --silent --show-error https://kosmetologwiktoriacwik.pl/sitemap.xml \
-    | sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p'
+  printf '%s\n' "$SITEMAP_XML" | sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p'
 )
 
 if [ "${#SITEMAP_URLS[@]}" -eq 0 ]; then
