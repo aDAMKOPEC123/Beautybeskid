@@ -7,7 +7,7 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "turbo run build",
-    "dev": "concurrently --kill-others-on-fail --names \"server,web\" --prefix-colors \"cyan,magenta\" \"pnpm --filter cosmo-server dev\" \"pnpm --filter cosmo-web dev\"",
+    "dev": "concurrently --kill-others-on-fail --names \"server,web,academy\" --prefix-colors \"cyan,magenta,yellow\" \"pnpm --filter cosmo-server dev\" \"pnpm --filter cosmo-web dev\" \"pnpm --filter cosmo-academy-web dev\"",
     "lint": "turbo run lint",
     "clean": "turbo run clean"
   },
