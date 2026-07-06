@@ -121,7 +121,7 @@ function App() {
   // Rebuild auth from the refresh cookie only when a session/protected route needs it.
   useEffect(() => {
     const { accessToken, user } = useAuthStore.getState();
-    const protectedPath = ['/admin', '/employee', '/user', '/rezerwacja', '/akademia'].some((prefix) =>
+    const protectedPath = ['/admin', '/employee', '/user', '/rezerwacja'].some((prefix) =>
       window.location.pathname.startsWith(prefix),
     );
 

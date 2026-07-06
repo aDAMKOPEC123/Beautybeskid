@@ -106,15 +106,14 @@ const EmployeeAppointments = lazy(() => import('./pages/employee/MyAppointments'
 const EmployeeChat = lazy(() => import('./pages/employee/Chat').then(m => ({ default: m.EmployeeChat })));
 const EmployeeAssortment = lazy(() => import('./pages/employee/EmployeeAssortment').then(m => ({ default: m.EmployeeAssortment })));
 
-// Academy pages
-const AcademyLayout = lazy(() => import('./pages/academy/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
-const NoAccess = lazy(() => import('./pages/academy/NoAccess').then(m => ({ default: m.NoAccess })));
-const AcademyCatalog = lazy(() => import('./pages/academy/AcademyCatalog').then(m => ({ default: m.AcademyCatalog })));
-const MyCourses = lazy(() => import('./pages/academy/MyCourses').then(m => ({ default: m.MyCourses })));
-const Certificates = lazy(() => import('./pages/academy/Certificates').then(m => ({ default: m.Certificates })));
-const StandaloneQuizPage = lazy(() => import('./pages/academy/StandaloneQuizPage').then(m => ({ default: m.StandaloneQuizPage })));
-const CourseDetail = lazy(() => import('./pages/academy/CourseDetail').then(m => ({ default: m.CourseDetail })));
-const LessonPlayer = lazy(() => import('./pages/academy/LessonPlayer').then(m => ({ default: m.LessonPlayer })));
+// Academy redirect (moved to subdomain)
+const ACADEMY_URL = import.meta.env.VITE_ACADEMY_URL || 'https://akademia.kosmetologwiktoriacwik.pl';
+const AcademyRedirect = () => {
+  const { pathname } = useLocation();
+  const subPath = pathname.replace(/^\/akademia/, '') || '/';
+  window.location.href = `${ACADEMY_URL}${subPath}`;
+  return null;
+};
 
 const Spinner = (
   <div className="flex min-h-[calc(100svh-72px)] items-center justify-center">
@@ -222,22 +221,8 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/akademia',
-    errorElement: routeErrorElement,
-    children: [
-      { path: 'brak-dostepu', element: <S><NoAccess /></S> },
-      {
-        element: <S><AcademyLayout /></S>,
-        children: [
-          { index: true, element: <S><AcademyCatalog /></S> },
-          { path: 'moje-kursy', element: <S><MyCourses /></S> },
-          { path: 'certyfikaty', element: <S><Certificates /></S> },
-          { path: 'quizy', element: <S><StandaloneQuizPage /></S> },
-          { path: 'kurs/:slug', element: <S><CourseDetail /></S> },
-          { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
-        ],
-      },
-    ],
+    path: '/akademia/*',
+    element: <AcademyRedirect />,
   },
   {
     path: '/admin',
