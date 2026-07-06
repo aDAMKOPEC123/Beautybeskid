@@ -28,7 +28,7 @@ ssh "$VPS" "cd $REMOTE_DIR && git pull origin main"
 # so the migrated backend data must be available first.
 if [ "$MODE" = "full" ] || [ "$MODE" = "backend" ]; then
   echo "[3/4] Migrating and building backend..."
-  ssh "$VPS" "cd $REMOTE_DIR/apps/server && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"
+  ssh "$VPS" "cd $REMOTE_DIR/packages/shared && pnpm build && cd $REMOTE_DIR/apps/server && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"
   echo "      Restarting PM2..."
   ssh "$VPS" "pm2 restart cosmo-server"
   echo "      Backend deployed."
