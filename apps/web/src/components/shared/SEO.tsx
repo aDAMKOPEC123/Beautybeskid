@@ -52,6 +52,8 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       'meta[name="twitter:description"]',
       'meta[name="twitter:image"]',
       'meta[name="twitter:image:alt"]',
+      'link[hreflang="pl"]',
+      'link[hreflang="x-default"]',
     ];
 
     selectors.forEach((selector) => {
@@ -73,6 +75,8 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       <meta name="geo.position" content={`${cfg.lat};${cfg.lon}`} />
       <meta name="ICBM" content={`${cfg.lat}, ${cfg.lon}`} />
       <link rel="canonical" href={url} />
+      <link rel="alternate" hrefLang="pl" href={url} />
+      <link rel="alternate" hrefLang="x-default" href={url} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content={cfg.siteName} />
       <meta property="og:title" content={fullTitle} />

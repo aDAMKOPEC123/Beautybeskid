@@ -11,7 +11,7 @@ const corePages = [
   {
     path: '/',
     title: 'Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio',
-    description: 'Kosmetolog Wiktoria Ćwik koło Limanowej. Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry oraz rezerwacja online.',
+    description: 'Kosmetolog Wiktoria Ćwik koło Limanowej. Konsultacje, laminacja brwi i rzęs, pielęgnacja skóry. Rezerwacja online.',
     heading: 'Kosmetolog Limanowa – Wiktoria Ćwik',
     lead: 'BeskidStudio w Mordarce koło Limanowej. Konsultacje, zabiegi kosmetologiczne, stylizacja brwi i rzęs oraz wygodna rezerwacja online.',
     items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Rezerwacja online'],
@@ -458,6 +458,8 @@ const renderPage = (page) => {
     .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(page.description)}" data-rh="true" />`)
     .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(socialImage)}" data-rh="true" />`)
     .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}" data-rh="true" />`)
+    .replace(/<link rel="alternate" hreflang="pl"[^>]*>/, `<link rel="alternate" hreflang="pl" href="${canonical}" data-rh="true" />`)
+    .replace(/<link rel="alternate" hreflang="x-default"[^>]*>/, `<link rel="alternate" hreflang="x-default" href="${canonical}" data-rh="true" />`)
     .replace('</head>', `${page.author ? `    <meta name="author" content="${escapeHtml(page.author)}" />\n` : ''}${page.publishedAt ? `    <meta property="article:published_time" content="${escapeHtml(page.publishedAt)}" />\n` : ''}${page.modifiedAt ? `    <meta property="article:modified_time" content="${escapeHtml(page.modifiedAt)}" />\n` : ''}    <meta property="og:image:secure_url" content="${escapeHtml(socialImage)}" />\n    <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />\n    ${staticPageStyles}\n    <script type="application/ld+json" data-generated-seo>${serializedSchema}</script>\n  </head>`)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${staticContent(page)}\n    </div>`);
 };
