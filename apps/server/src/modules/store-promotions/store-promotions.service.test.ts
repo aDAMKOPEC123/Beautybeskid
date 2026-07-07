@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createStorePromotionSchema } from '@cosmo/shared';
 import { getActivePromotionsWhere } from './store-promotions.filters';
+import { promotionMatchesUser } from './store-promotions.service';
 
 const validPromotion = {
   storeName: 'Hebe',
@@ -39,5 +40,38 @@ describe('store promotions', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('dopasowuje promocję targetowaną po poziomie lojalności i typie skóry', () => {
+    expect(promotionMatchesUser(
+      {
+        targetLoyaltyTiers: ['GOLD'],
+        targetSkinTypes: ['WRAZLIWA'],
+        targetConcerns: ['przebarwienia'],
+      },
+      {
+        id: 'user-1',
+        loyaltyTier: 'GOLD',
+        skinWeatherProfile: {
+          skinType: 'WRAZLIWA',
+          skinConcerns: ['Przebarwienia', 'odwodnienie'],
+        },
+      },
+    )).toBe(true);
+  });
+
+  it('ukrywa promocję, gdy klient nie spełnia targetowania', () => {
+    expect(promotionMatchesUser(
+      {
+        targetLoyaltyTiers: ['GOLD'],
+        targetSkinTypes: [],
+        targetConcerns: [],
+      },
+      {
+        id: 'user-2',
+        loyaltyTier: 'BRONZE',
+        skinWeatherProfile: null,
+      },
+    )).toBe(false);
   });
 });

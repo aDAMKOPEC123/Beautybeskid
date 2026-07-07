@@ -78,6 +78,19 @@ export const sendPushToAdmins = async (payload: { title: string; body: string; u
   );
 };
 
+export const sendPushToUsers = async (
+  userIds: string[],
+  payload: { title: string; body: string; url?: string },
+) => {
+  if (userIds.length === 0) return;
+
+  const subscriptions = await prisma.pushSubscription.findMany({
+    where: { userId: { in: userIds } },
+  });
+
+  return sendPushToSubscriptions(subscriptions, payload);
+};
+
 export const sendPushToAllUsers = async (payload: { title: string; body: string; url?: string }) => {
   const subscriptions = await prisma.pushSubscription.findMany({
     where: { user: { role: 'USER' } },

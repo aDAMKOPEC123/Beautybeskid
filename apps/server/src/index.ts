@@ -8,6 +8,7 @@ import { seedAchievements } from './modules/achievements/achievements.service';
 import { initializeTreatmentSeriesMaintenance } from './modules/treatment-series/treatment-series.service';
 import { initializeHappyHourScheduler } from './modules/happy-hours/happy-hours.service';
 import { initializeSkinWeatherScheduler } from './modules/skin-weather/skin-weather.service';
+import { initializeStorePromotionReminderScheduler } from './modules/store-promotions/store-promotions.service';
 
 const server = createServer(app);
 
@@ -24,6 +25,7 @@ const startServer = async () => {
     await initializeTreatmentSeriesMaintenance();
     initializeHappyHourScheduler();
     initializeSkinWeatherScheduler();
+    initializeStorePromotionReminderScheduler();
 
     // Daily cleanup of expired refresh tokens
     const purgeExpiredTokens = async () => {
