@@ -21,13 +21,36 @@ import {
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
 
+const REFRESH_COOKIE_DOMAIN = env.NODE_ENV === 'production' ? '.kosmetologwiktoriacwik.pl' : undefined;
+
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   maxAge,
-  ...(env.NODE_ENV === 'production' && { domain: '.kosmetologwiktoriacwik.pl' }),
+  ...(REFRESH_COOKIE_DOMAIN && { domain: REFRESH_COOKIE_DOMAIN }),
 });
+
+/**
+ * Clear stale refreshToken cookies — both host-only (legacy) and domain-scoped.
+ * Browsers treat these as separate entries, so both must be removed to prevent
+ * duplicate cookies that break token rotation.
+ */
+const clearAllRefreshCookies = (res: Response) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+  });
+  if (REFRESH_COOKIE_DOMAIN) {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
+      domain: REFRESH_COOKIE_DOMAIN,
+    });
+  }
+};
 
 const FACEBOOK_STATE_COOKIE = 'facebookOAuthState';
 const FACEBOOK_CONTEXT_COOKIE = 'facebookOAuthContext';
@@ -133,6 +156,7 @@ const persistAuthSession = async (
   result: { refreshToken: string; user: { id: string } },
 ) => {
   const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+  clearAllRefreshCookies(res);
   res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
   const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
   await prisma.refreshToken.create({
@@ -272,6 +296,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const result = await authService.loginUser(validatedData, refreshTtl);
     const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
 
+    clearAllRefreshCookies(res);
     res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
 
     const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
@@ -302,7 +327,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
       await prisma.refreshToken.deleteMany({ where: { tokenHash } });
     }
-    res.clearCookie('refreshToken');
+    clearAllRefreshCookies(res);
     res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
   } catch (error) {
     next(error);
@@ -311,16 +336,46 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 
 export const refresh = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) throw new AppError('Brak tokenu odświeżania', 401);
+    // When duplicate cookies exist (host-only + domain-scoped), the raw header
+    // may contain multiple refreshToken values. cookie-parser only exposes the
+    // first one, which may be stale. Parse all candidates from the raw header.
+    const rawCookie = req.headers.cookie ?? '';
+    const allRefreshTokens = rawCookie
+      .split(';')
+      .map((s) => s.trim())
+      .filter((s) => s.startsWith('refreshToken='))
+      .map((s) => s.slice('refreshToken='.length));
 
-    const decoded = verifyToken(refreshToken, env.JWT_REFRESH_SECRET) as { id: string; iat?: number };
+    if (allRefreshTokens.length === 0) {
+      throw new AppError('Brak tokenu odświeżania', 401);
+    }
 
-    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    const storedToken = await prisma.refreshToken.findUnique({ where: { tokenHash } });
-    if (!storedToken || storedToken.expiresAt < new Date()) {
+    // Try each candidate — find the one that still exists in the DB
+    let refreshToken: string | null = null;
+    let decoded: { id: string; iat?: number } | null = null;
+    let storedToken: { tokenHash: string; expiresAt: Date; userId: string } | null = null;
+
+    for (const candidate of allRefreshTokens) {
+      try {
+        const payload = verifyToken(candidate, env.JWT_REFRESH_SECRET) as { id: string; iat?: number };
+        const hash = crypto.createHash('sha256').update(candidate).digest('hex');
+        const stored = await prisma.refreshToken.findUnique({ where: { tokenHash: hash } });
+        if (stored && stored.expiresAt > new Date()) {
+          refreshToken = candidate;
+          decoded = payload;
+          storedToken = stored;
+          break;
+        }
+      } catch {
+        // Invalid JWT or not in DB — try next candidate
+      }
+    }
+
+    if (!refreshToken || !decoded || !storedToken) {
       throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
     }
+
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
@@ -357,6 +412,8 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
         },
       }),
     ]);
+    // Clear all stale cookies (host-only + domain) before setting the new one
+    clearAllRefreshCookies(res);
     res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(remainingMs));
 
     res.status(200).json({
