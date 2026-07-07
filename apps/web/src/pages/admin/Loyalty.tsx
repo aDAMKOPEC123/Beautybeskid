@@ -29,12 +29,13 @@ export const AdminLoyalty = () => {
     discountValue: ''
   });
 
-  const { data: users, isLoading: usersLoading } = useQuery({ 
-    queryKey: ['admin', 'users'], 
+  const { data: users, isLoading: usersLoading } = useQuery({
+    queryKey: ['admin', 'loyalty-users'],
     queryFn: async () => {
       const res = await api.get('/users');
-      return res.data.data.users;
-    } 
+      const allUsers = res.data.data.data;
+      return allUsers.filter((u: any) => u.role === 'USER');
+    }
   });
 
   const { data: rewards, isLoading: rewardsLoading } = useQuery({
@@ -71,7 +72,7 @@ export const AdminLoyalty = () => {
         description
       });
       toast.success('Zaktualizowano punkty.');
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'loyalty-users'] });
     } catch (e) {
       toast.error('Wystąpił błąd przy aktualizacji.');
     }
@@ -81,7 +82,7 @@ export const AdminLoyalty = () => {
     try {
       await api.patch(`/loyalty/users/${userId}/tier`, { tier });
       toast.success('Pakiet zaktualizowany.');
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'loyalty-users'] });
     } catch (e) {
       toast.error('Błąd zmiany pakietu.');
     }
