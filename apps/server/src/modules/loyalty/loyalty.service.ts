@@ -214,15 +214,12 @@ export const validateVoucher = async (code: string, userId: string, serviceId?: 
   });
 
   if (coupon) {
-    if (coupon.reward.discountType === 'OTHER' || !coupon.reward.discountValue) {
-      throw new AppError('Ten kupon jest nagrodą specjalną — użyj go przy rezerwacji bez wpisywania kodu', 400);
-    }
     return {
       type: 'COUPON' as const,
       id: coupon.id,
       code: coupon.code!.split('-').pop()?.trim().toUpperCase() || coupon.code!,
-      discountType: coupon.reward.discountType as 'PERCENTAGE' | 'AMOUNT',
-      discountValue: Number(coupon.reward.discountValue),
+      discountType: coupon.reward.discountType as 'PERCENTAGE' | 'AMOUNT' | 'OTHER',
+      discountValue: Number(coupon.reward.discountValue ?? 0),
       restrictedToServiceId: null as string | null,
     };
   }

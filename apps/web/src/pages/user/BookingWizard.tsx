@@ -761,8 +761,7 @@ function toValidatedCoupon(coupon: any): ValidatedVoucher | null {
   if (
     !coupon?.id ||
     !code ||
-    !reward?.discountValue ||
-    (reward.discountType !== 'PERCENTAGE' && reward.discountType !== 'AMOUNT')
+    (reward.discountType !== 'PERCENTAGE' && reward.discountType !== 'AMOUNT' && reward.discountType !== 'OTHER')
   ) {
     return null;
   }
@@ -772,12 +771,13 @@ function toValidatedCoupon(coupon: any): ValidatedVoucher | null {
     id: coupon.id,
     code,
     discountType: reward.discountType,
-    discountValue: Number(reward.discountValue),
+    discountValue: Number(reward.discountValue ?? 0),
     restrictedToServiceId: null,
   };
 }
 
 function formatCouponDiscount(coupon: ValidatedVoucher): string {
+  if (coupon.discountType === 'OTHER') return 'Nagroda specjalna';
   return coupon.discountType === 'PERCENTAGE'
     ? `-${coupon.discountValue}%`
     : `-${Number(coupon.discountValue).toFixed(2)} zł`;
@@ -955,9 +955,7 @@ function StepConfirm({
               </strong>
               {' — '}
               <span style={{ color: '#15803D' }}>
-                {state.voucherData.discountType === 'PERCENTAGE'
-                  ? `-${state.voucherData.discountValue}%`
-                  : `-${Number(state.voucherData.discountValue).toFixed(2)} zł`}
+                {formatCouponDiscount(state.voucherData)}
               </span>
               {' '}
               <span className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>

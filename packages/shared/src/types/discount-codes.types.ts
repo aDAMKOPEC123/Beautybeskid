@@ -28,7 +28,7 @@ export interface ValidatedVoucher {
   type: 'COUPON' | 'DISCOUNT_CODE' | 'VOUCHER_CASH';
   id: string;
   code: string;
-  discountType: 'PERCENTAGE' | 'AMOUNT';
+  discountType: 'PERCENTAGE' | 'AMOUNT' | 'OTHER';
   discountValue: number;
   restrictedToServiceId?: string | null;
 }
