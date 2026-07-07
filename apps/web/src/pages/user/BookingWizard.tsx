@@ -749,6 +749,46 @@ function calcDiscountedPrice(price: number, reward: any): number {
   return price;
 }
 
+function getCouponCode(code?: string | null): string {
+  const value = code?.trim() ?? '';
+  if (!value) return '';
+  return (value.split('-').pop() || value).trim().toUpperCase();
+}
+
+function toValidatedCoupon(coupon: any): ValidatedVoucher | null {
+  const reward = coupon?.reward;
+  const code = getCouponCode(coupon?.code);
+  if (
+    !coupon?.id ||
+    !code ||
+    !reward?.discountValue ||
+    (reward.discountType !== 'PERCENTAGE' && reward.discountType !== 'AMOUNT')
+  ) {
+    return null;
+  }
+
+  return {
+    type: 'COUPON',
+    id: coupon.id,
+    code,
+    discountType: reward.discountType,
+    discountValue: Number(reward.discountValue),
+    restrictedToServiceId: null,
+  };
+}
+
+function formatCouponDiscount(coupon: ValidatedVoucher): string {
+  return coupon.discountType === 'PERCENTAGE'
+    ? `-${coupon.discountValue}%`
+    : `-${Number(coupon.discountValue).toFixed(2)} zł`;
+}
+
+function couponCountLabel(count: number): string {
+  if (count === 1) return 'Masz 1 aktywny kupon lojalnościowy do wykorzystania';
+  if (count >= 2 && count <= 4) return `Masz ${count} aktywne kupony lojalnościowe do wykorzystania`;
+  return `Masz ${count} aktywnych kuponów lojalnościowych do wykorzystania`;
+}
+
 // ─── Step 5: Podsumowanie + Lojalność ────────────────────────────────────────
 
 function StepConfirm({
@@ -769,20 +809,26 @@ function StepConfirm({
   const [codeInput, setCodeInput] = useState('');
   const [validating, setValidating] = useState(false);
   const [showInput, setShowInput] = useState(false);
+  const cleanPreselectedCode = getCouponCode(preselectedCode);
 
   useEffect(() => {
-    if (!preselectedCode || state.voucherData) return;
+    if (!cleanPreselectedCode || state.voucherData) return;
     setValidating(true);
-    loyaltyApi.validateVoucher(preselectedCode, state.service?.id).then((data) => {
+    loyaltyApi.validateVoucher(cleanPreselectedCode, state.service?.id).then((data) => {
       onVoucherChange(data);
+      setCodeInput(data.code);
       toast.success(`Kod ${data.code} został automatycznie zastosowany!`);
-    }).catch(() => {
-      // silently ignore — user can enter manually
+    }).catch((e: any) => {
+      toast.error(e.response?.data?.message || 'Nie udało się automatycznie zastosować kodu');
     }).finally(() => setValidating(false));
-  }, [preselectedCode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cleanPreselectedCode, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const { data: rewards = [] } = useQuery<any[]>({
     queryKey: ['loyalty', 'rewards'],
     queryFn: loyaltyApi.getRewards,
+  });
+  const { data: activeCoupons = [] } = useQuery<any[]>({
+    queryKey: ['loyalty', 'coupons'],
+    queryFn: loyaltyApi.getActiveCoupons,
   });
 
   const basePrice = state.service ? Number(state.service.price) : 0;
@@ -803,10 +849,11 @@ function StepConfirm({
   const earnedPoints = Math.floor(discountedPrice);
 
   const handleValidateVoucher = async () => {
-    if (!codeInput.trim()) return;
+    const code = codeInput.trim().toUpperCase();
+    if (!code) return;
     setValidating(true);
     try {
-      const data = await loyaltyApi.validateVoucher(codeInput.trim(), state.service?.id);
+      const data = await loyaltyApi.validateVoucher(code, state.service?.id);
       onVoucherChange(data);
       setShowInput(false);
       toast.success(`${data.type === 'COUPON' ? 'Kupon' : 'Kod'} ${data.code} zastosowany!`);
@@ -824,6 +871,9 @@ function StepConfirm({
       Number(r.pointsCost) <= (user?.loyaltyPoints ?? 0) &&
       (!r.requiredTier || tierOrder(user?.loyaltyTier) >= tierOrder(r.requiredTier))
   );
+  const activeCouponVouchers = activeCoupons
+    .map(toValidatedCoupon)
+    .filter((coupon): coupon is ValidatedVoucher => Boolean(coupon));
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -957,6 +1007,40 @@ function StepConfirm({
           >
             🎟️ Masz kupon z punktów lojalnościowych lub kod rabatowy? Kliknij tutaj
           </button>
+        )}
+        {!state.voucherData && activeCouponVouchers.length > 0 && (
+          <div
+            className="mt-3 rounded-xl border p-3 text-sm"
+            style={{ background: 'rgba(196,150,90,0.06)', borderColor: 'rgba(196,150,90,0.22)' }}
+          >
+            <p className="font-semibold" style={{ color: '#1A3828' }}>
+              {couponCountLabel(activeCouponVouchers.length)}
+            </p>
+            <div className="mt-3 space-y-2">
+              {activeCouponVouchers.map((coupon) => (
+                <button
+                  key={coupon.id}
+                  type="button"
+                  onClick={() => {
+                    onVoucherChange(coupon);
+                    setCodeInput(coupon.code);
+                    setShowInput(false);
+                    toast.success(`Kupon ${coupon.code} zastosowany!`);
+                  }}
+                  className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border bg-white px-3 py-2 text-left transition-colors hover:bg-[#F8F4EC]"
+                  style={{ borderColor: 'rgba(196,150,90,0.2)' }}
+                >
+                  <span className="min-w-0">
+                    <span className="block text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>Kupon lojalnościowy</span>
+                    <span className="block truncate font-mono font-bold tracking-wider" style={{ color: '#1A3828' }}>{coupon.code}</span>
+                  </span>
+                  <span className="shrink-0 font-semibold" style={{ color: '#15803D' }}>
+                    {formatCouponDiscount(coupon)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

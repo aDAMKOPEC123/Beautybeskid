@@ -28,6 +28,14 @@ const DISCOUNT_LABELS: Record<string, string> = {
   OTHER: 'Nagroda specjalna',
 };
 
+const getCouponCode = (code?: string | null) => {
+  const value = code?.trim() ?? '';
+  if (!value) return '';
+  return (value.split('-').pop() || value).trim().toUpperCase();
+};
+
+const bookingPathWithCode = (code: string) => `/rezerwacja?${new URLSearchParams({ code }).toString()}`;
+
 export const UserLoyalty = () => {
   const { user } = useAuth();
 
@@ -186,61 +194,65 @@ export const UserLoyalty = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {coupons?.map((coupon: any) => (
-              <div
-                key={coupon.id}
-                className="p-4 rounded-2xl space-y-2"
-                style={{
-                  border: '1px solid rgba(196,150,90,0.2)',
-                  background: 'rgba(196,150,90,0.05)',
-                }}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold" style={{ color: '#1A3828' }}>{coupon.reward.name}</p>
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
-                    style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
-                  >
-                    Aktywny
-                  </span>
-                </div>
-                <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>{coupon.reward.description}</p>
-                {coupon.code && (
-                  <div
-                    className="flex items-center gap-2 mt-1 p-2 rounded-lg"
-                    style={{ background: 'rgba(196,150,90,0.1)' }}
-                  >
+            {coupons?.map((coupon: any) => {
+              const couponCode = getCouponCode(coupon.code);
+
+              return (
+                <div
+                  key={coupon.id}
+                  className="p-4 rounded-2xl space-y-2"
+                  style={{
+                    border: '1px solid rgba(196,150,90,0.2)',
+                    background: 'rgba(196,150,90,0.05)',
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold" style={{ color: '#1A3828' }}>{coupon.reward.name}</p>
                     <span
-                      className="font-mono text-sm font-bold tracking-wider flex-1"
-                      style={{ color: '#C4965A' }}
+                      className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
+                      style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                     >
-                      {coupon.code}
+                      Aktywny
                     </span>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(coupon.code); toast.success('Skopiowano kod!'); }}
-                      className="text-xs shrink-0 hover:opacity-70 transition-opacity px-3 py-2 rounded-lg min-h-[44px] flex items-center"
-                      style={{ color: 'rgba(20,40,28,0.5)' }}
-                      title="Kopiuj kod"
-                    >
-                      Kopiuj
-                    </button>
                   </div>
-                )}
-                {coupon.code && (
-                  <Link
-                    to={`/rezerwacja?code=${coupon.code}`}
-                    className="block w-full text-center py-2.5 rounded-xl text-[13px] font-semibold transition-opacity hover:opacity-80 mt-2"
-                    style={{ background: '#1A3828', color: '#fff' }}
-                  >
-                    Zarezerwuj z tym kodem
-                  </Link>
-                )}
-                <div className="flex items-center justify-between text-xs pt-1" style={{ color: 'rgba(20,40,28,0.45)' }}>
-                  <span>{DISCOUNT_LABELS[coupon.reward.discountType] ?? coupon.reward.discountType}</span>
-                  <span>Aktywowano: {new Date(coupon.activatedAt).toLocaleDateString('pl-PL')}</span>
+                  <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>{coupon.reward.description}</p>
+                  {couponCode && (
+                    <div
+                      className="flex items-center gap-2 mt-1 p-2 rounded-lg"
+                      style={{ background: 'rgba(196,150,90,0.1)' }}
+                    >
+                      <span
+                        className="font-mono text-sm font-bold tracking-wider flex-1"
+                        style={{ color: '#C4965A' }}
+                      >
+                        {couponCode}
+                      </span>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(couponCode); toast.success('Skopiowano kod!'); }}
+                        className="text-xs shrink-0 hover:opacity-70 transition-opacity px-3 py-2 rounded-lg min-h-[44px] flex items-center"
+                        style={{ color: 'rgba(20,40,28,0.5)' }}
+                        title="Kopiuj kod"
+                      >
+                        Kopiuj
+                      </button>
+                    </div>
+                  )}
+                  {couponCode && (
+                    <Link
+                      to={bookingPathWithCode(couponCode)}
+                      className="block w-full text-center py-2.5 rounded-xl text-[13px] font-semibold transition-opacity hover:opacity-80 mt-2"
+                      style={{ background: '#1A3828', color: '#fff' }}
+                    >
+                      Zarezerwuj z tym kodem
+                    </Link>
+                  )}
+                  <div className="flex items-center justify-between text-xs pt-1" style={{ color: 'rgba(20,40,28,0.45)' }}>
+                    <span>{DISCOUNT_LABELS[coupon.reward.discountType] ?? coupon.reward.discountType}</span>
+                    <span>Aktywowano: {new Date(coupon.activatedAt).toLocaleDateString('pl-PL')}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

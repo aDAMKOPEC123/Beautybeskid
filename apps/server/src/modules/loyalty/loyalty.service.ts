@@ -173,7 +173,7 @@ export const activateCoupon = async (userId: string, data: RedeemRewardInput) =>
     });
 
     return await tx.userCoupon.create({
-      data: { userId, rewardId: reward.id, code: 'BeskidStudio By Wiktoria Ćwik-' + generateCode(8) },
+      data: { userId, rewardId: reward.id, code: generateCode(8) },
       include: { reward: true }
     });
   });
@@ -199,9 +199,17 @@ export const markCouponUsed = async (couponId: string, appointmentId?: string) =
 
 export const validateVoucher = async (code: string, userId: string, serviceId?: string) => {
   const normalized = code.trim().toUpperCase();
+  const normalizedCouponCode = normalized.split('-').pop()?.trim() || normalized;
 
   const coupon = await prisma.userCoupon.findFirst({
-    where: { code: normalized, userId, status: 'ACTIVE' },
+    where: {
+      userId,
+      status: 'ACTIVE',
+      OR: [
+        { code: normalizedCouponCode },
+        { code: { endsWith: `-${normalizedCouponCode}` } },
+      ],
+    },
     include: { reward: true },
   });
 
@@ -212,7 +220,7 @@ export const validateVoucher = async (code: string, userId: string, serviceId?: 
     return {
       type: 'COUPON' as const,
       id: coupon.id,
-      code: coupon.code!,
+      code: coupon.code!.split('-').pop()?.trim().toUpperCase() || coupon.code!,
       discountType: coupon.reward.discountType as 'PERCENTAGE' | 'AMOUNT',
       discountValue: Number(coupon.reward.discountValue),
       restrictedToServiceId: null as string | null,
