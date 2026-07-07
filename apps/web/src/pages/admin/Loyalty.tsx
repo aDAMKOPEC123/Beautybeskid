@@ -109,7 +109,7 @@ export const AdminLoyalty = () => {
         discountType: 'AMOUNT', discountValue: ''
       });
     },
-    onError: () => toast.error('Błąd dodawania nagrody.')
+    onError: (e: any) => toast.error(e.response?.data?.message || 'Błąd dodawania nagrody.')
   });
 
   const deleteRewardMutation = useMutation({
@@ -283,8 +283,13 @@ export const AdminLoyalty = () => {
                   </div>
 
                   <Button onClick={() => {
-                    if (newReward.discountType !== 'OTHER' && !newReward.discountValue) {
-                      toast.error('Podaj wartość zniżki dla tego typu nagrody');
+                    const discountValue = parseFloat(newReward.discountValue);
+                    if (newReward.discountType !== 'OTHER' && (!Number.isFinite(discountValue) || discountValue <= 0)) {
+                      toast.error('Podaj wartość zniżki większą od zera');
+                      return;
+                    }
+                    if (newReward.discountType === 'PERCENTAGE' && discountValue > 100) {
+                      toast.error('Zniżka procentowa nie może przekraczać 100%');
                       return;
                     }
                     createRewardMutation.mutate();

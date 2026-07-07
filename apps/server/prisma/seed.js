@@ -56,12 +56,15 @@ async function main() {
         {
             name: 'Zniżka 50 PLN',
             description: 'Kupon rabatowy 50 PLN na dowolny zabieg.',
-            pointsCost: 500
+            pointsCost: 500,
+            discountType: 'AMOUNT',
+            discountValue: 50
         },
         {
             name: 'Darmowa Konsultacja',
             description: 'Bezpłatna konsultacja kontrolna.',
-            pointsCost: 700
+            pointsCost: 700,
+            discountType: 'OTHER'
         }
     ];
     for (const r of rewardsData) {

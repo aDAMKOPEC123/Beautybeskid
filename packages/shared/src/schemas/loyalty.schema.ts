@@ -22,6 +22,24 @@ export const createLoyaltyRewardSchema = z.object({
   applicableServiceIds: z.array(z.string()).optional(),
   discountType: z.enum(['PERCENTAGE', 'AMOUNT', 'OTHER']).default('AMOUNT'),
   discountValue: z.number().optional()
+}).superRefine((data, ctx) => {
+  if (data.discountType === 'OTHER') return;
+
+  if (data.discountValue == null || data.discountValue <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['discountValue'],
+      message: 'Wartość zniżki jest wymagana i musi być większa od zera',
+    });
+  }
+
+  if (data.discountType === 'PERCENTAGE' && data.discountValue != null && data.discountValue > 100) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['discountValue'],
+      message: 'Zniżka procentowa nie może przekraczać 100%',
+    });
+  }
 });
 
 export const updateUserTierSchema = z.object({

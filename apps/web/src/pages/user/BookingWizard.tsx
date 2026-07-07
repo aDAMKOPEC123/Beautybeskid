@@ -740,11 +740,13 @@ function StepNotes({
 
 function calcDiscountedPrice(price: number, reward: any): number {
   if (!reward) return price;
+  const discountValue = Number(reward.discountValue ?? 0);
+  if (!Number.isFinite(discountValue) || discountValue <= 0) return price;
   if (reward.discountType === 'PERCENTAGE') {
-    return Math.max(0, price * (1 - Number(reward.discountValue) / 100));
+    return Math.max(0, price * (1 - discountValue / 100));
   }
   if (reward.discountType === 'AMOUNT') {
-    return Math.max(0, price - Number(reward.discountValue));
+    return Math.max(0, price - discountValue);
   }
   return price;
 }
@@ -758,10 +760,12 @@ function getCouponCode(code?: string | null): string {
 function toValidatedCoupon(coupon: any): ValidatedVoucher | null {
   const reward = coupon?.reward;
   const code = getCouponCode(coupon?.code);
+  const discountValue = Number(reward?.discountValue ?? 0);
   if (
     !coupon?.id ||
     !code ||
-    (reward.discountType !== 'PERCENTAGE' && reward.discountType !== 'AMOUNT' && reward.discountType !== 'OTHER')
+    (reward.discountType !== 'PERCENTAGE' && reward.discountType !== 'AMOUNT' && reward.discountType !== 'OTHER') ||
+    (reward.discountType !== 'OTHER' && (!Number.isFinite(discountValue) || discountValue <= 0))
   ) {
     return null;
   }
@@ -771,7 +775,7 @@ function toValidatedCoupon(coupon: any): ValidatedVoucher | null {
     id: coupon.id,
     code,
     discountType: reward.discountType,
-    discountValue: Number(reward.discountValue ?? 0),
+    discountValue,
     restrictedToServiceId: null,
   };
 }

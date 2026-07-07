@@ -40,11 +40,13 @@ const ARCHIVED_STATUSES = ['CANCELLED', 'COMPLETED', 'NO_SHOW'];
 
 function calcDiscountedPrice(price: number, reward: any): number {
   if (!reward) return price;
+  const discountValue = Number(reward.discountValue ?? 0);
+  if (!Number.isFinite(discountValue) || discountValue <= 0) return price;
   if (reward.discountType === 'PERCENTAGE') {
-    return Math.max(0, price * (1 - Number(reward.discountValue) / 100));
+    return Math.max(0, price * (1 - discountValue / 100));
   }
   if (reward.discountType === 'AMOUNT') {
-    return Math.max(0, price - Number(reward.discountValue));
+    return Math.max(0, price - discountValue);
   }
   return price;
 }

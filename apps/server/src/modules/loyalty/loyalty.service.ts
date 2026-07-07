@@ -214,12 +214,20 @@ export const validateVoucher = async (code: string, userId: string, serviceId?: 
   });
 
   if (coupon) {
+    const discountValue = Number(coupon.reward.discountValue ?? 0);
+    if (
+      coupon.reward.discountType !== 'OTHER' &&
+      (!Number.isFinite(discountValue) || discountValue <= 0)
+    ) {
+      throw new AppError('Ten kupon nie ma ustawionej wartości rabatu. Skontaktuj się z salonem.', 400);
+    }
+
     return {
       type: 'COUPON' as const,
       id: coupon.id,
       code: coupon.code!.split('-').pop()?.trim().toUpperCase() || coupon.code!,
       discountType: coupon.reward.discountType as 'PERCENTAGE' | 'AMOUNT' | 'OTHER',
-      discountValue: Number(coupon.reward.discountValue ?? 0),
+      discountValue,
       restrictedToServiceId: null as string | null,
     };
   }
