@@ -29,8 +29,8 @@ ssh "$VPS" "cd $REMOTE_DIR && git pull origin main"
 if [ "$MODE" = "full" ] || [ "$MODE" = "backend" ]; then
   echo "[3/4] Migrating and building backend..."
   ssh "$VPS" "cd $REMOTE_DIR/packages/shared && pnpm build && cd $REMOTE_DIR/apps/server && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"
-  echo "      Restarting PM2..."
-  ssh "$VPS" "pm2 restart cosmo-server"
+  echo "      Starting/restarting PM2..."
+  ssh "$VPS" "cd $REMOTE_DIR && if pm2 describe cosmo-server >/dev/null; then pm2 restart cosmo-server; else pm2 start ecosystem.config.js --only cosmo-server; fi && pm2 save"
   echo "      Backend deployed."
 fi
 

@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const DOMAIN = process.env.SEO_DOMAIN || 'https://kosmetologwiktoriacwik.pl';
 const API_ORIGIN = process.env.SEO_API_ORIGIN || DOMAIN;
+const API_TIMEOUT_MS = Number(process.env.SEO_API_TIMEOUT_MS || 15000);
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
 const template = (await readFile(path.join(DIST_DIR, 'index.html'), 'utf8'))
   .replace(/\s*<script type="application\/ld\+json" data-generated-seo>[\s\S]*?<\/script>/g, '');
@@ -210,17 +211,27 @@ const richTextToHtml = (value) => {
 const fetchApi = async (pathname) => {
   const response = await fetch(`${API_ORIGIN}${pathname}`, {
     headers: { Accept: 'application/json', 'User-Agent': 'BeskidStudio-SEO-Builder/1.0' },
+    signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
   if (!response.ok) throw new Error(`SEO API ${pathname} returned ${response.status}`);
   return response.json();
 };
 
 const loadDynamicPages = async () => {
-  const [servicesPayload, postsPayload] = await Promise.all([
+  const [servicesResult, postsResult] = await Promise.allSettled([
     fetchApi('/api/services'),
     fetchApi('/api/blog'),
   ]);
 
+  const readPayload = (result, pathname) => {
+    if (result.status === 'fulfilled') return result.value;
+
+    console.warn(`SEO API ${pathname} unavailable, skipping dynamic pages: ${result.reason?.message ?? result.reason}`);
+    return null;
+  };
+
+  const servicesPayload = readPayload(servicesResult, '/api/services');
+  const postsPayload = readPayload(postsResult, '/api/blog');
   const services = servicesPayload?.data?.services ?? [];
   const posts = postsPayload?.data?.posts ?? [];
 
