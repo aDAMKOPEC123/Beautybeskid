@@ -3,6 +3,7 @@ import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { employeesApi } from '../../api/employees.api';
 import { SEO } from '../../lib/seo-config';
+import { trackEvent } from '../../lib/analytics';
 import { localSeoLinks } from '../../lib/local-seo';
 
 const TikTokIcon = () => (
@@ -148,6 +149,7 @@ export const Footer = () => {
                 style={{ color: 'rgba(255,255,255,0.78)' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C4965A')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.78)')}
+                onClick={() => trackEvent('phone_click', { location: 'footer' })}
               >
                 <Phone className="h-4 w-4 shrink-0" style={{ color: '#C4965A' }} />
                 {SEO.phone}

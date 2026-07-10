@@ -2,6 +2,7 @@
 import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
+import { trackEvent } from '@/lib/analytics';
 import { localAreas } from '@/lib/local-seo';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -134,6 +135,7 @@ export const Contact = () => {
                     href={`tel:${SEO.phone}`}
                     className="text-sm font-semibold px-6 py-2.5 rounded-full text-white transition-opacity hover:opacity-90"
                     style={{ backgroundColor: '#1A3828' }}
+                    onClick={() => trackEvent('phone_click', { location: 'contact_page' })}
                   >
                     Zadzwoń
                   </a>

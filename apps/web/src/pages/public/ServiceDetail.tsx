@@ -1,5 +1,7 @@
-﻿import { useQuery } from '@tanstack/react-query';
+﻿import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { trackEvent } from '@/lib/analytics';
 import { servicesApi } from '@/api/services.api';
 import { reviewsApi } from '@/api/reviews.api';
 import { formatPrice } from '@/lib/utils';
@@ -26,6 +28,14 @@ export const ServiceDetail = () => {
     queryFn: () => reviewsApi.getServiceReviews(service!.id, 1, 1),
     enabled: !!service?.id,
   });
+
+  useEffect(() => {
+    if (!service) return;
+    trackEvent('service_viewed', {
+      service_name: service.name,
+      service_category: service.category?.name,
+    });
+  }, [service?.id]);
 
   if (isLoading) return (
     <div className="container py-16 flex justify-center">

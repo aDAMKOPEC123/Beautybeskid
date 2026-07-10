@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { trackEvent } from '@/lib/analytics';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   format,
@@ -1190,8 +1191,9 @@ export const BookingWizard = () => {
   };
 
   const handleServiceAdvance = useCallback(() => {
+    trackEvent('booking_started', { service_name: state.service?.name });
     setStep(isFullyPreselected ? 5 : 2);
-  }, [isFullyPreselected]);
+  }, [isFullyPreselected, state.service?.name]);
 
   const selectDate = (date: Date) => {
     setState((prev) => ({ ...prev, date, time: null, appliedHappyHour: null }));
@@ -1264,6 +1266,11 @@ export const BookingWizard = () => {
       queryClient.invalidateQueries({ queryKey: ['reminders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       toast.success('Wizyta została zarezerwowana!');
+      trackEvent('booking_completed', {
+        service_name: state.service?.name,
+        value: Number(state.service?.price) || undefined,
+        currency: 'PLN',
+      });
       navigate('/user/wizyty');
     } catch {
       toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { consultationsApi } from '@/api/consultations.api';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/analytics';
 import { X } from 'lucide-react';
 
 const schema = z.object({
@@ -34,6 +35,7 @@ export const ConsultationModal = ({ open, onClose }: Props) => {
   const onSubmit = async (data: FormData) => {
     try {
       await consultationsApi.submit(data);
+      trackEvent('consultation_submitted');
       toast.success('Dziękujemy! Oddzwonimy wkrótce.');
       reset();
       onClose();
