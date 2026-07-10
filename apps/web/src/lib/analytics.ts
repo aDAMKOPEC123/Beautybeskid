@@ -1,4 +1,4 @@
-export const GA_MEASUREMENT_ID = 'G-N52JVPSJBK';
+export const GA_MEASUREMENT_ID = 'G-Q6NNTHPCJ7';
 const GTM_CONTAINER_ID = 'GTM-MT2NHRBC';
 
 let analyticsLoadPromise: Promise<void> | null = null;
