@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
   ArrowRight,
   CalendarCheck,
@@ -32,7 +32,11 @@ const sectionLabelClass = 'mb-3 text-[10px] font-semibold uppercase tracking-[0.
 export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
   const page = localSeoPages[pageKey];
 
-  if (page.indexable === false && !page.redirectTo) {
+  if (page.redirectTo) {
+    return <Navigate to={page.redirectTo} replace />;
+  }
+
+  if (page.indexable === false) {
     return (
       <div className="bg-ivory text-espresso">
         <PageSEO
@@ -82,7 +86,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         canonical={`/${page.slug}`}
         ogImage={heroImage}
         schema={schema}
-        noIndex={page.indexable === false}
+        noIndex={false}
       />
 
       <section className="relative overflow-hidden bg-cream">
