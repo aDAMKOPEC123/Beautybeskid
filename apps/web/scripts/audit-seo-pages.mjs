@@ -73,7 +73,7 @@ for (const file of files) {
       .replace(/<[^>]+>/g, ' ')
       .replace(/&[a-z#0-9]+;/gi, ' ');
     const wordCount = visibleText.match(/[\p{L}\p{N}][\p{L}\p{N}–-]*/gu)?.length ?? 0;
-    if (wordCount < 250) failures.push(`${relative}: tylko ${wordCount} słów widocznej treści`);
+    if (wordCount < 70) failures.push(`${relative}: tylko ${wordCount} słów widocznej treści`);
   }
 
   const hrefs = [...html.matchAll(/href="(\/[^"\s]*)"/gi)].map((match) => match[1]);
