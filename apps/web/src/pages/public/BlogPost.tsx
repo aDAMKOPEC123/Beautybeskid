@@ -193,6 +193,8 @@ export const BlogPost = () => {
 
   const articleSchema = {
     '@context': 'https://schema.org',
+    '@graph': [
+    {
     '@type': 'BlogPosting',
     '@id': `https://kosmetologwiktoriacwik.pl/blog/${post.slug}#article`,
     headline: post.title,
@@ -215,6 +217,16 @@ export const BlogPost = () => {
     },
     publisher: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
     isAccessibleForFree: true,
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://kosmetologwiktoriacwik.pl/blog' },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `https://kosmetologwiktoriacwik.pl/blog/${post.slug}` },
+    ],
+  },
+  ],
   };
 
   return (

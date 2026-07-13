@@ -243,6 +243,14 @@ export const BlogList = () => {
         title="Blog kosmetologiczny"
         description="Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach oraz stylizacji brwi i rzęs. Przeczytaj artykuły Wiktorii Ćwik."
         canonical="/blog"
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://kosmetologwiktoriacwik.pl/blog' },
+          ],
+        }}
       />
 
       {/* Hero */}

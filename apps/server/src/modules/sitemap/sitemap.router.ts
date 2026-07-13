@@ -5,7 +5,7 @@ const router = Router();
 
 const DOMAIN = 'https://kosmetologwiktoriacwik.pl';
 
-const STATIC_LASTMOD = '2026-07-04';
+const STATIC_LASTMOD = new Date().toISOString().split('T')[0];
 
 const staticUrls = [
   { loc: '/', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },

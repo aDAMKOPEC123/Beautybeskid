@@ -37,6 +37,14 @@ export const ServiceList = () => {
         title="Usługi kosmetyczne Limanowa"
         description="Usługi kosmetyczne koło Limanowej: konsultacje, pielęgnacja skóry, laminacja brwi i rzęs, henna, regulacja i depilacja twarzy. Sprawdź ofertę."
         canonical="/uslugi"
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+            { '@type': 'ListItem', position: 2, name: 'Usługi', item: 'https://kosmetologwiktoriacwik.pl/uslugi' },
+          ],
+        }}
       />
 
       {/* Hero */}
