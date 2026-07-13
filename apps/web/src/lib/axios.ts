@@ -35,6 +35,10 @@ function addRefreshSubscriber(resolve: (token: string) => void, reject: (err: un
   refreshSubscribers.push({ resolve, reject });
 }
 
+function isUnauthorizedRefreshFailure(err: unknown) {
+  return axios.isAxiosError(err) && err.response?.status === 401;
+}
+
 /**
  * Coordinated token refresh — single entry point used by both the
  * response interceptor (on 401) and the visibilitychange handler.
@@ -94,8 +98,10 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        useAuthStore.getState().logout();
-        window.location.href = '/auth/login';
+        if (isUnauthorizedRefreshFailure(refreshError)) {
+          useAuthStore.getState().logout();
+          window.location.href = '/auth/login';
+        }
         return Promise.reject(refreshError);
       }
     }

@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '@cosmo/shared';
 import { AppError } from '../../middleware/error.middleware';
-import { verifyToken, signToken, parseDurationMs } from '../../utils/jwt';
+import { verifyToken, signToken } from '../../utils/jwt';
 import { env } from '../../config/env';
 import { prisma } from '../../config/prisma';
 import { sendEmail } from '../../utils/email';
@@ -22,6 +22,9 @@ import {
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
 
 const REFRESH_COOKIE_DOMAIN = env.NODE_ENV === 'production' ? '.kosmetologwiktoriacwik.pl' : undefined;
+const LONG_LIVED_REFRESH_TTL_DAYS = 400;
+const LONG_LIVED_REFRESH_TTL = `${LONG_LIVED_REFRESH_TTL_DAYS}d`;
+const LONG_LIVED_REFRESH_TTL_MS = LONG_LIVED_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000;
 
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
@@ -155,7 +158,7 @@ const persistAuthSession = async (
   res: Response,
   result: { refreshToken: string; user: { id: string } },
 ) => {
-  const tokenTtlMs = parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+  const tokenTtlMs = LONG_LIVED_REFRESH_TTL_MS;
   clearAllRefreshCookies(res);
   res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
   const tokenHash = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
@@ -291,10 +294,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validatedData = loginSchema.parse(req.body);
-    const rememberMe = validatedData.rememberMe === true;
-    const refreshTtl = rememberMe ? '30d' : env.JWT_REFRESH_EXPIRES_IN;
-    const result = await authService.loginUser(validatedData, refreshTtl);
-    const tokenTtlMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : parseDurationMs(env.JWT_REFRESH_EXPIRES_IN);
+    const result = await authService.loginUser(validatedData, LONG_LIVED_REFRESH_TTL);
+    const tokenTtlMs = LONG_LIVED_REFRESH_TTL_MS;
 
     clearAllRefreshCookies(res);
     res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
@@ -397,10 +398,8 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    // Preserve original session TTL (supports rememberMe 30d sessions)
-    const remainingMs = Math.max(60_000, storedToken.expiresAt.getTime() - Date.now());
-    const remainingSeconds = Math.floor(remainingMs / 1000);
-    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, `${remainingSeconds}s`);
+    // Sliding long-lived session: every successful refresh extends the device session.
+    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
     const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
     await prisma.$transaction([
       prisma.refreshToken.delete({ where: { tokenHash } }),
@@ -408,13 +407,13 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
         data: {
           tokenHash: newTokenHash,
           userId: user.id,
-          expiresAt: new Date(Date.now() + remainingMs),
+          expiresAt: new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS),
         },
       }),
     ]);
     // Clear all stale cookies (host-only + domain) before setting the new one
     clearAllRefreshCookies(res);
-    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(remainingMs));
+    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
 
     res.status(200).json({
       status: 'success',

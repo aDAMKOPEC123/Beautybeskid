@@ -13,6 +13,8 @@ import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
 import { getIO } from '../../socket';
 
+const DEFAULT_REFRESH_TOKEN_TTL = '400d';
+
 export const toAuthUser = (user: {
   id: string;
   email: string;
@@ -175,7 +177,7 @@ export const loginUser = async (data: LoginInput, refreshTokenTtl?: string) => {
   }
 
   const accessToken = signToken({ id: raw.id, role: raw.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
-  const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, refreshTokenTtl ?? env.JWT_REFRESH_EXPIRES_IN);
+  const refreshToken = signToken({ id: raw.id }, env.JWT_REFRESH_SECRET, refreshTokenTtl ?? DEFAULT_REFRESH_TOKEN_TTL);
 
   return {
     user: toAuthUser(loginUser),
@@ -294,7 +296,7 @@ export const loginWithGoogle = async (
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
-  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, DEFAULT_REFRESH_TOKEN_TTL);
   return { user: toAuthUser(user), accessToken, refreshToken };
 };
 
@@ -427,7 +429,7 @@ export const loginWithFacebook = async (
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
-  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRES_IN);
+  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, DEFAULT_REFRESH_TOKEN_TTL);
 
   return {
     user: toAuthUser(user),

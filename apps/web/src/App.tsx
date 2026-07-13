@@ -162,6 +162,23 @@ function App() {
   }, [logout]);
 
   useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+
+      const { accessToken } = useAuthStore.getState();
+      if (!accessToken) return;
+
+      refreshSession().catch((err) => {
+        if (err?.response?.status === 401) {
+          logout();
+        }
+      });
+    }, 10 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [logout]);
+
+  useEffect(() => {
     const recoverFromChunkError = (error: unknown) => {
       if (isChunkLoadError(error)) {
         reloadOnceForChunkError('window');

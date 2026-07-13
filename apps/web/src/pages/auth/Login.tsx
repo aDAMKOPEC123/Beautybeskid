@@ -18,7 +18,7 @@ import { PageSEO } from '@/components/shared/SEO';
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const { user, setAccessToken, setUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
