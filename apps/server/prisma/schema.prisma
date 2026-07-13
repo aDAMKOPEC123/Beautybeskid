@@ -110,6 +110,24 @@ enum FinancePaymentMethod {
   OTHER
 }
 
+enum FinanceSalesChannel {
+  WALK_IN
+  BOOKING
+  WEBSITE
+  INSTAGRAM
+  FACEBOOK
+  PHONE
+  REFERRAL
+  OTHER
+}
+
+enum FinanceEntryStatus {
+  PAID
+  UNPAID
+  PARTIAL
+  REFUNDED
+}
+
 enum InventoryMovementType {
   PURCHASE
   USAGE
@@ -530,6 +548,7 @@ model Appointment {
   review             Review?
   recommendations    AppointmentRecommendation[]
   homecareRoutine    HomecareRoutine?
+  financeRevenueEntries FinanceRevenue[]
 
   happyHourId        String?
   happyHour          HappyHour?        @relation(fields: [happyHourId], references: [id], onDelete: SetNull)
@@ -976,6 +995,9 @@ model Product {
   unit        String   @default("szt.")
   minStock    Int      @default(5)
   monthlyUsageEstimate Int @default(0)
+  supplier    String?
+  location    String?
+  expiryDate  DateTime?
   imagePath   String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -990,21 +1012,33 @@ model FinanceRevenue {
   id            String               @id @default(cuid())
   date          DateTime
   amount        Decimal              @db.Decimal(10, 2)
+  grossAmount   Decimal?             @db.Decimal(10, 2)
+  discountAmount Decimal             @default(0) @db.Decimal(10, 2)
+  tipAmount     Decimal              @default(0) @db.Decimal(10, 2)
+  quantity      Int                  @default(1)
   source        FinanceRevenueSource @default(SERVICE)
+  channel       FinanceSalesChannel  @default(WALK_IN)
+  status        FinanceEntryStatus   @default(PAID)
   description   String?
   clientName    String?
   paymentMethod FinancePaymentMethod @default(CARD)
   serviceId     String?
   service       Service?             @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  appointmentId String?
+  appointment   Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   userId        String?
   user          User?                @relation("FinanceRevenueUser", fields: [userId], references: [id], onDelete: SetNull)
+  notes         String?
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
 
   @@index([date])
   @@index([serviceId])
+  @@index([appointmentId])
   @@index([userId])
   @@index([source])
+  @@index([channel])
+  @@index([status])
 }
 
 model FinanceCost {
@@ -1014,6 +1048,13 @@ model FinanceCost {
   category      FinanceCostCategory
   description   String
   vendor        String?
+  invoiceNumber String?
+  quantity      Decimal?            @db.Decimal(10, 3)
+  unitCost      Decimal?            @db.Decimal(10, 2)
+  isFixed       Boolean             @default(false)
+  isRecurring   Boolean             @default(false)
+  isPaid        Boolean             @default(true)
+  dueDate       DateTime?
   paymentMethod FinancePaymentMethod @default(TRANSFER)
   productId     String?
   product       Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
@@ -1025,6 +1066,8 @@ model FinanceCost {
   @@index([date])
   @@index([category])
   @@index([productId])
+  @@index([isFixed])
+  @@index([isPaid])
 }
 
 model InventoryMovement {

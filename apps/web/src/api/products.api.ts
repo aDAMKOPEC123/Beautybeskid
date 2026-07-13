@@ -10,6 +10,9 @@ export type Product = {
   unit: string;
   minStock: number;
   monthlyUsageEstimate: number;
+  supplier: string | null;
+  location: string | null;
+  expiryDate: string | null;
   imagePath: string | null;
   isActive: boolean;
 };

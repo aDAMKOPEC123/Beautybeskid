@@ -14,19 +14,30 @@ export type FinanceCostCategory =
   | 'SOFTWARE'
   | 'OTHER';
 export type FinancePaymentMethod = 'CASH' | 'CARD' | 'TRANSFER' | 'BLIK' | 'OTHER';
+export type FinanceSalesChannel = 'WALK_IN' | 'BOOKING' | 'WEBSITE' | 'INSTAGRAM' | 'FACEBOOK' | 'PHONE' | 'REFERRAL' | 'OTHER';
+export type FinanceEntryStatus = 'PAID' | 'UNPAID' | 'PARTIAL' | 'REFUNDED';
 export type InventoryMovementType = 'PURCHASE' | 'USAGE' | 'SALE' | 'WASTE' | 'CORRECTION';
 
 export type FinanceRevenue = {
   id: string;
   date: string;
   amount: number | string;
+  grossAmount: number | string | null;
+  discountAmount: number | string;
+  tipAmount: number | string;
+  quantity: number;
   source: FinanceRevenueSource;
+  channel: FinanceSalesChannel;
+  status: FinanceEntryStatus;
   description: string | null;
   clientName: string | null;
   paymentMethod: FinancePaymentMethod;
   serviceId: string | null;
+  appointmentId: string | null;
   userId: string | null;
+  notes: string | null;
   service?: { id: string; name: string; price: number | string } | null;
+  appointment?: { id: string; date: string; status: string } | null;
   user?: { id: string; name: string; email: string } | null;
 };
 
@@ -37,6 +48,13 @@ export type FinanceCost = {
   category: FinanceCostCategory;
   description: string;
   vendor: string | null;
+  invoiceNumber: string | null;
+  quantity: number | string | null;
+  unitCost: number | string | null;
+  isFixed: boolean;
+  isRecurring: boolean;
+  isPaid: boolean;
+  dueDate: string | null;
   paymentMethod: FinancePaymentMethod;
   productId: string | null;
   product?: Pick<Product, 'id' | 'name' | 'brand' | 'stock' | 'unit'> | null;
@@ -74,11 +92,23 @@ export type FinanceDashboard = {
     marketingSpend: number;
     marketingShare: number;
     avgRevenueEntry: number;
+    avgClientValue: number;
+    paidRevenue: number;
+    unpaidRevenue: number;
+    unpaidCosts: number;
+    fixedCosts: number;
+    variableCosts: number;
+    discountTotal: number;
+    tipTotal: number;
+    uniqueClients: number;
+    dataCompleteness: number;
   };
   charts: {
     daily: Array<{ date: string; revenue: number; costs: number; profit: number }>;
     categoryCosts: Array<{ label: string; value: number }>;
     revenueBySource: Array<{ label: string; value: number }>;
+    revenueByChannel: Array<{ label: string; value: number }>;
+    revenueByPaymentMethod: Array<{ label: string; value: number }>;
     topServices: Array<{ label: string; value: number }>;
   };
   inventory: {
@@ -118,7 +148,7 @@ export const financesApi = {
     const res = await api.get('/finances/costs', { params: { month } });
     return res.data.data.costs;
   },
-  createCost: async (data: Partial<FinanceCost> & { addToStock?: boolean; quantity?: number; unitCost?: number }) => {
+  createCost: async (data: Partial<FinanceCost> & { addToStock?: boolean; quantity?: number | string; unitCost?: number | string }) => {
     const res = await api.post('/finances/costs', data);
     return res.data.data.cost as FinanceCost;
   },
@@ -146,7 +176,7 @@ export const financesApi = {
   },
   updateInventorySettings: async (
     id: string,
-    data: { minStock?: number; unit?: string; monthlyUsageEstimate?: number },
+    data: { minStock?: number; unit?: string; monthlyUsageEstimate?: number; supplier?: string; location?: string; expiryDate?: string | null },
   ) => {
     const res = await api.patch(`/finances/inventory/products/${id}/settings`, data);
     return res.data.data.product as Product;
