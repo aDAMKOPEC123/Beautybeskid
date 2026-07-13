@@ -39,6 +39,7 @@ import {
 } from '@/api/finances.api';
 import { servicesApi } from '@/api/services.api';
 import { usersApi } from '@/api/users.api';
+import { productsApi } from '@/api/products.api';
 
 type Tab = 'dashboard' | 'revenues' | 'costs' | 'inventory';
 
@@ -528,6 +529,19 @@ function InventoryTab() {
   const inventory = useQuery({ queryKey: ['finances', 'inventory'], queryFn: financesApi.getInventory });
   const [filter, setFilter] = useState<'all' | 'alerts'>('alerts');
   const [settings, setSettings] = useState<Record<string, { minStock: string; monthlyUsageEstimate: string; unit: string; supplier: string; location: string; expiryDate: string }>>({});
+  const [productForm, setProductForm] = useState({
+    name: '',
+    brand: '',
+    description: '',
+    price: '',
+    stock: '0',
+    unit: 'szt.',
+    minStock: '5',
+    monthlyUsageEstimate: '0',
+    supplier: '',
+    location: '',
+    expiryDate: '',
+  });
   const [movement, setMovement] = useState({ productId: '', type: 'USAGE' as InventoryMovementType, quantity: '', note: '' });
 
   useEffect(() => {
@@ -558,6 +572,45 @@ function InventoryTab() {
     onError: () => toast.error('Nie udało się zapisać ruchu'),
   });
 
+  const createProductMutation = useMutation({
+    mutationFn: (data: typeof productForm) => {
+      const formData = new FormData();
+      formData.append('name', data.name.trim());
+      formData.append('brand', data.brand.trim());
+      formData.append('description', data.description.trim());
+      formData.append('price', String(Number(data.price)));
+      formData.append('stock', String(Number(data.stock)));
+      formData.append('unit', data.unit.trim() || 'szt.');
+      formData.append('minStock', String(Number(data.minStock)));
+      formData.append('monthlyUsageEstimate', String(Number(data.monthlyUsageEstimate)));
+      formData.append('supplier', data.supplier.trim());
+      formData.append('location', data.location.trim());
+      if (data.expiryDate) formData.append('expiryDate', data.expiryDate);
+      formData.append('isActive', 'true');
+      return productsApi.create(formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['finances'] });
+      setProductForm({
+        name: '',
+        brand: '',
+        description: '',
+        price: '',
+        stock: '0',
+        unit: 'szt.',
+        minStock: '5',
+        monthlyUsageEstimate: '0',
+        supplier: '',
+        location: '',
+        expiryDate: '',
+      });
+      setFilter('all');
+      toast.success('Produkt dodany do magazynu');
+    },
+    onError: () => toast.error('Nie udalo sie dodac produktu'),
+  });
+
   const settingsMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { minStock: number; monthlyUsageEstimate: number; unit: string; supplier: string; location: string; expiryDate: string | null } }) =>
       financesApi.updateInventorySettings(id, data),
@@ -580,6 +633,19 @@ function InventoryTab() {
     });
   };
 
+  const submitProduct = (event: FormEvent) => {
+    event.preventDefault();
+    if (!productForm.name.trim()) {
+      toast.error('Podaj nazwe produktu');
+      return;
+    }
+    if (Number(productForm.price) <= 0) {
+      toast.error('Podaj cene produktu');
+      return;
+    }
+    createProductMutation.mutate(productForm);
+  };
+
   return (
     <div className="space-y-5">
       <div className="grid gap-3 md:grid-cols-4">
@@ -588,6 +654,36 @@ function InventoryTab() {
         <Metric label="Brak" value={String(inventory.data?.summary.outOfStock ?? 0)} tone={(inventory.data?.summary.outOfStock ?? 0) > 0 ? 'bad' : 'good'} />
         <Metric label="Wartość" value={money(inventory.data?.summary.stockValue ?? 0)} />
       </div>
+
+      <form onSubmit={submitProduct} className="space-y-4 rounded-lg border bg-card p-4">
+        <FormHeader icon={PackagePlus} title="Dodaj produkt do magazynu" value={money(Number(productForm.price || 0) * Number(productForm.stock || 0))} />
+
+        <FieldGroup title="Dane produktu">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <Input label="Nazwa produktu" value={productForm.name} onChange={(value) => setProductForm({ ...productForm, name: value })} placeholder="np. Krem regenerujacy" required />
+            <Input label="Marka" value={productForm.brand} onChange={(value) => setProductForm({ ...productForm, brand: value })} placeholder="np. Image Skincare" />
+            <Input label="Cena" type="number" step="0.01" value={productForm.price} onChange={(value) => setProductForm({ ...productForm, price: value })} placeholder="0.00" required />
+            <Input label="Stan poczatkowy" type="number" step="0.01" value={productForm.stock} onChange={(value) => setProductForm({ ...productForm, stock: value })} required />
+            <Input label="Jednostka" value={productForm.unit} onChange={(value) => setProductForm({ ...productForm, unit: value })} placeholder="szt., ml, op." />
+            <Input label="Prog minimalny" type="number" step="0.01" value={productForm.minStock} onChange={(value) => setProductForm({ ...productForm, minStock: value })} />
+            <Input label="Zuzycie / mies." type="number" step="0.01" value={productForm.monthlyUsageEstimate} onChange={(value) => setProductForm({ ...productForm, monthlyUsageEstimate: value })} />
+            <Input label="Wazne do" type="date" value={productForm.expiryDate} onChange={(value) => setProductForm({ ...productForm, expiryDate: value })} />
+          </div>
+        </FieldGroup>
+
+        <FieldGroup title="Organizacja">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1fr_2fr]">
+            <Input label="Dostawca" value={productForm.supplier} onChange={(value) => setProductForm({ ...productForm, supplier: value })} placeholder="hurtownia lub opiekun" />
+            <Input label="Miejsce w salonie" value={productForm.location} onChange={(value) => setProductForm({ ...productForm, location: value })} placeholder="np. szafka A2" />
+            <Input label="Opis / zastosowanie" value={productForm.description} onChange={(value) => setProductForm({ ...productForm, description: value })} placeholder="do jakich zabiegow, uwagi zakupowe" />
+          </div>
+        </FieldGroup>
+
+        <button disabled={createProductMutation.isPending || !productForm.name.trim() || Number(productForm.price) <= 0} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 md:w-auto">
+          <PackagePlus size={16} />
+          Dodaj produkt
+        </button>
+      </form>
 
       <form onSubmit={submitMovement} className="grid gap-3 rounded-lg border bg-card p-4 lg:grid-cols-[1.3fr_1fr_.7fr_1.4fr_auto] lg:items-end">
         <label className="block text-sm font-medium">
