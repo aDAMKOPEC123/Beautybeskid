@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Download, Home, MoreVertical, PlusSquare, Share, Smartphone, X } from 'lucide-react';
+import { Check, Download, Home, PlusSquare, Share, Smartphone, X } from 'lucide-react';
 import {
   PWA_INSTALL_PROMPT_EVENT,
   type PwaInstallPromptDetail,
@@ -192,15 +192,15 @@ export function PwaInstallButton({ className }: Props) {
                   <ol className="space-y-2">
                     <Step
                       number={1}
-                      icon={isIosChrome ? <MoreVertical className="h-5 w-5" /> : <Share className="h-5 w-5" />}
-                      title={isIosChrome ? 'Otwórz menu Chrome' : 'Kliknij Udostępnij'}
-                      text={isIosChrome ? 'Kliknij ikonę trzech kropek albo Udostępnij.' : 'To ikona kwadratu ze strzałką.'}
+                      icon={<Share className="h-5 w-5" />}
+                      title="Kliknij Udostępnij"
+                      text={isIosChrome ? 'Ikona jest przy pasku adresu, obok linku.' : 'To ikona kwadratu ze strzałką.'}
                     />
                     <Step
                       number={2}
                       icon={<PlusSquare className="h-5 w-5" />}
-                      title="Dodaj do ekranu"
-                      text="Wybierz Dodaj do ekranu początkowego."
+                      title={isIosChrome ? 'Dodaj do ekranu' : 'Do ekranu głównego'}
+                      text={isIosChrome ? 'Wybierz Dodaj do ekranu.' : 'Wybierz Do ekranu głównego.'}
                     />
                     <Step
                       number={3}
