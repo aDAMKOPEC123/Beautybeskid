@@ -65,7 +65,7 @@ export const appointmentsApi = {
   },
   createExternal: async (data: {
     clientName: string;
-    clientPhone: string;
+    clientPhone?: string;
     clientEmail?: string;
     serviceId: string;
     employeeId?: string;

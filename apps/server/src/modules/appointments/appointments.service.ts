@@ -408,7 +408,7 @@ export const createAppointmentByAdmin = async (data: {
 
 export const createExternalClientAppointment = async (data: {
   clientName: string;
-  clientPhone: string;
+  clientPhone?: string;
   clientEmail?: string;
   serviceId: string;
   employeeId?: string;
@@ -441,7 +441,7 @@ export const createExternalClientAppointment = async (data: {
       data: {
         userId: null,
         clientName: data.clientName,
-        clientPhone: data.clientPhone,
+        clientPhone: data.clientPhone || null,
         clientEmail: data.clientEmail || null,
         customDurationMinutes: data.customDurationMinutes ?? null,
         serviceId: data.serviceId,

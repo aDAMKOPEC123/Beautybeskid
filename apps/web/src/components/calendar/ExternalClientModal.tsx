@@ -101,7 +101,7 @@ export function ExternalClientModal({
 
       return appointmentsApi.createExternal({
         clientName: form.clientName,
-        clientPhone: form.clientPhone,
+        clientPhone: form.clientPhone || undefined,
         clientEmail: form.clientEmail || undefined,
         serviceId: form.serviceId,
         employeeId: form.employeeId || undefined,
@@ -134,7 +134,7 @@ export function ExternalClientModal({
       `Potwierdzenie wizyty`,
       ``,
       `Klientka: ${clientName}`,
-      `Telefon: ${phone}`,
+      ...(phone ? [`Telefon: ${phone}`] : []),
       ``,
       `Zabieg: ${serviceName}`,
       `Pracownik: ${employeeName}`,
@@ -278,7 +278,7 @@ export function ExternalClientModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-muted-foreground">Telefon *</label>
+                <label className="text-xs text-muted-foreground">Telefon (opcjonalny)</label>
                 <input
                   value={form.clientPhone}
                   onChange={(e) => set('clientPhone', e.target.value)}
@@ -314,7 +314,7 @@ export function ExternalClientModal({
               </Button>
               <Button
                 size="sm"
-                disabled={isPending || !form.clientName || !form.clientPhone || !form.serviceId || !form.employeeId || computedDuration < 1}
+                disabled={isPending || !form.clientName || !form.serviceId || !form.employeeId || computedDuration < 1}
                 onClick={() => mutate()}
                 className="bg-violet-600 hover:bg-violet-700 text-white"
               >
@@ -334,7 +334,7 @@ export function ExternalClientModal({
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground block">Telefon</span>
-                  <span className="font-medium">{result.user?.phone ?? form.clientPhone}</span>
+                  <span className="font-medium">{(result.user?.phone ?? form.clientPhone) || 'Brak'}</span>
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground block">Zabieg</span>
