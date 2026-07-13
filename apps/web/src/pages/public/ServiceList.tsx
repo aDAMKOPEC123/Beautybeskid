@@ -34,8 +34,8 @@ export const ServiceList = () => {
   return (
     <>
       <PageSEO
-        title="Usługi kosmetyczne Limanowa"
-        description="Usługi kosmetyczne koło Limanowej: konsultacje, pielęgnacja skóry, laminacja brwi i rzęs, henna, regulacja i depilacja twarzy. Sprawdź ofertę."
+        title="Usługi kosmetyczne Limanowa — cennik zabiegów"
+        description="Cennik usług kosmetycznych BeskidStudio koło Limanowej: laminacja brwi i rzęs, pedicure podologiczny, depilacja, oprawa oka, pielęgnacja skóry. Umów się online."
         canonical="/uslugi"
         schema={{
           '@context': 'https://schema.org',

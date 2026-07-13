@@ -92,8 +92,8 @@ export const Contact = () => {
   return (
     <>
       <PageSEO
-        title="Kontakt i dojazd – salon kosmetyczny Mordarka"
-        description="BeskidStudio Wiktoria Ćwik, Mordarka 505 koło Limanowej. Telefon 532 128 227, mapa dojazdu, godziny otwarcia i rezerwacja wizyty online."
+        title="Kontakt – BeskidStudio Mordarka 505 | tel. 532 128 227"
+        description="📍 Mordarka 505 koło Limanowej ☎ 532 128 227. Salon kosmetologiczny Wiktoria Ćwik. Pon–Pt 9:00–18:00, Sob 9:00–14:00. Dojazd 5 min z centrum Limanowej. Umów wizytę online."
         canonical="/kontakt"
         schema={localBusinessSchema}
       />

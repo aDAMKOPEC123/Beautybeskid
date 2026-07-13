@@ -242,9 +242,9 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'kosmetolog-mordarka': {
     slug: 'kosmetolog-mordarka',
     shortLabel: 'Kosmetolog Mordarka',
-    title: 'Kosmetolog Mordarka — BeskidStudio By Wiktoria Ćwik Limanowa',
+    title: 'Kosmetolog Mordarka — gabinet kosmetologiczny Wiktoria Ćwik',
     description:
-      'Kosmetolog dla klientek z Mordarki i okolic Limanowej. BeskidStudio By Wiktoria Ćwik: konsultacje, aktualne zabiegi, wygodne terminy i rezerwacja online.',
+      'Gabinet kosmetologiczny w Mordarce 505. Kosmetolog Wiktoria Ćwik: laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ☎ 532 128 227.',
     eyebrow: 'Kosmetolog Mordarka',
     h1: 'Kosmetolog dla klientek z Mordarki i okolic Limanowej',
     lead:
@@ -276,9 +276,9 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'podolog-limanowa': {
     slug: 'podolog-limanowa',
     shortLabel: 'Podolog Limanowa',
-    title: 'Podolog Limanowa — pedicure podologiczny i pielęgnacja stóp',
+    title: 'Podolog Limanowa — pedicure podologiczny ✔ Umów wizytę',
     description:
-      'Podolog Limanowa: BeskidStudio By Wiktoria Ćwik. Pedicure podologiczny, pielęgnacja stóp, konsultacje i rezerwacja online. Salon kosmetologiczny w Mordarce koło Limanowej.',
+      'Podolog koło Limanowej — wrastające paznokcie, zrogowacenia, pękające pięty. Pedicure podologiczny w sterylnym gabinecie. ☎ 532 128 227. Rezerwacja online, Mordarka 505.',
     eyebrow: 'Podolog Limanowa',
     h1: 'Podolog w Limanowej — profesjonalna pielęgnacja stóp',
     lead:
@@ -374,9 +374,9 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'kosmetyczka-limanowa': {
     slug: 'kosmetyczka-limanowa',
     shortLabel: 'Kosmetyczka Limanowa',
-    title: 'Kosmetyczka Limanowa — BeskidStudio By Wiktoria Ćwik',
+    title: 'Kosmetyczka Limanowa — salon kosmetyczny ✔ Rezerwacja online',
     description:
-      'Kosmetyczka Limanowa: BeskidStudio By Wiktoria Ćwik to salon beauty i kosmetologiczny z aktualnymi zabiegami, konsultacją i rezerwacją online dla Limanowej i okolic.',
+      'Szukasz dobrej kosmetyczki w Limanowej? Laminacja brwi i rzęs, henna pudrowa, pedicure, depilacja. Gabinet 5 min od centrum. ☎ 532 128 227. Umów wizytę online.',
     eyebrow: 'Kosmetyczka Limanowa',
     h1: 'Kosmetyczka w Limanowej — zabiegi beauty z planem i spokojem',
     lead:
