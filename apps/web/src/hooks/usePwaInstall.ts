@@ -1,11 +1,18 @@
-// apps/web/src/hooks/usePwaInstall.ts
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
 const DISMISS_KEY = 'pwa-install-dismissed';
+export const PWA_INSTALL_PROMPT_EVENT = 'cosmo:pwa-install-prompt';
+
+export type PwaInstallPromptDetail = {
+  continueTo?: string;
+  navigationState?: unknown;
+};
+
+export type PwaPlatform = 'android' | 'ios-safari' | 'ios-chrome' | 'ios-other' | 'desktop';
 
 function detectIOS(): boolean {
   try {
@@ -18,9 +25,36 @@ function detectIOS(): boolean {
   }
 }
 
-function isAlreadyInstalled(): boolean {
+export function isPwaAlreadyInstalled(): boolean {
   try {
-    return window.matchMedia('(display-mode: standalone)').matches;
+    const navigatorWithStandalone = navigator as Navigator & { standalone?: boolean };
+    return window.matchMedia('(display-mode: standalone)').matches || navigatorWithStandalone.standalone === true;
+  } catch {
+    return false;
+  }
+}
+
+export function detectPwaPlatform(): PwaPlatform {
+  try {
+    const userAgent = navigator.userAgent;
+    const isIOS = detectIOS();
+
+    if (isIOS) {
+      if (/CriOS/i.test(userAgent)) return 'ios-chrome';
+      if (/Safari/i.test(userAgent) && !/CriOS|FxiOS|EdgiOS/i.test(userAgent)) return 'ios-safari';
+      return 'ios-other';
+    }
+
+    if (/Android/i.test(userAgent)) return 'android';
+    return 'desktop';
+  } catch {
+    return 'desktop';
+  }
+}
+
+export function isMobileBrowser() {
+  try {
+    return window.matchMedia('(max-width: 767px)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   } catch {
     return false;
   }
@@ -36,22 +70,23 @@ function isDismissedInStorage(): boolean {
 
 export function usePwaInstall() {
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
-  const isIOSRef = useRef(detectIOS());
-  const isStandaloneRef = useRef(isAlreadyInstalled());
+  const platformRef = useRef<PwaPlatform>(detectPwaPlatform());
+  const isIOSRef = useRef(platformRef.current.startsWith('ios'));
+  const isStandaloneRef = useRef(isPwaAlreadyInstalled());
   const isDismissedRef = useRef(isDismissedInStorage());
 
   const [canShow, setCanShow] = useState<boolean>(() => {
     if (isStandaloneRef.current || isDismissedRef.current) return false;
     if (isIOSRef.current) return true;
-    return false; // Android: wait for beforeinstallprompt
+    return false;
   });
 
   useEffect(() => {
-    if (isStandaloneRef.current || isDismissedRef.current) return;
+    if (isStandaloneRef.current) return;
 
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      deferredPromptRef.current = e as BeforeInstallPromptEvent;
+    const handleBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      deferredPromptRef.current = event as BeforeInstallPromptEvent;
       setCanShow(true);
     };
 
@@ -69,13 +104,13 @@ export function usePwaInstall() {
   }, []);
 
   const install = async () => {
-    if (!deferredPromptRef.current) return;
+    if (!deferredPromptRef.current) return 'unavailable' as const;
     const { outcome } = await deferredPromptRef.current.prompt();
     if (outcome === 'accepted') {
       setCanShow(false);
       deferredPromptRef.current = null;
     }
-    // outcome === 'dismissed' → canShow stays true, user can try again
+    return outcome;
   };
 
   const dismiss = () => setCanShow(false);
@@ -84,10 +119,18 @@ export function usePwaInstall() {
     try {
       localStorage.setItem(DISMISS_KEY, '1');
     } catch {
-      // localStorage unavailable (private browsing / quota exceeded)
+      // localStorage unavailable in private browsing or quota exceeded.
     }
     setCanShow(false);
   };
 
-  return { canShow, isIOS: isIOSRef.current, install, dismiss, dismissForever } as const;
+  return {
+    canShow,
+    isIOS: isIOSRef.current,
+    isStandalone: isStandaloneRef.current,
+    platform: platformRef.current,
+    install,
+    dismiss,
+    dismissForever,
+  } as const;
 }

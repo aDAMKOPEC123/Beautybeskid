@@ -2,6 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelTransitionStore, type ClientPanelTheme } from '@/store/clientPanelTransition.store';
+import {
+  isMobileBrowser,
+  isPwaAlreadyInstalled,
+  PWA_INSTALL_PROMPT_EVENT,
+  type PwaInstallPromptDetail,
+} from '@/hooks/usePwaInstall';
 
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
 const MOBILE_NAVIGATION_DELAY_MS = 90;
@@ -59,6 +65,16 @@ export const useClientPanelEntry = () => {
 
     closeMenu?.();
     timersRef.current.forEach((timer) => window.clearTimeout(timer));
+
+    const isClientPanel = !isAdmin && !isEmployee;
+    if (isClientPanel && isMobileBrowser() && !isPwaAlreadyInstalled()) {
+      window.dispatchEvent(
+        new CustomEvent<PwaInstallPromptDetail>(PWA_INSTALL_PROMPT_EVENT, {
+          detail: { continueTo: destination, navigationState },
+        }),
+      );
+      return;
+    }
 
     if (shouldReduce || isMobile) {
       navigate(destination, { state: navigationState });
