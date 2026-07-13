@@ -1,23 +1,7 @@
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
-
-/** Make the main CSS bundle non-render-blocking so the inline skeleton paints instantly. */
-function deferCssPlugin(): Plugin {
-  return {
-    name: 'defer-css',
-    enforce: 'post',
-    transformIndexHtml(html) {
-      // Turn <link rel="stylesheet" href="/assets/index-*.css"> into async load
-      return html.replace(
-        /<link rel="stylesheet" crossorigin href="(\/assets\/index-[^"]+\.css)">/,
-        '<link rel="preload" as="style" crossorigin href="$1" onload="this.onload=null;this.rel=\'stylesheet\'">' +
-        '<noscript><link rel="stylesheet" crossorigin href="$1"></noscript>'
-      );
-    },
-  };
-}
 
 const normalizePath = (id: string) => id.replace(/\\/g, '/');
 const hasPackage = (id: string, packageName: string) =>
@@ -33,7 +17,6 @@ export default defineConfig(({ command }) => {
   return {
     plugins: [
       react(),
-      deferCssPlugin(),
       VitePWA({
         strategies: 'injectManifest',
         srcDir: 'src',
