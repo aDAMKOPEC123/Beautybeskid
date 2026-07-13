@@ -260,6 +260,7 @@ model User {
   lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
   refreshTokens          RefreshToken[]
+  passkeys               Passkey[]
   beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
   createdBeautyPlans     BeautyPlan[]       @relation("BeautyPlanCreatedBy")
   forumThreads   ForumThread[] @relation("ForumThreadAuthor")
@@ -281,6 +282,33 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+model Passkey {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialId String    @unique
+  publicKey    String
+  counter      Int       @default(0)
+  deviceName   String?
+  transports   String[]
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([userId])
+}
+
+model WebAuthnChallenge {
+  id        String   @id @default(cuid())
+  challenge String   @unique
+  userId    String?
+  purpose   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
 }
 
 model PushSubscription {

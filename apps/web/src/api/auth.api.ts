@@ -7,6 +7,10 @@ import {
   ForgotPasswordInput,
   ResetPasswordInput,
 } from '@cosmo/shared';
+import type {
+  PasskeyAuthenticationOptions,
+  PasskeyRegistrationOptions,
+} from '@/lib/passkeys';
 
 type AuthResponseData = {
   user: User;
@@ -85,6 +89,31 @@ export const authApi = {
 
   refreshSession: () =>
     api.post<AuthResponseEnvelope>('/auth/refresh').then((r) => r.data.data),
+
+  getPasskeyStatus: () =>
+    api
+      .get<{ status: 'success'; data: { enabled: boolean } }>('/auth/passkeys/status')
+      .then((r) => r.data.data),
+
+  getPasskeyRegistrationOptions: () =>
+    api
+      .post<{ status: 'success'; data: PasskeyRegistrationOptions }>('/auth/passkeys/register/options')
+      .then((r) => r.data.data),
+
+  verifyPasskeyRegistration: (credential: unknown) =>
+    api
+      .post<{ status: 'success'; data: { enabled: boolean } }>('/auth/passkeys/register/verify', credential)
+      .then((r) => r.data.data),
+
+  getPasskeyLoginOptions: (userId: string) =>
+    api
+      .post<{ status: 'success'; data: PasskeyAuthenticationOptions }>('/auth/passkeys/login/options', { userId })
+      .then((r) => r.data.data),
+
+  verifyPasskeyLogin: (userId: string, credential: unknown) =>
+    api
+      .post<AuthResponseEnvelope>('/auth/passkeys/login/verify', { userId, ...(credential as object) })
+      .then((r) => r.data.data),
 
   getFacebookRegistration: () =>
     api

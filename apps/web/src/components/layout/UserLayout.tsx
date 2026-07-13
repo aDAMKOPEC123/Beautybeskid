@@ -21,6 +21,7 @@ import { useTour } from '@/hooks/useTour';
 import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
+import { PasskeySetupPrompt } from '@/components/auth/PasskeySetupPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
@@ -441,6 +442,7 @@ const UserLayoutInner = () => {
       <ReviewPromptModal />
       <MobileBottomNav />
       <PwaInstallButton />
+      <PasskeySetupPrompt user={storeUser} />
       {showPushPrompt && (
         <PushPermissionPrompt
           onSubscribe={async () => {

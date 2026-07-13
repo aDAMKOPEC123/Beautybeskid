@@ -20,6 +20,15 @@ import {
   isFacebookConfigured,
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
+import {
+  WEBAUTHN_LOGIN_PURPOSE,
+  WEBAUTHN_REGISTER_PURPOSE,
+  base64UrlEncode,
+  createChallenge,
+  parseRegistrationCredential,
+  verifyLoginCredential,
+  webAuthnChallengeTtlMs,
+} from './webauthn';
 
 const REFRESH_COOKIE_DOMAIN = env.NODE_ENV === 'production' ? '.kosmetologwiktoriacwik.pl' : undefined;
 const LONG_LIVED_REFRESH_TTL_DAYS = 400;
@@ -171,6 +180,32 @@ const persistAuthSession = async (
   });
 };
 
+const assertUserCanLogin = (user: {
+  accountStatus: string;
+  emailVerificationToken: string | null;
+}) => {
+  if (user.accountStatus === 'PENDING') {
+    if (user.emailVerificationToken) {
+      throw new AppError('Potwierdź swój adres email. Sprawdź skrzynkę pocztową i kliknij link aktywacyjny.', 403);
+    }
+    throw new AppError('Konto oczekuje na zatwierdzenie przez administratora', 403);
+  }
+  if (user.accountStatus === 'REJECTED') {
+    throw new AppError('Konto zostało odrzucone. Skontaktuj się z salonem.', 403);
+  }
+};
+
+const createAuthResultForUser = (user: Parameters<typeof authService.toAuthUser>[0]) => {
+  const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
+  const refreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
+
+  return {
+    user: authService.toAuthUser(user),
+    accessToken,
+    refreshToken,
+  };
+};
+
 const parseFacebookRegistration = (req: Request): FacebookRegistrationPayload => {
   const token = req.cookies?.[FACEBOOK_REGISTRATION_COOKIE];
   if (!token) {
@@ -315,6 +350,255 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         user: result.user,
         accessToken: result.accessToken
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const passkeyStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const count = await prisma.passkey.count({ where: { userId: req.user!.id } });
+    res.status(200).json({ status: 'success', data: { enabled: count > 0 } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const passkeyRegisterOptions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      include: { passkeys: true },
+    });
+    if (!user) throw new AppError('Użytkownik nie istnieje', 404);
+
+    const challenge = createChallenge();
+    await prisma.webAuthnChallenge.deleteMany({
+      where: {
+        OR: [{ expiresAt: { lt: new Date() } }, { userId: user.id, purpose: WEBAUTHN_REGISTER_PURPOSE }],
+      },
+    });
+    await prisma.webAuthnChallenge.create({
+      data: {
+        challenge,
+        userId: user.id,
+        purpose: WEBAUTHN_REGISTER_PURPOSE,
+        expiresAt: new Date(Date.now() + webAuthnChallengeTtlMs),
+      },
+    });
+
+    const rp = {
+      name: 'BeskidStudio',
+      id: new URL(env.CLIENT_URL).hostname,
+    };
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        rp,
+        user: {
+          id: base64UrlEncode(Buffer.from(user.id)),
+          name: user.email,
+          displayName: user.name,
+        },
+        challenge,
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+        timeout: webAuthnChallengeTtlMs,
+        attestation: 'none',
+        authenticatorSelection: {
+          residentKey: 'preferred',
+          userVerification: 'required',
+        },
+        excludeCredentials: user.passkeys.map((passkey) => ({
+          type: 'public-key',
+          id: passkey.credentialId,
+          transports: passkey.transports,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const passkeyRegisterVerify = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body = z
+      .object({
+        id: z.string().min(1),
+        response: z.object({
+          clientDataJSON: z.string().min(1),
+          attestationObject: z.string().min(1),
+          transports: z.array(z.string()).optional(),
+        }),
+      })
+      .parse(req.body);
+
+    const storedChallenge = await prisma.webAuthnChallenge.findFirst({
+      where: {
+        userId: req.user!.id,
+        purpose: WEBAUTHN_REGISTER_PURPOSE,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!storedChallenge) {
+      throw new AppError('Sesja włączania Face ID wygasła. Spróbuj ponownie.', 400);
+    }
+
+    const credential = parseRegistrationCredential(
+      body.response.attestationObject,
+      body.response.clientDataJSON,
+      storedChallenge.challenge,
+    );
+
+    if (credential.credentialId !== body.id) {
+      throw new AppError('Nieprawidłowy klucz biometryczny', 400);
+    }
+
+    const existingPasskey = await prisma.passkey.findUnique({
+      where: { credentialId: credential.credentialId },
+      select: { userId: true },
+    });
+    if (existingPasskey && existingPasskey.userId !== req.user!.id) {
+      throw new AppError('Ten klucz biometryczny jest już przypisany do innego konta.', 409);
+    }
+
+    await prisma.$transaction([
+      prisma.passkey.upsert({
+        where: { credentialId: credential.credentialId },
+        update: {
+          userId: req.user!.id,
+          publicKey: credential.publicKey,
+          counter: credential.counter,
+          transports: body.response.transports ?? [],
+          lastUsedAt: null,
+        },
+        create: {
+          userId: req.user!.id,
+          credentialId: credential.credentialId,
+          publicKey: credential.publicKey,
+          counter: credential.counter,
+          deviceName: 'Telefon',
+          transports: body.response.transports ?? [],
+        },
+      }),
+      prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } }),
+    ]);
+
+    res.status(200).json({ status: 'success', data: { enabled: true } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const passkeyLoginOptions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { userId } = z.object({ userId: z.string().min(1) }).parse(req.body);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { passkeys: true },
+    });
+    if (!user || user.passkeys.length === 0) {
+      throw new AppError('Na tym urządzeniu nie ma jeszcze włączonego logowania biometrycznego.', 404);
+    }
+
+    const challenge = createChallenge();
+    await prisma.webAuthnChallenge.deleteMany({
+      where: {
+        OR: [{ expiresAt: { lt: new Date() } }, { userId: user.id, purpose: WEBAUTHN_LOGIN_PURPOSE }],
+      },
+    });
+    await prisma.webAuthnChallenge.create({
+      data: {
+        challenge,
+        userId: user.id,
+        purpose: WEBAUTHN_LOGIN_PURPOSE,
+        expiresAt: new Date(Date.now() + webAuthnChallengeTtlMs),
+      },
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        challenge,
+        timeout: webAuthnChallengeTtlMs,
+        rpId: new URL(env.CLIENT_URL).hostname,
+        userVerification: 'required',
+        allowCredentials: user.passkeys.map((passkey) => ({
+          type: 'public-key',
+          id: passkey.credentialId,
+          transports: passkey.transports,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const passkeyLoginVerify = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body = z
+      .object({
+        userId: z.string().min(1),
+        id: z.string().min(1),
+        response: z.object({
+          clientDataJSON: z.string().min(1),
+          authenticatorData: z.string().min(1),
+          signature: z.string().min(1),
+        }),
+      })
+      .parse(req.body);
+
+    const storedChallenge = await prisma.webAuthnChallenge.findFirst({
+      where: {
+        userId: body.userId,
+        purpose: WEBAUTHN_LOGIN_PURPOSE,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!storedChallenge) {
+      throw new AppError('Sesja logowania biometrycznego wygasła. Spróbuj ponownie.', 400);
+    }
+
+    const passkey = await prisma.passkey.findUnique({
+      where: { credentialId: body.id },
+      include: { user: true },
+    });
+    if (!passkey || passkey.userId !== body.userId) {
+      throw new AppError('Nie znaleziono klucza biometrycznego dla tego konta.', 404);
+    }
+
+    assertUserCanLogin(passkey.user);
+
+    const counter = verifyLoginCredential({
+      authenticatorData: body.response.authenticatorData,
+      clientDataJSON: body.response.clientDataJSON,
+      signature: body.response.signature,
+      challenge: storedChallenge.challenge,
+      publicKey: passkey.publicKey,
+      previousCounter: passkey.counter,
+    });
+
+    const result = createAuthResultForUser(passkey.user);
+    await prisma.$transaction([
+      prisma.passkey.update({
+        where: { id: passkey.id },
+        data: { counter, lastUsedAt: new Date() },
+      }),
+      prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } }),
+    ]);
+    await persistAuthSession(res, result);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
     });
   } catch (error) {
     next(error);

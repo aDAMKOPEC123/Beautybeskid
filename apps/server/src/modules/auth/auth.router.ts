@@ -3,11 +3,17 @@ import { Router } from 'express';
 import * as authController from './auth.controller';
 import { authRateLimiter } from '../../middleware/rateLimit.middleware';
 import { upload } from '../../config/multer';
+import { authenticate } from '../../middleware/auth.middleware';
 
 const router = Router();
 
 router.post('/register', authRateLimiter, upload.single('avatar'), authController.register);
 router.post('/login', authRateLimiter, authController.login);
+router.get('/passkeys/status', authenticate, authController.passkeyStatus);
+router.post('/passkeys/register/options', authenticate, authController.passkeyRegisterOptions);
+router.post('/passkeys/register/verify', authenticate, authController.passkeyRegisterVerify);
+router.post('/passkeys/login/options', authRateLimiter, authController.passkeyLoginOptions);
+router.post('/passkeys/login/verify', authRateLimiter, authController.passkeyLoginVerify);
 router.post('/logout', authController.logout);
 router.post('/refresh', authRateLimiter, authController.refresh);
 router.post('/forgot-password', authRateLimiter, authController.forgotPassword);

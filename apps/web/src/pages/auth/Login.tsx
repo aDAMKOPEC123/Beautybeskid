@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { loginSchema, LoginInput } from '@cosmo/shared';
+import { Fingerprint } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
@@ -15,9 +16,17 @@ import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
 import { getPanelPath } from '@/lib/panel-routing';
 import { PageSEO } from '@/components/shared/SEO';
+import {
+  getPasskeyCredential,
+  getStoredPasskeyAccount,
+  isPasskeySupported,
+} from '@/lib/passkeys';
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
+  const [passkeyAccount] = useState(() => getStoredPasskeyAccount());
   const [rememberMe, setRememberMe] = useState(true);
   const { user, setAccessToken, setUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +42,19 @@ export const Login = () => {
       return;
     }
   }, [from, isAuthenticated, navigate, user?.role]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const checkPasskey = async () => {
+      if (!passkeyAccount) return;
+      const supported = await isPasskeySupported();
+      if (!cancelled) setPasskeyAvailable(supported);
+    };
+    checkPasskey();
+    return () => {
+      cancelled = true;
+    };
+  }, [passkeyAccount]);
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
@@ -80,6 +102,29 @@ export const Login = () => {
     }
   };
 
+  const handlePasskeyLogin = async () => {
+    if (!passkeyAccount) return;
+
+    try {
+      setPasskeyLoading(true);
+      const options = await authApi.getPasskeyLoginOptions(passkeyAccount.userId);
+      const credential = await getPasskeyCredential(options);
+      const res = await authApi.verifyPasskeyLogin(passkeyAccount.userId, credential);
+      setAccessToken(res.accessToken);
+      setUser(res.user);
+
+      toast.success('Zalogowano biometrycznie.');
+      if (isSupported && permission !== 'denied') {
+        setTimeout(() => subscribe(), 1000);
+      }
+      navigate(from || getPanelPath(res.user?.role), { replace: true });
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || e.message || 'Nie udało się zalogować biometrycznie.');
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
       <PageSEO
@@ -104,6 +149,22 @@ export const Login = () => {
           )}
         </CardHeader>
         <CardContent>
+          {passkeyAvailable && passkeyAccount && (
+            <div className="mb-5 rounded-xl border border-oak/12 bg-oak/5 p-3">
+              <button
+                type="button"
+                onClick={handlePasskeyLogin}
+                disabled={passkeyLoading}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-oak px-4 text-sm font-semibold text-white shadow-lg shadow-oak/15 disabled:opacity-60"
+              >
+                <Fingerprint className="h-5 w-5" />
+                {passkeyLoading ? 'Potwierdzanie...' : 'Zaloguj przez Face ID / biometrię'}
+              </button>
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                Konto: {passkeyAccount.name}
+              </p>
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
               <label htmlFor="login-email" className="sr-only">Adres email</label>
