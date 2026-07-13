@@ -38,6 +38,9 @@ fi
 if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "[4/4] Building frontend..."
   ssh "$VPS" "cd $REMOTE_DIR/apps/web && pnpm build"
+  echo "      Verifying SEO pages were generated..."
+  ssh "$VPS" "test -f $REMOTE_DIR/apps/web/dist/blog.html && test -f $REMOTE_DIR/apps/web/dist/uslugi.html" \
+    || { echo "ERROR: dist/ is missing generated SEO pages (blog.html, uslugi.html). Aborting before rsync."; exit 1; }
   echo "      Synchronizing webroot..."
   # Remove stale generated pages, but keep old content-hashed JS/CSS for open
   # browser tabs. Deleting those assets during a deploy makes lazy imports fail
@@ -46,6 +49,14 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   ssh "$VPS" "sudo mkdir -p $WEBROOT/assets && sudo rsync -a $REMOTE_DIR/apps/web/dist/assets/ $WEBROOT/assets/"
   # Bound disk usage while retaining enough history for long-lived/PWA tabs.
   ssh "$VPS" "sudo find $WEBROOT/assets -type f -mtime +30 -delete"
+  echo "      Verifying webroot received SEO pages..."
+  WEBROOT_HTML_COUNT=$(
+    ssh "$VPS" "find $WEBROOT -name '*.html' | wc -l"
+  )
+  if [ "${WEBROOT_HTML_COUNT// /}" -lt 10 ]; then
+    echo "ERROR: webroot only has ${WEBROOT_HTML_COUNT} HTML files after rsync (expected SEO prerender set)."
+    exit 1
+  fi
   echo "      Installing nginx configuration..."
   ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/cosmo.conf /etc/nginx/sites-available/kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
   echo "      Frontend deployed."

@@ -135,6 +135,10 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                 <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
                   <Link to="/uslugi">Zobacz pełną ofertę zabiegów</Link>
                 </Button>
+              ) : page.slug.startsWith('podolog') || page.slug.startsWith('podologia') || page.slug.startsWith('spa-stop') ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/uslugi">Zobacz pełną ofertę zabiegów</Link>
+                </Button>
               ) : page.slug.startsWith('wrastajace-paznokcie') ? (
                 <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
                   <Link to="/uslugi">Sprawdź dostępne zabiegi</Link>
@@ -249,6 +253,29 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
           </div>
         </div>
       </section>
+
+      {page.extendedSections && page.extendedSections.length > 0 && (
+        <section className="bg-white py-16 md:py-20">
+          <div className="container max-w-4xl px-5">
+            <div className="space-y-12">
+              {page.extendedSections.map((section, index) => (
+                <article key={index}>
+                  <h2 className="font-heading text-2xl font-bold leading-tight text-espresso md:text-3xl">
+                    {section.heading}
+                  </h2>
+                  <div className="mt-4 space-y-4">
+                    {section.content.split('\n\n').map((paragraph, pIndex) => (
+                      <p key={pIndex} className="text-base leading-relaxed text-espresso/70">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="bg-espresso py-16 text-ivory md:py-20">
         <div className="container grid max-w-7xl gap-8 px-5 lg:grid-cols-[1fr_0.82fr]">

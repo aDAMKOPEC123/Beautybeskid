@@ -14,7 +14,9 @@ export type LocalSeoPageKey =
   | 'oprawa-oka-limanowa'
   | 'oprawa-oka-mordarka'
   | 'wrastajace-paznokcie-limanowa'
-  | 'wrastajace-paznokcie-mordarka';
+  | 'wrastajace-paznokcie-mordarka'
+  | 'spa-stop-limanowa'
+  | 'podologia-limanowa';
 
 type LocalSeoFaq = {
   question: string;
@@ -42,6 +44,7 @@ export type LocalSeoPageConfig = {
   related: LocalSeoPageKey[];
   indexable?: boolean;
   redirectTo?: string;
+  extendedSections?: { heading: string; content: string }[];
 };
 
 export const localAreas = [
@@ -117,6 +120,67 @@ const ingrowingNailsFaq = (place: string): LocalSeoFaq[] => [
     question: 'Czy korekcja wrastającego paznokcia boli?',
     answer:
       'Profesjonalna korekcja nie powinna boleć — specjalista dobiera metodę do etapu problemu i ocenia stan paznokcia przed zabiegiem.',
+  },
+];
+
+const spaStopFaq = (place: string): LocalSeoFaq[] => [
+  {
+    question: `Czy BeskidStudio By Wiktoria Ćwik oferuje SPA stóp dla klientek z ${place}?`,
+    answer:
+      'Tak. Zabieg SPA stóp obejmuje kąpiel, peeling, nawilżanie i masaż stóp. Sprawdź aktualną ofertę i wolne terminy w rezerwacji online lub skontaktuj się telefonicznie.',
+  },
+  {
+    question: 'Czym różni się SPA stóp od pedicure podologicznego?',
+    answer:
+      'SPA stóp to zabieg relaksacyjno-pielęgnacyjny nastawiony na nawilżenie, regenerację i odprężenie. Pedicure podologiczny to zabieg leczniczy — skupia się na usuwaniu zrogowaceń, odcisków i problemach z paznokciami. Oba zabiegi mogą się uzupełniać.',
+  },
+  {
+    question: 'Jak często warto korzystać z SPA stóp?',
+    answer:
+      'Optymalna częstotliwość to co 3–4 tygodnie, zwłaszcza w sezonie letnim, gdy stopy są bardziej eksponowane. Regularne zabiegi pomagają utrzymać skórę stóp w dobrej kondycji i zapobiegają pękaniu pięt.',
+  },
+  {
+    question: 'Ile trwa zabieg SPA stóp?',
+    answer:
+      'Zabieg SPA stóp trwa zazwyczaj od 45 do 60 minut. Obejmuje kąpiel, peeling, maskę nawilżającą i masaż. Dokładny czas zależy od wybranego wariantu — szczegóły znajdziesz w aktualnej ofercie.',
+  },
+  {
+    question: 'Czy SPA stóp jest odpowiednie dla osób z wrażliwą skórą?',
+    answer:
+      'Tak — dobieramy kosmetyki i intensywność zabiegu do stanu skóry. Jeśli masz alergię lub skórę atopową, wspomnij o tym przy rezerwacji, żebyśmy mogli przygotować odpowiednie produkty.',
+  },
+];
+
+const podologiaFaq = (place: string): LocalSeoFaq[] => [
+  {
+    question: `Czy w BeskidStudio By Wiktoria Ćwik przyjmuje podolog dla klientek z ${place}?`,
+    answer:
+      'Tak. Oferujemy zabiegi podologiczne obejmujące pedicure leczniczy, pielęgnację problematycznych paznokci, usuwanie zrogowaceń i odcisków oraz konsultacje stóp. Sprawdź dostępność w rezerwacji online.',
+  },
+  {
+    question: 'Czym się różni podolog od kosmetyczki robiącej pedicure?',
+    answer:
+      'Podolog specjalizuje się w zdrowiu stóp — diagnozuje i leczy problemy takie jak wrastające paznokcie, grzybica, zrogowacenia, pękające pięty i modzele. Pedicure kosmetyczny skupia się na estetyce — malowaniu, kształtowaniu paznokci i nawilżaniu.',
+  },
+  {
+    question: 'Jakie problemy ze stopami wymagają wizyty u podologa?',
+    answer:
+      'Do podologa warto udać się z wrastającymi paznokciami, bolesnymi odciskami i zrogowaceniami, grzybicą paznokci, pękającymi piętami, nadmierną potliwością stóp oraz przy problemach z chodzeniem związanych z kondycją stóp.',
+  },
+  {
+    question: 'Czy pedicure podologiczny boli?',
+    answer:
+      'Profesjonalny pedicure podologiczny nie powinien boleć. Specjalista dobiera narzędzia i technikę do problemu. Przy wrastającym paznokciu pierwsza wizyta może wiązać się z lekkim dyskomfortem, ale korekcja jest prowadzona delikatnie i stopniowo.',
+  },
+  {
+    question: 'Ile kosztuje wizyta u podologa w okolicach Limanowej?',
+    answer:
+      'Ceny zabiegów podologicznych zależą od zakresu — pedicure leczniczy, korekcja paznokci czy usuwanie zrogowaceń mają różne stawki. Aktualny cennik znajdziesz w naszej ofercie usług lub zadzwoń, żeby dopytać o konkretny zabieg.',
+  },
+  {
+    question: 'Jak przygotować się do wizyty u podologa?',
+    answer:
+      'Nie nakładaj lakieru na paznokcie przed wizytą — podolog musi ocenić stan paznokci. Jeśli to pierwsza wizyta, przygotuj się na rozmowę o problemie, jego historii i dotychczasowych metodach radzenia sobie.',
   },
 ];
 
@@ -212,40 +276,63 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'podolog-limanowa': {
     slug: 'podolog-limanowa',
     shortLabel: 'Podolog Limanowa',
-    title: 'Podolog Limanowa — pielęgnacja stóp i konsultacje',
+    title: 'Podolog Limanowa — pedicure podologiczny i pielęgnacja stóp',
     description:
-      'Podolog Limanowa: BeskidStudio By Wiktoria Ćwik rozwija podologiczną ścieżkę usług. Sprawdź aktualną dostępność, zostaw kontakt i umów konsultację w rejonie Limanowej.',
+      'Podolog Limanowa: BeskidStudio By Wiktoria Ćwik. Pedicure podologiczny, pielęgnacja stóp, konsultacje i rezerwacja online. Salon kosmetologiczny w Mordarce koło Limanowej.',
     eyebrow: 'Podolog Limanowa',
-    h1: 'Podolog w Limanowej — aktualna dostępność i konsultacje stóp',
+    h1: 'Podolog w Limanowej — profesjonalna pielęgnacja stóp',
     lead:
-      'Problemy ze stopami warto omówić szybko i bez wstydu. BeskidStudio By Wiktoria Ćwik przygotowuje podologiczną ścieżkę usług, a strona pokazuje aktualne możliwości kontaktu i rezerwacji.',
-    serviceName: 'Konsultacja podologiczna i pielęgnacja stóp',
+      'Szukasz podologa w okolicach Limanowej? W BeskidStudio By Wiktoria Ćwik zajmujemy się pielęgnacją stóp, pedicure podologicznym i konsultacjami. Wygodna rezerwacja online i gabinet 5 minut od Limanowej.',
+    serviceName: 'Podologia i pedicure podologiczny',
     serviceType: 'Podologia',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
-    statusNote:
-      'Podologia jest oznaczana zgodnie z aktualną dostępnością w systemie. Jeśli zapisy nie są jeszcze aktywne, zostaw kontakt przez konsultację.',
     heroPoints: [
-      'jasna informacja o dostępności usługi',
-      'kontakt dla osób z Limanowej i okolic',
-      'spokojne omówienie problemu przed wizytą',
+      'pedicure podologiczny i pielęgnacja stóp',
+      'konsultacja stanu stóp przed zabiegiem',
+      'rezerwacja online dla Limanowej i okolic',
     ],
     benefits: [
-      'Wsparcie przy problemach z paznokciami, zrogowaceniami i dyskomfortem stóp.',
-      'Czytelna ścieżka kontaktu bez zgadywania, czy usługa jest już dostępna.',
-      'Możliwość dołączenia do listy zainteresowanych startem zapisów.',
+      'Profesjonalna pomoc przy problemach z paznokciami, zrogowaceniami i pękającymi piętami.',
+      'Indywidualne podejście — ocena stóp i dobór zabiegu do konkretnego problemu.',
+      'Wygodny dojazd z Limanowej i okolic, parking pod gabinetem.',
     ],
     visitSteps: [
-      'Opisujesz problem i oczekiwany efekt wizyty.',
-      'Sprawdzamy, czy usługa jest aktywna w grafiku i kiedy można wrócić z terminem.',
-      'Jeśli potrzebna jest konsultacja, przechodzisz przez prostą ścieżkę kontaktu.',
+      'Opisujesz problem ze stopami i omawiamy historię dolegliwości.',
+      'Oceniamy stan stóp i dobieramy odpowiedni zabieg podologiczny.',
+      'Po zabiegu otrzymujesz zalecenia pielęgnacyjne i propozycję kolejnej wizyty.',
     ],
     localCopy:
-      'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski — warto omówić ze specjalistą zamiast rozwiązywać samodzielnie. BeskidStudio By Wiktoria Ćwik rozwija podologiczną ścieżkę usług, aby klientki z Limanowej i okolic miały dostęp do profesjonalnej pomocy blisko domu.',
-    faq: podologyFaq('Limanowej'),
-    related: ['podolog-mordarka', 'kosmetolog-mordarka', 'kosmetyczka-limanowa'],
-    indexable: false,
-    redirectTo: '/uslugi',
+      'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski, pękające pięty — warto rozwiązać z profesjonalistą. BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferuje zabiegi podologiczne dla klientek z Limanowej, Mordarki, Sowlin i całego powiatu limanowskiego. Gabinet znajduje się zaledwie 5 minut jazdy z centrum Limanowej.',
+    faq: podologiaFaq('Limanowej'),
+    related: ['spa-stop-limanowa', 'kosmetyczka-limanowa', 'podologia-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Czym zajmuje się podolog?',
+        content:
+          'Podolog to specjalista zajmujący się zdrowiem i pielęgnacją stóp. W odróżnieniu od kosmetycznego pedicure, podologia koncentruje się na rozwiązywaniu problemów medyczno-estetycznych: wrastających paznokciach, zrogowaceniach, odciskach, modzeli, pękających piętach, nadmiernej potliwości i zmianach grzybiczych paznokci.\n\nPodolog ocenia stan stóp, identyfikuje problem i dobiera odpowiednią metodę leczenia. Regularny pedicure podologiczny pomaga utrzymać stopy w zdrowiu i zapobiega nawracaniu problemów.',
+      },
+      {
+        heading: 'Kiedy warto udać się do podologa w Limanowej?',
+        content:
+          'Wizyta u podologa jest wskazana przy: bolesnych zrogowaceniach i odciskach, które utrudniają chodzenie; wrastających paznokciach z bólem lub stanem zapalnym; pękających, suchych piętach; pogrubiałych lub zniekształconych paznokciach; podejrzeniu grzybicy paznokci; nadmiernym rogowaceniu skóry stóp.\n\nNie czekaj, aż problem się pogłębi. Im wcześniej skonsultujesz stopy ze specjalistą, tym prostsza i mniej inwazyjna będzie interwencja. W BeskidStudio możesz umówić się na konsultację, podczas której ocenimy stan stóp i zaproponujemy odpowiednie postępowanie.',
+      },
+      {
+        heading: 'Pedicure podologiczny vs kosmetyczny — jakie są różnice?',
+        content:
+          'Pedicure kosmetyczny skupia się na estetyce — malowaniu paznokci, kształtowaniu, nawilżaniu skóry. To zabieg pielęgnacyjny dla zdrowych stóp. Pedicure podologiczny to zabieg leczniczy: specjalista usuwa zrogowacenia, odciski i modzele za pomocą profesjonalnych frezów, zajmuje się problematycznymi paznokciami i ocenia kondycję stóp.\n\nW BeskidStudio łączymy profesjonalizm podologiczny z komfortem gabinetu kosmetologicznego. Zabieg odbywa się w czystym, sterylnym otoczeniu, z użyciem specjalistycznych narzędzi jednorazowych lub sterylizowanych w autoklawie.',
+      },
+      {
+        heading: 'Jak wygląda wizyta u podologa w BeskidStudio?',
+        content:
+          'Pierwsza wizyta zaczyna się od wywiadu — pytamy o charakter problemu, jego historię, stosowane leki i dotychczasowe metody leczenia. Następnie dokładnie oceniamy stopy: paznokcie, skórę, zrogowacenia, ewentualne zmiany chorobowe.\n\nNa podstawie oceny dobieramy zabieg — może to być pedicure podologiczny, usunięcie zrogowaceń frezem, korekcja wrastającego paznokcia lub pielęgnacja pękających pięt. Po zabiegu omawiamy zalecenia domowe i proponujemy termin kontrolny. Cała wizyta trwa zazwyczaj 45–75 minut.',
+      },
+      {
+        heading: 'Profilaktyka zdrowia stóp — porady podologa',
+        content:
+          'Zdrowe stopy to kwestia codziennych nawyków. Noś wygodne buty z odpowiednim wsparciem łuku stopy. Regularnie nawilżaj skórę stóp kremem z mocznikiem. Obcinaj paznokcie prosto, nie zaokrąglając rogów — to zapobiega wrastaniu. Codziennie myj stopy i dokładnie osuszaj przestrzenie między palcami.\n\nRegularny pedicure podologiczny co 4–6 tygodni pomaga utrzymać stopy w dobrej kondycji i pozwala wcześnie wychwycić potencjalne problemy. Szczególnie ważna jest profilaktyka u osób z cukrzycą, chorobami naczyniowymi i u seniorów.',
+      },
+    ],
   },
   'podolog-mordarka': {
     slug: 'podolog-mordarka',
@@ -282,8 +369,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Dla klientek z Mordarki i pobliskich wsi BeskidStudio By Wiktoria Ćwik to wygodna opcja bez konieczności dojazdu do centrum Limanowej lub Nowego Sącza. Podologia jest rozwijana jako osobna ścieżka, z jasną informacją o dostępności i możliwością wcześniejszego kontaktu.',
     faq: podologyFaq('Mordarki'),
     related: ['podolog-limanowa', 'kosmetolog-mordarka', 'kosmetyczka-limanowa'],
-    indexable: false,
-    redirectTo: '/uslugi',
+    redirectTo: '/podolog-limanowa',
   },
   'kosmetyczka-limanowa': {
     slug: 'kosmetyczka-limanowa',
@@ -316,8 +402,52 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     ],
     localCopy:
       'W BeskidStudio By Wiktoria Ćwik podchodzimy do każdej klientki indywidualnie — czy szukasz zabiegu na wyjątkową okazję, regularnej pielęgnacji, czy po prostu chcesz sprawdzić aktualną ofertę. Obsługujemy klientki z Limanowej, Mordarki i całego powiatu limanowskiego.',
-    faq: beautyFaq('zabieg kosmetyczny', 'Limanowej'),
+    faq: [
+      ...beautyFaq('zabieg kosmetyczny', 'Limanowej'),
+      {
+        question: 'Ile kosztują zabiegi u kosmetyczki w okolicach Limanowej?',
+        answer:
+          'Ceny zależą od rodzaju zabiegu — konsultacja kosmetologiczna, laminacja brwi, laminacja rzęs i pielęgnacja twarzy mają różne stawki. Aktualny cennik z konkretnymi kwotami znajdziesz na naszej stronie z usługami lub w systemie rezerwacji online.',
+      },
+      {
+        question: 'Czy kosmetyczka w BeskidStudio przyjmuje bez wcześniejszej rezerwacji?',
+        answer:
+          'Preferujemy rezerwację online lub telefoniczną, żeby zagwarantować Ci komfort i odpowiednią ilość czasu na zabieg. W wyjątkowych sytuacjach możesz zadzwonić i sprawdzić dostępność w danym dniu.',
+      },
+      {
+        question: 'Jak dojechać do kosmetyczki w Mordarce z Limanowej?',
+        answer:
+          'Gabinet BeskidStudio mieści się w Mordarce 505, około 5 minut jazdy z centrum Limanowej. Dojazd jest wygodny zarówno samochodem (parking pod gabinetem), jak i autobusem — przystanek w pobliżu. Dokładną lokalizację znajdziesz na stronie kontaktowej z mapą.',
+      },
+    ],
     related: ['kosmetolog-mordarka', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Co oferuje kosmetyczka w okolicach Limanowej?',
+        content:
+          'Dobra kosmetyczka w okolicy Limanowej to nie tylko osoba wykonująca zabiegi — to specjalistka, która rozumie potrzeby skóry i potrafi dobrać pielęgnację do indywidualnych oczekiwań. W BeskidStudio By Wiktoria Ćwik każda wizyta zaczyna się od rozmowy o stanie skóry, dotychczasowej pielęgnacji i celu wizyty.\n\nOferujemy pełen zakres usług kosmetycznych: konsultację kosmetologiczną, laminację brwi i rzęs, hennę brwi, oprawę oka, peelingi oraz zaawansowane zabiegi pielęgnacyjne na twarz. Niezależnie czy szukasz zabiegu na specjalną okazję, czy regularnej opieki — znajdziesz u nas aktualną ofertę z przejrzystymi cenami i wygodną rezerwacją online.',
+      },
+      {
+        heading: 'Jak wybrać dobrą kosmetyczkę w Limanowej?',
+        content:
+          'Wybierając kosmetyczkę w Limanowej, zwróć uwagę na kilka kluczowych aspektów. Po pierwsze — kwalifikacje. Kosmetolog to osoba z wykształceniem wyższym, która posiada pogłębioną wiedzę o budowie skóry, przeciwwskazaniach i nowoczesnych metodach pielęgnacji.\n\nPo drugie — podejście do klientki. Dobra kosmetyczka nie sprzedaje zabiegów na siłę, ale najpierw słucha i ocenia potrzeby. W BeskidStudio stawiamy na konsultację przed pierwszym zabiegiem, co pozwala uniknąć rozczarowań i dobrać pielęgnację precyzyjnie.\n\nPo trzecie — przejrzystość oferty. Cennik, dostępne terminy i zakres usług powinny być jasne jeszcze przed wizytą. Dlatego udostępniamy rezerwację online z aktualnym grafikiem i widocznymi cenami.',
+      },
+      {
+        heading: 'Najpopularniejsze zabiegi kosmetyczne w naszym gabinecie',
+        content:
+          'Klientki z Limanowej i okolic najczęściej wybierają laminację brwi — zabieg porządkujący kierunek włosków, nadający brwiom pełniejszy, naturalny wygląd na 4–6 tygodni. Równie popularna jest laminacja rzęs i lifting rzęs, który podkreśla spojrzenie bez potrzeby codziennego makijażu.\n\nOprawa oka to kompleksowy zabieg łączący stylizację brwi i rzęs — idealny dla osób, które chcą jednorazowo zadbać o całą okolicę oczu. Dla osób z problemami skórnymi polecamy konsultację kosmetologiczną, podczas której analizujemy stan skóry i proponujemy odpowiednią ścieżkę zabiegową.',
+      },
+      {
+        heading: 'Czego spodziewać się podczas pierwszej wizyty?',
+        content:
+          'Pierwsza wizyta w BeskidStudio to przede wszystkim rozmowa. Nie zaczynamy od razu od zabiegu — chcemy zrozumieć Twoje potrzeby, ewentualne alergie, stosowane kosmetyki i wcześniejsze doświadczenia.\n\nNa podstawie tej rozmowy proponujemy konkretny zabieg lub plan zabiegowy. Omawiamy oczekiwane efekty, czas trwania, ewentualne przeciwwskazania i pielęgnację domową po zabiegu. Gabinet mieści się w Mordarce 505, zaledwie 5 minut jazdy z centrum Limanowej, z wygodnym parkingiem.',
+      },
+      {
+        heading: 'Pielęgnacja między wizytami u kosmetyczki',
+        content:
+          'Regularna pielęgnacja domowa to podstawa utrzymania efektów zabiegów gabinetowych. Po każdej wizycie w BeskidStudio otrzymujesz konkretne zalecenia — jakich kosmetyków używać, czego unikać i kiedy wrócić na kolejny zabieg.\n\nW panelu klienta masz dostęp do historii wizyt i zaleceń, dzięki czemu zawsze możesz wrócić do rekomendacji. To nasza metoda na ciągłość opieki — nie tylko jednorazowy zabieg, ale budowanie świadomej pielęgnacji krok po kroku.',
+      },
+    ],
   },
   'kosmetyczka-mordarka': {
     slug: 'kosmetyczka-mordarka',
@@ -456,8 +586,57 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     ],
     localCopy:
       'Laminacja rzęs sprawia, że spojrzenie wygląda bardziej otwarcie i świeżo — bez przedłużania ani codziennego tuszowania. W BeskidStudio By Wiktoria Ćwik dobieramy skręt do naturalnych rzęs i oczekiwanego efektu, z aktualnym grafikiem dla klientek z Limanowej i okolic.',
-    faq: beautyFaq('laminację rzęs', 'Limanowej'),
-    related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-mordarka'],
+    faq: [
+      ...beautyFaq('laminację rzęs', 'Limanowej'),
+      {
+        question: 'Ile trwa laminacja rzęs i jak długo utrzymuje się efekt?',
+        answer:
+          'Zabieg laminacji rzęs trwa około 45–60 minut. Efekt — podkręcone, ciemniejsze i optycznie dłuższe rzęsy — utrzymuje się przez 6–8 tygodni, w zależności od naturalnego cyklu wzrostu rzęs i pielęgnacji po zabiegu.',
+      },
+      {
+        question: 'Czy laminacja rzęs jest bezpieczna?',
+        answer:
+          'Tak, laminacja rzęs wykonywana przez wykwalifikowanego kosmetologa jest zabiegiem bezpiecznym. Używamy certyfikowanych preparatów i dobieramy skręt do naturalnych rzęs. Jedynym przeciwwskazaniem są aktywne infekcje oczu, alergie na składniki preparatu oraz ciąża.',
+      },
+      {
+        question: 'Czym różni się laminacja rzęs od przedłużania?',
+        answer:
+          'Laminacja pracuje z Twoimi naturalnymi rzęsami — podkręca je, odżywia i przyciemnia. Przedłużanie dodaje sztuczne włókna do naturalnych rzęs. Laminacja daje efekt naturalniejszy, nie obciąża rzęs i nie wymaga regularnych uzupełnień co 2–3 tygodnie.',
+      },
+      {
+        question: 'Jak pielęgnować rzęsy po laminacji?',
+        answer:
+          'Przez pierwsze 24 godziny po zabiegu nie moczymy rzęs, nie nakładamy makijażu na oczy i nie pocieramy powiek. Potem wystarczy delikatnie czesać rzęsy szczoteczką i unikać tłustych demakijaży olejowych, które mogą osłabić efekt laminacji.',
+      },
+    ],
+    related: ['laminacja-brwi-limanowa', 'kosmetyczka-limanowa', 'oprawa-oka-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Czym jest laminacja rzęs?',
+        content:
+          'Laminacja rzęs to zabieg kosmetyczny, który nadaje naturalnym rzęsom piękny skręt, przyciemnia je i odżywia keratyną. Efekt przypomina użycie zalotki i tuszu jednocześnie — ale utrzymuje się przez kilka tygodni bez codziennego nakładania makijażu.\n\nZabieg polega na nałożeniu specjalnych preparatów, które modelują kształt rzęs, utrwalają skręt, a następnie odżywiają włoski keratyną i botoksem. Rzęsy wyglądają dłuższe, grubsze i bardziej podkręcone, zachowując przy tym naturalny wygląd.',
+      },
+      {
+        heading: 'Jak przebiega zabieg laminacji rzęs w BeskidStudio?',
+        content:
+          'Zabieg zaczynamy od rozmowy — oceniamy stan naturalnych rzęs, omawiamy oczekiwany skręt i dobieramy odpowiedni rozmiar wałeczka laminacyjnego. Cały proces trwa około 45–60 minut i jest bezbolesny.\n\nEtapy zabiegu: oczyszczenie rzęs i okolicy oka, nałożenie rzęs na silikonowy wałeczek, aplikacja preparatu liftingującego, utrwalenie kształtu, koloryzacja (opcjonalnie) oraz odżywienie keratyną. Po zabiegu rzęsy są od razu gotowe — nie trzeba czekać na efekt.',
+      },
+      {
+        heading: 'Laminacja rzęs a przedłużanie — co wybrać?',
+        content:
+          'To częste pytanie klientek w Limanowej. Laminacja rzęs pracuje wyłącznie z naturalnymi rzęsami — podkręca je, przyciemnia i wzmacnia. Nie dodaje sztucznych włókien, więc efekt jest naturalny i nie obciąża rzęs. Utrzymuje się 6–8 tygodni bez potrzeby uzupełnień.\n\nPrzedłużanie rzęs polega na doklejaniu sztucznych włosków do naturalnych. Daje bardziej dramatyczny efekt, ale wymaga regularnych uzupełnień co 2–3 tygodnie i może osłabiać naturalne rzęsy przy długotrwałym stosowaniu. Laminacja jest idealnym wyborem dla osób ceniących naturalny look i minimalną pielęgnację.',
+      },
+      {
+        heading: 'Dla kogo jest laminacja rzęs?',
+        content:
+          'Laminacja rzęs sprawdzi się u osób z prostymi, opadającymi lub niewidocznymi rzęsami, które chcą podkreślić spojrzenie bez codziennego makijażu. To doskonały zabieg na wakacje, wyjazdy i dla osób z aktywnym trybem życia.\n\nZabieg jest odpowiedni praktycznie dla każdego — jedynymi przeciwwskazaniami są aktywne infekcje oczu, alergie na składniki preparatu, ciąża i okres karmienia piersią. Jeśli nosisz soczewki kontaktowe, zdejmij je przed zabiegiem.',
+      },
+      {
+        heading: 'Efekty laminacji rzęs — czego się spodziewać?',
+        content:
+          'Po laminacji rzęsy wyglądają na dłuższe o 30–40%, bardziej podkręcone i ciemniejsze. Efekt jest widoczny natychmiast po zabiegu i utrzymuje się przez 6–8 tygodni, stopniowo zanikając wraz z naturalnym cyklem wzrostu rzęs.\n\nNajlepsze efekty osiąga się przy regularnych zabiegach — po kilku laminacjach rzęsy stają się grubsze i zdrowsze dzięki odżywieniu keratyną. Między zabiegami wystarczy delikatne czesanie szczoteczką i unikanie tłustych demakijaży.',
+      },
+    ],
   },
 
   'oprawa-oka-limanowa': {
@@ -640,6 +819,130 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     related: ['laminacja-rzes-limanowa', 'laminacja-brwi-limanowa', 'kosmetyczka-limanowa'],
     indexable: false,
     redirectTo: '/laminacja-rzes-limanowa',
+  },
+
+  'spa-stop-limanowa': {
+    slug: 'spa-stop-limanowa',
+    shortLabel: 'SPA stóp Limanowa',
+    title: 'SPA stóp Limanowa — pielęgnacja i relaks dla stóp',
+    description:
+      'SPA stóp w okolicach Limanowej: BeskidStudio By Wiktoria Ćwik. Kąpiel, peeling, nawilżanie i masaż stóp. Relaks i pielęgnacja w jednym. Rezerwacja online.',
+    eyebrow: 'SPA stóp Limanowa',
+    h1: 'SPA stóp w Limanowej — relaks i regeneracja dla zmęczonych stóp',
+    lead:
+      'Zabieg SPA stóp to połączenie pielęgnacji i relaksu — kąpiel aromatyczna, peeling złuszczający, maska nawilżająca i masaż. Idealne rozwiązanie dla zmęczonych, suchych stóp po całym dniu na nogach.',
+    serviceName: 'SPA stóp — pielęgnacja i masaż',
+    serviceType: 'Pielęgnacja stóp',
+    location: 'Limanowa',
+    nearbyContext: limanowaContext,
+    heroPoints: [
+      'kąpiel, peeling, masaż i nawilżanie stóp',
+      'relaks i regeneracja w jednym zabiegu',
+      'rezerwacja online — gabinet 5 min od Limanowej',
+    ],
+    benefits: [
+      'Gładka, nawilżona skóra stóp i ulga dla zmęczonych nóg.',
+      'Zabieg idealny na prezent, przed wakacjami lub po intensywnym tygodniu.',
+      'Spokojne warunki w kameralnym gabinecie, bez pośpiechu.',
+    ],
+    visitSteps: [
+      'Omawiamy stan stóp i wybieramy wariant zabiegu SPA.',
+      'Kąpiel, peeling, maska nawilżająca i masaż stóp w komfortowych warunkach.',
+      'Po zabiegu otrzymujesz zalecenia pielęgnacyjne na dom.',
+    ],
+    localCopy:
+      'SPA stóp to jeden z najprzyjemniejszych zabiegów pielęgnacyjnych — łączy regenerację skóry z głębokim relaksem. W BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferujemy zabiegi SPA stóp dla klientek z Limanowej i całego powiatu limanowskiego. Gabinet mieści się 5 minut jazdy z centrum Limanowej.',
+    faq: spaStopFaq('Limanowej'),
+    related: ['podolog-limanowa', 'kosmetyczka-limanowa', 'podologia-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Na czym polega zabieg SPA stóp?',
+        content:
+          'SPA stóp to kompleksowy zabieg pielęgnacyjno-relaksacyjny obejmujący kilka etapów. Zaczynamy od aromatycznej kąpieli stóp, która zmiękcza skórę i przygotowuje ją do dalszej pielęgnacji. Następnie wykonujemy peeling — złuszczamy martwy naskórek, wygładzamy szorstkie miejsca i usuwamy drobne zrogowacenia.\n\nKolejny etap to maska nawilżająca — bogata w składniki odżywcze formuła, która regeneruje skórę stóp, zmiękcza pięty i przywraca komfort. Zabieg kończy masaż stóp — relaksujący, poprawiający krążenie i łagodzący napięcie po całym dniu na nogach.',
+      },
+      {
+        heading: 'Dla kogo jest SPA stóp?',
+        content:
+          'SPA stóp to zabieg dla każdego, kto chce zadbać o kondycję stóp i jednocześnie się zrelaksować. Szczególnie polecamy go osobom spędzającym dużo czasu na nogach, noszącym buty na obcasie, aktywnym fizycznie oraz tym, którzy borykają się z suchą, szorstką skórą stóp.\n\nTo również doskonały pomysł na prezent — voucher na SPA stóp to oryginalny upominek na urodziny, Dzień Matki czy po prostu jako gest uwagi. Zabieg nie ma szczególnych przeciwwskazań i jest odpowiedni dla większości osób.',
+      },
+      {
+        heading: 'SPA stóp a pedicure — czym się różnią?',
+        content:
+          'Pedicure koncentruje się na estetyce paznokci — obcinaniu, kształtowaniu, malowaniu. SPA stóp to zabieg nastawiony na całą skórę stóp: nawilżenie, regenerację, złuszczenie i relaks. W ramach SPA stóp nie malujemy paznokci, ale dbamy o ich kondycję i otaczającą skórę.\n\nOba zabiegi mogą się doskonale uzupełniać — SPA stóp jako regularna pielęgnacja, a pedicure jako wykończenie estetyczne. W BeskidStudio możesz połączyć oba zabiegi podczas jednej wizyty, oszczędzając czas i ciesząc się kompleksowym efektem.',
+      },
+      {
+        heading: 'Kiedy najlepiej korzystać z SPA stóp?',
+        content:
+          'Sezon letni to czas, gdy stopy są szczególnie wyeksponowane — sandały, klapki i buty otwarte wymagają zadbanych stóp. SPA stóp przed wakacjami lub po sezonie plażowym to popularny wybór naszych klientek.\n\nAle SPA stóp sprawdza się przez cały rok: zimą pomaga walczyć z suchością i pękającymi piętami, jesienią regeneruje stopy po lecie, a wiosną przygotowuje je na cieplejsze miesiące. Optymalnie warto korzystać z zabiegu co 3–4 tygodnie, żeby utrzymać skórę stóp w najlepszej kondycji.',
+      },
+      {
+        heading: 'Korzyści z regularnej pielęgnacji stóp',
+        content:
+          'Regularna pielęgnacja stóp to nie tylko kwestia estetyczna — to inwestycja w zdrowie i komfort codziennego funkcjonowania. Zadbane stopy to mniej odcisków, brak pękających pięt, zdrowe paznokcie i lepsze krążenie.\n\nW BeskidStudio łączymy pielęgnację stóp z wiedzą kosmetologiczną. Po zabiegu SPA stóp otrzymujesz konkretne zalecenia dotyczące pielęgnacji domowej: jaki krem stosować, jak dbać o paznokcie i kiedy wrócić na kolejny zabieg. Dzięki temu efekty utrzymują się dłużej, a stopy wyglądają i czują się znakomicie.',
+      },
+    ],
+  },
+
+  'podologia-limanowa': {
+    slug: 'podologia-limanowa',
+    shortLabel: 'Podologia Limanowa',
+    title: 'Podologia Limanowa — zabiegi podologiczne i pedicure leczniczy',
+    description:
+      'Podologia w okolicach Limanowej: BeskidStudio By Wiktoria Ćwik. Pedicure podologiczny, usuwanie zrogowaceń, pielęgnacja problematycznych paznokci. Gabinet w Mordarce.',
+    eyebrow: 'Podologia Limanowa',
+    h1: 'Podologia w Limanowej — zabiegi podologiczne w BeskidStudio',
+    lead:
+      'Profesjonalna podologia w zasięgu Limanowej. W BeskidStudio By Wiktoria Ćwik oferujemy zabiegi podologiczne: pedicure leczniczy, usuwanie zrogowaceń i odcisków, pielęgnację problematycznych paznokci i kompleksową opiekę nad stopami.',
+    serviceName: 'Zabiegi podologiczne i pedicure leczniczy',
+    serviceType: 'Podologia',
+    location: 'Limanowa',
+    nearbyContext: limanowaContext,
+    heroPoints: [
+      'pedicure podologiczny i leczniczy',
+      'usuwanie zrogowaceń, odcisków i modzeli',
+      'rezerwacja online dla klientek z Limanowej i okolic',
+    ],
+    benefits: [
+      'Profesjonalna diagnoza i leczenie problemów stóp zamiast domowych metod.',
+      'Sterylne narzędzia i bezpieczne warunki zabiegu.',
+      'Indywidualne zalecenia pielęgnacyjne po każdej wizycie.',
+    ],
+    visitSteps: [
+      'Wywiad i ocena stanu stóp — identyfikacja problemu i planu działania.',
+      'Zabieg podologiczny dobrany do konkretnej dolegliwości.',
+      'Zalecenia domowe i propozycja terminu wizyty kontrolnej.',
+    ],
+    localCopy:
+      'Podologia w BeskidStudio By Wiktoria Ćwik to profesjonalna opieka nad stopami w kameralnym gabinecie. Przyjmujemy klientki z Limanowej, Mordarki, Sowlin, Łososiny Górnej i całego powiatu limanowskiego. Gabinet w Mordarce 505 jest łatwo dostępny — 5 minut jazdy z Limanowej, z parkingiem przy budynku.',
+    faq: podologiaFaq('Limanowej'),
+    related: ['podolog-limanowa', 'spa-stop-limanowa', 'kosmetyczka-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Czym jest podologia?',
+        content:
+          'Podologia to dziedzina zajmująca się diagnostyką, leczeniem i profilaktyką schorzeń stóp. Podolog to specjalista, który pomaga rozwiązać problemy, z którymi kosmetyczny pedicure sobie nie radzi: wrastające paznokcie, bolesne zrogowacenia, modzele, grzybicę paznokci, pękające pięty i nadmierne rogowacenie.\n\nW odróżnieniu od podiatry (lekarza stóp), podolog skupia się na nieinwazyjnych metodach pielęgnacji i korekcji. To łącznik między kosmetyką a medycyną — profesjonalna pomoc dla stóp, która nie wymaga skierowania ani wizyty u lekarza.',
+      },
+      {
+        heading: 'Jakie zabiegi podologiczne oferujemy w Limanowej?',
+        content:
+          'W BeskidStudio wykonujemy pełen zakres zabiegów podologicznych: pedicure leczniczy z użyciem profesjonalnych frezów, usuwanie zrogowaceń i odcisków, pielęgnację pogrubiałych i zniekształconych paznokci, pielęgnację pękających pięt oraz konsultacje stanu stóp.\n\nKażdy zabieg zaczynamy od oceny stóp i wywiadu zdrowotnego. Używamy sterylnych narzędzi jednorazowych lub sterylizowanych w autoklawie. Dobieramy metody do konkretnego problemu — nie stosujemy szablonowego podejścia.',
+      },
+      {
+        heading: 'Najczęstsze problemy podologiczne klientek z Limanowej',
+        content:
+          'Wrastające paznokcie to jeden z najczęstszych powodów wizyty u podologa. Problem wynika najczęściej z nieprawidłowego obcinania paznokci lub noszenia za ciasnych butów. Zrogowacenia i odciski pojawiają się w miejscach nadmiernego nacisku — na piętach, palcach i śródstopiu.\n\nPękające pięty to problem kosmetyczny i zdrowotny jednocześnie — głębokie pęknięcia mogą boleć i stanowić wrotę infekcji. Pogrubiałe, zniekształcone paznokcie często wynikają z urazów, grzybicy lub zaburzeń krążenia. Każdy z tych problemów wymaga indywidualnej oceny i odpowiedniej interwencji podologicznej.',
+      },
+      {
+        heading: 'Jak często korzystać z zabiegów podologicznych?',
+        content:
+          'Dla osób z nawracającymi problemami stóp optymalny odstęp między wizytami to 4–6 tygodni. Regularny pedicure podologiczny pozwala kontrolować zrogowacenia, monitorować stan paznokci i wychwycić ewentualne problemy na wczesnym etapie.\n\nOsoby bez aktywnych problemów mogą korzystać z zabiegów podologicznych co 6–8 tygodni w ramach profilaktyki. Szczególnie zalecamy regularne wizyty osobom z cukrzycą, chorobami naczyniowymi, seniorom oraz osobom aktywnym fizycznie.',
+      },
+      {
+        heading: 'Podologia w Limanowej — dlaczego warto wybrać BeskidStudio?',
+        content:
+          'W BeskidStudio łączymy wiedzę podologiczną z komfortem kameralnego gabinetu kosmetologicznego. Każda klientka otrzymuje indywidualną uwagę — nie pracujemy w pośpiechu. Gabinet w Mordarce 505 jest łatwo dostępny z Limanowej i okolicznych miejscowości.\n\nOferujemy przejrzysty cennik, wygodną rezerwację online z aktualnym grafikiem, panel klienta z historią wizyt i zaleceniami oraz możliwość kontaktu telefonicznego i przez czat. Chcemy, żeby pielęgnacja stóp była prosta, dostępna i pozbawiona stresu.',
+      },
+    ],
   },
 };
 
