@@ -82,6 +82,42 @@ enum StorePromotionEventType {
   REMINDER_SET
 }
 
+enum FinanceRevenueSource {
+  SERVICE
+  PRODUCT
+  VOUCHER
+  OTHER
+}
+
+enum FinanceCostCategory {
+  PRODUCTS
+  MARKETING
+  RENT
+  SALARIES
+  UTILITIES
+  TAXES
+  EQUIPMENT
+  TRAINING
+  SOFTWARE
+  OTHER
+}
+
+enum FinancePaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  BLIK
+  OTHER
+}
+
+enum InventoryMovementType {
+  PURCHASE
+  USAGE
+  SALE
+  WASTE
+  CORRECTION
+}
+
 enum SkinType {
   SUCHA
   TLUSTA
@@ -213,6 +249,7 @@ model User {
   forumWatches   ForumWatch[]  @relation("ForumWatchUser")
   forumReactions ForumReaction[] @relation("ForumReactionUser")
   createdVouchers Voucher[]   @relation("VoucherCreatedBy")
+  financeRevenueEntries FinanceRevenue[] @relation("FinanceRevenueUser")
 
   @@index([role])
 }
@@ -273,6 +310,7 @@ model Service {
   happyHours        HappyHour[]       @relation("HappyHourServices")
   recommendedSlides RecommendedSlide[]
   vouchers          Voucher[]         @relation("VoucherService")
+  financeRevenueEntries FinanceRevenue[]
 
   @@index([category])
   @@index([isActive])
@@ -935,12 +973,76 @@ model Product {
   description String?
   price       Float
   stock       Int      @default(0)
+  unit        String   @default("szt.")
+  minStock    Int      @default(5)
+  monthlyUsageEstimate Int @default(0)
   imagePath   String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   recommendations AppointmentRecommendation[]
+  financeCosts FinanceCost[]
+  inventoryMovements InventoryMovement[]
+}
+
+model FinanceRevenue {
+  id            String               @id @default(cuid())
+  date          DateTime
+  amount        Decimal              @db.Decimal(10, 2)
+  source        FinanceRevenueSource @default(SERVICE)
+  description   String?
+  clientName    String?
+  paymentMethod FinancePaymentMethod @default(CARD)
+  serviceId     String?
+  service       Service?             @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  userId        String?
+  user          User?                @relation("FinanceRevenueUser", fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([date])
+  @@index([serviceId])
+  @@index([userId])
+  @@index([source])
+}
+
+model FinanceCost {
+  id            String              @id @default(cuid())
+  date          DateTime
+  amount        Decimal             @db.Decimal(10, 2)
+  category      FinanceCostCategory
+  description   String
+  vendor        String?
+  paymentMethod FinancePaymentMethod @default(TRANSFER)
+  productId     String?
+  product       Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  inventoryMovements InventoryMovement[]
+
+  @@index([date])
+  @@index([category])
+  @@index([productId])
+}
+
+model InventoryMovement {
+  id          String                @id @default(cuid())
+  productId   String
+  product     Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        InventoryMovementType
+  quantity    Int
+  date        DateTime              @default(now())
+  note        String?
+  unitCost    Decimal?              @db.Decimal(10, 2)
+  costId      String?
+  cost        FinanceCost?          @relation(fields: [costId], references: [id], onDelete: SetNull)
+  createdAt   DateTime              @default(now())
+
+  @@index([productId, date])
+  @@index([type])
+  @@index([costId])
 }
 
 model AppointmentRecommendation {

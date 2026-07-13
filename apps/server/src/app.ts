@@ -45,6 +45,7 @@ import { forumRouter } from './modules/forum/forum.router';
 import vouchersRouter from './modules/vouchers/vouchers.router';
 import googleReviewsRouter from './modules/google-reviews/google-reviews.router';
 import storePromotionsRouter from './modules/store-promotions/store-promotions.router';
+import financesRouter from './modules/finances/finances.router';
 
 import sitemapRouter from './modules/sitemap/sitemap.router';
 
@@ -105,6 +106,7 @@ app.use('/api/forum', forumRouter);
 app.use('/api/vouchers', vouchersRouter);
 app.use('/api/google-reviews', googleReviewsRouter);
 app.use('/api/store-promotions', storePromotionsRouter);
+app.use('/api/finances', financesRouter);
 
 // Sitemap (must be before 404 handler)
 app.use('/sitemap.xml', sitemapRouter);

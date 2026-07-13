@@ -99,6 +99,7 @@ const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/Admin
 const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
 const AdminBeautyPlans = lazy(() => import('./pages/admin/AdminBeautyPlans').then(m => ({ default: m.AdminBeautyPlans })));
 const AdminStorePromotions = lazy(() => import('./pages/admin/StorePromotions').then(m => ({ default: m.AdminStorePromotions })));
+const AdminFinances = lazy(() => import('./pages/admin/Finances').then(m => ({ default: m.AdminFinances })));
 
 // Employee pages
 const EmployeeSchedule = lazy(() => import('./pages/employee/Schedule').then(m => ({ default: m.EmployeeSchedule })));
@@ -265,6 +266,7 @@ export const router = createBrowserRouter([
       { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },
       { path: 'marketing', element: <S><Marketing /></S> },
       { path: 'forum', element: <S><AdminForum /></S> },
+      { path: 'finanse', element: <S><AdminFinances /></S> },
     ],
   },
 ]);

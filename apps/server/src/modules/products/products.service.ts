@@ -7,7 +7,17 @@ export const getAll = async () => {
 };
 
 export const create = async (
-  data: { name: string; brand?: string; description?: string; price: number; stock?: number; isActive?: boolean },
+  data: {
+    name: string;
+    brand?: string;
+    description?: string;
+    price: number;
+    stock?: number;
+    unit?: string;
+    minStock?: number;
+    monthlyUsageEstimate?: number;
+    isActive?: boolean;
+  },
   file?: Express.Multer.File
 ) => {
   let imagePath: string | undefined;
@@ -22,6 +32,9 @@ export const create = async (
       description: data.description,
       price: Number(data.price),
       stock: data.stock !== undefined ? Number(data.stock) : 0,
+      unit: data.unit?.trim() || 'szt.',
+      minStock: data.minStock !== undefined ? Number(data.minStock) : 5,
+      monthlyUsageEstimate: data.monthlyUsageEstimate !== undefined ? Number(data.monthlyUsageEstimate) : 0,
       isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
       imagePath,
     },
@@ -30,7 +43,17 @@ export const create = async (
 
 export const update = async (
   id: string,
-  data: { name?: string; brand?: string; description?: string; price?: number; stock?: number; isActive?: boolean },
+  data: {
+    name?: string;
+    brand?: string;
+    description?: string;
+    price?: number;
+    stock?: number;
+    unit?: string;
+    minStock?: number;
+    monthlyUsageEstimate?: number;
+    isActive?: boolean;
+  },
   file?: Express.Multer.File
 ) => {
   const existing = await prisma.product.findUnique({ where: { id } });
@@ -49,6 +72,9 @@ export const update = async (
       ...(data.description !== undefined && { description: data.description }),
       ...(data.price !== undefined && { price: Number(data.price) }),
       ...(data.stock !== undefined && { stock: Number(data.stock) }),
+      ...(data.unit !== undefined && { unit: data.unit.trim() || 'szt.' }),
+      ...(data.minStock !== undefined && { minStock: Number(data.minStock) }),
+      ...(data.monthlyUsageEstimate !== undefined && { monthlyUsageEstimate: Number(data.monthlyUsageEstimate) }),
       ...(data.isActive !== undefined && { isActive: Boolean(data.isActive) }),
       ...(imagePath && { imagePath }),
     },

@@ -7,6 +7,9 @@ export type Product = {
   description: string | null;
   price: number;
   stock: number;
+  unit: string;
+  minStock: number;
+  monthlyUsageEstimate: number;
   imagePath: string | null;
   isActive: boolean;
 };

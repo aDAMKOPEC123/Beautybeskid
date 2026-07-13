@@ -43,6 +43,11 @@ export const usersApi = {
     return res.data.data.user;
   },
 
+  search: async (query: string): Promise<Array<{ id: string; name: string; email: string }>> => {
+    const res = await api.get('/users/search', { params: { q: query } });
+    return res.data.data;
+  },
+
   getPendingUsers: async () => {
     const res = await api.get('/users/pending');
     return res.data.data.users as Array<{ id: string; name: string; email: string; phone: string | null; createdAt: string }>;
