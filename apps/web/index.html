@@ -14,7 +14,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <!-- Google Consent Mode v2 -->
+    <!-- Preload LCP image for mobile -->
+    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-mobile.webp" media="(max-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-premium.webp" media="(min-width: 769px)" fetchpriority="high" />
+    <!-- Google Consent Mode v2 + gtag (deferred) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -26,11 +29,11 @@
         wait_for_update: 2000
       });
     </script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6NNTHPCJ7"></script>
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-Q6NNTHPCJ7"></script>
     <script>
       gtag('js', new Date());
-      gtag('config', 'G-Q6NNTHPCJ7');
+      gtag('config', 'G-Q6NNTHPCJ7', { send_page_view: false });
+      window.addEventListener('load', function() { gtag('event', 'page_view'); });
     </script>
     <title>Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio</title>
     <meta name="description" content="Kosmetolog Wiktoria Ćwik koło Limanowej. Konsultacje, laminacja brwi i rzęs, pielęgnacja skóry. Umów wizytę online." data-rh="true" />
@@ -54,8 +57,8 @@
     <!-- Google Fonts for Playfair Display & DM Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=optional" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=optional" rel="stylesheet"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"></noscript>
     <!-- Structured Data JSON-LD (static — visible to non-JS bots) -->
     <script type="application/ld+json">
     {
@@ -173,7 +176,33 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Inline skeleton — instant FCP before React hydrates -->
+      <div id="app-skeleton" style="font-family:system-ui,-apple-system,sans-serif;background:#FDFAF6;min-height:100vh">
+        <header style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#fff;border-bottom:1px solid #e8ddd0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <img src="/logo-64.webp" alt="" width="32" height="32" style="border-radius:50%"/>
+            <span style="font-weight:700;font-size:14px;color:#1A3828">BeskidStudio</span>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div style="width:48px;height:12px;background:#e8ddd0;border-radius:6px"></div>
+            <div style="width:48px;height:12px;background:#e8ddd0;border-radius:6px"></div>
+            <div style="width:48px;height:12px;background:#e8ddd0;border-radius:6px"></div>
+          </div>
+        </header>
+        <div style="max-width:1200px;margin:0 auto;padding:40px 20px;display:flex;flex-wrap:wrap;gap:32px;align-items:center">
+          <div style="flex:1;min-width:280px">
+            <div style="width:60%;height:14px;background:#e8ddd0;border-radius:6px;margin-bottom:16px"></div>
+            <div style="width:80%;height:28px;background:#d4c4a8;border-radius:8px;margin-bottom:12px"></div>
+            <div style="width:70%;height:28px;background:#d4c4a8;border-radius:8px;margin-bottom:24px"></div>
+            <div style="width:90%;height:14px;background:#e8ddd0;border-radius:6px;margin-bottom:8px"></div>
+            <div style="width:75%;height:14px;background:#e8ddd0;border-radius:6px;margin-bottom:32px"></div>
+            <div style="width:160px;height:44px;background:#C8956C;border-radius:9999px"></div>
+          </div>
+          <div style="flex:1;min-width:280px;aspect-ratio:16/10;background:#e8ddd0;border-radius:12px"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
