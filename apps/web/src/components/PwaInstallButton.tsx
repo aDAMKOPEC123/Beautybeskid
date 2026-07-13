@@ -199,8 +199,8 @@ export function PwaInstallButton({ className }: Props) {
                     <Step
                       number={2}
                       icon={<PlusSquare className="h-5 w-5" />}
-                      title={isIosChrome ? 'Dodaj do ekranu' : 'Do ekranu głównego'}
-                      text={isIosChrome ? 'Wybierz Dodaj do ekranu.' : 'Wybierz Do ekranu głównego.'}
+                      title="Do ekranu głównego"
+                      text="Wybierz Do ekranu głównego."
                     />
                     <Step
                       number={3}
