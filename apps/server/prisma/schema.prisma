@@ -1270,6 +1270,7 @@ model Course {
   thumbnailUrl       String?
   difficulty         Difficulty   @default(BEGINNER)
   estimatedMinutes   Int          @default(0)
+  price              Decimal      @default(0) @db.Decimal(10, 2)
   tags               String[]     @default([])
   isActive           Boolean      @default(true)
   createdAt          DateTime     @default(now())

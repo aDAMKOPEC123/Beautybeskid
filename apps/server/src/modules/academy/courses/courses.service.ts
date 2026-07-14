@@ -133,6 +133,7 @@ export const createCourse = async (data: {
   description: string;
   difficulty: string;
   estimatedMinutes?: number;
+  price?: number;
   tags?: string[];
   thumbnailUrl?: string;
   status?: string;

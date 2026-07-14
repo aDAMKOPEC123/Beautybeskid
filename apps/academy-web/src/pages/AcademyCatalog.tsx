@@ -16,11 +16,11 @@ export function AcademyCatalog() {
   const { user, isAuthenticated } = useAuth();
   const [query, setQuery] = useState('');
   const [level, setLevel] = useState('ALL');
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
-    queryKey: ['academy', 'courses', isAuthenticated],
-    queryFn: isAuthenticated ? academyApi.getCourses : academyApi.getPublicCourses,
-  });
-  const hasAccess = user?.role === 'ADMIN' || (courses as any[]).some(course => course.progress);
+  const { data: publicCourses = [], isLoading: coursesLoading } = useQuery({ queryKey: ['academy', 'public-courses'], queryFn: academyApi.getPublicCourses });
+  const { data: enrolledCourses = [] } = useQuery({ queryKey: ['academy', 'enrolled-courses'], queryFn: academyApi.getCourses, enabled: isAuthenticated });
+  const enrolledMap = useMemo(() => new Map((enrolledCourses as any[]).map(course => [course.id, course])), [enrolledCourses]);
+  const courses = useMemo(() => (publicCourses as any[]).map(course => ({ ...course, ...(enrolledMap.get(course.id) || {}), isEnrolled: enrolledMap.has(course.id) })), [publicCourses, enrolledMap]);
+  const hasAccess = user?.role === 'ADMIN' || (enrolledCourses as any[]).length > 0;
   const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({ queryKey: ['academy', 'quizzes'], queryFn: academyApi.getStandaloneQuizzes, enabled: hasAccess });
   const filteredCourses = useMemo(() => (courses as any[]).filter(course => {
     const phrase = `${course.title} ${course.description || ''} ${(course.tags || []).join(' ')}`.toLowerCase();
@@ -105,6 +105,11 @@ function CourseCard({ course, featured }: { course: any; featured?: boolean }) {
   const progress = course.progress?.percentComplete;
   return <Link to={`/kurs/${course.slug}`} className={`academy-course-card ${featured ? 'featured' : ''}`}>
     <div className="academy-course-cover">{course.thumbnailUrl ? <img src={course.thumbnailUrl} alt={course.title} loading="lazy" /> : <div className="academy-course-placeholder"><GraduationCap /></div>}<span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span>{featured && <em>Najlepszy na start</em>}{progress !== undefined && <div className="academy-cover-progress"><div style={{width: `${progress}%`}} /></div>}</div>
-    <div className="academy-course-body"><div className="academy-course-meta"><span><Clock3 />{course.estimatedMinutes} min</span>{course.lessonCount > 0 && <span><PlayCircle />{course.lessonCount} lekcji</span>}</div><h3>{course.title}</h3><p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p><div className="academy-card-footer">{progress !== undefined ? <span>{Math.round(progress)}% ukończono</span> : <span>Zobacz program kursu</span>}<ArrowRight className="w-4 h-4" /></div></div>
+    <div className="academy-course-body"><div className="academy-course-meta"><span><Clock3 />{course.estimatedMinutes} min</span>{course.lessonCount > 0 && <span><PlayCircle />{course.lessonCount} lekcji</span>}</div><h3>{course.title}</h3><p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p>{!course.isEnrolled && <strong className="academy-course-price">{formatPrice(course.price)}</strong>}<div className="academy-card-footer">{course.isEnrolled ? <span>{progress !== undefined ? `${Math.round(progress)}% ukończono` : 'Przejdź do kursu'}</span> : <span>Zobacz program i kup kurs</span>}<ArrowRight className="w-4 h-4" /></div></div>
   </Link>;
+}
+
+function formatPrice(value: unknown) {
+  const price = Number(value || 0);
+  return price > 0 ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format(price) : 'Cena wkrótce';
 }

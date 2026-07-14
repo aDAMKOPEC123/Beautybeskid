@@ -1,13 +1,21 @@
 import { prisma } from '../../../config/prisma';
 import { issueCertificate } from '../certificates/certificates.service';
+import { AppError } from '../../../middleware/error.middleware';
 
-export const markLessonComplete = async (userId: string, lessonId: string) => {
+const requireEnrollment = async (userId: string, courseId: string, isAdmin = false) => {
+  if (isAdmin) return;
+  const enrollment = await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId } } });
+  if (!enrollment) throw new AppError('Kup kurs, aby zapisywać postęp', 403);
+};
+
+export const markLessonComplete = async (userId: string, lessonId: string, isAdmin = false) => {
   const lesson = await prisma.lesson.findUnique({
     where: { id: lessonId },
     include: { module: { select: { courseId: true } } },
   });
 
   if (!lesson) return;
+  await requireEnrollment(userId, lesson.module.courseId, isAdmin);
 
   await prisma.userLessonProgress.upsert({
     where: { userId_lessonId: { userId, lessonId } },
@@ -64,7 +72,10 @@ export const markLessonComplete = async (userId: string, lessonId: string) => {
   return { percentComplete, lessonCompleted: true };
 };
 
-export const updateVideoProgress = async (userId: string, lessonId: string, watchedSeconds: number) => {
+export const updateVideoProgress = async (userId: string, lessonId: string, watchedSeconds: number, isAdmin = false) => {
+  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { module: { select: { courseId: true } } } });
+  if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
+  await requireEnrollment(userId, lesson.module.courseId, isAdmin);
   await prisma.userLessonProgress.upsert({
     where: { userId_lessonId: { userId, lessonId } },
     update: { watchedSeconds },
@@ -72,7 +83,8 @@ export const updateVideoProgress = async (userId: string, lessonId: string, watc
   });
 };
 
-export const getUserCourseProgress = async (userId: string, courseId: string) => {
+export const getUserCourseProgress = async (userId: string, courseId: string, isAdmin = false) => {
+  await requireEnrollment(userId, courseId, isAdmin);
   return prisma.userCourseProgress.findUnique({
     where: { userId_courseId: { userId, courseId } },
   });

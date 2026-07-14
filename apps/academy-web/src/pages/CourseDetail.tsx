@@ -52,13 +52,15 @@ export function CourseDetail() {
   };
 
   const percent = course.userProgress?.percentComplete ?? 0;
+  const price = Number(course.price || 0);
+  const formattedPrice = price > 0 ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format(price) : 'Cena wkrótce';
 
   if (!hasAccess) return <div className="space-y-6">
     <div className="academy-preview-hero">
       {course.thumbnailUrl && <img src={course.thumbnailUrl} alt="" />}
       <div className="academy-preview-overlay"><span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span><h1>{course.title}</h1><p>{course.description}</p><div className="flex gap-3 text-sm"><Clock className="w-4 h-4" />{course.estimatedMinutes} min materiału</div></div>
     </div>
-    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp</p><h2>Opanuj temat krok po kroku</h2><p>Po zakupie otrzymasz wszystkie lekcje, materiały, punkty kontrolne, certyfikat i dostęp do „Mojej nauki”.</p></div><div>{isAuthenticated ? <button className="academy-button academy-buy" disabled>Sprzedaż wkrótce <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to="/logowanie">Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></Link>}<small>Bez dostępu widzisz program i efekty nauki — lekcje odblokują się po zakupie.</small></div></div>
+    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp po zakupie</p><h2>Opanuj temat krok po kroku</h2><p>Po opłaceniu zamówienia kurs automatycznie pojawi się w „Mojej nauce”. Otrzymasz wszystkie lekcje, materiały, quizy i certyfikat.</p></div><div className="academy-purchase-action"><strong>{formattedPrice}</strong>{isAuthenticated ? <button className="academy-button academy-buy" disabled title="Płatności Stripe są w przygotowaniu">Kup kurs — płatności wkrótce <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to="/logowanie" state={{ from: `/kurs/${slug}` }}>Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></Link>}<small>Konto nie odblokowuje materiałów. Dostęp zostanie nadany dopiero po potwierdzeniu płatności.</small></div></div>
     <section className="academy-preview-program"><p className="academy-kicker text-caramel">Program kursu</p><h2>Czego się nauczysz</h2>{course.modules?.map((module: any, index: number) => <div key={module.id}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{module.title}</strong><p>{module.lessonCount} lekcji · {module.estimatedMinutes} min praktyki</p></div><span className="academy-locked">Dostęp po zakupie</span></div>)}</section>
   </div>;
 
