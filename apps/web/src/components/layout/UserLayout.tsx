@@ -23,6 +23,13 @@ import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PasskeySetupPrompt } from '@/components/auth/PasskeySetupPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
+import {
+  canPromptForPwaInstall,
+  isMobileBrowser,
+  PWA_INSTALL_PROMPT_EVENT,
+  type PwaInstallPromptDetail,
+  type PwaInstallPromptReason,
+} from '@/hooks/usePwaInstall';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
   Globe,
@@ -187,6 +194,35 @@ const UserLayoutInner = () => {
       startTour();
     }
   }, [isAuthenticated, freshUser, startTour]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isMobileBrowser() || !canPromptForPwaInstall()) return;
+
+    const stateReason = (location.state as { pwaPromptReason?: PwaInstallPromptReason } | null)?.pwaPromptReason;
+    const reason: PwaInstallPromptReason | null =
+      stateReason ?? (location.pathname === '/user/wizyty' ? 'appointments' : null);
+
+    if (!reason) return;
+
+    const sessionKey = `pwa-install-reminder-${reason}`;
+    try {
+      if (sessionStorage.getItem(sessionKey)) return;
+      sessionStorage.setItem(sessionKey, '1');
+    } catch {
+      // sessionStorage may be unavailable in private browsing.
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!canPromptForPwaInstall()) return;
+      window.dispatchEvent(
+        new CustomEvent<PwaInstallPromptDetail>(PWA_INSTALL_PROMPT_EVENT, {
+          detail: { reason },
+        }),
+      );
+    }, reason === 'booking-success' ? 600 : 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [isAuthenticated, location.pathname, location.state]);
 
   useEffect(() => {
     if (

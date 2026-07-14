@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientPanelTransitionStore, type ClientPanelTheme } from '@/store/clientPanelTransition.store';
 import {
+  canPromptForPwaInstall,
   isMobileBrowser,
   isPwaAlreadyInstalled,
   PWA_INSTALL_PROMPT_EVENT,
@@ -40,6 +41,7 @@ export const useClientPanelEntry = () => {
     const navigationDelay = isMobile ? MOBILE_NAVIGATION_DELAY_MS : DESKTOP_NAVIGATION_DELAY_MS;
     const appPath = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
     const destination = isAuthenticated ? appPath : '/auth/login';
+    const isClientPanel = !isAdmin && !isEmployee;
 
     if (!isAuthenticated && location.pathname === '/auth/login') {
       closeMenu?.();
@@ -60,17 +62,22 @@ export const useClientPanelEntry = () => {
       : {
           from: appPath,
           panelEntry: true,
+          pwaPromptAfterLogin: isClientPanel && isMobileBrowser() && !isPwaAlreadyInstalled(),
           sourcePath: location.pathname + location.search,
         };
 
     closeMenu?.();
     timersRef.current.forEach((timer) => window.clearTimeout(timer));
 
-    const isClientPanel = !isAdmin && !isEmployee;
-    if (isClientPanel && isMobileBrowser() && !isPwaAlreadyInstalled()) {
+    if (isClientPanel && isMobileBrowser() && !isPwaAlreadyInstalled() && !isAuthenticated) {
+      navigate(destination, { state: navigationState });
+      return;
+    }
+
+    if (isClientPanel && isMobileBrowser() && canPromptForPwaInstall()) {
       window.dispatchEvent(
         new CustomEvent<PwaInstallPromptDetail>(PWA_INSTALL_PROMPT_EVENT, {
-          detail: { continueTo: destination, navigationState },
+          detail: { continueTo: destination, navigationState, reason: 'panel-entry' },
         }),
       );
       return;

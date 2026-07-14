@@ -6,6 +6,7 @@ vi.mock('../../config/prisma', () => ({
   blogComment: {
       findMany: vi.fn(),
       create: vi.fn(),
+      findUnique: vi.fn(),
       findFirst: vi.fn(),
       delete: vi.fn(),
       deleteMany: vi.fn(),
@@ -13,6 +14,7 @@ vi.mock('../../config/prisma', () => ({
     },
     blogCommentReaction: {
       findFirst: vi.fn(),
+      deleteMany: vi.fn(),
       delete: vi.fn(),
       update: vi.fn(),
       create: vi.fn(),
@@ -181,10 +183,14 @@ describe('deleteComment', () => {
 
   it('deletes own comment', async () => {
     (prisma.blogComment.findFirst as any).mockResolvedValue(mockComment);
-    (prisma.blogComment.delete as any).mockResolvedValue(mockComment);
+    (prisma.blogComment.findUnique as any).mockResolvedValue({ id: 'c1', postId: 'post1' });
+    (prisma.blogComment.findMany as any)
+      .mockResolvedValueOnce([{ id: 'c1', parentId: null }])
+      .mockResolvedValueOnce([]);
+    (prisma.blogComment.deleteMany as any).mockResolvedValue({ count: 1 });
 
     await deleteComment('u1', 'c1', false);
-    expect(prisma.blogComment.delete).toHaveBeenCalledWith({ where: { id: 'c1' } });
+    expect(prisma.blogComment.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['c1'] } } });
   });
 
   it('throws 403 when non-owner tries to delete', async () => {
@@ -194,10 +200,14 @@ describe('deleteComment', () => {
 
   it('allows admin to delete any comment', async () => {
     (prisma.blogComment.findFirst as any).mockResolvedValue({ ...mockComment, authorId: 'u2' });
-    (prisma.blogComment.delete as any).mockResolvedValue(mockComment);
+    (prisma.blogComment.findUnique as any).mockResolvedValue({ id: 'c1', postId: 'post1' });
+    (prisma.blogComment.findMany as any)
+      .mockResolvedValueOnce([{ id: 'c1', parentId: null }])
+      .mockResolvedValueOnce([]);
+    (prisma.blogComment.deleteMany as any).mockResolvedValue({ count: 1 });
 
     await deleteComment('admin1', 'c1', true);
-    expect(prisma.blogComment.delete).toHaveBeenCalled();
+    expect(prisma.blogComment.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['c1'] } } });
   });
 });
 

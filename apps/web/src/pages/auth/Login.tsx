@@ -33,6 +33,7 @@ export const Login = () => {
   const location = useLocation();
   const from = (location.state as { from?: string })?.from;
   const panelEntry = Boolean((location.state as { panelEntry?: boolean } | null)?.panelEntry);
+  const pwaPromptAfterLogin = Boolean((location.state as { pwaPromptAfterLogin?: boolean } | null)?.pwaPromptAfterLogin);
   const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -94,7 +95,10 @@ export const Login = () => {
       if (isSupported && permission !== 'denied') {
         setTimeout(() => subscribe(), 1000);
       }
-      navigate(from || getPanelPath(res.user?.role), { replace: true });
+      navigate(from || getPanelPath(res.user?.role), {
+        replace: true,
+        state: pwaPromptAfterLogin ? { pwaPromptReason: 'post-login' } : undefined,
+      });
     } catch (e: any) {
       toast.error(e.response?.data?.message || 'Błąd logowania');
     } finally {
@@ -117,7 +121,10 @@ export const Login = () => {
       if (isSupported && permission !== 'denied') {
         setTimeout(() => subscribe(), 1000);
       }
-      navigate(from || getPanelPath(res.user?.role), { replace: true });
+      navigate(from || getPanelPath(res.user?.role), {
+        replace: true,
+        state: pwaPromptAfterLogin ? { pwaPromptReason: 'post-login' } : undefined,
+      });
     } catch (e: any) {
       toast.error(e.response?.data?.message || e.message || 'Nie udało się zalogować biometrycznie.');
     } finally {

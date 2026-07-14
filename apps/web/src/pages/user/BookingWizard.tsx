@@ -1271,7 +1271,7 @@ export const BookingWizard = () => {
         value: Number(state.service?.price) || undefined,
         currency: 'PLN',
       });
-      navigate('/user/wizyty');
+      navigate('/user/wizyty', { state: { pwaPromptReason: 'booking-success' } });
     } catch {
       toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
     }
