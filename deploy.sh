@@ -58,7 +58,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
     exit 1
   fi
   echo "      Installing nginx configuration..."
-  ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/cosmo.conf /etc/nginx/sites-available/kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
+  ssh "$VPS" "sudo mkdir -p /etc/nginx/snippets && sudo cp $REMOTE_DIR/deploy/nginx/security-headers.conf /etc/nginx/snippets/cosmo-security-headers.conf && sudo cp $REMOTE_DIR/deploy/nginx/cosmo.conf /etc/nginx/sites-available/kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
   echo "      Frontend deployed."
 fi
 

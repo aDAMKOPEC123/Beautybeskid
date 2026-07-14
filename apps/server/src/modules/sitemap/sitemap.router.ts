@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../config/prisma';
 
+const INDEXNOW_KEY = 'fa7e7a5c6ff16203c0da528cd3472cb5';
+
 const router = Router();
 
 const DOMAIN = 'https://kosmetologwiktoriacwik.pl';
@@ -14,7 +16,7 @@ const staticUrls = [
   { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
-  { loc: '/regulamin', priority: '0.3', changefreq: 'yearly' },
+  { loc: '/regulamin', priority: '0.3', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
   // Canonical local SEO landing pages only. Redirect sources belong in Nginx,
   // never in the sitemap, because Google should index their final destinations.
   { loc: '/kosmetolog-limanowa', priority: '0.95', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
@@ -99,6 +101,55 @@ ${postEntries}
     res.send(xml);
   } catch {
     res.status(500).send('Error generating sitemap');
+  }
+});
+
+// IndexNow: submit URLs to Bing/Yandex/Naver for fast indexing.
+// POST /sitemap.xml/indexnow with optional { urls: string[] } body.
+// Without body, submits all sitemap URLs.
+router.post('/indexnow', async (req: Request, res: Response) => {
+  try {
+    let urls: string[] = req.body?.urls;
+
+    if (!urls || urls.length === 0) {
+      const [posts, services] = await Promise.all([
+        prisma.blogPost.findMany({
+          where: { isPublished: true },
+          select: { slug: true },
+        }),
+        prisma.service.findMany({
+          where: { isActive: true, slug: { notIn: ['inne'] } },
+          select: { slug: true },
+        }),
+      ]);
+
+      urls = [
+        ...staticUrls.map((u) => `${DOMAIN}${u.loc}`),
+        ...services.map((s) => `${DOMAIN}/uslugi/${s.slug}`),
+        ...posts.map((p) => `${DOMAIN}/blog/${p.slug}`),
+      ];
+    }
+
+    const response = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        host: 'kosmetologwiktoriacwik.pl',
+        key: INDEXNOW_KEY,
+        keyLocation: `${DOMAIN}/${INDEXNOW_KEY}.txt`,
+        urlList: urls,
+      }),
+    });
+
+    res.json({
+      status: response.status,
+      submitted: urls.length,
+      message: response.status === 200 || response.status === 202
+        ? 'URLs submitted successfully'
+        : `IndexNow responded with ${response.status}`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'IndexNow submission failed' });
   }
 });
 
