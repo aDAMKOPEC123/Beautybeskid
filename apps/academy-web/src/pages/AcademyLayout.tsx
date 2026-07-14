@@ -1,12 +1,14 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { trackAcademyEvent } from '@/lib/academyAnalytics';
 
 export function AcademyLayout() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { trackAcademyEvent('PAGE_VIEW'); }, [location.pathname]);
 
   if (isLoading) return <div className="academy-loading">Przygotowujemy Twoją przestrzeń nauki…</div>;
 

@@ -5,9 +5,10 @@ import {
   ArrowRight, Award, BookOpen, Check, CheckCircle2, Clock3, GraduationCap,
   HeartHandshake, PlayCircle, Search, ShieldCheck, Sparkles, Star, Target,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Helmet } from 'react-helmet-async';
+import { trackAcademyEvent } from '@/lib/academyAnalytics';
 
 const difficultyLabel: Record<string, string> = { BEGINNER: 'Podstawowy', INTERMEDIATE: 'Średniozaawansowany', ADVANCED: 'Zaawansowany' };
 const levels = [['ALL', 'Wszystkie'], ['BEGINNER', 'Od podstaw'], ['INTERMEDIATE', 'Rozwijam praktykę'], ['ADVANCED', 'Poziom ekspert']];
@@ -28,6 +29,7 @@ export function AcademyCatalog() {
   }), [courses, query, level]);
   const started = (courses as any[]).filter(c => c.progress && !c.progress.completedAt);
   const completed = (courses as any[]).filter(c => c.progress?.completedAt).length;
+  useEffect(() => { trackAcademyEvent('CATALOG_VIEW'); }, []);
 
   const chooseLevel = (value: string) => {
     setLevel(value);

@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { academyAuthenticate, academyOptionalAuthenticate, academyRequireAdmin } from '../../../middleware/academy-auth.middleware';
+import * as controller from './analytics.controller';
+const router=Router();
+router.post('/analytics/events',academyOptionalAuthenticate,controller.track);
+router.get('/admin/analytics/dashboard',academyAuthenticate,academyRequireAdmin,controller.dashboard);
+router.get('/admin/analytics/customers',academyAuthenticate,academyRequireAdmin,controller.customers);
+router.post('/admin/analytics/customers/:userId/courses',academyAuthenticate,academyRequireAdmin,controller.grantCourse);
+router.delete('/admin/analytics/customers/:userId/courses/:courseId',academyAuthenticate,academyRequireAdmin,controller.revokeCourse);
+export default router;

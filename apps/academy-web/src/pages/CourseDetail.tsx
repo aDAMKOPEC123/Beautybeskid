@@ -2,8 +2,9 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { ChevronDown, Clock, Play, FileText, HelpCircle, CheckCircle, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { trackAcademyEvent } from '@/lib/academyAnalytics';
 
 const lessonTypeIcon: Record<string, React.ElementType> = {
   VIDEO: Play,
@@ -23,12 +24,14 @@ export function CourseDetail() {
   const { data: enrolledCourses = [] } = useQuery({ queryKey: ['academy', 'enrolled-courses'], queryFn: academyApi.getCourses, enabled: isAuthenticated });
   const hasAccess = user?.role === 'ADMIN' || (enrolledCourses as any[]).some((course) => course.slug === slug);
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
+  const [checkoutNoted, setCheckoutNoted] = useState(false);
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['academy', 'course', slug, hasAccess],
     queryFn: () => hasAccess ? academyApi.getCourseBySlug(slug!) : academyApi.getPublicCourseBySlug(slug!),
     enabled: !!slug,
   });
+  useEffect(() => { if (course?.id && !hasAccess) trackAcademyEvent('COURSE_VIEW', { courseId: course.id }); }, [course?.id, hasAccess]);
 
   if (isLoading) return (
     <div className="animate-pulse space-y-4">
@@ -60,7 +63,7 @@ export function CourseDetail() {
       {course.thumbnailUrl && <img src={course.thumbnailUrl} alt="" />}
       <div className="academy-preview-overlay"><span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span><h1>{course.title}</h1><p>{course.description}</p><div className="flex gap-3 text-sm"><Clock className="w-4 h-4" />{course.estimatedMinutes} min materiału</div></div>
     </div>
-    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp po zakupie</p><h2>Opanuj temat krok po kroku</h2><p>Po opłaceniu zamówienia kurs automatycznie pojawi się w „Mojej nauce”. Otrzymasz wszystkie lekcje, materiały, quizy i certyfikat.</p></div><div className="academy-purchase-action"><strong>{formattedPrice}</strong>{isAuthenticated ? <button className="academy-button academy-buy" disabled title="Płatności Stripe są w przygotowaniu">Kup kurs — płatności wkrótce <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to="/logowanie" state={{ from: `/kurs/${slug}` }}>Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></Link>}<small>Konto nie odblokowuje materiałów. Dostęp zostanie nadany dopiero po potwierdzeniu płatności.</small></div></div>
+    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp po zakupie</p><h2>Opanuj temat krok po kroku</h2><p>Po opłaceniu zamówienia kurs automatycznie pojawi się w „Mojej nauce”. Otrzymasz wszystkie lekcje, materiały, quizy i certyfikat.</p></div><div className="academy-purchase-action"><strong>{formattedPrice}</strong>{isAuthenticated ? <button className="academy-button academy-buy" onClick={()=>{trackAcademyEvent('CHECKOUT_STARTED',{courseId:course.id});setCheckoutNoted(true);}}>{checkoutNoted?'Zapisaliśmy Twoje zainteresowanie':'Kup kurs'} <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to="/logowanie" state={{ from: `/kurs/${slug}` }} onClick={()=>trackAcademyEvent('CHECKOUT_STARTED',{courseId:course.id})}>Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></Link>}<small>{checkoutNoted?'Powiadomimy Cię, gdy uruchomimy bezpieczne płatności Stripe.':'Płatności Stripe uruchomimy w kolejnym kroku. Konto nie odblokowuje materiałów.'}</small></div></div>
     <section className="academy-preview-program"><p className="academy-kicker text-caramel">Program kursu</p><h2>Czego się nauczysz</h2>{course.modules?.map((module: any, index: number) => <div key={module.id}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{module.title}</strong><p>{module.lessonCount} lekcji · {module.estimatedMinutes} min praktyki</p></div><span className="academy-locked">Dostęp po zakupie</span></div>)}</section>
   </div>;
 

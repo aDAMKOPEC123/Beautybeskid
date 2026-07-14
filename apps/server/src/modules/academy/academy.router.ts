@@ -6,6 +6,7 @@ import progressRouter from './progress/progress.router';
 import quizzesRouter from './quizzes/quizzes.router';
 import certificatesRouter from './certificates/certificates.router';
 import supportRouter from './support/support.router';
+import analyticsRouter from './analytics/analytics.router';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/', progressRouter);
 router.use('/', quizzesRouter);
 router.use('/', certificatesRouter);
 router.use('/', supportRouter);
+router.use('/', analyticsRouter);
 
 export { router as academyRouter };

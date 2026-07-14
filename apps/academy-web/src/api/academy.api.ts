@@ -43,6 +43,10 @@ export const academyApi = {
     api.get('/academy/certificates').then((r) => r.data.data),
 
   getCertificateDownloadUrl: (code: string) => `/api/academy/certificates/download/${code}`,
+  adminAnalyticsDashboard: (days = 30) => api.get(`/academy/admin/analytics/dashboard?days=${days}`).then((r) => r.data.data),
+  adminAnalyticsCustomers: (search = '') => api.get(`/academy/admin/analytics/customers?search=${encodeURIComponent(search)}`).then((r) => r.data.data),
+  adminGrantCustomerCourse: (userId: string, courseId: string) => api.post(`/academy/admin/analytics/customers/${userId}/courses`, { courseId }).then((r) => r.data.data),
+  adminRevokeCustomerCourse: (userId: string, courseId: string) => api.delete(`/academy/admin/analytics/customers/${userId}/courses/${courseId}`).then((r) => r.data.data),
 
   verifyCertificate: (code: string) =>
     api.get(`/academy/certificates/verify/${code}`).then((r) => r.data.data),

@@ -267,6 +267,14 @@ model User {
   @@index([role])
 }
 
+enum AcademyOrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
 model RefreshToken {
   id        String   @id @default(cuid())
   tokenHash String   @unique
@@ -1281,6 +1289,8 @@ model Course {
   certificates       AcademyCertificate[]
   favorites          CourseFavorite[]
   enrollments        AcademyEnrollment[]
+  analyticsEvents    AcademyAnalyticsEvent[]
+  orders             AcademyOrder[]
 }
 
 model AcademyUser {
@@ -1304,6 +1314,8 @@ model AcademyUser {
   academySupportThread AcademySupportThread? @relation("AcademySupportUser")
   academySupportAssignments AcademySupportThread[] @relation("AcademySupportAdmin")
   academySupportMessages AcademySupportMessage[] @relation("AcademySupportAuthor")
+  analyticsEvents    AcademyAnalyticsEvent[]
+  orders             AcademyOrder[]
 
   @@index([role])
 }
@@ -1330,6 +1342,50 @@ model AcademyEnrollment {
 
   @@unique([userId, courseId])
   @@index([userId])
+}
+
+model AcademyAnalyticsEvent {
+  id          String       @id @default(cuid())
+  eventType   String
+  visitorId   String
+  sessionId   String
+  userId      String?
+  user        AcademyUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courseId    String?
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  path        String?
+  referrer    String?
+  source      String?
+  medium      String?
+  campaign    String?
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([sessionId, createdAt])
+  @@index([userId, createdAt])
+  @@index([courseId, createdAt])
+}
+
+model AcademyOrder {
+  id              String             @id @default(cuid())
+  userId          String
+  user            AcademyUser        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  courseId        String
+  course          Course             @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  status          AcademyOrderStatus @default(PENDING)
+  amount          Decimal            @db.Decimal(10, 2)
+  currency        String             @default("PLN")
+  stripeSessionId String?            @unique
+  stripePaymentId String?            @unique
+  paidAt          DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([courseId, createdAt])
 }
 
 model CourseModule {

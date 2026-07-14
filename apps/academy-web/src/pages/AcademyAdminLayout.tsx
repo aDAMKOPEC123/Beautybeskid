@@ -1,9 +1,10 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { BookOpen, GraduationCap, LayoutDashboard, MessageCircleHeart, ExternalLink, ShieldCheck } from 'lucide-react';
+import { BarChart3, BookOpen, GraduationCap, LayoutDashboard, MessageCircleHeart, ExternalLink, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { to: '/admin', label: 'Kursy i programy', icon: LayoutDashboard, exact: true },
+  { to: '/admin/statystyki', label: 'Sprzedaż i klienci', icon: BarChart3 },
   { to: '/admin/wiadomosci', label: 'Wiadomości Akademii', icon: MessageCircleHeart },
 ];
 

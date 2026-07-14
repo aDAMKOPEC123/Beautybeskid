@@ -19,6 +19,7 @@ const AcademyStudio = lazy(() => import('./pages/AcademyStudio').then(m => ({ de
 const AcademyConsultation = lazy(() => import('./pages/AcademyConsultation').then(m => ({ default: m.AcademyConsultation })));
 const AcademyProfile = lazy(() => import('./pages/AcademyProfile').then(m => ({ default: m.AcademyProfile })));
 const AcademySupportInbox = lazy(() => import('./pages/AcademySupportInbox').then(m => ({ default: m.AcademySupportInbox })));
+const AcademyAnalytics = lazy(() => import('./pages/AcademyAnalytics').then(m => ({ default: m.AcademyAnalytics })));
 const AcademyAuth = lazy(() => import('./pages/AcademyAuth').then(m => ({ default: m.AcademyAuth })));
 
 export const router = createBrowserRouter([
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
         element: <S><AcademyAdminLayout /></S>,
         children: [
           { index: true, element: <S><AcademyStudio /></S> },
+          { path: 'statystyki', element: <S><AcademyAnalytics /></S> },
           { path: 'wiadomosci', element: <S><AcademySupportInbox /></S> },
         ],
       },

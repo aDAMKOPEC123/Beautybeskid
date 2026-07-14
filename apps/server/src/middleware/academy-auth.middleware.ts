@@ -25,6 +25,18 @@ export const academyAuthenticate = (req: Request, _res: Response, next: NextFunc
   } catch (error) { next(error); }
 };
 
+export const academyOptionalAuthenticate = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.split(' ')[1] : undefined;
+    if (!token) return next();
+    const payload = verifyToken(token, academySecret) as { id: string; role: string; scope?: string };
+    if (payload.scope === 'academy') req.academyUser = { id: payload.id, role: payload.role };
+  } catch {
+    // Analytics must never interrupt browsing because of an expired token.
+  }
+  next();
+};
+
 export const academyRequireAdmin = (req: Request, _res: Response, next: NextFunction) => {
   if (req.academyUser?.role !== 'ADMIN') return next(new AppError('Wymagane konto administratora Akademii', 403));
   next();
