@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { setAcademySessionHint } from '@/lib/academySession';
 export type AcademyUser = { id: string; email: string; name: string; role: string; emailVerified: boolean };
 
 interface AuthState {
@@ -19,8 +20,14 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       isLoading: true,
       setUser: (user) => set({ user }),
-      setAccessToken: (accessToken) => set({ accessToken }),
-      logout: () => set({ user: null, accessToken: null }),
+      setAccessToken: (accessToken) => {
+        setAcademySessionHint(Boolean(accessToken));
+        set({ accessToken });
+      },
+      logout: () => {
+        setAcademySessionHint(false);
+        set({ user: null, accessToken: null });
+      },
       hydrate: () => set({ isLoading: false }),
     }),
     {

@@ -5,12 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
 
 export function AcademyLayout() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { trackAcademyEvent('PAGE_VIEW'); }, [location.pathname]);
-
-  if (isLoading) return <div className="academy-loading">Przygotowujemy Twoją przestrzeń nauki…</div>;
 
   const navItems = [
     { to: '/', label: 'Odkrywaj', icon: LayoutGrid, exact: true },
@@ -28,7 +26,7 @@ export function AcademyLayout() {
       <a className="academy-skip-link" href="#academy-main">Przejdź do treści</a>
       <header className="academy-topbar">
         <div className="academy-topbar-inner">
-          <Link to="/" className="academy-brand" aria-label="Akademia BeskidStudio — strona główna">
+          <Link to="/" className="academy-brand" title="Strona główna Akademii">
             <span className="academy-brand-mark"><GraduationCap className="w-5 h-5" /></span>
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>

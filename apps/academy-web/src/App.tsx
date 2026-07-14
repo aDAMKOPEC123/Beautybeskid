@@ -8,11 +8,17 @@ import { useAuthStore } from './store/auth.store';
 import { api } from './lib/axios';
 import { Toaster } from 'sonner';
 import { CookieConsent } from './components/CookieConsent';
+import { hasAcademySessionHint, shouldAttemptAcademySessionRefresh } from './lib/academySession';
 
 function App() {
   const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
 
   useEffect(() => {
+    const current = useAuthStore.getState();
+    if (!shouldAttemptAcademySessionRefresh(current.accessToken, Boolean(current.user), hasAcademySessionHint())) {
+      hydrate();
+      return;
+    }
     api.post('/academy/auth/refresh')
       .then((res) => {
         setAccessToken(res.data.data.accessToken);
