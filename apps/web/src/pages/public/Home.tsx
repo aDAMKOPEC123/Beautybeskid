@@ -622,7 +622,7 @@ const HeroSection = ({
 );
 
 const BenefitsStrip = () => (
-  <section className="border-y border-oak/20 bg-espresso py-4 text-ivory">
+  <section className="home-deferred-section border-y border-oak/20 bg-espresso py-4 text-ivory">
     <div className="container max-w-7xl px-5">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {benefits.map((benefit) => (
@@ -745,7 +745,7 @@ const AvailabilityPreviewSection = ({
   }, [selectedService?.id, monthAvailability, selectedDate, todayKey]);
 
   return (
-    <section id="terminy" className="bg-espresso py-16 text-ivory md:py-24">
+    <section id="terminy" className="home-deferred-section bg-espresso py-16 text-ivory md:py-24">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <div className="mb-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
@@ -1081,7 +1081,7 @@ const ServicesSection = ({
   const hiddenServicesCount = Math.max(activeAdminServices.length - visibleServices.length, 0);
 
   return (
-    <section id="zabiegi" className="bg-ivory py-16 md:py-24">
+    <section id="zabiegi" className="home-deferred-section bg-ivory py-16 md:py-24">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1204,7 +1204,7 @@ const SeasonalSection = ({
   if (seasonalServices.length === 0) return null;
 
   return (
-    <section className="bg-cream py-16">
+  <section className="home-deferred-section bg-cream py-16">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1247,7 +1247,7 @@ const ConsultationSection = ({
   bookingTo: string;
   bookingState?: BookingState;
 }) => (
-  <section className="bg-[#F8F5EF] py-16 md:py-20">
+  <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-20">
     <div className="container max-w-6xl px-5">
       <FadeUp>
         <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_24px_80px_rgba(26,56,40,0.22)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
@@ -1313,7 +1313,7 @@ const TestimonialsSection = ({
   }));
 
   return (
-  <section className="bg-ivory py-16 md:py-24">
+  <section className="home-deferred-section bg-ivory py-16 md:py-24">
     <div className="container max-w-7xl px-5">
       <FadeUp>
         <div className="mb-10 grid items-end gap-6 lg:grid-cols-[1fr_auto]">
@@ -1377,7 +1377,7 @@ const TestimonialsSection = ({
 };
 
 const ProcessSection = () => (
-  <section className="bg-cream py-16 md:py-24">
+  <section className="home-deferred-section bg-cream py-16 md:py-24">
     <div className="container max-w-7xl px-5">
       <FadeUp>
         <SectionIntro
@@ -1431,7 +1431,7 @@ const ReservationFormSection = ({
   };
 
   return (
-    <section className="bg-[#F8F5EF] py-16 md:py-24">
+    <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-24">
       <div className="container max-w-7xl px-5">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
           <FadeUp>
@@ -1553,7 +1553,7 @@ const ReservationFormSection = ({
 
 const FaqSection = () => {
   return (
-    <section className="bg-ivory py-16 md:py-24" aria-labelledby="faq-heading">
+    <section className="home-deferred-section bg-ivory py-16 md:py-24" aria-labelledby="faq-heading">
       <div className="container max-w-3xl px-5">
         <FadeUp>
           <div className="mb-10 text-center">
@@ -1584,7 +1584,7 @@ const FaqSection = () => {
 };
 
 const AreaSection = () => (
-  <section className="bg-cream py-14" aria-labelledby="area-heading">
+  <section className="home-deferred-section bg-cream py-14" aria-labelledby="area-heading">
     <div className="container max-w-4xl px-5 text-center">
       <FadeUp>
         <h2 id="area-heading" className="font-heading text-2xl font-bold text-espresso">

@@ -305,6 +305,22 @@
   opacity: 0.65;
 }
 
+/* The animated oversized pseudo-element was the only measured CLS source on
+   mobile. It is decorative, so keep the stable gradient and skip the effect
+   on the constrained Lighthouse/mobile viewport. */
+@media (max-width: 767px) {
+  .premium-animated-light::before {
+    display: none;
+  }
+
+  /* Sections below the initial viewport retain their expected scroll space,
+     but the browser skips their expensive style/layout/paint work initially. */
+  .home-deferred-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 760px;
+  }
+}
+
 .premium-shine {
   position: relative;
   isolation: isolate;
