@@ -880,6 +880,10 @@ function StepConfirm({
   const handleValidateVoucher = async () => {
     const code = codeInput.trim().toUpperCase();
     if (!code) return;
+    if (!isAuthenticated) {
+      toast.message('Kod rabatowy zastosujesz po zalogowaniu, przed ostatecznym potwierdzeniem rezerwacji.');
+      return;
+    }
     setValidating(true);
     try {
       const data = await loyaltyApi.validateVoucher(code, state.service?.id);
