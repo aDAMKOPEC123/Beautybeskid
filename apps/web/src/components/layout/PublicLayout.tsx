@@ -1,10 +1,28 @@
-import { useRef, useEffect } from 'react';
+import { lazy, Suspense, useRef, useEffect, useState } from 'react';
 import { Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { FloatingBookingCTA } from '@/components/ui/FloatingBookingCTA';
-import { PwaInstallButton } from '@/components/PwaInstallButton';
 import { CookieBanner } from '@/components/CookieBanner';
+
+const PwaInstallButton = lazy(() =>
+  import('@/components/PwaInstallButton').then((module) => ({ default: module.PwaInstallButton })),
+);
+
+const DeferredPwaInstallButton = () => {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setReady(true), 1_500);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  return ready ? (
+    <Suspense fallback={null}>
+      <PwaInstallButton />
+    </Suspense>
+  ) : null;
+};
 
 export const PublicLayout = () => {
   const location = useLocation();
@@ -22,7 +40,7 @@ export const PublicLayout = () => {
       </main>
       <Footer />
       <FloatingBookingCTA />
-      <PwaInstallButton />
+      <DeferredPwaInstallButton />
       <CookieBanner />
       <ScrollRestoration />
     </div>

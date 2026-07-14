@@ -23,6 +23,7 @@ import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PasskeySetupPrompt } from '@/components/auth/PasskeySetupPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
+import { TourProvider } from '@/contexts/TourContext';
 import {
   canPromptForPwaInstall,
   isMobileBrowser,
@@ -492,4 +493,8 @@ const UserLayoutInner = () => {
   );
 };
 
-export const UserLayout = UserLayoutInner;
+export const UserLayout = () => (
+  <TourProvider>
+    <UserLayoutInner />
+  </TourProvider>
+);
