@@ -642,13 +642,11 @@ const AvailabilityPreviewSection = ({
   request,
   availableServices,
   servicesLoading,
-  isAuthenticated,
   onSelectService,
 }: {
   request: AvailabilityRequest | null;
   availableServices: Service[];
   servicesLoading: boolean;
-  isAuthenticated: boolean;
   onSelectService: (request: AvailabilityRequest) => void;
 }) => {
   const activeAdminServices = getActiveAdminServices(availableServices);
@@ -703,8 +701,8 @@ const AvailabilityPreviewSection = ({
   const availableDaySlots = daySlots.filter((slot) => slot.available);
   const selectedDateLabel = selectedDate ? formatAvailabilityDate(selectedDate) : 'wybierz dzień';
   const reservationTarget = buildReservationTarget(selectedService?.id, selectedDate, selectedTime);
-  const reservationTo = isAuthenticated ? reservationTarget : '/auth/login';
-  const reservationState = isAuthenticated ? undefined : { from: reservationTarget };
+  const reservationTo = reservationTarget;
+  const reservationState = undefined;
 
   useEffect(() => {
     if (!request) {
@@ -1639,8 +1637,8 @@ export const Home = () => {
 
   const formattedSlot = nextSlot ? formatNextSlot(nextSlot.date, nextSlot.time) : null;
   const bookingDaysSummary = getBookingDaysSummary(weekSlots?.availableDays);
-  const bookingTo = isAuthenticated ? '/rezerwacja' : '/auth/login';
-  const bookingState = isAuthenticated ? undefined : { from: '/rezerwacja' };
+  const bookingTo = '/rezerwacja';
+  const bookingState = undefined;
 
   const handleCheckAvailability = (request?: AvailabilityRequest) => {
     setAvailabilityRequest(request ?? null);
@@ -1653,7 +1651,7 @@ export const Home = () => {
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
         title="Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio"
-        description="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ✔ Bezpłatna konsultacja."
+        description="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Sprawdź wolny termin online i umów wizytę lub bezpłatną konsultację."
         canonical="/"
         ogImage={heroImage}
         schema={buildFaqSchema()}
@@ -1682,7 +1680,6 @@ export const Home = () => {
           request={availabilityRequest}
           availableServices={allServices}
           servicesLoading={servicesLoading}
-          isAuthenticated={isAuthenticated}
           onSelectService={(request) => setAvailabilityRequest(request)}
         />
         {isAuthenticated && (

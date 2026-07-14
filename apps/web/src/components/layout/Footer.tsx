@@ -1,4 +1,5 @@
 ﻿import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { employeesApi } from '../../api/employees.api';
@@ -60,6 +61,7 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
 const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(SEO.mapQuery)}&z=16&output=embed`;
 
 export const Footer = () => {
+  const [mapVisible, setMapVisible] = useState(false);
   const { data: employees } = useQuery<Employee[]>({
     queryKey: ['employees-public'],
     queryFn: () => employeesApi.getAll(),
@@ -225,7 +227,7 @@ export const Footer = () => {
           </div>
         )}
 
-        {/* Google Maps */}
+        {/* Third-party map is deferred until the visitor explicitly asks for it. */}
         <div
           className="mt-10 overflow-hidden"
           style={{
@@ -233,7 +235,7 @@ export const Footer = () => {
             border: '1px solid rgba(255,255,255,0.1)',
           }}
         >
-          <iframe
+          {mapVisible ? <iframe
             title="Lokalizacja salonu BeskidStudio By Wiktoria Ćwik"
             src={googleMapsEmbedUrl}
             width="100%"
@@ -241,7 +243,15 @@ export const Footer = () => {
             style={{ border: 0, display: 'block' }}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-          />
+          /> : <button
+            type="button"
+            onClick={() => setMapVisible(true)}
+            className="flex h-[180px] w-full flex-col items-center justify-center gap-2 bg-white/5 px-4 text-center text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            <MapPin className="h-6 w-6 text-[#C4965A]" />
+            Pokaż mapę dojazdu
+            <span className="text-xs font-normal text-white/70">Mordarka 505, 34-600 Mordarka</span>
+          </button>}
         </div>
       </div>
 

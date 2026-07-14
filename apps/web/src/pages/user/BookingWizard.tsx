@@ -52,6 +52,26 @@ interface WizardState {
   appliedHappyHour: any | null;
 }
 
+type BookingDraft = Omit<WizardState, 'date' | 'photo'> & {
+  date: string | null;
+};
+
+const BOOKING_DRAFT_KEY = 'cosmo-booking-draft';
+
+const readBookingDraft = (): BookingDraft | null => {
+  try {
+    const value = sessionStorage.getItem(BOOKING_DRAFT_KEY);
+    return value ? JSON.parse(value) as BookingDraft : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveBookingDraft = (state: WizardState) => {
+  const { photo: _photo, date, ...draft } = state;
+  sessionStorage.setItem(BOOKING_DRAFT_KEY, JSON.stringify({ ...draft, date: date?.toISOString() ?? null }));
+};
+
 const STEPS = ['Usługa', 'Specjalista', 'Termin', 'Dane', 'Potwierdzenie'];
 
 const formatContentLabel = (value?: string | null) => {
@@ -802,6 +822,7 @@ function StepConfirm({
   onOtherRewardSelect,
   onVoucherChange,
   user,
+  isAuthenticated,
   preselectedCode,
 }: {
   state: WizardState;
@@ -809,6 +830,7 @@ function StepConfirm({
   onOtherRewardSelect: (id: string | null) => void;
   onVoucherChange: (v: ValidatedVoucher | null) => void;
   user: any;
+  isAuthenticated: boolean;
   preselectedCode?: string | null;
 }) {
   const [codeInput, setCodeInput] = useState('');
@@ -817,7 +839,7 @@ function StepConfirm({
   const cleanPreselectedCode = getCouponCode(preselectedCode);
 
   useEffect(() => {
-    if (!cleanPreselectedCode || state.voucherData) return;
+    if (!isAuthenticated || !cleanPreselectedCode || state.voucherData) return;
     setValidating(true);
     loyaltyApi.validateVoucher(cleanPreselectedCode, state.service?.id).then((data) => {
       onVoucherChange(data);
@@ -826,14 +848,16 @@ function StepConfirm({
     }).catch((e: any) => {
       toast.error(e.response?.data?.message || 'Nie udało się automatycznie zastosować kodu');
     }).finally(() => setValidating(false));
-  }, [cleanPreselectedCode, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, cleanPreselectedCode, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const { data: rewards = [] } = useQuery<any[]>({
     queryKey: ['loyalty', 'rewards'],
     queryFn: loyaltyApi.getRewards,
+    enabled: isAuthenticated,
   });
   const { data: activeCoupons = [] } = useQuery<any[]>({
     queryKey: ['loyalty', 'coupons'],
     queryFn: loyaltyApi.getActiveCoupons,
+    enabled: isAuthenticated,
   });
 
   const basePrice = state.service ? Number(state.service.price) : 0;
@@ -946,6 +970,12 @@ function StepConfirm({
           </div>
         </div>
       </div>
+
+      {!isAuthenticated && (
+        <div className="rounded-xl border border-[#C4965A]/30 bg-[#C4965A]/10 p-4 text-sm text-[#1A3828]">
+          <strong>Konto będzie potrzebne dopiero teraz.</strong> Po kliknięciu potwierdzenia zachowamy wybrany termin i poprosimy o zalogowanie lub rejestrację.
+        </div>
+      )}
 
       {/* Voucher section */}
       <div>
@@ -1108,11 +1138,13 @@ function StepConfirm({
 // ─── Main Wizard ──────────────────────────────────────────────────────────────
 
 export const BookingWizard = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const preselectedServiceId = searchParams.get('serviceId');
+  const savedDraftRef = useRef<BookingDraft | null>(readBookingDraft());
+  const savedDraft = savedDraftRef.current;
+  const preselectedServiceId = savedDraft?.service?.id ?? searchParams.get('serviceId');
   const preselectedSeriesId = searchParams.get('seriesId');
   const preselectedEmployeeId = searchParams.get('employeeId');
   const preselectedDate = searchParams.get('date'); // yyyy-MM-dd
@@ -1120,7 +1152,7 @@ export const BookingWizard = () => {
   const preselectedCode = searchParams.get('code');
   const isFullyPreselected = !!preselectedDate && !!preselectedTime;
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => savedDraft ? 5 : 1);
   const [floatingVisible, setFloatingVisible] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -1135,7 +1167,11 @@ export const BookingWizard = () => {
     return () => observer.disconnect();
   }, []);
 
-  const [state, setState] = useState<WizardState>({
+  const [state, setState] = useState<WizardState>(() => savedDraft ? {
+    ...savedDraft,
+    date: savedDraft.date ? new Date(savedDraft.date) : null,
+    photo: null,
+  } : {
     service: null,
     seriesId: preselectedSeriesId,
     employee: null,
@@ -1219,6 +1255,13 @@ export const BookingWizard = () => {
   const handleConfirm = async () => {
     if (!state.service || !state.date || !state.time) return;
 
+    if (!isAuthenticated) {
+      saveBookingDraft(state);
+      toast.message('Zaloguj się lub załóż konto, aby potwierdzić wybrany termin.');
+      navigate('/auth/login', { state: { from: '/rezerwacja', bookingConfirmation: true } });
+      return;
+    }
+
     const [hours, minutes] = state.time.split(':').map(Number);
     const dateTime = new Date(state.date);
     dateTime.setHours(hours, minutes, 0, 0);
@@ -1266,6 +1309,7 @@ export const BookingWizard = () => {
       queryClient.invalidateQueries({ queryKey: ['reminders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       toast.success('Wizyta została zarezerwowana!');
+      sessionStorage.removeItem(BOOKING_DRAFT_KEY);
       trackEvent('booking_completed', {
         service_name: state.service?.name,
         value: Number(state.service?.price) || undefined,
@@ -1385,6 +1429,7 @@ export const BookingWizard = () => {
               voucherData: voucher,
             }))}
             user={user}
+            isAuthenticated={isAuthenticated}
             preselectedCode={preselectedCode}
           />
         )}
@@ -1397,7 +1442,7 @@ export const BookingWizard = () => {
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <button
-          onClick={() => (step === 1 ? navigate('/user/wizyty') : setStep((s) => s - 1))}
+          onClick={() => (step === 1 ? navigate(isAuthenticated ? '/user/wizyty' : '/') : setStep((s) => s - 1))}
           className="min-h-12 rounded-full px-6 py-3 border border-espresso text-espresso text-xs font-semibold hover:bg-espresso hover:text-ivory transition-colors"
         >
           {step === 1 ? 'Anuluj' : 'Wróć'}
@@ -1421,7 +1466,7 @@ export const BookingWizard = () => {
             tabIndex={floatingVisible && canProceed() ? -1 : undefined}
             className="min-h-12 rounded-full px-8 py-3 bg-espresso text-ivory text-xs font-semibold hover:bg-espresso/90 transition-colors disabled:opacity-40 sm:w-auto"
           >
-            {isPending ? 'Rezerwowanie...' : 'Potwierdź rezerwację'}
+            {isPending ? 'Rezerwowanie...' : isAuthenticated ? 'Potwierdź rezerwację' : 'Zaloguj się i potwierdź'}
           </button>
         )}
       </div>
@@ -1443,7 +1488,7 @@ export const BookingWizard = () => {
               disabled={isPending}
               className="min-h-12 rounded-full px-10 py-3.5 bg-espresso text-ivory text-xs font-semibold shadow-lg disabled:opacity-40"
             >
-              {isPending ? 'Rezerwowanie...' : 'Potwierdź →'}
+              {isPending ? 'Rezerwowanie...' : isAuthenticated ? 'Potwierdź →' : 'Zaloguj się →'}
             </button>
           )}
         </div>
