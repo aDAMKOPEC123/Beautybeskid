@@ -33,9 +33,9 @@ export function AcademyLayout() {
             {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zakupie</span>}</Link>)}
           </nav>
           <div className="flex items-center gap-3">
-            <a href="https://kosmetologwiktoriacwik.pl" className="hidden lg:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
-            {user?.role === 'ADMIN' && <Link to="/admin" className="hidden xl:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
-            {isAuthenticated ? <Link to="/profil" className="academy-account" aria-label="Przejdź do mojego profilu"><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
+            <a href="https://kosmetologwiktoriacwik.pl" className="hidden xl:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
+            {user?.role === 'ADMIN' && <Link to="/admin" className="hidden lg:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
+            {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
             <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label="Otwórz menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
