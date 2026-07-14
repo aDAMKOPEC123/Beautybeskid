@@ -11,8 +11,8 @@ export const getPublicCourse = async (req: Request, res: Response, next: NextFun
 
 export const listPublished = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user?.id;
-    const courses = await coursesService.listPublished(userId);
+    const userId = req.academyUser!.id;
+    const courses = await coursesService.listPublished(userId, req.academyUser!.role === 'ADMIN');
     res.json({ data: courses });
   } catch (error) {
     next(error);
@@ -21,8 +21,8 @@ export const listPublished = async (req: Request, res: Response, next: NextFunct
 
 export const getCourseBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user?.id;
-    const course = await coursesService.getCourseBySlug(req.params.slug, userId);
+    const userId = req.academyUser!.id;
+    const course = await coursesService.getCourseBySlug(req.params.slug, userId, req.academyUser!.role === 'ADMIN');
     res.json({ data: course });
   } catch (error) {
     next(error);

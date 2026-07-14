@@ -1,7 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 
-const messageInclude = { author: { select: { id: true, name: true, role: true, avatarPath: true } } } as const;
+const messageInclude = { author: { select: { id: true, name: true, role: true } } } as const;
 
 export const getMyThread = async (userId: string) => {
   const thread = await prisma.academySupportThread.upsert({
@@ -20,7 +20,7 @@ export const sendUserMessage = async (userId: string, content: string) => {
 };
 
 export const listAdminThreads = async () => prisma.academySupportThread.findMany({
-  include: { user: { select: { id: true, name: true, email: true, avatarPath: true } }, admin: { select: { id: true, name: true } }, messages: { include: messageInclude, orderBy: { createdAt: 'asc' } } },
+  include: { user: { select: { id: true, name: true, email: true } }, admin: { select: { id: true, name: true } }, messages: { include: messageInclude, orderBy: { createdAt: 'asc' } } },
   orderBy: { lastMessageAt: 'desc' },
 });
 

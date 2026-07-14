@@ -3,7 +3,7 @@ import * as progressService from './progress.service';
 
 export const markLessonComplete = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.academyUser!.id;
     const result = await progressService.markLessonComplete(userId, req.params.lessonId);
     res.json({ data: result });
   } catch (error) {
@@ -13,7 +13,7 @@ export const markLessonComplete = async (req: Request, res: Response, next: Next
 
 export const updateVideoProgress = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.academyUser!.id;
     await progressService.updateVideoProgress(userId, req.params.lessonId, req.body.watchedSeconds);
     res.json({ message: 'Postęp zaktualizowany' });
   } catch (error) {
@@ -23,7 +23,7 @@ export const updateVideoProgress = async (req: Request, res: Response, next: Nex
 
 export const getUserCourseProgress = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.academyUser!.id;
     const progress = await progressService.getUserCourseProgress(userId, req.params.courseId);
     res.json({ data: progress });
   } catch (error) {
@@ -33,7 +33,7 @@ export const getUserCourseProgress = async (req: Request, res: Response, next: N
 
 export const getMyCourses = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.academyUser!.id;
     const courses = await progressService.getMyCourses(userId);
     res.json({ data: courses });
   } catch (error) {

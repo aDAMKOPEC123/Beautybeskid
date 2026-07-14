@@ -1,7 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 
-export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, userId?: string) => {
+export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, userId: string, isAdmin = false) => {
   const course = await prisma.course.findUnique({
     where: { slug: courseSlug },
     select: { id: true, status: true },
@@ -9,6 +9,8 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
 
   if (!course) throw new AppError('Nie znaleziono kursu', 404);
   if (course.status !== 'PUBLISHED') throw new AppError('Kurs nie jest dostępny', 403);
+
+  if (!isAdmin && !await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: course.id } } })) throw new AppError('Ten kurs zostanie odblokowany po zakupie', 403);
 
   const lesson = await prisma.lesson.findFirst({
     where: { slug: lessonSlug, module: { courseId: course.id } },
@@ -30,11 +32,7 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
   if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
 
   let userProgress = null;
-  if (userId) {
-    userProgress = await prisma.userLessonProgress.findUnique({
-      where: { userId_lessonId: { userId, lessonId: lesson.id } },
-    });
-  }
+  userProgress = await prisma.userLessonProgress.findUnique({ where: { userId_lessonId: { userId, lessonId: lesson.id } } });
 
   // Strip isCorrect from options for non-admin requests
   if (lesson.quiz) {

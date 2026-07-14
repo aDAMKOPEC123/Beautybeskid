@@ -1,7 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 
-export const listPublished = async (userId?: string) => {
+export const listPublished = async (userId: string, isAdmin = false) => {
   const courses = await prisma.course.findMany({
     where: { status: 'PUBLISHED', isActive: true },
     include: {
@@ -18,16 +18,17 @@ export const listPublished = async (userId?: string) => {
     orderBy: { createdAt: 'desc' },
   });
 
-  if (!userId) return courses;
+  const enrolled = isAdmin ? courses.map((course) => course.id) : (await prisma.academyEnrollment.findMany({ where: { userId }, select: { courseId: true } })).map((entry) => entry.courseId);
+  const purchasedCourses = courses.filter((course) => enrolled.includes(course.id));
 
   const progressList = await prisma.userCourseProgress.findMany({
-    where: { userId, courseId: { in: courses.map((c) => c.id) } },
+    where: { userId, courseId: { in: purchasedCourses.map((c) => c.id) } },
     select: { courseId: true, percentComplete: true, completedAt: true },
   });
 
   const progressMap = new Map(progressList.map((p) => [p.courseId, p]));
 
-  return courses.map((course) => ({
+  return purchasedCourses.map((course) => ({
     ...course,
     lessonCount: course.modules.reduce((acc, m) => acc + m.lessons.length, 0),
     progress: progressMap.get(course.id) ?? null,
@@ -55,7 +56,7 @@ export const getPublicCourse = async (slug: string) => {
   };
 };
 
-export const getCourseBySlug = async (slug: string, userId?: string) => {
+export const getCourseBySlug = async (slug: string, userId: string, isAdmin = false) => {
   const course = await prisma.course.findUnique({
     where: { slug },
     include: {
@@ -83,7 +84,7 @@ export const getCourseBySlug = async (slug: string, userId?: string) => {
   if (!course) throw new AppError('Nie znaleziono kursu', 404);
   if (course.status !== 'PUBLISHED') throw new AppError('Kurs nie jest dostępny', 403);
 
-  if (!userId) return { ...course, userProgress: null, lessonProgress: [] };
+  if (!isAdmin && !await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: course.id } } })) throw new AppError('Ten kurs zostanie odblokowany po zakupie', 403);
 
   const [courseProgress, lessonProgressList] = await Promise.all([
     prisma.userCourseProgress.findUnique({

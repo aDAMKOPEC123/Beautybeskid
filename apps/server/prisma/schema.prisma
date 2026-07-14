@@ -252,16 +252,7 @@ model User {
   blogPostLikes                BlogPostLike[]
   skinWeatherProfile           SkinWeatherProfile?
   skinWeatherReports           SkinWeatherReport[]
-  academyProgress        UserCourseProgress[]
-  academyLessonProgress  UserLessonProgress[]
-  academyCertificates    AcademyCertificate[]
-  academyQuizAttempts    AcademyQuizAttempt[]
-  courseFavorites        CourseFavorite[]
-  lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
-  academySupportThread   AcademySupportThread? @relation("AcademySupportUser")
-  academySupportAssignments AcademySupportThread[] @relation("AcademySupportAdmin")
-  academySupportMessages AcademySupportMessage[] @relation("AcademySupportAuthor")
   refreshTokens          RefreshToken[]
   passkeys               Passkey[]
   beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
@@ -1288,6 +1279,55 @@ model Course {
   progress           UserCourseProgress[]
   certificates       AcademyCertificate[]
   favorites          CourseFavorite[]
+  enrollments        AcademyEnrollment[]
+}
+
+model AcademyUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens      AcademyRefreshToken[]
+  enrollments        AcademyEnrollment[]
+  academyProgress    UserCourseProgress[]
+  academyLessonProgress UserLessonProgress[]
+  academyCertificates AcademyCertificate[]
+  academyQuizAttempts AcademyQuizAttempt[]
+  courseFavorites     CourseFavorite[]
+  lessonNotes         LessonNote[]
+  academySupportThread AcademySupportThread? @relation("AcademySupportUser")
+  academySupportAssignments AcademySupportThread[] @relation("AcademySupportAdmin")
+  academySupportMessages AcademySupportMessage[] @relation("AcademySupportAuthor")
+
+  @@index([role])
+}
+
+model AcademyRefreshToken {
+  id        String      @id @default(cuid())
+  tokenHash String      @unique
+  userId    String
+  user      AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+}
+
+model AcademyEnrollment {
+  id        String      @id @default(cuid())
+  userId    String
+  user      AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  purchasedAt DateTime  @default(now())
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
 }
 
 model CourseModule {
@@ -1371,7 +1411,7 @@ model AcademyQuizOption {
 model AcademyQuizAttempt {
   id          String      @id @default(cuid())
   userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   quizId      String
   quiz        AcademyQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
   score       Int
@@ -1386,7 +1426,7 @@ model AcademyQuizAttempt {
 model UserCourseProgress {
   id              String   @id @default(cuid())
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId        String
   course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   percentComplete Float    @default(0)
@@ -1400,7 +1440,7 @@ model UserCourseProgress {
 model UserLessonProgress {
   id             String   @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   lessonId       String
   lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   watchedSeconds Int      @default(0)
@@ -1414,7 +1454,7 @@ model UserLessonProgress {
 model AcademyCertificate {
   id               String       @id @default(cuid())
   userId           String
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             AcademyUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId         String?
   course           Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
   quizId           String?
@@ -1429,7 +1469,7 @@ model AcademyCertificate {
 model CourseFavorite {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -1440,7 +1480,7 @@ model CourseFavorite {
 model LessonNote {
   id             String   @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   lessonId       String
   lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   content        String
@@ -1466,9 +1506,9 @@ model AcademyAccessLog {
 model AcademySupportThread {
   id            String   @id @default(cuid())
   userId        String   @unique
-  user          User     @relation("AcademySupportUser", fields: [userId], references: [id], onDelete: Cascade)
+  user          AcademyUser @relation("AcademySupportUser", fields: [userId], references: [id], onDelete: Cascade)
   adminId       String?
-  admin         User?    @relation("AcademySupportAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+  admin         AcademyUser? @relation("AcademySupportAdmin", fields: [adminId], references: [id], onDelete: SetNull)
   lastMessageAt DateTime @default(now())
   userUnread    Int      @default(0)
   adminUnread   Int      @default(0)
@@ -1481,7 +1521,7 @@ model AcademySupportMessage {
   threadId  String
   thread    AcademySupportThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User                 @relation("AcademySupportAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  author    AcademyUser          @relation("AcademySupportAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   content   String
   readAt    DateTime?
   createdAt DateTime             @default(now())

@@ -20,7 +20,8 @@ const difficultyLabel: Record<string, string> = {
 export function CourseDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { user, isAuthenticated } = useAuth();
-  const hasAccess = !!user?.hasAcademyAccess || user?.role === 'ADMIN';
+  const { data: enrolledCourses = [] } = useQuery({ queryKey: ['academy', 'enrolled-courses'], queryFn: academyApi.getCourses, enabled: isAuthenticated });
+  const hasAccess = user?.role === 'ADMIN' || (enrolledCourses as any[]).some((course) => course.slug === slug);
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
 
   const { data: course, isLoading } = useQuery({
@@ -57,7 +58,7 @@ export function CourseDetail() {
       {course.thumbnailUrl && <img src={course.thumbnailUrl} alt="" />}
       <div className="academy-preview-overlay"><span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span><h1>{course.title}</h1><p>{course.description}</p><div className="flex gap-3 text-sm"><Clock className="w-4 h-4" />{course.estimatedMinutes} min materiału</div></div>
     </div>
-    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp</p><h2>Opanuj temat krok po kroku</h2><p>Po zakupie otrzymasz wszystkie lekcje, materiały, punkty kontrolne, certyfikat i dostęp do „Mojej nauki”.</p></div><div>{isAuthenticated ? <a className="academy-button academy-buy" href={`https://kosmetologwiktoriacwik.pl/kontakt?kurs=${encodeURIComponent(course.title)}`}>Kup kurs <ChevronRight className="w-4 h-4" /></a> : <a className="academy-button academy-buy" href="https://kosmetologwiktoriacwik.pl/auth/login">Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></a>}<small>Bez dostępu widzisz program i efekty nauki — lekcje odblokują się po zakupie.</small></div></div>
+    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp</p><h2>Opanuj temat krok po kroku</h2><p>Po zakupie otrzymasz wszystkie lekcje, materiały, punkty kontrolne, certyfikat i dostęp do „Mojej nauki”.</p></div><div>{isAuthenticated ? <button className="academy-button academy-buy" disabled>Sprzedaż wkrótce <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to="/logowanie">Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></Link>}<small>Bez dostępu widzisz program i efekty nauki — lekcje odblokują się po zakupie.</small></div></div>
     <section className="academy-preview-program"><p className="academy-kicker text-caramel">Program kursu</p><h2>Czego się nauczysz</h2>{course.modules?.map((module: any, index: number) => <div key={module.id}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{module.title}</strong><p>{module.lessonCount} lekcji · {module.estimatedMinutes} min praktyki</p></div><span className="academy-locked">Dostęp po zakupie</span></div>)}</section>
   </div>;
 

@@ -11,7 +11,7 @@ function App() {
   const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
 
   useEffect(() => {
-    api.post('/auth/refresh')
+    api.post('/academy/auth/refresh')
       .then((res) => {
         setAccessToken(res.data.data.accessToken);
         setUser(res.data.data.user);

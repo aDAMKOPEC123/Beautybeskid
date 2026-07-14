@@ -39,7 +39,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && !originalRequest.url?.includes('/auth/login')) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/academy/auth/refresh') && !originalRequest.url?.includes('/academy/auth/login')) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -56,7 +56,7 @@ api.interceptors.response.use(
 
       isRefreshing = true;
       try {
-        const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
+        const { data } = await api.post('/academy/auth/refresh', {}, { withCredentials: true });
         const newToken = data.data.accessToken;
         useAuthStore.getState().setAccessToken(newToken);
         if (data.data.user) {
@@ -70,10 +70,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         onRefreshFailed(refreshError);
         useAuthStore.getState().logout();
-        const mainSiteLogin = import.meta.env.VITE_MAIN_SITE_URL
-          ? `${import.meta.env.VITE_MAIN_SITE_URL}/auth/login`
-          : '/auth/login';
-        window.location.href = mainSiteLogin;
+        window.location.href = '/logowanie';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

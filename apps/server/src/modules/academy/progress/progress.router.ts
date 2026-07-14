@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { authenticate } from '../../../middleware/auth.middleware';
-import { requireAcademyAccess } from '../../../middleware/academy.middleware';
+import { academyAuthenticate } from '../../../middleware/academy-auth.middleware';
 import * as progressController from './progress.controller';
 
 const router = Router();
 
-router.use(authenticate, requireAcademyAccess);
+router.use(academyAuthenticate);
 
 router.post('/progress/lesson/:lessonId/complete', progressController.markLessonComplete);
 router.patch('/progress/lesson/:lessonId/video', progressController.updateVideoProgress);

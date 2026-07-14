@@ -70,7 +70,7 @@ export const issueCertificate = async (
     throw new AppError('Wymagane courseId lub quizId', 400);
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.academyUser.findUnique({
     where: { id: userId },
     select: { name: true },
   });

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import accessRouter from './access/access.router';
+import academyAuthRouter from './auth/academy-auth.router';
 import coursesRouter from './courses/courses.router';
 import lessonsRouter from './lessons/lessons.router';
 import progressRouter from './progress/progress.router';
@@ -9,7 +9,7 @@ import supportRouter from './support/support.router';
 
 const router = Router();
 
-router.use('/access', accessRouter);
+router.use('/auth', academyAuthRouter);
 router.use('/', coursesRouter);
 router.use('/', lessonsRouter);
 router.use('/', progressRouter);

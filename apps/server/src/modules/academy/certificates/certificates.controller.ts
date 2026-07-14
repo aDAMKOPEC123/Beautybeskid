@@ -4,7 +4,7 @@ import * as certificatesService from './certificates.service';
 
 export const getUserCertificates = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.academyUser!.id;
     const certs = await certificatesService.getUserCertificates(userId);
     res.json({ data: certs });
   } catch (error) {

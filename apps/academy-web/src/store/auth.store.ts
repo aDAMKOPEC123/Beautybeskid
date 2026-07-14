@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { User } from '@cosmo/shared';
+export type AcademyUser = { id: string; email: string; name: string; role: string };
 
 interface AuthState {
-  user: User | null;
+  user: AcademyUser | null;
   accessToken: string | null;
   isLoading: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: AcademyUser | null) => void;
   setAccessToken: (token: string | null) => void;
   logout: () => void;
   hydrate: () => void;

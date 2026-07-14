@@ -1,7 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../../../middleware/auth.middleware';
-import { requireAdmin } from '../../../middleware/admin.middleware';
-import { requireAcademyAccess } from '../../../middleware/academy.middleware';
+import { academyAuthenticate, academyRequireAdmin } from '../../../middleware/academy-auth.middleware';
 import * as coursesController from './courses.controller';
 
 const router = Router();
@@ -11,19 +9,19 @@ router.get('/public/courses', coursesController.listPublic);
 router.get('/public/courses/:slug', coursesController.getPublicCourse);
 
 // User routes (require academy access)
-router.get('/courses', authenticate, requireAcademyAccess, coursesController.listPublished);
-router.get('/courses/:slug', authenticate, requireAcademyAccess, coursesController.getCourseBySlug);
+router.get('/courses', academyAuthenticate, coursesController.listPublished);
+router.get('/courses/:slug', academyAuthenticate, coursesController.getCourseBySlug);
 
 // Admin routes
-router.get('/admin/courses', authenticate, requireAdmin, coursesController.adminListAll);
-router.post('/admin/courses', authenticate, requireAdmin, coursesController.createCourse);
-router.patch('/admin/courses/:id', authenticate, requireAdmin, coursesController.updateCourse);
-router.delete('/admin/courses/:id', authenticate, requireAdmin, coursesController.deleteCourse);
-router.put('/admin/courses/:id/reorder-modules', authenticate, requireAdmin, coursesController.reorderModules);
-router.put('/admin/modules/:id/reorder-lessons', authenticate, requireAdmin, coursesController.reorderLessons);
-router.post('/admin/courses/:courseId/modules', authenticate, requireAdmin, coursesController.createModule);
-router.patch('/admin/modules/:moduleId', authenticate, requireAdmin, coursesController.updateModule);
-router.delete('/admin/modules/:moduleId', authenticate, requireAdmin, coursesController.deleteModule);
-router.post('/admin/modules/:moduleId/checkpoints', authenticate, requireAdmin, coursesController.createCheckpoint);
+router.get('/admin/courses', academyAuthenticate, academyRequireAdmin, coursesController.adminListAll);
+router.post('/admin/courses', academyAuthenticate, academyRequireAdmin, coursesController.createCourse);
+router.patch('/admin/courses/:id', academyAuthenticate, academyRequireAdmin, coursesController.updateCourse);
+router.delete('/admin/courses/:id', academyAuthenticate, academyRequireAdmin, coursesController.deleteCourse);
+router.put('/admin/courses/:id/reorder-modules', academyAuthenticate, academyRequireAdmin, coursesController.reorderModules);
+router.put('/admin/modules/:id/reorder-lessons', academyAuthenticate, academyRequireAdmin, coursesController.reorderLessons);
+router.post('/admin/courses/:courseId/modules', academyAuthenticate, academyRequireAdmin, coursesController.createModule);
+router.patch('/admin/modules/:moduleId', academyAuthenticate, academyRequireAdmin, coursesController.updateModule);
+router.delete('/admin/modules/:moduleId', academyAuthenticate, academyRequireAdmin, coursesController.deleteModule);
+router.post('/admin/modules/:moduleId/checkpoints', academyAuthenticate, academyRequireAdmin, coursesController.createCheckpoint);
 
 export default router;

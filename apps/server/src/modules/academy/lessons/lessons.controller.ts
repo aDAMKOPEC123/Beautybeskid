@@ -3,8 +3,8 @@ import * as lessonsService from './lessons.service';
 
 export const getLessonBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user?.id;
-    const lesson = await lessonsService.getLessonBySlug(req.params.slug, req.params.lessonSlug, userId);
+    const userId = req.academyUser!.id;
+    const lesson = await lessonsService.getLessonBySlug(req.params.slug, req.params.lessonSlug, userId, req.academyUser!.role === 'ADMIN');
     res.json({ data: lesson });
   } catch (error) {
     next(error);

@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { authenticate } from '../../../middleware/auth.middleware';
-import { requireAdmin } from '../../../middleware/admin.middleware';
+import { academyAuthenticate, academyRequireAdmin } from '../../../middleware/academy-auth.middleware';
 import * as controller from './support.controller';
 
 const router = Router();
-router.get('/support/my-thread', authenticate, controller.myThread);
-router.post('/support/messages', authenticate, controller.sendMine);
-router.get('/admin/support/threads', authenticate, requireAdmin, controller.adminThreads);
-router.post('/admin/support/threads/:threadId/messages', authenticate, requireAdmin, controller.sendAsAdmin);
+router.get('/support/my-thread', academyAuthenticate, controller.myThread);
+router.post('/support/messages', academyAuthenticate, controller.sendMine);
+router.get('/admin/support/threads', academyAuthenticate, academyRequireAdmin, controller.adminThreads);
+router.post('/admin/support/threads/:threadId/messages', academyAuthenticate, academyRequireAdmin, controller.sendAsAdmin);
 export default router;
