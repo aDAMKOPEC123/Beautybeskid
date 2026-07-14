@@ -1,5 +1,22 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
+import sanitizeHtml from 'sanitize-html';
+
+const lessonHtmlOptions: sanitizeHtml.IOptions = {
+  allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'iframe', 'h1', 'h2', 'u'],
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+    iframe: ['src', 'title', 'loading', 'allowfullscreen', 'style', 'frameborder', 'allow'],
+    '*': ['style'],
+  },
+  allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com'],
+  allowedSchemes: ['http', 'https', 'mailto'],
+};
+
+const sanitizeLessonData = (data: Record<string, unknown>) => typeof data.contentHtml === 'string'
+  ? { ...data, contentHtml: sanitizeHtml(data.contentHtml, lessonHtmlOptions) }
+  : data;
 
 export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, userId: string, isAdmin = false) => {
   const course = await prisma.course.findUnique({
@@ -47,11 +64,11 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
 };
 
 export const createLesson = async (moduleId: string, data: Record<string, unknown>) => {
-  return prisma.lesson.create({ data: { moduleId, ...data } as any });
+  return prisma.lesson.create({ data: { moduleId, ...sanitizeLessonData(data) } as any });
 };
 
 export const updateLesson = async (id: string, data: Record<string, unknown>) => {
-  return prisma.lesson.update({ where: { id }, data: data as any });
+  return prisma.lesson.update({ where: { id }, data: sanitizeLessonData(data) as any });
 };
 
 export const deleteLesson = async (id: string) => {

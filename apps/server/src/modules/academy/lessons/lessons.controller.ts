@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { processAndSaveImage } from '../../../utils/imageProcessor';
+import { AppError } from '../../../middleware/error.middleware';
 import * as lessonsService from './lessons.service';
 
 export const getLessonBySlug = async (req: Request, res: Response, next: NextFunction) => {
@@ -33,6 +35,18 @@ export const deleteLesson = async (req: Request, res: Response, next: NextFuncti
   try {
     await lessonsService.deleteLesson(req.params.id);
     res.json({ message: 'Lekcja usunięta' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadInlineImage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) throw new AppError('Wybierz obraz do wgrania', 400);
+
+    // Every image placed inside a lesson is optimized and saved as WebP.
+    const url = await processAndSaveImage(req.file.buffer, 'academy-lessons');
+    res.status(201).json({ data: { url } });
   } catch (error) {
     next(error);
   }

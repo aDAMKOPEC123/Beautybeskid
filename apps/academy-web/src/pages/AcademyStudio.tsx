@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { BookOpen, CheckCircle2, ChevronRight, CircleHelp, FileText, Film, Layers3, Lightbulb, Plus, Save, Sparkles } from 'lucide-react';
+import { Bold, BookOpen, CheckCircle2, ChevronRight, CircleHelp, FileText, Film, Heading1, Heading2, ImagePlus, Italic, Layers3, Lightbulb, Link2, List, ListOrdered, Plus, Save, Sparkles, Underline } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -55,6 +55,60 @@ function LessonComposer({ module, addLesson, addQuiz }: { module: any; addLesson
     if (kind === 'VIDEO') addLesson({ moduleId: module.id, data: {...base, type:'VIDEO', videoProvider:'YOUTUBE', videoId: source.replace(/^.*(?:v=|youtu\.be\/)/, '').split(/[?&]/)[0]} });
     if (kind === 'EMBED') { if (!/^https:\/\/(www\.youtube\.com|player\.vimeo\.com)\//.test(source)) return alert('Wklej bezpieczny adres osadzania YouTube lub Vimeo.'); addLesson({moduleId:module.id,data:{...base,type:'TEXT',contentHtml:embedHtml(source)}}); }
     if (kind === 'TEXT') addLesson({ moduleId: module.id, data: {...base, type:'TEXT',contentHtml:source} }); setTitle(''); setSource(''); };
-  return <div className="studio-composer"><div className="studio-composer-title"><Plus />Dodaj element do tej sekcji</div><div className="studio-kind-tabs">{[['VIDEO','Film YouTube'],['EMBED','iframe / Vimeo'],['TEXT','Instrukcja'],['QUIZ','Punkt kontrolny']].map(([value,label]) => <button key={value} onClick={() => setKind(value)} className={kind===value?'selected':''}>{label}</button>)}</div><input value={title} onChange={e => setTitle(e.target.value)} placeholder={kind === 'QUIZ' ? 'np. Sprawdź wiedzę po sekcji' : 'Tytuł lekcji'} />{kind !== 'QUIZ' && <textarea value={source} onChange={e => setSource(e.target.value)} placeholder={kind === 'VIDEO' ? 'Link do filmu YouTube' : kind === 'EMBED' ? 'Adres osadzania, np. https://player.vimeo.com/video/…' : 'Treść instrukcji (możesz użyć prostego HTML)'} />}{kind === 'QUIZ' && <p className="studio-hint">Po dodaniu punktu kontrolnego utwórz pytania w sekcji „Quizy” — w kolejnym kroku połączymy je bezpośrednio z tym miejscem.</p>}<button className="studio-add-lesson" onClick={add}><Plus />Dodaj {kind === 'QUIZ' ? 'punkt kontrolny' : 'lekcję'}</button></div>;
+  return <div className="studio-composer"><div className="studio-composer-title"><Plus />Dodaj element do tej sekcji</div><div className="studio-kind-tabs">{[['VIDEO','Film YouTube'],['EMBED','iframe / Vimeo'],['TEXT','Instrukcja'],['QUIZ','Punkt kontrolny']].map(([value,label]) => <button key={value} onClick={() => setKind(value)} className={kind===value?'selected':''}>{label}</button>)}</div><input value={title} onChange={e => setTitle(e.target.value)} placeholder={kind === 'QUIZ' ? 'np. Sprawdź wiedzę po sekcji' : 'Tytuł lekcji'} />{kind === 'TEXT' ? <RichTextEditor value={source} onChange={setSource} /> : kind !== 'QUIZ' && <textarea value={source} onChange={e => setSource(e.target.value)} placeholder={kind === 'VIDEO' ? 'Link do filmu YouTube' : 'Adres osadzania, np. https://player.vimeo.com/video/…'} />}{kind === 'QUIZ' && <p className="studio-hint">Po dodaniu punktu kontrolnego utwórz pytania w sekcji „Quizy” — w kolejnym kroku połączymy je bezpośrednio z tym miejscem.</p>}<button className="studio-add-lesson" onClick={add}><Plus />Dodaj {kind === 'QUIZ' ? 'punkt kontrolny' : 'lekcję'}</button></div>;
+}
+
+function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value) editorRef.current.innerHTML = value;
+  }, [value]);
+
+  const sync = () => onChange(editorRef.current?.innerHTML ?? '');
+  const command = (name: string, commandValue?: string) => {
+    editorRef.current?.focus();
+    document.execCommand(name, false, commandValue);
+    sync();
+  };
+  const addLink = () => {
+    const url = window.prompt('Wklej adres linku (https://...)');
+    if (url?.trim()) command('createLink', url.trim());
+  };
+  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const image = event.target.files?.[0];
+    event.target.value = '';
+    if (!image) return;
+    setError(''); setUploading(true);
+    try {
+      const { url } = await academyApi.adminUploadLessonImage(image);
+      command('insertHTML', `<figure><img src="${url}" alt="" loading="lazy" /></figure><p><br></p>`);
+    } catch {
+      setError('Nie udało się wgrać obrazu. Wybierz plik graficzny do 5 MB.');
+    } finally { setUploading(false); }
+  };
+  const tool = (label: string, icon: React.ReactNode, action: () => void) => <button type="button" title={label} aria-label={label} onMouseDown={event => event.preventDefault()} onClick={action}>{icon}</button>;
+
+  return <div className="rich-editor">
+    <div className="rich-editor-toolbar">
+      {tool('Nagłówek H1', <Heading1 />, () => command('formatBlock', 'h1'))}
+      {tool('Nagłówek H2', <Heading2 />, () => command('formatBlock', 'h2'))}
+      {tool('Pogrubienie', <Bold />, () => command('bold'))}
+      {tool('Kursywa', <Italic />, () => command('italic'))}
+      {tool('Podkreślenie', <Underline />, () => command('underline'))}
+      {tool('Lista punktowana', <List />, () => command('insertUnorderedList'))}
+      {tool('Lista numerowana', <ListOrdered />, () => command('insertOrderedList'))}
+      {tool('Dodaj link', <Link2 />, addLink)}
+      <span className="rich-editor-divider" />
+      <button type="button" className="rich-editor-image" onClick={() => fileRef.current?.click()} disabled={uploading}><ImagePlus />{uploading ? 'Wgrywanie…' : 'Dodaj obraz'}</button>
+      <input ref={fileRef} type="file" accept="image/*" onChange={uploadImage} hidden />
+    </div>
+    <div ref={editorRef} className="rich-editor-body" contentEditable suppressContentEditableWarning data-placeholder="Napisz instrukcję. Zaznacz tekst, aby użyć formatowania." onInput={sync} onPaste={event => { event.preventDefault(); document.execCommand('insertText', false, event.clipboardData.getData('text/plain')); sync(); }} />
+    <p className="rich-editor-hint">Wstawione obrazy są automatycznie optymalizowane i zapisywane jako WebP.</p>
+    {error && <p className="rich-editor-error">{error}</p>}
+  </div>;
 }
 function Field({ label, hint, children }: { label:string; hint?:string; children:React.ReactNode }) { return <label className="studio-field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>; }

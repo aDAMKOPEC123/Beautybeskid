@@ -53,6 +53,11 @@ export const academyApi = {
   adminUpdateCourse: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/courses/${id}`, data).then((r) => r.data.data),
   adminCreateModule: (courseId: string, data: { title: string; order?: number }) => api.post(`/academy/admin/courses/${courseId}/modules`, data).then((r) => r.data.data),
   adminCreateLesson: (moduleId: string, data: Record<string, unknown>) => api.post(`/academy/admin/modules/${moduleId}/lessons`, data).then((r) => r.data.data),
+  adminUploadLessonImage: (image: File) => {
+    const formData = new FormData();
+    formData.append('image', image);
+    return api.post('/academy/admin/lesson-images', formData).then((r) => r.data.data);
+  },
   adminCreateCheckpoint: (moduleId: string, data: { title: string; order?: number; passingScore?: number }) => api.post(`/academy/admin/modules/${moduleId}/checkpoints`, data).then((r) => r.data.data),
   adminUpdateLesson: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/lessons/${id}`, data).then((r) => r.data.data),
   adminCreateQuiz: (data: Record<string, unknown>) => api.post('/academy/admin/quizzes', data).then((r) => r.data.data),

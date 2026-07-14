@@ -87,10 +87,10 @@ export function LessonPlayer() {
           className="prose prose-sm max-w-none bg-card rounded-lg border p-6"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(lesson.contentHtml, {
-              ADD_TAGS: ['iframe'],
-              ADD_ATTR: ['allowfullscreen', 'frameborder', 'loading'],
-              // Only the two platforms offered in the Academy studio are accepted.
-              ALLOWED_URI_REGEXP: /^(?:(?:https?):\/\/(?:www\.youtube\.com|player\.vimeo\.com)\/|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+              ADD_TAGS: ['iframe', 'img'],
+              ADD_ATTR: ['allowfullscreen', 'frameborder', 'loading', 'allow', 'style', 'width', 'height', 'alt', 'title'],
+              // Videos may only come from approved platforms; course images use the Academy uploads path.
+              ALLOWED_URI_REGEXP: /^(?:(?:https?):\/\/(?:www\.youtube\.com|player\.vimeo\.com)\/|\/uploads\/academy-lessons\/|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
             }),
           }}
         />
