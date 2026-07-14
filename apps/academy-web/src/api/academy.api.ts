@@ -1,6 +1,9 @@
 import { api } from '@/lib/axios';
 
 export const academyApi = {
+  // Public storefront
+  getPublicCourses: () => api.get('/academy/public/courses').then((r) => r.data.data),
+  getPublicCourseBySlug: (slug: string) => api.get(`/academy/public/courses/${slug}`).then((r) => r.data.data),
   // Courses
   getCourses: () =>
     api.get('/academy/courses').then((r) => r.data.data),

@@ -6,6 +6,10 @@ import * as coursesController from './courses.controller';
 
 const router = Router();
 
+// Public storefront — course details are intentionally visible before purchase.
+router.get('/public/courses', coursesController.listPublic);
+router.get('/public/courses/:slug', coursesController.getPublicCourse);
+
 // User routes (require academy access)
 router.get('/courses', authenticate, requireAcademyAccess, coursesController.listPublished);
 router.get('/courses/:slug', authenticate, requireAcademyAccess, coursesController.getCourseBySlug);

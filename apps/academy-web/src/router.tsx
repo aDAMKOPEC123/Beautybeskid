@@ -15,6 +15,7 @@ const CourseDetail = lazy(() => import('./pages/CourseDetail').then(m => ({ defa
 const LessonPlayer = lazy(() => import('./pages/LessonPlayer').then(m => ({ default: m.LessonPlayer })));
 const AcademyStudio = lazy(() => import('./pages/AcademyStudio').then(m => ({ default: m.AcademyStudio })));
 const AcademyConsultation = lazy(() => import('./pages/AcademyConsultation').then(m => ({ default: m.AcademyConsultation })));
+const AcademyProfile = lazy(() => import('./pages/AcademyProfile').then(m => ({ default: m.AcademyProfile })));
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { index: true, element: <S><AcademyCatalog /></S> },
           { path: 'moje-kursy', element: <S><MyCourses /></S> },
           { path: 'certyfikaty', element: <S><Certificates /></S> },
+          { path: 'profil', element: <S><AcademyProfile /></S> },
           { path: 'zapytaj-kosmetologa', element: <S><AcademyConsultation /></S> },
           { path: 'studio', element: <S><AcademyStudio /></S> },
           { path: 'quizy', element: <S><StandaloneQuizPage /></S> },

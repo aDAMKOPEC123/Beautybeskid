@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import * as coursesService from './courses.service';
 
+export const listPublic = async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.listPublic() }); } catch (error) { next(error); }
+};
+
+export const getPublicCourse = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.getPublicCourse(req.params.slug) }); } catch (error) { next(error); }
+};
+
 export const listPublished = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user?.id;

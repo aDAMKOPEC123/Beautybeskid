@@ -3,14 +3,17 @@ import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame, GraduationCap, Search, Sparkles, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 const difficultyLabel: Record<string, string> = { BEGINNER: 'Podstawowy', INTERMEDIATE: 'Średniozaawansowany', ADVANCED: 'Zaawansowany' };
 
 export function AcademyCatalog() {
+  const { user } = useAuth();
+  const hasAccess = !!user?.hasAcademyAccess || user?.role === 'ADMIN';
   const [query, setQuery] = useState('');
   const [level, setLevel] = useState('ALL');
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({ queryKey: ['academy', 'courses'], queryFn: academyApi.getCourses });
-  const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({ queryKey: ['academy', 'quizzes'], queryFn: academyApi.getStandaloneQuizzes });
+  const { data: courses = [], isLoading: coursesLoading } = useQuery({ queryKey: ['academy', 'courses', hasAccess], queryFn: hasAccess ? academyApi.getCourses : academyApi.getPublicCourses });
+  const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({ queryKey: ['academy', 'quizzes'], queryFn: academyApi.getStandaloneQuizzes, enabled: hasAccess });
   const filteredCourses = useMemo(() => (courses as any[]).filter(course => {
     const phrase = `${course.title} ${course.description || ''}`.toLowerCase();
     return phrase.includes(query.toLowerCase()) && (level === 'ALL' || course.difficulty === level);
@@ -25,7 +28,7 @@ export function AcademyCatalog() {
         <p className="academy-kicker"><Sparkles className="w-3.5 h-3.5" />Twoja przestrzeń rozwoju</p>
         <h1>Ucz się w swoim tempie.<br /><i>Rośnij z pewnością.</i></h1>
         <p className="academy-hero-copy">Praktyczna wiedza kosmetologiczna, dopracowana lekcja po lekcji — dostępna dokładnie wtedy, gdy jej potrzebujesz.</p>
-        <div className="academy-hero-actions"><a href="#kursy" className="academy-button academy-button-light">Odkryj kursy <ArrowRight className="w-4 h-4" /></a>{started[0] && <Link to={`/kurs/${started[0].slug}`} className="academy-text-button">Kontynuuj naukę</Link>}</div>
+        <div className="academy-hero-actions"><a href="#kursy" className="academy-button academy-button-light">Odkryj kursy <ArrowRight className="w-4 h-4" /></a>{started[0] && <Link to={`/kurs/${started[0].slug}`} className="academy-text-button">Kontynuuj naukę</Link>}{!user && <a href="https://kosmetologwiktoriacwik.pl/auth/login" className="academy-text-button">Zaloguj się</a>}</div>
       </div>
       <div className="academy-hero-stat"><span className="academy-stat-icon"><Flame className="w-5 h-5" /></span><strong>{started.length || '—'}</strong><span>kurs{started.length === 1 ? '' : 'y'} w toku</span></div>
     </section>
@@ -41,7 +44,7 @@ export function AcademyCatalog() {
       <div className="academy-discovery-bar"><label><Search className="w-4 h-4" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Szukaj kursu lub tematu…" aria-label="Szukaj kursu" /></label><div className="academy-filters">{[['ALL', 'Wszystkie'], ['BEGINNER', 'Podstawy'], ['INTERMEDIATE', 'Rozwój'], ['ADVANCED', 'Ekspert']].map(([key, label]) => <button key={key} onClick={() => setLevel(key)} className={level === key ? 'selected' : ''}>{label}</button>)}</div></div>
       {coursesLoading ? <div className="academy-course-grid">{[1,2,3].map(i => <div key={i} className="academy-skeleton h-[310px]" />)}</div> : filteredCourses.length === 0 ? <div className="academy-empty"><Search /><h3>Nie znaleźliśmy pasującego kursu</h3><p>Spróbuj zmienić frazę lub wyczyścić filtr.</p></div> : <div className="academy-course-grid">{filteredCourses.map(course => <CourseCard key={course.id} course={course} />)}</div>}
     </section>
-    <section className="academy-quiz-section"><div><p className="academy-kicker text-caramel">Sprawdź siebie</p><h2>Krótka sesja wiedzy?</h2><p>Quizy pomagają utrwalić materiał i pokazują, co warto jeszcze powtórzyć.</p></div><div className="academy-quiz-list">{quizzesLoading ? <div className="academy-skeleton h-28" /> : (quizzes as any[]).slice(0, 3).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span><Star className="w-4 h-4" /></span><div><strong>{quiz.title}</strong><small>{quiz._count?.questions ?? 0} pytań · próg {quiz.passingScore}%</small></div><ArrowRight className="w-4 h-4" /></Link>)}{!quizzesLoading && quizzes.length === 0 && <p className="text-sm text-muted-foreground">Nowe quizy pojawią się wkrótce.</p>}</div></section>
+    <section className="academy-quiz-section"><div><p className="academy-kicker text-caramel">{hasAccess ? 'Sprawdź siebie' : 'Dostęp po zakupie'}</p><h2>{hasAccess ? 'Krótka sesja wiedzy?' : 'W środku czeka pełna praktyka'}</h2><p>{hasAccess ? 'Quizy pomagają utrwalić materiał i pokazują, co warto jeszcze powtórzyć.' : 'Po zakupie kurs pojawi się w zakładce „Moja nauka”, razem z quizami, materiałami i certyfikatem.'}</p></div><div className="academy-quiz-list">{hasAccess && quizzesLoading ? <div className="academy-skeleton h-28" /> : hasAccess ? (quizzes as any[]).slice(0, 3).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span><Star className="w-4 h-4" /></span><div><strong>{quiz.title}</strong><small>{quiz._count?.questions ?? 0} pytań · próg {quiz.passingScore}%</small></div><ArrowRight className="w-4 h-4" /></Link>) : <a href="https://kosmetologwiktoriacwik.pl/auth/login"><span><GraduationCap className="w-4 h-4" /></span><div><strong>Załóż konto lub zaloguj się</strong><small>Przed zakupem przygotujemy Twoją przestrzeń nauki.</small></div><ArrowRight className="w-4 h-4" /></a>}</div></section>
   </div>;
 }
 

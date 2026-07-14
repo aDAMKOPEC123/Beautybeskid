@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { Clock, CheckCircle, BarChart2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const difficultyLabel: Record<string, string> = {
   BEGINNER: 'Poczatkujacy',
@@ -10,10 +11,16 @@ const difficultyLabel: Record<string, string> = {
 };
 
 export function MyCourses() {
+  const { isAuthenticated, user } = useAuth();
+  const hasAccess = !!user?.hasAcademyAccess || user?.role === 'ADMIN';
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ['academy', 'my-courses'],
     queryFn: academyApi.getCourses,
+    enabled: hasAccess,
   });
+
+  if (!isAuthenticated) { window.location.href = 'https://kosmetologwiktoriacwik.pl/auth/login'; return null; }
+  if (!hasAccess) return <div className="academy-profile-empty"><BarChart2 /><h2>Nie masz jeszcze kursu w nauce</h2><p>Po zakupie kurs pojawi się tutaj automatycznie.</p><Link to="/">Przejdź do katalogu</Link></div>;
 
   // Filter to only courses the user has started or completed
   const myCourses = (courses as any[]).filter((c: any) => c.progress !== null);

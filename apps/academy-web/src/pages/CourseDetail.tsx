@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { ChevronDown, Clock, Play, FileText, HelpCircle, CheckCircle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 const lessonTypeIcon: Record<string, React.ElementType> = {
   VIDEO: Play,
@@ -18,11 +19,13 @@ const difficultyLabel: Record<string, string> = {
 
 export function CourseDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const { user, isAuthenticated } = useAuth();
+  const hasAccess = !!user?.hasAcademyAccess || user?.role === 'ADMIN';
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
 
   const { data: course, isLoading } = useQuery({
-    queryKey: ['academy', 'course', slug],
-    queryFn: () => academyApi.getCourseBySlug(slug!),
+    queryKey: ['academy', 'course', slug, hasAccess],
+    queryFn: () => hasAccess ? academyApi.getCourseBySlug(slug!) : academyApi.getPublicCourseBySlug(slug!),
     enabled: !!slug,
   });
 
@@ -48,6 +51,15 @@ export function CourseDetail() {
   };
 
   const percent = course.userProgress?.percentComplete ?? 0;
+
+  if (!hasAccess) return <div className="space-y-6">
+    <div className="academy-preview-hero">
+      {course.thumbnailUrl && <img src={course.thumbnailUrl} alt="" />}
+      <div className="academy-preview-overlay"><span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span><h1>{course.title}</h1><p>{course.description}</p><div className="flex gap-3 text-sm"><Clock className="w-4 h-4" />{course.estimatedMinutes} min materiału</div></div>
+    </div>
+    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">Pełny dostęp</p><h2>Opanuj temat krok po kroku</h2><p>Po zakupie otrzymasz wszystkie lekcje, materiały, punkty kontrolne, certyfikat i dostęp do „Mojej nauki”.</p></div><div>{isAuthenticated ? <a className="academy-button academy-buy" href={`https://kosmetologwiktoriacwik.pl/kontakt?kurs=${encodeURIComponent(course.title)}`}>Kup kurs <ChevronRight className="w-4 h-4" /></a> : <a className="academy-button academy-buy" href="https://kosmetologwiktoriacwik.pl/auth/login">Zaloguj się, aby kupić <ChevronRight className="w-4 h-4" /></a>}<small>Bez dostępu widzisz program i efekty nauki — lekcje odblokują się po zakupie.</small></div></div>
+    <section className="academy-preview-program"><p className="academy-kicker text-caramel">Program kursu</p><h2>Czego się nauczysz</h2>{course.modules?.map((module: any, index: number) => <div key={module.id}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{module.title}</strong><p>{module.lessonCount} lekcji · {module.estimatedMinutes} min praktyki</p></div><span className="academy-locked">Dostęp po zakupie</span></div>)}</section>
+  </div>;
 
   return (
     <div className="space-y-6">

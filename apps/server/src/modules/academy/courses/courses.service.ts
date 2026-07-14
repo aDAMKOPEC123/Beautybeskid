@@ -34,6 +34,27 @@ export const listPublished = async (userId?: string) => {
   }));
 };
 
+export const listPublic = async () => {
+  const courses = await prisma.course.findMany({
+    where: { status: 'PUBLISHED', isActive: true },
+    include: { modules: { include: { lessons: { select: { id: true } } }, orderBy: { order: 'asc' } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  return courses.map((course) => ({ ...course, lessonCount: course.modules.reduce((sum, module) => sum + module.lessons.length, 0), modules: undefined }));
+};
+
+export const getPublicCourse = async (slug: string) => {
+  const course = await prisma.course.findUnique({
+    where: { slug },
+    include: { modules: { include: { lessons: { select: { id: true, title: true, estimatedMinutes: true, type: true } } }, orderBy: { order: 'asc' } } },
+  });
+  if (!course || course.status !== 'PUBLISHED' || !course.isActive) throw new AppError('Nie znaleziono kursu', 404);
+  return {
+    ...course,
+    modules: course.modules.map((module) => ({ id: module.id, title: module.title, lessonCount: module.lessons.length, estimatedMinutes: module.lessons.reduce((sum, lesson) => sum + lesson.estimatedMinutes, 0) })),
+  };
+};
+
 export const getCourseBySlug = async (slug: string, userId?: string) => {
   const course = await prisma.course.findUnique({
     where: { slug },
