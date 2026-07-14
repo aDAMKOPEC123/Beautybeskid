@@ -124,7 +124,9 @@ export function MobileBottomNav() {
     : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
   const isActive = (path: string) =>
-    path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
+    path === '/' || path === '/user'
+      ? location.pathname === path
+      : location.pathname.startsWith(path);
   const isMoreRoute = ALL_MORE_LINKS.some(({ to }) => to !== '/' && isActive(to));
   const isMoreActive = isMoreOpen || isMoreRoute;
 
