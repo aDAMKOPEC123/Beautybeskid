@@ -60,10 +60,10 @@ export const CookieBanner = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-3 left-3 right-3 z-50 mx-auto flex max-w-xl flex-col items-center gap-2 rounded-2xl bg-[#1a1a1a] px-4 py-3 text-white shadow-2xl sm:flex-row sm:gap-3">
-      <p className="text-center text-xs leading-relaxed sm:text-left sm:text-sm">
-        Używamy cookies niezbędnych do działania strony i — za zgodą — do analizy ruchu. Zobacz{' '}
-        <a href="/regulamin" className="inline-flex min-h-11 items-center underline hover:text-[#C8956C]">
+    <div className="fixed bottom-2 left-3 right-3 z-50 mx-auto flex max-w-md flex-col items-center gap-2 rounded-2xl bg-[#1a1a1a] px-3 py-2.5 text-white shadow-2xl sm:flex-row sm:gap-3">
+      <p className="text-center text-[11px] leading-snug sm:text-left sm:text-xs">
+        Używamy niezbędnych cookies i — za zgodą — analitycznych. Zobacz{' '}
+        <a href="/regulamin" className="underline hover:text-[#C8956C]">
           politykę prywatności
         </a>
       </p>
@@ -71,14 +71,14 @@ export const CookieBanner = () => {
         <button
           type="button"
           onClick={keepEssentialOnly}
-          className="min-h-10 rounded-full border border-white/35 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10"
+          className="min-h-9 rounded-full border border-white/35 px-3 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-white/10"
         >
           Tylko niezbędne
         </button>
         <button
           type="button"
           onClick={accept}
-          className="min-h-10 rounded-full bg-[#8A5F35] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#704825]"
+          className="min-h-9 rounded-full bg-[#8A5F35] px-4 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#704825]"
         >
           Akceptuję
         </button>

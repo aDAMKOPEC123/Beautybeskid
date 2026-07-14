@@ -167,10 +167,10 @@ export function PwaInstallButton({ className }: Props) {
                       Panel klienta
                     </p>
                     <h2 id="pwa-install-title" className="mt-1 font-heading text-xl font-semibold leading-tight text-oak">
-                      Wejdź następnym razem jednym kliknięciem
+                      Dodaj aplikację i wracaj do wizyt jednym kliknięciem
                     </h2>
                     <p className="mt-1 text-sm leading-snug text-foreground/62">
-                      Dodaj panel do ekranu telefonu. Zajmie to kilka sekund.
+                      Rezerwacje, terminy i zalecenia będą zawsze pod ręką. Zajmie to kilka sekund.
                     </p>
                   </div>
                 </div>

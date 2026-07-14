@@ -30,7 +30,6 @@ import { HeroSlider } from '@/components/public/HeroSlider';
 import { googleReviewsApi, type GoogleReviewsData } from '@/api/google-reviews.api';
 import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
-import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 import type { Season as SeasonType, Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
 
@@ -367,38 +366,6 @@ const BookingButton = ({
   </Button>
 );
 
-const MobileClientPanelCard = ({
-  isAuthenticated,
-  onOpenClientPanel,
-}: {
-  isAuthenticated: boolean;
-  onOpenClientPanel: () => void;
-}) => (
-    <button
-      type="button"
-      onClick={onOpenClientPanel}
-      className="mt-4 flex w-full items-center gap-4 rounded-lg border border-espresso/12 bg-espresso p-4 text-left text-ivory shadow-[0_18px_48px_rgba(26,56,40,0.18)] active:scale-[0.985] transition-transform md:hidden"
-    >
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-oak/18 text-[#DDB87F]">
-        <LayoutDashboard className="h-5 w-5" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#DDB87F]">Panel klienta</span>
-        <span className="mt-1 block font-heading text-2xl font-bold leading-none">
-          {isAuthenticated ? 'Wróć do swojego konta' : 'Otwórz swoje konto'}
-        </span>
-        <span className="mt-2 block text-sm leading-relaxed text-ivory/72">
-          {isAuthenticated
-            ? 'Wizyty, historia, zalecenia i czat w jednym miejscu.'
-            : 'Zaloguj się i przejdź od razu do wizyt, historii oraz zaleceń.'}
-        </span>
-      </span>
-      <span aria-hidden="true" className="shrink-0 text-[#DDB87F]">
-        <ArrowRight className="h-5 w-5" />
-      </span>
-    </button>
-);
-
 const NextSlotCard = ({
   nextSlotLoading,
   formattedSlot,
@@ -475,7 +442,6 @@ const HeroSection = ({
   isAuthenticated,
   onConsultationClick,
   onCheckAvailability,
-  onOpenClientPanel,
   googleRating,
 }: {
   nextSlotLoading: boolean;
@@ -487,7 +453,6 @@ const HeroSection = ({
   googleRating?: number;
   onConsultationClick: () => void;
   onCheckAvailability: () => void;
-  onOpenClientPanel: () => void;
 }) => (
   <section className="premium-home-bg premium-animated-light relative overflow-hidden grain-overlay">
     <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
@@ -500,28 +465,16 @@ const HeroSection = ({
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
-              BeskidStudio By Wiktoria Ćwik Limanowa. Zabiegi, terminy i rezerwacja w jednym miejscu.
+              Sprawdź wolny termin zabiegu w Limanowej
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
-              Zobacz aktualną ofertę salonu, sprawdź wolne godziny w interaktywnym kalendarzu,
-              umów konsultację i poznaj najważniejsze informacje przed wizytą u Wiktorii Ćwik.
+              Wybierz zabieg, sprawdź wolną godzinę i zarezerwuj wizytę. Konto będzie potrzebne dopiero przy potwierdzeniu.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <BookingButton to={bookingTo} state={bookingState} />
-              <Button variant="outline" size="lg" className="gap-2 border-espresso/20 bg-white/50 text-espresso hover:bg-white" asChild>
-                <a href="#zabiegi">
-                  Zobacz zabiegi
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </Button>
             </div>
-
-            <MobileClientPanelCard
-              isAuthenticated={isAuthenticated}
-              onOpenClientPanel={onOpenClientPanel}
-            />
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/60">
               <button
@@ -532,16 +485,6 @@ const HeroSection = ({
                 <CheckCircle2 className="h-4 w-4 text-oak" />
                 Bezpłatna konsultacja dla nowych klientek
               </button>
-              {!isAuthenticated && (
-                <Link
-                  to="/auth/register"
-                  state={{ from: '/rezerwacja' }}
-                  className="inline-flex min-h-11 items-center gap-1 font-semibold text-oak hover:text-espresso"
-                >
-                  Zarejestruj się
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              )}
             </div>
 
             <div className="mt-5 lg:hidden">
@@ -1238,12 +1181,8 @@ const SeasonalSection = ({
 
 const ConsultationSection = ({
   onConsultationClick,
-  bookingTo,
-  bookingState,
 }: {
   onConsultationClick: () => void;
-  bookingTo: string;
-  bookingState?: BookingState;
 }) => (
   <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-20">
     <div className="container max-w-6xl px-5">
@@ -1268,12 +1207,6 @@ const ConsultationSection = ({
               >
                 Bezpłatna konsultacja
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="lg" className="gap-2 border-ivory/30 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory" asChild>
-                <Link to={bookingTo} state={bookingState}>
-                  Umów wizytę
-                  <CalendarCheck className="h-4 w-4" />
-                </Link>
               </Button>
             </div>
             <p className="mt-3 text-sm text-ivory/55">Mikroplan działania już po pierwszej rozmowie.</p>
@@ -1407,14 +1340,10 @@ const ProcessSection = () => (
 
 const ReservationFormSection = ({
   onConsultationClick,
-  bookingTo,
-  bookingState,
   availableServices,
   servicesLoading,
 }: {
   onConsultationClick: () => void;
-  bookingTo: string;
-  bookingState?: BookingState;
   availableServices: Service[];
   servicesLoading: boolean;
 }) => {
@@ -1496,12 +1425,6 @@ const ReservationFormSection = ({
                   <Button type="submit" size="lg" className="gap-2 bg-espresso text-ivory hover:bg-espresso/90">
                     Poproś o kontakt
                     <Phone className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
-                    <Link to={bookingTo} state={bookingState}>
-                      Umów wizytę online
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
                   </Button>
                 </div>
               </form>
@@ -1602,7 +1525,6 @@ export const Home = () => {
   const [consultationOpen, setConsultationOpen] = useState(false);
   const [availabilityRequest, setAvailabilityRequest] = useState<AvailabilityRequest | null>(null);
   const { isAuthenticated } = useAuth();
-  const openClientPanel = useClientPanelEntry();
 
   const { data: nextSlot, isLoading: nextSlotLoading } = useQuery({
     queryKey: ['next-available-slot'],
@@ -1667,7 +1589,6 @@ export const Home = () => {
           isAuthenticated={isAuthenticated}
           onConsultationClick={() => setConsultationOpen(true)}
           onCheckAvailability={() => handleCheckAvailability()}
-          onOpenClientPanel={() => openClientPanel()}
           googleRating={googleReviews?.rating}
         />
         <BenefitsStrip />
@@ -1687,15 +1608,11 @@ export const Home = () => {
         )}
         <ConsultationSection
           onConsultationClick={() => setConsultationOpen(true)}
-          bookingTo={bookingTo}
-          bookingState={bookingState}
         />
         <TestimonialsSection onCheckAvailability={() => handleCheckAvailability()} googleData={googleReviews} />
         <ProcessSection />
         <ReservationFormSection
           onConsultationClick={() => setConsultationOpen(true)}
-          bookingTo={bookingTo}
-          bookingState={bookingState}
           availableServices={allServices}
           servicesLoading={servicesLoading}
         />

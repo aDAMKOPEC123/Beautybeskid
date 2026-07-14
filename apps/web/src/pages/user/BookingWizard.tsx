@@ -977,7 +977,7 @@ function StepConfirm({
 
       {!isAuthenticated && (
         <div className="rounded-xl border border-[#C4965A]/30 bg-[#C4965A]/10 p-4 text-sm text-[#1A3828]">
-          <strong>Konto będzie potrzebne dopiero teraz.</strong> Po kliknięciu potwierdzenia zachowamy wybrany termin i poprosimy o zalogowanie lub rejestrację.
+          <strong>Konto będzie potrzebne dopiero teraz.</strong> Po kliknięciu potwierdzenia zachowamy wybrany termin. Kod rabatowy i punkty lojalnościowe zastosujesz po zalogowaniu.
         </div>
       )}
 
