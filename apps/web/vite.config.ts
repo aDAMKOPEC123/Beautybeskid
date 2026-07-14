@@ -45,7 +45,6 @@ export default defineConfig(({ command }) => {
             'assets/vendor-state-*.js',
             'assets/vendor-utils-*.js',
             'assets/vendor-helmet-*.js',
-            'assets/vendor-icons-*.js',
             'assets/vendor-toast-*.js',
           ],
           globIgnores: ['registerSW.js', 'sw.js'],
@@ -75,7 +74,6 @@ export default defineConfig(({ command }) => {
             }
             if (hasPackage(normalized, '@tanstack/react-query')) return 'vendor-query';
             if (hasPackage(normalized, 'framer-motion')) return 'vendor-motion';
-            if (hasPackage(normalized, 'lucide-react')) return 'vendor-icons';
             if (hasPackage(normalized, 'sonner')) return 'vendor-toast';
             if (hasPackage(normalized, 'zustand')) return 'vendor-state';
             if (
