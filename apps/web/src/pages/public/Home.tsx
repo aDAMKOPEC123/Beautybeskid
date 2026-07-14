@@ -1653,7 +1653,7 @@ export const Home = () => {
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
         title="Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio"
-        description="Gabinet kosmetologiczny 5 min od Limanowej. Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ✔ Bezpłatna konsultacja. Mordarka 505."
+        description="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ✔ Bezpłatna konsultacja."
         canonical="/"
         ogImage={heroImage}
         schema={buildFaqSchema()}

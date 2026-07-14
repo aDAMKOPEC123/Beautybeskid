@@ -12,7 +12,7 @@ const corePages = [
   {
     path: '/',
     title: 'Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio',
-    description: 'Kosmetolog Wiktoria Ćwik koło Limanowej. Konsultacje, laminacja brwi i rzęs, pielęgnacja skóry. Umów wizytę online.',
+    description: 'BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ✔ Bezpłatna konsultacja.',
     heading: 'Kosmetolog Limanowa – Wiktoria Ćwik',
     lead: 'BeskidStudio w Mordarce koło Limanowej. Konsultacje, zabiegi kosmetologiczne, stylizacja brwi i rzęs oraz wygodna rezerwacja online.',
     items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Rezerwacja online'],
@@ -38,7 +38,7 @@ const corePages = [
   },
   {
     path: '/blog',
-    title: 'Blog kosmetologiczny | Wiktoria Ćwik Limanowa',
+    title: 'Blog kosmetologiczny | BeskidStudio Wiktoria Ćwik',
     description: 'Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach, brwiach i rzęsach. Przeczytaj artykuły Wiktorii Ćwik.',
     heading: 'Blog kosmetologiczny Wiktorii Ćwik',
     lead: 'Praktyczne wskazówki o świadomej pielęgnacji skóry, przygotowaniu do zabiegów oraz opiece po wizycie.',
@@ -56,7 +56,7 @@ const corePages = [
   },
   {
     path: '/metamorfozy',
-    title: 'Efekty zabiegów i metamorfozy | Limanowa',
+    title: 'Efekty zabiegów i metamorfozy | BeskidStudio Limanowa',
     description: 'Zobacz efekty zabiegów wykonanych w BeskidStudio Wiktoria Ćwik koło Limanowej. Galeria metamorfoz przed i po.',
     heading: 'Efekty zabiegów – metamorfozy',
     lead: 'Galeria efektów pracy BeskidStudio Wiktoria Ćwik dla klientek z Limanowej, Mordarki i okolic.',
@@ -84,6 +84,7 @@ const corePages = [
 ];
 
 const localPages = [
+  ['kosmetolog-limanowa', 'Kosmetolog Limanowa', 'Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Szukasz kosmetologa w Limanowej? BeskidStudio By Wiktoria Ćwik to gabinet kosmetologiczny w Mordarce 505, kilka minut od centrum Limanowej. Każdą wizytę zaczynamy od indywidualnej konsultacji — omawiamy potrzeby skóry, dobieramy zabieg i ustalamy plan dalszej pielęgnacji. W ofercie: konsultacje kosmetologiczne, laminacja brwi i rzęs, henna z regulacją, oprawa oka, pedicure podologiczny i zabiegi pielęgnacyjne na twarz. Pracujemy z klientkami z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i całego powiatu limanowskiego. Cennik, czas zabiegów i wolne terminy sprawdzisz online.'],
   ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Gabinet kosmetologiczny BeskidStudio w Mordarce 505 to salon prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Podczas pierwszej wizyty omawiamy potrzeby skóry, dotychczasową pielęgnację domową, oczekiwania i przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki. Klientki z Mordarki cenią krótki dojazd, spokojna atmosferę i możliwość sprawdzenia terminów online bez telefonowania.'],
   ['kosmetyczka-limanowa', 'Kosmetyczka Limanowa', 'Laminacja brwi i rzęs, henna pudrowa, pedicure, depilacja. Gabinet 5 min od centrum, tel. 532 128 227.', 'Salon BeskidStudio w pobliskiej Mordarce oferuje laminację brwi, lifting rzęs, hennę z regulacją, oprawę oka i konsultacje kosmetologiczne. Każda usługa ma osobną stronę z opisem efektu, czasem zabiegu, ceną i możliwością rezerwacji online. Dla klientek z Limanowej dojazd zajmuje kilka minut — bez szukania salonu w większym mieście.'],
   ['laminacja-brwi-limanowa', 'Laminacja brwi w Limanowej — dojazd i FAQ', 'Lokalny przewodnik po laminacji brwi: przebieg zabiegu, efekt, trwałość i rezerwacja.', 'Laminacja brwi to zabieg porządkujący kierunek włosków i nadający brwiom pełniejszy, naturalny wygląd. Efekt utrzymuje się 4–6 tygodni. Przed zabiegiem oceniamy stan włosków i dobieramy stylizację do rysów twarzy. Po wizycie klientka otrzymuje zalecenia pielęgnacyjne, które pomagają przedłużyć rezultat. W BeskidStudio laminację można połączyć z koloryzacją lub regulacją brwi. Aktualną cenę i wolne terminy sprawdzisz w rezerwacji online.'],

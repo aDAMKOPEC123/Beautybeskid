@@ -236,8 +236,6 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Jako salon kosmetologiczny w Mordarce 505 obsługujemy klientki z Limanowej i całego powiatu limanowskiego. Niezależnie czy szukasz konsultacji, planu zabiegowego, czy regularnej opieki nad skórą — w BeskidStudio By Wiktoria Ćwik znajdziesz konkretne terminy i aktualną ofertę.',
     faq: beautyFaq('konsultację kosmetologiczną', 'Limanowej'),
     related: ['kosmetyczka-limanowa', 'laminacja-brwi-limanowa', 'podolog-limanowa'],
-    indexable: false,
-    redirectTo: '/',
   },
   'kosmetolog-mordarka': {
     slug: 'kosmetolog-mordarka',

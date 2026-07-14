@@ -12,12 +12,12 @@ const staticUrls = [
   { loc: '/uslugi', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/blog', priority: '0.8', changefreq: 'daily', lastmod: STATIC_LASTMOD },
   { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/program-lojalnosciowy', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
   { loc: '/regulamin', priority: '0.3', changefreq: 'yearly' },
   // Canonical local SEO landing pages only. Redirect sources belong in Nginx,
   // never in the sitemap, because Google should index their final destinations.
+  { loc: '/kosmetolog-limanowa', priority: '0.95', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },

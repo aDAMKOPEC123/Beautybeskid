@@ -240,7 +240,7 @@ export const BlogList = () => {
   }
 `}</style>
       <PageSEO
-        title="Blog kosmetologiczny"
+        title="Blog kosmetologiczny | BeskidStudio Wiktoria Ćwik"
         description="Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach oraz stylizacji brwi i rzęs. Przeczytaj artykuły Wiktorii Ćwik."
         canonical="/blog"
         schema={{
