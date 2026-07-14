@@ -465,15 +465,15 @@ const HeroSection = ({
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
-              Sprawdź wolny termin zabiegu w Limanowej
+              Piękno, które wygląda naturalnie. Termin, który wybierasz wygodnie.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
-              Wybierz zabieg, sprawdź wolną godzinę i zarezerwuj wizytę. Konto będzie potrzebne dopiero przy potwierdzeniu.
+              Wybierz zabieg dla siebie i zarezerwuj wizytę online w BeskidStudio.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <BookingButton to={bookingTo} state={bookingState} />
+              <BookingButton to={bookingTo} state={bookingState} label="Sprawdź wolny termin" />
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/60">
