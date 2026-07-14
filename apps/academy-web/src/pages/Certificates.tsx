@@ -3,12 +3,16 @@ import { academyApi } from '@/api/academy.api';
 import { Award, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export function Certificates() {
+  const { isAuthenticated } = useAuth();
   const { data: certificates = [], isLoading } = useQuery({
     queryKey: ['academy', 'certificates'],
-    queryFn: academyApi.getCertificates,
+    queryFn: academyApi.getCertificates, enabled: isAuthenticated,
   });
+  if (!isAuthenticated) return <div className="academy-profile-empty"><Award /><h2>Twoje certyfikaty będą tutaj</h2><p>Po zakupie kursu, ukończeniu materiału i zalogowaniu znajdziesz tu swoje certyfikaty.</p><Link to="/logowanie">Zaloguj się do Akademii</Link></div>;
 
   return (
     <div className="space-y-6">

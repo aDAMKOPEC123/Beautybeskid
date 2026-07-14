@@ -12,8 +12,11 @@ export function AcademyLayout() {
 
   const navItems = [
     { to: '/', label: 'Odkrywaj', icon: LayoutGrid, exact: true },
-    ...(isAuthenticated ? [{ to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen }, { to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
-    ...(isAuthenticated ? [{ to: '/quizy', label: 'Wiedza', icon: Sparkles }, { to: '/certyfikaty', label: 'Certyfikaty', icon: Award }, { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart }] : []),
+    { to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen, locked: !isAuthenticated },
+    { to: '/quizy', label: 'Wiedza', icon: Sparkles, locked: !isAuthenticated },
+    { to: '/certyfikaty', label: 'Certyfikaty', icon: Award, locked: !isAuthenticated },
+    { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart, locked: !isAuthenticated },
+    ...(isAuthenticated ? [{ to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
   ];
   const active = (to: string, exact?: boolean) => exact ? location.pathname === to : location.pathname.startsWith(to);
   const initials = (user?.name?.[0] || user?.email?.[0] || 'W').toUpperCase();
@@ -27,7 +30,7 @@ export function AcademyLayout() {
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>
           <nav className="hidden md:flex academy-desktop-nav" aria-label="Główna nawigacja">
-            {navItems.map(({ to, label, icon: Icon, exact }) => <Link key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>)}
+            {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zakupie</span>}</Link>)}
           </nav>
           <div className="flex items-center gap-3">
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden lg:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona główna</a>
@@ -36,7 +39,7 @@ export function AcademyLayout() {
           </div>
         </div>
         {menuOpen && <nav className="academy-mobile-nav" aria-label="Menu mobilne">
-          {navItems.map(({ to, label, icon: Icon, exact }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>)}
+          {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zakupie</span>}</Link>)}
         </nav>}
       </header>
       <main className="academy-content"><Outlet /></main>

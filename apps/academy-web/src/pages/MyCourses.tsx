@@ -1,4 +1,4 @@
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { Clock, CheckCircle, BarChart2 } from 'lucide-react';
@@ -18,7 +18,7 @@ export function MyCourses() {
     enabled: isAuthenticated,
   });
 
-  if (!isAuthenticated) return <Navigate to="/logowanie" replace />;
+  if (!isAuthenticated) return <div className="academy-profile-empty"><BarChart2 /><h2>Tu pojawi się Twoja nauka</h2><p>Po zalogowaniu i zakupie kursu zobaczysz tutaj wszystkie materiały, postęp oraz ukończone lekcje.</p><Link to="/logowanie">Zaloguj się do Akademii</Link></div>;
 
   // Filter to only courses the user has started or completed
   const myCourses = courses as any[];

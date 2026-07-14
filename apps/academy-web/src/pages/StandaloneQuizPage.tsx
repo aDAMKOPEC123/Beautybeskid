@@ -1,17 +1,20 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import { Clock, Star } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export function StandaloneQuizPage() {
+  const { isAuthenticated } = useAuth();
   const { quizId } = useParams<{ quizId: string }>();
 
   const { data: quiz, isLoading } = useQuery({
     queryKey: ['academy', 'quiz', quizId],
     queryFn: () => academyApi.getStandaloneQuiz(quizId!),
-    enabled: !!quizId,
+    enabled: !!quizId && isAuthenticated,
   });
+  if (!isAuthenticated) return <div className="academy-profile-empty"><Star /><h2>Quizy czekają po zakupie</h2><p>Zaloguj się, aby po zakupie kursu rozwiązywać quizy i zapisywać wyniki.</p><Link to="/logowanie">Zaloguj się do Akademii</Link></div>;
 
   if (isLoading) return (
     <div className="animate-pulse space-y-4">
