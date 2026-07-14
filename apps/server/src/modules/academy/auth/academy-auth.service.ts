@@ -4,6 +4,7 @@ import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { env } from '../../../config/env';
 import { parseDurationMs, signToken } from '../../../utils/jwt';
+import { verifyGoogleToken } from '../../auth/google.strategy';
 
 const refreshTtl = '30d';
 const academySecret = `${env.JWT_SECRET}:academy`;
@@ -28,6 +29,26 @@ export const register = async (input: { email: string; password: string; name: s
 export const login = async (input: { email: string; password: string }) => {
   const user = await prisma.academyUser.findUnique({ where: { email: input.email.trim().toLowerCase() } });
   if (!user?.passwordHash || !(await bcrypt.compare(input.password, user.passwordHash))) throw new AppError('Nieprawidłowy email lub hasło', 401);
+  return issue(user);
+};
+
+export const loginWithGoogle = async (credential: string) => {
+  if (!credential) throw new AppError('Brak tokenu Google', 400);
+  const profile = await verifyGoogleToken(credential);
+  const email = profile.email.trim().toLowerCase();
+  const [byGoogleId, byEmail, salonUser] = await Promise.all([
+    prisma.academyUser.findUnique({ where: { googleId: profile.googleId } }),
+    prisma.academyUser.findUnique({ where: { email } }),
+    prisma.user.findUnique({ where: { email }, select: { name: true } }),
+  ]);
+  if (byGoogleId && byEmail && byGoogleId.id !== byEmail.id) throw new AppError('To konto Google jest już połączone z innym kontem Akademii', 409);
+  let user = byGoogleId ?? byEmail;
+  if (user) {
+    if (user.googleId && user.googleId !== profile.googleId) throw new AppError('Ten email jest połączony z innym kontem Google', 409);
+    if (!user.googleId) user = await prisma.academyUser.update({ where: { id: user.id }, data: { googleId: profile.googleId } });
+  } else {
+    user = await prisma.academyUser.create({ data: { email, name: salonUser?.name || profile.name, googleId: profile.googleId } });
+  }
   return issue(user);
 };
 

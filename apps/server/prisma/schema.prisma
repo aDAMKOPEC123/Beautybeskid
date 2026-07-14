@@ -1286,6 +1286,7 @@ model AcademyUser {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String?
+  googleId     String?  @unique
   name         String
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
