@@ -32,7 +32,7 @@ export function AcademyLayout() {
           </nav>
           <div className="flex items-center gap-3">
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden lg:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona główna</a>
-            {isAuthenticated ? <Link to="/profil" className="academy-account"><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block">{user?.name?.split(' ')[0] || user?.email}</span></Link> : <a href="https://kosmetologwiktoriacwik.pl/auth/login" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</a>}
+            {isAuthenticated ? <Link to="/profil" className="academy-account"><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block">{user?.name?.split(' ')[0] || user?.email}</span></Link> : <a href="https://kosmetologwiktoriacwik.pl/auth/login?returnTo=https%3A%2F%2Fakademia.kosmetologwiktoriacwik.pl" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</a>}
             <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label="Otwórz menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>

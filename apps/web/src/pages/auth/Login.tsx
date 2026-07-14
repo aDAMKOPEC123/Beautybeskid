@@ -36,13 +36,21 @@ export const Login = () => {
   const pwaPromptAfterLogin = Boolean((location.state as { pwaPromptAfterLogin?: boolean } | null)?.pwaPromptAfterLogin);
   const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
+  const requestedReturnTo = searchParams.get('returnTo');
+  const academyReturnTo = requestedReturnTo?.startsWith('https://akademia.kosmetologwiktoriacwik.pl')
+    ? requestedReturnTo
+    : null;
 
   useEffect(() => {
     if (isAuthenticated) {
+      if (academyReturnTo) {
+        window.location.assign(academyReturnTo);
+        return;
+      }
       navigate(from || getPanelPath(user?.role), { replace: true });
       return;
     }
-  }, [from, isAuthenticated, navigate, user?.role]);
+  }, [academyReturnTo, from, isAuthenticated, navigate, user?.role]);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +102,10 @@ export const Login = () => {
       toast.success('Zalogowano pomyślnie.');
       if (isSupported && permission !== 'denied') {
         setTimeout(() => subscribe(), 1000);
+      }
+      if (academyReturnTo) {
+        window.location.assign(academyReturnTo);
+        return;
       }
       navigate(from || getPanelPath(res.user?.role), {
         replace: true,
