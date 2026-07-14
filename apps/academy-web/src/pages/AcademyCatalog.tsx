@@ -4,6 +4,7 @@ import { academyApi } from '@/api/academy.api';
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame, GraduationCap, Search, Sparkles, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { Helmet } from 'react-helmet-async';
 
 const difficultyLabel: Record<string, string> = { BEGINNER: 'Podstawowy', INTERMEDIATE: 'Średniozaawansowany', ADVANCED: 'Zaawansowany' };
 
@@ -22,6 +23,13 @@ export function AcademyCatalog() {
   const completed = (courses as any[]).filter(c => c.progress?.completedAt).length;
 
   return <div className="academy-page space-y-10">
+    <Helmet>
+      <title>Akademia Kosmetologii | BeskidStudio by Wiktoria Ćwik</title>
+      <meta name="description" content="Praktyczne kursy kosmetologiczne online: pielęgnacja, diagnostyka skóry i profesjonalne techniki krok po kroku." />
+      <link rel="canonical" href="https://akademia.kosmetologwiktoriacwik.pl/" />
+      <meta property="og:title" content="Akademia Kosmetologii | BeskidStudio" />
+      <meta property="og:description" content="Ucz się praktycznej kosmetologii we własnym tempie." />
+    </Helmet>
     <section className="academy-hero">
       <div className="academy-hero-orbit orbit-one" /><div className="academy-hero-orbit orbit-two" />
       <div className="relative z-[1] max-w-2xl">

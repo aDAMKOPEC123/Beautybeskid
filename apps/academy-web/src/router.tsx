@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import { AcademyError } from './pages/AcademyError';
 
 const S = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<div className="p-8 text-center">Ladowanie...</div>}>{children}</Suspense>
@@ -20,6 +21,7 @@ const AcademyProfile = lazy(() => import('./pages/AcademyProfile').then(m => ({ 
 export const router = createBrowserRouter([
   {
     path: '/',
+    errorElement: <AcademyError />,
     children: [
       { path: 'brak-dostepu', element: <S><NoAccess /></S> },
       {
