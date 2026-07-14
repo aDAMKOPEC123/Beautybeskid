@@ -181,6 +181,17 @@ export const calculateLowestPriorPrice = (history: { price: unknown; validFrom: 
   return candidates.length ? Math.min(...candidates) : currentPrice;
 };
 
+export const hasCompleteInstructionalLesson = (lessons: Array<{
+  type: string;
+  videoId?: string | null;
+  contentHtml?: string | null;
+  transcriptHtml?: string | null;
+  estimatedMinutes: number;
+}>) => lessons.some((lesson) =>
+  (lesson.type === 'VIDEO' && Boolean(lesson.videoId?.trim()) && Boolean(lesson.transcriptHtml?.trim()) && lesson.estimatedMinutes > 0)
+  || (lesson.type === 'TEXT' && String(lesson.contentHtml ?? '').replace(/<[^>]*>/g, '').trim().length >= 50 && lesson.estimatedMinutes > 0),
+);
+
 const withBundleLowestPrice = <T extends { price: unknown; priceHistory: { price: unknown; validFrom: Date }[] }>(bundle: T) => {
   return { ...bundle, lowestPrice30Days: calculateLowestPriorPrice(bundle.priceHistory, Number(bundle.price), Boolean((bundle as T & { compareAtPrice?: unknown }).compareAtPrice)), priceHistory: undefined };
 };
@@ -277,7 +288,7 @@ export const createCourse = async (data: {
 
 export const updateCourse = async (id: string, data: Record<string, unknown>) => {
   return prisma.$transaction(async (tx) => {
-    const before = await tx.course.findUnique({ where: { id }, include: { modules: { include: { lessons: { select: { type: true, transcriptHtml: true } } } } } });
+    const before = await tx.course.findUnique({ where: { id }, include: { modules: { include: { lessons: { select: { type: true, videoId: true, contentHtml: true, transcriptHtml: true, estimatedMinutes: true } } } } } });
     if (!before) throw new AppError('Nie znaleziono kursu', 404);
     const nextStatus = String(data.status ?? before.status);
     const nextPrice = Number(data.price ?? before.price);
@@ -288,9 +299,12 @@ export const updateCourse = async (id: string, data: Record<string, unknown>) =>
       const nextIsFree = Boolean(data.isFree ?? before.isFree);
       const nextComingSoon = Boolean(data.isComingSoon ?? before.isComingSoon);
       if (!nextIsFree && !nextComingSoon && nextPrice <= 0) throw new AppError('Opublikowany płatny kurs musi mieć cenę większą od zera albo status „w przygotowaniu”', 400);
-      if (!before.modules.some((module) => module.lessons.length > 0)) throw new AppError('Kurs nie może być opublikowany bez lekcji', 400);
-      const missingTranscripts = before.modules.flatMap((module) => module.lessons).filter((lesson) => lesson.type === 'VIDEO' && !lesson.transcriptHtml?.trim()).length;
-      if (missingTranscripts) throw new AppError(`Uzupełnij transkrypcje dla ${missingTranscripts} lekcji wideo przed publikacją`, 400);
+      if (!nextComingSoon) {
+        const lessons = before.modules.flatMap((module) => module.lessons);
+        if (!hasCompleteInstructionalLesson(lessons)) throw new AppError('Przed sprzedażą dodaj co najmniej jedną kompletną lekcję wideo lub tekstową z czasem nauki', 400);
+        const missingTranscripts = lessons.filter((lesson) => lesson.type === 'VIDEO' && lesson.videoId?.trim() && !lesson.transcriptHtml?.trim()).length;
+        if (missingTranscripts) throw new AppError(`Uzupełnij transkrypcje dla ${missingTranscripts} lekcji wideo przed publikacją`, 400);
+      }
     }
     const course = await tx.course.update({ where: { id }, data: data as any });
     if (course.price.comparedTo(before.price) !== 0) {

@@ -7,7 +7,7 @@ vi.mock('../../../config/prisma', () => ({ prisma: {
   userCourseProgress: { findMany: mocks.progressFindMany },
 } }));
 
-import { calculateLowestPriorPrice, listPublished } from './courses.service';
+import { calculateLowestPriorPrice, hasCompleteInstructionalLesson, listPublished } from './courses.service';
 
 describe('Academy course list', () => {
   beforeEach(() => Object.values(mocks).forEach(mock => mock.mockReset()));
@@ -35,5 +35,20 @@ describe('Academy promotional price history', () => {
   it('returns the previous regular price for a new reduction', () => {
     const result = calculateLowestPriorPrice([{ price: 100, validFrom: new Date(Date.now() - 60_000) }, { price: 80, validFrom: new Date() }], 80, true);
     expect(result).toBe(100);
+  });
+});
+
+describe('Academy publication readiness', () => {
+  it('rejects a course that only contains a quiz', () => {
+    expect(hasCompleteInstructionalLesson([{ type: 'QUIZ', estimatedMinutes: 0 }])).toBe(false);
+  });
+
+  it('requires a transcript and duration for a video lesson', () => {
+    expect(hasCompleteInstructionalLesson([{ type: 'VIDEO', videoId: 'abc', transcriptHtml: null, estimatedMinutes: 10 }])).toBe(false);
+    expect(hasCompleteInstructionalLesson([{ type: 'VIDEO', videoId: 'abc', transcriptHtml: '<p>Transkrypcja</p>', estimatedMinutes: 10 }])).toBe(true);
+  });
+
+  it('accepts a substantive text lesson with a declared duration', () => {
+    expect(hasCompleteInstructionalLesson([{ type: 'TEXT', contentHtml: `<p>${'Wiedza praktyczna '.repeat(5)}</p>`, estimatedMinutes: 8 }])).toBe(true);
   });
 });
