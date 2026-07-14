@@ -259,6 +259,9 @@ model User {
   courseFavorites        CourseFavorite[]
   lessonNotes            LessonNote[]
   academyAccessLogs      AcademyAccessLog[]
+  academySupportThread   AcademySupportThread? @relation("AcademySupportUser")
+  academySupportAssignments AcademySupportThread[] @relation("AcademySupportAdmin")
+  academySupportMessages AcademySupportMessage[] @relation("AcademySupportAuthor")
   refreshTokens          RefreshToken[]
   passkeys               Passkey[]
   beautyPlans            BeautyPlan[]       @relation("UserBeautyPlans")
@@ -1458,6 +1461,32 @@ model AcademyAccessLog {
   createdAt DateTime     @default(now())
 
   @@index([userId])
+}
+
+model AcademySupportThread {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation("AcademySupportUser", fields: [userId], references: [id], onDelete: Cascade)
+  adminId       String?
+  admin         User?    @relation("AcademySupportAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+  lastMessageAt DateTime @default(now())
+  userUnread    Int      @default(0)
+  adminUnread   Int      @default(0)
+  messages      AcademySupportMessage[]
+  createdAt     DateTime @default(now())
+}
+
+model AcademySupportMessage {
+  id        String               @id @default(cuid())
+  threadId  String
+  thread    AcademySupportThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User                 @relation("AcademySupportAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  readAt    DateTime?
+  createdAt DateTime             @default(now())
+
+  @@index([threadId, createdAt])
 }
 
 enum SocialPlatform {

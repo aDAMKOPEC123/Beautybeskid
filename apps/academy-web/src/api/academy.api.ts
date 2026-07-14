@@ -57,10 +57,9 @@ export const academyApi = {
   adminCreateQuiz: (data: Record<string, unknown>) => api.post('/academy/admin/quizzes', data).then((r) => r.data.data),
   adminCreateQuestion: (quizId: string, data: Record<string, unknown>) => api.post(`/academy/admin/quizzes/${quizId}/questions`, data).then((r) => r.data.data),
 
-  // Consultation chat, shared with the main platform.
-  getMyChatRoom: () => api.get('/chat/my-room').then((r) => r.data.data.room),
-  sendChatMessage: (content: string, roomId: string) => {
-    const body = new FormData(); body.append('content', content); body.append('roomId', roomId);
-    return api.post('/chat/messages', body).then((r) => r.data.data.message);
-  },
+  // Academy-only support — deliberately separate from the salon chat.
+  getMySupportThread: () => api.get('/academy/support/my-thread').then((r) => r.data.data),
+  sendSupportMessage: (content: string) => api.post('/academy/support/messages', { content }).then((r) => r.data.data),
+  adminSupportThreads: () => api.get('/academy/admin/support/threads').then((r) => r.data.data),
+  adminSendSupportMessage: (threadId: string, content: string) => api.post(`/academy/admin/support/threads/${threadId}/messages`, { content }).then((r) => r.data.data),
 };

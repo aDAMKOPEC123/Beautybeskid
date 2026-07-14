@@ -17,6 +17,7 @@ const LessonPlayer = lazy(() => import('./pages/LessonPlayer').then(m => ({ defa
 const AcademyStudio = lazy(() => import('./pages/AcademyStudio').then(m => ({ default: m.AcademyStudio })));
 const AcademyConsultation = lazy(() => import('./pages/AcademyConsultation').then(m => ({ default: m.AcademyConsultation })));
 const AcademyProfile = lazy(() => import('./pages/AcademyProfile').then(m => ({ default: m.AcademyProfile })));
+const AcademySupportInbox = lazy(() => import('./pages/AcademySupportInbox').then(m => ({ default: m.AcademySupportInbox })));
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
           { path: 'profil', element: <S><AcademyProfile /></S> },
           { path: 'zapytaj-kosmetologa', element: <S><AcademyConsultation /></S> },
           { path: 'studio', element: <S><AcademyStudio /></S> },
+          { path: 'studio/wiadomosci', element: <S><AcademySupportInbox /></S> },
           { path: 'quizy', element: <S><StandaloneQuizPage /></S> },
           { path: 'quiz/:quizId', element: <S><StandaloneQuizPage /></S> },
           { path: 'kurs/:slug', element: <S><CourseDetail /></S> },

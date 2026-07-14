@@ -15,7 +15,10 @@ export function AcademyLayout() {
     ...(isAuthenticated ? [{ to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen }, { to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
     ...(user?.hasAcademyAccess || user?.role === 'ADMIN' ? [{ to: '/quizy', label: 'Wiedza', icon: Sparkles }, { to: '/certyfikaty', label: 'Certyfikaty', icon: Award }, { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart }] : []),
   ];
-  if (user?.role === 'ADMIN') navItems.push({ to: '/studio', label: 'Studio Akademii', icon: Settings2 });
+  if (user?.role === 'ADMIN') navItems.push(
+    { to: '/studio', label: 'Studio Akademii', icon: Settings2, exact: true },
+    { to: '/studio/wiadomosci', label: 'Wiadomości Akademii', icon: MessageCircleHeart },
+  );
   const active = (to: string, exact?: boolean) => exact ? location.pathname === to : location.pathname.startsWith(to);
   const initials = (user?.name?.[0] || user?.email?.[0] || 'W').toUpperCase();
 
@@ -32,7 +35,7 @@ export function AcademyLayout() {
           </nav>
           <div className="flex items-center gap-3">
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden lg:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona główna</a>
-            {isAuthenticated ? <Link to="/profil" className="academy-account"><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block">{user?.name?.split(' ')[0] || user?.email}</span></Link> : <a href="https://kosmetologwiktoriacwik.pl/auth/login?returnTo=https%3A%2F%2Fakademia.kosmetologwiktoriacwik.pl" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</a>}
+            {isAuthenticated ? <Link to="/profil" className="academy-account" aria-label="Przejdź do mojego profilu"><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <a href="https://kosmetologwiktoriacwik.pl/auth/login?returnTo=https%3A%2F%2Fakademia.kosmetologwiktoriacwik.pl" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</a>}
             <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label="Otwórz menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
