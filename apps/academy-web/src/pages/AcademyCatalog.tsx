@@ -1,125 +1,54 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { Clock, BarChart2, Star } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame, GraduationCap, Search, Sparkles, Star } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-const difficultyLabel: Record<string, string> = {
-  BEGINNER: 'Poczatkujacy',
-  INTERMEDIATE: 'Sredniozaawansowany',
-  ADVANCED: 'Zaawansowany',
-};
+const difficultyLabel: Record<string, string> = { BEGINNER: 'Podstawowy', INTERMEDIATE: 'Średniozaawansowany', ADVANCED: 'Zaawansowany' };
 
 export function AcademyCatalog() {
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
-    queryKey: ['academy', 'courses'],
-    queryFn: academyApi.getCourses,
-  });
+  const [query, setQuery] = useState('');
+  const [level, setLevel] = useState('ALL');
+  const { data: courses = [], isLoading: coursesLoading } = useQuery({ queryKey: ['academy', 'courses'], queryFn: academyApi.getCourses });
+  const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({ queryKey: ['academy', 'quizzes'], queryFn: academyApi.getStandaloneQuizzes });
+  const filteredCourses = useMemo(() => (courses as any[]).filter(course => {
+    const phrase = `${course.title} ${course.description || ''}`.toLowerCase();
+    return phrase.includes(query.toLowerCase()) && (level === 'ALL' || course.difficulty === level);
+  }), [courses, query, level]);
+  const started = (courses as any[]).filter(c => c.progress && !c.progress.completedAt);
+  const completed = (courses as any[]).filter(c => c.progress?.completedAt).length;
 
-  const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({
-    queryKey: ['academy', 'quizzes'],
-    queryFn: academyApi.getStandaloneQuizzes,
-  });
-
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold font-heading mb-1">Katalog kursow</h1>
-        <p className="text-muted-foreground text-sm">Przegladaj dostepne kursy i quizy</p>
+  return <div className="academy-page space-y-10">
+    <section className="academy-hero">
+      <div className="academy-hero-orbit orbit-one" /><div className="academy-hero-orbit orbit-two" />
+      <div className="relative z-[1] max-w-2xl">
+        <p className="academy-kicker"><Sparkles className="w-3.5 h-3.5" />Twoja przestrzeń rozwoju</p>
+        <h1>Ucz się w swoim tempie.<br /><i>Rośnij z pewnością.</i></h1>
+        <p className="academy-hero-copy">Praktyczna wiedza kosmetologiczna, dopracowana lekcja po lekcji — dostępna dokładnie wtedy, gdy jej potrzebujesz.</p>
+        <div className="academy-hero-actions"><a href="#kursy" className="academy-button academy-button-light">Odkryj kursy <ArrowRight className="w-4 h-4" /></a>{started[0] && <Link to={`/kurs/${started[0].slug}`} className="academy-text-button">Kontynuuj naukę</Link>}</div>
       </div>
+      <div className="academy-hero-stat"><span className="academy-stat-icon"><Flame className="w-5 h-5" /></span><strong>{started.length || '—'}</strong><span>kurs{started.length === 1 ? '' : 'y'} w toku</span></div>
+    </section>
 
-      {/* Courses */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Kursy</h2>
-        {coursesLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 rounded-lg bg-muted animate-pulse" />
-            ))}
-          </div>
-        ) : courses.length === 0 ? (
-          <p className="text-muted-foreground text-sm">Brak dostepnych kursow.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.map((course: any) => (
-              <Link
-                key={course.id}
-                to={`/kurs/${course.slug}`}
-                className="group bg-card rounded-lg border overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {course.thumbnailUrl ? (
-                  <img src={course.thumbnailUrl} alt={course.title} className="w-full h-36 object-cover" loading="lazy" />
-                ) : (
-                  <div className="w-full h-36 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                    <BarChart2 className="w-8 h-8 text-primary/40" />
-                  </div>
-                )}
-                <div className="p-4 space-y-2">
-                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {course.estimatedMinutes} min
-                    </span>
-                    <span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span>
-                  </div>
-                  {course.progress && (
-                    <div className="space-y-1">
-                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${course.progress.percentComplete}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {Math.round(course.progress.percentComplete)}% ukonczono
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+    <section className="academy-overview" aria-label="Twój postęp">
+      <div><span className="overview-icon sage"><BookOpen /></span><p>Rozpoczęte</p><strong>{started.length}</strong></div>
+      <div><span className="overview-icon gold"><CheckCircle2 /></span><p>Ukończone</p><strong>{completed}</strong></div>
+      <div><span className="overview-icon lilac"><GraduationCap /></span><p>Dostępne kursy</p><strong>{(courses as any[]).length}</strong></div>
+    </section>
 
-      {/* Standalone quizzes */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Quizy standalone</h2>
-        {quizzesLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[1, 2].map((i) => <div key={i} className="h-28 rounded-lg bg-muted animate-pulse" />)}
-          </div>
-        ) : quizzes.length === 0 ? (
-          <p className="text-muted-foreground text-sm">Brak dostepnych quizow.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {quizzes.map((quiz: any) => (
-              <Link
-                key={quiz.id}
-                to={`/quiz/${quiz.id}`}
-                className="group bg-card rounded-lg border p-4 hover:shadow-md transition-shadow flex gap-4 items-start"
-              >
-                <div className="p-2 rounded-lg bg-primary/10 shrink-0">
-                  <Star className="w-5 h-5 text-primary" />
-                </div>
-                <div className="space-y-1 min-w-0">
-                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
-                    {quiz.title}
-                  </h3>
-                  {quiz.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">{quiz.description}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {quiz._count?.questions ?? 0} pytan · Prog zdania: {quiz.passingScore}%
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  );
+    <section id="kursy" className="scroll-mt-24">
+      <div className="academy-section-heading"><div><p className="academy-kicker text-caramel">Biblioteka wiedzy</p><h2>Znajdź swój następny krok</h2></div><p>Wybierz temat, który przybliży Cię do pewniejszej praktyki.</p></div>
+      <div className="academy-discovery-bar"><label><Search className="w-4 h-4" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Szukaj kursu lub tematu…" aria-label="Szukaj kursu" /></label><div className="academy-filters">{[['ALL', 'Wszystkie'], ['BEGINNER', 'Podstawy'], ['INTERMEDIATE', 'Rozwój'], ['ADVANCED', 'Ekspert']].map(([key, label]) => <button key={key} onClick={() => setLevel(key)} className={level === key ? 'selected' : ''}>{label}</button>)}</div></div>
+      {coursesLoading ? <div className="academy-course-grid">{[1,2,3].map(i => <div key={i} className="academy-skeleton h-[310px]" />)}</div> : filteredCourses.length === 0 ? <div className="academy-empty"><Search /><h3>Nie znaleźliśmy pasującego kursu</h3><p>Spróbuj zmienić frazę lub wyczyścić filtr.</p></div> : <div className="academy-course-grid">{filteredCourses.map(course => <CourseCard key={course.id} course={course} />)}</div>}
+    </section>
+    <section className="academy-quiz-section"><div><p className="academy-kicker text-caramel">Sprawdź siebie</p><h2>Krótka sesja wiedzy?</h2><p>Quizy pomagają utrwalić materiał i pokazują, co warto jeszcze powtórzyć.</p></div><div className="academy-quiz-list">{quizzesLoading ? <div className="academy-skeleton h-28" /> : (quizzes as any[]).slice(0, 3).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span><Star className="w-4 h-4" /></span><div><strong>{quiz.title}</strong><small>{quiz._count?.questions ?? 0} pytań · próg {quiz.passingScore}%</small></div><ArrowRight className="w-4 h-4" /></Link>)}{!quizzesLoading && quizzes.length === 0 && <p className="text-sm text-muted-foreground">Nowe quizy pojawią się wkrótce.</p>}</div></section>
+  </div>;
+}
+
+function CourseCard({ course }: { course: any }) {
+  const progress = course.progress?.percentComplete;
+  return <Link to={`/kurs/${course.slug}`} className="academy-course-card">
+    <div className="academy-course-cover">{course.thumbnailUrl ? <img src={course.thumbnailUrl} alt={course.title} loading="lazy" /> : <div className="academy-course-placeholder"><GraduationCap /></div>}<span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span>{progress !== undefined && <div className="academy-cover-progress"><div style={{width: `${progress}%`}} /></div>}</div>
+    <div className="academy-course-body"><div className="flex items-center gap-2 text-xs text-muted-foreground"><Clock3 className="w-3.5 h-3.5" />{course.estimatedMinutes} min nauki</div><h3>{course.title}</h3><p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p><div className="academy-card-footer">{progress !== undefined ? <span>{Math.round(progress)}% ukończono</span> : <span>Otwórz program</span>}<ArrowRight className="w-4 h-4" /></div></div>
+  </Link>;
 }

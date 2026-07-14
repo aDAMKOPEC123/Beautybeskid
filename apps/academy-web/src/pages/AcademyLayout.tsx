@@ -1,84 +1,53 @@
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Star } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Home, Menu, X } from 'lucide-react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 export function AcademyLayout() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  if (isLoading) return <div className="p-8 text-center">Ladowanie...</div>;
+  if (isLoading) return <div className="academy-loading">Przygotowujemy Twoją przestrzeń nauki…</div>;
 
   if (!isAuthenticated) {
-    const mainSiteLogin = import.meta.env.VITE_MAIN_SITE_URL
-      ? `${import.meta.env.VITE_MAIN_SITE_URL}/auth/login`
-      : '/auth/login';
+    const mainSiteLogin = import.meta.env.VITE_MAIN_SITE_URL ? `${import.meta.env.VITE_MAIN_SITE_URL}/auth/login` : '/auth/login';
     window.location.href = mainSiteLogin;
     return null;
   }
-
   if (!user?.hasAcademyAccess) return <Navigate to="/brak-dostepu" replace />;
 
   const navItems = [
-    { to: '/', label: 'Katalog', icon: LayoutGrid, exact: true },
-    { to: '/moje-kursy', label: 'Moje Kursy', icon: BookOpen },
-    { to: '/quizy', label: 'Quizy', icon: Star },
+    { to: '/', label: 'Odkrywaj', icon: LayoutGrid, exact: true },
+    { to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen },
+    { to: '/quizy', label: 'Wiedza', icon: Sparkles },
     { to: '/certyfikaty', label: 'Certyfikaty', icon: Award },
   ];
+  const active = (to: string, exact?: boolean) => exact ? location.pathname === to : location.pathname.startsWith(to);
+  const initials = (user?.name?.[0] || user?.email?.[0] || 'W').toUpperCase();
 
   return (
-    <div className="min-h-screen bg-muted/20">
-      <header className="bg-card border-b sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <GraduationCap className="w-6 h-6 text-primary" />
-          <span className="font-heading font-semibold text-lg">Akademia BeskidStudio By Wiktoria Cwik</span>
-        </div>
-      </header>
-
-      {/* Mobile horizontal nav */}
-      <nav className="md:hidden overflow-x-auto border-b bg-card flex gap-1 px-3 py-2 shrink-0" style={{ scrollbarWidth: 'none' }}>
-        {navItems.map(({ to, label, icon: Icon, exact }) => {
-          const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
-                isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
-        <aside className="w-48 shrink-0 hidden md:block">
-          <nav className="space-y-1">
-            {navItems.map(({ to, label, icon: Icon, exact }) => {
-              const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-accent hover:text-accent-foreground'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {label}
-                </Link>
-              );
-            })}
+    <div className="academy-shell">
+      <header className="academy-topbar">
+        <div className="academy-topbar-inner">
+          <Link to="/" className="academy-brand" aria-label="Akademia BeskidStudio — strona główna">
+            <span className="academy-brand-mark"><GraduationCap className="w-5 h-5" /></span>
+            <span><strong>Akademia</strong><em>BeskidStudio</em></span>
+          </Link>
+          <nav className="hidden md:flex academy-desktop-nav" aria-label="Główna nawigacja">
+            {navItems.map(({ to, label, icon: Icon, exact }) => <Link key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>)}
           </nav>
-        </aside>
-        <main className="flex-1 min-w-0">
-          <Outlet />
-        </main>
-      </div>
+          <div className="flex items-center gap-3">
+            <Link to="/moje-kursy" className="hidden sm:flex academy-home-link"><Home className="w-4 h-4" />Panel nauki</Link>
+            <span className="academy-avatar" title={user?.name || user?.email}>{initials}</span>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label="Otwórz menu">{menuOpen ? <X /> : <Menu />}</button>
+          </div>
+        </div>
+        {menuOpen && <nav className="academy-mobile-nav" aria-label="Menu mobilne">
+          {navItems.map(({ to, label, icon: Icon, exact }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>)}
+        </nav>}
+      </header>
+      <main className="academy-content"><Outlet /></main>
     </div>
   );
 }

@@ -26,6 +26,9 @@ export const toAuthUser = (user: {
   ambassadorCode: string | null;
   referralCount: number;
   mustChangePassword: boolean;
+  hasAcademyAccess: boolean;
+  academyAccessExpiresAt: Date | null;
+  academyGrantedAt: Date | null;
 }) => ({
   id: user.id,
   email: user.email,
@@ -37,6 +40,11 @@ export const toAuthUser = (user: {
   ambassadorCode: user.ambassadorCode,
   referralCount: user.referralCount,
   mustChangePassword: user.mustChangePassword,
+  // Academy is hosted on a separate subdomain, so its UI relies on this
+  // fresh auth payload rather than reading the main-site session state.
+  hasAcademyAccess: user.hasAcademyAccess,
+  academyAccessExpiresAt: user.academyAccessExpiresAt,
+  academyGrantedAt: user.academyGrantedAt,
 });
 
 const generateUniqueAmbassadorCode = async (): Promise<string> => {
