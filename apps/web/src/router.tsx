@@ -93,9 +93,6 @@ const AdminBlogComments = lazy(() => import('./pages/admin/AdminBlogComments').t
 const AdminAssortment = lazy(() => import('./pages/admin/AdminAssortment').then(m => ({ default: m.AdminAssortment })));
 const SkinWeatherRules = lazy(() => import('./pages/admin/SkinWeatherRules').then(m => ({ default: m.SkinWeatherRules })));
 const AdminVouchery = lazy(() => import('./pages/admin/AdminVouchery').then(m => ({ default: m.AdminVouchery })));
-const AdminAkademia = lazy(() => import('./pages/admin/academy/AdminAkademia').then(m => ({ default: m.AdminAkademia })));
-const AdminCourseEditor = lazy(() => import('./pages/admin/academy/AdminCourseEditor').then(m => ({ default: m.AdminCourseEditor })));
-const AdminStandaloneQuizEditor = lazy(() => import('./pages/admin/academy/AdminStandaloneQuizEditor').then(m => ({ default: m.AdminStandaloneQuizEditor })));
 const Marketing = lazy(() => import('@/pages/admin/Marketing').then(m => ({ default: m.Marketing })));
 const AdminBeautyPlans = lazy(() => import('./pages/admin/AdminBeautyPlans').then(m => ({ default: m.AdminBeautyPlans })));
 const AdminStorePromotions = lazy(() => import('./pages/admin/StorePromotions').then(m => ({ default: m.AdminStorePromotions })));
@@ -113,6 +110,10 @@ const AcademyRedirect = () => {
   const { pathname } = useLocation();
   const subPath = pathname.replace(/^\/akademia/, '') || '/';
   window.location.href = `${ACADEMY_URL}${subPath}`;
+  return null;
+};
+const AdminAcademyRedirect = () => {
+  window.location.href = `${ACADEMY_URL}/studio`;
   return null;
 };
 
@@ -256,9 +257,9 @@ export const router = createBrowserRouter([
       { path: 'asortyment', element: <S><AdminAssortment /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherRules /></S> },
       { path: 'beauty-plans', element: <S><AdminBeautyPlans /></S> },
-      { path: 'akademia', element: <S><AdminAkademia /></S> },
-      { path: 'akademia/kurs/:id', element: <S><AdminCourseEditor /></S> },
-      { path: 'akademia/quiz/:id', element: <S><AdminStandaloneQuizEditor /></S> },
+      { path: 'akademia', element: <AdminAcademyRedirect /> },
+      { path: 'akademia/kurs/:id', element: <AdminAcademyRedirect /> },
+      { path: 'akademia/quiz/:id', element: <AdminAcademyRedirect /> },
       { path: 'marketing', element: <S><Marketing /></S> },
       { path: 'forum', element: <S><AdminForum /></S> },
       { path: 'finanse', element: <S><AdminFinances /></S> },
