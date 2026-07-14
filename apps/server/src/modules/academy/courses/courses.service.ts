@@ -93,6 +93,10 @@ export const adminListAll = async () => {
       modules: {
         include: {
           _count: { select: { lessons: true } },
+          lessons: {
+            include: { quiz: { select: { id: true, title: true, isPublished: true, _count: { select: { questions: true } } } } },
+            orderBy: { order: 'asc' },
+          },
         },
         orderBy: { order: 'asc' },
       },
@@ -148,4 +152,16 @@ export const updateModule = async (moduleId: string, data: { title?: string; ord
 
 export const deleteModule = async (moduleId: string) => {
   await prisma.courseModule.delete({ where: { id: moduleId } });
+};
+
+export const createCheckpoint = async (moduleId: string, data: { title: string; order?: number; passingScore?: number }) => {
+  return prisma.$transaction(async (tx) => {
+    const lesson = await tx.lesson.create({
+      data: { moduleId, title: data.title, slug: `checkpoint-${Date.now()}`, type: 'QUIZ', order: data.order ?? 0 },
+    });
+    const quiz = await tx.academyQuiz.create({
+      data: { lessonId: lesson.id, title: data.title, passingScore: data.passingScore ?? 70, isPublished: false },
+    });
+    return { ...lesson, quiz };
+  });
 };

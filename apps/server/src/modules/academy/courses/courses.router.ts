@@ -20,5 +20,6 @@ router.put('/admin/modules/:id/reorder-lessons', authenticate, requireAdmin, cou
 router.post('/admin/courses/:courseId/modules', authenticate, requireAdmin, coursesController.createModule);
 router.patch('/admin/modules/:moduleId', authenticate, requireAdmin, coursesController.updateModule);
 router.delete('/admin/modules/:moduleId', authenticate, requireAdmin, coursesController.deleteModule);
+router.post('/admin/modules/:moduleId/checkpoints', authenticate, requireAdmin, coursesController.createCheckpoint);
 
 export default router;

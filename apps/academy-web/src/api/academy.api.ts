@@ -42,4 +42,22 @@ export const academyApi = {
 
   verifyCertificate: (code: string) =>
     api.get(`/academy/certificates/verify/${code}`).then((r) => r.data.data),
+
+  // Academy studio — administrator only
+  adminGetCourses: () => api.get('/academy/admin/courses').then((r) => r.data.data),
+  adminCreateCourse: (data: Record<string, unknown>) => api.post('/academy/admin/courses', data).then((r) => r.data.data),
+  adminUpdateCourse: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/courses/${id}`, data).then((r) => r.data.data),
+  adminCreateModule: (courseId: string, data: { title: string; order?: number }) => api.post(`/academy/admin/courses/${courseId}/modules`, data).then((r) => r.data.data),
+  adminCreateLesson: (moduleId: string, data: Record<string, unknown>) => api.post(`/academy/admin/modules/${moduleId}/lessons`, data).then((r) => r.data.data),
+  adminCreateCheckpoint: (moduleId: string, data: { title: string; order?: number; passingScore?: number }) => api.post(`/academy/admin/modules/${moduleId}/checkpoints`, data).then((r) => r.data.data),
+  adminUpdateLesson: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/lessons/${id}`, data).then((r) => r.data.data),
+  adminCreateQuiz: (data: Record<string, unknown>) => api.post('/academy/admin/quizzes', data).then((r) => r.data.data),
+  adminCreateQuestion: (quizId: string, data: Record<string, unknown>) => api.post(`/academy/admin/quizzes/${quizId}/questions`, data).then((r) => r.data.data),
+
+  // Consultation chat, shared with the main platform.
+  getMyChatRoom: () => api.get('/chat/my-room').then((r) => r.data.data.room),
+  sendChatMessage: (content: string, roomId: string) => {
+    const body = new FormData(); body.append('content', content); body.append('roomId', roomId);
+    return api.post('/chat/messages', body).then((r) => r.data.data.message);
+  },
 };

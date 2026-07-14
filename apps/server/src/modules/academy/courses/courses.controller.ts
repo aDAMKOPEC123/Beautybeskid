@@ -101,3 +101,12 @@ export const deleteModule = async (req: Request, res: Response, next: NextFuncti
     next(error);
   }
 };
+
+export const createCheckpoint = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const checkpoint = await coursesService.createCheckpoint(req.params.moduleId, req.body);
+    res.status(201).json({ data: checkpoint });
+  } catch (error) {
+    next(error);
+  }
+};
