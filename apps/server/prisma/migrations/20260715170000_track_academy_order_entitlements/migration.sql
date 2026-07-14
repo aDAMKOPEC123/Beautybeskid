@@ -1,0 +1,1 @@
+ALTER TABLE "AcademyOrder" ADD COLUMN "grantedCourseIds" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

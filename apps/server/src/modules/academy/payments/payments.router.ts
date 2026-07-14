@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { academyAuthenticate, academyRequireAdmin } from '../../../middleware/academy-auth.middleware';
+import * as controller from './payments.controller';
+const router = Router();
+router.post('/payments/courses/:courseId/checkout', academyAuthenticate, controller.courseCheckout);
+router.post('/payments/bundles/:bundleId/checkout', academyAuthenticate, controller.bundleCheckout);
+router.get('/payments/orders', academyAuthenticate, controller.myOrders);
+router.get('/payments/order-status', academyAuthenticate, controller.myOrderStatus);
+router.get('/admin/orders', academyAuthenticate, academyRequireAdmin, controller.adminOrders);
+router.post('/admin/orders/:orderId/refund', academyAuthenticate, academyRequireAdmin, controller.adminRefund);
+export default router;

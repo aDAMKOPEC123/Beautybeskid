@@ -7,6 +7,8 @@ import quizzesRouter from './quizzes/quizzes.router';
 import certificatesRouter from './certificates/certificates.router';
 import supportRouter from './support/support.router';
 import analyticsRouter from './analytics/analytics.router';
+import paymentsRouter from './payments/payments.router';
+import legalRouter from './legal/legal.router';
 
 const router = Router();
 
@@ -18,5 +20,7 @@ router.use('/', quizzesRouter);
 router.use('/', certificatesRouter);
 router.use('/', supportRouter);
 router.use('/', analyticsRouter);
+router.use('/', paymentsRouter);
+router.use('/', legalRouter);
 
 export { router as academyRouter };

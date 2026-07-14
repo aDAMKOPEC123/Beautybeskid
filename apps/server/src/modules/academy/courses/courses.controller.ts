@@ -9,6 +9,26 @@ export const getPublicCourse = async (req: Request, res: Response, next: NextFun
   try { res.json({ data: await coursesService.getPublicCourse(req.params.slug) }); } catch (error) { next(error); }
 };
 
+export const listPublicBundles = async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.listPublicBundles() }); } catch (error) { next(error); }
+};
+
+export const getPublicBundle = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.getPublicBundle(req.params.slug) }); } catch (error) { next(error); }
+};
+
+export const publicSitemap = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { courses, bundles } = await coursesService.getSitemapEntries();
+    const base = process.env.ACADEMY_URL || 'https://akademia.kosmetologwiktoriacwik.pl';
+    const fixed = ['', 'regulamin', 'polityka-prywatnosci', 'cookies', 'odstapienie', 'reklamacje', 'dostepnosc'];
+    const escapeXml = (value: string) => value.replace(/[<>&'\"]/g, (character) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[character]!);
+    const urls = [...fixed.map((path) => ({ loc: `${base}/${path}`, updatedAt: null as Date | null })), ...courses.map((course) => ({ loc: `${base}/kurs/${course.slug}`, updatedAt: course.updatedAt })), ...bundles.map((bundle) => ({ loc: `${base}/pakiet/${bundle.slug}`, updatedAt: bundle.updatedAt }))];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((item) => `  <url><loc>${escapeXml(item.loc)}</loc>${item.updatedAt ? `<lastmod>${item.updatedAt.toISOString()}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>`;
+    res.type('application/xml').send(xml);
+  } catch (error) { next(error); }
+};
+
 export const listPublished = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.academyUser!.id;
@@ -28,6 +48,19 @@ export const getCourseBySlug = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const registerInterest = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await coursesService.registerCourseInterest(req.academyUser!.id, req.params.courseId);
+    res.status(result.status === 'ENROLLED' ? 201 : 202).json({ data: result });
+  } catch (error) { next(error); }
+};
+export const listFavorites = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.listFavorites(req.academyUser!.id) }); } catch (error) { next(error); } };
+export const addFavorite = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await coursesService.addFavorite(req.academyUser!.id, req.params.courseId) }); } catch (error) { next(error); } };
+export const removeFavorite = async (req: Request, res: Response, next: NextFunction) => { try { await coursesService.removeFavorite(req.academyUser!.id, req.params.courseId); res.status(204).end(); } catch (error) { next(error); } };
+export const submitReview = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await coursesService.submitReview(req.academyUser!.id, req.params.courseId, Number(req.body.rating), String(req.body.content || '').trim()) }); } catch (error) { next(error); } };
+export const adminListReviews = async (_req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.adminListReviews() }); } catch (error) { next(error); } };
+export const adminApproveReview = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.adminApproveReview(req.params.id, Boolean(req.body.isApproved)) }); } catch (error) { next(error); } };
 
 export const adminListAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -54,6 +87,22 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
   } catch (error) {
     next(error);
   }
+};
+
+export const adminListBundles = async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.adminListBundles() }); } catch (error) { next(error); }
+};
+
+export const createBundle = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.status(201).json({ data: await coursesService.createBundle(req.body) }); } catch (error) { next(error); }
+};
+
+export const updateBundle = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.updateBundle(req.params.id, req.body) }); } catch (error) { next(error); }
+};
+
+export const deleteBundle = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.deleteBundle(req.params.id) }); } catch (error) { next(error); }
 };
 
 export const deleteCourse = async (req: Request, res: Response, next: NextFunction) => {

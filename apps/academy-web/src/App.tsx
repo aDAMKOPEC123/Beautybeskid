@@ -6,6 +6,8 @@ import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import { api } from './lib/axios';
+import { Toaster } from 'sonner';
+import { CookieConsent } from './components/CookieConsent';
 
 function App() {
   const { hydrate, setAccessToken, setUser, logout } = useAuthStore();
@@ -30,6 +32,8 @@ function App() {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <CookieConsent />
+        <Toaster richColors position="top-right" />
       </QueryClientProvider>
     </HelmetProvider>
   );

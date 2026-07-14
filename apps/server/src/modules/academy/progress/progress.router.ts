@@ -4,11 +4,11 @@ import * as progressController from './progress.controller';
 
 const router = Router();
 
-router.use(academyAuthenticate);
-
-router.post('/progress/lesson/:lessonId/complete', progressController.markLessonComplete);
-router.patch('/progress/lesson/:lessonId/video', progressController.updateVideoProgress);
-router.get('/progress/course/:courseId', progressController.getUserCourseProgress);
-router.get('/progress/my-courses', progressController.getMyCourses);
+router.post('/progress/lesson/:lessonId/complete', academyAuthenticate, progressController.markLessonComplete);
+router.patch('/progress/lesson/:lessonId/video', academyAuthenticate, progressController.updateVideoProgress);
+router.get('/progress/course/:courseId', academyAuthenticate, progressController.getUserCourseProgress);
+router.get('/progress/my-courses', academyAuthenticate, progressController.getMyCourses);
+router.get('/progress/dashboard', academyAuthenticate, progressController.getLearningDashboard);
+router.patch('/progress/goal', academyAuthenticate, progressController.updateLearningGoal);
 
 export default router;

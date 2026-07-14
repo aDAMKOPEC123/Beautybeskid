@@ -25,6 +25,7 @@ export function AcademyLayout() {
 
   return (
     <div className="academy-shell">
+      <a className="academy-skip-link" href="#academy-main">Przejdź do treści</a>
       <header className="academy-topbar">
         <div className="academy-topbar-inner">
           <Link to="/" className="academy-brand" aria-label="Akademia BeskidStudio — strona główna">
@@ -32,21 +33,22 @@ export function AcademyLayout() {
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>
           <nav className="hidden md:flex academy-desktop-nav" aria-label="Główna nawigacja">
-            {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zakupie</span>}</Link>)}
+            {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zalogowaniu</span>}</Link>)}
           </nav>
           <div className="flex items-center gap-3">
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden xl:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
             {user?.role === 'ADMIN' && <Link to="/admin" className="hidden lg:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
             {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
-            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label="Otwórz menu">{menuOpen ? <X /> : <Menu />}</button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={menuOpen} aria-controls="academy-mobile-menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
-        {menuOpen && <nav className="academy-mobile-nav" aria-label="Menu mobilne">
-          {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zakupie</span>}</Link>)}
+        {menuOpen && <nav id="academy-mobile-menu" className="academy-mobile-nav" aria-label="Menu mobilne">
+          {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zalogowaniu</span>}</Link>)}
           {user?.role === 'ADMIN' && <Link onClick={() => setMenuOpen(false)} to="/admin" className="academy-mobile-admin"><Settings2 className="w-4 h-4" />Przejdź do panelu administratora</Link>}
         </nav>}
       </header>
-      <main className="academy-content"><Outlet /></main>
+      <main id="academy-main" className="academy-content" tabIndex={-1}><Outlet /></main>
+      <footer className="academy-footer"><div><strong>Akademia BeskidStudio</strong><p>BeskidStudio By Wiktoria Ćwik · Mordarka 505, 34-600 Mordarka</p><p><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a> · <a href="tel:+48532128227">+48 532 128 227</a></p></div><nav aria-label="Informacje prawne"><Link to="/regulamin">Regulamin</Link><Link to="/polityka-prywatnosci">Prywatność</Link><Link to="/cookies">Cookies</Link><Link to="/odstapienie">Odstąpienie</Link><Link to="/reklamacje">Reklamacje</Link><Link to="/dostepnosc">Dostępność</Link><button onClick={() => window.dispatchEvent(new Event('academy:cookie-settings'))}>Ustawienia cookies</button></nav></footer>
     </div>
   );
 }

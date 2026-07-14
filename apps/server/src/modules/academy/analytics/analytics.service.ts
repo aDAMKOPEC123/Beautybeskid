@@ -76,7 +76,7 @@ export const customers = async (search = '') => {
     const viewed=new Map<string,{id:string,title:string,lastViewedAt:Date,checkoutStarted:boolean}>();
     user.analyticsEvents.forEach(event=>{if(event.course&&!enrolledIds.has(event.course.id)&&!viewed.has(event.course.id))viewed.set(event.course.id,{id:event.course.id,title:event.course.title,lastViewedAt:event.createdAt,checkoutStarted:event.eventType==='CHECKOUT_STARTED'});else if(event.course&&viewed.has(event.course.id)&&event.eventType==='CHECKOUT_STARTED')viewed.get(event.course.id)!.checkoutStarted=true;});
     const progress=new Map(user.academyProgress.map(p=>[p.courseId,p]));
-    return {id:user.id,name:user.name,email:user.email,createdAt:user.createdAt,lastActivityAt:user.analyticsEvents[0]?.createdAt||null,courses:user.enrollments.map(e=>({id:e.course.id,title:e.course.title,purchasedAt:e.purchasedAt,progress:progress.get(e.courseId)?.percentComplete||0,completedAt:progress.get(e.courseId)?.completedAt||null})),interestedCourses:[...viewed.values()],orders:user.orders.map(o=>({id:o.id,course:o.course.title,status:o.status,amount:Number(o.amount),createdAt:o.createdAt}))};
+    return {id:user.id,name:user.name,email:user.email,createdAt:user.createdAt,lastActivityAt:user.analyticsEvents[0]?.createdAt||null,courses:user.enrollments.map(e=>({id:e.course.id,title:e.course.title,purchasedAt:e.purchasedAt,progress:progress.get(e.courseId)?.percentComplete||0,completedAt:progress.get(e.courseId)?.completedAt||null})),interestedCourses:[...viewed.values()],orders:user.orders.map(o=>({id:o.id,course:o.course?.title ?? 'Pakiet kursów',status:o.status,amount:Number(o.amount),createdAt:o.createdAt}))};
   });
 };
 

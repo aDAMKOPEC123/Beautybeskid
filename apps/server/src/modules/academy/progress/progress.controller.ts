@@ -40,3 +40,5 @@ export const getMyCourses = async (req: Request, res: Response, next: NextFuncti
     next(error);
   }
 };
+export const getLearningDashboard = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await progressService.getLearningDashboard(req.academyUser!.id) }); } catch (error) { next(error); } };
+export const updateLearningGoal = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await progressService.updateLearningGoal(req.academyUser!.id, Number(req.body.weeklyMinutesGoal)) }); } catch (error) { next(error); } };

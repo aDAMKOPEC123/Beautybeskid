@@ -70,7 +70,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         onRefreshFailed(refreshError);
         useAuthStore.getState().logout();
-        window.location.href = '/logowanie';
+        const publicPath = window.location.pathname === '/' || window.location.pathname.startsWith('/kurs/') || window.location.pathname.startsWith('/pakiet/') || window.location.pathname.startsWith('/certyfikat/') || ['/logowanie', '/rejestracja', '/platnosc/sukces', '/platnosc/anulowana', '/regulamin', '/polityka-prywatnosci', '/cookies', '/odstapienie', '/reklamacje', '/dostepnosc', '/przypomnij-haslo', '/nowe-haslo', '/potwierdz-email'].includes(window.location.pathname);
+        if (!publicPath) window.location.href = '/logowanie';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

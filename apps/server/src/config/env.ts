@@ -18,6 +18,8 @@ const envSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().min(1).optional(),
   VAPID_EMAIL: z.string().min(1).optional(),
   GOOGLE_CLIENT_ID: z.string().min(10),
+  STRIPE_SECRET_KEY: z.string().min(10).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(10).optional(),
   FACEBOOK_APP_ID: z.string().min(5).optional(),
   FACEBOOK_APP_SECRET: z.string().min(10).optional(),
   FACEBOOK_REDIRECT_URI: z.string().url().optional(),

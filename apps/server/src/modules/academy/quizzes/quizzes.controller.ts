@@ -12,7 +12,7 @@ export const getQuizForLesson = async (req: Request, res: Response, next: NextFu
 
 export const listStandaloneQuizzes = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const quizzes = await quizzesService.listStandaloneQuizzes();
+    const quizzes = await quizzesService.listStandaloneQuizzes(req.academyUser!.id);
     res.json({ data: quizzes });
   } catch (error) {
     next(error);

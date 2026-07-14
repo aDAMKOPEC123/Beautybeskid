@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { AppError } from './error.middleware';
 import { verifyToken } from '../utils/jwt';
 import { prisma } from '../config/prisma';
+import { hasActiveCourseAccess } from '../modules/academy/access';
 
 declare global {
   namespace Express {
@@ -37,15 +38,21 @@ export const academyOptionalAuthenticate = (req: Request, _res: Response, next: 
   next();
 };
 
-export const academyRequireAdmin = (req: Request, _res: Response, next: NextFunction) => {
-  if (req.academyUser?.role !== 'ADMIN') return next(new AppError('Wymagane konto administratora Akademii', 403));
-  next();
+export const academyRequireAdmin = async (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    if (!req.academyUser || req.academyUser.role !== 'ADMIN') throw new AppError('Wymagane konto administratora Akademii', 403);
+    const user = await prisma.academyUser.findUnique({ where: { id: req.academyUser.id }, select: { role: true } });
+    if (user?.role !== 'ADMIN') throw new AppError('Uprawnienia administratora wygasły', 403);
+    next();
+  } catch (error) { next(error); }
 };
 
 export const academyRequirePurchase = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     if (req.academyUser?.role === 'ADMIN') return next();
-    if (!req.academyUser || !await prisma.academyEnrollment.findFirst({ where: { userId: req.academyUser.id } })) throw new AppError('Materiał będzie dostępny po zakupie kursu', 403);
+    if (!req.academyUser) throw new AppError('Materiał będzie dostępny po zakupie kursu', 403);
+    const enrollments = await prisma.academyEnrollment.findMany({ where: { userId: req.academyUser.id }, include: { course: { select: { accessDays: true } } } });
+    if (!enrollments.some(enrollment => hasActiveCourseAccess(enrollment, enrollment.course.accessDays))) throw new AppError('Materiał będzie dostępny po zakupie lub odnowieniu kursu', 403);
     next();
   } catch (error) { next(error); }
 };

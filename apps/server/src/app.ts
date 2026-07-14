@@ -46,6 +46,7 @@ import vouchersRouter from './modules/vouchers/vouchers.router';
 import googleReviewsRouter from './modules/google-reviews/google-reviews.router';
 import storePromotionsRouter from './modules/store-promotions/store-promotions.router';
 import financesRouter from './modules/finances/finances.router';
+import { webhook as academyStripeWebhook } from './modules/academy/payments/payments.controller';
 
 import sitemapRouter from './modules/sitemap/sitemap.router';
 
@@ -60,6 +61,7 @@ app.use(cors({
   origin: [env.CLIENT_URL, ...(env.ACADEMY_URL ? [env.ACADEMY_URL] : [])],
   credentials: true
 }));
+app.post('/api/academy/payments/webhook', express.raw({ type: 'application/json' }), academyStripeWebhook);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

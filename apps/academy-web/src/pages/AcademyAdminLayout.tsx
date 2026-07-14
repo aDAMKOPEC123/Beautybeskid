@@ -1,11 +1,16 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, BookOpen, GraduationCap, LayoutDashboard, MessageCircleHeart, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { to: '/admin', label: 'Kursy i programy', icon: LayoutDashboard, exact: true },
   { to: '/admin/statystyki', label: 'Sprzedaż i klienci', icon: BarChart3 },
   { to: '/admin/wiadomosci', label: 'Wiadomości Akademii', icon: MessageCircleHeart },
+  { to: '/admin/certyfikaty', label: 'Certyfikaty', icon: Award },
+  { to: '/admin/opinie', label: 'Opinie kursantek', icon: MessageSquareQuote },
+  { to: '/admin/zamowienia', label: 'Zamówienia i zwroty', icon: ReceiptText },
+  { to: '/admin/pakiety', label: 'Pakiety', icon: Package },
+  { to: '/admin/prawo', label: 'Prawo i sprzedawca', icon: Scale },
 ];
 
 export function AcademyAdminLayout() {

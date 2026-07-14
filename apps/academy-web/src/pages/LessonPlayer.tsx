@@ -1,16 +1,58 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { CheckCircle, ChevronLeft } from 'lucide-react';
-import React, { useCallback, useRef } from 'react';
-import ReactPlayer from 'react-player';
+import { CheckCircle, ChevronLeft, MessageCircleHeart, NotebookPen, Play, Save, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import DOMPurify from 'dompurify';
+import { toast } from 'sonner';
+
+declare global { interface Window { YT?: any; onYouTubeIframeAPIReady?: () => void } }
+let youtubeApiPromise: Promise<any> | null = null;
+const loadYouTubeApi = () => {
+  if (window.YT?.Player) return Promise.resolve(window.YT);
+  if (youtubeApiPromise) return youtubeApiPromise;
+  youtubeApiPromise = new Promise((resolve) => {
+    window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.async = true;
+    document.head.appendChild(script);
+  });
+  return youtubeApiPromise;
+};
+
+function YouTubeProgressPlayer({ videoId, initialSeconds, onProgress }: { videoId: string; initialSeconds?: number; onProgress: (state: { playedSeconds: number }) => void }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let player: any;
+    let timer: number | undefined;
+    let disposed = false;
+    loadYouTubeApi().then((YT) => {
+      if (disposed || !hostRef.current) return;
+      player = new YT.Player(hostRef.current, {
+        videoId,
+        playerVars: { rel: 0, modestbranding: 1 },
+        events: {
+          onReady: () => { if (initialSeconds && initialSeconds > 0) player.seekTo(initialSeconds, true); },
+          onStateChange: (event: any) => {
+            if (event.data === YT.PlayerState.PLAYING) timer = window.setInterval(() => onProgress({ playedSeconds: player.getCurrentTime() }), 10_000);
+            else if (timer) { window.clearInterval(timer); timer = undefined; }
+          },
+        },
+      });
+    });
+    return () => { disposed = true; if (timer) window.clearInterval(timer); player?.destroy?.(); };
+  }, [videoId, initialSeconds, onProgress]);
+  return <div ref={hostRef} className="w-full h-full" title="Odtwarzacz lekcji wideo" />;
+}
 
 export function LessonPlayer() {
   const { slug, lessonSlug } = useParams<{ slug: string; lessonSlug: string }>();
   const queryClient = useQueryClient();
   const progressRef = useRef(0);
+  const [note, setNote] = useState('');
+  const [videoStarted, setVideoStarted] = useState(false);
 
   const { data: lesson, isLoading } = useQuery({
     queryKey: ['academy', 'lesson', slug, lessonSlug],
@@ -24,6 +66,17 @@ export function LessonPlayer() {
       queryClient.invalidateQueries({ queryKey: ['academy', 'course', slug] });
       queryClient.invalidateQueries({ queryKey: ['academy', 'lesson', slug, lessonSlug] });
     },
+  });
+  useEffect(() => { setNote(lesson?.notes?.[0]?.content ?? ''); }, [lesson?.id, lesson?.notes]);
+  useEffect(() => { setVideoStarted(false); }, [lesson?.id]);
+  const noteMutation = useMutation({
+    mutationFn: () => academyApi.saveLessonNote(lesson!.id, note.trim(), progressRef.current || undefined),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['academy', 'lesson', slug, lessonSlug] }); toast.success('Notatka została zapisana'); },
+    onError: () => toast.error('Nie udało się zapisać notatki'),
+  });
+  const deleteNoteMutation = useMutation({
+    mutationFn: () => academyApi.deleteLessonNote(lesson!.id),
+    onSuccess: () => { setNote(''); queryClient.invalidateQueries({ queryKey: ['academy', 'lesson', slug, lessonSlug] }); toast.success('Notatka została usunięta'); },
   });
 
   const videoProgressMutation = useMutation({
@@ -59,7 +112,7 @@ export function LessonPlayer() {
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          Powrot do kursu
+          Powrót do kursu
         </Link>
       </div>
 
@@ -70,14 +123,7 @@ export function LessonPlayer() {
       {/* Video lesson */}
       {lesson.type === 'VIDEO' && lesson.videoId && (
         <div className="rounded-lg overflow-hidden aspect-video bg-black">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {React.createElement(ReactPlayer as any, {
-            url: `https://www.youtube.com/watch?v=${lesson.videoId}`,
-            width: '100%',
-            height: '100%',
-            controls: true,
-            onProgress: (state: any) => handleProgress(state),
-          })}
+          {videoStarted ? <YouTubeProgressPlayer videoId={lesson.videoId} initialSeconds={lesson.userProgress?.watchedSeconds} onProgress={handleProgress} /> : <button className="academy-video-consent" onClick={() => setVideoStarted(true)}><Play /><strong>Uruchom lekcję wideo</strong><span>Film pochodzi z YouTube. Po uruchomieniu nawiążesz połączenie z tym dostawcą.</span></button>}
         </div>
       )}
 
@@ -118,13 +164,20 @@ export function LessonPlayer() {
           >
             <CheckCircle className="w-4 h-4" />
             {isCompleted
-              ? 'Ukonczono'
+              ? 'Ukończono'
               : completeMutation.isPending
               ? 'Zapisywanie...'
-              : 'Oznacz jako ukonczone'}
+              : 'Oznacz jako ukończone'}
           </button>
         </div>
       )}
+      {lesson.type === 'VIDEO' && lesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja lekcji</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lesson.transcriptHtml) }} /></details>}
+      <section className="rounded-xl border bg-card p-5 space-y-3" aria-labelledby="lesson-note-title">
+        <div className="flex items-center gap-2"><NotebookPen className="w-5 h-5 text-primary" /><h2 id="lesson-note-title" className="font-semibold">Moja notatka</h2></div>
+        <textarea className="w-full min-h-32 rounded-lg border bg-background p-3 text-sm" value={note} onChange={(event) => setNote(event.target.value)} maxLength={5000} placeholder="Zapisz najważniejsze wnioski z tej lekcji…" />
+        <div className="flex items-center justify-between gap-3"><span className="text-xs text-muted-foreground">{note.length}/5000{progressRef.current > 0 ? ` · przy ${Math.floor(progressRef.current / 60)}:${String(progressRef.current % 60).padStart(2, '0')}` : ''}</span><div className="flex gap-2">{lesson.notes?.length > 0 && <button className="flex items-center gap-1 px-3 py-2 text-xs text-destructive" onClick={() => deleteNoteMutation.mutate()} disabled={deleteNoteMutation.isPending}><Trash2 className="w-4 h-4" />Usuń</button>}<button className="flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground" onClick={() => noteMutation.mutate()} disabled={!note.trim() || noteMutation.isPending}><Save className="w-4 h-4" />{noteMutation.isPending ? 'Zapisywanie…' : 'Zapisz'}</button></div></div>
+      </section>
+      <Link to="/zapytaj-kosmetologa" state={{ course: slug, lesson: lesson.title }} className="flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm font-semibold text-primary"><MessageCircleHeart className="w-5 h-5" />Zapytaj kosmetologa o tę lekcję</Link>
     </div>
   );
 }

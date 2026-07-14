@@ -1,6 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import sanitizeHtml from 'sanitize-html';
+import { hasActiveCourseAccess } from '../access';
 
 const lessonHtmlOptions: sanitizeHtml.IOptions = {
   allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'iframe', 'h1', 'h2', 'u'],
@@ -14,20 +15,23 @@ const lessonHtmlOptions: sanitizeHtml.IOptions = {
   allowedSchemes: ['http', 'https', 'mailto'],
 };
 
-const sanitizeLessonData = (data: Record<string, unknown>) => typeof data.contentHtml === 'string'
-  ? { ...data, contentHtml: sanitizeHtml(data.contentHtml, lessonHtmlOptions) }
-  : data;
+const sanitizeLessonData = (data: Record<string, unknown>) => ({
+  ...data,
+  ...(typeof data.contentHtml === 'string' ? { contentHtml: sanitizeHtml(data.contentHtml, lessonHtmlOptions) } : {}),
+  ...(typeof data.transcriptHtml === 'string' ? { transcriptHtml: sanitizeHtml(data.transcriptHtml, lessonHtmlOptions) } : {}),
+});
 
 export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, userId: string, isAdmin = false) => {
   const course = await prisma.course.findUnique({
     where: { slug: courseSlug },
-    select: { id: true, status: true },
+    select: { id: true, status: true, accessDays: true },
   });
 
   if (!course) throw new AppError('Nie znaleziono kursu', 404);
   if (course.status !== 'PUBLISHED') throw new AppError('Kurs nie jest dostępny', 403);
 
-  if (!isAdmin && !await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: course.id } } })) throw new AppError('Ten kurs zostanie odblokowany po zakupie', 403);
+  const enrollment = isAdmin ? null : await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: course.id } } });
+  if (!isAdmin && !hasActiveCourseAccess(enrollment, course.accessDays)) throw new AppError('Dostęp do kursu wygasł lub wymaga zakupu', 403);
 
   const lesson = await prisma.lesson.findFirst({
     where: { slug: lessonSlug, module: { courseId: course.id } },
@@ -48,8 +52,10 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
 
   if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
 
-  let userProgress = null;
-  userProgress = await prisma.userLessonProgress.findUnique({ where: { userId_lessonId: { userId, lessonId: lesson.id } } });
+  const [userProgress, notes] = await Promise.all([
+    prisma.userLessonProgress.findUnique({ where: { userId_lessonId: { userId, lessonId: lesson.id } } }),
+    prisma.lessonNote.findMany({ where: { userId, lessonId: lesson.id }, orderBy: { updatedAt: 'desc' } }),
+  ]);
 
   // Strip isCorrect from options for non-admin requests
   if (lesson.quiz) {
@@ -60,7 +66,21 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
     }));
   }
 
-  return { ...lesson, userProgress };
+  return { ...lesson, userProgress, notes };
+};
+
+export const saveNote = async (userId: string, lessonId: string, content: string, videoTimestamp?: number) => {
+  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { module: { select: { courseId: true, course: { select: { accessDays: true } } } } } });
+  if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
+  const enrolled = await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: lesson.module.courseId } } });
+  if (!hasActiveCourseAccess(enrolled, lesson.module.course.accessDays)) throw new AppError('Nie masz aktywnego dostępu do tej lekcji', 403);
+  const existing = await prisma.lessonNote.findFirst({ where: { userId, lessonId } });
+  if (existing) return prisma.lessonNote.update({ where: { id: existing.id }, data: { content, videoTimestamp } });
+  return prisma.lessonNote.create({ data: { userId, lessonId, content, videoTimestamp } });
+};
+
+export const deleteNote = async (userId: string, lessonId: string) => {
+  await prisma.lessonNote.deleteMany({ where: { userId, lessonId } });
 };
 
 export const createLesson = async (moduleId: string, data: Record<string, unknown>) => {

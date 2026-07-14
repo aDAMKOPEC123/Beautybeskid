@@ -13,6 +13,20 @@ export const getLessonBySlug = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const saveNote = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
+    if (!content) throw new AppError('Notatka nie może być pusta', 400);
+    if (content.length > 5000) throw new AppError('Notatka może mieć maksymalnie 5000 znaków', 400);
+    const note = await lessonsService.saveNote(req.academyUser!.id, req.params.lessonId, content, req.body.videoTimestamp);
+    res.json({ data: note });
+  } catch (error) { next(error); }
+};
+
+export const deleteNote = async (req: Request, res: Response, next: NextFunction) => {
+  try { await lessonsService.deleteNote(req.academyUser!.id, req.params.lessonId); res.status(204).end(); } catch (error) { next(error); }
+};
+
 export const createLesson = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const lesson = await lessonsService.createLesson(req.params.moduleId, req.body);

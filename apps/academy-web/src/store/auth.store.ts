@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-export type AcademyUser = { id: string; email: string; name: string; role: string };
+export type AcademyUser = { id: string; email: string; name: string; role: string; emailVerified: boolean };
 
 interface AuthState {
   user: AcademyUser | null;
@@ -26,8 +26,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'academy-auth-storage',
       storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ user: state.user, accessToken: state.accessToken }) as AuthState,
+      merge: (persisted, current) => ({ ...current, ...(persisted as Partial<AuthState>), isLoading: true }),
       onRehydrateStorage: () => (state) => {
-        if (state) state.isLoading = false;
+        // Keep protected queries paused until App verifies or clears the persisted token.
+        if (state) state.isLoading = true;
       },
     }
   )

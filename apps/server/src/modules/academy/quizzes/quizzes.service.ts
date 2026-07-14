@@ -25,8 +25,8 @@ export const getQuizForLesson = async (lessonId: string) => {
   };
 };
 
-export const listStandaloneQuizzes = async () => {
-  return prisma.academyQuiz.findMany({
+export const listStandaloneQuizzes = async (userId: string) => {
+  const quizzes = await prisma.academyQuiz.findMany({
     where: { lessonId: null, isPublished: true },
     select: {
       id: true,
@@ -40,6 +40,12 @@ export const listStandaloneQuizzes = async () => {
     },
     orderBy: { createdAt: 'desc' },
   });
+  const attempts = await prisma.academyQuizAttempt.findMany({
+    where: { userId, quizId: { in: quizzes.map(quiz => quiz.id) } },
+    select: { id: true, quizId: true, score: true, passed: true, completedAt: true },
+    orderBy: { completedAt: 'desc' },
+  });
+  return quizzes.map(quiz => ({ ...quiz, attempts: attempts.filter(attempt => attempt.quizId === quiz.id).slice(0, 5) }));
 };
 
 export const getStandaloneQuiz = async (quizId: string) => {

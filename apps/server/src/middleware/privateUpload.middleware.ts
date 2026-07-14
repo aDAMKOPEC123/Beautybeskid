@@ -5,7 +5,7 @@ import { env } from '../config/env';
 import { prisma } from '../config/prisma';
 
 // Folders that require authentication + ownership check
-const PRIVATE_FOLDERS = ['journal', 'appointments'];
+const PRIVATE_FOLDERS = ['journal', 'appointments', 'academy-support'];
 
 export const privateUploadMiddleware = async (
   req: Request,
@@ -29,15 +29,17 @@ export const privateUploadMiddleware = async (
     return;
   }
 
-  let decoded: { id: string; role: string };
+  let decoded: { id: string; role: string; scope?: string };
   try {
-    decoded = verifyToken(token, env.JWT_SECRET) as { id: string; role: string };
+    decoded = folder === 'academy-support'
+      ? verifyToken(token, `${env.JWT_SECRET}:academy`) as { id: string; role: string; scope?: string }
+      : verifyToken(token, env.JWT_SECRET) as { id: string; role: string; scope?: string };
   } catch {
     res.status(401).json({ status: 'error', message: 'Nieprawidłowy token' });
     return;
   }
 
-  if (!decoded?.id || !decoded?.role) {
+  if (!decoded?.id || !decoded?.role || (folder === 'academy-support' && decoded.scope !== 'academy')) {
     res.status(401).json({ status: 'error', message: 'Nieprawidłowy token' });
     return;
   }
@@ -64,6 +66,14 @@ export const privateUploadMiddleware = async (
         where: { photoPath: { endsWith: filename }, userId: decoded.id },
       });
       if (!appointment) {
+        res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+        return;
+      }
+    } else if (folder === 'academy-support') {
+      const message = await prisma.academySupportMessage.findFirst({
+        where: { attachmentUrl: { endsWith: filename }, thread: { userId: decoded.id } },
+      });
+      if (!message) {
         res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
         return;
       }

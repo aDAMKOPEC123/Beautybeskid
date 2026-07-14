@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /profil
+Disallow: /moje-kursy
+Disallow: /zamowienie/
+
+Sitemap: https://akademia.kosmetologwiktoriacwik.pl/api/academy/public/sitemap.xml
