@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AcademyError } from './pages/AcademyError';
 
 const S = ({ children }: { children: React.ReactNode }) => (
@@ -7,6 +7,7 @@ const S = ({ children }: { children: React.ReactNode }) => (
 );
 
 const AcademyLayout = lazy(() => import('./pages/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
+const AcademyAdminLayout = lazy(() => import('./pages/AcademyAdminLayout').then(m => ({ default: m.AcademyAdminLayout })));
 const NoAccess = lazy(() => import('./pages/NoAccess').then(m => ({ default: m.NoAccess })));
 const AcademyCatalog = lazy(() => import('./pages/AcademyCatalog').then(m => ({ default: m.AcademyCatalog })));
 const MyCourses = lazy(() => import('./pages/MyCourses').then(m => ({ default: m.MyCourses })));
@@ -33,14 +34,22 @@ export const router = createBrowserRouter([
           { path: 'certyfikaty', element: <S><Certificates /></S> },
           { path: 'profil', element: <S><AcademyProfile /></S> },
           { path: 'zapytaj-kosmetologa', element: <S><AcademyConsultation /></S> },
-          { path: 'studio', element: <S><AcademyStudio /></S> },
-          { path: 'studio/wiadomosci', element: <S><AcademySupportInbox /></S> },
           { path: 'quizy', element: <S><StandaloneQuizPage /></S> },
           { path: 'quiz/:quizId', element: <S><StandaloneQuizPage /></S> },
           { path: 'kurs/:slug', element: <S><CourseDetail /></S> },
           { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
         ],
       },
+      {
+        path: 'admin',
+        element: <S><AcademyAdminLayout /></S>,
+        children: [
+          { index: true, element: <S><AcademyStudio /></S> },
+          { path: 'wiadomosci', element: <S><AcademySupportInbox /></S> },
+        ],
+      },
+      { path: 'studio', element: <Navigate to="/admin" replace /> },
+      { path: 'studio/wiadomosci', element: <Navigate to="/admin/wiadomosci" replace /> },
     ],
   },
 ]);

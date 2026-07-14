@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, Settings2, LogIn, UserRound, ExternalLink } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -15,10 +15,6 @@ export function AcademyLayout() {
     ...(isAuthenticated ? [{ to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen }, { to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
     ...(user?.hasAcademyAccess || user?.role === 'ADMIN' ? [{ to: '/quizy', label: 'Wiedza', icon: Sparkles }, { to: '/certyfikaty', label: 'Certyfikaty', icon: Award }, { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart }] : []),
   ];
-  if (user?.role === 'ADMIN') navItems.push(
-    { to: '/studio', label: 'Studio Akademii', icon: Settings2, exact: true },
-    { to: '/studio/wiadomosci', label: 'Wiadomości Akademii', icon: MessageCircleHeart },
-  );
   const active = (to: string, exact?: boolean) => exact ? location.pathname === to : location.pathname.startsWith(to);
   const initials = (user?.name?.[0] || user?.email?.[0] || 'W').toUpperCase();
 
