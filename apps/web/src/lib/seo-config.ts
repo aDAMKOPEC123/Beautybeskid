@@ -16,6 +16,7 @@
   ttProfile: 'https://www.tiktok.com/@wiktoriabeauty_brows',
   mapQuery: 'Mordarka 505, 34-600 Mordarka, Polska',
   googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Mordarka%20505%2C%2034-600%20Mordarka%2C%20Polska',
+  googleReviewUrl: 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+Wiktoria+%C4%86wik+Mordarka',
   owner: {
     name: 'Wiktoria Ćwik',
     role: 'Dyplomowany kosmetolog',

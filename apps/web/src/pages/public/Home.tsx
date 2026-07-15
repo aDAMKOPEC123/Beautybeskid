@@ -32,6 +32,7 @@ import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import type { Season as SeasonType, Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
+import { SEO } from '@/lib/seo-config';
 import { blogApi } from '@/api/blog.api';
 import { metamorphosesApi } from '@/api/metamorphoses.api';
 
@@ -1301,6 +1302,16 @@ const TestimonialsSection = ({
                 </p>
               </div>
             </div>
+            <a
+              href={SEO.googleReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-oak transition-colors hover:text-walnut"
+            >
+              <Star className="h-3.5 w-3.5" />
+              Wystaw opinię w Google
+              <ArrowRight className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </FadeUp>

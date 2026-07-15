@@ -1,5 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock, Star, ArrowRight } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
 import { trackEvent } from '@/lib/analytics';
@@ -198,6 +198,28 @@ export const Contact = () => {
                     <span className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</span>
                   </a>
                 ))}
+              </div>
+
+              {/* Review CTA */}
+              <div className="p-7" style={cardStyle}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Byłaś u nas? Podziel się opinią</h2>
+                </div>
+                <p className="text-sm mb-5" style={{ color: 'rgba(20,40,28,0.55)' }}>
+                  Twoja opinia w Google pomaga innym klientkom podjąć decyzję i motywuje nas do dalszej pracy.
+                  Każda recenzja jest dla nas ważna.
+                </p>
+                <a
+                  href={SEO.googleReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full text-white transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: '#C4965A' }}
+                >
+                  Wystaw opinię w Google
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </div>
 
               {/* Address & hours */}
