@@ -9,6 +9,33 @@ const DIST_DIR = path.resolve(process.cwd(), 'dist');
 const template = (await readFile(path.join(DIST_DIR, 'index.html'), 'utf8'))
   .replace(/\s*<script type="application\/ld\+json" data-generated-seo>[\s\S]*?<\/script>/g, '');
 
+const serviceSeoOverrides = {
+  'henna-brwi-lifting-rzes-set': {
+    title: 'Henna brwi i lifting rzęs SET Limanowa | BeskidStudio',
+    description: 'Henna brwi oraz lifting z koloryzacją rzęs podczas jednej wizyty w BeskidStudio koło Limanowej. Poznaj zakres zabiegu, cenę i wolne terminy.',
+    heading: 'Henna brwi i lifting rzęs SET – Limanowa',
+    lead: 'Dwa uzupełniające się zabiegi podczas jednej wizyty: podkreślenie brwi henną oraz lifting i koloryzacja naturalnych rzęs.',
+    supplementalHtml: '<h2>Henna brwi i lifting rzęs — czym różni się ten zestaw?</h2><p>Henna podkreśla kształt i kolor brwi, ale nie zmienia kierunku włosków tak jak laminacja. Lifting rzęs unosi naturalne rzęsy od nasady i obejmuje ich koloryzację. To zakres inny niż LamiSet, w którym wykonywana jest pełna laminacja brwi.</p><p>Zestaw jest dobrym wyborem dla osób, które chcą zachować naturalne ułożenie brwi, a jednocześnie podkreślić całą oprawę oka podczas jednej 60-minutowej wizyty.</p>',
+    faq: [
+      { question: 'Czy ten zestaw obejmuje laminację brwi?', answer: 'Nie. Brwi są podkreślane henną. Jeśli zależy Ci również na zmianie kierunku włosków brwi, wybierz usługę LamiSet.' },
+      { question: 'Czy lifting rzęs obejmuje koloryzację?', answer: 'Tak. Rzęsy są unoszone i koloryzowane, aby podkreślić ich długość oraz naturalny skręt.' },
+      { question: 'Ile trwa Henna brwi & Lifting rzęs SET?', answer: 'Na usługę zarezerwowane jest 60 minut.' },
+    ],
+  },
+  'lamiset-laminacja-brwi-lifting-rzes': {
+    title: 'LamiSet – laminacja brwi i lifting rzęs | Limanowa',
+    description: 'LamiSet w BeskidStudio koło Limanowej: laminacja i koloryzacja brwi oraz lifting i koloryzacja rzęs podczas jednej kompleksowej wizyty.',
+    heading: 'LamiSet – laminacja brwi i lifting rzęs w Limanowej',
+    lead: 'Kompletny pakiet oprawy oka: laminacja i koloryzacja brwi oraz lifting i koloryzacja naturalnych rzęs podczas jednej wizyty.',
+    supplementalHtml: '<h2>Czym LamiSet różni się od pojedynczej laminacji brwi?</h2><p>LamiSet nie jest drugim adresem dla zwykłej laminacji brwi. Podczas jednej wizyty wykonywane są dwie odrębne stylizacje: pełna laminacja brwi z koloryzacją oraz lifting naturalnych rzęs z koloryzacją.</p><p>Pakiet jest przeznaczony dla osób, które chcą jednocześnie uporządkować kierunek włosków brwi i unieść rzęsy od nasady. Jeśli potrzebny jest tylko jeden z tych efektów, można wybrać osobną laminację brwi albo osobny lifting rzęs.</p>',
+    faq: [
+      { question: 'Czy LamiSet to to samo co laminacja brwi?', answer: 'Nie. Laminacja brwi obejmuje wyłącznie stylizację brwi. LamiSet łączy laminację brwi z liftingiem i koloryzacją naturalnych rzęs.' },
+      { question: 'Czy w LamiSet wykonywana jest koloryzacja?', answer: 'Tak. Pakiet obejmuje koloryzację brwi oraz rzęs, dobieraną do urody i oczekiwanego efektu.' },
+      { question: 'Ile trwa zabieg LamiSet?', answer: 'Na kompleksową stylizację brwi i rzęs zarezerwowane jest 90 minut.' },
+    ],
+  },
+};
+
 const corePages = [
   {
     path: '/',
@@ -248,20 +275,25 @@ const loadDynamicPages = async () => {
   const servicePages = services
     .filter((service) => service.isActive !== false)
     .map((service) => {
-      const description = truncate(
-        service.description || `${service.name} w BeskidStudio Wiktoria Ćwik, Mordarka 505 koło Limanowej. Sprawdź cenę i zarezerwuj termin online.`,
-        158,
-      );
+      const seoOverride = serviceSeoOverrides[service.slug];
+      const description = seoOverride?.description || truncate(
+          service.description || `${service.name} w BeskidStudio Wiktoria Ćwik, Mordarka 505 koło Limanowej. Sprawdź cenę i zarezerwuj termin online.`,
+          158,
+        );
+      const pageUrl = `${DOMAIN}/uslugi/${service.slug}`;
+      const title = seoOverride?.title || (service.slug === 'laminacja-brwi'
+        ? 'Laminacja brwi — cena, czas i rezerwacja | BeskidStudio'
+        : `${service.name} Limanowa | BeskidStudio`);
+      const faq = seoOverride?.faq || [];
       return {
         path: `/uslugi/${service.slug}`,
-        title: service.slug === 'laminacja-brwi'
-          ? 'Laminacja brwi — cena, czas i rezerwacja | BeskidStudio'
-          : `${service.name} Limanowa | BeskidStudio`,
+        title,
         description,
-        heading: `${service.name} – Limanowa i okolice`,
-        lead: description,
+        heading: seoOverride?.heading || `${service.name} – Limanowa i okolice`,
+        lead: seoOverride?.lead || description,
         bodyText: truncate(richTextToText(service.detailedContent), 2400),
-        bodyHtml: richTextToHtml(service.detailedContent),
+        bodyHtml: [richTextToHtml(service.detailedContent), seoOverride?.supplementalHtml].filter(Boolean).join(''),
+        faq,
         ogImage: service.imagePath,
         imageAlt: `${service.name} w BeskidStudio koło Limanowej`,
         noIndex: service.slug === 'inne',
@@ -270,10 +302,21 @@ const loadDynamicPages = async () => {
           '@context': 'https://schema.org',
           '@graph': [
             {
+              '@type': 'WebPage',
+              '@id': `${pageUrl}#webpage`,
+              url: pageUrl,
+              name: title,
+              description,
+              isPartOf: { '@id': `${DOMAIN}/#website` },
+              mainEntity: { '@id': `${pageUrl}#service` },
+            },
+            {
               '@type': 'Service',
-              '@id': `${DOMAIN}/uslugi/${service.slug}#service`,
+              '@id': `${pageUrl}#service`,
               name: service.name,
               description,
+              url: pageUrl,
+              mainEntityOfPage: { '@id': `${pageUrl}#webpage` },
               serviceType: service.category,
               provider: { '@id': `${DOMAIN}/#beautysalon` },
               areaServed: 'Limanowa i powiat limanowski',
@@ -285,6 +328,15 @@ const loadDynamicPages = async () => {
                 url: `${DOMAIN}/uslugi/${service.slug}`,
               },
             },
+            ...(faq.length ? [{
+              '@type': 'FAQPage',
+              '@id': `${pageUrl}#faq`,
+              mainEntity: faq.map(({ question, answer }) => ({
+                '@type': 'Question',
+                name: question,
+                acceptedAnswer: { '@type': 'Answer', text: answer },
+              })),
+            }] : []),
             breadcrumbSchema(`/uslugi/${service.slug}`, ['Strona główna', 'Usługi', service.name]),
           ],
         },

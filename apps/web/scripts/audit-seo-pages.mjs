@@ -103,6 +103,53 @@ for (const requiredPage of ['program-lojalnosciowy.html', 'pedicure-podologiczny
   if (!(await exists(path.join(distDir, requiredPage)))) failures.push(`${requiredPage}: brak wygenerowanej strony`);
 }
 
+const canonicalServicePages = [
+  {
+    file: 'uslugi/henna-brwi-lifting-rzes-set/index.html',
+    canonical: 'https://kosmetologwiktoriacwik.pl/uslugi/henna-brwi-lifting-rzes-set',
+  },
+  {
+    file: 'uslugi/lamiset-laminacja-brwi-lifting-rzes/index.html',
+    canonical: 'https://kosmetologwiktoriacwik.pl/uslugi/lamiset-laminacja-brwi-lifting-rzes',
+  },
+];
+
+const serviceMetadata = [];
+for (const { file, canonical } of canonicalServicePages) {
+  const filePath = path.join(distDir, file);
+  if (!(await exists(filePath))) {
+    failures.push(`${file}: brak kanonicznej strony usługi`);
+    continue;
+  }
+
+  const html = await readFile(filePath, 'utf8');
+  const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '';
+  const description = html.match(/<meta name="description" content="([^"]*)"/i)?.[1] ?? '';
+  serviceMetadata.push({ file, title, description });
+
+  if (!html.includes(`<link rel="canonical" href="${canonical}"`)) {
+    failures.push(`${file}: canonical nie wskazuje na własny adres HTTPS`);
+  }
+  if (!/<meta name="robots" content="index,follow,max-image-preview:large"/i.test(html)) {
+    failures.push(`${file}: strona usługi nie jest indeksowalna`);
+  }
+  for (const schemaType of ['WebPage', 'Service', 'FAQPage', 'BreadcrumbList']) {
+    if (!html.includes(`"@type":"${schemaType}"`)) failures.push(`${file}: brak schema ${schemaType}`);
+  }
+}
+
+if (serviceMetadata.length === canonicalServicePages.length) {
+  if (serviceMetadata[0].title === serviceMetadata[1].title) failures.push('strony zestawów mają identyczne tytuły');
+  if (serviceMetadata[0].description === serviceMetadata[1].description) failures.push('strony zestawów mają identyczne opisy meta');
+}
+
+for (const legacyPage of [
+  'uslugi/henna-brwi-lifting-rzs-set.html',
+  'uslugi/lamiset-laminacja-brwi-lifting-rzs.html',
+]) {
+  if (await exists(path.join(distDir, legacyPage))) failures.push(`${legacyPage}: stary slug nie może być generowaną stroną 200`);
+}
+
 if (failures.length) {
   console.error(`SEO audit failed (${failures.length}):\n- ${failures.join('\n- ')}`);
   process.exitCode = 1;
