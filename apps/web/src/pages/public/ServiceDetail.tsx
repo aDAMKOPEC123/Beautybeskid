@@ -14,6 +14,7 @@ import { ClipRevealImage } from '@/components/ui/ClipRevealImage';
 
 type ServiceSeoContent = {
   title: string;
+  heading: string;
   description: string;
   sectionTitle: string;
   paragraphs: string[];
@@ -25,6 +26,7 @@ type ServiceSeoContent = {
 const SERVICE_SEO_CONTENT: Record<string, ServiceSeoContent> = {
   'henna-brwi-lifting-rzes-set': {
     title: 'Henna brwi i lifting rzęs SET Limanowa | BeskidStudio',
+    heading: 'Henna brwi & Lifting rzęs SET',
     description: 'Henna brwi oraz lifting z koloryzacją rzęs podczas jednej wizyty w BeskidStudio koło Limanowej. Poznaj zakres zabiegu, cenę i wolne terminy.',
     sectionTitle: 'Henna brwi i lifting rzęs — dwa efekty podczas jednej wizyty',
     paragraphs: [
@@ -49,6 +51,7 @@ const SERVICE_SEO_CONTENT: Record<string, ServiceSeoContent> = {
   },
   'lamiset-laminacja-brwi-lifting-rzes': {
     title: 'LamiSet – laminacja brwi i lifting rzęs | BeskidStudio',
+    heading: 'LamiSet Laminacja Brwi & Lifting Rzęs',
     description: 'LamiSet w BeskidStudio koło Limanowej: laminacja i koloryzacja brwi oraz lifting i koloryzacja rzęs podczas jednej kompleksowej wizyty.',
     sectionTitle: 'Czym LamiSet różni się od pojedynczej laminacji brwi?',
     paragraphs: [
@@ -75,6 +78,7 @@ const SERVICE_SEO_CONTENT: Record<string, ServiceSeoContent> = {
 
 export const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const loadingSeoContent = slug ? SERVICE_SEO_CONTENT[slug] : undefined;
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -98,7 +102,32 @@ export const ServiceDetail = () => {
     });
   }, [service?.id]);
 
-  if (isLoading) return (
+  if (isLoading) return loadingSeoContent ? (
+    <main className="py-16" style={{ backgroundColor: '#F0F7F1' }} aria-busy="true">
+      <div className="container max-w-3xl mx-auto">
+        <p className="eyebrow mb-4">Oprawa oka · Limanowa</p>
+        <h1 className="font-display text-4xl md:text-6xl text-espresso" style={{ fontStyle: 'italic', fontWeight: 300 }}>
+          {loadingSeoContent.heading}
+        </h1>
+        <p className="mt-6 text-lg leading-relaxed" style={{ color: 'rgba(20,40,28,0.72)' }}>
+          {loadingSeoContent.description}
+        </p>
+        <h2 className="mt-10 text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+          {loadingSeoContent.sectionTitle}
+        </h2>
+        <p className="mt-4 leading-relaxed" style={{ color: 'rgba(20,40,28,0.72)' }}>
+          {loadingSeoContent.paragraphs[0]}
+        </p>
+        <nav className="mt-8 flex flex-wrap gap-3" aria-label="Powiązane usługi">
+          {loadingSeoContent.related.map(({ to, label }) => (
+            <Link key={to} to={to} className="rounded-full border px-5 py-3 text-sm font-semibold" style={{ borderColor: 'rgba(20,40,28,0.22)', color: '#1A3828' }}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </main>
+  ) : (
     <div className="container py-16 flex justify-center">
       <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
     </div>
