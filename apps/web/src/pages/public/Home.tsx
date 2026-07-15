@@ -123,10 +123,10 @@ const faqItems = [
   },
   {
     '@type': 'Question',
-    name: 'Czy podologia w BeskidStudio jest aktywna?',
+    name: 'Jak umówić się na wizytę podologiczną w BeskidStudio?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Tak. Zabiegi podologiczne są aktywne, ale odbywają się w odrębnej lokalizacji. Zapisy prowadzimy telefonicznie pod numerem 532 128 227, a dokładny adres przekazujemy podczas ustalania terminu.',
+      text: 'Rezerwacja usług podologicznych jest dostępna wyłącznie telefonicznie pod numerem 532 128 227. Wizyty odbywają się w odrębnej lokalizacji, a dokładny adres przekazujemy podczas ustalania terminu.',
     },
   },
 ];
@@ -623,7 +623,7 @@ const PodologyPromoSection = () => (
           <div>
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-oak">Podologia Limanowa</p>
             <h2 id="podology-home-heading" className="font-heading text-3xl font-bold text-espresso">
-              Podologia jest aktywna — wizyty w odrębnej lokalizacji
+              Rezerwacja usług podologicznych dostępna tylko pod numerem telefonu
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-espresso/65 md:text-base">
               Pedicure podologiczny, konsultacje stóp i pomoc przy problematycznych paznokciach umawiamy obecnie wyłącznie telefonicznie. Dokładny adres otrzymasz podczas ustalania terminu.
@@ -1150,10 +1150,6 @@ const ServicesSection = ({
                       <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
                         <Timer className="h-4 w-4 text-oak" />
                         {service.durationMinutes} min
-                      </span>
-                      <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
-                        <Sparkles className="h-4 w-4 text-oak" />
-                        Aktywna
                       </span>
                     </div>
 
