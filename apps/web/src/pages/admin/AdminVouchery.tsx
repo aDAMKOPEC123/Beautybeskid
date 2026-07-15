@@ -57,7 +57,6 @@ export function AdminVouchery() {
 
   useEffect(() => {
     if (tab === 'historia') loadVouchers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
   const loadVouchers = async () => {

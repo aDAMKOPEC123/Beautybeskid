@@ -14,7 +14,7 @@ export const PublicTerms = () => {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <PageSEO
-        title="Regulamin gabinetu kosmetologicznego BeskidStudio By Wiktoria Ćwik"
+        title="Regulamin i polityka prywatności | BeskidStudio"
         description="Regulamin i warunki korzystania z usług salonu kosmetologicznego BeskidStudio By Wiktoria Ćwik w Mordarce koło Limanowej."
         canonical="/regulamin"
       />

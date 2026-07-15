@@ -42,7 +42,7 @@ export const clearChunkReloadMarks = () => {
   }
 };
 
-export const markDocumentNoIndex = () => {
+export const markDocumentNoIndex = (title = 'Strona chwilowo niedostępna | BeskidStudio') => {
   if (typeof document === 'undefined') return;
 
   let robotsMeta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
@@ -53,5 +53,5 @@ export const markDocumentNoIndex = () => {
   }
 
   robotsMeta.content = 'noindex,nofollow,noarchive';
-  document.title = 'Strona chwilowo niedostępna | BeskidStudio';
+  document.title = title;
 };

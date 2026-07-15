@@ -26,7 +26,7 @@ export function HomecareRoutinePanel({ appointmentId }: { appointmentId: string 
     if (routine) {
       setDraft({ first48h: routine.first48h, followingDays: routine.followingDays, products: routine.products });
     }
-  }, [routineId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [routineId]);
 
   const { mutate: updateMutate, isPending: isUpdating } = useMutation({
     mutationFn: () => homecareApi.update(appointmentId, draft!),

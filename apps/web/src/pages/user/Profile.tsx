@@ -325,13 +325,14 @@ export const UserProfile = () => {
         'Uzupełnij informacje, które pomogą nam lepiej dopasować zabiegi do Twoich potrzeb.',
         <div className="p-6 space-y-4">
           {[
-            { label: 'Alergie / uczulenia', value: cardAllergies, setter: setCardAllergies, placeholder: 'Np. alergia na lateks, nikiel...' },
-            { label: 'Dolegliwości', value: cardConditions, setter: setCardConditions, placeholder: 'Np. cukrzyca, choroby skóry...' },
-            { label: 'Upodobania', value: cardPreferences, setter: setCardPreferences, placeholder: 'Np. preferuję zabiegi bez perfum...' },
-          ].map(({ label, value, setter, placeholder }) => (
-            <div key={label} className="space-y-1.5">
-              <label className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
+            { id: 'card-allergies', label: 'Alergie / uczulenia', value: cardAllergies, setter: setCardAllergies, placeholder: 'Np. alergia na lateks, nikiel...' },
+            { id: 'card-conditions', label: 'Dolegliwości', value: cardConditions, setter: setCardConditions, placeholder: 'Np. cukrzyca, choroby skóry...' },
+            { id: 'card-preferences', label: 'Upodobania', value: cardPreferences, setter: setCardPreferences, placeholder: 'Np. preferuję zabiegi bez perfum...' },
+          ].map(({ id, label, value, setter, placeholder }) => (
+            <div key={id} className="space-y-1.5">
+              <label htmlFor={id} className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
               <textarea
+                id={id}
                 className="w-full rounded-xl px-3 py-3 text-sm resize-none outline-none transition-colors"
                 style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5', minHeight: '48px' }}
                 rows={2}
@@ -571,6 +572,9 @@ export const UserProfile = () => {
           onClick={() => setIsEditModalOpen(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-profile-title"
             className="rounded-[20px] bg-white max-w-md w-full mx-4"
             style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
             onClick={(e) => e.stopPropagation()}
@@ -579,12 +583,14 @@ export const UserProfile = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <DecoLine />
-                  <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
+                  <h2 id="edit-profile-title" className="text-[10px] font-semibold tracking-[0.35em] uppercase text-caramel">
                     Edytuj dane
-                  </span>
+                  </h2>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsEditModalOpen(false)}
+                  aria-label="Zamknij okno edycji danych"
                   className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                   style={{ color: 'rgba(20,40,28,0.4)' }}
                 >
@@ -600,6 +606,8 @@ export const UserProfile = () => {
                 <input
                   id="edit-name"
                   type="text"
+                  autoFocus
+                  autoComplete="name"
                   className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
                   style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
                   value={editName}
@@ -615,6 +623,7 @@ export const UserProfile = () => {
                 <input
                   id="edit-phone"
                   type="tel"
+                  autoComplete="tel"
                   className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-colors"
                   style={{ border: '1px solid rgba(0,0,0,0.1)', background: '#F4F9F5' }}
                   value={editPhone}

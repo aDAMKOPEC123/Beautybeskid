@@ -469,9 +469,10 @@ export const SkinWeatherProfile = () => {
               <div className="h-px flex-1 bg-border/50" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Wybierz ręcznie</label>
+              <label htmlFor="manual-skin-type" className="text-xs font-medium text-muted-foreground">Wybierz ręcznie</label>
               <div className="flex gap-2">
                 <select
+                  id="manual-skin-type"
                   value={manualSkinType}
                   onChange={e => setManualSkinType(e.target.value)}
                   className="flex-1 px-3 py-2 text-sm rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/30"

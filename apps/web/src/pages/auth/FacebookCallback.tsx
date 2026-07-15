@@ -42,8 +42,9 @@ export const FacebookCallback = () => {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-4">
-      <PageSEO title="Logowanie przez Facebook" description="Trwa logowanie." noIndex />
+      <PageSEO title="Logowanie przez Facebook" description="Trwa logowanie." canonical="/auth/facebook/callback" noIndex />
       <div className="text-center">
+        <h1 className="sr-only">Logowanie przez Facebook</h1>
         <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-primary/20 border-b-primary" />
         <p className="mt-4 text-sm text-muted-foreground">Kończymy logowanie przez Facebook…</p>
       </div>

@@ -419,6 +419,22 @@ describe('searchThreads', () => {
     expect(result.totalPages).toBe(1);
     expect(result.total).toBe(1);
   });
+
+  it('allows filtering by tag without a text query', async () => {
+    vi.mocked(prisma.forumThread.findMany).mockResolvedValue([mockThread] as any);
+    vi.mocked(prisma.forumThread.count).mockResolvedValue(1);
+
+    await searchThreads('', ['retinol'], undefined, 1, 20);
+
+    expect(prisma.forumThread.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          isDeleted: false,
+          tags: { hasSome: ['retinol'] },
+        }),
+      }),
+    );
+  });
 });
 
 describe('getUserThreads', () => {

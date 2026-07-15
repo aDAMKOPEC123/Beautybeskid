@@ -11,7 +11,7 @@ import { authApi } from '@/api/auth.api';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
 import { getPanelPath } from '@/lib/panel-routing';
@@ -149,6 +149,7 @@ export const Login = () => {
       <PageSEO
         title="Logowanie"
         description="Zaloguj się do swojego konta w salonie BeskidStudio By Wiktoria Ćwik."
+        canonical="/auth/login"
         noIndex
       />
       <Card className="w-full max-w-md animate-enter">
@@ -158,9 +159,9 @@ export const Login = () => {
               Wejście do panelu klienta
             </p>
           )}
-          <CardTitle className="text-3xl text-center font-heading text-primary font-bold">
+          <h1 className="text-3xl text-center font-heading text-primary font-bold">
             {panelEntry ? 'Zaloguj się do panelu' : 'Logowanie'}
-          </CardTitle>
+          </h1>
           {panelEntry && (
             <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">
               Po zalogowaniu przejdziesz od razu do swojego konta, wizyt i zaleceń.

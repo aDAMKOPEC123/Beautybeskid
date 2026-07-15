@@ -26,11 +26,12 @@ export function ForumSearch() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [popularTags, setPopularTags] = useState<ForumTag[]>([]);
   const [inputValue, setInputValue] = useState(q);
 
   useEffect(() => {
-    forumApi.getPopularTags().then(setPopularTags);
+    forumApi.getPopularTags().then(setPopularTags).catch(() => setPopularTags([]));
   }, []);
 
   useEffect(() => {
@@ -38,14 +39,20 @@ export function ForumSearch() {
   }, [q]);
 
   useEffect(() => {
-    if (q.length < 2) { setThreads([]); setTotal(0); return; }
+    if (q.length < 2 && activeTags.length === 0) { setThreads([]); setTotal(0); setLoadError(false); return; }
     setLoading(true);
+    setLoadError(false);
     forumApi
       .search({ q, tags: activeTags.length > 0 ? activeTags : undefined, page })
       .then((res) => {
         setThreads(res.data);
         setTotalPages(res.totalPages);
         setTotal(res.total);
+      })
+      .catch(() => {
+        setThreads([]);
+        setTotal(0);
+        setLoadError(true);
       })
       .finally(() => setLoading(false));
   }, [q, searchParams.toString(), page]);
@@ -77,13 +84,17 @@ export function ForumSearch() {
         <span className="text-gray-800 font-medium">Wyszukiwarka</span>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+      <h1 className="mb-4 text-2xl font-bold text-gray-800">Wyszukiwarka forum</h1>
+
+      <form onSubmit={handleSearch} className="flex flex-col gap-2 mb-4 sm:flex-row">
+        <label htmlFor="forum-search" className="sr-only">Szukaj na forum</label>
         <input
+          id="forum-search"
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Szukaj na forum..."
-          className="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+          className="min-w-0 flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
         />
         <button
           type="submit"
@@ -113,7 +124,13 @@ export function ForumSearch() {
 
       {loading && <div className="text-center text-gray-500 py-8">Szukam...</div>}
 
-      {!loading && q.length >= 2 && threads.length === 0 && (
+      {!loading && loadError && (
+        <div className="py-8 text-center text-red-600" role="alert">
+          Nie udało się pobrać wyników. Zmień kryteria lub spróbuj ponownie.
+        </div>
+      )}
+
+      {!loading && !loadError && (q.length >= 2 || activeTags.length > 0) && threads.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-2">Nic nie znaleziono dla „{q}"</p>
           <Link to="/user/forum/nowy" className="text-purple-600 text-sm hover:underline">
@@ -183,7 +200,7 @@ export function ForumSearch() {
         </>
       )}
 
-      {q.length < 2 && !loading && (
+      {q.length < 2 && activeTags.length === 0 && !loading && (
         <div className="text-center py-12 text-gray-400">
           <p>Wpisz co najmniej 2 znaki, żeby wyszukać</p>
         </div>

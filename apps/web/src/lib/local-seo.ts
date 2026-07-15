@@ -276,7 +276,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'podolog-limanowa': {
     slug: 'podolog-limanowa',
     shortLabel: 'Podolog Limanowa',
-    title: 'Podolog Limanowa — aktywne zapisy telefoniczne',
+    title: 'Podolog Limanowa – zapisy telefoniczne | BeskidStudio',
     description:
       'Podolog Limanowa: pedicure podologiczny, pielęgnacja paznokci i skóry stóp. Wizyty w odrębnej lokalizacji. Zapisy i adres: tel. 532 128 227.',
     eyebrow: 'Podolog Limanowa',
@@ -377,7 +377,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'kosmetyczka-limanowa': {
     slug: 'kosmetyczka-limanowa',
     shortLabel: 'Kosmetyczka Limanowa',
-    title: 'Kosmetyczka Limanowa — salon kosmetyczny ✔ Rezerwacja online',
+    title: 'Kosmetyczka Limanowa – zabiegi beauty | BeskidStudio',
     description:
       'Szukasz dobrej kosmetyczki w Limanowej? Laminacja brwi i rzęs, henna pudrowa, pedicure, depilacja. Gabinet 5 min od centrum. ☎ 532 128 227. Umów wizytę online.',
     eyebrow: 'Kosmetyczka Limanowa',
@@ -491,7 +491,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'laminacja-brwi-limanowa': {
     slug: 'laminacja-brwi-limanowa',
     shortLabel: 'Laminacja brwi Limanowa',
-    title: 'Laminacja brwi w Limanowej — dojazd, przygotowanie i FAQ',
+    title: 'Laminacja brwi Limanowa – efekty i cena | BeskidStudio',
     description:
       'Laminacja brwi w Limanowej: dojazd do BeskidStudio, przygotowanie, przebieg, FAQ oraz przejście do aktualnej ceny i rezerwacji online.',
     eyebrow: 'Laminacja brwi Limanowa',
@@ -561,7 +561,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'laminacja-rzes-limanowa': {
     slug: 'laminacja-rzes-limanowa',
     shortLabel: 'Laminacja rzęs Limanowa',
-    title: 'Laminacja rzęs Limanowa — lifting i odżywienie',
+    title: 'Laminacja rzęs Limanowa | BeskidStudio',
     description:
       'Laminacja rzęs Limanowa: naturalne podkreślenie rzęs, konsultacja, aktualne terminy i rezerwacja online w BeskidStudio By Wiktoria Ćwik.',
     eyebrow: 'Laminacja rzęs Limanowa',
@@ -645,7 +645,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'oprawa-oka-limanowa': {
     slug: 'oprawa-oka-limanowa',
     shortLabel: 'Oprawa oka Limanowa',
-    title: 'Oprawa oka Limanowa — laminacja brwi i rzęs BeskidStudio By Wiktoria Ćwik',
+    title: 'Oprawa oka Limanowa – brwi i rzęsy | BeskidStudio',
     description:
       'Oprawa oka Limanowa: BeskidStudio By Wiktoria Ćwik — laminacja brwi, stylizacja brwi, laminacja rzęs i pielęgnacja okolicy oka. Konsultacja, terminy online i rezerwacja.',
     eyebrow: 'Oprawa oka Limanowa',
@@ -715,7 +715,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'wrastajace-paznokcie-limanowa': {
     slug: 'wrastajace-paznokcie-limanowa',
     shortLabel: 'Wrastające paznokcie Limanowa',
-    title: 'Wrastające paznokcie Limanowa — podolog BeskidStudio By Wiktoria Ćwik',
+    title: 'Wrastające paznokcie Limanowa – konsultacja | BeskidStudio',
     description:
       'Wrastające paznokcie Limanowa: aktywna konsultacja podologiczna w odrębnej lokalizacji. Termin i dokładny adres ustalisz pod numerem 532 128 227.',
     eyebrow: 'Wrastające paznokcie Limanowa',
@@ -845,7 +845,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'spa-stop-limanowa': {
     slug: 'spa-stop-limanowa',
     shortLabel: 'SPA stóp Limanowa',
-    title: 'SPA stóp Limanowa — pielęgnacja i relaks dla stóp',
+    title: 'SPA stóp Limanowa – pielęgnacja i relaks | BeskidStudio',
     description:
       'SPA stóp Limanowa: kąpiel, peeling, nawilżanie i masaż. Zabieg w odrębnej lokalizacji. Termin i dokładny adres: tel. 532 128 227.',
     eyebrow: 'SPA stóp Limanowa',
@@ -974,7 +974,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'pedicure-podologiczny-limanowa': {
     slug: 'pedicure-podologiczny-limanowa',
     shortLabel: 'Pedicure podologiczny Limanowa',
-    title: 'Pedicure podologiczny Limanowa — leczniczy pedicure stóp ✔',
+    title: 'Pedicure podologiczny Limanowa | BeskidStudio',
     description:
       'Pedicure podologiczny Limanowa — specjalistyczna pielęgnacja skóry i paznokci stóp. Odrębna lokalizacja. Zapisy i adres: tel. 532 128 227.',
     eyebrow: 'Pedicure podologiczny Limanowa',

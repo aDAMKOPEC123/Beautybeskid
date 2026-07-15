@@ -18,7 +18,13 @@ interface Props {
 }
 
 export function AddAppointmentModal({
-  open,
+  ...props
+}: Props) {
+  if (!props.open) return null;
+  return <AddAppointmentModalContent {...props} />;
+}
+
+function AddAppointmentModalContent({
   onClose,
   prefillDate,
   prefillTime,
@@ -26,8 +32,6 @@ export function AddAppointmentModal({
   employees,
   services,
 }: Props) {
-  if (!open) return null;
-
   // Initialize form state with defaults
   const defaultTime = prefillTime ?? '09:00';
   const defaultDate = prefillDate ? format(new Date(prefillDate), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');

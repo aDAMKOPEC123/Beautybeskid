@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authApi } from '@/api/auth.api';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/store/auth.store';
 import { PageSEO } from '@/components/shared/SEO';
@@ -85,12 +85,17 @@ const SocialRegistrationComplete = ({ provider }: { provider: Provider }) => {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-4">
-      <PageSEO title="Dokończ rejestrację" description="Uzupełnij dane rejestracyjne." noIndex />
+      <PageSEO
+        title="Dokończ rejestrację"
+        description="Uzupełnij dane rejestracyjne."
+        canonical={provider === 'Facebook' ? '/auth/facebook/complete' : '/auth/google/complete'}
+        noIndex
+      />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
-          <CardTitle className="text-center font-heading text-3xl font-bold text-primary">
+          <h1 className="text-center font-heading text-3xl font-bold text-primary">
             Dokończ rejestrację
-          </CardTitle>
+          </h1>
           <p className="pt-2 text-center text-sm leading-relaxed text-muted-foreground">
             Potrzebujemy tylko danych niezbędnych do obsługi wizyt. Resztę informacji uzupełnisz później w profilu.
           </p>

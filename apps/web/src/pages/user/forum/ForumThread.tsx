@@ -160,6 +160,7 @@ export function ForumThread() {
   const [page, setPage] = useState(1);
   const [watching, setWatching] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const [replyAnon, setReplyAnon] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -170,6 +171,8 @@ export function ForumThread() {
 
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
+    setLoadError(false);
     Promise.all([
       forumApi.getThread(id, { page, limit: 20 }),
       forumApi.getWatchStatus(id),
@@ -178,6 +181,9 @@ export function ForumThread() {
       setPosts(threadRes.posts.data);
       setTotalPages(threadRes.posts.totalPages);
       setWatching(watchRes.watching);
+    }).catch(() => {
+      setThread(null);
+      setLoadError(true);
     }).finally(() => setLoading(false));
   }, [id, page]);
 
@@ -245,7 +251,12 @@ export function ForumThread() {
   };
 
   if (loading) return <div className="p-6 text-center text-gray-500">Ładowanie...</div>;
-  if (!thread) return <div className="p-6 text-center text-gray-400">Nie znaleziono wątku.</div>;
+  if (!thread) return (
+    <div className="p-6 text-center" role={loadError ? 'alert' : undefined}>
+      <h1 className="text-xl font-bold text-gray-800">{loadError ? 'Nie udało się wczytać wątku' : 'Nie znaleziono wątku'}</h1>
+      <Link to="/user/forum" className="mt-3 inline-block text-sm text-purple-600 hover:underline">Wróć do forum</Link>
+    </div>
+  );
 
   const canDeleteThread = isAdmin || thread.author.id === user?.id;
 
@@ -362,13 +373,16 @@ export function ForumThread() {
                 <button
                   type="button"
                   onClick={() => setQuoteState(null)}
+                  aria-label="Usuń cytat"
                   className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none"
                 >
                   ✕
                 </button>
               </div>
             )}
+            <label htmlFor="forum-reply" className="sr-only">Treść odpowiedzi</label>
             <textarea
+              id="forum-reply"
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder="Napisz odpowiedź... (użyj @admin jeśli potrzebujesz pomocy)"
@@ -378,6 +392,7 @@ export function ForumThread() {
             <div className="flex items-center justify-between mt-2">
               <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                 <input
+                  id="forum-reply-anonymous"
                   type="checkbox"
                   checked={replyAnon}
                   onChange={(e) => setReplyAnon(e.target.checked)}

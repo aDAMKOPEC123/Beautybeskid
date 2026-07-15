@@ -48,6 +48,8 @@ const internalTargetExists = async (href) => {
 
 const failures = [];
 const files = await listHtml(distDir);
+const indexedTitles = new Map();
+const indexedDescriptions = new Map();
 
 for (const file of files) {
   const relative = path.relative(distDir, file).replaceAll('\\', '/');
@@ -74,6 +76,16 @@ for (const file of files) {
   }
 
   if (!noIndex) {
+    const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1].trim() ?? '';
+    const description = html.match(/<meta name="description" content="([^"]*)"/i)?.[1].trim() ?? '';
+    const canonical = html.match(/<link rel="canonical" href="([^"]*)"/i)?.[1] ?? relative;
+    if (title.length > 65) failures.push(`${relative}: tytuł ma ${title.length} znaków`);
+    if (description.length < 70 || description.length > 170) {
+      failures.push(`${relative}: opis meta ma ${description.length} znaków`);
+    }
+    if (title) indexedTitles.set(title, new Set([...(indexedTitles.get(title) ?? []), canonical]));
+    if (description) indexedDescriptions.set(description, new Set([...(indexedDescriptions.get(description) ?? []), canonical]));
+
     const main = html.match(/<main data-seo-static-content[\s\S]*?<\/main>/i)?.[0] ?? '';
     const visibleText = main
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -97,6 +109,13 @@ for (const file of files) {
   for (const href of new Set(hrefs)) {
     if (!(await internalTargetExists(href))) failures.push(`${relative}: niedziałający link ${href}`);
   }
+}
+
+for (const [title, pages] of indexedTitles) {
+  if (pages.size > 1) failures.push(`powielony tytuł "${title}" na: ${[...pages].join(', ')}`);
+}
+for (const [description, pages] of indexedDescriptions) {
+  if (pages.size > 1) failures.push(`powielony opis meta "${description}" na: ${[...pages].join(', ')}`);
 }
 
 for (const requiredPage of ['program-lojalnosciowy.html', 'pedicure-podologiczny-limanowa.html']) {

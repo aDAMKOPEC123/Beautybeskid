@@ -76,6 +76,33 @@ const SERVICE_SEO_CONTENT: Record<string, ServiceSeoContent> = {
   },
 };
 
+const SERVICE_META_OVERRIDES: Record<string, { title: string; description: string }> = {
+  'depilacja-twarzy-woskiem': {
+    title: 'Depilacja twarzy woskiem Limanowa | BeskidStudio',
+    description: 'Depilacja twarzy woskiem w BeskidStudio koło Limanowej. Gładka skóra twarzy, możliwość depilacji nosa i uszu, cena oraz terminy online.',
+  },
+  'depilacja-wasika': {
+    title: 'Depilacja wąsika Limanowa | BeskidStudio',
+    description: 'Precyzyjna depilacja wąsika woskiem w BeskidStudio koło Limanowej. Sprawdź cenę, czas zabiegu i zarezerwuj dogodny termin online.',
+  },
+  'laminacja-brwi': {
+    title: 'Laminacja brwi – cena i terminy | BeskidStudio',
+    description: 'Laminacja brwi w BeskidStudio koło Limanowej: ułożenie i optyczne zagęszczenie włosków bez koloryzacji. Sprawdź cenę i wolne terminy.',
+  },
+  'laminacja-brwi-z-koloryzacja': {
+    title: 'Laminacja brwi z koloryzacją | BeskidStudio',
+    description: 'Laminacja brwi z koloryzacją w BeskidStudio koło Limanowej. Ułożenie włosków, dopasowanie koloru, cena i rezerwacja terminu online.',
+  },
+  'lifting-rzes-z-koloryzacja': {
+    title: 'Lifting rzęs z koloryzacją | BeskidStudio',
+    description: 'Lifting i koloryzacja naturalnych rzęs w BeskidStudio koło Limanowej. Poznaj efekt, czas zabiegu, cenę i dostępne terminy.',
+  },
+  'regulacja-brwi-wosk-peseta': {
+    title: 'Regulacja brwi woskiem lub pęsetą | BeskidStudio',
+    description: 'Profesjonalna regulacja brwi woskiem lub pęsetą w BeskidStudio koło Limanowej. Sprawdź cenę, czas zabiegu i zarezerwuj termin.',
+  },
+};
+
 export const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const loadingSeoContent = slug ? SERVICE_SEO_CONTENT[slug] : undefined;
@@ -86,6 +113,7 @@ export const ServiceDetail = () => {
     queryKey: ['service', slug],
     queryFn: () => servicesApi.getOne(slug!),
     enabled: !!slug,
+    retry: (failureCount, error: any) => error?.response?.status !== 404 && failureCount < 2,
   });
 
   const { data: reviewsData } = useQuery({
@@ -132,14 +160,32 @@ export const ServiceDetail = () => {
       <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
     </div>
   );
-  if (!service) return <div className="p-8 text-center">Usługa nie została znaleziona.</div>;
+  if (!service) return (
+    <>
+      <PageSEO
+        title="Nie znaleziono usługi | BeskidStudio"
+        description="Ta usługa nie istnieje albo nie jest już dostępna."
+        canonical="/404"
+        noIndex
+      />
+      <main className="container flex min-h-[50svh] max-w-2xl flex-col items-center justify-center px-5 py-16 text-center">
+        <h1 className="font-heading text-3xl font-bold text-espresso">Usługa nie została znaleziona</h1>
+        <p className="mt-4 text-espresso/65">Sprawdź aktualną ofertę zabiegów albo wróć na stronę główną.</p>
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <Link to="/uslugi" className="rounded-full bg-espresso px-6 py-3 text-sm font-semibold text-ivory">Zobacz aktualne usługi</Link>
+          <Link to="/" className="rounded-full border border-espresso/20 px-6 py-3 text-sm font-semibold text-espresso">Strona główna</Link>
+        </div>
+      </main>
+    </>
+  );
 
   const seoContent = SERVICE_SEO_CONTENT[service.slug];
+  const metaOverride = SERVICE_META_OVERRIDES[service.slug];
   const pageUrl = `https://kosmetologwiktoriacwik.pl/uslugi/${service.slug}`;
-  const seoTitle = seoContent?.title ?? (service.slug === 'laminacja-brwi'
-    ? 'Laminacja brwi — cena, czas i rezerwacja | BeskidStudio'
+  const seoTitle = seoContent?.title ?? metaOverride?.title ?? (service.slug === 'laminacja-brwi'
+    ? 'Laminacja brwi – cena i terminy | BeskidStudio'
     : `${service.name} — BeskidStudio By Wiktoria Ćwik Limanowa`);
-  const seoDescription = seoContent?.description ?? (service.description
+  const seoDescription = seoContent?.description ?? metaOverride?.description ?? (service.description
     ? `${service.description} Zabieg dostępny w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505).`
     : `${service.name} — zabieg w salonie BeskidStudio By Wiktoria Ćwik w Limanowej (Mordarka 505). Sprawdź szczegóły i zarezerwuj termin online.`);
 

@@ -12,6 +12,7 @@ import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
 import { MobileBottomNav } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
+import { PageSEO } from '@/components/shared/SEO';
 import { useChatStore } from '@/store/chat.store';
 import { useSocket } from '@/hooks/useSocket';
 import { getSocket } from '@/lib/socket';
@@ -88,6 +89,35 @@ const NAV_GROUPS = [
     ],
   },
 ] as const;
+
+const USER_PAGE_TITLES: Record<string, string> = {
+  '/user': 'Panel klienta',
+  '/user/wizyty': 'Moje wizyty',
+  '/user/lojalnosc': 'Punkty i nagrody',
+  '/user/chat': 'Czat z gabinetem',
+  '/user/historia': 'Historia zabiegów',
+  '/user/dziennik': 'Dziennik skóry',
+  '/user/rutyna': 'Rutyna domowa',
+  '/user/produkty': 'Moje produkty',
+  '/user/pogoda-skory': 'Profil skóry',
+  '/user/zalecenia': 'Beauty Plan',
+  '/user/polecenia': 'Program poleceń',
+  '/user/vouchery': 'Vouchery',
+  '/user/promocje-sklepowe': 'Promocje sklepowe',
+  '/user/forum': 'Forum klientek',
+  '/user/powiadomienia': 'Powiadomienia',
+  '/user/profil': 'Ustawienia konta',
+  '/user/zmien-haslo': 'Zmiana hasła',
+};
+
+const getUserPageTitle = (pathname: string) => {
+  const exactTitle = USER_PAGE_TITLES[pathname];
+  if (exactTitle) return exactTitle;
+  const parentPath = Object.keys(USER_PAGE_TITLES)
+    .filter((path) => path !== '/user' && pathname.startsWith(`${path}/`))
+    .sort((a, b) => b.length - a.length)[0];
+  return parentPath ? USER_PAGE_TITLES[parentPath] : 'Panel klienta';
+};
 
 const panelPageVariants = {
   initial: { opacity: 0, y: 18, scale: 0.992 },
@@ -299,6 +329,12 @@ const UserLayoutInner = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <PageSEO
+        title={`${getUserPageTitle(location.pathname)} | BeskidStudio`}
+        description="Prywatna sekcja panelu klienta BeskidStudio."
+        canonical={location.pathname}
+        noIndex
+      />
       <ScrollToTop />
       <header
         className="sticky top-0 z-50 flex items-center"

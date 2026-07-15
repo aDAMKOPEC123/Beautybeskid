@@ -488,11 +488,11 @@ const HeroSection = ({
   <section className="premium-home-bg premium-animated-light relative overflow-hidden grain-overlay">
     <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
       <div className="grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
-        <FadeUp>
-          <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-oak/25 bg-white/70 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-espresso/70 shadow-sm backdrop-blur">
+        <FadeUp className="min-w-0">
+          <div className="min-w-0 max-w-3xl">
+            <div className="mb-5 flex w-fit max-w-full items-center gap-2 rounded-full border border-oak/25 bg-white/70 px-3 py-1.5 text-[10px] font-semibold uppercase leading-relaxed tracking-[0.18em] text-espresso/70 shadow-sm backdrop-blur sm:tracking-[0.28em]">
               <Sparkles className="h-3.5 w-3.5 text-oak" />
-              Wiktoria Ćwik · BeskidStudio By Wiktoria Ćwik Limanowa
+              <span className="min-w-0">Wiktoria Ćwik · BeskidStudio By Wiktoria Ćwik Limanowa</span>
             </div>
 
             <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">

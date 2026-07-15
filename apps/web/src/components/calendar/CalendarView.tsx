@@ -146,7 +146,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       map.set(emp.id, days);
     });
     return map;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees, workDayResults, rangeStartMonth, rangeEndMonth]);
 
   // Green background events for working hours
@@ -213,7 +212,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     const x = info.jsEvent?.clientX ?? window.innerWidth / 2;
     const y = info.jsEvent?.clientY ?? window.innerHeight / 2;
     setSlotMenu({ date, time: `${h}:${m}`, employeeId: resourceId, x, y });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hhPanelOpen]);
 
   const handleDateSelect = useCallback((arg: DateSelectArg) => {

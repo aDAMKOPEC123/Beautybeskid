@@ -8,7 +8,7 @@ import { resetPasswordSchema } from '@cosmo/shared';
 import { authApi } from '@/api/auth.api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PageSEO } from '@/components/shared/SEO';
 
 export const ResetPassword = () => {
@@ -44,9 +44,10 @@ export const ResetPassword = () => {
   if (!token) {
     return (
       <div className="flex justify-center p-8">
-        <PageSEO title="Reset hasła" description="Resetowanie hasła." noIndex />
+        <PageSEO title="Reset hasła" description="Resetowanie hasła." canonical="/auth/reset-password" noIndex />
         <Card className="w-full max-w-md p-8 text-center text-destructive border-destructive">
-          Nieprawidłowy link do resetu hasła (brak tokenu).
+          <h1 className="text-2xl font-heading font-bold">Nieprawidłowy link</h1>
+          <p className="mt-3">W adresie brakuje tokenu resetowania hasła.</p>
         </Card>
       </div>
     );
@@ -55,9 +56,10 @@ export const ResetPassword = () => {
   if (expired) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
+        <PageSEO title="Link resetowania wygasł" description="Link resetowania hasła wygasł." canonical="/auth/reset-password" noIndex />
         <Card className="w-full max-w-md animate-enter">
           <CardHeader>
-            <CardTitle className="text-2xl text-center font-heading text-destructive font-bold">Link wygasł</CardTitle>
+            <h1 className="text-2xl text-center font-heading text-destructive font-bold">Link wygasł</h1>
             <p className="text-center text-sm text-muted-foreground mt-2">
               Link do resetu hasła jest ważny przez <strong>1 godzinę</strong>. Wyślij nowy link i spróbuj ponownie.
             </p>
@@ -77,16 +79,17 @@ export const ResetPassword = () => {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
-      <PageSEO title="Nowe hasło" description="Ustaw nowe hasło do konta." noIndex />
+      <PageSEO title="Nowe hasło" description="Ustaw nowe hasło do konta." canonical="/auth/reset-password" noIndex />
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
-          <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Nowe Hasło</CardTitle>
+          <h1 className="text-3xl text-center font-heading text-primary font-bold">Nowe hasło</h1>
           <p className="text-center text-sm text-muted-foreground mt-2">Podaj nowe, silne hasło i je zapamiętaj.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Input type="password" placeholder="Podaj nowe hasło" className="bg-muted/50 py-6" {...register('password')} />
+              <label htmlFor="reset-password" className="sr-only">Nowe hasło</label>
+              <Input id="reset-password" type="password" autoComplete="new-password" placeholder="Podaj nowe hasło" className="bg-muted/50 py-6" {...register('password')} />
               {errors.password && <span className="text-xs text-destructive mt-1 block px-1">{errors.password.message as string}</span>}
             </div>
             <Button type="submit" className="w-full py-6 mt-4 text-base font-semibold shadow-xl shadow-primary/20" disabled={loading}>

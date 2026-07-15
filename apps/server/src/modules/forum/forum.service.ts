@@ -468,15 +468,20 @@ export const searchThreads = async (
   page: number,
   limit: number
 ) => {
-  if (q.length < 2) throw new AppError('Wpisz co najmniej 2 znaki', 400);
+  const normalizedQuery = q.trim();
+  if (normalizedQuery.length < 2 && tags.length === 0) {
+    throw new AppError('Wpisz co najmniej 2 znaki lub wybierz tag', 400);
+  }
 
   const where: any = {
     isDeleted: false,
-    OR: [
-      { title: { contains: q, mode: 'insensitive' } },
-      { content: { contains: q, mode: 'insensitive' } },
-    ],
   };
+  if (normalizedQuery.length >= 2) {
+    where.OR = [
+      { title: { contains: normalizedQuery, mode: 'insensitive' } },
+      { content: { contains: normalizedQuery, mode: 'insensitive' } },
+    ];
+  }
   if (tags.length > 0) where.tags = { hasSome: tags };
   if (categoryId) where.categoryId = categoryId;
 

@@ -89,8 +89,6 @@ export function PwaInstallButton({ className }: Props) {
     return () => window.removeEventListener(PWA_INSTALL_PROMPT_EVENT, handlePromptRequest);
   }, [isStandalone]);
 
-  if (isStandalone || (!canShow && !modalOpen)) return null;
-
   const hasPendingPanelEntry = Boolean(pendingNavigation?.continueTo);
   const isAndroid = platform === 'android';
   const isIosChrome = platform === 'ios-chrome';
@@ -145,6 +143,8 @@ export function PwaInstallButton({ className }: Props) {
     impressionMarkedRef.current = true;
     markPwaInstallImpression(pendingNavigation?.reason ?? 'manual');
   }, [modalOpen, pendingNavigation?.reason]);
+
+  if (isStandalone || (!canShow && !modalOpen)) return null;
 
   return (
     <div className={`fixed right-4 z-50 flex flex-col items-end gap-2 ${className ?? 'bottom-20 md:bottom-4'}`}>

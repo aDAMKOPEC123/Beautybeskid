@@ -56,14 +56,16 @@ export const GoogleAuthButton = ({
   }
 
   return (
-    <GoogleOAuthProvider clientId={clientId}>
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => toast.error('Logowanie przez Google nie powiodło się')}
-        useOneTap={false}
-        width="100%"
-        text="continue_with"
-      />
-    </GoogleOAuthProvider>
+    <div className="flex justify-center overflow-hidden">
+      <GoogleOAuthProvider clientId={clientId}>
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={() => toast.error('Logowanie przez Google nie powiodło się')}
+          useOneTap={false}
+          width="300"
+          text="continue_with"
+        />
+      </GoogleOAuthProvider>
+    </div>
   );
 };

@@ -20,7 +20,13 @@ interface Props {
 }
 
 export function HappyHourModal({
-  open,
+  ...props
+}: Props) {
+  if (!props.open) return null;
+  return <HappyHourModalContent {...props} />;
+}
+
+function HappyHourModalContent({
   onClose,
   prefillDate,
   prefillHour,
@@ -28,8 +34,6 @@ export function HappyHourModal({
   employees,
   services,
 }: Props) {
-  if (!open) return null;
-
   const qc = useQueryClient();
   const effectiveDate = prefillDate ?? new Date();
 

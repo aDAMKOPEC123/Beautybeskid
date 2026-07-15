@@ -170,13 +170,15 @@ export function SummaryModal({ userId, onClose }: SummaryModalProps) {
       />
 
       {/* Modal */}
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1000, width: '90%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 16px 60px rgba(0,0,0,0.2)' }}>
+      <div role="dialog" aria-modal="true" aria-labelledby="journal-summary-title" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1000, width: '90%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 16px 60px rgba(0,0,0,0.2)' }}>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#1A3828' }}>Podsumowanie dziennika</div>
+          <h2 id="journal-summary-title" style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1A3828' }}>Podsumowanie dziennika</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label htmlFor="journal-summary-range" className="sr-only">Zakres podsumowania</label>
             <select
+              id="journal-summary-range"
               value={range}
               onChange={(e) => setRange(e.target.value as Range)}
               style={{ padding: '6px 10px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 12, color: '#1A3828', background: '#faf9f7' }}
@@ -185,7 +187,7 @@ export function SummaryModal({ userId, onClose }: SummaryModalProps) {
               <option value="90">Ostatnie 90 dni</option>
               <option value="all">Cała historia</option>
             </select>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0A89E', padding: 4 }}>
+            <button type="button" onClick={onClose} aria-label="Zamknij podsumowanie" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0A89E', padding: 4 }}>
               <X size={20} />
             </button>
           </div>
@@ -195,8 +197,10 @@ export function SummaryModal({ userId, onClose }: SummaryModalProps) {
         <div style={{ display: 'flex', gap: 4, padding: 4, background: '#faf9f7', borderRadius: 12, marginBottom: 20 }}>
           {tabs.map((t) => (
             <button
+              type="button"
               key={t.key}
               onClick={() => setTab(t.key)}
+              aria-pressed={tab === t.key}
               style={{ flex: 1, padding: '8px 4px', border: 'none', borderRadius: 8, background: tab === t.key ? '#C4965A' : 'transparent', color: tab === t.key ? '#fff' : '#999', fontSize: 11, fontWeight: tab === t.key ? 700 : 400, cursor: 'pointer', transition: 'all 0.15s' }}
             >
               {t.label}

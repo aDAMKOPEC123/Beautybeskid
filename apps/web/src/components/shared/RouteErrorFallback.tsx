@@ -16,19 +16,19 @@ export const RouteErrorFallback = () => {
   const isChunkError = isChunkLoadError(error);
   const { user, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    markDocumentNoIndex();
-    if (isChunkError) {
-      reloadOnceForChunkError('route');
-    }
-  }, [isChunkError, location.pathname]);
-
   const status = isRouteErrorResponse(error) ? error.status : null;
   const title = isChunkError
     ? 'Nie udało się załadować strony'
     : status === 404
       ? 'Nie znaleziono strony'
       : 'Coś poszło nie tak';
+
+  useEffect(() => {
+    markDocumentNoIndex(`${title} | BeskidStudio`);
+    if (isChunkError) {
+      reloadOnceForChunkError('route');
+    }
+  }, [isChunkError, location.pathname, title]);
   const description = isChunkError
     ? 'Odśwież stronę, aby spróbować ponownie. Jeśli problem się powtórzy, wróć za kilka minut.'
     : status === 404

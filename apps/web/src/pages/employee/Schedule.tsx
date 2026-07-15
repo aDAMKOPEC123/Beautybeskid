@@ -201,7 +201,6 @@ export const EmployeeSchedule = () => {
       };
     }
     setDayStates(states);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataKey, weekKey]);
 
   const hasAnyConfiguration = weekDays.some((day) =>

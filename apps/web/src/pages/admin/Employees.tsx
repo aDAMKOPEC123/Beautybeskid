@@ -199,7 +199,6 @@ function AdminWeekScheduleEditor({ employeeId }: { employeeId: string }) {
       states[key] = { isWorking: wd?.isWorking ?? false, timeBlocks: wd?.timeBlocks ?? DEFAULT_BLOCKS };
     }
     setDayStates(states);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataKey, weekKey]);
 
   const hasAnyConfig = weekDays.some((day) => allWorkDays.some((w) => isSameDay(new Date(w.date), day)));

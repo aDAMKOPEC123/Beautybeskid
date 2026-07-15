@@ -204,7 +204,6 @@ export function UserVouchery() {
         .then((v) => setVouchers((prev) => ({ ...prev, [code]: v })))
         .catch(() => setVouchers((prev) => ({ ...prev, [code]: 'error' })));
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackedCodes]);
 
   const handleAdd = async () => {

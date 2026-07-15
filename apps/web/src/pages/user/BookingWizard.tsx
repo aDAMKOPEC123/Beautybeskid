@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input';
 import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
+import { PageSEO } from '@/components/shared/SEO';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -676,8 +677,10 @@ function StepNotes({
         { label: 'Opis problemu / oczekiwania', value: problemDescription, field: 'problemDescription', rows: 3, placeholder: 'Opisz co chcesz osiągnąć lub co Cię niepokoi...' },
       ].map(({ label, value, field, rows, placeholder }) => (
         <div key={field} className="space-y-1">
-          <label className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
+          <label htmlFor={`booking-${field}`} className="text-sm font-medium" style={{ color: '#1A3828' }}>{label}</label>
           <textarea
+            id={`booking-${field}`}
+            name={field}
             value={value}
             onChange={(e) => onChange(field, e.target.value)}
             rows={rows}
@@ -691,8 +694,11 @@ function StepNotes({
 
       {/* Photo upload */}
       <div className="space-y-2">
-        <label className="text-sm font-medium" style={{ color: '#1A3828' }}>Zdjęcie (opcjonalnie)</label>
+        <label htmlFor="booking-photo" className="text-sm font-medium" style={{ color: '#1A3828' }}>Zdjęcie (opcjonalnie)</label>
         <div
+          role={photo ? undefined : 'button'}
+          tabIndex={photo ? -1 : 0}
+          aria-label={photo ? undefined : 'Dodaj zdjęcie do rezerwacji'}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
@@ -702,6 +708,12 @@ function StepNotes({
             if (file) handleFile(file);
           }}
           onClick={() => !photo && fileRef.current?.click()}
+          onKeyDown={(event) => {
+            if (!photo && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault();
+              fileRef.current?.click();
+            }
+          }}
           className="rounded-xl p-6 text-center transition-colors"
           style={{
             border: `2px dashed ${dragOver ? '#C4965A' : 'rgba(196,150,90,0.3)'}`,
@@ -713,7 +725,7 @@ function StepNotes({
             <div className="flex items-center gap-4">
               <img
                 src={URL.createObjectURL(photo)}
-                alt="Preview"
+                alt="Podgląd zdjęcia do rezerwacji"
                 className="w-20 h-20 object-cover rounded-lg"
                 style={{ border: '1px solid rgba(0,0,0,0.1)' }}
                 loading="lazy"
@@ -723,6 +735,8 @@ function StepNotes({
                 <p className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>{(photo.size / 1024).toFixed(0)} KB</p>
               </div>
               <button
+                type="button"
+                aria-label="Usuń dodane zdjęcie"
                 onClick={(e) => { e.stopPropagation(); onChange('photo', null); }}
                 className="p-1 rounded transition-opacity hover:opacity-70"
                 style={{ color: '#DC2626' }}
@@ -746,6 +760,7 @@ function StepNotes({
           )}
         </div>
         <input
+          id="booking-photo"
           ref={fileRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
@@ -848,7 +863,7 @@ function StepConfirm({
     }).catch((e: any) => {
       toast.error(e.response?.data?.message || 'Nie udało się automatycznie zastosować kodu');
     }).finally(() => setValidating(false));
-  }, [isAuthenticated, cleanPreselectedCode, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, cleanPreselectedCode, state.service?.id]);
   const { data: rewards = [] } = useQuery<any[]>({
     queryKey: ['loyalty', 'rewards'],
     queryFn: loyaltyApi.getRewards,
@@ -1163,12 +1178,22 @@ export const BookingWizard = () => {
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
+    const media = window.matchMedia('(max-width: 1023px)');
+    let isIntersecting = false;
+    const updateFloatingVisibility = () => setFloatingVisible(media.matches && !isIntersecting);
     const observer = new IntersectionObserver(
-      ([entry]) => setFloatingVisible(!entry.isIntersecting),
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        updateFloatingVisibility();
+      },
       { threshold: 0.5 }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    media.addEventListener('change', updateFloatingVisibility);
+    return () => {
+      observer.disconnect();
+      media.removeEventListener('change', updateFloatingVisibility);
+    };
   }, []);
 
   const [state, setState] = useState<WizardState>(() => savedDraft ? {
@@ -1212,7 +1237,7 @@ export const BookingWizard = () => {
     if (emp && !state.employee) {
       setState((prev) => ({ ...prev, employee: emp }));
     }
-  }, [allEmployees, state.service?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [allEmployees, state.service?.id]);
 
   const update = useCallback((field: string, value: any) => {
     setState((prev) => ({ ...prev, [field]: value }));
@@ -1326,7 +1351,14 @@ export const BookingWizard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-enter">
+    <>
+    <PageSEO
+      title="Umów wizytę online | BeskidStudio"
+      description="Wybierz usługę, specjalistkę i dogodny termin wizyty w BeskidStudio."
+      canonical="/rezerwacja"
+      noIndex
+    />
+    <div className="mx-auto max-w-4xl space-y-8 px-4 animate-enter sm:px-6 lg:px-0">
       <div>
         <h1 data-tour="booking-wizard" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
           Umów wizytę
@@ -1361,7 +1393,7 @@ export const BookingWizard = () => {
                 {isComplete ? <CheckCircle2 size={16} /> : currentStep}
               </span>
               <span
-                className="truncate text-[9px] leading-tight font-medium"
+                className="w-full break-words px-0.5 text-[8px] leading-tight font-medium sm:text-[9px]"
                 style={{ color: isCurrent ? '#1A3828' : 'rgba(20,40,28,0.45)' }}
               >
                 {label}
@@ -1499,5 +1531,6 @@ export const BookingWizard = () => {
       </div>
       )}
     </div>
+    </>
   );
 };

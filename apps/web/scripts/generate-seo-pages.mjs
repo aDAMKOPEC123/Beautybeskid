@@ -10,6 +10,30 @@ const template = (await readFile(path.join(DIST_DIR, 'index.html'), 'utf8'))
   .replace(/\s*<script type="application\/ld\+json" data-generated-seo>[\s\S]*?<\/script>/g, '');
 
 const serviceSeoOverrides = {
+  'depilacja-twarzy-woskiem': {
+    title: 'Depilacja twarzy woskiem Limanowa | BeskidStudio',
+    description: 'Depilacja woskiem wybranych partii twarzy w BeskidStudio koło Limanowej. Sprawdź przebieg, cenę i dostępne terminy online.',
+  },
+  'depilacja-wasika': {
+    title: 'Depilacja wąsika Limanowa | BeskidStudio',
+    description: 'Precyzyjna depilacja wąsika woskiem w BeskidStudio koło Limanowej. Poznaj zalecenia, cenę i zarezerwuj dogodny termin online.',
+  },
+  'laminacja-brwi': {
+    title: 'Laminacja brwi – cena i terminy | BeskidStudio',
+    description: 'Laminacja brwi koło Limanowej: uporządkowanie włosków i naturalny efekt. Sprawdź przebieg, cenę oraz wolne terminy w BeskidStudio.',
+  },
+  'laminacja-brwi-z-koloryzacja': {
+    title: 'Laminacja brwi z koloryzacją | BeskidStudio',
+    description: 'Laminacja brwi połączona z indywidualnie dobraną koloryzacją w BeskidStudio koło Limanowej. Sprawdź cenę i zarezerwuj termin.',
+  },
+  'lifting-rzes-z-koloryzacja': {
+    title: 'Lifting rzęs z koloryzacją | BeskidStudio',
+    description: 'Lifting i koloryzacja naturalnych rzęs w BeskidStudio koło Limanowej. Poznaj efekt, zalecenia, cenę i dostępne terminy.',
+  },
+  'regulacja-brwi-wosk-peseta': {
+    title: 'Regulacja brwi woskiem lub pęsetą | BeskidStudio',
+    description: 'Profesjonalna regulacja brwi woskiem lub pęsetą koło Limanowej. Dobór kształtu do twarzy, aktualna cena i terminy online.',
+  },
   'henna-brwi-lifting-rzes-set': {
     title: 'Henna brwi i lifting rzęs SET Limanowa | BeskidStudio',
     description: 'Henna brwi oraz lifting z koloryzacją rzęs podczas jednej wizyty w BeskidStudio koło Limanowej. Poznaj zakres zabiegu, cenę i wolne terminy.',
@@ -34,6 +58,29 @@ const serviceSeoOverrides = {
       { question: 'Ile trwa zabieg LamiSet?', answer: 'Na kompleksową stylizację brwi i rzęs zarezerwowane jest 90 minut.' },
     ],
   },
+};
+
+const localPageTitles = {
+  'kosmetolog-limanowa': 'Kosmetolog Limanowa | BeskidStudio',
+  'kosmetolog-mordarka': 'Kosmetolog Mordarka | BeskidStudio',
+  'kosmetyczka-limanowa': 'Kosmetyczka Limanowa – zabiegi beauty | BeskidStudio',
+  'laminacja-brwi-limanowa': 'Laminacja brwi Limanowa – efekty i cena | BeskidStudio',
+  'laminacja-rzes-limanowa': 'Laminacja rzęs Limanowa | BeskidStudio',
+  'oprawa-oka-limanowa': 'Oprawa oka Limanowa – brwi i rzęsy | BeskidStudio',
+  'podolog-limanowa': 'Podolog Limanowa – zapisy telefoniczne | BeskidStudio',
+  'spa-stop-limanowa': 'SPA stóp Limanowa – pielęgnacja i relaks | BeskidStudio',
+  'wrastajace-paznokcie-limanowa': 'Wrastające paznokcie Limanowa – konsultacja | BeskidStudio',
+  'pedicure-podologiczny-limanowa': 'Pedicure podologiczny Limanowa | BeskidStudio',
+};
+
+const blogSeoTitleOverrides = {
+  'laminacja-brwi-na-czym-polega-ile-trwa': 'Laminacja brwi – na czym polega i ile trwa?',
+  'lamiset-laminacja-brwi-z-henna-w-jednym-zabiegu': 'LamiSet – laminacja brwi z henną w jednym zabiegu',
+  'henna-brwi-koloryzacja-ktora-podkresli-spojrzenie': 'Henna brwi – koloryzacja, która podkreśla spojrzenie',
+  'farbka-do-brwi-naturalna-koloryzacja-i-pieknie-podkreslone-brwi': 'Farbka do brwi – naturalna koloryzacja',
+  'henna-pudrowa-brwi-naturalna-stylizacja-piekny-ksztalt-i-efekt-zadbanych-brwi': 'Henna pudrowa brwi – naturalna stylizacja',
+  'laminacja-brwi-efekty-pielegnacja-przeciwwskazania': 'Laminacja brwi – efekty, pielęgnacja i przeciwwskazania',
+  'lifting-rzes-naturalnie-podkrecone-i-uniesione-rzesy-bez-zalotki': 'Lifting rzęs – naturalne uniesienie bez zalotki',
 };
 
 const corePages = [
@@ -111,6 +158,12 @@ const corePages = [
   },
 ];
 
+function truncate(value, maxLength) {
+  const text = String(value ?? '').replace(/\s+/g, ' ').trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 1).replace(/\s+\S*$/, '')}…`;
+}
+
 const localPages = [
   ['kosmetolog-limanowa', 'Kosmetolog Limanowa', 'Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Szukasz kosmetologa w Limanowej? BeskidStudio By Wiktoria Ćwik to gabinet kosmetologiczny w Mordarce 505, kilka minut od centrum Limanowej. Każdą wizytę zaczynamy od indywidualnej konsultacji — omawiamy potrzeby skóry, dobieramy zabieg i ustalamy plan dalszej pielęgnacji. W ofercie: konsultacje kosmetologiczne, laminacja brwi i rzęs, henna z regulacją, oprawa oka i zabiegi pielęgnacyjne na twarz. Pracujemy z klientkami z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i całego powiatu limanowskiego. Cennik, czas zabiegów i wolne terminy sprawdzisz online. Podologia jest aktywna w odrębnej lokalizacji i wymaga kontaktu telefonicznego.'],
   ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Laminacja brwi i rzęs oraz pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Gabinet kosmetologiczny BeskidStudio w Mordarce 505 to salon prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Podczas pierwszej wizyty omawiamy potrzeby skóry, dotychczasową pielęgnację domową, oczekiwania i przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki. Klientki z Mordarki cenią krótki dojazd, spokojną atmosferę i możliwość sprawdzenia terminów online bez telefonowania.'],
@@ -127,10 +180,10 @@ const localPages = [
 
   return {
   path: `/${slug}`,
-  title: `${label} — BeskidStudio Wiktoria Ćwik`,
-  description: phoneOnly
+  title: localPageTitles[slug] || `${label} | BeskidStudio`,
+  description: truncate(phoneOnly
     ? `${label}: ${offer}`
-    : `${label}: ${offer} Umów wizytę online — BeskidStudio koło Limanowej.`,
+    : `${label}: ${offer} Umów wizytę online — BeskidStudio koło Limanowej.`, 165),
   heading: `${label} – BeskidStudio Wiktoria Ćwik`,
   lead: offer,
   bodyText,
@@ -159,12 +212,6 @@ const escapeHtml = (value) => String(value ?? '')
   .replaceAll('"', '&quot;');
 
 const cleanText = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
-
-const truncate = (value, maxLength) => {
-  const text = cleanText(value);
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 1).replace(/\s+\S*$/, '')}…`;
-};
 
 const richTextToText = (value) => {
   if (!value) return '';
@@ -352,7 +399,7 @@ const loadDynamicPages = async () => {
       );
       return {
         path: `/blog/${post.slug}`,
-        title: truncate(post.metaTitle || `${post.title} | Wiktoria Ćwik`, 65),
+        title: truncate(blogSeoTitleOverrides[post.slug] || post.metaTitle || `${post.title} | Wiktoria Ćwik`, 65),
         description,
         heading: post.title,
         lead: truncate(post.excerpt || description, 360),

@@ -81,16 +81,22 @@ export function ForumCategory() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [categoryName, setCategoryName] = useState('');
 
   useEffect(() => {
     if (!categorySlug) return;
     setLoading(true);
+    setLoadError(false);
     forumApi.getThreadsByCategory(categorySlug, { page, limit: 20, sort })
       .then((res) => {
         setThreads(res.data);
         setTotalPages(res.totalPages);
         if (res.data.length > 0) setCategoryName(res.data[0].category.name);
+      })
+      .catch(() => {
+        setThreads([]);
+        setLoadError(true);
       })
       .finally(() => setLoading(false));
   }, [categorySlug, page, sort]);
@@ -108,6 +114,8 @@ export function ForumCategory() {
         <span>›</span>
         <span className="text-gray-800 font-medium">{categoryName || categorySlug}</span>
       </div>
+
+      <h1 className="mb-4 text-2xl font-bold text-gray-800">{categoryName || categorySlug || 'Kategoria forum'}</h1>
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div className="flex gap-2">
@@ -133,6 +141,8 @@ export function ForumCategory() {
 
       {loading ? (
         <div className="text-center text-gray-500 py-8">Ładowanie...</div>
+      ) : loadError ? (
+        <div className="text-center text-red-600 py-8" role="alert">Nie udało się pobrać wątków. Spróbuj ponownie.</div>
       ) : threads.length === 0 ? (
         <div className="text-center text-gray-400 py-8">Brak wątków w tej kategorii.</div>
       ) : (

@@ -279,7 +279,9 @@ export const BlogList = () => {
                 style={{ color: 'rgba(20,40,28,0.4)' }}
               />
               <input
+                id="blog-search"
                 type="text"
+                aria-label="Szukaj artykułu"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Szukaj artykułu..."
@@ -294,6 +296,8 @@ export const BlogList = () => {
               />
               {search && (
                 <button
+                  type="button"
+                  aria-label="Wyczyść wyszukiwanie"
                   onClick={() => setSearch('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/5 transition-colors"
                   style={{ color: 'rgba(20,40,28,0.4)' }}

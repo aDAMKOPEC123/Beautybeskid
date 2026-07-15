@@ -8,7 +8,7 @@ import { registerSchema, RegisterInput } from '@cosmo/shared';
 import { authApi } from '@/api/auth.api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Camera, ImageIcon, UserRound } from 'lucide-react';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { FacebookAuthButton, facebookErrorMessages } from '@/components/auth/FacebookAuthButton';
@@ -69,13 +69,14 @@ export const Register = () => {
       <PageSEO
         title="Rejestracja"
         description="Zarejestruj się w salonie BeskidStudio By Wiktoria Ćwik i zarezerwuj wizytę online."
+        canonical="/auth/register"
         noIndex
       />
       {emailSent ? (
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
           <Card className="w-full max-w-md animate-enter">
             <CardHeader>
-              <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Sprawdź skrzynkę</CardTitle>
+              <h1 className="text-3xl text-center font-heading text-primary font-bold">Sprawdź skrzynkę</h1>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-muted-foreground">
@@ -95,7 +96,7 @@ export const Register = () => {
       <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] p-4">
       <Card className="w-full max-w-md animate-enter">
         <CardHeader>
-          <CardTitle className="text-3xl text-center font-heading text-primary font-bold">Rejestracja</CardTitle>
+          <h1 className="text-3xl text-center font-heading text-primary font-bold">Rejestracja</h1>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -125,18 +126,23 @@ export const Register = () => {
                 className="hidden" onChange={handleFileSelect} />
             </div>
             <div>
-              <Input placeholder="Imię i nazwisko" className="bg-muted/50 py-6" {...register('name')} />
+              <label htmlFor="register-name" className="sr-only">Imię i nazwisko</label>
+              <Input id="register-name" autoComplete="name" placeholder="Imię i nazwisko" className="bg-muted/50 py-6" {...register('name')} />
               {errors.name && <span className="text-xs text-destructive mt-1 block px-1">{errors.name.message as string}</span>}
             </div>
             <div>
-              <Input type="email" placeholder="Twój email" className="bg-muted/50 py-6" {...register('email')} />
+              <label htmlFor="register-email" className="sr-only">Adres email</label>
+              <Input id="register-email" type="email" autoComplete="email" placeholder="Twój email" className="bg-muted/50 py-6" {...register('email')} />
               {errors.email && <span className="text-xs text-destructive mt-1 block px-1">{errors.email.message as string}</span>}
             </div>
             <div>
-              <Input type="tel" placeholder="Telefon (opcjonalnie)" className="bg-muted/50 py-6" {...register('phone')} />
+              <label htmlFor="register-phone" className="sr-only">Telefon (opcjonalnie)</label>
+              <Input id="register-phone" type="tel" autoComplete="tel" placeholder="Telefon (opcjonalnie)" className="bg-muted/50 py-6" {...register('phone')} />
             </div>
             <div>
+              <label htmlFor="register-ambassador" className="sr-only">Kod ambasadorski (opcjonalnie)</label>
               <Input
+                id="register-ambassador"
                 placeholder="Kod ambasadorski (opcjonalnie)"
                 className="bg-muted/50 py-6 uppercase"
                 {...register('ambassadorCode')}
@@ -147,7 +153,8 @@ export const Register = () => {
               />
             </div>
             <div>
-              <Input type="password" placeholder="Hasło" className="bg-muted/50 py-6" {...register('password')} />
+              <label htmlFor="register-password" className="sr-only">Hasło</label>
+              <Input id="register-password" type="password" autoComplete="new-password" placeholder="Hasło" className="bg-muted/50 py-6" {...register('password')} />
               {errors.password && <span className="text-xs text-destructive mt-1 block px-1">{errors.password.message as string}</span>}
             </div>
             <div className="space-y-3 pt-2 border-t border-border/50">

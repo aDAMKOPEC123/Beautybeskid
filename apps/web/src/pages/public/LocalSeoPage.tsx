@@ -92,9 +92,9 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
 
       <section className="relative overflow-hidden bg-cream">
         <div className="container grid min-h-[calc(100svh-72px)] max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-[1fr_0.82fr] lg:py-20">
-          <div>
+          <div className="min-w-0">
             <p className={sectionLabelClass}>{page.eyebrow}</p>
-            <h1 className="max-w-4xl font-heading text-4xl font-bold leading-tight text-espresso sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl break-words font-heading text-4xl font-bold leading-tight text-espresso sm:text-5xl lg:text-6xl">
               {page.h1}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-espresso/68">
@@ -110,7 +110,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
                 size="lg"
-                className="premium-shine gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.3)] hover:bg-oak/90"
+                className="premium-shine w-full gap-2 whitespace-normal bg-oak text-center text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.3)] hover:bg-oak/90 sm:w-auto"
                 asChild
               >
                 {page.phoneOnly ? (
@@ -126,7 +126,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                 )}
               </Button>
               {!page.phoneOnly ? (
-                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                <Button variant="outline" size="lg" className="w-full gap-2 whitespace-normal bg-white text-center sm:w-auto" asChild>
                   <Link to="/kontakt">
                     Kontakt z salonem
                     <Phone className="h-4 w-4" />
@@ -134,19 +134,19 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                 </Button>
               ) : null}
               {page.slug.startsWith('laminacja-brwi') ? (
-                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                <Button variant="outline" size="lg" className="w-full gap-2 whitespace-normal bg-white text-center sm:w-auto" asChild>
                   <Link to="/uslugi/laminacja-brwi">Cena i szczegóły zabiegu</Link>
                 </Button>
               ) : page.slug.startsWith('laminacja-rzes') ? (
-                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                <Button variant="outline" size="lg" className="w-full gap-2 whitespace-normal bg-white text-center sm:w-auto" asChild>
                   <Link to="/uslugi/laminacja-rzes">Cena i szczegóły zabiegu</Link>
                 </Button>
               ) : page.slug.startsWith('oprawa-oka') ? (
-                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                <Button variant="outline" size="lg" className="w-full gap-2 whitespace-normal bg-white text-center sm:w-auto" asChild>
                   <Link to="/uslugi">Zobacz pełną ofertę zabiegów</Link>
                 </Button>
               ) : page.slug.startsWith('podolog') || page.slug.startsWith('podologia') || page.slug.startsWith('spa-stop') ? (
-                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                <Button variant="outline" size="lg" className="w-full gap-2 whitespace-normal bg-white text-center sm:w-auto" asChild>
                   <Link to="/uslugi">Zobacz pełną ofertę zabiegów</Link>
                 </Button>
               ) : page.slug.startsWith('wrastajace-paznokcie') ? (
@@ -383,7 +383,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
 
       <section className="bg-cream py-14">
         <div className="container flex max-w-5xl flex-col items-center justify-between gap-5 px-5 text-center md:flex-row md:text-left">
-          <div>
+          <div className="min-w-0">
             <p className={sectionLabelClass}>{page.phoneOnly ? 'Zapisy telefoniczne' : 'Rezerwacja'}</p>
             <h2 className="font-heading text-3xl font-bold text-espresso">
               {page.phoneOnly

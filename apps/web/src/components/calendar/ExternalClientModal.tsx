@@ -20,7 +20,13 @@ interface Props {
 type Step = 'form' | 'summary';
 
 export function ExternalClientModal({
-  open,
+  ...props
+}: Props) {
+  if (!props.open) return null;
+  return <ExternalClientModalContent {...props} />;
+}
+
+function ExternalClientModalContent({
   onClose,
   prefillDate,
   prefillTime,
@@ -28,8 +34,6 @@ export function ExternalClientModal({
   employees,
   services,
 }: Props) {
-  if (!open) return null;
-
   const defaultTimeFrom = prefillTime ?? '09:00';
   const defaultDate = prefillDate
     ? format(new Date(prefillDate), 'yyyy-MM-dd')

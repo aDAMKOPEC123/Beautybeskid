@@ -19,7 +19,12 @@ export function ForumUserProfile() {
   }, [userId]);
 
   if (loading) return <div className="p-6 text-center text-gray-500">Ładowanie...</div>;
-  if (notFound || !data) return <div className="p-6 text-center text-gray-400">Nie znaleziono użytkownika.</div>;
+  if (notFound || !data) return (
+    <div className="p-6 text-center">
+      <h1 className="text-xl font-bold text-gray-800">Nie znaleziono użytkownika</h1>
+      <Link to="/user/forum" className="mt-3 inline-block text-sm text-purple-600 hover:underline">Wróć do forum</Link>
+    </div>
+  );
 
   const { user, postCount, data: threads } = data;
   const rankLabel = getRankLabel(postCount);

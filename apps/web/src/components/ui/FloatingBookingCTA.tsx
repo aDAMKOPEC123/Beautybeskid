@@ -33,7 +33,7 @@ export const FloatingBookingCTA = () => {
 
   return (
     <div
-      className={`glass-dark fixed bottom-0 left-0 right-0 z-40 border-t border-oak/30 shadow-[0_-18px_45px_rgba(26,56,40,0.22)] md:bottom-5 md:left-auto md:right-5 md:w-[390px] md:rounded-lg md:border transition-transform duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+      className={`glass-dark fixed bottom-0 left-0 right-0 z-40 border-t border-oak/30 shadow-[0_-18px_45px_rgba(26,56,40,0.22)] transition-transform [transition-duration:400ms] [transition-timing-function:cubic-bezier(0.76,0,0.24,1)] md:bottom-5 md:left-auto md:right-5 md:w-[390px] md:rounded-lg md:border ${
         visible && !isHidden ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
@@ -43,8 +43,9 @@ export const FloatingBookingCTA = () => {
                 <CalendarCheck className="h-3.5 w-3.5" />
                 Umów wizytę
               </p>
-              <p className="truncate text-sm text-ivory/82">
-                Bezpłatna konsultacja dla nowych klientek
+              <p className="text-sm leading-snug text-ivory/82">
+                <span className="md:hidden">Bezpłatna konsultacja</span>
+                <span className="hidden md:inline">Bezpłatna konsultacja dla nowych klientek</span>
               </p>
             </div>
             <Link

@@ -338,10 +338,11 @@ export function SkinTypeQuiz({ onComplete, isSubmitting = false }: Props) {
 
           {/* Manual override */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor="quiz-skin-type" className="text-xs font-medium text-muted-foreground">
               Zmień typ ręcznie (opcjonalnie)
             </label>
             <select
+              id="quiz-skin-type"
               value={overrideSkinType ?? result.winner}
               onChange={e => setOverrideSkinType(e.target.value as SkinTypeKey)}
               className="w-full px-3 py-2 text-sm rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/30"

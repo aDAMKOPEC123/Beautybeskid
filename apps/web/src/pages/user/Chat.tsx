@@ -153,7 +153,7 @@ export const UserChat = () => {
     return (
       <div className="flex-1 flex items-center justify-center" style={{ color: 'rgba(20,40,28,0.5)' }}>
         <Loader2 size={24} className="animate-spin mr-2" />
-        Ladowanie czatu...
+        Ładowanie czatu...
       </div>
     );
   }
@@ -175,11 +175,11 @@ export const UserChat = () => {
         className="p-4 shrink-0"
         style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       >
-        <h2 data-tour="chat-window" className="w-fit font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
+        <h1 data-tour="chat-window" className="w-fit font-heading font-bold text-xl" style={{ color: '#1A3828' }}>
           Czat z konsultantem
-        </h2>
+        </h1>
         <p className="text-sm" style={{ color: 'rgba(20,40,28,0.5)' }}>
-          Odpowiemy najszybciej jak to mozliwe
+          Odpowiemy najszybciej jak to możliwe
         </p>
       </div>
 
@@ -200,19 +200,20 @@ export const UserChat = () => {
               <ShieldCheck size={20} style={{ color: '#C4965A' }} />
             </div>
             <p className="text-xs font-semibold" style={{ color: '#1A3828' }}>
-              Twoja prywatnosc jest chroniona
+              Twoja prywatność jest chroniona
             </p>
             <div className="flex flex-col gap-1 text-[11px] max-w-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
               <span className="flex items-center gap-1.5 justify-center">
                 <Lock size={10} className="shrink-0" />
-                Wiadomosci sa widoczne wylacznie dla Ciebie oraz konsultanta.
+                Wiadomości są widoczne wyłącznie dla Ciebie oraz konsultanta.
               </span>
               <span className="flex items-center gap-1.5 justify-center">
                 <ImageOff size={10} className="shrink-0" />
-                Zdjecia i pliki nie sa udostepniane osobom trzecim.
+                Zdjęcia i pliki nie są udostępniane osobom trzecim.
               </span>
             </div>
             <button
+              type="button"
               onClick={dismissPrivacy}
               className="text-[11px] mt-1 px-3 py-1 rounded-full hover:bg-black/5 transition-colors"
               style={{ color: 'rgba(20,40,28,0.4)' }}
@@ -228,7 +229,7 @@ export const UserChat = () => {
             className="flex-1 flex items-center justify-center text-sm"
             style={{ color: 'rgba(20,40,28,0.4)' }}
           >
-            Napisz pierwsza wiadomosc, aby rozpoczac rozmowe
+            Napisz pierwszą wiadomość, aby rozpocząć rozmowę
           </div>
         )}
 
@@ -263,7 +264,9 @@ export const UserChat = () => {
       {showScrollBtn && (
         <div className="relative">
           <button
+            type="button"
             onClick={scrollToBottom}
+            aria-label="Przewiń do najnowszej wiadomości"
             className="absolute -top-12 left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-white border shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
           >
             <ChevronDown size={18} style={{ color: '#1A3828' }} />

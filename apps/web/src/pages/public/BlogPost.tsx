@@ -1,36 +1,23 @@
 ﻿// filepath: apps/web/src/pages/public/BlogPost.tsx
-import { useMemo, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import LinkExt from '@tiptap/extension-link';
 import { blogApi } from '@/api/blog.api';
 import { useAuthStore } from '@/store/auth.store';
 import { format } from 'date-fns';
 import { ArrowLeft, Clock, Heart, MessageCircle } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { BlogCommentsSection } from '@/components/blog/BlogCommentsSection';
+import { RichTextViewer } from '@/components/shared/RichTextViewer';
 
-const ContentRenderer = ({ content }: { content: string }) => {
-  const parsed = useMemo(() => {
-    if (!content) return null;
-    try {
-      const obj = typeof content === 'string' ? JSON.parse(content) : content;
-      return typeof obj === 'object' ? obj : null;
-    } catch {
-      return null;
-    }
-  }, [content]);
-
-  const editor = useEditor({
-    extensions: [StarterKit, Image, LinkExt.configure({ openOnClick: true })],
-    content: parsed ?? '',
-    editable: false,
-  });
-
-  return <EditorContent editor={editor} />;
+const BLOG_TITLE_OVERRIDES: Record<string, string> = {
+  'laminacja-brwi-na-czym-polega-ile-trwa': 'Laminacja brwi – efekty i cena | BeskidStudio',
+  'lamiset-laminacja-brwi-z-henna-w-jednym-zabiegu': 'LamiSet – laminacja brwi i rzęs | BeskidStudio',
+  'henna-brwi-koloryzacja-ktora-podkresli-spojrzenie': 'Henna brwi – efekty i trwałość | BeskidStudio',
+  'farbka-do-brwi-naturalna-koloryzacja-i-pieknie-podkreslone-brwi': 'Farbka do brwi – efekty i trwałość | Wiktoria Ćwik',
+  'henna-pudrowa-brwi-naturalna-stylizacja-piekny-ksztalt-i-efekt-zadbanych-brwi': 'Henna pudrowa – naturalne brwi | Wiktoria Ćwik',
+  'laminacja-brwi-efekty-pielegnacja-przeciwwskazania': 'Laminacja brwi – efekty i pielęgnacja | BeskidStudio',
+  'lifting-rzes-naturalnie-podkrecone-i-uniesione-rzesy-bez-zalotki': 'Lifting rzęs – efekty i trwałość | Wiktoria Ćwik',
 };
 
 const LikeButton = ({
@@ -141,6 +128,7 @@ export const BlogPost = () => {
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog', slug],
     queryFn: () => blogApi.getOne(slug!),
+    retry: (failureCount, error: any) => error?.response?.status !== 404 && failureCount < 2,
   });
 
   const likeMutation = useMutation({
@@ -189,7 +177,26 @@ export const BlogPost = () => {
       <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
     </div>
   );
-  if (!post) return <div className="p-8 text-center">Wpis nie został znaleziony.</div>;
+  if (!post) return (
+    <>
+      <PageSEO
+        title="Nie znaleziono artykułu | BeskidStudio"
+        description="Ten artykuł nie istnieje albo został przeniesiony."
+        canonical="/404"
+        noIndex
+      />
+      <main className="container flex min-h-[50svh] max-w-2xl flex-col items-center justify-center px-5 py-16 text-center">
+        <h1 className="font-heading text-3xl font-bold text-espresso">Wpis nie został znaleziony</h1>
+        <p className="mt-4 text-espresso/65">Przejdź do bloga, aby zobaczyć aktualne poradniki i artykuły.</p>
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <Link to="/blog" className="rounded-full bg-espresso px-6 py-3 text-sm font-semibold text-ivory">Przejdź do bloga</Link>
+          <Link to="/" className="rounded-full border border-espresso/20 px-6 py-3 text-sm font-semibold text-espresso">Strona główna</Link>
+        </div>
+      </main>
+    </>
+  );
+
+  const seoTitle = BLOG_TITLE_OVERRIDES[post.slug] ?? post.metaTitle ?? post.title;
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -250,7 +257,7 @@ export const BlogPost = () => {
   }
 `}</style>
       <PageSEO
-        title={post.metaTitle ?? post.title}
+        title={seoTitle}
         description={post.metaDescription ?? post.excerpt ?? `${post.title} — porada na blogu BeskidStudio By Wiktoria Ćwik, salon kosmetologiczny w Limanowej (Mordarka 505). Pielęgnacja skóry, zabiegi i wskazówki eksperta.`}
         canonical={`/blog/${post.slug}`}
         ogImage={post.coverImage}
@@ -352,7 +359,7 @@ export const BlogPost = () => {
             prose-blockquote:text-espresso/70 prose-blockquote:italic prose-blockquote:not-italic
             prose-blockquote:font-medium prose-blockquote:text-base
           ">
-            <ContentRenderer content={post.content} />
+            <RichTextViewer content={post.content} />
           </article>
         </div>
       </section>

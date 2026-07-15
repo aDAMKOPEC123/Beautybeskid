@@ -220,7 +220,7 @@ export const Navbar = () => {
                 <LayoutDashboard className="h-4 w-4" />
               </span>
               <span className="min-w-0 text-left leading-none">
-                <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-oak">
+                <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.02em] text-oak">
                   {mobilePanelTitle}
                 </span>
                 <span className="mt-1 block truncate text-[9px] text-[rgba(244,249,245,0.76)]">
@@ -300,7 +300,7 @@ export const Navbar = () => {
       <div
         ref={mobileMenuRef}
         id="mobile-navigation"
-        className={`fixed inset-0 z-[60] flex flex-col transition-[clip-path] duration-[400ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+        className={`fixed inset-0 z-[60] flex flex-col transition-[clip-path] [transition-duration:400ms] [transition-timing-function:cubic-bezier(0.76,0,0.24,1)] ${
           mobileOpen ? '[clip-path:inset(0_0_0%_0)]' : '[clip-path:inset(0_0_100%_0)]'
         } ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
         aria-hidden={!mobileOpen}

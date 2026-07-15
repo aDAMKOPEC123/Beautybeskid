@@ -23,17 +23,22 @@ export function ForumHome() {
   const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [stats, setStats] = useState<ForumStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
+    setLoadError(false);
     Promise.all([forumApi.getCategories(), forumApi.getStats()])
       .then(([cats, s]) => {
         setCategories(cats);
         setStats(s);
       })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, []);
+  }, [reloadKey]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,29 +49,41 @@ export function ForumHome() {
 
   if (loading) return <div className="p-6 text-center text-gray-500">Ładowanie...</div>;
 
+  if (loadError) return (
+    <div className="p-6 text-center" role="alert">
+      <h1 className="text-xl font-bold text-gray-800">Forum jest chwilowo niedostępne</h1>
+      <p className="mt-2 text-sm text-gray-500">Nie udało się pobrać danych. Spróbuj ponownie za chwilę.</p>
+      <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="mt-4 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white">
+        Spróbuj ponownie
+      </button>
+    </div>
+  );
+
   return (
     <div className="max-w-3xl mx-auto p-4 pb-8">
       {/* Hero */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Forum Kosmetyczne</h1>
         <p className="text-sm text-gray-500 mt-1">Zadaj pytanie, podziel się doświadczeniem</p>
-        <form onSubmit={handleSearch} className="flex gap-2 mt-4">
+        <form onSubmit={handleSearch} className="flex flex-col gap-2 mt-4 sm:flex-row">
+          <label htmlFor="forum-home-search" className="sr-only">Szukaj na forum</label>
           <input
+            id="forum-home-search"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Szukaj na forum..."
-            className="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="min-w-0 flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
           />
           <button
             type="submit"
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+            className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors sm:w-auto"
           >
             Szukaj
           </button>
           <Link
             to="/user/forum/nowy"
-            className="bg-white border border-purple-300 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+            className="w-full bg-white border border-purple-300 text-purple-700 px-4 py-2 rounded-lg text-center text-sm font-medium hover:bg-purple-50 transition-colors sm:w-auto"
           >
             + Nowy wątek
           </Link>

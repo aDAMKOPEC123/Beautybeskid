@@ -224,35 +224,35 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
     <div style={{ background: '#fff', border: '1px solid #e5e0d8', borderRadius: 16, padding: 24, marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <h3 style={{ fontFamily: 'var(--font-heading, serif)', fontSize: 18, color: '#1A3828', margin: 0 }}>Nowy wpis</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}><X size={20} /></button>
+        <button type="button" onClick={onClose} aria-label="Zamknij formularz" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}><X size={20} /></button>
       </div>
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Data</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', boxSizing: 'border-box' }} />
+        <label htmlFor="journal-date" style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Data</label>
+        <input id="journal-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', boxSizing: 'border-box' }} />
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Nastrój skóry</label>
+      <fieldset style={{ marginBottom: 16, border: 0, padding: 0 }}>
+        <legend style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Nastrój skóry</legend>
         <div style={{ display: 'flex', gap: 8 }}>
           {MOODS.map((emoji, idx) => {
             const val = idx + 1;
             const selected = mood === val;
             return (
-              <button key={val} onClick={() => setMood(val)} style={{ flex: 1, padding: '10px 4px', fontSize: 22, border: selected ? '2px solid #C4965A' : '2px solid #e5e0d8', borderRadius: 10, background: selected ? '#fdf6ec' : '#faf9f7', cursor: 'pointer', lineHeight: 1 }}>{emoji}</button>
+              <button type="button" key={val} onClick={() => setMood(val)} aria-label={`Nastrój skóry ${val} z 5`} aria-pressed={selected} style={{ flex: 1, padding: '10px 4px', fontSize: 22, border: selected ? '2px solid #C4965A' : '2px solid #e5e0d8', borderRadius: 10, background: selected ? '#fdf6ec' : '#faf9f7', cursor: 'pointer', lineHeight: 1 }}>{emoji}</button>
             );
           })}
         </div>
         <p style={{ fontSize: 12, color: '#999', margin: '6px 0 0' }}>Wybrano: {MOODS[mood - 1]} ({mood}/5)</p>
-      </div>
+      </fieldset>
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Notatki (opcjonalnie)</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Jak wygląda skóra dziś? Czy zabiegi przynoszą efekty?" rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+        <label htmlFor="journal-notes" style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>Notatki (opcjonalnie)</label>
+        <textarea id="journal-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Jak wygląda skóra dziś? Czy zabiegi przynoszą efekty?" rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e0d8', borderRadius: 8, fontSize: 14, color: '#1A3828', background: '#faf9f7', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Kategoria (opcjonalnie)</label>
+      <fieldset style={{ marginBottom: 16, border: 0, padding: 0 }}>
+        <legend style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Kategoria (opcjonalnie)</legend>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {JOURNAL_CATEGORIES.map((cat) => {
             const active = selectedCategories.includes(cat.slug);
@@ -260,6 +260,7 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
               <button
                 key={cat.slug}
                 type="button"
+                aria-pressed={active}
                 onClick={() =>
                   setSelectedCategories((prev) =>
                     active ? prev.filter((s) => s !== cat.slug) : [...prev, cat.slug]
@@ -281,13 +282,14 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
             );
           })}
         </div>
-      </div>
+      </fieldset>
 
       <div style={{ marginBottom: 20 }}>
-        <label style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Zdjęcie (opcjonalnie)</label>
+        <label htmlFor="journal-photo" style={{ display: 'block', fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>Zdjęcie (opcjonalnie)</label>
 
         {/* Hidden native input */}
         <input
+          id="journal-photo"
           ref={fileInputRef}
           type="file"
           accept="image/*"

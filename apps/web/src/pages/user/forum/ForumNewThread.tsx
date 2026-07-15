@@ -21,8 +21,8 @@ export function ForumNewThread() {
     forumApi.getCategories().then((cats) => {
       setCategories(cats);
       if (cats.length > 0) setCategoryId(cats[0].id);
-    });
-    forumApi.getPopularTags().then(setPopularTags);
+    }).catch(() => setError('Nie udało się pobrać kategorii. Odśwież stronę i spróbuj ponownie.'));
+    forumApi.getPopularTags().then(setPopularTags).catch(() => setPopularTags([]));
   }, []);
 
   const addTag = (tag: string) => {
@@ -66,8 +66,9 @@ export function ForumNewThread() {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Nowy wątek</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kategoria</label>
+          <label htmlFor="forum-category" className="block text-sm font-medium text-gray-700 mb-1">Kategoria</label>
           <select
+            id="forum-category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
@@ -79,8 +80,9 @@ export function ForumNewThread() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tytuł</label>
+          <label htmlFor="forum-title" className="block text-sm font-medium text-gray-700 mb-1">Tytuł</label>
           <input
+            id="forum-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -91,8 +93,9 @@ export function ForumNewThread() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Treść</label>
+          <label htmlFor="forum-content" className="block text-sm font-medium text-gray-700 mb-1">Treść</label>
           <textarea
+            id="forum-content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Opisz swój problem lub pytanie..."
@@ -102,7 +105,7 @@ export function ForumNewThread() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="forum-tags" className="block text-sm font-medium text-gray-700 mb-1">
             Tagi <span className="text-gray-400 font-normal">(opcjonalnie, maks. 5)</span>
           </label>
           {tags.length > 0 && (
@@ -116,6 +119,7 @@ export function ForumNewThread() {
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
+                    aria-label={`Usuń tag ${tag}`}
                     className="hover:text-purple-900 font-bold"
                   >
                     ✕
@@ -127,6 +131,7 @@ export function ForumNewThread() {
           {tags.length < 5 && (
             <div className="relative">
               <input
+                id="forum-tags"
                 ref={tagInputRef}
                 type="text"
                 value={tagInput}
@@ -160,6 +165,7 @@ export function ForumNewThread() {
         <div>
           <label className="flex items-start gap-3 cursor-pointer">
             <input
+              id="forum-anonymous"
               type="checkbox"
               checked={isAnonymous}
               onChange={(e) => setIsAnonymous(e.target.checked)}
