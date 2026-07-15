@@ -4,6 +4,7 @@ import path from 'node:path';
 const DOMAIN = process.env.SEO_DOMAIN || 'https://kosmetologwiktoriacwik.pl';
 const API_ORIGIN = process.env.SEO_API_ORIGIN || DOMAIN;
 const API_TIMEOUT_MS = Number(process.env.SEO_API_TIMEOUT_MS || 15000);
+const REQUIRE_DYNAMIC = process.env.SEO_REQUIRE_DYNAMIC === '1';
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
 const template = (await readFile(path.join(DIST_DIR, 'index.html'), 'utf8'))
   .replace(/\s*<script type="application\/ld\+json" data-generated-seo>[\s\S]*?<\/script>/g, '');
@@ -230,6 +231,10 @@ const loadDynamicPages = async () => {
 
   const readPayload = (result, pathname) => {
     if (result.status === 'fulfilled') return result.value;
+
+    if (REQUIRE_DYNAMIC) {
+      throw new Error(`SEO API ${pathname} is required: ${result.reason?.message ?? result.reason}`);
+    }
 
     console.warn(`SEO API ${pathname} unavailable, skipping dynamic pages: ${result.reason?.message ?? result.reason}`);
     return null;

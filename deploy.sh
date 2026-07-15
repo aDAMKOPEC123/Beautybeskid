@@ -37,7 +37,7 @@ fi
 # 4. Build the crawlable frontend from the current production API.
 if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "[4/4] Building frontend..."
-  ssh "$VPS" "cd $REMOTE_DIR/apps/web && pnpm build"
+  ssh "$VPS" "cd $REMOTE_DIR/apps/web && SEO_API_ORIGIN=http://127.0.0.1:3001 SEO_API_TIMEOUT_MS=30000 SEO_REQUIRE_DYNAMIC=1 pnpm build"
   echo "      Verifying SEO pages were generated..."
   ssh "$VPS" "test -f $REMOTE_DIR/apps/web/dist/blog.html && test -f $REMOTE_DIR/apps/web/dist/uslugi.html" \
     || { echo "ERROR: dist/ is missing generated SEO pages (blog.html, uslugi.html). Aborting before rsync."; exit 1; }
