@@ -48,7 +48,7 @@ const SERVICE_SEO_CONTENT: Record<string, ServiceSeoContent> = {
     ],
   },
   'lamiset-laminacja-brwi-lifting-rzes': {
-    title: 'LamiSet – laminacja brwi i lifting rzęs | Limanowa',
+    title: 'LamiSet – laminacja brwi i lifting rzęs | BeskidStudio',
     description: 'LamiSet w BeskidStudio koło Limanowej: laminacja i koloryzacja brwi oraz lifting i koloryzacja rzęs podczas jednej kompleksowej wizyty.',
     sectionTitle: 'Czym LamiSet różni się od pojedynczej laminacji brwi?',
     paragraphs: [

@@ -127,6 +127,7 @@ for (const { file, canonical } of canonicalServicePages) {
   const description = html.match(/<meta name="description" content="([^"]*)"/i)?.[1] ?? '';
   serviceMetadata.push({ file, title, description });
 
+  if (!/BeskidStudio/i.test(title)) failures.push(`${file}: tytuł nie zawiera spójnej nazwy marki`);
   if (!html.includes(`<link rel="canonical" href="${canonical}"`)) {
     failures.push(`${file}: canonical nie wskazuje na własny adres HTTPS`);
   }
