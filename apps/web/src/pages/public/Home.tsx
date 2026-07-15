@@ -32,6 +32,8 @@ import { employeesApi } from '@/api/employees.api';
 import { useAuth } from '@/hooks/useAuth';
 import type { Season as SeasonType, Service } from '@cosmo/shared';
 import { servicesApi } from '@/api/services.api';
+import { blogApi } from '@/api/blog.api';
+import { metamorphosesApi } from '@/api/metamorphoses.api';
 
 const heroImage = '/images/beautybeskid-hero-premium.webp';
 const ConsultationModal = lazy(() =>
@@ -84,6 +86,38 @@ const faqItems = [
     acceptedAnswer: {
       '@type': 'Answer',
       text: 'BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i okolic, między innymi z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Tymbarku, Dobrej, Jodłownika oraz Nowego Sącza.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Jak wygląda pierwsza wizyta w salonie kosmetologicznym BeskidStudio?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Pierwsza wizyta zaczyna się od rozmowy o potrzebach skóry, przeciwwskazaniach i oczekiwaniach. Następnie dobieramy odpowiedni zabieg i plan pielęgnacyjny. Nowe klientki mogą skorzystać z bezpłatnej konsultacji kosmetologicznej.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Ile kosztują zabiegi kosmetologiczne w BeskidStudio Limanowa?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Ceny zabiegów są widoczne przy każdej usłudze w zakładce Usługi i ceny oraz w systemie rezerwacji online. Cennik jest aktualizowany na bieżąco. Konsultacja kosmetologiczna dla nowych klientek jest bezpłatna.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Czy salon BeskidStudio oferuje laminację brwi i rzęs w Limanowej?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Tak. BeskidStudio By Wiktoria Ćwik oferuje laminację brwi, laminację rzęs, hennę z regulacją, stylizację oprawy oka oraz inne zabiegi beauty. Efekt jest naturalny i trwa kilka tygodni.',
+    },
+  },
+  {
+    '@type': 'Question',
+    name: 'Jakie kwalifikacje ma kosmetolog Wiktoria Ćwik?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Wiktoria Ćwik jest dyplomowanym kosmetologiem z ponad 5-letnim doświadczeniem. Regularnie uczestniczy w szkoleniach branżowych i pracuje wyłącznie z certyfikowanymi preparatami renomowanych marek.',
     },
   },
 ];
@@ -1233,8 +1267,9 @@ const TestimonialsSection = ({
   onCheckAvailability: () => void;
   googleData?: GoogleReviewsData;
 }) => {
+  const [showAll, setShowAll] = useState(false);
   const rating = googleData?.rating?.toFixed(1) ?? '4.9';
-  const displayReviews = googleData?.reviews?.slice(0, 3) ?? testimonials.map(t => ({
+  const allReviews = googleData?.reviews ?? testimonials.map(t => ({
     author_name: t.author,
     rating: 5,
     text: t.quote,
@@ -1242,6 +1277,8 @@ const TestimonialsSection = ({
     relative_time_description: t.detail,
     profile_photo_url: '',
   }));
+  const displayReviews = showAll ? allReviews : allReviews.slice(0, 3);
+  const hasMore = allReviews.length > 3;
 
   return (
   <section className="home-deferred-section bg-ivory py-16 md:py-24">
@@ -1270,11 +1307,11 @@ const TestimonialsSection = ({
 
       <div className="grid gap-4 md:grid-cols-3">
         {displayReviews.map((review, index) => (
-          <FadeUp key={review.author_name + index} delay={index * 0.08}>
+          <FadeUp key={review.author_name + index} delay={index < 3 ? index * 0.08 : 0}>
             <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]">
               <StarRow compact />
               <p className="mt-5 flex-1 font-display text-[22px] italic leading-relaxed text-espresso">
-                "{review.text}"
+                &ldquo;{review.text}&rdquo;
               </p>
               <div className="mt-6 border-t border-espresso/10 pt-4">
                 <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
@@ -1284,6 +1321,22 @@ const TestimonialsSection = ({
           </FadeUp>
         ))}
       </div>
+
+      {hasMore && (
+        <FadeUp>
+          <div className="mt-6 text-center">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAll(!showAll)}
+              className="gap-2 border-oak/30 text-espresso hover:bg-cream"
+            >
+              {showAll ? 'Pokaż mniej opinii' : `Pokaż wszystkie opinie (${allReviews.length})`}
+              <ChevronDown className={`h-4 w-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
+            </Button>
+          </div>
+        </FadeUp>
+      )}
 
       <FadeUp>
         <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-lg border border-oak/20 bg-cream p-5 text-center md:flex-row md:text-left">
@@ -1472,6 +1525,204 @@ const ReservationFormSection = ({
   );
 };
 
+const AboutOwnerSection = () => (
+  <section className="home-deferred-section bg-cream py-16 md:py-24" aria-labelledby="about-heading">
+    <div className="container max-w-6xl px-5">
+      <FadeUp>
+        <div className="grid items-center gap-8 md:grid-cols-[auto_1fr]">
+          <div className="mx-auto h-48 w-48 overflow-hidden rounded-full border-4 border-oak/25 bg-white shadow-lg md:mx-0">
+            <img
+              src="/images/beautybeskid-hero-premium.webp"
+              alt="Wiktoria Ćwik — dyplomowany kosmetolog, BeskidStudio Limanowa"
+              className="h-full w-full object-cover"
+              loading="lazy"
+              width={192}
+              height={192}
+            />
+          </div>
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">O mnie</p>
+            <h2 id="about-heading" className="font-heading text-3xl font-bold text-espresso md:text-4xl">
+              Wiktoria Ćwik — dyplomowany kosmetolog
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-espresso/70">
+              Jestem dyplomowanym kosmetologiem z ponad 5-letnim doświadczeniem. BeskidStudio prowadzę w Mordarce,
+              5 minut od Limanowej. Specjalizuję się w laminacji brwi i rzęs, stylizacji oprawy oka oraz pielęgnacji skóry.
+              Na co dzień pracuję wyłącznie z certyfikowanymi preparatami renomowanych marek i regularnie poszerzam wiedzę
+              na szkoleniach branżowych.
+            </p>
+            <p className="mt-3 text-base leading-relaxed text-espresso/70">
+              Każdą klientkę traktuję indywidualnie — zaczynamy od spokojnej rozmowy o potrzebach, a dopiero potem dobieramy
+              plan zabiegowy. Zależy mi na tym, żebyś czuła się komfortowo i miała pewność, że decyzja jest świadoma.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-oak/20 bg-white px-3 py-1.5 text-xs font-semibold text-espresso">
+                <BadgeCheck className="h-3.5 w-3.5 text-oak" /> Dyplomowany kosmetolog
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-oak/20 bg-white px-3 py-1.5 text-xs font-semibold text-espresso">
+                <Timer className="h-3.5 w-3.5 text-oak" /> 5+ lat doświadczenia
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-oak/20 bg-white px-3 py-1.5 text-xs font-semibold text-espresso">
+                <HeartHandshake className="h-3.5 w-3.5 text-oak" /> 500+ zaopiekowanych klientek
+              </span>
+            </div>
+            <div className="mt-5">
+              <Link
+                to="/o-nas"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-oak transition-colors hover:text-walnut"
+              >
+                Dowiedz się więcej o mnie
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+    </div>
+  </section>
+);
+
+const BlogPreviewSection = ({ posts }: { posts: any[] }) => {
+  if (posts.length === 0) return null;
+  const visiblePosts = posts.filter((p: any) => p.published !== false).slice(0, 3);
+  if (visiblePosts.length === 0) return null;
+
+  return (
+    <section className="home-deferred-section bg-ivory py-16 md:py-24" aria-labelledby="blog-heading">
+      <div className="container max-w-7xl px-5">
+        <FadeUp>
+          <SectionIntro
+            eyebrow="Poradnik beauty"
+            title="Wiedza, która pomaga dbać o skórę na co dzień"
+            description="Sprawdzone porady kosmetologiczne, praktyczne wskazówki i odpowiedzi na pytania, które słyszę najczęściej w gabinecie."
+          />
+        </FadeUp>
+        <div className="grid gap-4 md:grid-cols-3">
+          {visiblePosts.map((post: any, index: number) => (
+            <FadeUp key={post.id || post.slug} delay={index * 0.08}>
+              <Link
+                to={`/blog/${post.slug}`}
+                className="group flex h-full flex-col overflow-hidden rounded-lg border border-espresso/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]"
+              >
+                {post.coverImage && (
+                  <div className="aspect-[16/9] overflow-hidden">
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      width={400}
+                      height={225}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="font-heading text-lg font-bold text-espresso group-hover:text-oak transition-colors">
+                    {post.title}
+                  </h3>
+                  {post.excerpt && (
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-espresso/60 line-clamp-3">
+                      {post.excerpt}
+                    </p>
+                  )}
+                  <p className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-oak">
+                    Czytaj dalej <ArrowRight className="h-3 w-3" />
+                  </p>
+                </div>
+              </Link>
+            </FadeUp>
+          ))}
+        </div>
+        <FadeUp>
+          <div className="mt-8 text-center">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 rounded-lg border border-oak/30 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:bg-cream"
+            >
+              Wszystkie wpisy na blogu
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </FadeUp>
+      </div>
+    </section>
+  );
+};
+
+const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }) => {
+  if (metamorphoses.length === 0) return null;
+  const visible = metamorphoses.slice(0, 4);
+
+  return (
+    <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-24" aria-labelledby="metamorphoses-heading">
+      <div className="container max-w-7xl px-5">
+        <FadeUp>
+          <SectionIntro
+            eyebrow="Efekty zabiegów"
+            title="Metamorfozy — przed i po zabiegu"
+            description="Zobacz rzeczywiste efekty zabiegów wykonanych w BeskidStudio. Każde zdjęcie to realna klientka i realny rezultat."
+          />
+        </FadeUp>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visible.map((meta: any, index: number) => (
+            <FadeUp key={meta.id} delay={index * 0.06}>
+              <div className="group overflow-hidden rounded-lg border border-espresso/10 bg-white shadow-sm">
+                <div className="grid grid-cols-2">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img
+                      src={meta.beforeImage}
+                      alt={`Przed zabiegiem${meta.title ? ': ' + meta.title : ''}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      width={200}
+                      height={267}
+                    />
+                    <span className="absolute bottom-1 left-1 rounded bg-espresso/70 px-1.5 py-0.5 text-[10px] font-semibold text-ivory">
+                      Przed
+                    </span>
+                  </div>
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img
+                      src={meta.afterImage}
+                      alt={`Po zabiegu${meta.title ? ': ' + meta.title : ''}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      width={200}
+                      height={267}
+                    />
+                    <span className="absolute bottom-1 right-1 rounded bg-oak/85 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      Po
+                    </span>
+                  </div>
+                </div>
+                {meta.title && (
+                  <div className="p-3">
+                    <p className="text-sm font-semibold text-espresso">{meta.title}</p>
+                    {meta.description && (
+                      <p className="mt-1 text-xs text-espresso/55 line-clamp-2">{meta.description}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+        <FadeUp>
+          <div className="mt-8 text-center">
+            <Link
+              to="/metamorfozy"
+              className="inline-flex items-center gap-2 rounded-lg border border-oak/30 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:bg-cream"
+            >
+              Zobacz wszystkie metamorfozy
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </FadeUp>
+      </div>
+    </section>
+  );
+};
+
 const FaqSection = () => {
   return (
     <section className="home-deferred-section bg-ivory py-16 md:py-24" aria-labelledby="faq-heading">
@@ -1551,6 +1802,20 @@ export const Home = () => {
     retry: false,
   });
 
+  const { data: blogPosts = [] } = useQuery<any[]>({
+    queryKey: ['blog-posts-home'],
+    queryFn: blogApi.getAll,
+    staleTime: 15 * 60_000,
+    retry: false,
+  });
+
+  const { data: metamorphoses = [] } = useQuery<any[]>({
+    queryKey: ['metamorphoses-home'],
+    queryFn: metamorphosesApi.getAll,
+    staleTime: 15 * 60_000,
+    retry: false,
+  });
+
   const currentSeason = getCurrentSeason();
   const seasonalServices = allServices
     .filter((service) => service.isActive && service.seasons.includes(currentSeason))
@@ -1610,12 +1875,15 @@ export const Home = () => {
           onConsultationClick={() => setConsultationOpen(true)}
         />
         <TestimonialsSection onCheckAvailability={() => handleCheckAvailability()} googleData={googleReviews} />
+        <AboutOwnerSection />
         <ProcessSection />
+        <MetamorphosesPreviewSection metamorphoses={metamorphoses} />
         <ReservationFormSection
           onConsultationClick={() => setConsultationOpen(true)}
           availableServices={allServices}
           servicesLoading={servicesLoading}
         />
+        <BlogPreviewSection posts={blogPosts} />
         <FaqSection />
         <AreaSection />
       </main>
