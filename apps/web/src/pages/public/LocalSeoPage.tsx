@@ -74,6 +74,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
   }
 
   const schema = buildLocalSeoSchema(page);
+  const phoneLabel = '+48 532 128 227';
   const relatedPages = page.related
     .map((key) => localSeoPages[key])
     .filter((related) => related.indexable !== false && !related.redirectTo);
@@ -112,17 +113,26 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                 className="premium-shine gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.3)] hover:bg-oak/90"
                 asChild
               >
-                <Link to="/rezerwacja">
-                  Sprawdź terminy
-                  <CalendarCheck className="h-4 w-4" />
-                </Link>
+                {page.phoneOnly ? (
+                  <a href={`tel:${SEO.phone}`}>
+                    Zadzwoń: {phoneLabel}
+                    <Phone className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <Link to="/rezerwacja">
+                    Sprawdź terminy
+                    <CalendarCheck className="h-4 w-4" />
+                  </Link>
+                )}
               </Button>
-              <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
-                <Link to="/kontakt">
-                  Kontakt z salonem
-                  <Phone className="h-4 w-4" />
-                </Link>
-              </Button>
+              {!page.phoneOnly ? (
+                <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
+                  <Link to="/kontakt">
+                    Kontakt z salonem
+                    <Phone className="h-4 w-4" />
+                  </Link>
+                </Button>
+              ) : null}
               {page.slug.startsWith('laminacja-brwi') ? (
                 <Button variant="outline" size="lg" className="gap-2 bg-white" asChild>
                   <Link to="/uslugi/laminacja-brwi">Cena i szczegóły zabiegu</Link>
@@ -169,24 +179,45 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
               </picture>
               <div className="grid gap-4 p-5">
                 <div className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                  {page.phoneOnly ? (
+                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                  ) : (
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
+                  )}
                   <div>
-                    <p className="text-sm font-semibold text-espresso">{page.location} i okolice</p>
-                    <p className="mt-1 text-sm leading-relaxed text-espresso/60">{page.nearbyContext}</p>
-                    <a
-                      href={SEO.googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex text-sm font-semibold text-oak transition hover:text-espresso"
-                    >
-                      {SEO.address.street}, {SEO.address.postalCode} {SEO.address.city}
-                    </a>
+                    <p className="text-sm font-semibold text-espresso">
+                      {page.phoneOnly ? 'Podologia — odrębna lokalizacja' : `${page.location} i okolice`}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-espresso/60">
+                      {page.phoneOnly
+                        ? 'Dokładny adres przekazujemy podczas telefonicznego ustalania terminu.'
+                        : page.nearbyContext}
+                    </p>
+                    {page.phoneOnly ? (
+                      <a
+                        href={`tel:${SEO.phone}`}
+                        className="mt-3 inline-flex text-sm font-semibold text-oak transition hover:text-espresso"
+                      >
+                        {phoneLabel}
+                      </a>
+                    ) : (
+                      <a
+                        href={SEO.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex text-sm font-semibold text-oak transition hover:text-espresso"
+                      >
+                        {SEO.address.street}, {SEO.address.postalCode} {SEO.address.city}
+                      </a>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-lg bg-cream p-4">
                   <Clock className="h-5 w-5 text-oak" />
                   <p className="text-sm text-espresso/70">
-                    Rezerwacja online, telefon i czat salonu w jednym miejscu.
+                    {page.phoneOnly
+                      ? 'Zapisy na podologię prowadzimy obecnie wyłącznie telefonicznie.'
+                      : 'Rezerwacja online, telefon i czat salonu w jednym miejscu.'}
                   </p>
                 </div>
               </div>
@@ -232,7 +263,9 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
               Od pierwszego kontaktu do konkretnego terminu
             </h2>
             <p className="mt-4 text-base leading-relaxed text-espresso/62">
-              Od razu wiesz, czy usługa pasuje do Twoich potrzeb, jak wygląda kontakt z salonem i gdzie sprawdzić najbliższe wolne godziny.
+              {page.phoneOnly
+                ? 'Podczas rozmowy telefonicznej ustalamy potrzebę wizyty, najbliższy termin i przekazujemy dokładny adres odrębnej lokalizacji.'
+                : 'Od razu wiesz, czy usługa pasuje do Twoich potrzeb, jak wygląda kontakt z salonem i gdzie sprawdzić najbliższe wolne godziny.'}
             </p>
           </div>
 
@@ -282,7 +315,9 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
           <div>
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Lokalny zasięg</p>
             <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
-              BeskidStudio By Wiktoria Ćwik dla Limanowej, Mordarki i okolic
+              {page.phoneOnly
+                ? 'Aktywna podologia dla Limanowej i okolic'
+                : 'BeskidStudio By Wiktoria Ćwik dla Limanowej, Mordarki i okolic'}
             </h2>
             <p className="mt-5 text-base leading-relaxed text-ivory/70">
               {page.nearbyContext}
@@ -349,19 +384,29 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
       <section className="bg-cream py-14">
         <div className="container flex max-w-5xl flex-col items-center justify-between gap-5 px-5 text-center md:flex-row md:text-left">
           <div>
-            <p className={sectionLabelClass}>Rezerwacja</p>
+            <p className={sectionLabelClass}>{page.phoneOnly ? 'Zapisy telefoniczne' : 'Rezerwacja'}</p>
             <h2 className="font-heading text-3xl font-bold text-espresso">
-              Sprawdź aktualne terminy w BeskidStudio By Wiktoria Ćwik
+              {page.phoneOnly
+                ? 'Umów wizytę podologiczną telefonicznie'
+                : 'Sprawdź aktualne terminy w BeskidStudio By Wiktoria Ćwik'}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-espresso/62">
-              Telefon: <a href={`tel:${SEO.phone}`} className="font-semibold text-espresso">{SEO.phone}</a> · Limanowa i okolice
+              Telefon: <a href={`tel:${SEO.phone}`} className="font-semibold text-espresso">{phoneLabel}</a>
+              {page.phoneOnly ? ' · dokładny adres potwierdzamy podczas rozmowy' : ' · Limanowa i okolice'}
             </p>
           </div>
           <Button size="lg" className="gap-2 bg-espresso text-ivory hover:bg-espresso/90" asChild>
-            <Link to="/rezerwacja">
-              Przejdź do rezerwacji
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {page.phoneOnly ? (
+              <a href={`tel:${SEO.phone}`}>
+                Zadzwoń: {phoneLabel}
+                <Phone className="h-4 w-4" />
+              </a>
+            ) : (
+              <Link to="/rezerwacja">
+                Przejdź do rezerwacji
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
           </Button>
         </div>
       </section>

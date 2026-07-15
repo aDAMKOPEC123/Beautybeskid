@@ -121,6 +121,14 @@ const faqItems = [
       text: 'Wiktoria Ćwik jest dyplomowanym kosmetologiem z ponad 5-letnim doświadczeniem. Regularnie uczestniczy w szkoleniach branżowych i pracuje wyłącznie z certyfikowanymi preparatami renomowanych marek.',
     },
   },
+  {
+    '@type': 'Question',
+    name: 'Czy podologia w BeskidStudio jest aktywna?',
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: 'Tak. Zabiegi podologiczne są aktywne, ale odbywają się w odrębnej lokalizacji. Zapisy prowadzimy telefonicznie pod numerem 532 128 227, a dokładny adres przekazujemy podczas ustalania terminu.',
+    },
+  },
 ];
 
 const buildFaqSchema = () => ({
@@ -130,8 +138,8 @@ const buildFaqSchema = () => ({
 });
 
 const heroTrust = [
-  { value: '4.9/5', label: 'ocena Google', Icon: Star },
-  { value: '500+', label: 'zaopiekowanych klientek', Icon: HeartHandshake },
+  { value: '5.0/5', label: 'ocena Google', Icon: Star },
+  { value: '1:1', label: 'indywidualna opieka', Icon: HeartHandshake },
   { value: '5+', label: 'lat doświadczenia', Icon: BadgeCheck },
   { value: '0 zł', label: 'konsultacja dla nowych klientek', Icon: Sparkles },
 ];
@@ -144,18 +152,6 @@ const benefits = [
 ];
 
 const upcomingServiceCards = [
-  {
-    title: 'Podologia — planowana usługa',
-    shortTitle: 'Podologia w przygotowaniu',
-    description: 'Usługa jest jeszcze niedostępna. Przygotowujemy ją tak, aby była prowadzona spokojnie, bezpiecznie i profesjonalnie.',
-    price: 'wkrótce',
-    time: 'zapisy wkrótce',
-    effect: 'lista zainteresowanych',
-    cta: 'Wkrótce dostępne',
-    Icon: Footprints,
-    matchers: ['podolog', 'podologia'],
-    availableSoon: true,
-  },
   {
     title: 'Kosmetologia Limanowa',
     shortTitle: 'Kosmetologia',
@@ -616,6 +612,44 @@ const BenefitsStrip = () => (
   </section>
 );
 
+const PodologyPromoSection = () => (
+  <section className="home-deferred-section bg-[#F8F5EF] py-14 md:py-18" aria-labelledby="podology-home-heading">
+    <div className="container max-w-7xl px-5">
+      <FadeUp>
+        <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-white p-6 shadow-[0_20px_65px_rgba(26,56,40,0.12)] md:grid-cols-[auto_1fr_auto] md:p-8">
+          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-espresso text-[#DDB87F]">
+            <Footprints className="h-7 w-7" />
+          </div>
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-oak">Podologia Limanowa</p>
+            <h2 id="podology-home-heading" className="font-heading text-3xl font-bold text-espresso">
+              Podologia jest aktywna — wizyty w odrębnej lokalizacji
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-espresso/65 md:text-base">
+              Pedicure podologiczny, konsultacje stóp i pomoc przy problematycznych paznokciach umawiamy obecnie wyłącznie telefonicznie. Dokładny adres otrzymasz podczas ustalania terminu.
+            </p>
+          </div>
+          <div className="flex min-w-fit flex-col gap-3">
+            <Button size="lg" className="gap-2 bg-espresso text-ivory hover:bg-espresso/90" asChild>
+              <a href={`tel:${SEO.phone}`}>
+                Zadzwoń: 532 128 227
+                <Phone className="h-4 w-4" />
+              </a>
+            </Button>
+            <Link
+              to="/podolog-limanowa"
+              className="inline-flex min-h-11 items-center justify-center gap-2 text-sm font-semibold text-oak transition hover:text-espresso"
+            >
+              Zobacz zakres podologii
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </FadeUp>
+    </div>
+  </section>
+);
+
 const AvailabilityPreviewSection = ({
   request,
   availableServices,
@@ -745,7 +779,7 @@ const AvailabilityPreviewSection = ({
                 </div>
               ) : activeAdminServices.length === 0 ? (
                 <div className="rounded-lg border border-white/12 bg-white/7 px-4 py-3 text-sm text-ivory/68 sm:col-span-2">
-                  Brak usług dostępnych do rezerwacji. Kalendarz pojawi się, gdy oferta zostanie uzupełniona.
+                  Aktualne terminy potwierdzimy telefonicznie: <a href={`tel:${SEO.phone}`} className="font-semibold text-[#DDB87F]">532 128 227</a>.
                 </div>
               ) : (
                 <>
@@ -1076,9 +1110,9 @@ const ServicesSection = ({
             {activeAdminServices.length === 0 && (
               <FadeUp className="md:col-span-2 xl:col-span-4">
                 <article className="rounded-lg border border-dashed border-espresso/15 bg-white p-6 text-center shadow-sm">
-                  <h3 className="font-heading text-2xl font-bold text-espresso">Brak usług dostępnych do rezerwacji</h3>
+                  <h3 className="font-heading text-2xl font-bold text-espresso">Zapytaj o aktualną ofertę i termin</h3>
                   <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-espresso/60">
-                    Gdy oferta zostanie uzupełniona, zabiegi pojawią się tutaj oraz w kalendarzu terminów.
+                    Zadzwoń pod numer <a href={`tel:${SEO.phone}`} className="font-semibold text-espresso">532 128 227</a>. Pomożemy dobrać usługę i sprawdzimy najbliższy wolny termin.
                   </p>
                 </article>
               </FadeUp>
@@ -1465,7 +1499,7 @@ const ReservationFormSection = ({
                     <option value="" disabled>Wybierz z listy</option>
                     {servicesLoading && <option disabled>Ładuję usługi z panelu...</option>}
                     {!servicesLoading && activeAdminServices.length === 0 && (
-                      <option disabled>Brak aktywnych usług w panelu</option>
+                      <option disabled>Zapytaj telefonicznie o aktualną ofertę</option>
                     )}
                     {activeAdminServices.map((service) => (
                       <option key={service.id} value={service.id}>{service.name}</option>
@@ -1574,7 +1608,7 @@ const AboutOwnerSection = () => (
                 <Timer className="h-3.5 w-3.5 text-oak" /> 5+ lat doświadczenia
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-oak/20 bg-white px-3 py-1.5 text-xs font-semibold text-espresso">
-                <HeartHandshake className="h-3.5 w-3.5 text-oak" /> 500+ zaopiekowanych klientek
+                <HeartHandshake className="h-3.5 w-3.5 text-oak" /> Indywidualna opieka 1:1
               </span>
             </div>
             <div className="mt-5">
@@ -1849,7 +1883,7 @@ export const Home = () => {
     <div className="flex min-h-screen flex-col bg-ivory">
       <PageSEO
         title="Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio"
-        description="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Sprawdź wolny termin online i umów wizytę lub bezpłatną konsultację."
+        description="BeskidStudio By Wiktoria Ćwik — kosmetolog koło Limanowej. Zabiegi beauty i terminy online. Podologia w odrębnej lokalizacji: tel. 532 128 227."
         canonical="/"
         ogImage={heroImage}
         schema={buildFaqSchema()}
@@ -1873,6 +1907,7 @@ export const Home = () => {
           servicesLoading={servicesLoading}
           onCheckAvailability={handleCheckAvailability}
         />
+        <PodologyPromoSection />
         <AvailabilityPreviewSection
           request={availabilityRequest}
           availableServices={allServices}

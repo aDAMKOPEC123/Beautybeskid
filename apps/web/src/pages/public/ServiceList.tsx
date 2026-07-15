@@ -35,7 +35,7 @@ export const ServiceList = () => {
     <>
       <PageSEO
         title="Usługi kosmetyczne Limanowa — cennik zabiegów | BeskidStudio"
-        description="Cennik usług kosmetycznych BeskidStudio koło Limanowej: laminacja brwi i rzęs, pedicure podologiczny, depilacja, oprawa oka, pielęgnacja skóry. Umów się online."
+        description="Cennik BeskidStudio koło Limanowej: laminacja brwi i rzęs, henna, depilacja i oprawa oka. Podologia w odrębnej lokalizacji: tel. 532 128 227."
         canonical="/uslugi"
         schema={{
           '@context': 'https://schema.org',
@@ -176,7 +176,7 @@ export const ServiceList = () => {
               Usługi BeskidStudio By Wiktoria Ćwik w Limanowej, Mordarce i okolicach
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-mink">
-              Jeśli szukasz konkretnej usługi lokalnie, wybierz jedną z podstron przygotowanych pod najczęstsze zapytania klientek.
+              Jeśli szukasz konkretnej usługi lokalnie, wybierz jej opis poniżej. Zabiegi beauty zarezerwujesz online, natomiast aktywne wizyty podologiczne odbywają się w odrębnej lokalizacji i są umawiane telefonicznie pod numerem 532 128 227.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

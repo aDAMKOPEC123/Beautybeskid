@@ -31,6 +31,10 @@ export const PageSEO = ({ title, description, canonical, ogImage, schema, noInde
       : 'image/webp';
 
   useEffect(() => {
+    document.head
+      .querySelectorAll('script[type="application/ld+json"][data-generated-seo]')
+      .forEach((element) => element.remove());
+
     const selectors = [
       'meta[name="description"]',
       'meta[name="robots"]',

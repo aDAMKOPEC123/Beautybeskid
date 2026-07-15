@@ -16,6 +16,7 @@ const staticUrls = [
   { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
+  { loc: '/program-lojalnosciowy', priority: '0.6', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
   { loc: '/regulamin', priority: '0.3', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
   // Canonical local SEO landing pages only. Redirect sources belong in Nginx,
   // never in the sitemap, because Google should index their final destinations.
@@ -26,7 +27,6 @@ const staticUrls = [
   { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/podolog-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/podologia-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/spa-stop-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/wrastajace-paznokcie-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/pedicure-podologiczny-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },

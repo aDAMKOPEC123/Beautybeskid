@@ -17,6 +17,8 @@ const requiredMeta = [
   'name="twitter:image"',
 ];
 const privateRoute = /^\/(?:auth|user|admin|employee|akademia|rezerwacja)(?:\/|$)/;
+const phoneOnlyPodologyPage = /^(?:podolog-limanowa|spa-stop-limanowa|wrastajace-paznokcie-limanowa|pedicure-podologiczny-limanowa)(?:\.html|\/index\.html)$/;
+const indexedErrorCopy = /Aktualizujemy aplikacj|Brak usług dostępnych|przerwa techniczna|usługa w przygotowaniu|nie jest obecnie dostępna/i;
 
 const listHtml = async (directory) => {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -64,6 +66,12 @@ for (const file of files) {
   }
   if (!/<link rel="canonical" href="https:\/\//i.test(html)) failures.push(`${relative}: brak canonical`);
   if (!/href="mailto:[^"]+"/i.test(html)) failures.push(`${relative}: brak klikalnego e-maila`);
+  if ((html.match(/data-generated-seo/g) || []).length !== 1) {
+    failures.push(`${relative}: nieprawidłowa liczba wygenerowanych schema JSON-LD`);
+  }
+  if (html.includes('data-seo-app-shell')) {
+    failures.push(`${relative}: statyczna treść jest ukrywana przed startem aplikacji`);
+  }
 
   if (!noIndex) {
     const main = html.match(/<main data-seo-static-content[\s\S]*?<\/main>/i)?.[0] ?? '';
@@ -74,12 +82,25 @@ for (const file of files) {
       .replace(/&[a-z#0-9]+;/gi, ' ');
     const wordCount = visibleText.match(/[\p{L}\p{N}][\p{L}\p{N}–-]*/gu)?.length ?? 0;
     if (wordCount < 70) failures.push(`${relative}: tylko ${wordCount} słów widocznej treści`);
+    if (indexedErrorCopy.test(visibleText)) failures.push(`${relative}: komunikat techniczny w treści indeksowanej`);
+  }
+
+  if (phoneOnlyPodologyPage.test(relative)) {
+    const main = html.match(/<main data-seo-static-content[\s\S]*?<\/main>/i)?.[0] ?? '';
+    if (!/odrębnej lokalizacji/i.test(main)) failures.push(`${relative}: brak informacji o odrębnej lokalizacji podologii`);
+    if (!/href="tel:\+48532128227"/i.test(main)) failures.push(`${relative}: brak telefonicznego CTA podologii`);
+    if (/href="\/rezerwacja"/i.test(main)) failures.push(`${relative}: podologia błędnie kieruje do rezerwacji online`);
+    if (/Mordarka 505/i.test(main)) failures.push(`${relative}: podologia błędnie wskazuje adres salonu beauty`);
   }
 
   const hrefs = [...html.matchAll(/href="(\/[^"\s]*)"/gi)].map((match) => match[1]);
   for (const href of new Set(hrefs)) {
     if (!(await internalTargetExists(href))) failures.push(`${relative}: niedziałający link ${href}`);
   }
+}
+
+for (const requiredPage of ['program-lojalnosciowy.html', 'pedicure-podologiczny-limanowa.html']) {
+  if (!(await exists(path.join(distDir, requiredPage)))) failures.push(`${requiredPage}: brak wygenerowanej strony`);
 }
 
 if (failures.length) {

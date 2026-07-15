@@ -37,6 +37,7 @@ export type LocalSeoPageConfig = {
   location: string;
   nearbyContext: string;
   statusNote?: string;
+  phoneOnly?: boolean;
   heroPoints: string[];
   benefits: string[];
   visitSteps: string[];
@@ -91,7 +92,7 @@ const podologyFaq = (place: string): LocalSeoFaq[] => [
   {
     question: `Czy podolog w BeskidStudio By Wiktoria Ćwik przyjmuje klientki z ${place}?`,
     answer:
-      'Podologia w BeskidStudio By Wiktoria Ćwik jest rozwijana jako osobna ścieżka usług. Na stronie jasno pokazujemy aktualną dostępność i możliwość zostawienia kontaktu, gdy zapisy zostaną uruchomione.',
+      'Tak. Usługi podologiczne są aktywne i realizowane w odrębnej lokalizacji. Termin oraz dokładny adres wizyty potwierdzamy telefonicznie pod numerem 532 128 227.',
   },
   {
     question: 'Kiedy warto skonsultować stopy?',
@@ -99,9 +100,9 @@ const podologyFaq = (place: string): LocalSeoFaq[] => [
       'Warto reagować przy bolesnych zrogowaceniach, odciskach, problemach z paznokciami, pękających piętach albo dyskomforcie podczas chodzenia. W razie wątpliwości najlepiej zacząć od rozmowy i oceny problemu.',
   },
   {
-    question: 'Czy można sprawdzić aktualną dostępność podologii online?',
+    question: 'Jak umówić wizytę podologiczną?',
     answer:
-      'Tak. Aktualne usługi i wolne terminy są widoczne w rezerwacji online. Jeśli podologia nie jest jeszcze aktywna w grafiku, możesz zostawić kontakt przez formularz konsultacyjny.',
+      'Zadzwoń pod numer 532 128 227. Podczas rozmowy ustalimy zakres problemu, dostępny termin i przekażemy dokładny adres odrębnej lokalizacji, w której odbywa się wizyta.',
   },
 ];
 
@@ -110,7 +111,7 @@ const ingrowingNailsFaq = (place: string): LocalSeoFaq[] => [
   {
     question: `Czy BeskidStudio By Wiktoria Ćwik pomaga z wrastającymi paznokciami w ${place}?`,
     answer:
-      `Korekcja wrastających paznokci to element podologii, którą BeskidStudio By Wiktoria Ćwik rozbudowuje jako osobną ścieżkę usług. Na stronie znajdziesz aktualny status dostępności i możliwość zostawienia kontaktu przed uruchomieniem zapisów.`,
+      `Tak. Konsultacje dotyczące wrastających paznokci są częścią aktywnej oferty podologicznej realizowanej w odrębnej lokalizacji. Termin i adres ustalamy telefonicznie pod numerem 532 128 227.`,
   },
   {
     question: 'Kiedy warto skonsultować wrastający paznokieć ze specjalistą?',
@@ -128,7 +129,7 @@ const spaStopFaq = (place: string): LocalSeoFaq[] => [
   {
     question: `Czy BeskidStudio By Wiktoria Ćwik oferuje SPA stóp dla klientek z ${place}?`,
     answer:
-      'Tak. Zabieg SPA stóp obejmuje kąpiel, peeling, nawilżanie i masaż stóp. Sprawdź aktualną ofertę i wolne terminy w rezerwacji online lub skontaktuj się telefonicznie.',
+      'Tak. Zabieg SPA stóp jest częścią oferty pielęgnacji stóp realizowanej w odrębnej lokalizacji. Dostępny termin i dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.',
   },
   {
     question: 'Czym różni się SPA stóp od pedicure podologicznego?',
@@ -156,12 +157,12 @@ const podologiaFaq = (place: string): LocalSeoFaq[] => [
   {
     question: `Czy w BeskidStudio By Wiktoria Ćwik przyjmuje podolog dla klientek z ${place}?`,
     answer:
-      'Tak. Oferujemy zabiegi podologiczne obejmujące pedicure leczniczy, pielęgnację problematycznych paznokci, usuwanie zrogowaceń i odcisków oraz konsultacje stóp. Sprawdź dostępność w rezerwacji online.',
+      'Tak. Oferujemy konsultacje i zabiegi podologiczne, w tym pedicure podologiczny oraz pielęgnację problematycznych paznokci i skóry stóp. Wizyty odbywają się w odrębnej lokalizacji, a zapisy prowadzimy telefonicznie pod numerem 532 128 227.',
   },
   {
     question: 'Czym się różni podolog od kosmetyczki robiącej pedicure?',
     answer:
-      'Podolog specjalizuje się w zdrowiu stóp — diagnozuje i leczy problemy takie jak wrastające paznokcie, grzybica, zrogowacenia, pękające pięty i modzele. Pedicure kosmetyczny skupia się na estetyce — malowaniu, kształtowaniu paznokci i nawilżaniu.',
+      'Podolog specjalizuje się w profilaktyce i specjalistycznej pielęgnacji stóp, m.in. przy wrastających paznokciach, zrogowaceniach, pękających piętach i modzelach. Pedicure kosmetyczny skupia się przede wszystkim na estetyce paznokci i skóry stóp.',
   },
   {
     question: 'Jakie problemy ze stopami wymagają wizyty u podologa?',
@@ -243,7 +244,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'Kosmetolog Mordarka',
     title: 'Kosmetolog Mordarka — gabinet kosmetologiczny Wiktoria Ćwik',
     description:
-      'Gabinet kosmetologiczny w Mordarce 505. Kosmetolog Wiktoria Ćwik: laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ☎ 532 128 227.',
+      'Gabinet kosmetologiczny w Mordarce 505. Wiktoria Ćwik: laminacja brwi i rzęs oraz pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.',
     eyebrow: 'Kosmetolog Mordarka',
     h1: 'Kosmetolog dla klientek z Mordarki i okolic Limanowej',
     lead:
@@ -275,41 +276,44 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'podolog-limanowa': {
     slug: 'podolog-limanowa',
     shortLabel: 'Podolog Limanowa',
-    title: 'Podolog Limanowa — pedicure podologiczny ✔ Umów wizytę',
+    title: 'Podolog Limanowa — aktywne zapisy telefoniczne',
     description:
-      'Podolog koło Limanowej — wrastające paznokcie, zrogowacenia, pękające pięty. Pedicure podologiczny w sterylnym gabinecie. ☎ 532 128 227. Rezerwacja online, Mordarka 505.',
+      'Podolog Limanowa: pedicure podologiczny, pielęgnacja paznokci i skóry stóp. Wizyty w odrębnej lokalizacji. Zapisy i adres: tel. 532 128 227.',
     eyebrow: 'Podolog Limanowa',
     h1: 'Podolog w Limanowej — profesjonalna pielęgnacja stóp',
     lead:
-      'Szukasz podologa w okolicach Limanowej? W BeskidStudio By Wiktoria Ćwik zajmujemy się pielęgnacją stóp, pedicure podologicznym i konsultacjami. Wygodna rezerwacja online i gabinet 5 minut od Limanowej.',
+      'Szukasz podologa w okolicach Limanowej? Oferta podologiczna jest aktywna i obejmuje konsultacje, pedicure podologiczny oraz specjalistyczną pielęgnację stóp. Wizyty odbywają się w odrębnej lokalizacji — termin i dokładny adres potwierdzamy telefonicznie.',
     serviceName: 'Podologia i pedicure podologiczny',
     serviceType: 'Podologia',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
+    phoneOnly: true,
+    statusNote:
+      'Podologia jest aktywna, ale wizyty odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby ustalić termin i otrzymać dokładny adres.',
     heroPoints: [
       'pedicure podologiczny i pielęgnacja stóp',
       'konsultacja stanu stóp przed zabiegiem',
-      'rezerwacja online dla Limanowej i okolic',
+      'zapisy telefoniczne: 532 128 227',
     ],
     benefits: [
       'Profesjonalna pomoc przy problemach z paznokciami, zrogowaceniami i pękającymi piętami.',
       'Indywidualne podejście — ocena stóp i dobór zabiegu do konkretnego problemu.',
-      'Wygodny dojazd z Limanowej i okolic, parking pod gabinetem.',
+      'Dokładny adres odrębnej lokalizacji otrzymasz przy ustalaniu terminu.',
     ],
     visitSteps: [
-      'Opisujesz problem ze stopami i omawiamy historię dolegliwości.',
-      'Oceniamy stan stóp i dobieramy odpowiedni zabieg podologiczny.',
+      'Dzwonisz pod numer 532 128 227 i krótko opisujesz problem.',
+      'Ustalamy odpowiedni zakres wizyty, termin oraz dokładny adres.',
       'Po zabiegu otrzymujesz zalecenia pielęgnacyjne i propozycję kolejnej wizyty.',
     ],
     localCopy:
-      'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski, pękające pięty — warto rozwiązać z profesjonalistą. BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferuje zabiegi podologiczne dla klientek z Limanowej, Mordarki, Sowlin i całego powiatu limanowskiego. Gabinet znajduje się zaledwie 5 minut jazdy z centrum Limanowej.',
+      'Problemy ze stopami — wrastające paznokcie, zrogowacenia, odciski czy pękające pięty — warto omówić ze specjalistą. Usługi podologiczne dla osób z Limanowej i okolic realizujemy obecnie w odrębnej lokalizacji. Zapisy, termin i adres potwierdzamy pod numerem 532 128 227.',
     faq: podologiaFaq('Limanowej'),
     related: ['spa-stop-limanowa', 'kosmetyczka-limanowa', 'podologia-limanowa'],
     extendedSections: [
       {
         heading: 'Czym zajmuje się podolog?',
         content:
-          'Podolog to specjalista zajmujący się zdrowiem i pielęgnacją stóp. W odróżnieniu od kosmetycznego pedicure, podologia koncentruje się na rozwiązywaniu problemów medyczno-estetycznych: wrastających paznokciach, zrogowaceniach, odciskach, modzeli, pękających piętach, nadmiernej potliwości i zmianach grzybiczych paznokci.\n\nPodolog ocenia stan stóp, identyfikuje problem i dobiera odpowiednią metodę leczenia. Regularny pedicure podologiczny pomaga utrzymać stopy w zdrowiu i zapobiega nawracaniu problemów.',
+          'Podolog to specjalista zajmujący się profilaktyką i specjalistyczną pielęgnacją stóp. W odróżnieniu od kosmetycznego pedicure, podologia koncentruje się m.in. na wrastających paznokciach, zrogowaceniach, odciskach, modzelach i pękających piętach.\n\nPodolog ocenia stan stóp i dobiera odpowiednie postępowanie. Przy zmianach wymagających diagnozy lub leczenia medycznego może zalecić konsultację z lekarzem.',
       },
       {
         heading: 'Kiedy warto udać się do podologa w Limanowej?',
@@ -319,12 +323,12 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Pedicure podologiczny vs kosmetyczny — jakie są różnice?',
         content:
-          'Pedicure kosmetyczny skupia się na estetyce — malowaniu paznokci, kształtowaniu, nawilżaniu skóry. To zabieg pielęgnacyjny dla zdrowych stóp. Pedicure podologiczny to zabieg leczniczy: specjalista usuwa zrogowacenia, odciski i modzele za pomocą profesjonalnych frezów, zajmuje się problematycznymi paznokciami i ocenia kondycję stóp.\n\nW BeskidStudio łączymy profesjonalizm podologiczny z komfortem gabinetu kosmetologicznego. Zabieg odbywa się w czystym, sterylnym otoczeniu, z użyciem specjalistycznych narzędzi jednorazowych lub sterylizowanych w autoklawie.',
+          'Pedicure kosmetyczny skupia się przede wszystkim na estetyce paznokci i skóry stóp. Pedicure podologiczny rozpoczyna się od oceny kondycji stóp i jest dobierany do konkretnej potrzeby, np. zrogowaceń, odcisków lub problematycznych paznokci.\n\nPrzed wizytą telefonicznie ustalamy jej przewidywany zakres. Zabieg odbywa się w odrębnej lokalizacji, której dokładny adres przekazujemy podczas potwierdzania terminu.',
       },
       {
         heading: 'Jak wygląda wizyta u podologa w BeskidStudio?',
         content:
-          'Pierwsza wizyta zaczyna się od wywiadu — pytamy o charakter problemu, jego historię, stosowane leki i dotychczasowe metody leczenia. Następnie dokładnie oceniamy stopy: paznokcie, skórę, zrogowacenia, ewentualne zmiany chorobowe.\n\nNa podstawie oceny dobieramy zabieg — może to być pedicure podologiczny, usunięcie zrogowaceń frezem, korekcja wrastającego paznokcia lub pielęgnacja pękających pięt. Po zabiegu omawiamy zalecenia domowe i proponujemy termin kontrolny. Cała wizyta trwa zazwyczaj 45–75 minut.',
+          'Pierwsza wizyta zaczyna się od wywiadu — pytamy o charakter problemu, jego historię i dotychczasowe metody pielęgnacji. Następnie specjalista ocenia skórę i paznokcie oraz dobiera zakres postępowania.\n\nWizyta może obejmować pedicure podologiczny, opracowanie zrogowaceń, konsultację wrastającego paznokcia lub pielęgnację pękających pięt. Termin, przewidywany czas oraz dokładny adres odrębnej lokalizacji potwierdzamy telefonicznie.',
       },
       {
         heading: 'Profilaktyka zdrowia stóp — porady podologa',
@@ -713,34 +717,35 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'Wrastające paznokcie Limanowa',
     title: 'Wrastające paznokcie Limanowa — podolog BeskidStudio By Wiktoria Ćwik',
     description:
-      'Wrastające paznokcie Limanowa: BeskidStudio By Wiktoria Ćwik rozwija podologię jako osobną ścieżkę usług. Sprawdź dostępność i umów konsultację dla klientek z Limanowej i okolic.',
+      'Wrastające paznokcie Limanowa: aktywna konsultacja podologiczna w odrębnej lokalizacji. Termin i dokładny adres ustalisz pod numerem 532 128 227.',
     eyebrow: 'Wrastające paznokcie Limanowa',
     h1: 'Wrastające paznokcie w Limanowej — konsultacja i korekcja',
     lead:
-      'Wrastający paznokieć warto rozwiązać profesjonalnie zamiast odkładać. BeskidStudio By Wiktoria Ćwik przygotowuje podologiczną ścieżkę usług z jasną informacją o dostępności dla klientek z Limanowej.',
+      'Wrastającego paznokcia nie warto odkładać. Konsultacje i zabiegi podologiczne są aktywne, odbywają się w odrębnej lokalizacji i są umawiane telefonicznie.',
     serviceName: 'Korekcja wrastających paznokci',
     serviceType: 'Podologia',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
+    phoneOnly: true,
     statusNote:
-      'Podologia, w tym korekcja wrastających paznokci, jest rozwijana jako osobna ścieżka usług. Jeśli zapisów nie ma jeszcze w grafiku, zostaw kontakt przez formularz konsultacyjny.',
+      'Usługa jest aktywna w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby omówić problem, ustalić termin i otrzymać dokładny adres.',
     heroPoints: [
-      'jasna informacja o dostępności podologii',
-      'korekcja bez długiego szukania specjalisty',
-      'kontakt dla klientek z Limanowej i powiatu limanowskiego',
+      'aktywne konsultacje podologiczne',
+      'indywidualna ocena problemu',
+      'zapisy telefoniczne: 532 128 227',
     ],
     benefits: [
       'Profesjonalna ocena problemu zamiast domowych metod.',
-      'Kontakt i konsultacja dostępne online lub telefonicznie.',
-      'Czytelna ścieżka do zapisu w momencie uruchomienia grafiku.',
+      'Kontakt telefoniczny przed wizytą pozwala właściwie dobrać jej zakres.',
+      'Termin i adres odrębnej lokalizacji otrzymujesz podczas rozmowy.',
     ],
     visitSteps: [
-      'Opisujesz problem i pytasz o aktualną dostępność.',
-      'Salon potwierdza możliwość zapisu lub dołącza do listy kontaktowej.',
-      'Przy aktywnym grafiku umawiasz konkretną godzinę online.',
+      'Dzwonisz i krótko opisujesz problem z paznokciem.',
+      'Ustalamy zakres konsultacji oraz najbliższy dostępny termin.',
+      'Otrzymujesz dokładny adres odrębnej lokalizacji i wskazówki przed wizytą.',
     ],
     localCopy:
-      'Wrastające paznokcie to jeden z najczęstszych problemów podologicznych — i jeden z tych, które warto omówić ze specjalistą jak najwcześniej. BeskidStudio By Wiktoria Ćwik w Mordarce 505 buduje podologiczną ścieżkę usług dla klientek z Limanowej i całego powiatu limanowskiego.',
+      'Wrastające paznokcie to częsty problem podologiczny, który warto skonsultować możliwie wcześnie. Aktywne wizyty dla osób z Limanowej i okolic odbywają się w odrębnej lokalizacji; zapisy oraz dokładny adres są dostępne telefonicznie pod numerem 532 128 227.',
     faq: ingrowingNailsFaq('Limanowej'),
     related: ['podolog-limanowa', 'wrastajace-paznokcie-mordarka', 'podologia-limanowa'],
     extendedSections: [
@@ -797,6 +802,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     faq: ingrowingNailsFaq('Mordarki'),
     related: ['wrastajace-paznokcie-limanowa', 'podolog-mordarka', 'kosmetyczka-limanowa'],
     indexable: false,
+    redirectTo: '/wrastajace-paznokcie-limanowa',
   },
 
   'laminacja-rzes-mordarka': {
@@ -841,7 +847,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'SPA stóp Limanowa',
     title: 'SPA stóp Limanowa — pielęgnacja i relaks dla stóp',
     description:
-      'SPA stóp w okolicach Limanowej: BeskidStudio By Wiktoria Ćwik. Kąpiel, peeling, nawilżanie i masaż stóp. Relaks i pielęgnacja w jednym. Rezerwacja online.',
+      'SPA stóp Limanowa: kąpiel, peeling, nawilżanie i masaż. Zabieg w odrębnej lokalizacji. Termin i dokładny adres: tel. 532 128 227.',
     eyebrow: 'SPA stóp Limanowa',
     h1: 'SPA stóp w Limanowej — relaks i regeneracja dla zmęczonych stóp',
     lead:
@@ -850,10 +856,13 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     serviceType: 'Pielęgnacja stóp',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
+    phoneOnly: true,
+    statusNote:
+      'Zabiegi pielęgnacji stóp odbywają się w odrębnej lokalizacji. Termin i dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.',
     heroPoints: [
       'kąpiel, peeling, masaż i nawilżanie stóp',
       'relaks i regeneracja w jednym zabiegu',
-      'rezerwacja online — gabinet 5 min od Limanowej',
+      'zapisy telefoniczne: 532 128 227',
     ],
     benefits: [
       'Gładka, nawilżona skóra stóp i ulga dla zmęczonych nóg.',
@@ -866,7 +875,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po zabiegu otrzymujesz zalecenia pielęgnacyjne na dom.',
     ],
     localCopy:
-      'SPA stóp to jeden z najprzyjemniejszych zabiegów pielęgnacyjnych — łączy regenerację skóry z głębokim relaksem. W BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferujemy zabiegi SPA stóp dla klientek z Limanowej i całego powiatu limanowskiego. Gabinet mieści się 5 minut jazdy z centrum Limanowej.',
+      'SPA stóp łączy pielęgnację skóry z relaksem. Zabieg jest dostępny dla osób z Limanowej i całego powiatu limanowskiego, ale odbywa się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby poznać wolny termin i dokładny adres.',
     faq: spaStopFaq('Limanowej'),
     related: ['podolog-limanowa', 'kosmetyczka-limanowa', 'podologia-limanowa'],
     extendedSections: [
@@ -903,7 +912,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'Podologia Limanowa',
     title: 'Podologia Limanowa — zabiegi podologiczne i pedicure leczniczy',
     description:
-      'Podologia w okolicach Limanowej: BeskidStudio By Wiktoria Ćwik. Pedicure podologiczny, usuwanie zrogowaceń, pielęgnacja problematycznych paznokci. Gabinet w Mordarce.',
+      'Podologia Limanowa: aktywne zabiegi w odrębnej lokalizacji. Pedicure podologiczny i pielęgnacja stóp. Zapisy: tel. 532 128 227.',
     eyebrow: 'Podologia Limanowa',
     h1: 'Podologia w Limanowej — zabiegi podologiczne w BeskidStudio',
     lead:
@@ -912,6 +921,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     serviceType: 'Podologia',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
+    phoneOnly: true,
     heroPoints: [
       'pedicure podologiczny i leczniczy',
       'usuwanie zrogowaceń, odcisków i modzeli',
@@ -931,6 +941,8 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Podologia w BeskidStudio By Wiktoria Ćwik to profesjonalna opieka nad stopami w kameralnym gabinecie. Przyjmujemy klientki z Limanowej, Mordarki, Sowlin, Łososiny Górnej i całego powiatu limanowskiego. Gabinet w Mordarce 505 jest łatwo dostępny — 5 minut jazdy z Limanowej, z parkingiem przy budynku.',
     faq: podologiaFaq('Limanowej'),
     related: ['podolog-limanowa', 'spa-stop-limanowa', 'kosmetyczka-limanowa'],
+    indexable: false,
+    redirectTo: '/podolog-limanowa',
     extendedSections: [
       {
         heading: 'Czym jest podologia?',
@@ -964,15 +976,18 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     shortLabel: 'Pedicure podologiczny Limanowa',
     title: 'Pedicure podologiczny Limanowa — leczniczy pedicure stóp ✔',
     description:
-      'Pedicure podologiczny koło Limanowej — profesjonalne usuwanie zrogowaceń, odcisków, pielęgnacja paznokci. BeskidStudio By Wiktoria Ćwik, Mordarka 505. ☎ 532 128 227.',
+      'Pedicure podologiczny Limanowa — specjalistyczna pielęgnacja skóry i paznokci stóp. Odrębna lokalizacja. Zapisy i adres: tel. 532 128 227.',
     eyebrow: 'Pedicure podologiczny Limanowa',
     h1: 'Pedicure podologiczny w Limanowej — profesjonalna pielęgnacja stóp',
     lead:
-      'Pedicure podologiczny to nie kosmetyczny zabieg — to profesjonalna pielęgnacja stóp wykonywana przez specjalistę. W BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferujemy pedicure leczniczy z frezowaniem, usuwaniem zrogowaceń i kompleksową oceną kondycji stóp.',
+      'Pedicure podologiczny to specjalistyczna pielęgnacja skóry i paznokci stóp poprzedzona oceną ich kondycji. Usługa jest aktywna i odbywa się w odrębnej lokalizacji — termin oraz dokładny adres ustalamy telefonicznie.',
     serviceName: 'Pedicure podologiczny — leczniczy',
     serviceType: 'Podologia',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
+    phoneOnly: true,
+    statusNote:
+      'Pedicure podologiczny jest aktywny w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby ustalić zakres wizyty, termin i dokładny adres.',
     heroPoints: [
       'pedicure leczniczy z profesjonalnymi frezami',
       'usuwanie zrogowaceń, odcisków i modzeli',
@@ -989,7 +1004,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Zalecenia pielęgnacji domowej i proponowany termin kolejnej wizyty.',
     ],
     localCopy:
-      'Pedicure podologiczny w BeskidStudio By Wiktoria Ćwik to profesjonalny zabieg leczniczy dla klientek z Limanowej, Mordarki, Tymbarku, Laskowej, Mszany Dolnej i całego powiatu limanowskiego. Gabinet w Mordarce 505 jest łatwo dostępny — 5 minut jazdy z centrum Limanowej, z parkingiem pod budynkiem.',
+      'Pedicure podologiczny jest dostępny dla osób z Limanowej, Mordarki, Tymbarku, Laskowej, Mszany Dolnej i całego powiatu limanowskiego. Wizyty realizujemy w odrębnej lokalizacji, a termin i dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.',
     faq: podologiaFaq('Limanowej'),
     related: ['podolog-limanowa', 'podologia-limanowa', 'spa-stop-limanowa'],
     extendedSections: [
@@ -1001,7 +1016,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Jak wygląda pedicure podologiczny w BeskidStudio?',
         content:
-          'Zabieg zaczyna się od rozmowy o problemie i oceny stóp. Podolog dobiera odpowiednie frezy i narzędzia do rodzaju zrogowaceń i stanu paznokci. Następnie frezuje zrogowaciałą skórę, usuwa odciski i modzele, pielęgnuje paznokcie i nakłada krem regenerujący.\n\nCały zabieg trwa 45–60 minut i odbywa się w sterylnych warunkach. Narzędzia jednorazowe lub sterylizowane w autoklawie. Po zabiegu otrzymujesz zalecenia pielęgnacyjne — jaki krem stosować, jak obcinać paznokcie i kiedy wrócić na kolejną wizytę.',
+          'Zabieg zaczyna się od rozmowy o problemie i oceny stóp. Specjalista dobiera zakres pracy do rodzaju zrogowaceń oraz stanu skóry i paznokci. Po zabiegu otrzymujesz indywidualne zalecenia pielęgnacyjne.\n\nPrzewidywany czas zależy od potrzeb stóp. Termin, orientacyjny zakres i dokładny adres odrębnej lokalizacji potwierdzamy telefonicznie pod numerem 532 128 227.',
       },
       {
         heading: 'Jak często korzystać z pedicure podologicznego?',
@@ -1011,7 +1026,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Cennik pedicure podologicznego w Limanowej',
         content:
-          'Cena pedicure podologicznego zależy od zakresu zabiegu — prosty pedicure leczniczy, usuwanie rozległych zrogowaceń czy kompleksowa pielęgnacja problemowych paznokci mają różne stawki. Aktualny cennik znajdziesz w naszej zakładce Usługi i ceny lub zadzwoń pod numer 532 128 227, aby dopytać o szczegóły.\n\nPierwsza wizyta może trwać nieco dłużej ze względu na dokładną ocenę stóp i wywiad zdrowotny. Kolejne wizyty kontrolne są zazwyczaj krótsze i tańsze.',
+          'Cena pedicure podologicznego zależy od zakresu pracy, dlatego koszt potwierdzamy po krótkiej rozmowie o potrzebie wizyty. Zadzwoń pod numer 532 128 227, aby poznać orientacyjną cenę, wolny termin i dokładny adres.\n\nPierwsza wizyta może trwać dłużej ze względu na ocenę stóp i wywiad. Czas kolejnych wizyt zależy od ustalonego planu pielęgnacji.',
       },
     ],
   },
@@ -1100,9 +1115,12 @@ export const buildLocalSeoSchema = (page: LocalSeoPageConfig) => {
         areaServed: page.location,
         availableChannel: {
           '@type': 'ServiceChannel',
-          serviceUrl: `${SEO.domain}/rezerwacja`,
           servicePhone: SEO.phone,
+          ...(!page.phoneOnly ? { serviceUrl: `${SEO.domain}/rezerwacja` } : {}),
         },
+        ...(page.phoneOnly ? {
+          termsOfService: 'Wizyty odbywają się w odrębnej lokalizacji. Termin i dokładny adres są potwierdzane telefonicznie.',
+        } : {}),
       },
       {
         '@type': 'FAQPage',

@@ -12,20 +12,20 @@ const corePages = [
   {
     path: '/',
     title: 'Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio',
-    description: 'BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. ✔ Rezerwacja online ✔ Bezpłatna konsultacja.',
+    description: 'BeskidStudio By Wiktoria Ćwik — kosmetolog koło Limanowej. Zabiegi beauty i terminy online. Podologia w odrębnej lokalizacji: tel. 532 128 227.',
     heading: 'Kosmetolog Limanowa – Wiktoria Ćwik',
     lead: 'BeskidStudio w Mordarce koło Limanowej. Konsultacje, zabiegi kosmetologiczne, stylizacja brwi i rzęs oraz wygodna rezerwacja online.',
-    items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Rezerwacja online'],
-    bodyText: 'Każdą wizytę zaczynamy od rozmowy o potrzebach skóry lub oczekiwanym efekcie stylizacji. Dzięki temu zabieg jest dopasowany do konkretnej osoby, a nie wybierany przypadkowo. W ofercie znajdziesz konsultacje kosmetologiczne, laminację brwi, lifting i laminację rzęs, hennę z regulacją, oprawę oka oraz zabiegi pielęgnacyjne na twarz. Ceny, czas zabiegów i wolne terminy sprawdzisz online. Salon BeskidStudio mieści się w Mordarce 505, kilka minut od Limanowej, i obsługuje klientki z Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i całego powiatu limanowskiego. Umów wizytę przez rezerwację online lub zadzwoń pod numer 532 128 227.',
+    items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Podologia: odrębna lokalizacja i zapisy telefoniczne'],
+    bodyText: 'Każdą wizytę zaczynamy od rozmowy o potrzebach skóry lub oczekiwanym efekcie stylizacji. Dzięki temu zabieg jest dopasowany do konkretnej osoby, a nie wybierany przypadkowo. W ofercie znajdziesz konsultacje kosmetologiczne, laminację brwi, lifting i laminację rzęs, hennę z regulacją, oprawę oka oraz zabiegi pielęgnacyjne na twarz. Ceny, czas zabiegów i wolne terminy beauty sprawdzisz online. Salon BeskidStudio mieści się w Mordarce 505, kilka minut od Limanowej, i obsługuje klientki z całego powiatu limanowskiego. Podologia jest aktywna, ale odbywa się w odrębnej lokalizacji; termin i dokładny adres ustalisz telefonicznie pod numerem 532 128 227.',
   },
   {
     path: '/uslugi',
     title: 'Usługi kosmetyczne – Salon Limanowa | BeskidStudio Wiktoria Ćwik',
-    description: 'Salon kosmetyczny koło Limanowej: konsultacje, pielęgnacja skóry, laminacja brwi i rzęs, oprawa oka. Sprawdź ceny i umów wizytę online.',
+    description: 'Salon koło Limanowej: laminacja brwi i rzęs, oprawa oka i pielęgnacja skóry. Podologia w odrębnej lokalizacji: tel. 532 128 227.',
     heading: 'Usługi kosmetyczne – Limanowa i Mordarka',
     lead: 'Sprawdź aktualne zabiegi BeskidStudio Wiktoria Ćwik, ich czas, ceny oraz najbliższe terminy.',
-    items: ['Konsultacja kosmetologiczna', 'Laminacja brwi', 'Lifting i laminacja rzęs', 'Henna i regulacja brwi', 'Oprawa oka', 'Pielęgnacja skóry twarzy'],
-    bodyText: 'Salon kosmetyczny BeskidStudio oferuje zabiegi dobierane do potrzeb skóry, brwi i rzęs. Laminacja brwi porządkuje kierunek włosków i daje naturalny efekt na 4–6 tygodni. Lifting rzęs unosi naturalne rzęsy bez przedłużania. Henna z regulacją podkreśla kształt brwi, a oprawa oka łączy kilka zabiegów w jedną wizytę. Konsultacja kosmetologiczna pomaga dobrać plan pielęgnacji do kondycji skóry. Oferta jest połączona z systemem rezerwacji — pokazuje aktywne usługi, ceny i wolne terminy. Salon mieści się w Mordarce 505, kilka minut od Limanowej.',
+    items: ['Konsultacja kosmetologiczna', 'Laminacja brwi', 'Lifting i laminacja rzęs', 'Henna i regulacja brwi', 'Oprawa oka', 'Podologia — zapisy telefoniczne'],
+    bodyText: 'Salon kosmetyczny BeskidStudio oferuje zabiegi dobierane do potrzeb skóry, brwi i rzęs. Laminacja brwi porządkuje kierunek włosków, lifting rzęs unosi naturalne rzęsy bez przedłużania, a henna z regulacją podkreśla kształt brwi. Oferta beauty jest połączona z systemem rezerwacji, który pokazuje aktywne usługi, ceny i wolne terminy. Salon mieści się w Mordarce 505, kilka minut od Limanowej. Podologia jest aktywna w odrębnej lokalizacji i nie korzysta z kalendarza online — zapisy, termin i dokładny adres potwierdzamy pod numerem 532 128 227.',
   },
   {
     path: '/kontakt',
@@ -84,44 +84,45 @@ const corePages = [
 ];
 
 const localPages = [
-  ['kosmetolog-limanowa', 'Kosmetolog Limanowa', 'Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Szukasz kosmetologa w Limanowej? BeskidStudio By Wiktoria Ćwik to gabinet kosmetologiczny w Mordarce 505, kilka minut od centrum Limanowej. Każdą wizytę zaczynamy od indywidualnej konsultacji — omawiamy potrzeby skóry, dobieramy zabieg i ustalamy plan dalszej pielęgnacji. W ofercie: konsultacje kosmetologiczne, laminacja brwi i rzęs, henna z regulacją, oprawa oka, pedicure podologiczny i zabiegi pielęgnacyjne na twarz. Pracujemy z klientkami z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i całego powiatu limanowskiego. Cennik, czas zabiegów i wolne terminy sprawdzisz online.'],
-  ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Laminacja brwi i rzęs, pedicure podologiczny, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Gabinet kosmetologiczny BeskidStudio w Mordarce 505 to salon prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Podczas pierwszej wizyty omawiamy potrzeby skóry, dotychczasową pielęgnację domową, oczekiwania i przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki. Klientki z Mordarki cenią krótki dojazd, spokojna atmosferę i możliwość sprawdzenia terminów online bez telefonowania.'],
-  ['kosmetyczka-limanowa', 'Kosmetyczka Limanowa', 'Laminacja brwi i rzęs, henna pudrowa, pedicure, depilacja. Gabinet 5 min od centrum, tel. 532 128 227.', 'Salon BeskidStudio w pobliskiej Mordarce oferuje laminację brwi, lifting rzęs, hennę z regulacją, oprawę oka i konsultacje kosmetologiczne. Każda usługa ma osobną stronę z opisem efektu, czasem zabiegu, ceną i możliwością rezerwacji online. Dla klientek z Limanowej dojazd zajmuje kilka minut — bez szukania salonu w większym mieście.'],
+  ['kosmetolog-limanowa', 'Kosmetolog Limanowa', 'Konsultacje kosmetologiczne, laminacja brwi i rzęs, pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Szukasz kosmetologa w Limanowej? BeskidStudio By Wiktoria Ćwik to gabinet kosmetologiczny w Mordarce 505, kilka minut od centrum Limanowej. Każdą wizytę zaczynamy od indywidualnej konsultacji — omawiamy potrzeby skóry, dobieramy zabieg i ustalamy plan dalszej pielęgnacji. W ofercie: konsultacje kosmetologiczne, laminacja brwi i rzęs, henna z regulacją, oprawa oka i zabiegi pielęgnacyjne na twarz. Pracujemy z klientkami z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i całego powiatu limanowskiego. Cennik, czas zabiegów i wolne terminy sprawdzisz online. Podologia jest aktywna w odrębnej lokalizacji i wymaga kontaktu telefonicznego.'],
+  ['kosmetolog-mordarka', 'Kosmetolog Mordarka', 'Laminacja brwi i rzęs oraz pielęgnacja skóry. Rezerwacja online, tel. 532 128 227.', 'Gabinet kosmetologiczny BeskidStudio w Mordarce 505 to salon prowadzony przez Wiktorię Ćwik, dyplomowanego kosmetologa. Podczas pierwszej wizyty omawiamy potrzeby skóry, dotychczasową pielęgnację domową, oczekiwania i przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki. Klientki z Mordarki cenią krótki dojazd, spokojną atmosferę i możliwość sprawdzenia terminów online bez telefonowania.'],
+  ['kosmetyczka-limanowa', 'Kosmetyczka Limanowa', 'Laminacja brwi i rzęs, henna, depilacja i oprawa oka. Gabinet 5 min od centrum, tel. 532 128 227.', 'Salon BeskidStudio w pobliskiej Mordarce oferuje laminację brwi, lifting rzęs, hennę z regulacją, oprawę oka i konsultacje kosmetologiczne. Każda usługa ma osobną stronę z opisem efektu, czasem zabiegu, ceną i możliwością rezerwacji online. Dla klientek z Limanowej dojazd zajmuje kilka minut — bez szukania salonu w większym mieście.'],
   ['laminacja-brwi-limanowa', 'Laminacja brwi w Limanowej — dojazd i FAQ', 'Lokalny przewodnik po laminacji brwi: przebieg zabiegu, efekt, trwałość i rezerwacja.', 'Laminacja brwi to zabieg porządkujący kierunek włosków i nadający brwiom pełniejszy, naturalny wygląd. Efekt utrzymuje się 4–6 tygodni. Przed zabiegiem oceniamy stan włosków i dobieramy stylizację do rysów twarzy. Po wizycie klientka otrzymuje zalecenia pielęgnacyjne, które pomagają przedłużyć rezultat. W BeskidStudio laminację można połączyć z koloryzacją lub regulacją brwi. Aktualną cenę i wolne terminy sprawdzisz w rezerwacji online.'],
   ['laminacja-rzes-limanowa', 'Laminacja rzęs Limanowa', 'Lifting i laminacja rzęs — naturalne podkreślenie spojrzenia bez przedłużania.', 'Laminacja rzęs unosi naturalne włoski i nadaje im widoczny skręt bez konieczności codziennego tuszowania. Zabieg trwa około 60 minut i daje efekt na 4–6 tygodni. Przed wizytą oceniamy kondycję rzęs i dobieramy optymalny skręt. Klientka po zabiegu otrzymuje wskazówki pielęgnacyjne — unikanie wody i pary przez 24h, delikatne oczyszczanie. Terminy dla klientek z Limanowej i okolic sprawdzisz online.'],
   ['oprawa-oka-limanowa', 'Oprawa oka Limanowa', 'Laminacja brwi i rzęs, henna, regulacja — zabiegi łączone w jedną wizytę.', 'Oprawa oka to zestaw zabiegów na brwi i rzęsy wykonywanych podczas jednej wizyty. Może obejmować laminację brwi, lifting rzęs, koloryzację henną i regulację kształtu. Zakres dobieramy do naturalnego kształtu twarzy, oczekiwanego efektu i stanu włosków. Dzięki połączeniu kilku zabiegów oszczędzasz czas i uzyskujesz spójny rezultat. Aktualne zestawy, ceny i czas wykonania sprawdzisz na stronie usług BeskidStudio.'],
-  ['podolog-limanowa', 'Podolog Limanowa', 'Wrastające paznokcie, zrogowacenia, pękające pięty. Pedicure podologiczny w sterylnym gabinecie, tel. 532 128 227.', 'Podolog w BeskidStudio zajmuje się profesjonalną pielęgnacją stóp: pedicure podologicznym, usuwaniem zrogowaceń i odcisków, pielęgnacją problematycznych paznokci oraz konsultacjami stóp. Gabinet mieści się w Mordarce 505, 5 minut od Limanowej. Przed zabiegiem oceniamy stan stóp i dobieramy metodę do konkretnego problemu. Regularna podologia pomaga zapobiegać nawracaniu dolegliwości. Terminy dostępne online.'],
-  ['podologia-limanowa', 'Podologia Limanowa', 'Zabiegi podologiczne i pedicure leczniczy w gabinecie koło Limanowej.', 'Podologia to specjalizacja zajmująca się zdrowiem stóp — wrastającymi paznokciami, zrogowaceniami, odciskami, pękającymi piętami i grzybicą paznokci. W BeskidStudio oferujemy pedicure leczniczy, korekcję paznokci i pielęgnację skóry stóp za pomocą profesjonalnych frezów i narzędzi sterylizowanych w autoklawie. Każda wizyta zaczyna się od oceny stóp i wywiadu zdrowotnego. Gabinet w Mordarce 505 jest łatwo dostępny z Limanowej i okolic powiatu limanowskiego.'],
-  ['spa-stop-limanowa', 'SPA stóp Limanowa', 'Kąpiel, peeling, nawilżanie i masaż stóp — relaks i pielęgnacja w jednym zabiegu.', 'SPA stóp to kompleksowy zabieg łączący aromatyczną kąpiel, peeling złuszczający, maskę nawilżającą i masaż stóp. Idealny dla zmęczonych, suchych stóp po całym dniu na nogach. Zabieg trwa 45–60 minut i daje natychmiastowy efekt gładkiej, nawilżonej skóry. Polecany przed wakacjami, jako prezent lub jako regularna pielęgnacja co 3–4 tygodnie. Gabinet BeskidStudio w Mordarce 505 przyjmuje klientki z Limanowej i okolic.'],
-  ['wrastajace-paznokcie-limanowa', 'Wrastające paznokcie Limanowa', 'Korekcja wrastających paznokci w sterylnym gabinecie koło Limanowej, tel. 532 128 227.', 'Wrastający paznokieć to jeden z najczęstszych problemów podologicznych — objawia się bólem, zaczerwienieniem i obrzękiem wokół brzegu paznokcia. W BeskidStudio stosujemy nieinwazyjne metody korekcji: tamponadę, prawidłowe przycinanie i korekcję klamrą. Im wcześniej skonsultujesz problem, tym łatwiejsza będzie interwencja. Gabinet w Mordarce 505, 5 minut od Limanowej.'],
-  ['pedicure-podologiczny-limanowa', 'Pedicure podologiczny Limanowa', 'Profesjonalny pedicure leczniczy — usuwanie zrogowaceń, odcisków, pielęgnacja paznokci, tel. 532 128 227.', 'Pedicure podologiczny to profesjonalny zabieg leczniczy wykonywany przez podologa z użyciem specjalistycznych frezów. W odróżnieniu od pedicure kosmetycznego, koncentruje się na zdrowiu stóp: usuwaniu zrogowaceń, odcisków, modzeli oraz pielęgnacji problematycznych paznokci. W BeskidStudio każdy zabieg zaczynamy od oceny stóp i wywiadu zdrowotnego. Stosujemy sterylne narzędzia i dobieramy metodę do konkretnego problemu. Gabinet w Mordarce 505 przyjmuje klientki z Limanowej i powiatu limanowskiego.'],
-].map(([slug, label, offer, bodyText]) => ({
+  ['podolog-limanowa', 'Podolog Limanowa', 'Pedicure podologiczny, pielęgnacja paznokci i skóry stóp. Odrębna lokalizacja, tel. 532 128 227.', 'Oferta podologiczna jest aktywna i obejmuje konsultacje stóp, pedicure podologiczny oraz pielęgnację problematycznych paznokci i skóry stóp. Wizyty odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby krótko opisać problem, ustalić odpowiedni zakres wizyty, poznać wolny termin i otrzymać dokładny adres.'],
+  ['spa-stop-limanowa', 'SPA stóp Limanowa', 'Kąpiel, peeling, nawilżanie i masaż stóp. Odrębna lokalizacja, tel. 532 128 227.', 'SPA stóp łączy kąpiel, peeling, nawilżanie i masaż. Zabieg jest aktywny i realizowany w odrębnej lokalizacji dla osób z Limanowej i okolic. Termin, orientacyjny czas oraz dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.'],
+  ['wrastajace-paznokcie-limanowa', 'Wrastające paznokcie Limanowa', 'Aktywna konsultacja podologiczna w odrębnej lokalizacji, tel. 532 128 227.', 'Wrastającego paznokcia warto skonsultować możliwie wcześnie, szczególnie gdy pojawia się ból, zaczerwienienie lub obrzęk. Konsultacje podologiczne są aktywne i odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby omówić problem, ustalić termin i otrzymać dokładny adres.'],
+  ['pedicure-podologiczny-limanowa', 'Pedicure podologiczny Limanowa', 'Specjalistyczna pielęgnacja skóry i paznokci stóp. Odrębna lokalizacja, tel. 532 128 227.', 'Pedicure podologiczny to specjalistyczna pielęgnacja skóry i paznokci stóp poprzedzona oceną ich kondycji. Zakres i cena zależą od potrzeb konkretnej osoby. Usługa jest aktywna i realizowana w odrębnej lokalizacji. Termin, orientacyjny koszt oraz dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.'],
+].map(([slug, label, offer, bodyText]) => {
+  const phoneOnly = ['podolog-limanowa', 'spa-stop-limanowa', 'wrastajace-paznokcie-limanowa', 'pedicure-podologiczny-limanowa'].includes(slug);
+
+  return {
   path: `/${slug}`,
   title: `${label} — BeskidStudio Wiktoria Ćwik`,
-  description: `${label}: ${offer} Umów wizytę online — BeskidStudio koło Limanowej.`,
+  description: phoneOnly
+    ? `${label}: ${offer}`
+    : `${label}: ${offer} Umów wizytę online — BeskidStudio koło Limanowej.`,
   heading: `${label} – BeskidStudio Wiktoria Ćwik`,
   lead: offer,
   bodyText,
-  items: ['Mordarka 505, 34-600 Mordarka', 'Rezerwacja online', 'Telefon: +48 532 128 227'],
-  faq: [
+  phoneOnly,
+  items: phoneOnly
+    ? ['Aktywna usługa w odrębnej lokalizacji', 'Zapisy wyłącznie telefoniczne', 'Telefon: +48 532 128 227']
+    : ['Mordarka 505, 34-600 Mordarka', 'Rezerwacja online', 'Telefon: +48 532 128 227'],
+  faq: phoneOnly ? [
+    { question: `Gdzie odbywa się ${label}?`, answer: 'Wizyty odbywają się w odrębnej lokalizacji. Dokładny adres przekazujemy telefonicznie podczas ustalania terminu.' },
+    { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Zadzwoń pod numer 532 128 227. Podczas rozmowy potwierdzimy zakres wizyty, orientacyjną cenę, najbliższy termin i dokładny adres.' },
+    { question: 'Czy podologię można zarezerwować online?', answer: 'Nie. Zapisy na podologię prowadzimy obecnie wyłącznie telefonicznie pod numerem 532 128 227.' },
+  ] : [
     { question: `Gdzie znajduje się ${label}?`, answer: 'Zabiegi wykonujemy w BeskidStudio przy Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.' },
     { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Aktualna cena, czas zabiegu i wolne godziny są publikowane na stronie usług oraz w systemie rezerwacji online.' },
     { question: 'Czy przed pierwszą wizytą można skonsultować wybór zabiegu?', answer: 'Tak. Jeśli nie wiesz, co wybrać, skontaktuj się z salonem lub umów konsultację przed rezerwacją właściwego zabiegu.' },
   ],
-}));
+  };
+});
 
-const unavailablePages = [
-  ['podolog-mordarka', 'Podologia Mordarka – usługa w przygotowaniu'],
-  ['wrastajace-paznokcie-mordarka', 'Wrastające paznokcie Mordarka – usługa w przygotowaniu'],
-].map(([slug, label]) => ({
-  path: `/${slug}`,
-  title: `${label} | BeskidStudio`,
-  description: 'Podologia nie jest obecnie dostępna do rezerwacji w BeskidStudio. Sprawdź aktualną ofertę salonu lub skontaktuj się w sprawie przyszłych terminów.',
-  heading: label,
-  lead: 'Ta usługa nie jest obecnie dostępna do rezerwacji. Aktualna oferta znajduje się na stronie usług.',
-  items: ['Aktualny status usługi', 'Kontakt z salonem', 'Dostępne zabiegi beauty'],
-  noIndex: true,
-}));
+const unavailablePages = [];
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -360,8 +361,7 @@ function breadcrumbSchema(pagePath, labels) {
   };
 }
 
-const staticPageStyles = `<script data-seo-app-shell>document.documentElement.classList.add('seo-js')</script>
-<style data-seo-static-styles>
+const staticPageStyles = `<style data-seo-static-styles>
   .seo-js [data-seo-static-content]{display:none}
   [data-seo-static-content]{box-sizing:border-box;width:100%;max-width:960px;margin:0 auto;padding:48px 24px;font-family:Arial,sans-serif;color:#173b2a}
   [data-seo-static-content] *{box-sizing:border-box}
@@ -390,6 +390,7 @@ const staticContent = ({
   publishedAt,
   modifiedAt,
   noIndex = false,
+  phoneOnly = false,
 }) => {
   const textParagraphs = bodyText
     ? cleanText(bodyText).split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')
@@ -415,9 +416,9 @@ const staticContent = ({
         </section>
         ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
-          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt i dojazd</a><a href="/blog">Poradniki</a><a href="/rezerwacja">Umów wizytę</a><!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a><!--/email_off-->
+          <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt</a><a href="/blog">Poradniki</a>${phoneOnly ? '<a href="tel:+48532128227">Zadzwoń w sprawie podologii</a>' : '<a href="/rezerwacja">Umów wizytę</a>'}<!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a><!--/email_off-->
         </nav>
-        <address style="margin-top:34px;font-style:normal;line-height:1.7">Mordarka 505, 34-600 Mordarka · <a href="tel:+48532128227">+48 532 128 227</a> · <!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a><!--/email_off--></address>
+        <address style="margin-top:34px;font-style:normal;line-height:1.7">${phoneOnly ? 'Podologia: odrębna lokalizacja, dokładny adres potwierdzamy telefonicznie · ' : 'Mordarka 505, 34-600 Mordarka · '}<a href="tel:+48532128227">+48 532 128 227</a> · <!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a><!--/email_off--></address>
       </main>`;
 };
 
