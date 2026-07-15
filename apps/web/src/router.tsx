@@ -162,6 +162,7 @@ export const router = createBrowserRouter([
       { path: 'oprawa-oka-limanowa', element: <S><LocalSeoPage pageKey="oprawa-oka-limanowa" /></S> },
       { path: 'oprawa-oka-mordarka', element: <Navigate to="/oprawa-oka-limanowa" replace /> },
       { path: 'wrastajace-paznokcie-limanowa', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-limanowa" /></S> },
+      { path: 'pedicure-podologiczny-limanowa', element: <S><LocalSeoPage pageKey="pedicure-podologiczny-limanowa" /></S> },
       { path: 'wrastajace-paznokcie-mordarka', element: <S><LocalSeoPage pageKey="wrastajace-paznokcie-mordarka" /></S> },
       {
         path: 'auth',

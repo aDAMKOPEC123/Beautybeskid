@@ -28,6 +28,8 @@ const staticUrls = [
   { loc: '/podolog-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/podologia-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/spa-stop-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/wrastajace-paznokcie-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/pedicure-podologiczny-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
 ];
 
 function toXmlDate(date: Date): string {

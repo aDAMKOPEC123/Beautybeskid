@@ -16,7 +16,8 @@ export type LocalSeoPageKey =
   | 'wrastajace-paznokcie-limanowa'
   | 'wrastajace-paznokcie-mordarka'
   | 'spa-stop-limanowa'
-  | 'podologia-limanowa';
+  | 'podologia-limanowa'
+  | 'pedicure-podologiczny-limanowa';
 
 type LocalSeoFaq = {
   question: string;
@@ -741,8 +742,24 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     localCopy:
       'Wrastające paznokcie to jeden z najczęstszych problemów podologicznych — i jeden z tych, które warto omówić ze specjalistą jak najwcześniej. BeskidStudio By Wiktoria Ćwik w Mordarce 505 buduje podologiczną ścieżkę usług dla klientek z Limanowej i całego powiatu limanowskiego.',
     faq: ingrowingNailsFaq('Limanowej'),
-    related: ['podolog-limanowa', 'wrastajace-paznokcie-mordarka', 'kosmetyczka-limanowa'],
-    indexable: false,
+    related: ['podolog-limanowa', 'wrastajace-paznokcie-mordarka', 'podologia-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Jak rozpoznać wrastający paznokieć?',
+        content:
+          'Wrastający paznokieć (onychocryptosis) objawia się bólem, zaczerwienieniem i obrzękiem wokół brzegu paznokcia — najczęściej dużego palca stopy. Na początku dolegliwość jest lekka, ale nieleczony wrastający paznokieć może prowadzić do stanu zapalnego, ropienia i silnego bólu przy chodzeniu.\n\nNajczęstsze przyczyny to nieprawidłowe obcinanie paznokci (za krótko lub zaokrąglanie rogów), noszenie za ciasnych butów, urazy stóp oraz predyspozycje genetyczne. Im wcześniej skonsultujesz problem ze specjalistą, tym łatwiejsza i mniej bolesna będzie korekcja.',
+      },
+      {
+        heading: 'Metody korekcji wrastających paznokci',
+        content:
+          'W BeskidStudio stosujemy nieinwazyjne metody korekcji wrastających paznokci. W zależności od stopnia zaawansowania problemu podolog dobiera odpowiednią technikę — od tamponady i prawidłowego przycięcia paznokcia, przez korekcję klamrą, po specjalistyczne opatrunki zmniejszające nacisk paznokcia na wał.\n\nKorekcja klamrą (np. klamra Titana lub VHO) to jedna z najskuteczniejszych metod — delikatnie unosi brzeg paznokcia, prostuje jego wzrost i zmniejsza ból już po pierwszym założeniu. Cały proces jest bezbolesny i nie wymaga znieczulenia.',
+      },
+      {
+        heading: 'Jak zapobiegać wrastaniu paznokci?',
+        content:
+          'Podstawowa zasada profilaktyki to prawidłowe obcinanie paznokci — prosto, bez zaokrąglania rogów, nie za krótko. Noś wygodne buty z odpowiednią przestrzenią w palcach. Unikaj butów z wąskim noskiem i zbyt ciasnych skarpetek.\n\nRegularne wizyty u podologa co 4–6 tygodni pozwalają kontrolować wzrost paznokci i wychwycić problem na wczesnym etapie. Jeśli masz skłonność do wrastania, podolog może zaproponować profilaktyczną tamponadę, która uczy paznokieć prawidłowego kierunku wzrostu.',
+      },
+    ],
   },
   'wrastajace-paznokcie-mordarka': {
     slug: 'wrastajace-paznokcie-mordarka',
@@ -939,6 +956,62 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
         heading: 'Podologia w Limanowej — dlaczego warto wybrać BeskidStudio?',
         content:
           'W BeskidStudio łączymy wiedzę podologiczną z komfortem kameralnego gabinetu kosmetologicznego. Każda klientka otrzymuje indywidualną uwagę — nie pracujemy w pośpiechu. Gabinet w Mordarce 505 jest łatwo dostępny z Limanowej i okolicznych miejscowości.\n\nOferujemy przejrzysty cennik, wygodną rezerwację online z aktualnym grafikiem, panel klienta z historią wizyt i zaleceniami oraz możliwość kontaktu telefonicznego i przez czat. Chcemy, żeby pielęgnacja stóp była prosta, dostępna i pozbawiona stresu.',
+      },
+    ],
+  },
+  'pedicure-podologiczny-limanowa': {
+    slug: 'pedicure-podologiczny-limanowa',
+    shortLabel: 'Pedicure podologiczny Limanowa',
+    title: 'Pedicure podologiczny Limanowa — leczniczy pedicure stóp ✔',
+    description:
+      'Pedicure podologiczny koło Limanowej — profesjonalne usuwanie zrogowaceń, odcisków, pielęgnacja paznokci. BeskidStudio By Wiktoria Ćwik, Mordarka 505. ☎ 532 128 227.',
+    eyebrow: 'Pedicure podologiczny Limanowa',
+    h1: 'Pedicure podologiczny w Limanowej — profesjonalna pielęgnacja stóp',
+    lead:
+      'Pedicure podologiczny to nie kosmetyczny zabieg — to profesjonalna pielęgnacja stóp wykonywana przez specjalistę. W BeskidStudio By Wiktoria Ćwik w Mordarce 505 oferujemy pedicure leczniczy z frezowaniem, usuwaniem zrogowaceń i kompleksową oceną kondycji stóp.',
+    serviceName: 'Pedicure podologiczny — leczniczy',
+    serviceType: 'Podologia',
+    location: 'Limanowa',
+    nearbyContext: limanowaContext,
+    heroPoints: [
+      'pedicure leczniczy z profesjonalnymi frezami',
+      'usuwanie zrogowaceń, odcisków i modzeli',
+      'sterylne narzędzia i indywidualny plan pielęgnacji',
+    ],
+    benefits: [
+      'Profesjonalny pedicure leczniczy zamiast domowych metod — trwałe efekty i bezpieczeństwo.',
+      'Indywidualna ocena stóp i dopasowanie zabiegu do problemu.',
+      'Sterylne warunki, jednorazowe narzędzia, komfortowa atmosfera gabinetu.',
+    ],
+    visitSteps: [
+      'Wywiad i ocena stanu stóp — identyfikujemy problemy i dobieramy zakres zabiegu.',
+      'Pedicure podologiczny: frezowanie, usuwanie zrogowaceń, pielęgnacja paznokci i skóry.',
+      'Zalecenia pielęgnacji domowej i proponowany termin kolejnej wizyty.',
+    ],
+    localCopy:
+      'Pedicure podologiczny w BeskidStudio By Wiktoria Ćwik to profesjonalny zabieg leczniczy dla klientek z Limanowej, Mordarki, Tymbarku, Laskowej, Mszany Dolnej i całego powiatu limanowskiego. Gabinet w Mordarce 505 jest łatwo dostępny — 5 minut jazdy z centrum Limanowej, z parkingiem pod budynkiem.',
+    faq: podologiaFaq('Limanowej'),
+    related: ['podolog-limanowa', 'podologia-limanowa', 'spa-stop-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Czym różni się pedicure podologiczny od kosmetycznego?',
+        content:
+          'Pedicure kosmetyczny koncentruje się na estetyce — malowaniu paznokci, kształtowaniu i nawilżaniu. Pedicure podologiczny to zabieg leczniczy wykonywany przez specjalistę z użyciem profesjonalnych frezów podologicznych.\n\nPodolog usuwa zrogowacenia, odciski i modzele, zajmuje się problematycznymi paznokciami (pogrubiałymi, zniekształconymi, wrastającymi) i ocenia ogólną kondycję stóp. To zabieg dla osób z konkretnymi problemami stóp, nie tylko z myślą o wyglądzie.',
+      },
+      {
+        heading: 'Jak wygląda pedicure podologiczny w BeskidStudio?',
+        content:
+          'Zabieg zaczyna się od rozmowy o problemie i oceny stóp. Podolog dobiera odpowiednie frezy i narzędzia do rodzaju zrogowaceń i stanu paznokci. Następnie frezuje zrogowaciałą skórę, usuwa odciski i modzele, pielęgnuje paznokcie i nakłada krem regenerujący.\n\nCały zabieg trwa 45–60 minut i odbywa się w sterylnych warunkach. Narzędzia jednorazowe lub sterylizowane w autoklawie. Po zabiegu otrzymujesz zalecenia pielęgnacyjne — jaki krem stosować, jak obcinać paznokcie i kiedy wrócić na kolejną wizytę.',
+      },
+      {
+        heading: 'Jak często korzystać z pedicure podologicznego?',
+        content:
+          'Optymalny odstęp między zabiegami to 4–6 tygodni. Regularny pedicure podologiczny pomaga kontrolować zrogowacenia, utrzymuje paznokcie w zdrowiu i pozwala wychwycić potencjalne problemy na wczesnym etapie.\n\nOsoby z cukrzycą, chorobami naczyniowymi i seniorzy powinni korzystać z pedicure podologicznego regularnie — co 3–4 tygodnie. Zdrowe stopy to fundament komfortowego chodzenia i codziennego funkcjonowania.',
+      },
+      {
+        heading: 'Cennik pedicure podologicznego w Limanowej',
+        content:
+          'Cena pedicure podologicznego zależy od zakresu zabiegu — prosty pedicure leczniczy, usuwanie rozległych zrogowaceń czy kompleksowa pielęgnacja problemowych paznokci mają różne stawki. Aktualny cennik znajdziesz w naszej zakładce Usługi i ceny lub zadzwoń pod numer 532 128 227, aby dopytać o szczegóły.\n\nPierwsza wizyta może trwać nieco dłużej ze względu na dokładną ocenę stóp i wywiad zdrowotny. Kolejne wizyty kontrolne są zazwyczaj krótsze i tańsze.',
       },
     ],
   },
