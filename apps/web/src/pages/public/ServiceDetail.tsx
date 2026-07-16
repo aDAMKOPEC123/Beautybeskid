@@ -6,7 +6,6 @@ import { servicesApi } from '@/api/services.api';
 import { reviewsApi } from '@/api/reviews.api';
 import { formatPrice } from '@/lib/utils';
 import { Clock, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { PageSEO } from '@/components/shared/SEO';
 import { RichTextViewer } from '@/components/shared/RichTextViewer';
 import { ReviewsList } from '@/components/reviews/ReviewsList';
@@ -106,7 +105,6 @@ const SERVICE_META_OVERRIDES: Record<string, { title: string; description: strin
 export const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const loadingSeoContent = slug ? SERVICE_SEO_CONTENT[slug] : undefined;
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const { data: service, isLoading } = useQuery({
@@ -345,12 +343,7 @@ export const ServiceDetail = () => {
           <button
             className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
             style={{ backgroundColor: '#1A3828' }}
-            onClick={() =>
-              navigate(
-                isAuthenticated ? `/rezerwacja?serviceId=${service.id}` : '/auth/login',
-                isAuthenticated ? undefined : { state: { from: `/rezerwacja?serviceId=${service.id}` } }
-              )
-            }
+            onClick={() => navigate(`/rezerwacja?serviceId=${service.id}`)}
           >
             Umów wizytę
           </button>
