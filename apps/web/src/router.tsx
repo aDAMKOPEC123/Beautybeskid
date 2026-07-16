@@ -146,7 +146,6 @@ export const router = createBrowserRouter([
       { path: 'regulamin', element: <S><PublicTerms /></S> },
       { path: 'kontakt', element: <S><Contact /></S> },
       { path: 'o-nas', element: <S><About /></S> },
-      { path: 'rezerwacja', element: <S><BookingWizard /></S> },
       { path: 'kosmetolog-limanowa', element: <S><LocalSeoPage pageKey="kosmetolog-limanowa" /></S> },
       { path: 'kosmetolog-mordarka', element: <S><LocalSeoPage pageKey="kosmetolog-mordarka" /></S> },
       { path: 'podolog-limanowa', element: <S><LocalSeoPage pageKey="podolog-limanowa" /></S> },
@@ -219,6 +218,11 @@ export const router = createBrowserRouter([
       { path: 'chat', element: <S><EmployeeChat /></S> },
       { path: 'asortyment', element: <S><EmployeeAssortment /></S> },
     ],
+  },
+  {
+    path: '/rezerwacja',
+    element: <S><BookingWizard /></S>,
+    errorElement: routeErrorElement,
   },
   {
     path: '/akademia/*',
