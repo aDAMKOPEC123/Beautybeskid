@@ -39,6 +39,21 @@ const parseServicePayload = (req: Request) => {
       throw new AppError('Nieprawidłowy format seriesIntervalsDays', 400);
     }
   }
+  if (dataToValidate.promoDiscountValue !== undefined) {
+    dataToValidate.promoDiscountValue = dataToValidate.promoDiscountValue ? Number(dataToValidate.promoDiscountValue) : null;
+  }
+  if (dataToValidate.promoDiscountType !== undefined && !dataToValidate.promoDiscountType) {
+    dataToValidate.promoDiscountType = null;
+    dataToValidate.promoDiscountValue = null;
+    dataToValidate.promoStartDate = null;
+    dataToValidate.promoEndDate = null;
+  }
+  if (dataToValidate.promoStartDate !== undefined) {
+    dataToValidate.promoStartDate = dataToValidate.promoStartDate ? new Date(dataToValidate.promoStartDate) : null;
+  }
+  if (dataToValidate.promoEndDate !== undefined) {
+    dataToValidate.promoEndDate = dataToValidate.promoEndDate ? new Date(dataToValidate.promoEndDate) : null;
+  }
   if (req.body.employeeIds && typeof req.body.employeeIds === 'string') {
     try {
       dataToValidate.employeeIds = JSON.parse(req.body.employeeIds);

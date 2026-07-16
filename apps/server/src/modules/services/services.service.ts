@@ -1,10 +1,33 @@
 // filepath: apps/server/src/modules/services/services.service.ts
+import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { CreateServiceInput, UpdateServiceInput } from '@cosmo/shared';
 import { createSlug } from '../../utils/slug';
 
 const employeeSelect = { select: { id: true, name: true, avatarPath: true } };
+
+function computePromoPrice(service: {
+  price: Decimal | number;
+  promoDiscountType: string | null;
+  promoDiscountValue: Decimal | number | null;
+  promoStartDate: Date | null;
+  promoEndDate: Date | null;
+}): number | null {
+  if (!service.promoDiscountType || !service.promoDiscountValue || !service.promoStartDate || !service.promoEndDate) {
+    return null;
+  }
+  const now = new Date();
+  if (now < service.promoStartDate || now > service.promoEndDate) {
+    return null;
+  }
+  const price = Number(service.price);
+  const discountValue = Number(service.promoDiscountValue);
+  if (service.promoDiscountType === 'PERCENTAGE') {
+    return Math.round(price * (1 - discountValue / 100) * 100) / 100;
+  }
+  return Math.round(Math.max(0, price - discountValue) * 100) / 100;
+}
 
 export const getAllServices = async () => {
   const [services, reviewAggregates] = await Promise.all([
@@ -31,6 +54,9 @@ export const getAllServices = async () => {
 
   return services.map((s) => ({
     ...s,
+    price: Number(s.price),
+    promoPrice: computePromoPrice(s),
+    promoDiscountValue: s.promoDiscountValue ? Number(s.promoDiscountValue) : null,
     avgRating: aggregateMap.get(s.id)?.avgRating ?? null,
     reviewCount: aggregateMap.get(s.id)?.reviewCount ?? 0,
   }));
@@ -51,6 +77,9 @@ export const getServiceBySlug = async (slug: string) => {
 
   return {
     ...service,
+    price: Number(service.price),
+    promoPrice: computePromoPrice(service),
+    promoDiscountValue: service.promoDiscountValue ? Number(service.promoDiscountValue) : null,
     avgRating: aggregate._avg.rating,
     reviewCount: aggregate._count,
   };

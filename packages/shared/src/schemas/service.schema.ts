@@ -19,7 +19,51 @@ const serviceSchemaBase = z.object({
   isMultiVisit: z.boolean().default(false),
   seriesIntervalsDays: z.array(z.number().int().positive('Interwal musi byc dodatni')).default([]),
   seasons: z.array(z.nativeEnum(Season)).default([]),
+  promoDiscountType: z.enum(['PERCENTAGE', 'AMOUNT']).nullable().optional(),
+  promoDiscountValue: z.number().positive().nullable().optional(),
+  promoStartDate: z.coerce.date().nullable().optional(),
+  promoEndDate: z.coerce.date().nullable().optional(),
 });
+
+const validatePromoConfig = (
+  data: {
+    promoDiscountType?: string | null;
+    promoDiscountValue?: number | null;
+    promoStartDate?: Date | null;
+    promoEndDate?: Date | null;
+  },
+  ctx: z.RefinementCtx,
+) => {
+  const fields = [data.promoDiscountType, data.promoDiscountValue, data.promoStartDate, data.promoEndDate];
+  const hasAny = fields.some((f) => f != null);
+  const hasAll = fields.every((f) => f != null);
+
+  if (hasAny && !hasAll) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['promoDiscountType'],
+      message: 'Wszystkie pola promocji musza byc ustawione razem',
+    });
+    return;
+  }
+
+  if (hasAll) {
+    if (data.promoDiscountType === 'PERCENTAGE' && data.promoDiscountValue! > 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['promoDiscountValue'],
+        message: 'Rabat procentowy nie moze przekraczac 100%',
+      });
+    }
+    if (data.promoEndDate! <= data.promoStartDate!) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['promoEndDate'],
+        message: 'Data zakonczenia musi byc pozniejsza niz data rozpoczecia',
+      });
+    }
+  }
+};
 
 const validateSeriesConfig = (
   data: { isMultiVisit?: boolean; seriesIntervalsDays?: number[] },
@@ -44,7 +88,9 @@ const validateSeriesConfig = (
   }
 };
 
-export const createServiceSchema = serviceSchemaBase.superRefine(validateSeriesConfig);
+export const createServiceSchema = serviceSchemaBase
+  .superRefine(validateSeriesConfig)
+  .superRefine(validatePromoConfig);
 
 export const updateServiceSchema = serviceSchemaBase.partial().superRefine((data, ctx) => {
   validateSeriesConfig(
@@ -54,6 +100,7 @@ export const updateServiceSchema = serviceSchemaBase.partial().superRefine((data
     },
     ctx,
   );
+  validatePromoConfig(data, ctx);
 });
 
 export type CreateServiceInput = z.infer<typeof createServiceSchema>;
