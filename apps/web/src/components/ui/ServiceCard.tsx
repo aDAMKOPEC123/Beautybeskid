@@ -11,6 +11,9 @@ interface ServiceCardProps {
     description?: string;
     durationMinutes: number;
     price: number;
+    promoPrice?: number | null;
+    promoDiscountType?: string | null;
+    promoDiscountValue?: number | null;
     imagePath?: string | null;
     category?: string;
     avgRating?: number;
@@ -45,6 +48,14 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-cream to-caramel/40" />
           )}
+          {/* Promo badge */}
+          {service.promoPrice != null && service.promoDiscountType && (
+            <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-sm z-10 shadow-md" style={{ letterSpacing: '0.03em' }}>
+              {service.promoDiscountType === 'PERCENTAGE'
+                ? `-${Number(service.promoDiscountValue)}%`
+                : `-${Number(service.promoDiscountValue)} zł`}
+            </div>
+          )}
           {/* Dark gradient + glassmorphism label */}
           <div
             className="absolute inset-0"
@@ -77,9 +88,20 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
           style={{ borderTop: '1px solid rgba(26,56,40,0.06)' }}
         >
           <div className="min-w-0">
-            <span className="font-display text-[20px] text-espresso" style={{ fontWeight: 300 }}>
-              {formatPrice(service.price)}
-            </span>
+            {service.promoPrice != null ? (
+              <span className="flex items-center gap-2">
+                <span className="font-display text-[14px] text-espresso/50 line-through" style={{ fontWeight: 300 }}>
+                  {formatPrice(service.price)}
+                </span>
+                <span className="font-display text-[20px] text-red-600" style={{ fontWeight: 500 }}>
+                  {formatPrice(service.promoPrice)}
+                </span>
+              </span>
+            ) : (
+              <span className="font-display text-[20px] text-espresso" style={{ fontWeight: 300 }}>
+                {formatPrice(service.price)}
+              </span>
+            )}
             {(service.avgRating !== undefined && service.reviewCount !== undefined) && (
               <div className="mt-0.5">
                 <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount ?? 0} />

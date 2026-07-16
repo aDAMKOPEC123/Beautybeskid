@@ -31,6 +31,10 @@ interface FormValues {
   routineFirst48h: string;
   routineFollowingDays: string;
   routineProducts: string;
+  promoDiscountType: string;
+  promoDiscountValue: string;
+  promoStartDate: string;
+  promoEndDate: string;
 }
 
 const EMPTY_FORM: FormValues = {
@@ -51,6 +55,10 @@ const EMPTY_FORM: FormValues = {
   routineFirst48h: '',
   routineFollowingDays: '',
   routineProducts: '',
+  promoDiscountType: '',
+  promoDiscountValue: '',
+  promoStartDate: '',
+  promoEndDate: '',
 };
 
 function ServiceForm({
@@ -238,6 +246,79 @@ function ServiceForm({
             required
           />
         </div>
+      </div>
+
+      {/* Promocja */}
+      <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+        <h4 className="text-sm font-semibold text-amber-500 flex items-center gap-2">
+          Promocja
+        </h4>
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-muted-foreground">Typ zniżki:</label>
+          <select
+            value={values.promoDiscountType}
+            onChange={(e) => set('promoDiscountType', e.target.value)}
+            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">Brak promocji</option>
+            <option value="PERCENTAGE">Procentowa (%)</option>
+            <option value="AMOUNT">Kwotowa (zł)</option>
+          </select>
+        </div>
+        {values.promoDiscountType && (
+          <>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  Wartość {values.promoDiscountType === 'PERCENTAGE' ? '(%)' : '(zł)'}
+                </label>
+                <input
+                  type="number"
+                  value={values.promoDiscountValue}
+                  onChange={(e) => set('promoDiscountValue', e.target.value)}
+                  min="0"
+                  max={values.promoDiscountType === 'PERCENTAGE' ? '100' : undefined}
+                  step="0.01"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Od</label>
+                <input
+                  type="date"
+                  value={values.promoStartDate}
+                  onChange={(e) => set('promoStartDate', e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Do</label>
+                <input
+                  type="date"
+                  value={values.promoEndDate}
+                  onChange={(e) => set('promoEndDate', e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+            </div>
+            {values.price && values.promoDiscountValue && (
+              <div className="text-sm text-muted-foreground">
+                Podgląd: <span className="line-through opacity-60">{Number(values.price).toFixed(2)} zł</span>
+                {' → '}
+                <span className="text-amber-500 font-bold">
+                  {values.promoDiscountType === 'PERCENTAGE'
+                    ? (Number(values.price) * (1 - Number(values.promoDiscountValue) / 100)).toFixed(2)
+                    : Math.max(0, Number(values.price) - Number(values.promoDiscountValue)).toFixed(2)
+                  } zł
+                </span>
+                {values.promoDiscountType === 'PERCENTAGE' && ` (-${values.promoDiscountValue}%)`}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -632,6 +713,10 @@ export const AdminServices = () => {
         routineFirst48h: values.routineFirst48h || null,
         routineFollowingDays: values.routineFollowingDays || null,
         routineProducts: values.routineProducts || null,
+        promoDiscountType: values.promoDiscountType || null,
+        promoDiscountValue: values.promoDiscountValue ? Number(values.promoDiscountValue) : null,
+        promoStartDate: values.promoStartDate || null,
+        promoEndDate: values.promoEndDate || null,
       }),
     );
     formData.append('employeeIds', JSON.stringify(values.selectedEmployeeIds));
@@ -666,6 +751,10 @@ export const AdminServices = () => {
       routineFirst48h: service.routineFirst48h ?? '',
       routineFollowingDays: service.routineFollowingDays ?? '',
       routineProducts: service.routineProducts ?? '',
+      promoDiscountType: service.promoDiscountType ?? '',
+      promoDiscountValue: service.promoDiscountValue ? String(Number(service.promoDiscountValue)) : '',
+      promoStartDate: service.promoStartDate ? new Date(service.promoStartDate).toISOString().split('T')[0] : '',
+      promoEndDate: service.promoEndDate ? new Date(service.promoEndDate).toISOString().split('T')[0] : '',
     };
   };
 
@@ -714,6 +803,22 @@ export const AdminServices = () => {
 
                   <div className="text-sm font-semibold mt-3 flex flex-wrap gap-3 bg-muted/40 w-fit px-3 py-1.5 rounded-md">
                     <span className="text-foreground">{formatPrice(service.price)}</span>
+                    {service.promoPrice != null && (
+                      <span className="text-amber-500 font-semibold border-l pl-3">
+                        {formatPrice(service.promoPrice)}
+                        {' '}
+                        <span className="text-xs opacity-75">
+                          ({service.promoDiscountType === 'PERCENTAGE'
+                            ? `-${Number(service.promoDiscountValue)}%`
+                            : `-${Number(service.promoDiscountValue)} zł`})
+                        </span>
+                      </span>
+                    )}
+                    {service.promoEndDate && new Date(service.promoEndDate) < new Date() && service.promoDiscountType && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 ml-1">
+                        Wygasła
+                      </span>
+                    )}
                     <span className="text-muted-foreground border-l pl-3">{service.durationMinutes} min</span>
                     {service.isMultiVisit && (
                       <span className="text-muted-foreground border-l pl-3">

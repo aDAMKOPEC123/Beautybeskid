@@ -355,9 +355,16 @@ function StepService({
                     </span>
                     <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
                   </div>
-                  <span className="font-bold" style={{ color: '#1A3828' }}>
-                    {Number(service.price).toFixed(2)} zł
-                  </span>
+                  {service.promoPrice != null ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-xs line-through opacity-50">{Number(service.price).toFixed(2)} zł</span>
+                      <span className="font-bold" style={{ color: '#dc2626' }}>{service.promoPrice.toFixed(2)} zł</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold" style={{ color: '#1A3828' }}>
+                      {Number(service.price).toFixed(2)} zł
+                    </span>
+                  )}
                 </div>
               </div>
             </button>
@@ -605,12 +612,12 @@ function StepDate({
                         <span className="text-[10px] font-bold tracking-wide" style={{ color: '#D97706' }}>⭐ HOT</span>
                         <span>{slot.time}</span>
                         <span className="text-[10px]" style={{ color: 'rgba(146,64,14,0.7)', textDecoration: 'line-through' }}>
-                          {Number(service?.price).toFixed(2)} zł
+                          {(service?.promoPrice ?? Number(service?.price)).toFixed(2)} zł
                         </span>
                         <span className="text-[10px] font-bold" style={{ color: '#D97706' }}>
                           {happyHour.discountType === 'PERCENTAGE'
-                            ? `${Number(service?.price) * (1 - Number(happyHour.discountValue) / 100) < 0 ? '0.00' : (Number(service?.price) * (1 - Number(happyHour.discountValue) / 100)).toFixed(2)} zł`
-                            : `${Math.max(0, Number(service?.price) - Number(happyHour.discountValue)).toFixed(2)} zł`}
+                            ? `${(service?.promoPrice ?? Number(service?.price)) * (1 - Number(happyHour.discountValue) / 100) < 0 ? '0.00' : ((service?.promoPrice ?? Number(service?.price)) * (1 - Number(happyHour.discountValue) / 100)).toFixed(2)} zł`
+                            : `${Math.max(0, (service?.promoPrice ?? Number(service?.price)) - Number(happyHour.discountValue)).toFixed(2)} zł`}
                         </span>
                       </span>
                     ) : (
@@ -875,7 +882,7 @@ function StepConfirm({
     enabled: isAuthenticated,
   });
 
-  const basePrice = state.service ? Number(state.service.price) : 0;
+  const basePrice = state.service ? (state.service.promoPrice ?? Number(state.service.price)) : 0;
 
   function tierOrder(tier?: string) {
     return tier === 'GOLD' ? 3 : tier === 'SILVER' ? 2 : 1;
@@ -1302,7 +1309,7 @@ export const BookingWizard = () => {
         finalCouponId = coupon.id;
       }
 
-      const svcPrice = state.service ? Number(state.service.price) : 0;
+      const svcPrice = state.service ? (state.service.promoPrice ?? Number(state.service.price)) : 0;
       const priceBeforeVoucher = state.appliedHappyHour
         ? calcDiscountedPrice(svcPrice, state.appliedHappyHour)
         : svcPrice;
@@ -1410,7 +1417,14 @@ export const BookingWizard = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(20,40,28,0.48)' }}>Wybrana usługa</p>
             <p className="mt-1 font-semibold" style={{ color: '#1A3828' }}>{formatContentLabel(state.service.name)}</p>
           </div>
-          <p className="font-heading text-lg font-bold" style={{ color: '#A87538' }}>{Number(state.service.price).toFixed(2)} zł</p>
+          {state.service.promoPrice != null ? (
+            <p className="font-heading text-lg font-bold">
+              <span className="text-sm line-through opacity-50 mr-2">{Number(state.service.price).toFixed(2)} zł</span>
+              <span style={{ color: '#dc2626' }}>{state.service.promoPrice.toFixed(2)} zł</span>
+            </p>
+          ) : (
+            <p className="font-heading text-lg font-bold" style={{ color: '#A87538' }}>{Number(state.service.price).toFixed(2)} zł</p>
+          )}
         </div>
       )}
 

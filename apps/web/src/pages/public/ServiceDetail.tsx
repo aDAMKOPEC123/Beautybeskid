@@ -233,7 +233,7 @@ export const ServiceDetail = () => {
         offers: {
           '@type': 'Offer',
           priceCurrency: 'PLN',
-          price: String(service.price),
+          price: String(service.promoPrice ?? service.price),
           availability: 'https://schema.org/InStock',
         },
         ...(reviewsData && reviewsData.aggregate.count > 0 ? {
@@ -311,9 +311,25 @@ export const ServiceDetail = () => {
             {service.name}
           </h1>
           <div className="flex items-center justify-center gap-4 mb-8">
-            <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
-              {formatPrice(service.price)}
-            </span>
+            {service.promoPrice != null ? (
+              <div className="flex items-center gap-3">
+                <span className="text-xl line-through opacity-50 text-espresso">
+                  {formatPrice(service.price)}
+                </span>
+                <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
+                  {formatPrice(service.promoPrice)}
+                </span>
+                <span className="text-sm font-bold bg-red-600 text-white px-2.5 py-1 rounded-sm">
+                  {service.promoDiscountType === 'PERCENTAGE'
+                    ? `-${Number(service.promoDiscountValue)}%`
+                    : `-${Number(service.promoDiscountValue)} zł`}
+                </span>
+              </div>
+            ) : (
+              <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
+                {formatPrice(service.price)}
+              </span>
+            )}
             <span
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-full"
               style={{ backgroundColor: 'rgba(20,40,28,0.07)', color: '#1A3828' }}
@@ -321,6 +337,11 @@ export const ServiceDetail = () => {
               <Clock size={15} /> {service.durationMinutes} min
             </span>
           </div>
+          {service.promoEndDate && service.promoPrice != null && (
+            <p className="text-sm mb-4" style={{ color: '#C4965A' }}>
+              Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}
+            </p>
+          )}
           <button
             className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
             style={{ backgroundColor: '#1A3828' }}
