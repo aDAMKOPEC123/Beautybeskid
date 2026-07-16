@@ -343,6 +343,10 @@ model Service {
   routineFirst48h         String?
   routineFollowingDays    String?
   routineProducts         String?
+  promoDiscountType       DiscountType?
+  promoDiscountValue      Decimal?      @db.Decimal(10, 2)
+  promoStartDate          DateTime?
+  promoEndDate            DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -997,6 +1001,12 @@ enum NotificationType {
   BROADCAST
   BLOG_COMMENT_REPLY
   SKIN_WEATHER
+  NEW_REGISTRATION
+}
+
+enum NotificationAudience {
+  USER
+  ADMIN
 }
 
 model Notification {
@@ -1004,6 +1014,7 @@ model Notification {
   userId    String
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      NotificationType @default(GENERIC)
+  audience  NotificationAudience @default(USER)
   title     String
   body      String
   url       String?
@@ -1012,6 +1023,7 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([userId, readAt])
+  @@index([userId, audience, createdAt])
 }
 
 model Product {
@@ -1284,6 +1296,14 @@ model Course {
   isFeatured       Boolean      @default(false)
   isBestseller     Boolean      @default(false)
   isComingSoon     Boolean      @default(false)
+  displayOrder     Int          @default(0)
+  learningOutcomes String[]     @default([])
+  targetAudience   String?
+  notForAudience   String?
+  prerequisites    String[]     @default([])
+  trailerVideoId   String?
+  samplePdfUrl     String?
+  salesFaqs        Json         @default("[]")
   previewLessonId  String?
   instructorName   String       @default("Wiktoria Ćwik")
   instructorBio    String?
@@ -1303,6 +1323,7 @@ model Course {
   academyReviews  AcademyCourseReview[]
   bundleCourses   AcademyBundleCourse[]
   priceHistory    AcademyCoursePriceHistory[]
+  promotionUsages AcademyPromotionUsage[]
 }
 
 model AcademyUser {
@@ -1339,6 +1360,7 @@ model AcademyUser {
   orders                    AcademyOrder[]
   academyCourseReviews      AcademyCourseReview[]
   academyLearningGoal       AcademyLearningGoal?
+  promotionUsages           AcademyPromotionUsage[]
 
   @@index([role])
 }
@@ -1429,15 +1451,36 @@ model AcademyOrder {
   invoiceUrl               String?
   confirmationSentAt       DateTime?
   grantedCourseIds         String[]           @default([])
+  originalAmount           Decimal?           @db.Decimal(10, 2)
+  discountAmount           Decimal            @default(0) @db.Decimal(10, 2)
+  promotionId              String?
+  promotion                AcademyPromotion?  @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  discountCodeId           String?
+  discountCode             AcademyDiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
   createdAt                DateTime           @default(now())
   updatedAt                DateTime           @updatedAt
 
   events AcademyOrderEvent[]
+  items  AcademyOrderItem[]
 
   @@index([status, createdAt])
   @@index([userId, createdAt])
   @@index([courseId, createdAt])
   @@index([bundleId, createdAt])
+}
+
+model AcademyOrderItem {
+  id        String        @id @default(cuid())
+  orderId   String
+  order     AcademyOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  courseId  String?
+  bundleId  String?
+  title     String
+  unitPrice Decimal       @db.Decimal(10, 2)
+  courseIds String[]      @default([])
+  createdAt DateTime      @default(now())
+
+  @@index([orderId])
 }
 
 model AcademyOrderEvent {
@@ -1469,6 +1512,7 @@ model AcademyBundle {
   accessDays     Int?
   isActive       Boolean  @default(true)
   isFeatured     Boolean  @default(false)
+  displayOrder   Int      @default(0)
   thumbnailUrl   String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -1476,6 +1520,231 @@ model AcademyBundle {
   courses      AcademyBundleCourse[]
   orders       AcademyOrder[]
   priceHistory AcademyBundlePriceHistory[]
+  promotionUsages AcademyPromotionUsage[]
+}
+
+enum AcademyMarketingTarget {
+  ALL
+  COURSE
+  BUNDLE
+}
+
+enum AcademyLeadType {
+  NEWSLETTER
+  LEAD_MAGNET
+  WAITLIST
+  ABANDONED_CHECKOUT
+}
+
+model AcademyBanner {
+  id             String   @id @default(cuid())
+  title          String
+  subtitle       String?
+  badge          String?
+  imageUrl       String?
+  mobileImageUrl String?
+  buttonLabel    String?
+  buttonUrl      String?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  impressions    Int      @default(0)
+  clicks         Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isActive, startsAt, endsAt, sortOrder])
+}
+
+model AcademyPromotion {
+  id                    String                 @id @default(cuid())
+  name                  String
+  publicLabel           String?
+  target                AcademyMarketingTarget @default(ALL)
+  targetIds             String[]               @default([])
+  discountType          DiscountType
+  discountValue         Decimal                @db.Decimal(10, 2)
+  startsAt              DateTime
+  endsAt                DateTime
+  isActive              Boolean                @default(true)
+  newCustomersOnly      Boolean                @default(false)
+  eligibleEmails        String[]               @default([])
+  maxUses               Int?
+  maxUsesPerCustomer    Int                    @default(1)
+  minimumAmount         Decimal?               @db.Decimal(10, 2)
+  showCountdown         Boolean                @default(false)
+  usageCount            Int                    @default(0)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  orders                AcademyOrder[]
+  usages                AcademyPromotionUsage[]
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+model AcademyDiscountCode {
+  id                    String                  @id @default(cuid())
+  code                  String                  @unique
+  description           String?
+  target                AcademyMarketingTarget @default(ALL)
+  targetIds             String[]                @default([])
+  discountType          DiscountType
+  discountValue         Decimal                 @db.Decimal(10, 2)
+  startsAt              DateTime?
+  endsAt                DateTime?
+  isActive              Boolean                 @default(true)
+  newCustomersOnly      Boolean                 @default(false)
+  eligibleEmails        String[]                @default([])
+  maxUses               Int?
+  maxUsesPerCustomer    Int                     @default(1)
+  minimumAmount         Decimal?                @db.Decimal(10, 2)
+  usageCount            Int                     @default(0)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  orders                AcademyOrder[]
+  usages                AcademyPromotionUsage[]
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+model AcademyPromotionUsage {
+  id             String               @id @default(cuid())
+  userId         String
+  user           AcademyUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotionId    String?
+  promotion      AcademyPromotion?    @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  discountCodeId String?
+  discountCode   AcademyDiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+  courseId       String?
+  course         Course?              @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  bundleId       String?
+  bundle         AcademyBundle?       @relation(fields: [bundleId], references: [id], onDelete: SetNull)
+  discountAmount Decimal              @db.Decimal(10, 2)
+  createdAt      DateTime             @default(now())
+
+  @@index([userId, promotionId])
+  @@index([userId, discountCodeId])
+}
+
+model AcademyMarketingLead {
+  id          String          @id @default(cuid())
+  email       String
+  name        String?
+  type        AcademyLeadType
+  courseId    String           @default("")
+  source      String?
+  consentAt   DateTime?
+  unsubscribedAt DateTime?
+  unsubscribeToken String        @unique @default(uuid())
+  tags        String[]        @default([])
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  convertedAt DateTime?
+  metadata    Json?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([email, type, courseId])
+  @@index([type, createdAt])
+}
+
+enum AcademyEmailCampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+enum AcademyEmailDeliveryStatus {
+  QUEUED
+  PROCESSING
+  SENT
+  FAILED
+}
+
+model AcademyEmailCampaign {
+  id          String                      @id @default(cuid())
+  name        String
+  subject     String
+  content     String                      @db.Text
+  audience    String
+  courseId    String?
+  scheduledAt DateTime?
+  status      AcademyEmailCampaignStatus  @default(DRAFT)
+  sentAt      DateTime?
+  recipients  Int                         @default(0)
+  sentCount   Int                         @default(0)
+  failedCount Int                         @default(0)
+  openedCount Int                         @default(0)
+  clickedCount Int                        @default(0)
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+  deliveries  AcademyEmailDelivery[]
+
+  @@index([status, scheduledAt])
+}
+
+model AcademyEmailDelivery {
+  id          String                     @id @default(cuid())
+  campaignId  String
+  campaign    AcademyEmailCampaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email       String
+  status      AcademyEmailDeliveryStatus @default(QUEUED)
+  attempts    Int                        @default(0)
+  nextAttemptAt DateTime                 @default(now())
+  sentAt      DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  lastError   String?
+  token       String                     @unique @default(uuid())
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+
+  @@unique([campaignId, email])
+  @@index([status, nextAttemptAt])
+}
+
+model AcademyMedia {
+  id          String   @id @default(cuid())
+  url         String
+  mobileUrl   String?
+  avifUrl     String?
+  mobileAvifUrl String?
+  thumbnailUrl String?
+  alt         String
+  kind        String
+  width       Int?
+  height      Int?
+  sizeBytes   Int?
+  createdAt   DateTime @default(now())
+}
+
+model AcademyAutomationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String?
+  orderId   String?
+  type      String
+  sentAt    DateTime @default(now())
+  details   Json?
+
+  @@unique([userId, courseId, orderId, type])
+  @@index([type, sentAt])
+}
+
+model AcademyOperationalEvent {
+  id        String   @id @default(cuid())
+  severity  String
+  source    String
+  message   String
+  details   Json?
+  resolvedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([severity, resolvedAt, createdAt])
 }
 
 model AcademyBundleCourse {
@@ -1651,6 +1920,7 @@ model UserCourseProgress {
   percentComplete Float       @default(0)
   startedAt       DateTime    @default(now())
   completedAt     DateTime?
+  updatedAt       DateTime    @updatedAt
 
   @@unique([userId, courseId])
   @@index([userId])
@@ -1665,6 +1935,7 @@ model UserLessonProgress {
   watchedSeconds Int         @default(0)
   completed      Boolean     @default(false)
   completedAt    DateTime?
+  updatedAt      DateTime    @updatedAt
 
   @@unique([userId, lessonId])
   @@index([userId])
