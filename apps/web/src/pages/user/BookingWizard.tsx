@@ -1168,7 +1168,8 @@ export const BookingWizard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const savedDraftRef = useRef<BookingDraft | null>(readBookingDraft());
+  const hasUrlParams = searchParams.has('serviceId') || searchParams.has('date');
+  const savedDraftRef = useRef<BookingDraft | null>(hasUrlParams ? null : readBookingDraft());
   const savedDraft = savedDraftRef.current;
   const preselectedServiceId = savedDraft?.service?.id ?? searchParams.get('serviceId');
   const preselectedSeriesId = searchParams.get('seriesId');
