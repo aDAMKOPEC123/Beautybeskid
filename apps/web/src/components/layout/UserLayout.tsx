@@ -346,7 +346,7 @@ const UserLayoutInner = () => {
         }}
       >
         <div style={{ height: 'env(safe-area-inset-top)', background: 'inherit' }} />
-        <div className="container flex items-center justify-between" style={{ height: '64px' }}>
+        <div className="container flex items-center justify-between" style={{ height: '56px' }}>
           <Link
             to="/user"
             className="font-display text-[13px] tracking-[0.45em] uppercase"
