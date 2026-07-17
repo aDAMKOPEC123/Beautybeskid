@@ -8,6 +8,18 @@ import { ServiceCard } from '@/components/ui/ServiceCard';
 import { ServiceListSkeleton } from '@/components/skeletons';
 import { localSeoLinks } from '@/lib/local-seo';
 
+const serviceCountLabel = (count: number, accusative = false) => {
+  if (count === 1) return accusative ? 'usługę' : 'usługa';
+
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+  if ((lastTwoDigits < 12 || lastTwoDigits > 14) && lastDigit >= 2 && lastDigit <= 4) {
+    return 'usługi';
+  }
+
+  return 'usług';
+};
+
 export const ServiceList = () => {
   const { data: services, isLoading } = useQuery({ queryKey: ['services'], queryFn: servicesApi.getAll });
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -60,7 +72,7 @@ export const ServiceList = () => {
               </p>
             </div>
             <p className="text-sm font-semibold text-mink">
-              {services?.length ?? 0} {(services?.length ?? 0) === 1 ? 'usługa' : 'usług w ofercie'}
+              {services?.length ?? 0} {serviceCountLabel(services?.length ?? 0)} w ofercie
             </p>
           </div>
         </div>
@@ -108,7 +120,7 @@ export const ServiceList = () => {
           </div>
 
           <p className="mb-5 mt-7 text-sm text-mink" aria-live="polite">
-            Pokazujemy {filtered.length} {filtered.length === 1 ? 'usługę' : 'usług'}
+            Pokazujemy {filtered.length} {serviceCountLabel(filtered.length, true)}
             {activeCategory ? ` w kategorii „${activeCategory}”` : ''}.
           </p>
 
