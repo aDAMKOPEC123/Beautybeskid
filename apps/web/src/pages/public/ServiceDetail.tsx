@@ -346,7 +346,7 @@ export const ServiceDetail = () => {
                     ? 'bg-red-600 text-white'
                     : 'bg-espresso/10 text-espresso'
                 }`}>
-                  Pozostało {service.promoUsesRemaining} {service.promoUsesRemaining === 1 ? 'miejsce' : service.promoUsesRemaining < 5 ? 'miejsca' : 'miejsc'}
+                  Tylko dla {service.promoUsesRemaining} osób
                 </span>
               )}
             </div>

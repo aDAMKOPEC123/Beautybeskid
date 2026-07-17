@@ -59,7 +59,7 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
               </div>
               {service.promoUsesRemaining != null && (
                 <div className="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm shadow-md text-center backdrop-blur-sm">
-                  Pozostało {service.promoUsesRemaining}
+                  Tylko dla {service.promoUsesRemaining} osób
                 </div>
               )}
             </div>

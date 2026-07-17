@@ -373,7 +373,7 @@ function StepService({
                       </span>
                       {service.promoUsesRemaining != null && (
                         <span className={`text-[10px] font-semibold ${service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
-                          Pozostało {service.promoUsesRemaining}
+                          Tylko dla {service.promoUsesRemaining} osób
                         </span>
                       )}
                       {promoCountdown(service.promoEndDate) && (
@@ -1448,7 +1448,7 @@ export const BookingWizard = () => {
               </p>
               {state.service.promoUsesRemaining != null && (
                 <p className={`text-[10px] font-semibold mt-0.5 ${state.service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={state.service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
-                  Pozostało {state.service.promoUsesRemaining} {state.service.promoUsesRemaining === 1 ? 'miejsce' : state.service.promoUsesRemaining < 5 ? 'miejsca' : 'miejsc'}
+                  Tylko dla {state.service.promoUsesRemaining} osób
                 </p>
               )}
               {promoCountdown(state.service.promoEndDate) && (
