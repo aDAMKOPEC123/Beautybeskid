@@ -3,7 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AcademyError } from './pages/AcademyError';
 
 const S = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<div className="p-8 text-center">Ladowanie...</div>}>{children}</Suspense>
+  <Suspense fallback={<div className="academy-route-loading" role="status">Ładowanie…</div>}>{children}</Suspense>
 );
 
 const AcademyLayout = lazy(() => import('./pages/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
@@ -33,6 +33,11 @@ const AcademyAuthAction = lazy(() => import('./pages/AcademyAuthAction').then(m 
 const AcademyLegalAdmin = lazy(() => import('./pages/AcademyLegalAdmin').then(m => ({ default: m.AcademyLegalAdmin })));
 const AcademyOrdersAdmin = lazy(() => import('./pages/AcademyOrdersAdmin').then(m => ({ default: m.AcademyOrdersAdmin })));
 const AcademyBundlesAdmin = lazy(() => import('./pages/AcademyBundlesAdmin').then(m => ({ default: m.AcademyBundlesAdmin })));
+const AcademyMarketingAdmin = lazy(() => import('./pages/AcademyMarketingAdmin').then(m => ({ default: m.AcademyMarketingAdmin })));
+const AcademyUnsubscribe = lazy(() => import('./pages/AcademyUnsubscribe').then(m => ({ default: m.AcademyUnsubscribe })));
+const AcademyMediaAdmin = lazy(() => import('./pages/AcademyMediaAdmin').then(m=>({default:m.AcademyMediaAdmin})));
+const AcademyCart=lazy(()=>import('./pages/AcademyCart').then(m=>({default:m.AcademyCart})));
+const AcademyOperationsAdmin=lazy(()=>import('./pages/AcademyOperationsAdmin').then(m=>({default:m.AcademyOperationsAdmin})));
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +53,7 @@ export const router = createBrowserRouter([
       { path: 'przypomnij-haslo', element: <S><AcademyAuthAction mode="forgot" /></S> },
       { path: 'nowe-haslo', element: <S><AcademyAuthAction mode="reset" /></S> },
       { path: 'potwierdz-email', element: <S><AcademyAuthAction mode="verify" /></S> },
+      { path: 'wypisz/:token', element: <S><AcademyUnsubscribe /></S> },
       {
         element: <S><AcademyLayout /></S>,
         children: [
@@ -62,6 +68,7 @@ export const router = createBrowserRouter([
           { path: 'pakiet/:slug', element: <S><BundleDetail /></S> },
           { path: 'zamowienie/kurs/:slug', element: <S><CheckoutPage type="course" /></S> },
           { path: 'zamowienie/pakiet/:slug', element: <S><CheckoutPage type="bundle" /></S> },
+          { path: 'koszyk', element: <S><AcademyCart /></S> },
           { path: ':slug', element: <S><AcademyLegalPage /></S> },
           { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
         ],
@@ -77,6 +84,9 @@ export const router = createBrowserRouter([
           { path: 'opinie', element: <S><AcademyReviewsAdmin /></S> },
           { path: 'zamowienia', element: <S><AcademyOrdersAdmin /></S> },
           { path: 'pakiety', element: <S><AcademyBundlesAdmin /></S> },
+          { path: 'marketing', element: <S><AcademyMarketingAdmin /></S> },
+          { path: 'media', element: <S><AcademyMediaAdmin /></S> },
+          { path: 'system', element: <S><AcademyOperationsAdmin /></S> },
           { path: 'prawo', element: <S><AcademyLegalAdmin /></S> },
         ],
       },

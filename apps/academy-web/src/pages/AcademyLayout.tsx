@@ -1,13 +1,15 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2 } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
+import { useCartStore } from '@/store/cart.store';
 
 export function AcademyLayout() {
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const cartCount=useCartStore(state=>state.items.length);
   useEffect(() => { trackAcademyEvent('PAGE_VIEW'); }, [location.pathname]);
 
   const navItems = [
@@ -24,20 +26,21 @@ export function AcademyLayout() {
   return (
     <div className="academy-shell">
       <a className="academy-skip-link" href="#academy-main">Przejdź do treści</a>
-      <header className="academy-topbar">
+      <header className={`academy-topbar ${isAuthenticated ? 'authenticated' : 'anonymous'}`}>
         <div className="academy-topbar-inner">
           <Link to="/" className="academy-brand" title="Strona główna Akademii">
             <span className="academy-brand-mark"><GraduationCap className="w-5 h-5" /></span>
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>
-          <nav className="hidden md:flex academy-desktop-nav" aria-label="Główna nawigacja">
+          <nav className={`academy-desktop-nav ${isAuthenticated ? 'authenticated' : 'anonymous'}`} aria-label="Główna nawigacja">
             {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zalogowaniu</span>}</Link>)}
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="academy-top-actions">
+            <Link to="/koszyk" className="academy-cart-link" aria-label={`Koszyk, ${cartCount} produktów`}><ShoppingCart/>{cartCount>0&&<span>{cartCount}</span>}</Link>
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden xl:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
             {user?.role === 'ADMIN' && <Link to="/admin" className="hidden lg:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
-            {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
-            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden academy-menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={menuOpen} aria-controls="academy-mobile-menu">{menuOpen ? <X /> : <Menu />}</button>
+            {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login" aria-label="Zaloguj się"><LogIn className="w-4 h-4" /><span className="academy-login-label">Zaloguj się</span></Link>}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="academy-menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={menuOpen} aria-controls="academy-mobile-menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
         {menuOpen && <nav id="academy-mobile-menu" className="academy-mobile-nav" aria-label="Menu mobilne">

@@ -75,6 +75,16 @@ const saveBookingDraft = (state: WizardState) => {
 
 const STEPS = ['Usługa', 'Specjalista', 'Termin', 'Dane', 'Potwierdzenie'];
 
+const promoCountdown = (endDate?: string | null): string | null => {
+  if (!endDate) return null;
+  const diff = Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000);
+  if (diff < 0) return null;
+  if (diff === 0) return 'Ostatni dzień promocji!';
+  if (diff === 1) return 'Zostal 1 dzień promocji';
+  if (diff <= 4) return `Zostały ${diff} dni promocji`;
+  return `Zostało ${diff} dni promocji`;
+};
+
 const formatContentLabel = (value?: string | null) => {
   const clean = value?.trim() ?? '';
   return clean ? clean.charAt(0).toLocaleUpperCase('pl-PL') + clean.slice(1) : '';
@@ -356,10 +366,22 @@ function StepService({
                     <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
                   </div>
                   {service.promoPrice != null ? (
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-xs line-through opacity-50">{Number(service.price).toFixed(2)} zł</span>
-                      <span className="font-bold" style={{ color: '#dc2626' }}>{service.promoPrice.toFixed(2)} zł</span>
-                    </span>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-xs line-through opacity-50">{Number(service.price).toFixed(2)} zł</span>
+                        <span className="font-bold" style={{ color: '#dc2626' }}>{service.promoPrice.toFixed(2)} zł</span>
+                      </span>
+                      {service.promoUsesRemaining != null && (
+                        <span className={`text-[10px] font-semibold ${service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
+                          Pozostało {service.promoUsesRemaining}
+                        </span>
+                      )}
+                      {promoCountdown(service.promoEndDate) && (
+                        <span className="text-[10px] font-medium" style={{ color: '#C4965A' }}>
+                          {promoCountdown(service.promoEndDate)}
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <span className="font-bold" style={{ color: '#1A3828' }}>
                       {Number(service.price).toFixed(2)} zł
@@ -1419,10 +1441,22 @@ export const BookingWizard = () => {
             <p className="mt-1 font-semibold" style={{ color: '#1A3828' }}>{formatContentLabel(state.service.name)}</p>
           </div>
           {state.service.promoPrice != null ? (
-            <p className="font-heading text-lg font-bold">
-              <span className="text-sm line-through opacity-50 mr-2">{Number(state.service.price).toFixed(2)} zł</span>
-              <span style={{ color: '#dc2626' }}>{state.service.promoPrice.toFixed(2)} zł</span>
-            </p>
+            <div className="text-right">
+              <p className="font-heading text-lg font-bold">
+                <span className="text-sm line-through opacity-50 mr-2">{Number(state.service.price).toFixed(2)} zł</span>
+                <span style={{ color: '#dc2626' }}>{state.service.promoPrice.toFixed(2)} zł</span>
+              </p>
+              {state.service.promoUsesRemaining != null && (
+                <p className={`text-[10px] font-semibold mt-0.5 ${state.service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={state.service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
+                  Pozostało {state.service.promoUsesRemaining} {state.service.promoUsesRemaining === 1 ? 'miejsce' : state.service.promoUsesRemaining < 5 ? 'miejsca' : 'miejsc'}
+                </p>
+              )}
+              {promoCountdown(state.service.promoEndDate) && (
+                <p className="text-[10px] font-medium mt-0.5" style={{ color: '#C4965A' }}>
+                  {promoCountdown(state.service.promoEndDate)}
+                </p>
+              )}
+            </div>
           ) : (
             <p className="font-heading text-lg font-bold" style={{ color: '#A87538' }}>{Number(state.service.price).toFixed(2)} zł</p>
           )}

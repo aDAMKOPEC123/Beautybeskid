@@ -6,7 +6,8 @@ export type Notification = {
   type: 'APPOINTMENT_CONFIRMED' | 'APPOINTMENT_CANCELLED' | 'APPOINTMENT_RESCHEDULED'
       | 'LOYALTY_POINTS' | 'LOYALTY_TIER_UP' | 'SERIES_REMINDER' | 'GENERIC'
       | 'CHAT_MESSAGE' | 'ACHIEVEMENT_UNLOCKED' | 'JOURNAL_COMMENT' | 'RECOMMENDATION_ADDED'
-      | 'NEW_APPOINTMENT' | 'NEW_CONSULTATION' | 'NEW_REVIEW' | 'BROADCAST';
+      | 'NEW_APPOINTMENT' | 'NEW_CONSULTATION' | 'NEW_REVIEW' | 'BROADCAST'
+      | 'BLOG_COMMENT_REPLY' | 'SKIN_WEATHER' | 'NEW_REGISTRATION';
   title: string;
   body: string;
   url?: string;
@@ -44,5 +45,5 @@ export const notificationsApi = {
     await api.post('/notifications/read-all');
   },
   broadcast: async (data: { title: string; body: string; url?: string }) =>
-    api.post('/notifications/broadcast', data).then(r => r.data as { data: { sent: number } }),
+    api.post('/notifications/broadcast', data).then(r => r.data as { data: { sent: number; push?: { attempted: number; delivered: number; failed: number } } }),
 };

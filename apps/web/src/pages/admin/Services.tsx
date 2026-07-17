@@ -35,6 +35,7 @@ interface FormValues {
   promoDiscountValue: string;
   promoStartDate: string;
   promoEndDate: string;
+  promoMaxUses: string;
 }
 
 const EMPTY_FORM: FormValues = {
@@ -59,6 +60,7 @@ const EMPTY_FORM: FormValues = {
   promoDiscountValue: '',
   promoStartDate: '',
   promoEndDate: '',
+  promoMaxUses: '',
 };
 
 function ServiceForm({
@@ -303,6 +305,18 @@ function ServiceForm({
                   required
                 />
               </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Limit miejsc (opcjonalnie)</label>
+              <input
+                type="number"
+                value={values.promoMaxUses}
+                onChange={(e) => set('promoMaxUses', e.target.value)}
+                min="1"
+                step="1"
+                placeholder="Bez limitu"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
             {values.price && values.promoDiscountValue && (
               <div className="text-sm text-muted-foreground">
@@ -717,6 +731,7 @@ export const AdminServices = () => {
         promoDiscountValue: values.promoDiscountValue ? Number(values.promoDiscountValue) : null,
         promoStartDate: values.promoStartDate || null,
         promoEndDate: values.promoEndDate || null,
+        promoMaxUses: values.promoMaxUses ? Number(values.promoMaxUses) : null,
       }),
     );
     formData.append('employeeIds', JSON.stringify(values.selectedEmployeeIds));
@@ -755,6 +770,7 @@ export const AdminServices = () => {
       promoDiscountValue: service.promoDiscountValue ? String(Number(service.promoDiscountValue)) : '',
       promoStartDate: service.promoStartDate ? new Date(service.promoStartDate).toISOString().split('T')[0] : '',
       promoEndDate: service.promoEndDate ? new Date(service.promoEndDate).toISOString().split('T')[0] : '',
+      promoMaxUses: service.promoMaxUses ? String(service.promoMaxUses) : '',
     };
   };
 
@@ -812,6 +828,15 @@ export const AdminServices = () => {
                             ? `-${Number(service.promoDiscountValue)}%`
                             : `-${Number(service.promoDiscountValue)} zł`})
                         </span>
+                      </span>
+                    )}
+                    {service.promoUsesRemaining != null && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ml-1 ${
+                        service.promoUsesRemaining <= 3
+                          ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                          : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                      }`}>
+                        Pozostało: {service.promoUsesRemaining}/{service.promoMaxUses}
                       </span>
                     )}
                     {service.promoEndDate && new Date(service.promoEndDate) < new Date() && service.promoDiscountType && (

@@ -4,12 +4,14 @@ import { academyApi } from '@/api/academy.api';
 import {
   ArrowRight, Award, BookOpen, Check, CheckCircle2, Clock3, GraduationCap,
   Heart, HeartHandshake, PlayCircle, Search, ShieldCheck, Sparkles, Star, Target,
+  Mail, UsersRound,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Helmet } from 'react-helmet-async';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
 import { DocumentTitle } from '@/components/DocumentTitle';
+import { useCartStore } from '@/store/cart.store';
 
 const difficultyLabel: Record<string, string> = { BEGINNER: 'Podstawowy', INTERMEDIATE: 'Średniozaawansowany', ADVANCED: 'Zaawansowany' };
 const levels = [['ALL', 'Wszystkie'], ['BEGINNER', 'Od podstaw'], ['INTERMEDIATE', 'Rozwijam praktykę'], ['ADVANCED', 'Poziom ekspert']];
@@ -21,12 +23,13 @@ export function AcademyCatalog() {
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [level, setLevel] = useState(searchParams.get('poziom') ?? 'ALL');
   const [tag, setTag] = useState(searchParams.get('temat') ?? 'ALL');
-  const [sort, setSort] = useState(searchParams.get('sort') ?? 'NEWEST');
+  const [sort, setSort] = useState(searchParams.get('sort') ?? 'RECOMMENDED');
   const [savedOnly, setSavedOnly] = useState(searchParams.get('zapisane') === '1');
   const { data: publicCourses = [], isLoading: coursesLoading, isError: coursesError, refetch: refetchCourses } = useQuery({ queryKey: ['academy', 'public-courses'], queryFn: academyApi.getPublicCourses });
   const { data: enrolledCourses = [] } = useQuery({ queryKey: ['academy', 'enrolled-courses'], queryFn: academyApi.getCourses, enabled: isAuthenticated });
   const { data: favorites = [] } = useQuery({ queryKey: ['academy', 'favorites'], queryFn: academyApi.getFavorites, enabled: isAuthenticated });
   const { data: bundles = [] } = useQuery({ queryKey: ['academy', 'public-bundles'], queryFn: academyApi.getPublicBundles });
+  const { data: storefront } = useQuery({ queryKey: ['academy', 'storefront'], queryFn: academyApi.getStorefront });
   const favoriteIds = useMemo(() => new Set((favorites as any[]).map(item => item.courseId)), [favorites]);
   const enrolledMap = useMemo(() => new Map((enrolledCourses as any[]).map(course => [course.id, course])), [enrolledCourses]);
   const courses = useMemo(() => (publicCourses as any[]).map(course => ({ ...course, ...(enrolledMap.get(course.id) || {}), isEnrolled: enrolledMap.has(course.id) })), [publicCourses, enrolledMap]);
@@ -36,7 +39,7 @@ export function AcademyCatalog() {
   const filteredCourses = useMemo(() => (courses as any[]).filter(course => {
     const phrase = `${course.title} ${course.description || ''} ${(course.tags || []).join(' ')}`.toLowerCase();
     return phrase.includes(query.trim().toLowerCase()) && (level === 'ALL' || course.difficulty === level) && (tag === 'ALL' || course.tags?.includes(tag)) && (!savedOnly || favoriteIds.has(course.id));
-  }).sort((a, b) => sort === 'PRICE_ASC' ? Number(a.price) - Number(b.price) : sort === 'DURATION' ? a.estimatedMinutes - b.estimatedMinutes : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [courses, query, level, tag, savedOnly, favoriteIds, sort]);
+  }).sort((a, b) => sort === 'PRICE_ASC' ? Number(a.price) - Number(b.price) : sort === 'DURATION' ? a.estimatedMinutes - b.estimatedMinutes : sort === 'NEWEST' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : Number(a.displayOrder||0)-Number(b.displayOrder||0)), [courses, query, level, tag, savedOnly, favoriteIds, sort]);
   const started = (courses as any[]).filter(c => c.progress && !c.progress.completedAt);
   const completed = (courses as any[]).filter(c => c.progress?.completedAt).length;
   useEffect(() => { trackAcademyEvent('CATALOG_VIEW'); }, []);
@@ -45,7 +48,7 @@ export function AcademyCatalog() {
     if (query) next.q = query;
     if (level !== 'ALL') next.poziom = level;
     if (tag !== 'ALL') next.temat = tag;
-    if (sort !== 'NEWEST') next.sort = sort;
+    if (sort !== 'RECOMMENDED') next.sort = sort;
     if (savedOnly) next.zapisane = '1';
     setSearchParams(next, { replace: true });
   }, [query, level, tag, sort, savedOnly, setSearchParams]);
@@ -68,6 +71,11 @@ export function AcademyCatalog() {
       <meta property="og:title" content="Akademia Kosmetologii | BeskidStudio" />
       <meta property="og:description" content="Praktyczna kosmetologia, którą wykorzystasz w gabinecie — krok po kroku." />
     </Helmet>
+
+    {storefront?.banners?.length>0&&<AcademyBannerSlider banners={storefront.banners}/>}
+    {storefront?.activePromotion&&<div className="academy-promotion-bar"><Sparkles/><strong>{storefront.activePromotion.publicLabel||storefront.activePromotion.name}</strong><span>Oferta ograniczona czasowo</span><Countdown until={storefront.activePromotion.endsAt}/><a href="#promocje">Zobacz promocje</a></div>}
+    <MerchandisingHighlights courses={courses as any[]} />
+    <SocialProof data={storefront?.socialProof} courses={courses as any[]}/>
 
     <section className="academy-sales-hero">
       <div className="academy-hero-orbit orbit-one" /><div className="academy-hero-orbit orbit-two" />
@@ -113,7 +121,7 @@ export function AcademyCatalog() {
     <section id="kursy" className="academy-catalog-section scroll-mt-24">
       <div className="academy-section-heading"><div><p className="academy-kicker text-caramel">Kursy online</p><h2>Wybierz swój następny krok</h2></div><p>Najpierw zobacz program i efekty nauki. Decyzję podejmujesz bez presji.</p></div>
       <div className="academy-discovery-bar"><label><Search className="w-4 h-4" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Czego chcesz się nauczyć?" aria-label="Szukaj kursu" /></label><div className="academy-filters">{levels.map(([key, label]) => <button key={key} aria-pressed={level === key} onClick={() => setLevel(key)} className={level === key ? 'selected' : ''}>{label}</button>)}</div></div>
-      <div className="academy-catalog-tools"><select value={tag} onChange={event => setTag(event.target.value)} aria-label="Temat kursu"><option value="ALL">Wszystkie tematy</option>{availableTags.map(item => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={event => setSort(event.target.value)} aria-label="Sortowanie kursów"><option value="NEWEST">Najnowsze</option><option value="PRICE_ASC">Cena: od najniższej</option><option value="DURATION">Najkrótsze</option></select>{isAuthenticated && <button aria-pressed={savedOnly} className={savedOnly ? 'selected' : ''} onClick={() => setSavedOnly(value => !value)}><Heart className="w-4 h-4" />Zapisane</button>}</div>
+      <div className="academy-catalog-tools"><select value={tag} onChange={event => setTag(event.target.value)} aria-label="Temat kursu"><option value="ALL">Wszystkie tematy</option>{availableTags.map(item => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={event => setSort(event.target.value)} aria-label="Sortowanie kursów"><option value="RECOMMENDED">Polecane</option><option value="NEWEST">Nowości</option><option value="PRICE_ASC">Cena: od najniższej</option><option value="DURATION">Najkrótsze</option></select>{isAuthenticated && <button aria-pressed={savedOnly} className={savedOnly ? 'selected' : ''} onClick={() => setSavedOnly(value => !value)}><Heart className="w-4 h-4" />Zapisane</button>}</div>
       {coursesLoading ? <div className="academy-course-grid">{[1,2,3].map(i => <div key={i} className="academy-skeleton h-[360px]" />)}</div> : coursesError ? <div className="academy-empty"><Search /><h3>Nie udało się pobrać katalogu</h3><p>Sprawdź połączenie i spróbuj ponownie.</p><button onClick={() => refetchCourses()}>Spróbuj ponownie</button></div> : filteredCourses.length === 0 ? <div className="academy-empty"><Search /><h3>Nie znaleźliśmy pasującego kursu</h3><p>Zmień kryteria albo pokaż wszystkie kursy.</p><button onClick={() => { setQuery(''); setLevel('ALL'); setTag('ALL'); setSavedOnly(false); }}>Pokaż wszystkie kursy</button></div> : <div className="academy-course-grid">{filteredCourses.map((course) => <CourseCard key={course.id} course={course} featured={course.isFeatured} favorite={favoriteIds.has(course.id)} canFavorite={isAuthenticated} onToggleFavorite={() => toggleFavorite(course.id)} />)}</div>}
     </section>
 
@@ -134,12 +142,15 @@ export function AcademyCatalog() {
 
 function CourseCard({ course, featured, favorite, canFavorite, onToggleFavorite }: { course: any; featured?: boolean; favorite?: boolean; canFavorite?: boolean; onToggleFavorite: () => void }) {
   const progress = course.progress?.percentComplete;
+  const addToCart=useCartStore(state=>state.add);
   return <article className={`academy-course-card ${featured ? 'featured' : ''}`}>
     {canFavorite && <button className="academy-favorite-button" aria-label={favorite ? 'Usuń z zapisanych' : 'Zapisz kurs'} aria-pressed={favorite} onClick={onToggleFavorite}><Heart className={favorite ? 'fill-current' : ''} /></button>}
     <Link to={`/kurs/${course.slug}`} className="block">
     <div className="academy-course-cover">{course.thumbnailUrl ? <img src={course.thumbnailUrl} alt={course.title} loading="lazy" width="1280" height="720" /> : <div className="academy-course-placeholder"><GraduationCap /></div>}<span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span>{course.isComingSoon ? <em>W przygotowaniu</em> : course.isBestseller ? <em>Bestseller</em> : featured && <em>Wyróżniony</em>}{progress !== undefined && <div className="academy-cover-progress"><div style={{width: `${progress}%`}} /></div>}</div>
-    <div className="academy-course-body"><div className="academy-course-meta">{course.estimatedMinutes > 0 ? <span><Clock3 />{course.estimatedMinutes} min</span> : <span><Clock3 />Program w przygotowaniu</span>}{course.lessonCount > 0 && <span><PlayCircle />{course.lessonCount} lekcji</span>}</div><h3>{course.title}</h3><p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p>{!course.isEnrolled && <><strong className="academy-course-price">{formatPrice(course.price, course.isFree, course.isComingSoon)}</strong>{Number(course.compareAtPrice)>Number(course.price)&&<small className="academy-card-lowest">Najniższa cena z 30 dni: {Number(course.lowestPrice30Days).toLocaleString('pl-PL')} zł</small>}</>}<div className="academy-card-footer">{course.isEnrolled ? <span>{progress !== undefined ? `${Math.round(progress)}% ukończono` : 'Przejdź do kursu'}</span> : <span>{course.isComingSoon ? 'Zobacz zapowiedź' : 'Zobacz program'}</span>}<ArrowRight className="w-4 h-4" /></div></div>
+    <div className="academy-course-body"><div className="academy-course-meta">{course.estimatedMinutes > 0 ? <span><Clock3 />{course.estimatedMinutes} min</span> : <span><Clock3 />Program w przygotowaniu</span>}{course.lessonCount > 0 && <span><PlayCircle />{course.lessonCount} lekcji</span>}</div><h3>{course.title}</h3><p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p>{!course.isEnrolled && <><div className="academy-price-line"><strong className="academy-course-price">{formatPrice(course.price, course.isFree, course.isComingSoon)}</strong>{Number(course.compareAtPrice)>Number(course.price)&&<><del>{formatPrice(course.compareAtPrice)}</del><b>-{Math.round((1-Number(course.price)/Number(course.compareAtPrice))*100)}%</b></>}</div>{Number(course.compareAtPrice)>Number(course.price)&&<small className="academy-card-lowest">Najniższa cena z 30 dni: {Number(course.lowestPrice30Days).toLocaleString('pl-PL')} zł</small>}</>}<div className="academy-card-footer">{course.isEnrolled ? <span>{progress !== undefined ? `${Math.round(progress)}% ukończono` : 'Przejdź do kursu'}</span> : <span>{course.isComingSoon ? 'Zobacz zapowiedź' : 'Zobacz program'}</span>}<ArrowRight className="w-4 h-4" /></div></div>
     </Link>
+    {course.isComingSoon&&<WaitlistMini courseId={course.id}/>}
+    {!course.isComingSoon&&!course.isFree&&!course.isEnrolled&&<button className="academy-add-cart" onClick={()=>addToCart({id:course.id,type:'course',title:course.title,slug:course.slug,price:Number(course.price),thumbnailUrl:course.thumbnailUrl})}>Dodaj do koszyka</button>}
   </article>;
 }
 
@@ -149,3 +160,20 @@ export function formatPrice(value: unknown, isFree = false, isComingSoon = false
   const price = Number(value || 0);
   return price > 0 ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format(price) : 'Cena wkrótce';
 }
+
+function AcademyBannerSlider({banners}:{banners:any[]}){
+  const [index,setIndex]=useState(0); const banner=banners[index%banners.length];
+  useEffect(()=>{if(!banner)return;academyApi.recordBannerEvent(banner.id,'impression').catch(()=>undefined);const timer=window.setTimeout(()=>setIndex(value=>(value+1)%banners.length),6500);return()=>window.clearTimeout(timer);},[banner?.id,banners.length]);
+  if(!banner)return null;
+  return <section className="academy-marketing-slider">{banner.imageUrl&&<picture><source media="(max-width:760px)" srcSet={banner.mobileImageUrl||banner.imageUrl}/><img src={banner.imageUrl} alt=""/></picture>}<div><span>{banner.badge}</span><h2>{banner.title}</h2><p>{banner.subtitle}</p>{banner.buttonUrl&&<a href={banner.buttonUrl} onClick={()=>academyApi.recordBannerEvent(banner.id,'click').catch(()=>undefined)}>{banner.buttonLabel||'Zobacz więcej'}<ArrowRight/></a>}</div>{banners.length>1&&<nav aria-label="Slajdy">{banners.map((item,i)=><button key={item.id} aria-label={`Slajd ${i+1}`} aria-current={i===index} onClick={()=>setIndex(i)}/>)}</nav>}</section>;
+}
+
+function Countdown({until}:{until:string}){const [now,setNow]=useState(Date.now());useEffect(()=>{const id=window.setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id)},[]);const seconds=Math.max(0,Math.floor((new Date(until).getTime()-now)/1000));return <b>{Math.floor(seconds/86400)}d {String(Math.floor(seconds/3600)%24).padStart(2,'0')}:{String(Math.floor(seconds/60)%60).padStart(2,'0')}:{String(seconds%60).padStart(2,'0')}</b>}
+
+function MerchandisingHighlights({courses}:{courses:any[]}){const promoted=courses.filter(course=>Number(course.compareAtPrice)>Number(course.price)).slice(0,3);const newest=[...courses].sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()).slice(0,3);const chosen=courses.filter(course=>course.isBestseller||course.isFeatured).slice(0,3);if(!courses.length)return null;return <div className="academy-merchandising">{promoted.length>0&&<section id="promocje"><p className="academy-kicker text-caramel">Ograniczone czasowo</p><h2>Aktualne promocje</h2><div>{promoted.map(course=><Link key={course.id} to={`/kurs/${course.slug}`}><strong>{course.title}</strong><span>{formatPrice(course.price)} <del>{formatPrice(course.compareAtPrice)}</del></span></Link>)}</div></section>}<section><p className="academy-kicker text-caramel">Świeżo w Akademii</p><h2>Nowości</h2><div>{newest.map(course=><Link key={course.id} to={`/kurs/${course.slug}`}><strong>{course.title}</strong><span>{formatPrice(course.price,course.isFree,course.isComingSoon)}</span></Link>)}</div></section>{chosen.length>0&&<section><p className="academy-kicker text-caramel">Wybór kursantek</p><h2>Najczęściej wybierane</h2><div>{chosen.map(course=><Link key={course.id} to={`/kurs/${course.slug}`}><strong>{course.title}</strong><span>{course.isFeatured?'Kurs tygodnia':'Bestseller'}</span></Link>)}</div></section>}</div>}
+
+function SocialProof({data,courses}:{data:any;courses:any[]}){if(!data)return null;const preview=courses.find(course=>course.previewLessonId)||courses[0];return <><section className="academy-social-proof"><div><UsersRound/><strong>{data.students}+</strong><span>kursantek</span></div><div><Award/><strong>{data.completions}+</strong><span>ukończeń</span></div>{data.reviews?.slice(0,2).map((review:any)=><blockquote key={review.id}><p>{'★'.repeat(review.rating)}</p><q>{review.content}</q><footer>{review.user.name} · {review.course.title}</footer></blockquote>)}</section><section className="academy-instructor-proof"><div><p className="academy-kicker text-caramel">Poznaj prowadzącą</p><h2>Wiedza prosto z praktyki gabinetowej</h2><p>Wiktoria Ćwik prowadzi przez procedury, decyzje i realne przypadki krok po kroku.</p></div>{preview&&<Link to={`/kurs/${preview.slug}`}><PlayCircle/>Zobacz program i bezpłatny fragment kursu</Link>}</section><LeadForm/></>}
+
+function LeadForm(){const [email,setEmail]=useState('');const [consent,setConsent]=useState(false);const [sent,setSent]=useState(false);return <section className="academy-lead-form"><Mail/><div><p className="academy-kicker">Bezpłatna wiedza</p><h2>Nowości i praktyczne materiały na e-mail</h2><p>Otrzymuj informacje o premierach, promocjach i bezpłatne checklisty.</p></div>{sent?<strong>Dziękujemy za zapis!</strong>:<form onSubmit={async e=>{e.preventDefault();await Promise.all([academyApi.subscribeLead({email,type:'NEWSLETTER',source:'homepage',consent}),academyApi.subscribeLead({email,type:'LEAD_MAGNET',source:'homepage',consent})]);setSent(true);}}><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Twój e-mail"/><label><input required type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/> Zgadzam się na wiadomości marketingowe. Zapis mogę wycofać.</label><button>Zapisuję się</button></form>}</section>}
+
+function WaitlistMini({courseId}:{courseId:string}){const [open,setOpen]=useState(false);const [email,setEmail]=useState('');const [sent,setSent]=useState(false);if(sent)return <p className="academy-waitlist-success">Powiadomimy Cię o premierze.</p>;if(!open)return <button className="academy-waitlist-button" onClick={()=>setOpen(true)}>Powiadom mnie o premierze</button>;return <form className="academy-waitlist-mini" onSubmit={async e=>{e.preventDefault();await academyApi.subscribeLead({email,type:'WAITLIST',courseId,source:'course-card',consent:true});setSent(true);}}><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Twój e-mail"/><button>Zapisz mnie</button></form>}

@@ -27,7 +27,7 @@ export const unsubscribe = async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({ status: 'error', message: 'Brak endpoint' });
       return;
     }
-    await pushService.deleteSubscription(endpoint);
+    await pushService.deleteSubscription(req.user!.id, endpoint);
     res.status(200).json({ status: 'success' });
   } catch (error) {
     next(error);

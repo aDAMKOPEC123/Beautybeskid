@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, Calendar, MessageSquare, Star, CheckCheck, Send } from 'lucide-react';
 import { notificationsApi, type Notification } from '@/api/notifications.api';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ const CHIP_MAP: Record<string, { label: string; fallbackUrl: string }> = {
   NEW_APPOINTMENT:         { label: 'Wizyta',       fallbackUrl: '/admin/wizyty' },
   NEW_CONSULTATION:        { label: 'Konsultacja',  fallbackUrl: '/admin/konsultacje' },
   NEW_REVIEW:              { label: 'Recenzja',     fallbackUrl: '/admin/recenzje' },
+  NEW_REGISTRATION:        { label: 'Rejestracja',  fallbackUrl: '/admin/uzytkownicy' },
   CHAT_MESSAGE:            { label: 'Chat',         fallbackUrl: '/admin/chat' },
   APPOINTMENT_CONFIRMED:   { label: 'Wizyta',       fallbackUrl: '/admin/wizyty' },
   APPOINTMENT_CANCELLED:   { label: 'Wizyta',       fallbackUrl: '/admin/wizyty' },
@@ -78,17 +79,20 @@ export const AdminNotifications = () => {
   const [url, setUrl] = useState('');
 
   // Notifications list
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'notifications', { limit: 50 }],
-    queryFn: () => notificationsApi.getAll(1, 50), // TODO: add load-more pagination
+  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey: ['admin', 'notifications'],
+    queryFn: ({ pageParam }) => notificationsApi.getAll(pageParam, 50),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
   });
 
   const broadcastMutation = useMutation({
     mutationFn: (payload: { title: string; body: string; url?: string }) =>
       notificationsApi.broadcast(payload),
-    onSuccess: (res: { data: { sent: number } }) => {
+    onSuccess: (res: { data: { sent: number; push?: { attempted: number; delivered: number } } }) => {
       const sent = res.data.sent;
-      toast.success(`Wysłano do ${sent} użytkowników`);
+      const pushInfo = res.data.push ? ` Push: ${res.data.push.delivered}/${res.data.push.attempted}.` : '';
+      toast.success(`Zapisano dla ${sent} aktywnych użytkowników.${pushInfo}`);
       setTitle('');
       setBody('');
       setUrl('');
@@ -151,8 +155,8 @@ export const AdminNotifications = () => {
     return () => { socket.off('notification:new', onNotificationNew); };
   }, [socket, qc]);
 
-  const notifications = data?.notifications ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
+  const unreadCount = data?.pages[0]?.unreadCount ?? 0;
 
   return (
     <div className="space-y-6">
@@ -167,9 +171,11 @@ export const AdminNotifications = () => {
         <h2 className="text-base font-semibold">Wyślij powiadomienie do wszystkich użytkowników</h2>
         <form onSubmit={handleBroadcast} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Tytuł <span className="text-destructive">*</span></label>
+            <label htmlFor="broadcast-title" className="block text-sm font-medium mb-1">Tytuł <span className="text-destructive">*</span></label>
             <input
               type="text"
+              id="broadcast-title"
+              maxLength={120}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -178,9 +184,11 @@ export const AdminNotifications = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Treść <span className="text-destructive">*</span></label>
+            <label htmlFor="broadcast-body" className="block text-sm font-medium mb-1">Treść <span className="text-destructive">*</span></label>
             <textarea
+              id="broadcast-body"
               value={body}
+              maxLength={1000}
               onChange={(e) => setBody(e.target.value)}
               required
               rows={3}
@@ -189,9 +197,10 @@ export const AdminNotifications = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">URL (opcjonalnie)</label>
+            <label htmlFor="broadcast-url" className="block text-sm font-medium mb-1">URL (opcjonalnie)</label>
             <input
               type="text"
+              id="broadcast-url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -246,10 +255,12 @@ export const AdminNotifications = () => {
                 const icon = getIconConfig(notification.type);
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={notification.id}
                     onClick={() => handleClick(notification)}
-                    className="flex gap-3 p-4 rounded-xl cursor-pointer transition-colors hover:bg-accent relative"
+                    aria-label={`${notification.title}. ${isUnread ? 'Nieprzeczytane' : 'Przeczytane'}`}
+                    className="w-full text-left flex gap-3 p-4 rounded-xl cursor-pointer transition-colors hover:bg-accent relative"
                     style={isUnread ? { background: 'rgba(196,150,90,0.04)' } : undefined}
                   >
                     {/* Unread indicator bar */}
@@ -288,10 +299,15 @@ export const AdminNotifications = () => {
                     >
                       {CHIP_MAP[notification.type]?.label ?? 'Info'}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+          )}
+          {hasNextPage && (
+            <button type="button" onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="mt-4 w-full rounded-lg border px-4 py-2 text-sm hover:bg-accent disabled:opacity-50">
+              {isFetchingNextPage ? 'Ładowanie...' : 'Załaduj starsze powiadomienia'}
+            </button>
           )}
         </div>
       </div>

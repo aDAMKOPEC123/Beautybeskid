@@ -3,6 +3,7 @@ import { type MouseEvent, useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
+import { unsubscribeCurrentPushSubscription } from '@/hooks/usePushSubscription';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, LayoutDashboard } from 'lucide-react';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
@@ -161,6 +162,7 @@ export const Navbar = () => {
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      await unsubscribeCurrentPushSubscription();
       logout();
       navigate('/');
     } catch (e) {

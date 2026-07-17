@@ -3,6 +3,8 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { sendPushToUser } from '../push/push.service';
 import { startOfDay } from 'date-fns';
+import { getIO } from '../../socket';
+import { createAndEmitNotification } from '../notifications/notifications.service';
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 
@@ -407,6 +409,18 @@ export const processSkinWeatherReports = async (force = false) => {
           reportData: { sections },
         },
       });
+
+      try {
+        await createAndEmitNotification(getIO(), {
+          userId: profile.userId,
+          type: 'SKIN_WEATHER',
+          title: 'Raport pogodowy gotowy',
+          body: sections[0]?.label ?? 'Twój dzisiejszy raport pogodowy jest już gotowy.',
+          url: '/user/pogoda-skory',
+        });
+      } catch (error) {
+        console.error(`[SkinWeather] In-app notification failed for ${profile.userId}:`, error);
+      }
 
       // A saved push subscription is the user's consent. Weather notifications
       // do not require a second, feature-specific opt-in.

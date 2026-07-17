@@ -21,7 +21,7 @@ export const createLead = async (data: {
         title: 'Nowe zapytanie konsultacyjne',
         body: `${lead.name} (${lead.phone})`,
         url: '/admin/konsultacje',
-        emitToAdminGlobal: true,
+        audience: 'ADMIN',
       });
     }
   } catch (err) {

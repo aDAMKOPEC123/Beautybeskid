@@ -14,6 +14,7 @@ interface ServiceCardProps {
     promoPrice?: number | null;
     promoDiscountType?: string | null;
     promoDiscountValue?: number | null;
+    promoUsesRemaining?: number | null;
     imagePath?: string | null;
     category?: string;
     avgRating?: number;
@@ -50,10 +51,17 @@ export const ServiceCard = ({ service, index = 0 }: ServiceCardProps) => {
           )}
           {/* Promo badge */}
           {service.promoPrice != null && service.promoDiscountType && (
-            <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-sm z-10 shadow-md" style={{ letterSpacing: '0.03em' }}>
-              {service.promoDiscountType === 'PERCENTAGE'
-                ? `-${Number(service.promoDiscountValue)}%`
-                : `-${Number(service.promoDiscountValue)} zł`}
+            <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+              <div className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-sm shadow-md" style={{ letterSpacing: '0.03em' }}>
+                {service.promoDiscountType === 'PERCENTAGE'
+                  ? `-${Number(service.promoDiscountValue)}%`
+                  : `-${Number(service.promoDiscountValue)} zł`}
+              </div>
+              {service.promoUsesRemaining != null && (
+                <div className="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm shadow-md text-center backdrop-blur-sm">
+                  Pozostało {service.promoUsesRemaining}
+                </div>
+              )}
             </div>
           )}
           {/* Dark gradient + glassmorphism label */}

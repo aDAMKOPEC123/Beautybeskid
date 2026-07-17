@@ -9,6 +9,8 @@ import supportRouter from './support/support.router';
 import analyticsRouter from './analytics/analytics.router';
 import paymentsRouter from './payments/payments.router';
 import legalRouter from './legal/legal.router';
+import marketingRouter from './marketing/marketing.router';
+import operationsRouter from './operations/operations.router';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use('/', supportRouter);
 router.use('/', analyticsRouter);
 router.use('/', paymentsRouter);
 router.use('/', legalRouter);
+router.use('/', marketingRouter);
+router.use('/', operationsRouter);
 
 export { router as academyRouter };

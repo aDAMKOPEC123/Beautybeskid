@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/hooks/useSocket';
-import { useNotificationStore } from '@/store/notification.store';
 import {
   format,
   isSameDay,
@@ -348,12 +347,6 @@ function ListView({ appointments }: { appointments: any[] }) {
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterEmployee, setFilterEmployee] = useState<string>('');
   const [showArchive, setShowArchive] = useState(false);
-  const { unreadAppointmentIds, markAllRead } = useNotificationStore();
-
-  // Clear highlights when component mounts (user is viewing the page)
-  useEffect(() => {
-    markAllRead();
-  }, []);
 
   const employees: string[] = Array.from(
     new Set(appointments.filter((a) => a.employee?.name).map((a) => a.employee.name))
@@ -416,7 +409,7 @@ function ListView({ appointments }: { appointments: any[] }) {
             </div>
           ) : (
             activeFiltered.map((a) => (
-              <AppointmentRow key={a.id} a={a} highlighted={unreadAppointmentIds.has(a.id)} />
+              <AppointmentRow key={a.id} a={a} />
             ))
           )}
         </div>
@@ -441,7 +434,7 @@ function ListView({ appointments }: { appointments: any[] }) {
           {(isArchivedFilter || showArchive) && (
             <div className="space-y-3">
               {archivedFiltered.map((a) => (
-                <AppointmentRow key={a.id} a={a} highlighted={unreadAppointmentIds.has(a.id)} />
+                <AppointmentRow key={a.id} a={a} />
               ))}
             </div>
           )}

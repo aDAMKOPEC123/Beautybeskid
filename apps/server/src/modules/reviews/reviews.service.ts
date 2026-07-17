@@ -101,7 +101,7 @@ export const createReview = async (
         title: 'Nowa recenzja',
         body: `${review.user?.name ?? 'Klient'} wystawił/a ocenę ${review.rating}/5`,
         url: '/admin/recenzje',
-        emitToAdminGlobal: true,
+        audience: 'ADMIN',
       });
     }
   } catch (err) {

@@ -4,11 +4,13 @@ import { prisma } from '../../config/prisma';
 import { getIO } from '../../socket';
 import { sendPushToAllUsers } from '../push/push.service';
 
+const audienceFor = (req: Request): 'ADMIN' | 'USER' => req.user!.role === 'ADMIN' ? 'ADMIN' : 'USER';
+
 export const getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
-    const data = await notificationsService.getNotifications(req.user!.id, page, limit);
+    const data = await notificationsService.getNotifications(req.user!.id, page, limit, audienceFor(req));
     res.status(200).json({ status: 'success', data });
   } catch (error) {
     next(error);
@@ -17,7 +19,7 @@ export const getMyNotifications = async (req: Request, res: Response, next: Next
 
 export const markNotificationRead = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const notification = await notificationsService.markRead(req.user!.id, req.params.id);
+    const notification = await notificationsService.markRead(req.user!.id, req.params.id, audienceFor(req));
     res.status(200).json({ status: 'success', data: { notification } });
   } catch (error) {
     next(error);
@@ -27,7 +29,7 @@ export const markNotificationRead = async (req: Request, res: Response, next: Ne
 
 export const markAllNotificationsRead = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await notificationsService.markAllRead(req.user!.id);
+    await notificationsService.markAllRead(req.user!.id, audienceFor(req));
     res.status(200).json({ status: 'success', data: { message: 'Wszystkie powiadomienia oznaczone jako przeczytane' } });
   } catch (error) {
     next(error);
@@ -36,7 +38,7 @@ export const markAllNotificationsRead = async (req: Request, res: Response, next
 
 export const getUnreadCount = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const count = await notificationsService.getUnreadCount(req.user!.id);
+    const count = await notificationsService.getUnreadCount(req.user!.id, audienceFor(req));
     res.status(200).json({ status: 'success', data: { count } });
   } catch (error) {
     next(error);
@@ -45,7 +47,7 @@ export const getUnreadCount = async (req: Request, res: Response, next: NextFunc
 
 export const getUnreadRouteCounts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const counts = await notificationsService.getUnreadRouteCounts(req.user!.id);
+    const counts = await notificationsService.getUnreadRouteCounts(req.user!.id, audienceFor(req));
     res.status(200).json({ status: 'success', data: { counts } });
   } catch (error) {
     next(error);
@@ -54,15 +56,17 @@ export const getUnreadRouteCounts = async (req: Request, res: Response, next: Ne
 
 export const broadcastNotification = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, body, url } = req.body;
+    const title = String(req.body.title ?? '').trim();
+    const body = String(req.body.body ?? '').trim();
+    const url = req.body.url ? String(req.body.url).trim() : undefined;
 
-    if (!title || !body) {
-      res.status(400).json({ status: 'error', message: 'title and body are required' });
+    if (!title || !body || title.length > 120 || body.length > 1000 || (url && !/^\/(?!\/)|^https?:\/\//i.test(url))) {
+      res.status(400).json({ status: 'error', message: 'Nieprawidłowy tytuł, treść lub adres powiadomienia' });
       return;
     }
 
     const users = await prisma.user.findMany({
-      where: { role: 'USER' },
+      where: { role: 'USER', accountStatus: 'ACTIVE' },
       select: { id: true },
     });
 
@@ -73,14 +77,15 @@ export const broadcastNotification = async (req: Request, res: Response, next: N
         title,
         body,
         url,
+        audience: 'USER' as const,
       })),
     });
 
     getIO().to('broadcast:notifications').emit('notification:new', {});
 
-    await sendPushToAllUsers({ title, body, url });
+    const push = await sendPushToAllUsers({ title, body, url });
 
-    res.status(200).json({ status: 'success', data: { sent: users.length } });
+    res.status(200).json({ status: 'success', data: { sent: users.length, push } });
   } catch (error) {
     next(error);
   }

@@ -7,7 +7,6 @@ import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useSocket } from '@/hooks/useSocket';
 import { useChatStore } from '@/store/chat.store';
-import { useNotificationStore } from '@/store/notification.store';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -50,7 +49,6 @@ export const AdminLayout = () => {
   );
   const { socket, isConnected } = useSocket();
   const { staffUnreadTotal, setStaffUnreadTotal } = useChatStore();
-  const { addNotification, unreadCount, markAllRead } = useNotificationStore();
   const { isSupported, isSubscribed, permission, subscribe } = usePushSubscription();
 
   const { data: newLeads = [] } = useQuery({
@@ -74,39 +72,19 @@ export const AdminLayout = () => {
     const onAdminUnread = (count: number) => setStaffUnreadTotal(count);
 
     const onCreated = (appt: any) => {
-      addNotification({
-        type: 'created',
-        message: `Nowa wizyta: ${appt.user?.name ?? ''} — ${appt.service?.name ?? ''}`,
-        appointmentId: appt.id,
-        clientName: appt.user?.name,
-        serviceName: appt.service?.name,
-        timestamp: Date.now(),
-      });
       toast.info(`Nowa wizyta: ${appt.user?.name ?? ''}`, {
         description: appt.service?.name,
       });
     };
 
     const onUpdated = (appt: any) => {
-      addNotification({
-        type: 'updated',
-        message: `Zaktualizowana wizyta: ${appt.user?.name ?? ''} — ${appt.service?.name ?? ''}`,
-        appointmentId: appt.id,
-        clientName: appt.user?.name,
-        serviceName: appt.service?.name,
-        timestamp: Date.now(),
-      });
       toast.info(`Zmiana wizyty: ${appt.user?.name ?? ''}`, {
         description: appt.service?.name,
       });
     };
 
     const onDeleted = (id: string) => {
-      addNotification({
-        type: 'deleted',
-        message: `Wizyta usunięta (ID: ${String(id).slice(0, 8)})`,
-        timestamp: Date.now(),
-      });
+      toast.info(`Wizyta usunięta (ID: ${String(id).slice(0, 8)})`);
     };
 
     const onNotificationNew = () => {
@@ -126,10 +104,10 @@ export const AdminLayout = () => {
       socket.off('appointment:deleted', onDeleted);
       socket.off('notification:new', onNotificationNew);
     };
-  }, [isConnected, socket, setStaffUnreadTotal, addNotification, queryClient]);
+  }, [isConnected, socket, setStaffUnreadTotal, queryClient]);
 
   const komunikacjaBadge = adminNotifUnread + staffUnreadTotal;
-  const wizytyBadge = unreadCount + newLeadsCount;
+  const wizytyBadge = newLeadsCount;
 
   const mobileNavGroups: Array<{ label: string; links: MobileAdminLink[] }> = [
     { label: 'Start', links: [{ to: '/admin', label: 'Dashboard' }] },
@@ -398,17 +376,16 @@ export const AdminLayout = () => {
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
                   <Link
                     to="/admin/wizyty"
-                    onClick={markAllRead}
                     className={`px-3 py-1.5 text-sm rounded-md flex items-center justify-between ${
-                      unreadCount > 0
+                      wizytyBadge > 0
                         ? 'bg-destructive/10 text-destructive animate-pulse font-semibold'
                         : 'hover:bg-accent hover:text-accent-foreground'
                     }`}
                   >
                     <span>Wizyty</span>
-                    {unreadCount > 0 && (
+                    {wizytyBadge > 0 && (
                       <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">
-                        {unreadCount > 9 ? '9+' : unreadCount}
+                        {wizytyBadge > 9 ? '9+' : wizytyBadge}
                       </span>
                     )}
                   </Link>

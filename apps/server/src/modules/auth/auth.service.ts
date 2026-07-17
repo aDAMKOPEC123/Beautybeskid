@@ -117,8 +117,10 @@ export const registerUser = async (data: RegisterInput & {
       return prisma.notification.createMany({
         data: admins.map(admin => ({
           userId: admin.id,
-          type: 'GENERIC' as const,
+          type: 'NEW_REGISTRATION' as const,
+          audience: 'ADMIN' as const,
           title: 'Nowa rejestracja',
+          url: '/admin/uzytkownicy',
           body: `Nowa rejestracja: ${user.name} (${user.email})`,
         })),
       });
@@ -293,8 +295,10 @@ export const loginWithGoogle = async (
         return prisma.notification.createMany({
           data: admins.map((admin) => ({
             userId: admin.id,
-            type: 'GENERIC' as const,
+            type: 'NEW_REGISTRATION' as const,
+            audience: 'ADMIN' as const,
             title: 'Nowa rejestracja',
+            url: '/admin/uzytkownicy',
             body: `Nowa rejestracja przez Google: ${user.name} (${user.email})`,
           })),
         });
@@ -426,8 +430,10 @@ export const loginWithFacebook = async (
         return prisma.notification.createMany({
           data: admins.map((admin) => ({
             userId: admin.id,
-            type: 'GENERIC' as const,
+            type: 'NEW_REGISTRATION' as const,
+            audience: 'ADMIN' as const,
             title: 'Nowa rejestracja',
+            url: '/admin/uzytkownicy',
             body: `Nowa rejestracja przez Facebook: ${user.name} (${user.email})`,
           })),
         });

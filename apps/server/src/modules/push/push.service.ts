@@ -18,13 +18,13 @@ export const saveSubscription = async (
 ) => {
   await prisma.pushSubscription.upsert({
     where: { endpoint: sub.endpoint },
-    update: { p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+    update: { userId, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
     create: { userId, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
   });
 };
 
-export const deleteSubscription = async (endpoint: string) => {
-  await prisma.pushSubscription.deleteMany({ where: { endpoint } });
+export const deleteSubscription = async (userId: string, endpoint: string) => {
+  await prisma.pushSubscription.deleteMany({ where: { userId, endpoint } });
 };
 
 const sendPushToSubscriptions = async (
@@ -32,10 +32,11 @@ const sendPushToSubscriptions = async (
   payload: { title: string; body: string; url?: string },
 ) => {
   ensureVapid();
-  if (!vapidConfigured) return;
-  if (subscriptions.length === 0) return;
+  if (!vapidConfigured || subscriptions.length === 0) {
+    return { attempted: 0, delivered: 0, failed: 0 };
+  }
 
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     subscriptions.map((s) =>
       webpush
         .sendNotification(
@@ -48,9 +49,15 @@ const sendPushToSubscriptions = async (
           } else {
             console.error(`Push notification failed for endpoint ${s.endpoint}:`, e?.message ?? e);
           }
+          throw e;
         }),
       ),
   );
+  return {
+    attempted: subscriptions.length,
+    delivered: results.filter((result) => result.status === 'fulfilled').length,
+    failed: results.filter((result) => result.status === 'rejected').length,
+  };
 };
 
 export const sendPushToUser = async (
@@ -62,8 +69,8 @@ export const sendPushToUser = async (
     include: { pushSubscriptions: true },
   });
 
-  if (!user) return;
-  await sendPushToSubscriptions(user.pushSubscriptions, payload);
+  if (!user) return { attempted: 0, delivered: 0, failed: 0 };
+  return sendPushToSubscriptions(user.pushSubscriptions, payload);
 };
 
 export const sendPushToAdmins = async (payload: { title: string; body: string; url?: string }) => {
@@ -72,7 +79,7 @@ export const sendPushToAdmins = async (payload: { title: string; body: string; u
     include: { pushSubscriptions: true },
   });
 
-  await sendPushToSubscriptions(
+  return sendPushToSubscriptions(
     admins.flatMap((admin) => admin.pushSubscriptions),
     payload,
   );
@@ -93,7 +100,7 @@ export const sendPushToUsers = async (
 
 export const sendPushToAllUsers = async (payload: { title: string; body: string; url?: string }) => {
   const subscriptions = await prisma.pushSubscription.findMany({
-    where: { user: { role: 'USER' } },
+    where: { user: { role: 'USER', accountStatus: 'ACTIVE' } },
   });
   return sendPushToSubscriptions(subscriptions, payload);
 };

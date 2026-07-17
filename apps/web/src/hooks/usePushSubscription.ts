@@ -23,6 +23,32 @@ function detectStandalone(): boolean {
   );
 }
 
+/** Rebinds an already granted browser subscription to the currently logged-in user. */
+export const syncCurrentPushSubscription = async () => {
+  try {
+    if (!('serviceWorker' in navigator && 'PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) await pushApi.subscribe(sub.toJSON());
+  } catch (error) {
+    console.warn('[Push] subscription sync failed:', error);
+  }
+};
+
+export const unsubscribeCurrentPushSubscription = async () => {
+  try {
+    if (!('serviceWorker' in navigator && 'PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await pushApi.unsubscribe(sub.endpoint);
+      await sub.unsubscribe();
+    }
+  } catch (error) {
+    console.warn('[Push] subscription cleanup failed:', error);
+  }
+};
+
 export const usePushSubscription = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -101,12 +127,7 @@ export const usePushSubscription = () => {
 
   const unsubscribe = async () => {
     try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      if (sub) {
-        await pushApi.unsubscribe(sub.endpoint);
-        await sub.unsubscribe();
-      }
+      await unsubscribeCurrentPushSubscription();
       setIsSubscribed(false);
       toast.success('Powiadomienia push wyłączone');
     } catch {

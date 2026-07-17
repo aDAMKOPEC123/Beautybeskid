@@ -20,7 +20,7 @@ import { useAchievementNotifications } from '@/components/achievements/Achieveme
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useTour } from '@/hooks/useTour';
 import { ReviewPromptModal } from '@/components/reviews/ReviewPromptModal';
-import { usePushSubscription } from '@/hooks/usePushSubscription';
+import { usePushSubscription, unsubscribeCurrentPushSubscription } from '@/hooks/usePushSubscription';
 import { PushPermissionPrompt } from '@/components/push/PushPermissionPrompt';
 import { PasskeySetupPrompt } from '@/components/auth/PasskeySetupPrompt';
 import { PwaInstallButton } from '@/components/PwaInstallButton';
@@ -159,6 +159,7 @@ const UserLayoutInner = () => {
     try {
       await authApi.logout();
     } catch {}
+    await unsubscribeCurrentPushSubscription();
     logout();
     navigate('/');
   };

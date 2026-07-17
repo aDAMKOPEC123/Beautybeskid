@@ -9,6 +9,8 @@ import { initializeTreatmentSeriesMaintenance } from './modules/treatment-series
 import { initializeHappyHourScheduler } from './modules/happy-hours/happy-hours.service';
 import { initializeSkinWeatherScheduler } from './modules/skin-weather/skin-weather.service';
 import { initializeStorePromotionReminderScheduler } from './modules/store-promotions/store-promotions.service';
+import { initializeAcademyMarketingScheduler } from './modules/academy/marketing/marketing.service';
+import { initializeAcademyAutomationScheduler } from './modules/academy/automations/automations.service';
 
 const server = createServer(app);
 
@@ -26,6 +28,8 @@ const startServer = async () => {
     initializeHappyHourScheduler();
     initializeSkinWeatherScheduler();
     initializeStorePromotionReminderScheduler();
+    initializeAcademyMarketingScheduler();
+    initializeAcademyAutomationScheduler();
 
     // Daily cleanup of expired refresh tokens
     const purgeExpiredTokens = async () => {

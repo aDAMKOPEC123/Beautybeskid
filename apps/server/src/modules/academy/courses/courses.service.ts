@@ -1,6 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { hasActiveCourseAccess } from '../access';
+import { resolvePublicPrice } from '../marketing/marketing.service';
 
 export const listPublished = async (userId: string, isAdmin = false) => {
   const courses = await prisma.course.findMany({
@@ -16,7 +17,7 @@ export const listPublished = async (userId: string, isAdmin = false) => {
       },
       _count: { select: { modules: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
   });
 
   const enrollmentRows = isAdmin ? [] : await prisma.academyEnrollment.findMany({ where: { userId }, select: { courseId: true, purchasedAt: true, accessExpiresAt: true } });
@@ -44,14 +45,11 @@ export const listPublic = async () => {
       modules: { include: { lessons: { select: { id: true } } }, orderBy: { order: 'asc' } },
       priceHistory: { orderBy: { validFrom: 'asc' } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
   });
-  return courses.map((course) => ({
-    ...course,
-    lowestPrice30Days: calculateLowestPriorPrice(course.priceHistory, Number(course.price), Boolean(course.compareAtPrice)),
-    priceHistory: undefined,
-    lessonCount: course.modules.reduce((sum, module) => sum + module.lessons.length, 0),
-    modules: undefined,
+  return Promise.all(courses.map(async (course) => {
+    const campaign = await resolvePublicPrice({ courseId: course.id, price: Number(course.price) });
+    return { ...course, ...(campaign || {}), lowestPrice30Days: calculateLowestPriorPrice(course.priceHistory, Number(course.price), Boolean(course.compareAtPrice) || Boolean(campaign)), priceHistory: undefined, lessonCount: course.modules.reduce((sum, module) => sum + module.lessons.length, 0), modules: undefined };
   }));
 };
 
@@ -79,8 +77,10 @@ export const getPublicCourse = async (slug: string) => {
       },
     },
   });
+  const campaign = await resolvePublicPrice({ courseId: course.id, price: Number(course.price) });
   return {
     ...course,
+    ...(campaign || {}),
     lowestPrice30Days: calculateLowestPriorPrice(course.priceHistory, Number(course.price), Boolean(course.compareAtPrice)),
     priceHistory: undefined,
     academyReviews: course.academyReviews.map((review) => ({ ...review, verifiedPurchase: true })),
@@ -200,9 +200,9 @@ export const listPublicBundles = async () => {
   const bundles = await prisma.academyBundle.findMany({
     where: { isActive: true, courses: { some: { course: { status: 'PUBLISHED', isActive: true } } } },
     include: bundleInclude,
-    orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [{ displayOrder: 'asc' }, { isFeatured: 'desc' }, { createdAt: 'desc' }],
   });
-  return bundles.map(withBundleLowestPrice);
+  return Promise.all(bundles.map(async bundle => { const campaign = await resolvePublicPrice({ bundleId: bundle.id, price: Number(bundle.price) }); return Object.assign(withBundleLowestPrice(bundle), campaign ?? {}); }));
 };
 
 export const getPublicBundle = async (slug: string) => {
@@ -210,7 +210,8 @@ export const getPublicBundle = async (slug: string) => {
   if (!bundle || bundle.courses.some(({ course }) => course.status !== 'PUBLISHED' || !course.isActive)) {
     throw new AppError('Nie znaleziono pakietu', 404);
   }
-  return withBundleLowestPrice(bundle);
+  const campaign = await resolvePublicPrice({ bundleId: bundle.id, price: Number(bundle.price) });
+  return Object.assign(withBundleLowestPrice(bundle), campaign ?? {});
 };
 
 export const getSitemapEntries = async () => {
@@ -260,7 +261,7 @@ export const adminListAll = async () => {
         orderBy: { order: 'asc' },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
   });
 };
 
@@ -325,6 +326,7 @@ type BundleInput = {
   accessDays?: number | null;
   isActive?: boolean;
   isFeatured?: boolean;
+  displayOrder?: number;
   thumbnailUrl?: string | null;
   courseIds: string[];
 };
@@ -349,7 +351,7 @@ export const createBundle = async (data: BundleInput) => {
     data: {
       title: data.title.trim(), slug: data.slug.trim(), description: data.description.trim(), price: data.price,
       compareAtPrice: data.compareAtPrice, accessDays: data.accessDays, isActive: data.isActive,
-      isFeatured: data.isFeatured, thumbnailUrl: data.thumbnailUrl,
+      isFeatured: data.isFeatured, displayOrder: Number(data.displayOrder)||0, thumbnailUrl: data.thumbnailUrl,
       courses: { create: courseIds.map((courseId, order) => ({ courseId, order })) },
       priceHistory: { create: { price: data.price } },
     },
@@ -370,7 +372,7 @@ export const updateBundle = async (id: string, data: BundleInput) => {
       data: {
         title: data.title.trim(), slug: data.slug.trim(), description: data.description.trim(), price: data.price,
         compareAtPrice: data.compareAtPrice, accessDays: data.accessDays, isActive: data.isActive,
-        isFeatured: data.isFeatured, thumbnailUrl: data.thumbnailUrl,
+        isFeatured: data.isFeatured, displayOrder: Number(data.displayOrder)||0, thumbnailUrl: data.thumbnailUrl,
         courses: { create: courseIds.map((courseId, order) => ({ courseId, order })) },
       },
       include: bundleInclude,

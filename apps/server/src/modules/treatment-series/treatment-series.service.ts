@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { sendPushToUser } from '../push/push.service';
+import { getIO } from '../../socket';
+import { createAndEmitNotification } from '../notifications/notifications.service';
 import {
   buildSeriesStepStates,
   getNotificationTrigger,
@@ -588,6 +590,17 @@ const sendSeriesNotification = async (series: {
     });
 
     try {
+      try {
+        await createAndEmitNotification(getIO(), {
+          userId: series.userId,
+          type: 'SERIES_REMINDER',
+          title: payload.title,
+          body: payload.body,
+          url: payload.url,
+        });
+      } catch (error) {
+        console.error('[TreatmentSeries] In-app notification failed:', error);
+      }
       await sendPushToUser(series.userId, payload);
     } catch {
       await prisma.treatmentSeriesNotification.delete({

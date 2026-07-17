@@ -6,6 +6,7 @@ import { AppError } from '../../middleware/error.middleware';
 import { sendPushToUser, sendPushToAdmins } from '../../modules/push/push.service';
 
 import { prisma } from '../../config/prisma';
+import { createAndEmitNotification } from '../notifications/notifications.service';
 
 export const getRooms = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -98,13 +99,30 @@ export const sendMessageREST = async (req: Request, res: Response, next: NextFun
 
     // Push notifications — sent regardless of socket availability
     try {
+      const io = getIO();
       if (senderRole === 'USER') {
+        const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+        await Promise.all(admins.map((admin) => createAndEmitNotification(io, {
+          userId: admin.id,
+          type: 'CHAT_MESSAGE',
+          title: 'Nowa wiadomość od klienta',
+          body: `${message.sender?.name ?? 'Klient'} napisał/a w chacie`,
+          url: '/admin/chat',
+          audience: 'ADMIN',
+        })));
         await sendPushToAdmins({
           title: 'Nowa wiadomość od klienta',
           body: (message.sender && message.sender.name ? message.sender.name : 'Klient') + ' napisał/a w chacie',
           url: '/admin/chat',
         });
       } else {
+        await createAndEmitNotification(io, {
+          userId: room.userId,
+          type: 'CHAT_MESSAGE',
+          title: 'Nowa wiadomość',
+          body: 'Otrzymałeś/aś nową wiadomość w chacie',
+          url: '/user/chat',
+        });
         await sendPushToUser(room.userId, {
           title: 'Nowa wiadomość',
           body: 'Otrzymałeś/aś nową wiadomość w chacie',

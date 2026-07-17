@@ -3,6 +3,7 @@ import * as payments from './payments.service';
 
 export const courseCheckout = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await payments.createCourseCheckout(req.academyUser!.id, req.params.courseId, req.body) }); } catch (error) { next(error); } };
 export const bundleCheckout = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await payments.createBundleCheckout(req.academyUser!.id, req.params.bundleId, req.body) }); } catch (error) { next(error); } };
+export const cartCheckout = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await payments.createCartCheckout(req.academyUser!.id, req.body) }); } catch (error) { next(error); } };
 export const myOrders = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await payments.listMyOrders(req.academyUser!.id) }); } catch (error) { next(error); } };
 export const myOrderStatus = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await payments.getMyOrderStatus(req.academyUser!.id, String(req.query.sessionId || '')) }); } catch (error) { next(error); } };
 export const adminOrders = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await payments.adminListOrders({ status: String(req.query.status || 'ALL'), search: String(req.query.search || '').trim() }) }); } catch (error) { next(error); } };

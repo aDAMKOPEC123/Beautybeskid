@@ -23,6 +23,7 @@ const serviceSchemaBase = z.object({
   promoDiscountValue: z.number().positive().nullable().optional(),
   promoStartDate: z.coerce.date().nullable().optional(),
   promoEndDate: z.coerce.date().nullable().optional(),
+  promoMaxUses: z.number().int().positive().nullable().optional(),
 });
 
 const validatePromoConfig = (

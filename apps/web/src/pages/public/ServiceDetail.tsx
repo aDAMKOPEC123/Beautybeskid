@@ -335,10 +335,21 @@ export const ServiceDetail = () => {
               <Clock size={15} /> {service.durationMinutes} min
             </span>
           </div>
-          {service.promoEndDate && service.promoPrice != null && (
-            <p className="text-sm mb-4" style={{ color: '#C4965A' }}>
-              Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}
-            </p>
+          {service.promoPrice != null && (
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm mb-4" style={{ color: '#C4965A' }}>
+              {service.promoEndDate && (
+                <span>Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}</span>
+              )}
+              {service.promoUsesRemaining != null && (
+                <span className={`font-semibold px-3 py-1 rounded-full text-xs ${
+                  service.promoUsesRemaining <= 3
+                    ? 'bg-red-600 text-white'
+                    : 'bg-espresso/10 text-espresso'
+                }`}>
+                  Pozostało {service.promoUsesRemaining} {service.promoUsesRemaining === 1 ? 'miejsce' : service.promoUsesRemaining < 5 ? 'miejsca' : 'miejsc'}
+                </span>
+              )}
+            </div>
           )}
           <button
             className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"

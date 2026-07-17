@@ -11,7 +11,7 @@ import {
   attachAppointmentToSeries,
 } from '../treatment-series/treatment-series.service';
 import { createAndEmitNotification } from '../notifications/notifications.service';
-import { sendPushToUser } from '../push/push.service';
+import { sendPushToUser, sendPushToAdmins } from '../push/push.service';
 
 const appointmentInclude = {
   service: {
@@ -30,6 +30,7 @@ const appointmentInclude = {
     },
   },
   employee: { select: { id: true, name: true, avatarPath: true } },
+  user: { select: { id: true, name: true } },
   coupon: { include: { reward: true } },
   discountCodeUsage: { include: { discountCode: true } },
 } as const;
@@ -245,7 +246,7 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
         title: 'Nowa rezerwacja',
         body: `${clientName} — ${serviceName}`,
         url: '/admin/wizyty',
-        emitToAdminGlobal: true,
+        audience: 'ADMIN',
       })
     ));
   } catch (err) {
@@ -502,11 +503,30 @@ export const requestReschedule = async (id: string, userId: string, newDate: str
     throw new AppError('Wybrany slot jest niedostepny', 400);
   }
 
-  return prisma.appointment.update({
+  const updated = await prisma.appointment.update({
     where: { id },
     data: { rescheduleDate: date, rescheduleStatus: 'PENDING' },
     include: appointmentInclude,
   });
+
+  try {
+    const io = getIO();
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    const body = `${appointment.user?.name ?? 'Klient'} prosi o zmianę terminu wizyty.`;
+    await Promise.all(admins.map((admin) => createAndEmitNotification(io, {
+      userId: admin.id,
+      type: 'APPOINTMENT_RESCHEDULED',
+      title: 'Prośba o zmianę terminu',
+      body,
+      url: '/admin/wizyty',
+      audience: 'ADMIN',
+    })));
+    await sendPushToAdmins({ title: 'Prośba o zmianę terminu', body, url: '/admin/wizyty' });
+  } catch (error) {
+    console.error('Failed to notify admins about reschedule request:', error);
+  }
+
+  return updated;
 };
 
 export const approveReschedule = async (id: string) => {

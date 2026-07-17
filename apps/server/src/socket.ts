@@ -131,7 +131,7 @@ export const initializeSocket = (server: Server) => {
                 title: 'Nowa wiadomość',
                 body: `${(dbUser.name ?? 'Klient').trim().substring(0, 50)}: ${content.substring(0, 80)}`,
                 url: '/admin/chat',
-                emitToAdminGlobal: true,
+                audience: 'ADMIN',
               });
             }
             await sendPushToAdmins({ title: 'Nowa wiadomość od klienta', body: `${dbUser.name ?? 'Klient'} napisał/a w chacie`, url: '/admin/chat' });

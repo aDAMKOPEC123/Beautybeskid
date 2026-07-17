@@ -8,7 +8,7 @@ import { loginSchema, LoginInput } from '@cosmo/shared';
 import { Fingerprint } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
-import { usePushSubscription } from '@/hooks/usePushSubscription';
+import { syncCurrentPushSubscription } from '@/hooks/usePushSubscription';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
@@ -34,7 +34,6 @@ export const Login = () => {
   const from = (location.state as { from?: string })?.from;
   const panelEntry = Boolean((location.state as { panelEntry?: boolean } | null)?.panelEntry);
   const pwaPromptAfterLogin = Boolean((location.state as { pwaPromptAfterLogin?: boolean } | null)?.pwaPromptAfterLogin);
-  const { isSupported, permission, subscribe } = usePushSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedReturnTo = searchParams.get('returnTo');
   const academyReturnTo = requestedReturnTo?.startsWith('https://akademia.kosmetologwiktoriacwik.pl')
@@ -93,6 +92,7 @@ export const Login = () => {
       const res = await authApi.login({ ...data, rememberMe });
       setAccessToken(res.accessToken);
       setUser(res.user);
+      void syncCurrentPushSubscription();
 
       if (res.user?.mustChangePassword) {
         navigate('/user/zmien-haslo', { replace: true });
@@ -100,9 +100,6 @@ export const Login = () => {
       }
 
       toast.success('Zalogowano pomyślnie.');
-      if (isSupported && permission !== 'denied') {
-        setTimeout(() => subscribe(), 1000);
-      }
       if (academyReturnTo) {
         window.location.assign(academyReturnTo);
         return;
@@ -128,11 +125,9 @@ export const Login = () => {
       const res = await authApi.verifyPasskeyLogin(passkeyAccount.userId, credential);
       setAccessToken(res.accessToken);
       setUser(res.user);
+      void syncCurrentPushSubscription();
 
       toast.success('Zalogowano biometrycznie.');
-      if (isSupported && permission !== 'denied') {
-        setTimeout(() => subscribe(), 1000);
-      }
       navigate(from || getPanelPath(res.user?.role), {
         replace: true,
         state: pwaPromptAfterLogin ? { pwaPromptReason: 'post-login' } : undefined,

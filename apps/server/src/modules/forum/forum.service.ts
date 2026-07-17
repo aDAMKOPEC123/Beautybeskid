@@ -331,6 +331,7 @@ export const createPost = async (
         title: 'Oznaczono @admin na forum',
         body: `Użytkownik prosi o pomoc w wątku: ${thread.title}`,
         url: `/admin/forum`,
+        audience: 'ADMIN',
       });
     }
   }

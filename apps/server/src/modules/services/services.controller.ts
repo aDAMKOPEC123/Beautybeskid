@@ -47,6 +47,10 @@ const parseServicePayload = (req: Request) => {
     dataToValidate.promoDiscountValue = null;
     dataToValidate.promoStartDate = null;
     dataToValidate.promoEndDate = null;
+    dataToValidate.promoMaxUses = null;
+  }
+  if (dataToValidate.promoMaxUses !== undefined) {
+    dataToValidate.promoMaxUses = dataToValidate.promoMaxUses ? Number(dataToValidate.promoMaxUses) : null;
   }
   if (dataToValidate.promoStartDate !== undefined) {
     dataToValidate.promoStartDate = dataToValidate.promoStartDate ? new Date(dataToValidate.promoStartDate) : null;

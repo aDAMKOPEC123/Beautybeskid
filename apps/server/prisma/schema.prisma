@@ -347,6 +347,7 @@ model Service {
   promoDiscountValue      Decimal?      @db.Decimal(10, 2)
   promoStartDate          DateTime?
   promoEndDate            DateTime?
+  promoMaxUses            Int?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 

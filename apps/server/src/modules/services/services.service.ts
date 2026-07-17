@@ -29,6 +29,38 @@ function computePromoPrice(service: {
   return Math.round(Math.max(0, price - discountValue) * 100) / 100;
 }
 
+function computePromoUsesRemaining(service: {
+  id: string;
+  promoMaxUses: number | null;
+  promoStartDate: Date | null;
+  promoEndDate: Date | null;
+  promoDiscountType: string | null;
+}, promoUsageCount: number): number | null {
+  if (service.promoMaxUses == null) return null;
+  if (!service.promoDiscountType || !service.promoStartDate || !service.promoEndDate) return null;
+  return Math.max(0, service.promoMaxUses - promoUsageCount);
+}
+
+async function getPromoUsageCounts(serviceIds: string[], services: Array<{ id: string; promoStartDate: Date | null; promoEndDate: Date | null; promoMaxUses: number | null }>): Promise<Map<string, number>> {
+  const servicesWithLimits = services.filter(s => s.promoMaxUses != null && s.promoStartDate && s.promoEndDate);
+  if (servicesWithLimits.length === 0) return new Map();
+
+  const counts = await Promise.all(
+    servicesWithLimits.map(async (s) => {
+      const count = await prisma.appointment.count({
+        where: {
+          serviceId: s.id,
+          status: { notIn: ['CANCELLED'] },
+          createdAt: { gte: s.promoStartDate!, lte: s.promoEndDate! },
+        },
+      });
+      return { id: s.id, count };
+    })
+  );
+
+  return new Map(counts.map(c => [c.id, c.count]));
+}
+
 export const getAllServices = async () => {
   const [services, reviewAggregates] = await Promise.all([
     prisma.service.findMany({
@@ -52,14 +84,25 @@ export const getAllServices = async () => {
     reviewAggregates.map((a) => [a.serviceId, { avgRating: a._avg.rating, reviewCount: a._count }])
   );
 
-  return services.map((s) => ({
-    ...s,
-    price: Number(s.price),
-    promoPrice: computePromoPrice(s),
-    promoDiscountValue: s.promoDiscountValue ? Number(s.promoDiscountValue) : null,
-    avgRating: aggregateMap.get(s.id)?.avgRating ?? null,
-    reviewCount: aggregateMap.get(s.id)?.reviewCount ?? 0,
-  }));
+  const usageCounts = await getPromoUsageCounts(
+    services.map(s => s.id),
+    services.map(s => ({ id: s.id, promoStartDate: s.promoStartDate, promoEndDate: s.promoEndDate, promoMaxUses: s.promoMaxUses }))
+  );
+
+  return services.map((s) => {
+    const promoPrice = computePromoPrice(s);
+    const usesRemaining = computePromoUsesRemaining(s, usageCounts.get(s.id) ?? 0);
+    return {
+      ...s,
+      price: Number(s.price),
+      promoPrice: usesRemaining === 0 ? null : promoPrice,
+      promoDiscountValue: s.promoDiscountValue ? Number(s.promoDiscountValue) : null,
+      promoMaxUses: s.promoMaxUses,
+      promoUsesRemaining: promoPrice != null ? usesRemaining : null,
+      avgRating: aggregateMap.get(s.id)?.avgRating ?? null,
+      reviewCount: aggregateMap.get(s.id)?.reviewCount ?? 0,
+    };
+  });
 };
 
 export const getServiceBySlug = async (slug: string) => {
@@ -75,11 +118,21 @@ export const getServiceBySlug = async (slug: string) => {
     _count: true,
   });
 
+  const usageCounts = await getPromoUsageCounts(
+    [service.id],
+    [{ id: service.id, promoStartDate: service.promoStartDate, promoEndDate: service.promoEndDate, promoMaxUses: service.promoMaxUses }]
+  );
+
+  const promoPrice = computePromoPrice(service);
+  const usesRemaining = computePromoUsesRemaining(service, usageCounts.get(service.id) ?? 0);
+
   return {
     ...service,
     price: Number(service.price),
-    promoPrice: computePromoPrice(service),
+    promoPrice: usesRemaining === 0 ? null : promoPrice,
     promoDiscountValue: service.promoDiscountValue ? Number(service.promoDiscountValue) : null,
+    promoMaxUses: service.promoMaxUses,
+    promoUsesRemaining: promoPrice != null ? usesRemaining : null,
     avgRating: aggregate._avg.rating,
     reviewCount: aggregate._count,
   };
@@ -146,7 +199,7 @@ export const updateService = async (id: string, data: UpdateServiceInput) => {
         where: { id },
         select: { displayOrder: true },
       });
-      if (!currentService) throw new AppError('UsĹ‚uga nie znaleziona', 404);
+      if (!currentService) throw new AppError('Usługa nie znaleziona', 404);
 
       if (currentService.displayOrder !== data.displayOrder) {
         const occupiedPosition = await tx.service.findFirst({
