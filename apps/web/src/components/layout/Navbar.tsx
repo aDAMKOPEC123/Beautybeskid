@@ -195,8 +195,6 @@ export const Navbar = () => {
       <nav
         className="fixed top-0 left-0 right-0 z-50"
         style={{
-          paddingTop: 'env(safe-area-inset-top)',
-          height: 'calc(72px + env(safe-area-inset-top))',
           background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
           borderBottom: '2px solid #C4965A',
           boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
@@ -205,7 +203,8 @@ export const Navbar = () => {
           willChange: 'transform',
         }}
       >
-        <div className="container h-full flex items-center justify-between">
+        <div style={{ height: 'env(safe-area-inset-top)', background: 'inherit' }} />
+        <div className="container flex items-center justify-between" style={{ height: '72px' }}>
           {/* Logo */}
           <Link to="/" className="flex min-h-11 shrink-0 items-center gap-2.5">
             <img src="/logo-64.webp" alt="BeskidStudio" width="32" height="32" className="h-8 w-8" />
@@ -307,7 +306,7 @@ export const Navbar = () => {
           mobileOpen ? '[clip-path:inset(0_0_0%_0)]' : '[clip-path:inset(0_0_100%_0)]'
         } ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
         aria-hidden={!mobileOpen}
-        style={{ background: '#1A3828' }}
+        style={{ background: '#1A3828', paddingTop: 'env(safe-area-inset-top)' }}
       >
             {/* Header row */}
             <div className="container flex items-center justify-between" style={{ height: '72px' }}>
