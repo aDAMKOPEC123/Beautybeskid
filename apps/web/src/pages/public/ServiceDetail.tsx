@@ -336,17 +336,22 @@ export const ServiceDetail = () => {
             </span>
           </div>
           {service.promoPrice != null && (
-            <div className="flex flex-wrap items-center justify-center gap-3 text-sm mb-4" style={{ color: '#C4965A' }}>
-              {service.promoEndDate && (
-                <span>Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}</span>
-              )}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-6">
               {service.promoUsesRemaining != null && (
-                <span className={`font-semibold px-3 py-1 rounded-full text-xs ${
-                  service.promoUsesRemaining <= 3
-                    ? 'bg-red-600 text-white'
-                    : 'bg-espresso/10 text-espresso'
-                }`}>
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm"
+                  style={{
+                    background: service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828',
+                    color: '#fff',
+                    letterSpacing: '0.08em',
+                  }}
+                >
                   Tylko dla {service.promoUsesRemaining} osób
+                </span>
+              )}
+              {service.promoEndDate && (
+                <span className="text-sm" style={{ color: '#C4965A' }}>
+                  Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}
                 </span>
               )}
             </div>

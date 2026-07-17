@@ -366,13 +366,16 @@ function StepService({
                     <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
                   </div>
                   {service.promoPrice != null ? (
-                    <div className="flex flex-col items-end gap-0.5">
+                    <div className="flex flex-col items-end gap-1">
                       <span className="flex items-center gap-1.5">
                         <span className="text-xs line-through opacity-50">{Number(service.price).toFixed(2)} zł</span>
                         <span className="font-bold" style={{ color: '#dc2626' }}>{service.promoPrice.toFixed(2)} zł</span>
                       </span>
                       {service.promoUsesRemaining != null && (
-                        <span className={`text-[10px] font-semibold ${service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full text-white"
+                          style={{ background: service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828' }}
+                        >
                           Tylko dla {service.promoUsesRemaining} osób
                         </span>
                       )}
@@ -1447,8 +1450,13 @@ export const BookingWizard = () => {
                 <span style={{ color: '#dc2626' }}>{state.service.promoPrice.toFixed(2)} zł</span>
               </p>
               {state.service.promoUsesRemaining != null && (
-                <p className={`text-[10px] font-semibold mt-0.5 ${state.service.promoUsesRemaining <= 3 ? 'text-red-500' : ''}`} style={state.service.promoUsesRemaining > 3 ? { color: '#C4965A' } : undefined}>
-                  Tylko dla {state.service.promoUsesRemaining} osób
+                <p className="mt-1">
+                  <span
+                    className="text-[9px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full text-white inline-block"
+                    style={{ background: state.service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828' }}
+                  >
+                    Tylko dla {state.service.promoUsesRemaining} osób
+                  </span>
                 </p>
               )}
               {promoCountdown(state.service.promoEndDate) && (
