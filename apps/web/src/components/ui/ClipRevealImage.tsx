@@ -28,8 +28,9 @@ export const ClipRevealImage = ({
       ref={ref}
       className={cn('overflow-hidden', wrapperClassName)}
       style={{
-        clipPath: revealed ? 'inset(0% 0 0 0)' : 'inset(100% 0 0 0)',
-        transition: 'clip-path 0.7s cubic-bezier(0.76,0,0.24,1)',
+        opacity: revealed ? 1 : 0,
+        transform: revealed ? 'translateY(0)' : 'translateY(10px)',
+        transition: 'opacity 0.35s ease-out, transform 0.35s ease-out',
       }}
     >
       <img
@@ -41,8 +42,8 @@ export const ClipRevealImage = ({
           className
         )}
         style={{
-          transform: revealed ? 'scale(1)' : 'scale(1.05)',
-          transition: 'transform 0.9s cubic-bezier(0.76,0,0.24,1)',
+          transform: revealed ? 'scale(1)' : 'scale(1.02)',
+          transition: 'transform 0.45s ease-out',
         }}
         onError={onError}
       />

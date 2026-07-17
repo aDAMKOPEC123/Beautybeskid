@@ -35,6 +35,7 @@ import { servicesApi } from '@/api/services.api';
 import { SEO } from '@/lib/seo-config';
 import { blogApi } from '@/api/blog.api';
 import { metamorphosesApi } from '@/api/metamorphoses.api';
+import { aboutApi } from '@/api/about.api';
 
 const heroImage = '/images/beautybeskid-hero-premium.webp';
 const ConsultationModal = lazy(() =>
@@ -1560,20 +1561,41 @@ const ReservationFormSection = ({
   );
 };
 
-const AboutOwnerSection = () => (
-  <section className="home-deferred-section bg-cream py-16 md:py-24" aria-labelledby="about-heading">
+const AboutOwnerSection = () => {
+  const { data: about } = useQuery({
+    queryKey: ['about'],
+    queryFn: aboutApi.get,
+    staleTime: 300_000,
+  });
+  const [ownerImgError, setOwnerImgError] = useState(false);
+  const ownerPhoto = about?.ownerPhoto;
+
+  return (
+    <section className="home-deferred-section bg-cream py-16 md:py-24" aria-labelledby="about-heading">
     <div className="container max-w-6xl px-5">
       <FadeUp>
         <div className="grid items-center gap-8 md:grid-cols-[auto_1fr]">
           <div className="mx-auto h-48 w-48 overflow-hidden rounded-full border-4 border-oak/25 bg-white shadow-lg md:mx-0">
-            <img
-              src="/images/beautybeskid-hero-premium.webp"
-              alt="Wiktoria Ćwik — dyplomowany kosmetolog, BeskidStudio Limanowa"
-              className="h-full w-full object-cover"
-              loading="lazy"
-              width={192}
-              height={192}
-            />
+            {ownerPhoto && !ownerImgError ? (
+              <img
+                src={ownerPhoto}
+                alt={`${about?.ownerName ?? 'Wiktoria Ćwik'} — dyplomowany kosmetolog, BeskidStudio Limanowa`}
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                width={192}
+                height={192}
+                onError={() => setOwnerImgError(true)}
+              />
+            ) : (
+              <div
+                className="flex h-full w-full items-center justify-center bg-ivory text-oak"
+                role="img"
+                aria-label="Zdjęcie Wiktorii Ćwik"
+              >
+                <BadgeCheck className="h-14 w-14" strokeWidth={1.4} />
+              </div>
+            )}
           </div>
           <div>
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">O mnie</p>
@@ -1614,8 +1636,9 @@ const AboutOwnerSection = () => (
         </div>
       </FadeUp>
     </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const BlogPreviewSection = ({ posts }: { posts: any[] }) => {
   if (posts.length === 0) return null;
