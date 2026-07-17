@@ -419,7 +419,7 @@ const NextSlotCard = ({
         ) : (
           <>
             <p className="mt-2 font-heading text-2xl font-bold text-espresso">Dobierzemy termin</p>
-            <p className="mt-2 text-sm leading-relaxed text-espresso/60">
+            <p className="mt-2 text-sm leading-relaxed text-espresso/72">
               Zostaw kontakt, a wrócimy z najlepszą propozycją wizyty.
             </p>
           </>
@@ -443,7 +443,7 @@ const NextSlotCard = ({
         <ArrowRight className="h-4 w-4" />
       </Button>
     )}
-    <p className="mt-3 text-center text-xs text-espresso/55">Bezpłatna konsultacja dla nowych klientek</p>
+    <p className="mt-3 text-center text-xs text-espresso/72">Bezpłatna konsultacja dla nowych klientek</p>
   </div>
 );
 
@@ -482,7 +482,7 @@ const HeroSection = ({
               Piękno, które wygląda naturalnie. Termin, który wybierasz wygodnie.
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/75 md:text-lg">
               Wybierz zabieg dla siebie i zarezerwuj wizytę online w BeskidStudio.
             </p>
 
@@ -490,7 +490,7 @@ const HeroSection = ({
               <BookingButton to={bookingTo} state={bookingState} label="Sprawdź wolny termin" />
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/60">
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/72">
               <button
                 type="button"
                 onClick={onConsultationClick}
@@ -520,7 +520,7 @@ const HeroSection = ({
                   <p className="font-heading text-xl font-bold text-espresso">
                     {label === 'ocena Google' && googleRating ? googleRating.toFixed(1) + '/5' : value}
                   </p>
-                  <p className="mt-1 text-xs leading-snug text-espresso/58">{label}</p>
+                  <p className="mt-1 text-xs leading-snug text-espresso/72">{label}</p>
                 </div>
               ))}
             </div>
@@ -608,7 +608,7 @@ const PodologyPromoSection = () => (
             <h2 id="podology-home-heading" className="font-heading text-3xl font-bold text-espresso">
               Rezerwacja usług podologicznych dostępna tylko pod numerem telefonu
             </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-espresso/65 md:text-base">
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-espresso/75 md:text-base">
               Pedicure podologiczny, konsultacje stóp i pomoc przy problematycznych paznokciach umawiamy obecnie wyłącznie telefonicznie. Dokładny adres otrzymasz podczas ustalania terminu.
             </p>
           </div>
@@ -802,7 +802,7 @@ const AvailabilityPreviewSection = ({
                             }`}
                           >
                             <span className="block text-sm font-semibold">{service.name}</span>
-                            <span className={`mt-1 block text-xs ${selectedService?.id === service.id ? 'text-espresso/62' : 'text-ivory/50'}`}>
+                            <span className={`mt-1 block text-xs ${selectedService?.id === service.id ? 'text-espresso/72' : 'text-ivory/75'}`}>
                               {service.durationMinutes} min
                             </span>
                           </button>
@@ -940,7 +940,7 @@ const AvailabilityPreviewSection = ({
                       ? 'Teraz wybierz usługę z tej kategorii'
                       : 'Kategorie porządkują aktualną ofertę'}
                   </p>
-                  <p className="mt-2 text-xs leading-relaxed text-espresso/48">
+                  <p className="mt-2 text-xs leading-relaxed text-espresso/70">
                     {selectedService
                       ? 'Dostępne godziny są liczone dla wybranej usługi i jej czasu trwania.'
                       : 'Po wyborze usługi aktywujemy kalendarz i wolne godziny.'}
@@ -951,7 +951,7 @@ const AvailabilityPreviewSection = ({
 
               <div className="mt-5 flex-1 rounded-lg bg-cream/55 p-4">
                 {servicesLoading ? (
-                  <p className="mb-4 rounded-lg border border-oak/20 bg-white px-3 py-2 text-xs text-espresso/55">
+                  <p className="mb-4 rounded-lg border border-oak/20 bg-white px-3 py-2 text-xs text-espresso/72">
                     Ładuję aktualną ofertę...
                   </p>
                 ) : null}
@@ -959,7 +959,7 @@ const AvailabilityPreviewSection = ({
                   <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
                     <div>
                       <p className="font-semibold text-espresso">Brak aktywnych usług do sprawdzenia</p>
-                      <p className="mt-2 text-sm text-espresso/58">
+                      <p className="mt-2 text-sm text-espresso/72">
                         Terminy pojawią się tutaj, gdy w ofercie będzie dostępna usługa do rezerwacji.
                       </p>
                     </div>
@@ -968,7 +968,7 @@ const AvailabilityPreviewSection = ({
                   <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
                     <div>
                       <p className="font-semibold text-espresso">Wybierz kategorię</p>
-                      <p className="mt-2 text-sm text-espresso/58">
+                      <p className="mt-2 text-sm text-espresso/72">
                         Po wyborze kategorii pokażemy tylko pasujące usługi i odblokujemy sprawdzanie terminów.
                       </p>
                     </div>
@@ -977,14 +977,14 @@ const AvailabilityPreviewSection = ({
                   <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
                     <div>
                       <p className="font-semibold text-espresso">Wybierz usługę</p>
-                      <p className="mt-2 text-sm text-espresso/58">
+                      <p className="mt-2 text-sm text-espresso/72">
                         Lista po lewej pokazuje usługi tylko z kategorii: {selectedCategory}.
                       </p>
                     </div>
                   </div>
                 ) : slotsFetching ? (
                   <div className="grid min-h-[220px] place-items-center text-center">
-                    <p className="text-sm text-espresso/55">Sprawdzam godziny dla wybranego dnia...</p>
+                    <p className="text-sm text-espresso/72">Sprawdzam godziny dla wybranego dnia...</p>
                   </div>
                 ) : availableDaySlots.length > 0 ? (
                   <div>
@@ -1012,7 +1012,7 @@ const AvailabilityPreviewSection = ({
                   <div className="grid min-h-[220px] place-items-center rounded-lg border border-dashed border-espresso/12 bg-white/60 p-5 text-center">
                     <div>
                       <p className="font-semibold text-espresso">Brak wolnych godzin w tym dniu</p>
-                      <p className="mt-2 text-sm text-espresso/58">
+                      <p className="mt-2 text-sm text-espresso/72">
                         Wybierz zielony dzień w kalendarzu albo sprawdź kolejny miesiąc.
                       </p>
                     </div>
@@ -1021,7 +1021,7 @@ const AvailabilityPreviewSection = ({
               </div>
 
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-sm text-espresso/58">
+                <div className="text-sm text-espresso/72">
                   {selectedTime ? (
                     <span>
                       Wybrano: <strong className="text-espresso">{selectedDateLabel}, {selectedTime}</strong>
@@ -1085,7 +1085,7 @@ const ServicesSection = ({
         </FadeUp>
 
         {servicesLoading ? (
-          <div className="rounded-lg border border-espresso/10 bg-white p-6 text-center text-sm text-espresso/60 shadow-sm">
+          <div className="rounded-lg border border-espresso/10 bg-white p-6 text-center text-sm text-espresso/72 shadow-sm">
             Ładuję aktualną ofertę...
           </div>
         ) : (
@@ -1094,7 +1094,7 @@ const ServicesSection = ({
               <FadeUp className="md:col-span-2 xl:col-span-4">
                 <article className="rounded-lg border border-dashed border-espresso/15 bg-white p-6 text-center shadow-sm">
                   <h3 className="font-heading text-2xl font-bold text-espresso">Zapytaj o aktualną ofertę i termin</h3>
-                  <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-espresso/60">
+                  <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-espresso/72">
                     Zadzwoń pod numer <a href={`tel:${SEO.phone}`} className="font-semibold text-espresso">532 128 227</a>. Pomożemy dobrać usługę i sprawdzimy najbliższy wolny termin.
                   </p>
                 </article>
@@ -1122,10 +1122,10 @@ const ServicesSection = ({
                       <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">
                         {service.category || 'Usługa z panelu'}
                       </p>
-                      <p className="mt-4 text-sm leading-relaxed text-espresso/62">{service.description}</p>
+                      <p className="mt-4 text-sm leading-relaxed text-espresso/72">{service.description}</p>
                     </div>
 
-                    <div className="mt-5 grid gap-2 text-sm text-espresso/68 sm:grid-cols-3">
+                    <div className="mt-5 grid gap-2 text-sm text-espresso/75 sm:grid-cols-3">
                       <span className="flex items-center gap-2 rounded-lg bg-cream/70 px-3 py-2">
                         <BadgeCheck className="h-4 w-4 text-oak" />
                         {formatAdminServicePrice(service)}
@@ -1208,7 +1208,7 @@ const SeasonalSection = ({
             <FadeUp key={service.id} delay={index * 0.06}>
               <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-5 shadow-sm">
                 <h3 className="font-heading text-xl font-bold text-espresso">{service.name}</h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-espresso/62">{service.description}</p>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-espresso/72">{service.description}</p>
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <p className="font-bold text-oak">od {Number(service.price).toFixed(0)} zł</p>
                   <Button size="sm" className="gap-1 bg-espresso text-ivory" asChild>
@@ -1309,7 +1309,7 @@ const TestimonialsSection = ({
               </div>
             </div>
             <a
-              href={SEO.googleReviewUrl}
+              href={googleData?.place_url ?? SEO.googleReviewUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-oak transition-colors hover:text-walnut"
@@ -1346,7 +1346,7 @@ const TestimonialsSection = ({
               Aktualne opinie klientek są dostępne bezpośrednio w profilu Google.
             </p>
             <a
-              href={SEO.googleReviewUrl}
+              href={googleData?.place_url ?? SEO.googleReviewUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-oak transition-colors hover:text-walnut"
@@ -1417,7 +1417,7 @@ const ProcessSection = () => (
                   <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="font-heading text-2xl font-bold text-espresso">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-espresso/62">{desc}</p>
+                <p className="mt-3 text-sm leading-relaxed text-espresso/72">{desc}</p>
               </div>
             </article>
           </FadeUp>
@@ -1456,7 +1456,7 @@ const ReservationFormSection = ({
               <h2 className="font-heading text-3xl font-bold text-espresso md:text-4xl">
                 Zostaw kontakt, a dopasujemy najlepszy termin
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-espresso/62">
+              <p className="mt-3 text-sm leading-relaxed text-espresso/72">
                 Odezwiemy się, aby potwierdzić najlepszy termin i dobrać właściwy kierunek wizyty.
               </p>
 
@@ -1679,7 +1679,7 @@ const BlogPreviewSection = ({ posts }: { posts: any[] }) => {
                     {post.title}
                   </h3>
                   {post.excerpt && (
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-espresso/60 line-clamp-3">
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-espresso/72 line-clamp-3">
                       {post.excerpt}
                     </p>
                   )}
@@ -1748,7 +1748,7 @@ const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }
                       width={200}
                       height={267}
                     />
-                    <span className="absolute bottom-1 right-1 rounded bg-oak/85 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="absolute bottom-1 right-1 rounded bg-espresso/90 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       Po
                     </span>
                   </div>
@@ -1757,7 +1757,7 @@ const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }
                   <div className="p-3">
                     <p className="text-sm font-semibold text-espresso">{meta.title}</p>
                     {meta.description && (
-                      <p className="mt-1 text-xs text-espresso/55 line-clamp-2">{meta.description}</p>
+                      <p className="mt-1 text-xs text-espresso/72 line-clamp-2">{meta.description}</p>
                     )}
                   </div>
                 )}
@@ -1801,7 +1801,7 @@ const FaqSection = () => {
                   {item.name}
                   <ChevronDown className="h-5 w-5 shrink-0 text-oak transition-transform group-open:rotate-180" />
                 </summary>
-                <dd className="border-t border-espresso/10 px-5 pb-5 pt-4 text-sm leading-relaxed text-espresso/65">
+                <dd className="border-t border-espresso/10 px-5 pb-5 pt-4 text-sm leading-relaxed text-espresso/75">
                   {item.acceptedAnswer.text}
                 </dd>
               </details>
@@ -1820,7 +1820,7 @@ const AreaSection = () => (
         <h2 id="area-heading" className="font-heading text-2xl font-bold text-espresso">
           Salon kosmetologiczny Limanowa i okolice
         </h2>
-        <p className="mt-5 text-sm leading-relaxed text-espresso/64">
+        <p className="mt-5 text-sm leading-relaxed text-espresso/75">
           BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
           z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Nowego Sącza, Ujanowic, Dobrej, Kasiny Wielkiej, Sowlin,
           Tymbarku, Jodłownika oraz pobliskich miejscowości.

@@ -121,7 +121,7 @@ const ingrowingNailsFaq = (place: string): LocalSeoFaq[] => [
   {
     question: 'Czy korekcja wrastającego paznokcia boli?',
     answer:
-      'Profesjonalna korekcja nie powinna boleć — specjalista dobiera metodę do etapu problemu i ocenia stan paznokcia przed zabiegiem.',
+      'Odczucia zależą od stanu paznokcia i tkanek. Przed rozpoczęciem specjalista ocenia problem, omawia możliwe postępowanie i dba o komfort podczas wizyty.',
   },
 ];
 
@@ -139,7 +139,7 @@ const spaStopFaq = (place: string): LocalSeoFaq[] => [
   {
     question: 'Jak często warto korzystać z SPA stóp?',
     answer:
-      'Optymalna częstotliwość to co 3–4 tygodnie, zwłaszcza w sezonie letnim, gdy stopy są bardziej eksponowane. Regularne zabiegi pomagają utrzymać skórę stóp w dobrej kondycji i zapobiegają pękaniu pięt.',
+      'Częstotliwość dobieramy do kondycji skóry i efektu po pierwszej wizycie. Zalecenia pielęgnacyjne pomagają utrzymać komfort między zabiegami.',
   },
   {
     question: 'Ile trwa zabieg SPA stóp?',
@@ -167,12 +167,12 @@ const podologiaFaq = (place: string): LocalSeoFaq[] => [
   {
     question: 'Jakie problemy ze stopami wymagają wizyty u podologa?',
     answer:
-      'Do podologa warto udać się z wrastającymi paznokciami, bolesnymi odciskami i zrogowaceniami, grzybicą paznokci, pękającymi piętami, nadmierną potliwością stóp oraz przy problemach z chodzeniem związanych z kondycją stóp.',
+      'Do podologa warto udać się z wrastającymi paznokciami, bolesnymi odciskami i zrogowaceniami, pękającymi piętami albo niepokojącą zmianą wyglądu paznokcia. Zmiany sugerujące infekcję mogą wymagać również konsultacji lekarskiej.',
   },
   {
     question: 'Czy pedicure podologiczny boli?',
     answer:
-      'Profesjonalny pedicure podologiczny nie powinien boleć. Specjalista dobiera narzędzia i technikę do problemu. Przy wrastającym paznokciu pierwsza wizyta może wiązać się z lekkim dyskomfortem, ale korekcja jest prowadzona delikatnie i stopniowo.',
+      'Odczucia podczas pedicure podologicznego zależą od stanu skóry i paznokci. Specjalista dobiera zakres pracy indywidualnie i na bieżąco reaguje na zgłaszany dyskomfort.',
   },
   {
     question: 'Ile kosztuje wizyta u podologa w okolicach Limanowej?',
@@ -318,7 +318,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Kiedy warto udać się do podologa w Limanowej?',
         content:
-          'Wizyta u podologa jest wskazana przy: bolesnych zrogowaceniach i odciskach, które utrudniają chodzenie; wrastających paznokciach z bólem lub stanem zapalnym; pękających, suchych piętach; pogrubiałych lub zniekształconych paznokciach; podejrzeniu grzybicy paznokci; nadmiernym rogowaceniu skóry stóp.\n\nNie czekaj, aż problem się pogłębi. Im wcześniej skonsultujesz stopy ze specjalistą, tym prostsza i mniej inwazyjna będzie interwencja. W BeskidStudio możesz umówić się na konsultację, podczas której ocenimy stan stóp i zaproponujemy odpowiednie postępowanie.',
+          'Warto skonsultować bolesne zrogowacenia i odciski, wrastające paznokcie, pękające pięty, nadmierne rogowacenie oraz pogrubiałe lub zniekształcone paznokcie. Jeśli występuje ropa, silny obrzęk, gorączka albo podejrzenie infekcji, potrzebna może być konsultacja lekarska.\n\nW BeskidStudio możesz umówić ocenę stóp i omówić możliwy zakres pielęgnacji podologicznej. Usługa nie zastępuje diagnozy ani leczenia prowadzonego przez lekarza.',
       },
       {
         heading: 'Pedicure podologiczny vs kosmetyczny — jakie są różnice?',
@@ -333,7 +333,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Profilaktyka zdrowia stóp — porady podologa',
         content:
-          'Zdrowe stopy to kwestia codziennych nawyków. Noś wygodne buty z odpowiednim wsparciem łuku stopy. Regularnie nawilżaj skórę stóp kremem z mocznikiem. Obcinaj paznokcie prosto, nie zaokrąglając rogów — to zapobiega wrastaniu. Codziennie myj stopy i dokładnie osuszaj przestrzenie między palcami.\n\nRegularny pedicure podologiczny co 4–6 tygodni pomaga utrzymać stopy w dobrej kondycji i pozwala wcześnie wychwycić potencjalne problemy. Szczególnie ważna jest profilaktyka u osób z cukrzycą, chorobami naczyniowymi i u seniorów.',
+          'Codzienna pielęgnacja obejmuje wygodne obuwie, delikatne mycie i dokładne osuszanie stóp oraz obcinanie paznokci prosto, bez nadmiernego skracania boków. Preparat nawilżający należy dobrać do stanu skóry.\n\nCzęstotliwość wizyt ustala się indywidualnie. Osoby z cukrzycą, zaburzeniami czucia lub chorobami naczyń powinny omówić pielęgnację stóp także z lekarzem prowadzącym i nie stosować samodzielnie agresywnych metod usuwania zmian.',
       },
     ],
   },
@@ -599,12 +599,12 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         question: 'Czy laminacja rzęs jest bezpieczna?',
         answer:
-          'Tak, laminacja rzęs wykonywana przez wykwalifikowanego kosmetologa jest zabiegiem bezpiecznym. Używamy certyfikowanych preparatów i dobieramy skręt do naturalnych rzęs. Jedynym przeciwwskazaniem są aktywne infekcje oczu, alergie na składniki preparatu oraz ciąża.',
+          'Przed zabiegiem przeprowadzamy wywiad i oceniamy okolice oczu. Aktywne podrażnienie, infekcja oka lub znana alergia na składniki preparatu wymagają odroczenia zabiegu albo konsultacji ze specjalistą.',
       },
       {
         question: 'Czym różni się laminacja rzęs od przedłużania?',
         answer:
-          'Laminacja pracuje z Twoimi naturalnymi rzęsami — podkręca je, odżywia i przyciemnia. Przedłużanie dodaje sztuczne włókna do naturalnych rzęs. Laminacja daje efekt naturalniejszy, nie obciąża rzęs i nie wymaga regularnych uzupełnień co 2–3 tygodnie.',
+          'Laminacja pracuje z naturalnymi rzęsami — zmienia ich ułożenie i może obejmować koloryzację. Przedłużanie polega na doklejaniu sztucznych włókien. To dwa różne efekty, dlatego wybór omawiamy podczas konsultacji.',
       },
       {
         question: 'Jak pielęgnować rzęsy po laminacji?',
@@ -617,27 +617,27 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Czym jest laminacja rzęs?',
         content:
-          'Laminacja rzęs to zabieg kosmetyczny, który nadaje naturalnym rzęsom piękny skręt, przyciemnia je i odżywia keratyną. Efekt przypomina użycie zalotki i tuszu jednocześnie — ale utrzymuje się przez kilka tygodni bez codziennego nakładania makijażu.\n\nZabieg polega na nałożeniu specjalnych preparatów, które modelują kształt rzęs, utrwalają skręt, a następnie odżywiają włoski keratyną i botoksem. Rzęsy wyglądają dłuższe, grubsze i bardziej podkręcone, zachowując przy tym naturalny wygląd.',
+          'Laminacja rzęs to zabieg kosmetyczny zmieniający ułożenie naturalnych rzęs. Może zostać połączona z koloryzacją, dzięki czemu rzęsy wyglądają na wyraźniej podkręcone i ciemniejsze.\n\nPreparaty i czas ich działania dobiera się do kondycji włosków oraz oczekiwanego efektu. Szczegóły zastosowanych produktów i pielęgnację po zabiegu omawiamy podczas wizyty.',
       },
       {
         heading: 'Jak przebiega zabieg laminacji rzęs w BeskidStudio?',
         content:
-          'Zabieg zaczynamy od rozmowy — oceniamy stan naturalnych rzęs, omawiamy oczekiwany skręt i dobieramy odpowiedni rozmiar wałeczka laminacyjnego. Cały proces trwa około 45–60 minut i jest bezbolesny.\n\nEtapy zabiegu: oczyszczenie rzęs i okolicy oka, nałożenie rzęs na silikonowy wałeczek, aplikacja preparatu liftingującego, utrwalenie kształtu, koloryzacja (opcjonalnie) oraz odżywienie keratyną. Po zabiegu rzęsy są od razu gotowe — nie trzeba czekać na efekt.',
+          'Zabieg zaczynamy od rozmowy, oceny naturalnych rzęs i omówienia oczekiwanego skrętu. Następnie oczyszczamy okolice oka, układamy rzęsy na dobranej formie i wykonujemy kolejne etapy stylizacji zgodnie z procedurą używanych produktów.\n\nWizyta trwa zwykle około 45–60 minut. Wszelki dyskomfort należy od razu zgłosić osobie wykonującej zabieg.',
       },
       {
         heading: 'Laminacja rzęs a przedłużanie — co wybrać?',
         content:
-          'To częste pytanie klientek w Limanowej. Laminacja rzęs pracuje wyłącznie z naturalnymi rzęsami — podkręca je, przyciemnia i wzmacnia. Nie dodaje sztucznych włókien, więc efekt jest naturalny i nie obciąża rzęs. Utrzymuje się 6–8 tygodni bez potrzeby uzupełnień.\n\nPrzedłużanie rzęs polega na doklejaniu sztucznych włosków do naturalnych. Daje bardziej dramatyczny efekt, ale wymaga regularnych uzupełnień co 2–3 tygodnie i może osłabiać naturalne rzęsy przy długotrwałym stosowaniu. Laminacja jest idealnym wyborem dla osób ceniących naturalny look i minimalną pielęgnację.',
+          'Laminacja zmienia ułożenie naturalnych rzęs i nie dodaje sztucznych włókien. Efekt stopniowo znika wraz z naturalnym cyklem wymiany rzęs.\n\nPrzedłużanie polega na doklejaniu włókien i daje inny, zwykle mocniejszy rezultat. Wybór zależy od kondycji rzęs, oczekiwanego wyglądu i gotowości do późniejszej pielęgnacji.',
       },
       {
         heading: 'Dla kogo jest laminacja rzęs?',
         content:
-          'Laminacja rzęs sprawdzi się u osób z prostymi, opadającymi lub niewidocznymi rzęsami, które chcą podkreślić spojrzenie bez codziennego makijażu. To doskonały zabieg na wakacje, wyjazdy i dla osób z aktywnym trybem życia.\n\nZabieg jest odpowiedni praktycznie dla każdego — jedynymi przeciwwskazaniami są aktywne infekcje oczu, alergie na składniki preparatu, ciąża i okres karmienia piersią. Jeśli nosisz soczewki kontaktowe, zdejmij je przed zabiegiem.',
+          'Laminacja rzęs może odpowiadać osobom z prostymi lub mało widocznymi rzęsami, które chcą podkreślić spojrzenie bez przedłużania. Oczekiwany efekt i kondycję rzęs omawiamy przed zabiegiem.\n\nZabieg odkładamy przy aktywnym podrażnieniu lub infekcji oka. Znane alergie, choroby oczu, niedawne zabiegi okulistyczne i inne wątpliwości należy zgłosić podczas wywiadu; w razie potrzeby prosimy o konsultację lekarską. Soczewki kontaktowe trzeba zdjąć przed zabiegiem.',
       },
       {
         heading: 'Efekty laminacji rzęs — czego się spodziewać?',
         content:
-          'Po laminacji rzęsy wyglądają na dłuższe o 30–40%, bardziej podkręcone i ciemniejsze. Efekt jest widoczny natychmiast po zabiegu i utrzymuje się przez 6–8 tygodni, stopniowo zanikając wraz z naturalnym cyklem wzrostu rzęs.\n\nNajlepsze efekty osiąga się przy regularnych zabiegach — po kilku laminacjach rzęsy stają się grubsze i zdrowsze dzięki odżywieniu keratyną. Między zabiegami wystarczy delikatne czesanie szczoteczką i unikanie tłustych demakijaży.',
+          'Po laminacji rzęsy wyglądają na bardziej uniesione, uporządkowane i wyraźniejsze. Intensywność oraz trwałość efektu zależą od długości, kondycji i naturalnego cyklu wymiany rzęs.\n\nKolejnego zabiegu nie planujemy automatycznie — najpierw oceniamy stan włosków. Pielęgnacja domowa powinna być delikatna i zgodna z zaleceniami przekazanymi po wizycie.',
       },
     ],
   },
@@ -735,7 +735,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'zapisy telefoniczne: 532 128 227',
     ],
     benefits: [
-      'Profesjonalna ocena problemu zamiast domowych metod.',
+      'Ocena problemu i omówienie bezpiecznego dalszego postępowania.',
       'Kontakt telefoniczny przed wizytą pozwala właściwie dobrać jej zakres.',
       'Termin i adres odrębnej lokalizacji otrzymujesz podczas rozmowy.',
     ],
@@ -757,12 +757,12 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Metody korekcji wrastających paznokci',
         content:
-          'W BeskidStudio stosujemy nieinwazyjne metody korekcji wrastających paznokci. W zależności od stopnia zaawansowania problemu podolog dobiera odpowiednią technikę — od tamponady i prawidłowego przycięcia paznokcia, przez korekcję klamrą, po specjalistyczne opatrunki zmniejszające nacisk paznokcia na wał.\n\nKorekcja klamrą (np. klamra Titana lub VHO) to jedna z najskuteczniejszych metod — delikatnie unosi brzeg paznokcia, prostuje jego wzrost i zmniejsza ból już po pierwszym założeniu. Cały proces jest bezbolesny i nie wymaga znieczulenia.',
+          'Sposób postępowania zależy od stanu paznokcia i otaczających tkanek. Po ocenie problemu podolog omawia możliwy zakres pielęgnacji lub korekcji oraz informuje, kiedy potrzebna jest konsultacja lekarska.\n\nNie obiecujemy jednej metody ani natychmiastowego efektu przed obejrzeniem paznokcia. Dostępność konkretnej techniki i przewidywany plan potwierdzamy podczas konsultacji.',
       },
       {
         heading: 'Jak zapobiegać wrastaniu paznokci?',
         content:
-          'Podstawowa zasada profilaktyki to prawidłowe obcinanie paznokci — prosto, bez zaokrąglania rogów, nie za krótko. Noś wygodne buty z odpowiednią przestrzenią w palcach. Unikaj butów z wąskim noskiem i zbyt ciasnych skarpetek.\n\nRegularne wizyty u podologa co 4–6 tygodni pozwalają kontrolować wzrost paznokci i wychwycić problem na wczesnym etapie. Jeśli masz skłonność do wrastania, podolog może zaproponować profilaktyczną tamponadę, która uczy paznokieć prawidłowego kierunku wzrostu.',
+          'Paznokci nie należy obcinać zbyt krótko ani głęboko wycinać ich boków. Pomaga też obuwie z odpowiednią ilością miejsca na palce. Przy bólu, obrzęku lub ropnej wydzielinie nie należy samodzielnie manipulować przy paznokciu.\n\nDalsze zalecenia i termin kontroli ustala się indywidualnie po ocenie problemu. Osoby z cukrzycą powinny zgłosić wrastający paznokieć lekarzowi, ponieważ problemy stóp mogą u nich wymagać szczególnej ostrożności.',
       },
     ],
   },
@@ -887,7 +887,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Dla kogo jest SPA stóp?',
         content:
-          'SPA stóp to zabieg dla każdego, kto chce zadbać o kondycję stóp i jednocześnie się zrelaksować. Szczególnie polecamy go osobom spędzającym dużo czasu na nogach, noszącym buty na obcasie, aktywnym fizycznie oraz tym, którzy borykają się z suchą, szorstką skórą stóp.\n\nTo również doskonały pomysł na prezent — voucher na SPA stóp to oryginalny upominek na urodziny, Dzień Matki czy po prostu jako gest uwagi. Zabieg nie ma szczególnych przeciwwskazań i jest odpowiedni dla większości osób.',
+          'SPA stóp jest przeznaczone dla osób, które chcą zadbać o suchą, szorstką skórę i połączyć pielęgnację z relaksem. Zakres dobieramy po krótkiej ocenie stóp.\n\nPrzed wizytą należy zgłosić rany, aktywne stany zapalne, infekcje, zaburzenia czucia, cukrzycę i choroby naczyń. W takich sytuacjach zabieg może wymagać zmiany zakresu, odroczenia albo wcześniejszej konsultacji lekarskiej.',
       },
       {
         heading: 'SPA stóp a pedicure — czym się różnią?',
@@ -897,7 +897,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Kiedy najlepiej korzystać z SPA stóp?',
         content:
-          'Sezon letni to czas, gdy stopy są szczególnie wyeksponowane — sandały, klapki i buty otwarte wymagają zadbanych stóp. SPA stóp przed wakacjami lub po sezonie plażowym to popularny wybór naszych klientek.\n\nAle SPA stóp sprawdza się przez cały rok: zimą pomaga walczyć z suchością i pękającymi piętami, jesienią regeneruje stopy po lecie, a wiosną przygotowuje je na cieplejsze miesiące. Optymalnie warto korzystać z zabiegu co 3–4 tygodnie, żeby utrzymać skórę stóp w najlepszej kondycji.',
+          'SPA stóp można wykonać o każdej porze roku, jeśli skóra nie ma aktywnych przeciwwskazań do zabiegu. Zakres pielęgnacji dobieramy do aktualnej kondycji stóp.\n\nTermin kolejnej wizyty ustalamy indywidualnie zamiast narzucać stały rytm. Pomiędzy zabiegami ważniejsza jest regularna, łagodna pielęgnacja domowa zgodna z otrzymanymi zaleceniami.',
       },
       {
         heading: 'Korzyści z regularnej pielęgnacji stóp',
@@ -928,7 +928,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'rezerwacja online dla klientek z Limanowej i okolic',
     ],
     benefits: [
-      'Profesjonalna diagnoza i leczenie problemów stóp zamiast domowych metod.',
+      'Ocena stóp i dobór pielęgnacji podologicznej zamiast ryzykownych domowych metod.',
       'Sterylne narzędzia i bezpieczne warunki zabiegu.',
       'Indywidualne zalecenia pielęgnacyjne po każdej wizycie.',
     ],
@@ -947,12 +947,12 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Czym jest podologia?',
         content:
-          'Podologia to dziedzina zajmująca się diagnostyką, leczeniem i profilaktyką schorzeń stóp. Podolog to specjalista, który pomaga rozwiązać problemy, z którymi kosmetyczny pedicure sobie nie radzi: wrastające paznokcie, bolesne zrogowacenia, modzele, grzybicę paznokci, pękające pięty i nadmierne rogowacenie.\n\nW odróżnieniu od podiatry (lekarza stóp), podolog skupia się na nieinwazyjnych metodach pielęgnacji i korekcji. To łącznik między kosmetyką a medycyną — profesjonalna pomoc dla stóp, która nie wymaga skierowania ani wizyty u lekarza.',
+          'Podologia obejmuje ocenę oraz specjalistyczną pielęgnację skóry i paznokci stóp. Podolog może pomagać m.in. przy zrogowaceniach, odciskach, pękających piętach i problematycznych paznokciach.\n\nPodolog nie zastępuje lekarza. Zmiany wymagające diagnozy medycznej, leczenia farmakologicznego lub zabiegu lekarskiego powinny być konsultowane z odpowiednim specjalistą.',
       },
       {
         heading: 'Jakie zabiegi podologiczne oferujemy w Limanowej?',
         content:
-          'W BeskidStudio wykonujemy pełen zakres zabiegów podologicznych: pedicure leczniczy z użyciem profesjonalnych frezów, usuwanie zrogowaceń i odcisków, pielęgnację pogrubiałych i zniekształconych paznokci, pielęgnację pękających pięt oraz konsultacje stanu stóp.\n\nKażdy zabieg zaczynamy od oceny stóp i wywiadu zdrowotnego. Używamy sterylnych narzędzi jednorazowych lub sterylizowanych w autoklawie. Dobieramy metody do konkretnego problemu — nie stosujemy szablonowego podejścia.',
+          'Aktualny zakres usług podologicznych potwierdzamy telefonicznie przed rezerwacją. Może obejmować konsultację, pedicure podologiczny oraz pielęgnację wybranych zmian skóry i paznokci stóp.\n\nKażda wizyta zaczyna się od wywiadu i oceny potrzeb. Dopiero wtedy potwierdzamy możliwy zakres zabiegu, zalecenia oraz ewentualną potrzebę konsultacji lekarskiej.',
       },
       {
         heading: 'Najczęstsze problemy podologiczne klientek z Limanowej',
@@ -991,12 +991,12 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     heroPoints: [
       'pedicure leczniczy z profesjonalnymi frezami',
       'usuwanie zrogowaceń, odcisków i modzeli',
-      'sterylne narzędzia i indywidualny plan pielęgnacji',
+      'zakres zabiegu dobierany do kondycji stóp',
     ],
     benefits: [
       'Profesjonalny pedicure leczniczy zamiast domowych metod — trwałe efekty i bezpieczeństwo.',
       'Indywidualna ocena stóp i dopasowanie zabiegu do problemu.',
-      'Sterylne warunki, jednorazowe narzędzia, komfortowa atmosfera gabinetu.',
+      'Jasne omówienie zakresu wizyty i zaleceń pielęgnacyjnych.',
     ],
     visitSteps: [
       'Wywiad i ocena stanu stóp — identyfikujemy problemy i dobieramy zakres zabiegu.',
@@ -1021,7 +1021,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       {
         heading: 'Jak często korzystać z pedicure podologicznego?',
         content:
-          'Optymalny odstęp między zabiegami to 4–6 tygodni. Regularny pedicure podologiczny pomaga kontrolować zrogowacenia, utrzymuje paznokcie w zdrowiu i pozwala wychwycić potencjalne problemy na wczesnym etapie.\n\nOsoby z cukrzycą, chorobami naczyniowymi i seniorzy powinni korzystać z pedicure podologicznego regularnie — co 3–4 tygodnie. Zdrowe stopy to fundament komfortowego chodzenia i codziennego funkcjonowania.',
+          'Odstęp między zabiegami zależy od stanu skóry i paznokci, tempa narastania zmian oraz zaleceń po pierwszej wizycie. Nie wyznaczamy jednej częstotliwości dla wszystkich.\n\nOsoby z cukrzycą, zaburzeniami czucia lub chorobami naczyń wymagają szczególnej ostrożności. Zakres i częstotliwość pielęgnacji należy w ich przypadku uzgodnić również z lekarzem prowadzącym.',
       },
       {
         heading: 'Cennik pedicure podologicznego w Limanowej',

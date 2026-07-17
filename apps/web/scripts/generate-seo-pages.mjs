@@ -95,7 +95,7 @@ const corePages = [
   },
   {
     path: '/uslugi',
-    title: 'Usługi kosmetyczne – Salon Limanowa | BeskidStudio Wiktoria Ćwik',
+    title: 'Usługi kosmetyczne Limanowa | BeskidStudio',
     description: 'Salon koło Limanowej: laminacja brwi i rzęs, oprawa oka i pielęgnacja skóry. Podologia w odrębnej lokalizacji: tel. 532 128 227.',
     heading: 'Usługi kosmetyczne – Limanowa i Mordarka',
     lead: 'Sprawdź aktualne zabiegi BeskidStudio Wiktoria Ćwik, ich czas, ceny oraz najbliższe terminy.',
@@ -114,7 +114,7 @@ const corePages = [
   {
     path: '/blog',
     title: 'Blog kosmetologiczny | BeskidStudio Wiktoria Ćwik',
-    description: 'Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach, brwiach i rzęsach. Przeczytaj artykuły Wiktorii Ćwik.',
+    description: 'Porady kosmetologa z Limanowej o pielęgnacji skóry, zabiegach, brwiach i rzęsach. Przeczytaj praktyczne artykuły Wiktorii Ćwik.',
     heading: 'Blog kosmetologiczny Wiktorii Ćwik',
     lead: 'Praktyczne wskazówki o świadomej pielęgnacji skóry, przygotowaniu do zabiegów oraz opiece po wizycie.',
     items: ['Pielęgnacja skóry', 'Laminacja brwi i rzęs', 'Zabiegi na twarz', 'Kosmetologia i zalecenia po zabiegach'],
@@ -132,7 +132,7 @@ const corePages = [
   {
     path: '/metamorfozy',
     title: 'Efekty zabiegów i metamorfozy | BeskidStudio Limanowa',
-    description: 'Zobacz efekty zabiegów wykonanych w BeskidStudio Wiktoria Ćwik koło Limanowej. Galeria metamorfoz przed i po.',
+    description: 'Zobacz efekty zabiegów wykonanych w BeskidStudio Wiktoria Ćwik koło Limanowej. Galeria rzeczywistych metamorfoz brwi, rzęs i skóry.',
     heading: 'Efekty zabiegów – metamorfozy',
     lead: 'Galeria efektów pracy BeskidStudio Wiktoria Ćwik dla klientek z Limanowej, Mordarki i okolic.',
     items: ['Efekty przed i po', 'Naturalne rezultaty', 'Indywidualnie dobrane zabiegi'],
@@ -150,7 +150,7 @@ const corePages = [
   {
     path: '/regulamin',
     title: 'Regulamin i polityka prywatności | BeskidStudio',
-    description: 'Regulamin serwisu, zasady rezerwacji oraz polityka prywatności BeskidStudio Wiktoria Ćwik.',
+    description: 'Regulamin serwisu, zasady rezerwacji wizyt, płatności, odwoływania terminów oraz polityka prywatności BeskidStudio Wiktoria Ćwik.',
     heading: 'Regulamin i polityka prywatności',
     lead: 'Zasady korzystania z serwisu, rezerwacji wizyt oraz informacje dotyczące przetwarzania danych.',
     items: ['Zasady rezerwacji', 'Płatności i odwołanie wizyty', 'Prywatność i dane osobowe'],
@@ -171,9 +171,9 @@ const localPages = [
   ['laminacja-brwi-limanowa', 'Laminacja brwi w Limanowej — dojazd i FAQ', 'Lokalny przewodnik po laminacji brwi: przebieg zabiegu, efekt, trwałość i rezerwacja.', 'Laminacja brwi to zabieg porządkujący kierunek włosków i nadający brwiom pełniejszy, naturalny wygląd. Efekt utrzymuje się 4–6 tygodni. Przed zabiegiem oceniamy stan włosków i dobieramy stylizację do rysów twarzy. Po wizycie klientka otrzymuje zalecenia pielęgnacyjne, które pomagają przedłużyć rezultat. W BeskidStudio laminację można połączyć z koloryzacją lub regulacją brwi. Aktualną cenę i wolne terminy sprawdzisz w rezerwacji online.'],
   ['laminacja-rzes-limanowa', 'Laminacja rzęs Limanowa', 'Lifting i laminacja rzęs — naturalne podkreślenie spojrzenia bez przedłużania.', 'Laminacja rzęs unosi naturalne włoski i nadaje im widoczny skręt bez konieczności codziennego tuszowania. Zabieg trwa około 60 minut i daje efekt na 4–6 tygodni. Przed wizytą oceniamy kondycję rzęs i dobieramy optymalny skręt. Klientka po zabiegu otrzymuje wskazówki pielęgnacyjne — unikanie wody i pary przez 24h, delikatne oczyszczanie. Terminy dla klientek z Limanowej i okolic sprawdzisz online.'],
   ['oprawa-oka-limanowa', 'Oprawa oka Limanowa', 'Laminacja brwi i rzęs, henna, regulacja — zabiegi łączone w jedną wizytę.', 'Oprawa oka to zestaw zabiegów na brwi i rzęsy wykonywanych podczas jednej wizyty. Może obejmować laminację brwi, lifting rzęs, koloryzację henną i regulację kształtu. Zakres dobieramy do naturalnego kształtu twarzy, oczekiwanego efektu i stanu włosków. Dzięki połączeniu kilku zabiegów oszczędzasz czas i uzyskujesz spójny rezultat. Aktualne zestawy, ceny i czas wykonania sprawdzisz na stronie usług BeskidStudio.'],
-  ['podolog-limanowa', 'Podolog Limanowa', 'Pedicure podologiczny, pielęgnacja paznokci i skóry stóp. Odrębna lokalizacja, tel. 532 128 227.', 'Oferta podologiczna jest aktywna i obejmuje konsultacje stóp, pedicure podologiczny oraz pielęgnację problematycznych paznokci i skóry stóp. Wizyty odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby krótko opisać problem, ustalić odpowiedni zakres wizyty, poznać wolny termin i otrzymać dokładny adres.'],
-  ['spa-stop-limanowa', 'SPA stóp Limanowa', 'Kąpiel, peeling, nawilżanie i masaż stóp. Odrębna lokalizacja, tel. 532 128 227.', 'SPA stóp łączy kąpiel, peeling, nawilżanie i masaż. Zabieg jest aktywny i realizowany w odrębnej lokalizacji dla osób z Limanowej i okolic. Termin, orientacyjny czas oraz dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.'],
-  ['wrastajace-paznokcie-limanowa', 'Wrastające paznokcie Limanowa', 'Aktywna konsultacja podologiczna w odrębnej lokalizacji, tel. 532 128 227.', 'Wrastającego paznokcia warto skonsultować możliwie wcześnie, szczególnie gdy pojawia się ból, zaczerwienienie lub obrzęk. Konsultacje podologiczne są aktywne i odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby omówić problem, ustalić termin i otrzymać dokładny adres.'],
+  ['podolog-limanowa', 'Podolog Limanowa', 'Konsultacje, pedicure podologiczny oraz pielęgnacja paznokci i skóry stóp. Odrębna lokalizacja, tel. 532 128 227.', 'Oferta podologiczna jest aktywna i obejmuje konsultacje stóp, pedicure podologiczny oraz pielęgnację problematycznych paznokci i skóry stóp. Wizyty odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby krótko opisać problem, ustalić odpowiedni zakres wizyty, poznać wolny termin i otrzymać dokładny adres.'],
+  ['spa-stop-limanowa', 'SPA stóp Limanowa', 'Kąpiel, peeling, nawilżanie i masaż stóp dla osób z Limanowej i okolic. Odrębna lokalizacja, tel. 532 128 227.', 'SPA stóp łączy kąpiel, peeling, nawilżanie i masaż. Zabieg jest aktywny i realizowany w odrębnej lokalizacji dla osób z Limanowej i okolic. Termin, orientacyjny czas oraz dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.'],
+  ['wrastajace-paznokcie-limanowa', 'Wrastające paznokcie Limanowa', 'Konsultacja podologiczna i dobór dalszego postępowania w odrębnej lokalizacji. Zapisy: tel. 532 128 227.', 'Wrastającego paznokcia warto skonsultować możliwie wcześnie, szczególnie gdy pojawia się ból, zaczerwienienie lub obrzęk. Konsultacje podologiczne są aktywne i odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby omówić problem, ustalić termin i otrzymać dokładny adres.'],
   ['pedicure-podologiczny-limanowa', 'Pedicure podologiczny Limanowa', 'Specjalistyczna pielęgnacja skóry i paznokci stóp. Odrębna lokalizacja, tel. 532 128 227.', 'Pedicure podologiczny to specjalistyczna pielęgnacja skóry i paznokci stóp poprzedzona oceną ich kondycji. Zakres i cena zależą od potrzeb konkretnej osoby. Usługa jest aktywna i realizowana w odrębnej lokalizacji. Termin, orientacyjny koszt oraz dokładny adres potwierdzamy telefonicznie pod numerem 532 128 227.'],
 ].map(([slug, label, offer, bodyText]) => {
   const phoneOnly = ['podolog-limanowa', 'spa-stop-limanowa', 'wrastajace-paznokcie-limanowa', 'pedicure-podologiczny-limanowa'].includes(slug);
@@ -444,7 +444,10 @@ const loadDynamicPages = async () => {
       };
     });
 
-  return [...servicePages, ...postPages];
+  return {
+    pages: [...servicePages, ...postPages],
+    services: services.filter((service) => service.isActive !== false),
+  };
 };
 
 const loadGoogleReviews = async () => {
@@ -529,7 +532,7 @@ const staticContent = ({
           <ul style="margin:18px 0;padding-left:22px;line-height:1.9">${items.filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
         </section>
         ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
-        ${googleReviews?.reviews?.length ? `<section aria-labelledby="seo-google-reviews"><h2 id="seo-google-reviews">Opinie Google</h2><p>Ocena Google: ${escapeHtml(Number(googleReviews.rating).toFixed(1))}/5 na podstawie ${escapeHtml(googleReviews.user_ratings_total)} opinii.</p>${googleReviews.reviews.slice(0, 3).filter((review) => cleanText(review.text)).map((review) => `<blockquote><p>${escapeHtml(cleanText(review.text))}</p><footer>${escapeHtml(review.author_name)}${review.relative_time_description ? ` · ${escapeHtml(review.relative_time_description)}` : ''}</footer></blockquote>`).join('')}</section>` : ''}
+          ${googleReviews?.reviews?.length ? `<section aria-labelledby="seo-google-reviews"><h2 id="seo-google-reviews">Opinie Google</h2><p>Ocena Google: ${escapeHtml(Number(googleReviews.rating).toFixed(1))}/5 na podstawie ${escapeHtml(googleReviews.user_ratings_total)} opinii. <a href="${escapeHtml(googleReviews.place_url || 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505')}">Zobacz aktualny profil firmy w Google</a>.</p>${googleReviews.reviews.slice(0, 3).filter((review) => cleanText(review.text)).map((review) => `<blockquote><p>${escapeHtml(cleanText(review.text))}</p><footer>${escapeHtml(review.author_name)}${review.relative_time_description ? ` · ${escapeHtml(review.relative_time_description)}` : ''}</footer></blockquote>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
           <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt</a><a href="/blog">Poradniki</a>${phoneOnly ? '<a href="tel:+48532128227">Zadzwoń w sprawie podologii</a>' : '<a href="/rezerwacja">Umów wizytę</a>'}<!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a><!--/email_off-->
         </nav>
@@ -558,7 +561,7 @@ const renderPage = (page) => {
     name: page.title,
     description: page.description,
     url: canonical,
-    isPartOf: { '@type': 'WebSite', name: 'BeskidStudio Wiktoria Ćwik', url: DOMAIN },
+    isPartOf: { '@type': 'WebSite', name: 'BeskidStudio By Wiktoria Ćwik', url: DOMAIN },
   };
   const serializedSchema = JSON.stringify(schema).replaceAll('<', '\\u003c');
   const robots = page.noIndex ? 'noindex,nofollow,noarchive' : 'index,follow,max-image-preview:large';
@@ -599,12 +602,27 @@ const writePage = async (page) => {
   await writeFile(path.join(directory, 'index.html'), html);
 };
 
-const [dynamicPages, googleReviews] = await Promise.all([
+const [{ pages: dynamicPages, services }, googleReviews] = await Promise.all([
   loadDynamicPages(),
   loadGoogleReviews(),
 ]);
+
+const serviceCatalogHtml = services.length
+  ? `<section aria-labelledby="seo-service-catalog"><h2 id="seo-service-catalog">Aktualny cennik usług</h2>${services.map((service) => `<article><h3><a href="/uslugi/${escapeHtml(service.slug)}">${escapeHtml(service.name)}</a></h3><p><strong>${escapeHtml(service.price)} zł</strong> · ${escapeHtml(service.durationMinutes)} min${service.category ? ` · ${escapeHtml(service.category)}` : ''}</p>${service.description ? `<p>${escapeHtml(truncate(service.description, 260))}</p>` : ''}</article>`).join('')}</section>`
+  : '';
+
 const pages = [
-  ...corePages.map((page) => (page.path === '/' ? { ...page, googleReviews } : page)),
+  ...corePages.map((page) => {
+    if (page.path === '/') return { ...page, googleReviews };
+    if (page.path === '/uslugi' && serviceCatalogHtml) {
+      return {
+        ...page,
+        items: services.map((service) => `${service.name}: ${service.price} zł, ${service.durationMinutes} min`),
+        bodyHtml: `<p>${escapeHtml(page.bodyText)}</p>${serviceCatalogHtml}`,
+      };
+    }
+    return page;
+  }),
   ...localPages,
   ...unavailablePages,
   ...dynamicPages,

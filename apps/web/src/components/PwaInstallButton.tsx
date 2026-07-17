@@ -40,7 +40,7 @@ const Step = ({
   active?: boolean;
 }) => (
   <li className={`flex gap-3 rounded-xl border p-3 shadow-sm ${active ? 'border-oak/22 bg-oak/5' : 'border-oak/10 bg-white'}`}>
-    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${active ? 'bg-oak text-white' : 'bg-oak/10 text-oak'}`}>
+    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${active ? 'bg-espresso text-white' : 'bg-oak/10 text-oak'}`}>
       {number}
     </span>
     <div className="min-w-0 flex-1">
@@ -48,7 +48,7 @@ const Step = ({
         <IconBadge>{icon}</IconBadge>
         <div>
           <p className="text-sm font-bold leading-tight text-foreground">{title}</p>
-          <p className="mt-1 text-sm leading-snug text-foreground/64">{text}</p>
+          <p className="mt-1 text-sm leading-snug text-foreground/75">{text}</p>
         </div>
       </div>
     </div>
@@ -83,24 +83,34 @@ export function PwaInstallButton({ className }: Props) {
     isMobileBrowser() && !isPwaAlreadyInstalled() && !isPwaInstallHiddenForever() && !isMobileAutoSnoozed()
   );
 
-  const [modalOpen, setModalOpen] = useState(shouldAutoPrompt.current);
+  const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<PwaInstallPromptDetail | null>(
-    shouldAutoPrompt.current ? { reason: 'manual' } : null
+    null
   );
-  const [isAutoPrompt, setIsAutoPrompt] = useState(shouldAutoPrompt.current);
+  const [isAutoPrompt, setIsAutoPrompt] = useState(false);
   const impressionMarkedRef = useRef(false);
+  const autoPromptCancelledRef = useRef(false);
 
-  // Track auto-prompt shown event once
+  // Let the public page become interactive before offering installation.
   useEffect(() => {
-    if (shouldAutoPrompt.current) {
+    if (!shouldAutoPrompt.current) return;
+
+    const timeoutId = window.setTimeout(() => {
+      if (autoPromptCancelledRef.current) return;
+      setPendingNavigation({ reason: 'manual' });
+      setIsAutoPrompt(true);
+      setModalOpen(true);
       trackPwaInstallEvent('mobile_auto_prompt_shown');
-    }
+    }, 30_000);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
     const handlePromptRequest = (event: Event) => {
       if (isStandalone) return;
+      autoPromptCancelledRef.current = true;
       const detail = (event as CustomEvent<PwaInstallPromptDetail>).detail ?? {};
       setPendingNavigation(detail);
       trackPwaInstallEvent('requested', { reason: detail.reason ?? 'manual' });
@@ -138,6 +148,7 @@ export function PwaInstallButton({ className }: Props) {
   };
 
   const closeOnce = () => {
+    autoPromptCancelledRef.current = true;
     setModalOpen(false);
     setPendingNavigation(null);
     setIsAutoPrompt(false);
@@ -149,6 +160,7 @@ export function PwaInstallButton({ className }: Props) {
   };
 
   const closeForever = () => {
+    autoPromptCancelledRef.current = true;
     setModalOpen(false);
     setPendingNavigation(null);
     setIsAutoPrompt(false);
@@ -156,6 +168,7 @@ export function PwaInstallButton({ className }: Props) {
   };
 
   const openManual = () => {
+    autoPromptCancelledRef.current = true;
     setIsAutoPrompt(false);
     setPendingNavigation({ reason: 'manual' });
     trackPwaInstallEvent('floating_button_clicked');
@@ -186,7 +199,7 @@ export function PwaInstallButton({ className }: Props) {
             <div className="shrink-0 border-b border-oak/10 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex gap-3">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-oak text-white">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-espresso text-white">
                     <Smartphone className="h-6 w-6" />
                   </span>
                   <div className="min-w-0">
@@ -196,7 +209,7 @@ export function PwaInstallButton({ className }: Props) {
                     <h2 id="pwa-install-title" className="mt-1 font-heading text-xl font-semibold leading-tight text-oak">
                       {isAutoPrompt ? 'Pobierz naszą aplikację' : 'Dodaj aplikację i wracaj do wizyt jednym kliknięciem'}
                     </h2>
-                    <p className="mt-1 text-sm leading-snug text-foreground/62">
+                    <p className="mt-1 text-sm leading-snug text-foreground/75">
                       Rezerwacje, terminy i zalecenia będą zawsze pod ręką. Zajmie to kilka sekund.
                     </p>
                   </div>
@@ -204,7 +217,7 @@ export function PwaInstallButton({ className }: Props) {
                 <button
                   type="button"
                   onClick={closeOnce}
-                  className="rounded-full p-2 text-foreground/45 transition hover:bg-muted hover:text-foreground"
+                  className="rounded-full p-2 text-foreground/70 transition hover:bg-muted hover:text-foreground"
                   aria-label="Zamknij"
                 >
                   <X className="h-5 w-5" />
@@ -221,12 +234,12 @@ export function PwaInstallButton({ className }: Props) {
                     type="button"
                     onClick={handleInstall}
                     disabled={loading}
-                    className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-oak px-4 py-3 text-base font-semibold text-white shadow-lg shadow-oak/20 transition hover:bg-oak/90 disabled:opacity-60"
+                    className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-espresso px-4 py-3 text-base font-semibold text-white shadow-lg shadow-espresso/20 transition hover:bg-espresso/90 disabled:opacity-60"
                   >
                     <Download className="h-5 w-5" />
                     {loading ? 'Otwieranie...' : 'Zainstaluj aplikację'}
                   </button>
-                  <p className="text-center text-sm font-medium text-foreground/62">
+                  <p className="text-center text-sm font-medium text-foreground/75">
                     Telefon pokaże krótkie potwierdzenie.
                   </p>
                 </div>
@@ -238,7 +251,7 @@ export function PwaInstallButton({ className }: Props) {
                     <p className="text-sm font-bold text-oak">
                       {isIosChrome ? 'Chrome na iPhonie' : 'Safari na iPhonie'}
                     </p>
-                    <p className="mt-1 text-sm text-foreground/62">
+                    <p className="mt-1 text-sm text-foreground/75">
                       Zrób tylko te 3 kroki.
                     </p>
                   </div>
@@ -280,12 +293,12 @@ export function PwaInstallButton({ className }: Props) {
                     type="button"
                     onClick={handleInstall}
                     disabled={loading}
-                    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-oak px-4 py-3 text-base font-semibold text-white disabled:opacity-60"
+                    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-espresso px-4 py-3 text-base font-semibold text-white disabled:opacity-60"
                   >
                     <Download className="h-5 w-5" />
                     {loading ? 'Otwieranie...' : 'Zainstaluj aplikację'}
                   </button>
-                  <p className="text-sm text-foreground/62">
+                  <p className="text-sm text-foreground/75">
                     Możesz też użyć ikony instalacji w pasku adresu przeglądarki.
                   </p>
                 </div>
@@ -306,14 +319,14 @@ export function PwaInstallButton({ className }: Props) {
                 <button
                   type="button"
                   onClick={closeOnce}
-                  className="min-h-10 rounded-xl px-4 py-2 text-sm font-semibold text-foreground/60 transition hover:bg-muted hover:text-foreground/80"
+                  className="min-h-10 rounded-xl px-4 py-2 text-sm font-semibold text-foreground/75 transition hover:bg-muted hover:text-foreground"
                 >
                   Może później
                 </button>
                 <button
                   type="button"
                   onClick={closeForever}
-                  className="inline-flex min-h-8 items-center justify-center gap-1 rounded-xl px-4 py-1 text-[11px] font-semibold text-foreground/38 transition hover:bg-muted hover:text-foreground/60"
+                  className="inline-flex min-h-8 items-center justify-center gap-1 rounded-xl px-4 py-1 text-[11px] font-semibold text-foreground/65 transition hover:bg-muted hover:text-foreground"
                 >
                   <MoreHorizontal className="h-3.5 w-3.5" />
                   Nie pokazuj więcej
@@ -335,7 +348,7 @@ export function PwaInstallButton({ className }: Props) {
             type="button"
             onClick={openManual}
             aria-label="Zainstaluj aplikację"
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-oak text-white shadow-lg shadow-oak/40 transition-opacity hover:opacity-90"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-espresso text-white shadow-lg shadow-espresso/30 transition-opacity hover:opacity-90"
           >
             <Download className="h-5 w-5" />
           </button>

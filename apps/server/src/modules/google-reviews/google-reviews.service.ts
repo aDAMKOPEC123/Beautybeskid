@@ -10,6 +10,7 @@ interface GoogleReview {
 interface CachedData {
   rating: number;
   user_ratings_total: number;
+  place_url: string;
   reviews: GoogleReview[];
   fetchedAt: number;
 }
@@ -34,16 +35,17 @@ export async function getGoogleReviews(): Promise<CachedData> {
   const res = await fetch(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
+      'X-Goog-FieldMask': 'rating,userRatingCount,reviews,googleMapsUri',
     },
   });
   if (!res.ok) throw new Error(`Places API error: ${res.status}`);
 
-  const json = await res.json() as { rating: number; userRatingCount: number; reviews: Array<{ rating: number; text: { text: string }; authorAttribution: { displayName: string; photoUri: string }; relativePublishTimeDescription: string }> };
+  const json = await res.json() as { rating: number; userRatingCount: number; googleMapsUri?: string; reviews: Array<{ rating: number; text: { text: string }; authorAttribution: { displayName: string; photoUri: string }; relativePublishTimeDescription: string }> };
 
   cache = {
     rating: json.rating,
     user_ratings_total: json.userRatingCount,
+    place_url: json.googleMapsUri ?? 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505',
     reviews: (json.reviews || [])
       .filter(r => r.rating >= 4)
       .map(r => ({

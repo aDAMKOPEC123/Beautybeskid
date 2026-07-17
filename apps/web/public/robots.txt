@@ -1,7 +1,6 @@
 # robots.txt for kosmetologwiktoriacwik.pl
-# NOTE: Cloudflare may prepend its own AI-blocking rules. To allow AI search
-# bots (GPTBot, ClaudeBot, etc.), disable "AI Scrapers and Crawlers" blocking
-# in Cloudflare Dashboard > Security > Bots.
+# Cloudflare must keep managed AI bot blocking disabled; otherwise it prepends
+# directives before this file and creates contradictory crawler rules.
 
 User-agent: *
 Allow: /
@@ -12,24 +11,9 @@ Disallow: /admin/
 Disallow: /employee/
 Disallow: /akademia/brak-dostepu
 
-# AI search bots — explicitly allowed for search visibility
-User-agent: GPTBot
-Allow: /
-Disallow: /api/
-Disallow: /auth/
-Disallow: /user/
-Disallow: /admin/
-Disallow: /employee/
-
-User-agent: ClaudeBot
-Allow: /
-Disallow: /api/
-Disallow: /auth/
-Disallow: /user/
-Disallow: /admin/
-Disallow: /employee/
-
-User-agent: PerplexityBot
+# AI search and user-requested retrieval. Training crawlers follow the general
+# policy managed at the edge and are intentionally not overridden here.
+User-agent: OAI-SearchBot
 Allow: /
 Disallow: /api/
 Disallow: /auth/
@@ -45,15 +29,12 @@ Disallow: /user/
 Disallow: /admin/
 Disallow: /employee/
 
-User-agent: OAI-SearchBot
+User-agent: PerplexityBot
 Allow: /
 Disallow: /api/
 Disallow: /auth/
 Disallow: /user/
 Disallow: /admin/
 Disallow: /employee/
-
-User-agent: GoogleOther
-Allow: /
 
 Sitemap: https://kosmetologwiktoriacwik.pl/sitemap.xml

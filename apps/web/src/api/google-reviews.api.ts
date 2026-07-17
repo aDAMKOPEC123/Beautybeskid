@@ -12,6 +12,7 @@ export interface GoogleReview {
 export interface GoogleReviewsData {
   rating: number;
   user_ratings_total: number;
+  place_url: string;
   reviews: GoogleReview[];
 }
 
