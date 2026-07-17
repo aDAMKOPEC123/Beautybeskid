@@ -129,19 +129,19 @@ export const ServiceDetail = () => {
   }, [service?.id]);
 
   if (isLoading) return loadingSeoContent ? (
-    <main className="py-16" style={{ backgroundColor: '#F0F7F1' }} aria-busy="true">
-      <div className="container max-w-3xl mx-auto">
-        <p className="eyebrow mb-4">Oprawa oka · Limanowa</p>
-        <h1 className="font-display text-4xl md:text-6xl text-espresso" style={{ fontStyle: 'italic', fontWeight: 300 }}>
+    <main className="border-y border-espresso/10 bg-[#F8F7F2] py-14 md:py-20" aria-busy="true">
+      <div className="container mx-auto max-w-3xl px-5">
+        <p className="mb-4 text-xs font-semibold uppercase text-espresso/55">Oprawa oka · Limanowa</p>
+        <h1 className="font-heading text-4xl font-semibold text-espresso md:text-5xl">
           {loadingSeoContent.heading}
         </h1>
-        <p className="mt-6 text-lg leading-relaxed" style={{ color: 'rgba(20,40,28,0.72)' }}>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-espresso/70">
           {loadingSeoContent.description}
         </p>
-        <h2 className="mt-10 text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+        <h2 className="mt-10 font-heading text-2xl font-semibold text-espresso">
           {loadingSeoContent.sectionTitle}
         </h2>
-        <p className="mt-4 leading-relaxed" style={{ color: 'rgba(20,40,28,0.72)' }}>
+        <p className="mt-4 leading-relaxed text-espresso/70">
           {loadingSeoContent.paragraphs[0]}
         </p>
         <nav className="mt-8 flex flex-wrap gap-3" aria-label="Powiązane usługi">
@@ -275,101 +275,96 @@ export const ServiceDetail = () => {
         noIndex={service.slug === 'inne'}
       />
 
-      {/* Back link */}
-      <div className="container pt-8">
+      <div className="container max-w-7xl px-5 py-6">
         <Link
           to="/uslugi"
-          className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
-          style={{ color: 'rgba(20,40,28,0.5)' }}
+          className="inline-flex items-center gap-2 text-sm font-medium text-espresso/60 transition-colors hover:text-espresso"
         >
           <ArrowLeft size={15} /> Wróć do usług
         </Link>
       </div>
 
-      {/* Hero */}
-      <section className="py-14" style={{ backgroundColor: '#F0F7F1' }}>
-        <div className="container text-center max-w-3xl mx-auto">
+      <section className="border-y border-espresso/10 bg-[#F8F7F2] py-10 md:py-14">
+        <div
+          className={`container max-w-7xl px-5 ${
+            service.imagePath
+              ? 'grid items-center gap-9 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:gap-14'
+              : 'max-w-3xl'
+          }`}
+        >
           {service.imagePath && (
-            <div
-              className="overflow-hidden mb-10 shadow-xl"
-            >
+            <div className="aspect-[4/3] overflow-hidden rounded-lg border border-espresso/10 bg-white shadow-[0_12px_32px_rgba(26,56,40,0.08)]">
               <ClipRevealImage
                 src={service.imagePath}
                 alt={service.name}
-                wrapperClassName="w-full h-[50vh]"
-                className="w-full h-full"
+                wrapperClassName="h-full w-full"
+                className="h-full w-full object-cover"
               />
             </div>
           )}
-          <p className="eyebrow mb-4">{service.category} · {service.durationMinutes} min · Limanowa</p>
-          <h1
-            className="font-display text-4xl md:text-6xl text-espresso"
-            style={{ fontStyle: 'italic', fontWeight: 300 }}
-          >
-            {service.name}
-          </h1>
-          <div className="flex items-center justify-center gap-4 mb-8">
-            {service.promoPrice != null ? (
-              <div className="flex items-center gap-3">
-                <span className="text-xl line-through opacity-50 text-espresso">
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase text-espresso/55">
+              {service.category} · Limanowa
+            </p>
+            <h1 className="max-w-2xl font-heading text-4xl font-semibold leading-tight text-espresso md:text-5xl">
+              {service.name}
+            </h1>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-espresso/10 py-5">
+              {service.promoPrice != null ? (
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <span className="text-base text-espresso/45 line-through">
+                    {formatPrice(service.price)}
+                  </span>
+                  <span className="text-3xl font-bold text-[#A97436]">
+                    {formatPrice(service.promoPrice)}
+                  </span>
+                  <span className="rounded-full bg-[#9C2F2F] px-2.5 py-1 text-xs font-bold text-white">
+                    {service.promoDiscountType === 'PERCENTAGE'
+                      ? `-${Number(service.promoDiscountValue)}%`
+                      : `-${Number(service.promoDiscountValue)} zł`}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-3xl font-bold text-[#A97436]">
                   {formatPrice(service.price)}
                 </span>
-                <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
-                  {formatPrice(service.promoPrice)}
-                </span>
-                <span className="text-sm font-bold bg-red-600 text-white px-2.5 py-1 rounded-sm">
-                  {service.promoDiscountType === 'PERCENTAGE'
-                    ? `-${Number(service.promoDiscountValue)}%`
-                    : `-${Number(service.promoDiscountValue)} zł`}
-                </span>
-              </div>
-            ) : (
-              <span className="text-3xl font-bold" style={{ color: '#C4965A' }}>
-                {formatPrice(service.price)}
+              )}
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-espresso/65">
+                <Clock size={16} aria-hidden="true" /> {service.durationMinutes} min
               </span>
-            )}
-            <span
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-full"
-              style={{ backgroundColor: 'rgba(20,40,28,0.07)', color: '#1A3828' }}
-            >
-              <Clock size={15} /> {service.durationMinutes} min
-            </span>
-          </div>
-          {service.promoPrice != null && (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-6">
-              {service.promoUsesRemaining != null && (
-                <span
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm"
-                  style={{
-                    background: service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828',
-                    color: '#fff',
-                    letterSpacing: '0.08em',
-                  }}
-                >
-                  Tylko dla {service.promoUsesRemaining} osób
-                </span>
-              )}
-              {service.promoEndDate && (
-                <span className="text-sm" style={{ color: '#C4965A' }}>
-                  Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}
-                </span>
-              )}
             </div>
-          )}
-          <button
-            className="text-base font-semibold px-10 py-3.5 rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#1A3828' }}
-            onClick={() => navigate(`/rezerwacja?serviceId=${service.id}`)}
-          >
-            Umów wizytę
-          </button>
+
+            {service.promoPrice != null && (service.promoUsesRemaining != null || service.promoEndDate) && (
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                {service.promoUsesRemaining != null && (
+                  <span className={`rounded-full px-3 py-1.5 text-xs font-bold text-white ${
+                    service.promoUsesRemaining <= 3 ? 'bg-[#9C2F2F]' : 'bg-espresso'
+                  }`}>
+                    Tylko dla {service.promoUsesRemaining} osób
+                  </span>
+                )}
+                {service.promoEndDate && (
+                  <span className="text-sm text-espresso/65">
+                    Promocja do {new Date(service.promoEndDate).toLocaleDateString('pl-PL')}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <button
+              className="mt-7 w-full rounded-full bg-espresso px-8 py-3.5 text-base font-semibold text-white shadow-[0_6px_16px_rgba(26,56,40,0.16)] transition-colors hover:bg-espresso/90 sm:w-auto"
+              onClick={() => navigate(`/rezerwacja?serviceId=${service.id}`)}
+            >
+              Umów wizytę
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Content */}
-      <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
-        <div className="container max-w-3xl mx-auto">
-          <p className="text-lg leading-relaxed mb-10 text-center" style={{ color: 'rgba(20,40,28,0.6)' }}>
+      <section className="bg-white py-14 md:py-16">
+        <div className="container mx-auto max-w-3xl px-5">
+          <p className="mb-10 text-lg leading-relaxed text-espresso/70">
             {service.description}
           </p>
           {service.detailedContent && (
@@ -381,8 +376,8 @@ export const ServiceDetail = () => {
       </section>
 
       {seoContent && (
-        <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
-          <div className="container max-w-3xl mx-auto">
+        <section className="border-y border-espresso/10 bg-[#F8F7F2] py-16">
+          <div className="container mx-auto max-w-3xl px-5">
             <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6" style={{ color: '#1A3828' }}>
               {seoContent.sectionTitle}
             </h2>
@@ -391,7 +386,7 @@ export const ServiceDetail = () => {
             </div>
             <ul className="mt-8 grid gap-3" aria-label="Zakres usługi">
               {seoContent.highlights.map((highlight) => (
-                <li key={highlight} className="rounded-2xl bg-white px-5 py-4 font-medium" style={{ color: '#1A3828' }}>
+                <li key={highlight} className="rounded-lg border border-espresso/10 bg-white px-5 py-4 font-medium text-espresso">
                   {highlight}
                 </li>
               ))}
@@ -420,10 +415,9 @@ export const ServiceDetail = () => {
         </section>
       )}
 
-      {/* Reviews */}
-      <section className="py-14" style={{ backgroundColor: '#F4F9F5' }}>
-        <div className="container max-w-3xl mx-auto">
-          <h2 className="text-2xl font-heading font-bold mb-6 text-center" style={{ color: '#1A3828' }}>
+      <section className="bg-white py-14">
+        <div className="container mx-auto max-w-3xl px-5">
+          <h2 className="mb-6 text-left font-heading text-2xl font-bold text-espresso">
             Opinie klientek
           </h2>
           <ReviewsList serviceId={service.id} />
