@@ -9,6 +9,7 @@ build/
 
 # Environment variables (NEVER commit these)
 .env
+.env.deploy
 .env.local
 .env.*.local
 

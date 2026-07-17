@@ -7,11 +7,57 @@
 
 set -e
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+DEPLOY_ENV_FILE="$SCRIPT_DIR/.env.deploy"
+
+if [ -f "$DEPLOY_ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$DEPLOY_ENV_FILE"
+  set +a
+fi
+
 VPS="ubuntu@51.83.160.253"
 REMOTE_DIR="/home/ubuntu/cosmo-app"
 WEBROOT="/var/www/kosmetologwiktoriacwik.pl"
 
 MODE=${1:-"full"}
+
+if [ "$MODE" != "full" ] && [ "$MODE" != "frontend" ] && [ "$MODE" != "backend" ]; then
+  echo "ERROR: unsupported deploy mode: $MODE"
+  echo "Usage: ./deploy.sh [full|frontend|backend]"
+  exit 1
+fi
+
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+  if [ -z "${CLOUDFLARE_ZONE_ID:-}" ] || [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+    echo "ERROR: frontend deploy requires CLOUDFLARE_ZONE_ID and CLOUDFLARE_API_TOKEN."
+    echo "Fill in both values in $DEPLOY_ENV_FILE."
+    exit 1
+  fi
+fi
+
+purge_cloudflare_cache() {
+  local response
+
+  echo "Purging Cloudflare edge cache..."
+  response=$(
+    curl --fail --silent --show-error \
+      --request POST \
+      "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+      --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+      --header "Content-Type: application/json" \
+      --data '{"purge_everything":true}'
+  )
+
+  if ! printf '%s' "$response" | grep -Eq '"success"[[:space:]]*:[[:space:]]*true'; then
+    echo "ERROR: Cloudflare did not confirm the cache purge."
+    printf '%s\n' "$response"
+    return 1
+  fi
+
+  echo "      Cloudflare cache purged."
+}
 
 echo "=== COSMO Deploy ($MODE) ==="
 
@@ -75,6 +121,10 @@ fi
 
 echo "Checking Cloudflare Tunnel when installed..."
 ssh "$VPS" "if systemctl is-active --quiet cloudflared-cosmo.service; then curl --fail --silent --show-error http://127.0.0.1:20241/ready >/dev/null; fi"
+
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+  purge_cloudflare_cache
+fi
 
 echo "Checking that every sitemap URL returns 200 without a redirect..."
 SITEMAP_XML=$(
