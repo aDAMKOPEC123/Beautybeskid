@@ -160,8 +160,8 @@ export function MobileBottomNav() {
             />
 
             <motion.div
-              className="fixed bottom-16 left-0 right-0 z-50 max-h-[calc(100svh-5rem)] overflow-y-auto overscroll-contain rounded-t-2xl p-4 pb-6 shadow-xl lg:hidden"
-              style={{ background: '#F4F9F5', borderTop: '1px solid rgba(0,0,0,0.07)' }}
+              className="fixed left-0 right-0 z-50 max-h-[calc(100svh-5rem)] overflow-y-auto overscroll-contain rounded-t-2xl p-4 pb-6 shadow-xl lg:hidden"
+              style={{ background: '#F4F9F5', borderTop: '1px solid rgba(0,0,0,0.07)', bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
               variants={activePanelVariants}
               initial="hidden"
               animate="visible"
@@ -241,7 +241,7 @@ export function MobileBottomNav() {
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 lg:hidden"
         style={{
-          height: '64px',
+          height: 'calc(64px + env(safe-area-inset-bottom))',
           background: '#F4F9F5',
           borderTop: '1px solid rgba(0,0,0,0.07)',
           paddingBottom: 'env(safe-area-inset-bottom)',

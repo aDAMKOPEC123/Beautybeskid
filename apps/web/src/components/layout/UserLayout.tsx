@@ -512,7 +512,7 @@ const UserLayoutInner = () => {
           </nav>
         </div>
       </footer>}
-      <div className="h-16 lg:hidden" aria-hidden="true" />
+      <div className="lg:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} aria-hidden="true" />
       <ReviewPromptModal />
       <MobileBottomNav />
       <PwaInstallButton />
