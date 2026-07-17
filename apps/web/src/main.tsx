@@ -24,10 +24,6 @@ window.addEventListener('load', () => {
   window.setTimeout(() => sessionStorage.removeItem(PRELOAD_RECOVERY_KEY), 30_000);
 }, { once: true });
 
-// The generated HTML keeps useful static content visible when JavaScript cannot
-// load. Hide it only after the application bundle has successfully started.
-document.documentElement.classList.add('seo-js');
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

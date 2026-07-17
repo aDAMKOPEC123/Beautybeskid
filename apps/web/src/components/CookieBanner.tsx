@@ -20,10 +20,11 @@ const readConsent = (): ConsentChoice => {
 };
 
 export const CookieBanner = () => {
-  const [visible, setVisible] = useState(() => readConsent() === null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (readConsent() === 'accepted') {
+    const consent = readConsent();
+    if (consent === 'accepted') {
       if (typeof window.gtag === 'function') {
         window.gtag('consent', 'update', {
           ad_storage: 'granted',
@@ -33,7 +34,13 @@ export const CookieBanner = () => {
         });
       }
       void loadAnalytics();
+      return;
     }
+
+    if (consent !== null) return;
+
+    const timeoutId = window.setTimeout(() => setVisible(true), 8_000);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const accept = () => {

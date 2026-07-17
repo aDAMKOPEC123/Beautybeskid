@@ -478,7 +478,6 @@ function breadcrumbSchema(pagePath, labels) {
 }
 
 const staticPageStyles = `<style data-seo-static-styles>
-  .seo-js [data-seo-static-content]{display:none}
   [data-seo-static-content]{box-sizing:border-box;width:100%;max-width:960px;margin:0 auto;padding:48px 24px;font-family:Arial,sans-serif;color:#173b2a}
   [data-seo-static-content] *{box-sizing:border-box}
   [data-seo-static-content] a{color:#245f3b;text-decoration-thickness:2px;text-underline-offset:3px}
