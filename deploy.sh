@@ -15,13 +15,19 @@ MODE=${1:-"full"}
 
 echo "=== COSMO Deploy ($MODE) ==="
 
+# 0. Pre-deploy database backup (safety net)
+echo "[0/4] Creating pre-deploy database backup..."
+BACKUP_NAME="cosmo-predeploy-$(date +%Y%m%d-%H%M%S).dump"
+ssh "$VPS" "pg_dump -Fc -U cosmo_user -h 127.0.0.1 cosmo_db > /home/ubuntu/backups/daily/$BACKUP_NAME"
+echo "      Backup saved: $BACKUP_NAME"
+
 # 1. Push local changes
 echo "[1/4] Pushing to GitHub..."
 git -C "$(dirname "$0")" push origin main
 
 # 2. Pull on VPS
 echo "[2/4] Pulling on VPS..."
-ssh "$VPS" "cd $REMOTE_DIR && git pull origin main"
+ssh "$VPS" "cd $REMOTE_DIR && git stash && git pull origin main"
 
 # 3. Apply database migrations, then build and restart the backend.
 # The frontend SEO build reads current public services and posts from the API,
