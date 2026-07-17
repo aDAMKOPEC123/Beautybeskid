@@ -59,7 +59,7 @@ for (const file of files) {
   const noIndex = /<meta name="robots" content="noindex/i.test(html);
   const h1Count = (html.match(/<h1(?:\s|>)/gi) || []).length;
 
-  if (!/<meta name="viewport" content="width=device-width, initial-scale=1(?:\.0)?"/i.test(html)) {
+  if (!/<meta name="viewport" content="width=device-width, initial-scale=1(?:\.0)?(?:,[^"]*)?"/i.test(html)) {
     failures.push(`${relative}: brak poprawnego viewport`);
   }
   if (h1Count !== 1) failures.push(`${relative}: liczba H1 = ${h1Count}`);

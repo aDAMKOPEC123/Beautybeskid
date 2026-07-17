@@ -8,7 +8,8 @@ router.get('/', async (_req: Request, res: Response) => {
     const data = await getGoogleReviews();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Nie udało się pobrać opinii Google' });
+    console.error('Google reviews fetch failed:', err);
+    res.status(503).json({ error: 'Nie udało się pobrać opinii Google' });
   }
 });
 

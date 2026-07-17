@@ -166,24 +166,6 @@ const upcomingServiceCards = [
   },
 ];
 
-const testimonials = [
-  {
-    quote: 'Bardzo spokojna konsultacja i jasny plan. Wiedziałam, co wybieram i dlaczego, bez presji ani pośpiechu.',
-    author: 'Katarzyna M.',
-    detail: 'konsultacja beauty',
-  },
-  {
-    quote: 'Zabieg był wykonany dokładnie, czysto i w miłej atmosferze. Efekt wygląda elegancko na co dzień.',
-    author: 'Anna W.',
-    detail: 'zabieg z aktualnej oferty',
-  },
-  {
-    quote: 'Cała wizyta była spokojna i profesjonalna. Najbardziej doceniam dokładność oraz ciepłą atmosferę.',
-    author: 'Marta K.',
-    detail: 'wizyta beauty',
-  },
-];
-
 const processSteps = [
   {
     num: '01',
@@ -1299,15 +1281,8 @@ const TestimonialsSection = ({
   googleData?: GoogleReviewsData;
 }) => {
   const [showAll, setShowAll] = useState(false);
-  const rating = googleData?.rating?.toFixed(1) ?? '4.9';
-  const allReviews = googleData?.reviews ?? testimonials.map(t => ({
-    author_name: t.author,
-    rating: 5,
-    text: t.quote,
-    time: 0,
-    relative_time_description: t.detail,
-    profile_photo_url: '',
-  }));
+  const rating = googleData?.rating?.toFixed(1);
+  const allReviews = googleData?.reviews?.filter((review) => review.text?.trim()) ?? [];
   const displayReviews = showAll ? allReviews : allReviews.slice(0, 3);
   const hasMore = allReviews.length > 3;
 
@@ -1324,11 +1299,11 @@ const TestimonialsSection = ({
           />
           <div className="rounded-lg border border-oak/25 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
-              <p className="font-heading text-4xl font-bold text-espresso">{rating}</p>
+              <p className="font-heading text-4xl font-bold text-espresso">{rating ?? 'Google'}</p>
               <div>
                 <StarRow />
                 <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-mink">
-                  ocena Google{googleData ? ' (' + googleData.user_ratings_total + ' opinii)' : ''}
+                  {googleData ? `ocena Google (${googleData.user_ratings_total} opinii)` : 'sprawdź aktualne opinie'}
                 </p>
               </div>
             </div>
@@ -1346,22 +1321,41 @@ const TestimonialsSection = ({
         </div>
       </FadeUp>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {displayReviews.map((review, index) => (
-          <FadeUp key={review.author_name + index} delay={index < 3 ? index * 0.08 : 0}>
-            <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]">
-              <StarRow compact />
-              <p className="mt-5 flex-1 font-display text-[22px] italic leading-relaxed text-espresso">
-                &ldquo;{review.text}&rdquo;
-              </p>
-              <div className="mt-6 border-t border-espresso/10 pt-4">
-                <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{review.relative_time_description}</p>
-              </div>
-            </article>
-          </FadeUp>
-        ))}
-      </div>
+      {displayReviews.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          {displayReviews.map((review, index) => (
+            <FadeUp key={review.author_name + index} delay={index < 3 ? index * 0.08 : 0}>
+              <article className="flex h-full flex-col rounded-lg border border-espresso/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,56,40,0.12)]">
+                <StarRow compact />
+                <p className="mt-5 flex-1 font-display text-[22px] italic leading-relaxed text-espresso">
+                  &ldquo;{review.text}&rdquo;
+                </p>
+                <div className="mt-6 border-t border-espresso/10 pt-4">
+                  <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{review.relative_time_description}</p>
+                </div>
+              </article>
+            </FadeUp>
+          ))}
+        </div>
+      ) : (
+        <FadeUp>
+          <div className="rounded-lg border border-oak/20 bg-white p-6 text-center shadow-sm">
+            <p className="font-display text-[22px] italic leading-relaxed text-espresso">
+              Aktualne opinie klientek są dostępne bezpośrednio w profilu Google.
+            </p>
+            <a
+              href={SEO.googleReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-oak transition-colors hover:text-walnut"
+            >
+              Zobacz opinie w Google
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </FadeUp>
+      )}
 
       {hasMore && (
         <FadeUp>
