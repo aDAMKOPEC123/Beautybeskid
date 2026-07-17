@@ -25,7 +25,7 @@ export const EmployeeLayout = () => {
   if (!isEmployee) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen flex flex-col pt-[72px]">
+    <div className="min-h-screen flex flex-col" style={{ paddingTop: 'calc(72px + env(safe-area-inset-top))' }}>
       <ScrollToTop />
       <Navbar />
       {/* Mobile horizontal nav — md:hidden */}

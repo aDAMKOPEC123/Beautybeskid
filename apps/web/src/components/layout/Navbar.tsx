@@ -195,7 +195,8 @@ export const Navbar = () => {
       <nav
         className="fixed top-0 left-0 right-0 z-50"
         style={{
-          height: '72px',
+          paddingTop: 'env(safe-area-inset-top)',
+          height: 'calc(72px + env(safe-area-inset-top))',
           background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
           borderBottom: '2px solid #C4965A',
           boxShadow: '0 2px 16px rgba(26,56,40,0.18)',

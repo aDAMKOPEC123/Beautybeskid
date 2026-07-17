@@ -34,7 +34,8 @@ export const PublicLayout = () => {
       <Navbar />
       <main
         key={location.pathname}
-        className="flex-1 pt-[72px] animate-[fade-in_0.35s_ease-out]"
+        className="flex-1 animate-[fade-in_0.35s_ease-out]"
+        style={{ paddingTop: 'calc(72px + env(safe-area-inset-top))' }}
       >
         <Outlet />
       </main>

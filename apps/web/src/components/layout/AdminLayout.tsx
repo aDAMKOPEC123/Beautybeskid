@@ -189,7 +189,7 @@ export const AdminLayout = () => {
   if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="admin-shell min-h-screen flex flex-col bg-muted/20 pt-[72px]">
+    <div className="admin-shell min-h-screen flex flex-col bg-muted/20" style={{ paddingTop: 'calc(72px + env(safe-area-inset-top))' }}>
       <ScrollToTop />
       <Navbar />
       <div className="md:hidden shrink-0 border-b bg-card/95 px-3 py-2 shadow-sm backdrop-blur">

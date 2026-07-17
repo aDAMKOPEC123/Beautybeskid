@@ -340,7 +340,8 @@ const UserLayoutInner = () => {
       <header
         className="sticky top-0 z-50 flex items-center"
         style={{
-          height: '64px',
+          paddingTop: 'env(safe-area-inset-top)',
+          height: 'calc(64px + env(safe-area-inset-top))',
           background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
           borderBottom: '2px solid #C4965A',
           boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
