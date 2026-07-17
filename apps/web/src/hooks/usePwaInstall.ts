@@ -8,6 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 const LEGACY_DISMISS_KEY = 'pwa-install-dismissed';
 const HIDDEN_FOREVER_KEY = 'pwa-install-hidden-forever';
 const SNOOZE_UNTIL_KEY = 'pwa-install-snooze-until';
+const MOBILE_AUTO_SNOOZE_KEY = 'pwa-install-mobile-auto-snooze';
 const IMPRESSION_COUNT_KEY = 'pwa-install-impression-count';
 const LAST_REASON_KEY = 'pwa-install-last-reason';
 export const PWA_INSTALL_PROMPT_EVENT = 'cosmo:pwa-install-prompt';
@@ -121,6 +122,24 @@ export function markPwaInstallImpression(reason: PwaInstallPromptReason = 'manua
   } catch {
     trackPwaInstallEvent('shown', { reason });
   }
+}
+
+export function isMobileAutoSnoozed(): boolean {
+  try {
+    const until = readNumber(MOBILE_AUTO_SNOOZE_KEY);
+    return until > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+export function snoozeMobileAuto(days = 1) {
+  try {
+    localStorage.setItem(MOBILE_AUTO_SNOOZE_KEY, String(Date.now() + days * 24 * 60 * 60 * 1000));
+  } catch {
+    // localStorage unavailable
+  }
+  trackPwaInstallEvent('mobile_auto_snoozed', { days });
 }
 
 export function snoozePwaInstall(days = 3, reason?: string) {

@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Check, Download, Home, MoreHorizontal, PlusSquare, Share, Smartphone, X } from 'lucide-react';
 import {
   PWA_INSTALL_PROMPT_EVENT,
   markPwaInstallImpression,
   trackPwaInstallEvent,
+  isMobileBrowser,
+  isPwaAlreadyInstalled,
+  isPwaInstallHiddenForever,
+  isMobileAutoSnoozed,
+  snoozeMobileAuto,
   type PwaInstallPromptDetail,
   usePwaInstall,
 } from '@/hooks/usePwaInstall';
@@ -71,10 +77,26 @@ const PhonePreview = () => (
 export function PwaInstallButton({ className }: Props) {
   const { canShow, isIOS, isStandalone, platform, install, dismiss, dismissForever } = usePwaInstall();
   const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
+
+  // Compute mobile auto-prompt eligibility once on mount (before first render)
+  const shouldAutoPrompt = useRef(
+    isMobileBrowser() && !isPwaAlreadyInstalled() && !isPwaInstallHiddenForever() && !isMobileAutoSnoozed()
+  );
+
+  const [modalOpen, setModalOpen] = useState(shouldAutoPrompt.current);
   const [loading, setLoading] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<PwaInstallPromptDetail | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<PwaInstallPromptDetail | null>(
+    shouldAutoPrompt.current ? { reason: 'manual' } : null
+  );
+  const [isAutoPrompt, setIsAutoPrompt] = useState(shouldAutoPrompt.current);
   const impressionMarkedRef = useRef(false);
+
+  // Track auto-prompt shown event once
+  useEffect(() => {
+    if (shouldAutoPrompt.current) {
+      trackPwaInstallEvent('mobile_auto_prompt_shown');
+    }
+  }, []);
 
   useEffect(() => {
     const handlePromptRequest = (event: Event) => {
@@ -118,17 +140,23 @@ export function PwaInstallButton({ className }: Props) {
   const closeOnce = () => {
     setModalOpen(false);
     setPendingNavigation(null);
+    setIsAutoPrompt(false);
     trackPwaInstallEvent('maybe_later', { reason: pendingNavigation?.reason });
+    if (isAutoPrompt) {
+      snoozeMobileAuto(1);
+    }
     dismiss('maybe-later');
   };
 
   const closeForever = () => {
     setModalOpen(false);
     setPendingNavigation(null);
+    setIsAutoPrompt(false);
     dismissForever('footer-link');
   };
 
   const openManual = () => {
+    setIsAutoPrompt(false);
     setPendingNavigation({ reason: 'manual' });
     trackPwaInstallEvent('floating_button_clicked');
     setModalOpen(true);
@@ -144,11 +172,10 @@ export function PwaInstallButton({ className }: Props) {
     markPwaInstallImpression(pendingNavigation?.reason ?? 'manual');
   }, [modalOpen, pendingNavigation?.reason]);
 
-  if (isStandalone || (!canShow && !modalOpen)) return null;
+  if (isPwaAlreadyInstalled() || (!canShow && !modalOpen)) return null;
 
-  return (
-    <div className={`fixed right-4 z-50 flex flex-col items-end gap-2 ${className ?? 'bottom-20 md:bottom-4'}`}>
-      {modalOpen && (
+  const modal = modalOpen
+    ? createPortal(
         <div
           className="fixed inset-0 z-[80] flex bg-black/45 p-2 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4"
           role="dialog"
@@ -164,10 +191,10 @@ export function PwaInstallButton({ className }: Props) {
                   </span>
                   <div className="min-w-0">
                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-caramel">
-                      Panel klienta
+                      {isAutoPrompt ? 'Aplikacja mobilna' : 'Panel klienta'}
                     </p>
                     <h2 id="pwa-install-title" className="mt-1 font-heading text-xl font-semibold leading-tight text-oak">
-                      Dodaj aplikację i wracaj do wizyt jednym kliknięciem
+                      {isAutoPrompt ? 'Pobierz naszą aplikację' : 'Dodaj aplikację i wracaj do wizyt jednym kliknięciem'}
                     </h2>
                     <p className="mt-1 text-sm leading-snug text-foreground/62">
                       Rezerwacje, terminy i zalecenia będą zawsze pod ręką. Zajmie to kilka sekund.
@@ -294,19 +321,26 @@ export function PwaInstallButton({ className }: Props) {
               </div>
             </div>
           </div>
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <>
+      {modal}
+      {canShow && !modalOpen && (
+        <div className={`fixed right-4 z-50 flex flex-col items-end gap-2 ${className ?? 'bottom-20 md:bottom-4'}`}>
+          <button
+            type="button"
+            onClick={openManual}
+            aria-label="Zainstaluj aplikację"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-oak text-white shadow-lg shadow-oak/40 transition-opacity hover:opacity-90"
+          >
+            <Download className="h-5 w-5" />
+          </button>
         </div>
       )}
-
-      {canShow && !modalOpen && (
-        <button
-          type="button"
-          onClick={openManual}
-          aria-label="Zainstaluj aplikację"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-oak text-white shadow-lg shadow-oak/40 transition-opacity hover:opacity-90"
-        >
-          <Download className="h-5 w-5" />
-        </button>
-      )}
-    </div>
+    </>
   );
 }
