@@ -286,9 +286,7 @@
 }
 
 .premium-home-bg {
-  background:
-    linear-gradient(115deg, rgba(196,150,90,0.14) 0%, transparent 32%, rgba(61,122,84,0.12) 66%, transparent 100%),
-    linear-gradient(180deg, #F8F5EF 0%, #F4F9F5 45%, #E8F3EA 100%);
+  background-color: #F8F7F2;
 }
 
 .premium-animated-light::before {
@@ -354,6 +352,13 @@
 /* Oak remains a light decorative background, but text/icons need WCAG AA contrast. */
 .text-oak {
   color: #8a5f35;
+}
+
+/* Public-facing actions use one consistent, restrained pill treatment. */
+.public-site [data-ui='button'] {
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 /* Public pages: readable labels and comfortable touch targets on small screens. */

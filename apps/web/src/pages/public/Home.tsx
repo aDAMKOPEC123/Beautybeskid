@@ -340,7 +340,7 @@ const SectionIntro = ({
   align?: 'left' | 'center';
 }) => (
   <div className={align === 'center' ? 'mx-auto mb-10 max-w-3xl text-center' : 'mb-10 max-w-2xl'}>
-    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">{eyebrow}</p>
+    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-oak">{eyebrow}</p>
     <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">{title}</h2>
     {description && (
       <p className="mt-4 text-base leading-relaxed text-espresso/75 md:text-lg">{description}</p>
@@ -369,7 +369,7 @@ const BookingButton = ({
 }) => (
   <Button
     size="lg"
-    className={`premium-shine gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.35)] hover:bg-oak/90 ${className ?? ''}`}
+    className={`gap-2 bg-espresso text-ivory shadow-[0_14px_32px_rgba(26,56,40,0.2)] hover:-translate-y-0.5 hover:bg-espresso/92 ${className ?? ''}`}
     asChild
   >
     <Link to={to} state={state}>
@@ -397,7 +397,7 @@ const NextSlotCard = ({
   onCheckAvailability: () => void;
 }) => (
   <div className="relative overflow-hidden rounded-lg border border-oak/25 bg-white p-5 shadow-[0_22px_70px_rgba(26,56,40,0.16)]">
-    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-oak via-caramel to-oak" aria-hidden="true" />
+    <div className="absolute inset-x-0 top-0 h-1 bg-oak" aria-hidden="true" />
     <div className="flex items-start gap-4">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-espresso text-ivory">
         <CalendarCheck className="h-5 w-5" />
@@ -467,12 +467,12 @@ const HeroSection = ({
   onConsultationClick: () => void;
   onCheckAvailability: () => void;
 }) => (
-  <section className="premium-home-bg premium-animated-light relative overflow-hidden grain-overlay">
+  <section className="premium-home-bg relative overflow-hidden">
     <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
       <div className="grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
         <FadeUp className="min-w-0">
           <div className="min-w-0 max-w-3xl">
-            <div className="mb-5 flex w-fit max-w-full items-center gap-2 rounded-full border border-oak/25 bg-white/70 px-3 py-1.5 text-[10px] font-semibold uppercase leading-relaxed tracking-[0.18em] text-espresso/70 shadow-sm backdrop-blur sm:tracking-[0.28em]">
+            <div className="mb-5 flex w-fit max-w-full items-center gap-2 rounded-full border border-oak/25 bg-white/75 px-4 py-2 text-xs font-semibold leading-relaxed tracking-[0.06em] text-espresso/72 shadow-sm">
               <Sparkles className="h-3.5 w-3.5 text-oak" />
               <span className="min-w-0">Wiktoria Ćwik · BeskidStudio By Wiktoria Ćwik Limanowa</span>
             </div>
@@ -512,10 +512,10 @@ const HeroSection = ({
               />
             </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-espresso/12 pt-5 md:grid-cols-4">
               {heroTrust.map(({ value, label, Icon }) => (
-                <div key={label} className="rounded-lg border border-espresso/10 bg-white/65 p-3 shadow-sm backdrop-blur">
-                  <Icon className="mb-2 h-4 w-4 text-oak" />
+                <div key={label} className="min-w-0 md:border-r md:border-espresso/10 md:pr-4 md:last:border-r-0">
+                  <Icon className="mb-2 h-4 w-4 text-oak" strokeWidth={1.8} />
                   <p className="font-heading text-xl font-bold text-espresso">
                     {label === 'ocena Google' && googleRating ? googleRating.toFixed(1) + '/5' : value}
                   </p>
@@ -546,11 +546,11 @@ const HeroSection = ({
                         height={747}
                       />
                     </picture>
-                    <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/45 bg-espresso/82 p-4 text-ivory shadow-lg backdrop-blur">
+                    <div className="absolute inset-x-0 bottom-0 bg-espresso/90 px-5 py-4 text-ivory">
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#DDB87F]">Premium care</p>
-                          <p className="mt-1 font-heading text-xl font-bold">Prowadzimy Cię krok po kroku</p>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#DDB87F]">Indywidualna opieka</p>
+                          <p className="mt-1 font-heading text-xl font-semibold">Prowadzimy Cię krok po kroku</p>
                         </div>
                         <ShieldCheck className="h-7 w-7 shrink-0 text-[#DDB87F]" />
                       </div>
@@ -1383,7 +1383,7 @@ const TestimonialsSection = ({
             type="button"
             onClick={onCheckAvailability}
             size="lg"
-            className="premium-shine shrink-0 gap-2 bg-oak text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.35)] hover:bg-oak/90"
+            className="shrink-0 gap-2 bg-espresso text-ivory shadow-[0_14px_32px_rgba(26,56,40,0.18)] hover:bg-espresso/92"
           >
             Sprawdź termin
             <ArrowRight className="h-4 w-4" />
@@ -1547,7 +1547,7 @@ const ReservationFormSection = ({
               <Link
                 to="/auth/register"
                 state={{ from: '/rezerwacja' }}
-                className="mt-4 flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-white/14 text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory transition hover:bg-white/8"
+                className="mt-4 flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/18 px-5 text-sm font-semibold text-ivory transition hover:border-oak/60 hover:bg-white/8"
               >
                 Zarejestruj się
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -1672,7 +1672,7 @@ const BlogPreviewSection = ({ posts }: { posts: any[] }) => {
           <div className="mt-8 text-center">
             <Link
               to="/blog"
-              className="inline-flex items-center gap-2 rounded-lg border border-oak/30 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:bg-cream"
+              className="inline-flex items-center gap-2 rounded-full border border-oak/35 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:border-oak hover:bg-cream"
             >
               Wszystkie wpisy na blogu
               <ArrowRight className="h-4 w-4" />
@@ -1746,7 +1746,7 @@ const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }
           <div className="mt-8 text-center">
             <Link
               to="/metamorfozy"
-              className="inline-flex items-center gap-2 rounded-lg border border-oak/30 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:bg-cream"
+              className="inline-flex items-center gap-2 rounded-full border border-oak/35 px-5 py-2.5 text-sm font-semibold text-espresso transition-colors hover:border-oak hover:bg-cream"
             >
               Zobacz wszystkie metamorfozy
               <ArrowRight className="h-4 w-4" />

@@ -62,7 +62,7 @@ export const FloatingBookingCTA = () => {
           </div>
           <Link
             to="/rezerwacja"
-            className="premium-shine flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg bg-oak px-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-espresso transition-colors hover:bg-oak/90"
+            className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-oak px-5 text-sm font-semibold text-espresso shadow-[0_8px_20px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-oak/90"
           >
             Rezerwuj
             <ArrowRight className="h-4 w-4" />
