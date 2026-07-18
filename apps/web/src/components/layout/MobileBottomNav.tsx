@@ -26,9 +26,44 @@ import {
   BadgePercent,
 } from 'lucide-react';
 
-export const MOBILE_BOTTOM_NAV_CONTENT_HEIGHT = 52;
+type MobileNavEnvironment = 'browser' | 'android-pwa' | 'ios-pwa';
 
-const mobileBottomNavHeight = `calc(${MOBILE_BOTTOM_NAV_CONTENT_HEIGHT}px + env(safe-area-inset-bottom))`;
+export type MobileBottomNavMetrics = {
+  environment: MobileNavEnvironment;
+  contentHeight: number;
+  totalHeight: string;
+};
+
+export const getMobileBottomNavMetrics = (): MobileBottomNavMetrics => {
+  if (typeof window === 'undefined') {
+    return {
+      environment: 'browser',
+      contentHeight: 64,
+      totalHeight: 'calc(64px + env(safe-area-inset-bottom))',
+    };
+  }
+
+  const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
+  const userAgent = navigatorWithStandalone.userAgent;
+  const isStandalone = navigatorWithStandalone.standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches;
+  const isIOS = /iPad|iPhone|iPod/i.test(userAgent)
+    || (navigatorWithStandalone.platform === 'MacIntel' && navigatorWithStandalone.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(userAgent);
+
+  const environment: MobileNavEnvironment = isStandalone && isIOS
+    ? 'ios-pwa'
+    : isStandalone && isAndroid
+      ? 'android-pwa'
+      : 'browser';
+  const contentHeight = environment === 'ios-pwa' ? 44 : environment === 'android-pwa' ? 56 : 64;
+
+  return {
+    environment,
+    contentHeight,
+    totalHeight: `calc(${contentHeight}px + env(safe-area-inset-bottom))`,
+  };
+};
 
 const MORE_LINKS_PRIMARY = [
   { to: '/user/lojalnosc',    label: 'Punkty',         icon: Star },
@@ -120,6 +155,13 @@ export function MobileBottomNav() {
   const location = useLocation();
   const { getBadgeCount, moreBadge } = useUserMenuBadges();
   const shouldReduce = useReducedMotion();
+  const navMetrics = getMobileBottomNavMetrics();
+  const isIOSPwa = navMetrics.environment === 'ios-pwa';
+  const bottomNavItemClassName = cn(
+    'relative isolate flex flex-col items-center transition-colors',
+    isIOSPwa ? 'gap-0 px-2 py-0 text-[10px]' : 'gap-0.5 px-3 py-1 text-[11px]',
+  );
+  const bottomNavIconSize = isIOSPwa ? 20 : 22;
   const activeBackdropVariants = shouldReduce ? backdropReducedVariants : backdropVariants;
   const activePanelVariants = shouldReduce ? panelReducedVariants : panelVariants;
   const activeItemVariants = shouldReduce ? itemReducedVariants : itemVariants;
@@ -164,21 +206,25 @@ export function MobileBottomNav() {
             />
 
             <motion.div
-              className="fixed left-0 right-0 z-50 overflow-y-auto overscroll-contain rounded-t-2xl p-4 pb-6 shadow-xl lg:hidden"
+              className={cn(
+                'fixed left-0 right-0 z-50 overflow-y-auto overscroll-contain rounded-t-2xl shadow-xl lg:hidden',
+                isIOSPwa ? 'p-3 pb-4' : 'p-4 pb-6',
+              )}
               style={{
-                maxHeight: `calc(100svh - ${MOBILE_BOTTOM_NAV_CONTENT_HEIGHT + 12}px - env(safe-area-inset-bottom))`,
+                maxHeight: `calc(100svh - ${navMetrics.contentHeight + 12}px - env(safe-area-inset-bottom))`,
                 background: '#F4F9F5',
                 borderTop: '1px solid rgba(0,0,0,0.07)',
-                bottom: mobileBottomNavHeight,
+                bottom: navMetrics.totalHeight,
               }}
+              data-nav-environment={navMetrics.environment}
               variants={activePanelVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
-              <div className="space-y-4">
+              <div className={isIOSPwa ? 'space-y-3' : 'space-y-4'}>
                 {/* Primary links */}
-                <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
+                <div className={cn('grid grid-cols-3 min-[360px]:grid-cols-4', isIOSPwa ? 'gap-1.5' : 'gap-2')}>
                   {MORE_LINKS_PRIMARY.map(({ to, label, icon: Icon }) => {
                     const count = getBadgeCount(to);
                     return (
@@ -188,7 +234,8 @@ export function MobileBottomNav() {
                           state={to === '/' ? { fromPanel: true } : undefined}
                           onClick={() => setIsMoreOpen(false)}
                           className={cn(
-                            'relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs transition-all duration-300 active:scale-95',
+                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs transition-all duration-300 active:scale-95',
+                            isIOSPwa ? 'p-1.5' : 'p-2',
                             isActive(to) ? 'font-semibold' : 'opacity-60',
                           )}
                           style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
@@ -204,7 +251,7 @@ export function MobileBottomNav() {
                               }}
                             />
                           )}
-                          <Icon size={22} />
+                          <Icon size={isIOSPwa ? 20 : 22} />
                           <span className="relative z-10 text-center leading-tight">{label}</span>
                           {count > 0 && (
                             <span
@@ -225,16 +272,19 @@ export function MobileBottomNav() {
                   <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(20,40,28,0.35)' }}>
                     Odkryj
                   </p>
-                  <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-4">
+                  <div className={cn('grid grid-cols-3 min-[360px]:grid-cols-4', isIOSPwa ? 'gap-1.5' : 'gap-2')}>
                     {MORE_LINKS_SECONDARY.map(({ to, label, icon: Icon }) => (
                       <motion.div key={to} variants={activeItemVariants}>
                         <Link
                           to={to}
                           onClick={() => setIsMoreOpen(false)}
-                          className="relative isolate flex flex-col items-center gap-1 rounded-xl p-2 text-xs opacity-50 transition-all duration-300 active:scale-95"
+                          className={cn(
+                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs opacity-50 transition-all duration-300 active:scale-95',
+                            isIOSPwa ? 'p-1.5' : 'p-2',
+                          )}
                           style={{ color: '#1A3828' }}
                         >
-                          <Icon size={22} />
+                          <Icon size={isIOSPwa ? 20 : 22} />
                           <span className="text-center leading-tight">{label}</span>
                         </Link>
                       </motion.div>
@@ -250,16 +300,17 @@ export function MobileBottomNav() {
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 lg:hidden"
         style={{
-          height: mobileBottomNavHeight,
+          height: navMetrics.totalHeight,
           background: '#F4F9F5',
           borderTop: '1px solid rgba(0,0,0,0.07)',
           paddingBottom: 'env(safe-area-inset-bottom)',
           boxSizing: 'border-box',
         }}
+        data-nav-environment={navMetrics.environment}
       >
         <Link
           to="/user"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
+          className={bottomNavItemClassName}
           style={{ color: isActive('/user') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user') && !isMoreOpen && (
@@ -272,13 +323,13 @@ export function MobileBottomNav() {
               }}
             />
           )}
-          <LayoutDashboard size={22} />
+          <LayoutDashboard size={bottomNavIconSize} />
           <span className="relative z-10">Główna</span>
         </Link>
 
         <Link
           to="/user/wizyty"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
+          className={bottomNavItemClassName}
           style={{ color: isActive('/user/wizyty') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user/wizyty') && !isMoreOpen && (
@@ -291,7 +342,7 @@ export function MobileBottomNav() {
               }}
             />
           )}
-          <Calendar size={22} />
+          <Calendar size={bottomNavIconSize} />
           <span className="relative z-10">Wizyty</span>
           {getBadgeCount('/user/wizyty') > 0 && (
             <span
@@ -307,15 +358,18 @@ export function MobileBottomNav() {
           to="/rezerwacja"
           data-tour="sidebar-booking-btn"
           aria-label="Umów wizytę"
-          className="flex h-12 w-12 -mt-4 items-center justify-center rounded-full shadow-md transition-transform active:scale-95"
+          className={cn(
+            'flex items-center justify-center rounded-full shadow-md transition-transform active:scale-95',
+            isIOSPwa ? '-mt-3 h-11 w-11' : '-mt-4 h-12 w-12',
+          )}
           style={{ background: '#1A3828', color: '#fff' }}
         >
-          <Plus size={24} />
+          <Plus size={isIOSPwa ? 22 : 24} />
         </Link>
 
         <Link
           to="/user/chat"
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
+          className={bottomNavItemClassName}
           style={{ color: isActive('/user/chat') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isActive('/user/chat') && !isMoreOpen && (
@@ -328,7 +382,7 @@ export function MobileBottomNav() {
               }}
             />
           )}
-          <MessageCircle size={22} />
+          <MessageCircle size={bottomNavIconSize} />
           <span className="relative z-10">Czat</span>
           {getBadgeCount('/user/chat') > 0 && (
             <span
@@ -343,7 +397,7 @@ export function MobileBottomNav() {
         <button
           onClick={() => setIsMoreOpen((open) => !open)}
           aria-expanded={isMoreOpen}
-          className="relative isolate flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] transition-colors"
+          className={bottomNavItemClassName}
           style={{ color: isMoreActive ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
         >
           {isMoreActive && (
@@ -356,7 +410,7 @@ export function MobileBottomNav() {
               }}
             />
           )}
-          {isMoreOpen ? <X size={22} /> : <UserIcon size={22} />}
+          {isMoreOpen ? <X size={bottomNavIconSize} /> : <UserIcon size={bottomNavIconSize} />}
           <span className="relative z-10">Więcej</span>
           {moreBadge > 0 && !isMoreOpen && (
             <span

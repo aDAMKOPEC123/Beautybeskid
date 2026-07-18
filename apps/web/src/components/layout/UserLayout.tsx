@@ -10,7 +10,7 @@ import { discountCodesApi } from '@/api/discount-codes.api';
 import { authApi } from '@/api/auth.api';
 import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
-import { MobileBottomNav, MOBILE_BOTTOM_NAV_CONTENT_HEIGHT } from './MobileBottomNav';
+import { MobileBottomNav, getMobileBottomNavMetrics } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { PageSEO } from '@/components/shared/SEO';
 import { useChatStore } from '@/store/chat.store';
@@ -327,6 +327,7 @@ const UserLayoutInner = () => {
   const isActive = (path: string) =>
     path === '/user' ? location.pathname === '/user' : location.pathname.startsWith(path);
   const isTaskFlow = location.pathname === '/rezerwacja' || location.pathname.startsWith('/user/chat');
+  const mobileBottomNavMetrics = getMobileBottomNavMetrics();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -514,7 +515,8 @@ const UserLayoutInner = () => {
       </footer>}
       <div
         className="lg:hidden"
-        style={{ height: `calc(${MOBILE_BOTTOM_NAV_CONTENT_HEIGHT}px + env(safe-area-inset-bottom))` }}
+        style={{ height: mobileBottomNavMetrics.totalHeight }}
+        data-nav-environment={mobileBottomNavMetrics.environment}
         aria-hidden="true"
       />
       <ReviewPromptModal />
