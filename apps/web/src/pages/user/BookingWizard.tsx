@@ -26,6 +26,7 @@ import { appointmentsApi } from '@/api/appointments.api';
 import { loyaltyApi } from '@/api/loyalty.api';
 import happyHoursApi from '@/api/happy-hours.api';
 import { useAuth } from '@/hooks/useAuth';
+import { loadTrackedVoucherCodes } from '@/lib/tracked-vouchers';
 import { Input } from '@/components/ui/input';
 import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
@@ -857,7 +858,7 @@ function formatCouponDiscount(coupon: ValidatedVoucher): string {
 
 function voucherTypeLabel(voucher: ValidatedVoucher): string {
   if (voucher.type === 'COUPON') return 'kupon lojalnościowy';
-  if (voucher.type === 'VOUCHER_CASH') return 'voucher';
+  if (voucher.type === 'VOUCHER_CASH' || voucher.type === 'VOUCHER_SERVICE') return 'voucher';
   return 'kod rabatowy';
 }
 
@@ -889,6 +890,7 @@ function StepConfirm({
   const [codeInput, setCodeInput] = useState('');
   const [validating, setValidating] = useState(false);
   const [showInput, setShowInput] = useState(false);
+  const [trackedVoucherCodes] = useState(loadTrackedVoucherCodes);
   const cleanPreselectedCode = getCouponCode(preselectedCode);
 
   useEffect(() => {
@@ -911,6 +913,17 @@ function StepConfirm({
     queryKey: ['loyalty', 'coupons'],
     queryFn: loyaltyApi.getActiveCoupons,
     enabled: isAuthenticated,
+  });
+  const { data: trackedVouchers = [], isLoading: trackedVouchersLoading } = useQuery<ValidatedVoucher[]>({
+    queryKey: ['booking', 'tracked-vouchers', trackedVoucherCodes, state.service?.id],
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        trackedVoucherCodes.map((code) => loyaltyApi.validateVoucher(code, state.service?.id))
+      );
+
+      return results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
+    },
+    enabled: isAuthenticated && trackedVoucherCodes.length > 0 && Boolean(state.service?.id),
   });
 
   const basePrice = state.service ? (state.service.promoPrice ?? Number(state.service.price)) : 0;
@@ -1097,6 +1110,49 @@ function StepConfirm({
           >
             🎟️ Masz voucher, kod rabatowy lub kupon lojalnościowy? Wpisz kod
           </button>
+        )}
+        {!state.voucherData && trackedVouchersLoading && (
+          <p className="mt-3 text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
+            Sprawdzam Twoje zapisane vouchery...
+          </p>
+        )}
+        {!state.voucherData && trackedVouchers.length > 0 && (
+          <div
+            className="mt-3 rounded-xl border p-3 text-sm"
+            style={{ background: 'rgba(34,197,94,0.05)', borderColor: 'rgba(34,197,94,0.2)' }}
+          >
+            <p className="font-semibold" style={{ color: '#1A3828' }}>
+              Twoje vouchery — wybierz, aby zastosować
+            </p>
+            <div className="mt-3 space-y-2">
+              {trackedVouchers.map((voucher) => (
+                <button
+                  key={voucher.id}
+                  type="button"
+                  onClick={() => {
+                    onVoucherChange(voucher);
+                    setCodeInput(voucher.code);
+                    setShowInput(false);
+                    toast.success(`Voucher ${voucher.code} zastosowany!`);
+                  }}
+                  className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border bg-white px-3 py-2 text-left transition-colors hover:bg-[#F3FAF5]"
+                  style={{ borderColor: 'rgba(34,197,94,0.2)' }}
+                >
+                  <span className="min-w-0">
+                    <span className="block text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                      {voucher.type === 'VOUCHER_CASH' ? 'Voucher gotówkowy' : 'Voucher na usługę'}
+                    </span>
+                    <span className="block truncate font-mono font-bold tracking-wider" style={{ color: '#1A3828' }}>
+                      {voucher.code}
+                    </span>
+                  </span>
+                  <span className="shrink-0 font-semibold" style={{ color: '#15803D' }}>
+                    {formatCouponDiscount(voucher)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
         {!state.voucherData && activeCouponVouchers.length > 0 && (
           <div
@@ -1523,7 +1579,7 @@ export const BookingWizard = () => {
             onVoucherChange={(voucher) => setState(prev => ({
               ...prev,
               couponId: voucher?.type === 'COUPON' ? voucher.id : null,
-              discountCodeId: voucher?.type === 'DISCOUNT_CODE' ? voucher.id : null,
+              discountCodeId: voucher?.type === 'DISCOUNT_CODE' || voucher?.type === 'VOUCHER_SERVICE' ? voucher.id : null,
               voucherId: voucher?.type === 'VOUCHER_CASH' ? voucher.id : null,
               voucherData: voucher,
             }))}

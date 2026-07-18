@@ -249,5 +249,8 @@ export const validateVoucher = async (code: string, userId: string, serviceId?: 
   }
 
   const dc = await validateDiscountCode(normalized, userId, serviceId);
-  return { type: 'DISCOUNT_CODE' as const, ...dc };
+  return {
+    type: dc.restrictedToServiceId ? 'VOUCHER_SERVICE' as const : 'DISCOUNT_CODE' as const,
+    ...dc,
+  };
 };

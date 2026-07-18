@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { vouchersApi, type Voucher } from '@/api/vouchers.api';
+import { loadTrackedVoucherCodes, saveTrackedVoucherCodes } from '@/lib/tracked-vouchers';
 import { Gift, Ticket, Clock, CheckCircle, XCircle, ChevronRight, Trash2, FileText, Loader2 } from 'lucide-react';
 
-const STORAGE_KEY = 'cosmo_tracked_vouchers';
 const VOUCHER_CODE_LENGTH = 11;
 
 function formatVoucherCode(value: string): string {
@@ -14,13 +14,6 @@ function formatVoucherCode(value: string): string {
   return [compact.slice(0, 3), compact.slice(3, 7), compact.slice(7, 11)]
     .filter(Boolean)
     .join('-');
-}
-
-function loadTracked(): string[] {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-}
-function saveTracked(codes: string[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
 }
 
 function voucherStatus(v: Voucher): 'active' | 'partial' | 'used' | 'expired' {
@@ -189,7 +182,7 @@ function VoucherCard({ voucher, onRemove }: { voucher: Voucher; onRemove: () => 
 }
 
 export function UserVouchery() {
-  const [trackedCodes, setTrackedCodes] = useState<string[]>(loadTracked);
+  const [trackedCodes, setTrackedCodes] = useState<string[]>(loadTrackedVoucherCodes);
   const [vouchers, setVouchers] = useState<Record<string, Voucher | 'error'>>({});
   const [codeInput, setCodeInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -216,7 +209,7 @@ export function UserVouchery() {
       const v = await vouchersApi.lookup(code);
       const updated = [code, ...trackedCodes];
       setTrackedCodes(updated);
-      saveTracked(updated);
+      saveTrackedVoucherCodes(updated);
       setVouchers((prev) => ({ ...prev, [code]: v }));
       setCodeInput('');
     } catch (e: any) {
@@ -241,7 +234,7 @@ export function UserVouchery() {
   const handleRemove = (code: string) => {
     const updated = trackedCodes.filter((c) => c !== code);
     setTrackedCodes(updated);
-    saveTracked(updated);
+    saveTrackedVoucherCodes(updated);
     setVouchers((prev) => { const n = { ...prev }; delete n[code]; return n; });
   };
 
