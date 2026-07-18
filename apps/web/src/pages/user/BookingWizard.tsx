@@ -855,6 +855,12 @@ function formatCouponDiscount(coupon: ValidatedVoucher): string {
     : `-${Number(coupon.discountValue).toFixed(2)} zł`;
 }
 
+function voucherTypeLabel(voucher: ValidatedVoucher): string {
+  if (voucher.type === 'COUPON') return 'kupon lojalnościowy';
+  if (voucher.type === 'VOUCHER_CASH') return 'voucher';
+  return 'kod rabatowy';
+}
+
 function couponCountLabel(count: number): string {
   if (count === 1) return 'Masz 1 aktywny kupon lojalnościowy do wykorzystania';
   if (count >= 2 && count <= 4) return `Masz ${count} aktywne kupony lojalnościowe do wykorzystania`;
@@ -1024,7 +1030,7 @@ function StepConfirm({
 
       {!isAuthenticated && (
         <div className="rounded-xl border border-[#C4965A]/30 bg-[#C4965A]/10 p-4 text-sm text-[#1A3828]">
-          <strong>Konto będzie potrzebne dopiero teraz.</strong> Po kliknięciu potwierdzenia zachowamy wybrany termin. Kod rabatowy i punkty lojalnościowe zastosujesz po zalogowaniu.
+          <strong>Konto będzie potrzebne dopiero teraz.</strong> Po kliknięciu potwierdzenia zachowamy wybrany termin. Voucher, kod rabatowy lub kupon lojalnościowy zastosujesz po zalogowaniu.
         </div>
       )}
 
@@ -1045,7 +1051,7 @@ function StepConfirm({
               </span>
               {' '}
               <span className="text-xs" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                ({state.voucherData.type === 'COUPON' ? 'kupon lojalnościowy' : 'kod rabatowy'})
+                ({voucherTypeLabel(state.voucherData)})
               </span>
             </span>
             <button
@@ -1060,7 +1066,7 @@ function StepConfirm({
           <div className="space-y-2">
             <div className="flex gap-2">
               <Input
-                placeholder="Wpisz kod kuponu lub kod rabatowy"
+                placeholder="Wpisz voucher, kod rabatowy lub kupon lojalnościowy"
                 value={codeInput}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setCodeInput(e.target.value.toUpperCase())
@@ -1089,7 +1095,7 @@ function StepConfirm({
             className="text-sm hover:underline flex items-center gap-1"
             style={{ color: '#C4965A' }}
           >
-            🎟️ Masz kupon z punktów lojalnościowych lub kod rabatowy? Kliknij tutaj
+            🎟️ Masz voucher, kod rabatowy lub kupon lojalnościowy? Wpisz kod
           </button>
         )}
         {!state.voucherData && activeCouponVouchers.length > 0 && (
