@@ -324,7 +324,7 @@ function StepService({
               key={service.id}
               onClick={() => onSelect(service)}
               aria-pressed={isSelected}
-              className="w-full rounded-2xl cursor-pointer overflow-hidden text-left transition-all"
+              className="flex h-full w-full flex-col rounded-2xl cursor-pointer overflow-hidden text-left transition-all"
               style={{
                 background: '#fff',
                 border: isSelected
@@ -336,7 +336,7 @@ function StepService({
               }}
             >
               {service.imagePath && (
-                <div className="h-36 overflow-hidden">
+                <div className="h-36 shrink-0 overflow-hidden">
                   <img
                     src={service.imagePath}
                     alt={service.name}
@@ -345,51 +345,60 @@ function StepService({
                   />
                 </div>
               )}
-              <div className="p-4 space-y-2">
+              <div className="flex flex-1 flex-col p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-tight" style={{ color: '#1A3828' }}>
                     {formatContentLabel(service.name)}
                   </h3>
                   {isSelected && <CheckCircle2 size={18} style={{ color: '#C4965A', flexShrink: 0, marginTop: 2 }} />}
                 </div>
-                <p className="text-xs line-clamp-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                <p className="mt-2 text-xs line-clamp-2" style={{ color: 'rgba(20,40,28,0.5)' }}>
                   {getServiceDescription(service.description)}
                 </p>
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-2">
+                <div
+                  className="mt-auto space-y-2 border-t pt-3"
+                  style={{ borderColor: 'rgba(26,56,40,0.08)' }}
+                >
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                     <span
-                      className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
+                      className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs"
                       style={{ background: 'rgba(196,150,90,0.1)', color: '#C4965A' }}
                     >
                       <Clock size={11} />
                       {service.durationMinutes} min
                     </span>
-                    <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
+                    <span className="shrink-0">
+                      <ServiceRating avgRating={service.avgRating} reviewCount={service.reviewCount} />
+                    </span>
                   </div>
                   {service.promoPrice != null ? (
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        {service.promoUsesRemaining != null && (
+                          <span
+                            className="shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"
+                            style={{ background: service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828' }}
+                          >
+                            Tylko dla {service.promoUsesRemaining} osób
+                          </span>
+                        )}
+                        {promoCountdown(service.promoEndDate) && (
+                          <span className="text-[10px] font-medium leading-tight" style={{ color: '#C4965A' }}>
+                            {promoCountdown(service.promoEndDate)}
+                          </span>
+                        )}
+                      </div>
+                      <span className="ml-auto flex shrink-0 items-baseline gap-1.5 whitespace-nowrap">
                         <span className="text-xs line-through opacity-50">{Number(service.price).toFixed(2)} zł</span>
-                        <span className="font-bold" style={{ color: '#dc2626' }}>{service.promoPrice.toFixed(2)} zł</span>
+                        <span className="font-bold" style={{ color: '#dc2626' }}>{Number(service.promoPrice).toFixed(2)} zł</span>
                       </span>
-                      {service.promoUsesRemaining != null && (
-                        <span
-                          className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full text-white"
-                          style={{ background: service.promoUsesRemaining <= 3 ? '#dc2626' : '#1A3828' }}
-                        >
-                          Tylko dla {service.promoUsesRemaining} osób
-                        </span>
-                      )}
-                      {promoCountdown(service.promoEndDate) && (
-                        <span className="text-[10px] font-medium" style={{ color: '#C4965A' }}>
-                          {promoCountdown(service.promoEndDate)}
-                        </span>
-                      )}
                     </div>
                   ) : (
-                    <span className="font-bold" style={{ color: '#1A3828' }}>
-                      {Number(service.price).toFixed(2)} zł
-                    </span>
+                    <div className="flex justify-end">
+                      <span className="shrink-0 whitespace-nowrap font-bold" style={{ color: '#1A3828' }}>
+                        {Number(service.price).toFixed(2)} zł
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
