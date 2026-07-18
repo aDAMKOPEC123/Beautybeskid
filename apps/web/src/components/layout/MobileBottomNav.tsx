@@ -158,7 +158,7 @@ export function MobileBottomNav() {
   const navMetrics = getMobileBottomNavMetrics();
   const isIOSPwa = navMetrics.environment === 'ios-pwa';
   const bottomNavItemClassName = cn(
-    'relative isolate flex flex-col items-center transition-colors',
+    'relative isolate flex h-full w-full max-w-16 justify-self-center flex-col items-center justify-center transition-colors',
     isIOSPwa ? 'gap-0 px-2 py-0 text-[10px]' : 'gap-0.5 px-3 py-1 text-[11px]',
   );
   const bottomNavIconSize = isIOSPwa ? 20 : 22;
@@ -298,7 +298,7 @@ export function MobileBottomNav() {
       </AnimatePresence>
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 items-center px-2 lg:hidden"
         style={{
           height: navMetrics.totalHeight,
           background: '#F4F9F5',
@@ -324,7 +324,7 @@ export function MobileBottomNav() {
             />
           )}
           <LayoutDashboard size={bottomNavIconSize} />
-          <span className="relative z-10">Główna</span>
+          <span className="relative z-10 leading-none">Główna</span>
         </Link>
 
         <Link
@@ -343,7 +343,7 @@ export function MobileBottomNav() {
             />
           )}
           <Calendar size={bottomNavIconSize} />
-          <span className="relative z-10">Wizyty</span>
+          <span className="relative z-10 leading-none">Wizyty</span>
           {getBadgeCount('/user/wizyty') > 0 && (
             <span
               className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
@@ -359,7 +359,7 @@ export function MobileBottomNav() {
           data-tour="sidebar-booking-btn"
           aria-label="Umów wizytę"
           className={cn(
-            'flex items-center justify-center rounded-full shadow-md transition-transform active:scale-95',
+            'flex items-center justify-center justify-self-center rounded-full shadow-md transition-transform active:scale-95',
             isIOSPwa ? '-mt-3 h-11 w-11' : '-mt-4 h-12 w-12',
           )}
           style={{ background: '#1A3828', color: '#fff' }}
@@ -383,7 +383,7 @@ export function MobileBottomNav() {
             />
           )}
           <MessageCircle size={bottomNavIconSize} />
-          <span className="relative z-10">Czat</span>
+          <span className="relative z-10 leading-none">Czat</span>
           {getBadgeCount('/user/chat') > 0 && (
             <span
               className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
@@ -411,7 +411,7 @@ export function MobileBottomNav() {
             />
           )}
           {isMoreOpen ? <X size={bottomNavIconSize} /> : <UserIcon size={bottomNavIconSize} />}
-          <span className="relative z-10">Więcej</span>
+          <span className="relative z-10 leading-none">Więcej</span>
           {moreBadge > 0 && !isMoreOpen && (
             <span
               className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
