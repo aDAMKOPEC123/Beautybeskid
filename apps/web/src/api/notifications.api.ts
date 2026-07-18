@@ -44,6 +44,10 @@ export const notificationsApi = {
   markAllRead: async (): Promise<void> => {
     await api.post('/notifications/read-all');
   },
+  markRouteRead: async (path: string): Promise<number> => {
+    const res = await api.post('/notifications/read-route', { path });
+    return res.data.data.count;
+  },
   broadcast: async (data: { title: string; body: string; url?: string }) =>
     api.post('/notifications/broadcast', data).then(r => r.data as { data: { sent: number; push?: { attempted: number; delivered: number; failed: number } } }),
 };

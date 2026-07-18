@@ -4,6 +4,7 @@ import { AppError } from '../../middleware/error.middleware';
 import { checkAndAward } from '../achievements/achievements.service';
 import { getIO } from '../../socket';
 import { createAndEmitNotification } from '../notifications/notifications.service';
+import { sendPushToAdmins } from '../push/push.service';
 
 export const createReview = async (
   userId: string,
@@ -94,16 +95,18 @@ export const createReview = async (
   try {
     const io = getIO();
     const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    const body = `${review.user?.name ?? 'Klient'} wystawił/a ocenę ${review.rating}/5`;
     for (const admin of admins) {
       await createAndEmitNotification(io, {
         userId: admin.id,
         type: 'NEW_REVIEW',
         title: 'Nowa recenzja',
-        body: `${review.user?.name ?? 'Klient'} wystawił/a ocenę ${review.rating}/5`,
+        body,
         url: '/admin/recenzje',
         audience: 'ADMIN',
       });
     }
+    await sendPushToAdmins({ title: 'Nowa recenzja', body, url: '/admin/recenzje' });
   } catch (err) {
     console.error('Notification delivery failed (review):', err);
   }

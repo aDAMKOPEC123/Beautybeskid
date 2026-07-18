@@ -26,7 +26,16 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url ?? '/', self.location.origin).href;
   event.waitUntil(
-    (self as any).clients.openWindow(event.notification.data?.url ?? '/'),
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clients) => {
+      for (const client of clients) {
+        if ('focus' in client) {
+          if ('navigate' in client) await client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(targetUrl);
+    }),
   );
 });

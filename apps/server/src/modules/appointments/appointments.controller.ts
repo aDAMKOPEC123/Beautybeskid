@@ -14,11 +14,17 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     getIO().to('employee:global').emit('appointment:created', appointment as Record<string, unknown>);
     const appt = appointment as any;
     const creator = await prisma.user.findUnique({ where: { id: req.user!.id }, select: { name: true } });
-    sendPushToAdmins({
+    void sendPushToAdmins({
       title: 'Nowa wizyta',
       body: `${creator?.name ?? ''} — ${appt.service?.name ?? ''}, ${format(new Date(appt.date), 'HH:mm')}`,
       url: '/admin/wizyty',
-    }).catch(() => {});
+    }).then((result) => {
+      if (result.attempted > 0 && result.delivered === 0) {
+        console.error('Push delivery failed for all admin subscriptions (new appointment)');
+      }
+    }).catch((error) => {
+      console.error('Push delivery failed (new appointment):', error);
+    });
     res.status(201).json({ status: 'success', data: { appointment } });
   } catch (error) {
     next(error);

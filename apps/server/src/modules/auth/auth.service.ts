@@ -12,8 +12,31 @@ import { FacebookAuthError, FacebookProfile } from './facebook.strategy';
 import crypto from 'crypto';
 import { sendEmail } from '../../utils/email';
 import { getIO } from '../../socket';
+import { sendPushToAdmins } from '../push/push.service';
 
 const DEFAULT_REFRESH_TOKEN_TTL = '400d';
+
+const notifyAdminsOfRegistration = (body: string) => {
+  void (async () => {
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    if (admins.length === 0) return;
+
+    await prisma.notification.createMany({
+      data: admins.map((admin) => ({
+        userId: admin.id,
+        type: 'NEW_REGISTRATION' as const,
+        audience: 'ADMIN' as const,
+        title: 'Nowa rejestracja',
+        url: '/admin/uzytkownicy',
+        body,
+      })),
+    });
+    getIO().to('admin:global').emit('notification:new', {});
+    await sendPushToAdmins({ title: 'Nowa rejestracja', body, url: '/admin/uzytkownicy' });
+  })().catch((error) => {
+    console.error('Notification delivery failed (registration):', error);
+  });
+};
 
 export const toAuthUser = (user: {
   id: string;
@@ -110,23 +133,7 @@ export const registerUser = async (data: RegisterInput & {
     return newUser;
   });
 
-  // Fire-and-forget: notify all admins of new registration
-  prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-    .then(admins => {
-      if (admins.length === 0) return;
-      return prisma.notification.createMany({
-        data: admins.map(admin => ({
-          userId: admin.id,
-          type: 'NEW_REGISTRATION' as const,
-          audience: 'ADMIN' as const,
-          title: 'Nowa rejestracja',
-          url: '/admin/uzytkownicy',
-          body: `Nowa rejestracja: ${user.name} (${user.email})`,
-        })),
-      });
-    })
-    .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
-    .catch(() => {/* ignore — don't fail registration */});
+  notifyAdminsOfRegistration(`Nowa rejestracja: ${user.name} (${user.email})`);
 
   // Send verification email (fire-and-forget — don't fail registration if email fails)
   if (user.emailVerificationToken) {
@@ -289,22 +296,7 @@ export const loginWithGoogle = async (
   }
 
   if (created) {
-    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-      .then((admins) => {
-        if (admins.length === 0) return;
-        return prisma.notification.createMany({
-          data: admins.map((admin) => ({
-            userId: admin.id,
-            type: 'NEW_REGISTRATION' as const,
-            audience: 'ADMIN' as const,
-            title: 'Nowa rejestracja',
-            url: '/admin/uzytkownicy',
-            body: `Nowa rejestracja przez Google: ${user.name} (${user.email})`,
-          })),
-        });
-      })
-      .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
-      .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
+    notifyAdminsOfRegistration(`Nowa rejestracja przez Google: ${user.name} (${user.email})`);
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
@@ -424,22 +416,7 @@ export const loginWithFacebook = async (
   }
 
   if (created) {
-    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-      .then((admins) => {
-        if (admins.length === 0) return;
-        return prisma.notification.createMany({
-          data: admins.map((admin) => ({
-            userId: admin.id,
-            type: 'NEW_REGISTRATION' as const,
-            audience: 'ADMIN' as const,
-            title: 'Nowa rejestracja',
-            url: '/admin/uzytkownicy',
-            body: `Nowa rejestracja przez Facebook: ${user.name} (${user.email})`,
-          })),
-        });
-      })
-      .then(() => { try { getIO().to('admin:global').emit('notification:new', {}); } catch {} })
-      .catch(() => {/* rejestracja nie może zależeć od powiadomienia */});
+    notifyAdminsOfRegistration(`Nowa rejestracja przez Facebook: ${user.name} (${user.email})`);
   }
 
   const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);

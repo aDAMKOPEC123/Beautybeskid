@@ -45,6 +45,25 @@ export const getUnreadCount = async (req: Request, res: Response, next: NextFunc
   }
 };
 
+export const markRouteNotificationsRead = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const path = String(req.body.path ?? '').trim();
+    if (!/^\/[a-z0-9/_-]*$/i.test(path) || path.length > 200) {
+      res.status(400).json({ status: 'error', message: 'Nieprawidlowy adres sekcji' });
+      return;
+    }
+
+    const count = await notificationsService.markRouteRead(
+      req.user!.id,
+      path,
+      audienceFor(req),
+    );
+    res.status(200).json({ status: 'success', data: { count } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUnreadRouteCounts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const counts = await notificationsService.getUnreadRouteCounts(req.user!.id, audienceFor(req));

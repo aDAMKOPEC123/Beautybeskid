@@ -98,6 +98,7 @@ export const AdminNotifications = () => {
       setUrl('');
       qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
       qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
     },
     onError: () => {
       toast.error('Nie udało się wysłać powiadomienia');
@@ -109,6 +110,7 @@ export const AdminNotifications = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
       qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
     },
     onError: () => {
       toast.error('Nie udało się oznaczyć powiadomienia jako przeczytane');
@@ -120,6 +122,7 @@ export const AdminNotifications = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
       qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
       toast.success('Wszystkie powiadomienia oznaczone jako przeczytane');
     },
     onError: () => {
@@ -150,6 +153,7 @@ export const AdminNotifications = () => {
     const onNotificationNew = () => {
       qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
       qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
     };
     socket.on('notification:new', onNotificationNew);
     return () => { socket.off('notification:new', onNotificationNew); };

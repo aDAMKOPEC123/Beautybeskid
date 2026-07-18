@@ -1,7 +1,7 @@
 // filepath: apps/web/src/components/layout/AdminLayout.tsx
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { BellOff, BellRing, ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -11,9 +11,26 @@ import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { consultationsApi } from '@/api/consultations.api';
-import { notificationsApi } from '@/api/notifications.api';
+import { notificationsApi, type NotificationUnreadMap } from '@/api/notifications.api';
 
 type MobileAdminLink = { to: string; label: string; badge?: number };
+
+const ADMIN_NOTIFICATION_PATHS = [
+  '/admin/wizyty',
+  '/admin/konsultacje',
+  '/admin/uzytkownicy',
+  '/admin/recenzje',
+  '/admin/chat',
+] as const;
+
+const countRouteNotifications = (counts: NotificationUnreadMap, path: string) =>
+  Object.entries(counts).reduce(
+    (total, [notificationPath, count]) =>
+      notificationPath === path || notificationPath.startsWith(`${path}/`)
+        ? total + count
+        : total,
+    0,
+  );
 
 export const AdminLayout = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -49,7 +66,7 @@ export const AdminLayout = () => {
   );
   const { socket, isConnected } = useSocket();
   const { staffUnreadTotal, setStaffUnreadTotal } = useChatStore();
-  const { isSupported, isSubscribed, permission, subscribe } = usePushSubscription();
+  const { isSupported, isSubscribed, permission, subscribe, unsubscribe } = usePushSubscription();
 
   const { data: newLeads = [] } = useQuery({
     queryKey: ['admin', 'consultations', 'active'],
@@ -65,6 +82,60 @@ export const AdminLayout = () => {
     enabled: isAuthenticated && isAdmin,
     refetchInterval: 30_000,
   });
+
+  const { data: routeUnreadMap = {} } = useQuery<NotificationUnreadMap>({
+    queryKey: ['admin', 'notifications', 'unread-map'],
+    queryFn: notificationsApi.getUnreadMap,
+    enabled: isAuthenticated && isAdmin,
+    refetchInterval: 30_000,
+  });
+
+  const appointmentUnread = countRouteNotifications(routeUnreadMap, '/admin/wizyty');
+  const consultationUnread = countRouteNotifications(routeUnreadMap, '/admin/konsultacje');
+  const registrationUnread = countRouteNotifications(routeUnreadMap, '/admin/uzytkownicy');
+  const reviewUnread = countRouteNotifications(routeUnreadMap, '/admin/recenzje');
+  const chatNotificationUnread = countRouteNotifications(routeUnreadMap, '/admin/chat');
+  const consultationBadge = Math.max(newLeadsCount, consultationUnread);
+  const wizytySectionBadge = appointmentUnread + consultationBadge;
+  const clientsBadge = registrationUnread + reviewUnread;
+  const komunikacjaBadge = adminNotifUnread + Math.max(0, staffUnreadTotal - chatNotificationUnread);
+  const appBadgeCount = Math.max(adminNotifUnread, staffUnreadTotal);
+
+  const activeNotificationPath = ADMIN_NOTIFICATION_PATHS.find((path) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`),
+  );
+  const activeRouteUnread = activeNotificationPath
+    ? countRouteNotifications(routeUnreadMap, activeNotificationPath)
+    : 0;
+
+  useEffect(() => {
+    if (!activeNotificationPath || activeRouteUnread === 0) return;
+
+    notificationsApi.markRouteRead(activeNotificationPath).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
+    }).catch((error) => {
+      console.error('Failed to mark route notifications as read:', error);
+    });
+  }, [activeNotificationPath, activeRouteUnread, queryClient]);
+
+  useEffect(() => {
+    const badgeNavigator = navigator as Navigator & {
+      setAppBadge?: (count?: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+
+    if (appBadgeCount > 0) {
+      void badgeNavigator.setAppBadge?.(appBadgeCount).catch(() => {});
+    } else {
+      void badgeNavigator.clearAppBadge?.().catch(() => {});
+    }
+
+    return () => {
+      void badgeNavigator.clearAppBadge?.().catch(() => {});
+    };
+  }, [appBadgeCount]);
 
   useEffect(() => {
     if (!isConnected || !socket) return;
@@ -87,8 +158,12 @@ export const AdminLayout = () => {
       toast.info(`Wizyta usunięta (ID: ${String(id).slice(0, 8)})`);
     };
 
-    const onNotificationNew = () => {
+    const onNotificationNew = (data: { unreadCount?: number }) => {
+      if (typeof data?.unreadCount === 'number') {
+        queryClient.setQueryData(['admin', 'notifications', 'unread-count'], data.unreadCount);
+      }
       queryClient.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications', 'unread-map'] });
     };
 
     socket.on('admin:unread_count', onAdminUnread);
@@ -106,9 +181,6 @@ export const AdminLayout = () => {
     };
   }, [isConnected, socket, setStaffUnreadTotal, queryClient]);
 
-  const komunikacjaBadge = adminNotifUnread + staffUnreadTotal;
-  const wizytyBadge = newLeadsCount;
-
   const mobileNavGroups: Array<{ label: string; links: MobileAdminLink[] }> = [
     { label: 'Start', links: [{ to: '/admin', label: 'Dashboard' }] },
     {
@@ -121,8 +193,8 @@ export const AdminLayout = () => {
     {
       label: 'Wizyty i personel',
       links: [
-        { to: '/admin/wizyty', label: 'Wizyty', badge: wizytyBadge },
-        { to: '/admin/konsultacje', label: 'Konsultacje', badge: newLeadsCount },
+        { to: '/admin/wizyty', label: 'Wizyty', badge: appointmentUnread },
+        { to: '/admin/konsultacje', label: 'Konsultacje', badge: consultationBadge },
         { to: '/admin/pracownicy', label: 'Pracownicy' },
         { to: '/admin/praca', label: 'Praca' },
       ],
@@ -130,8 +202,8 @@ export const AdminLayout = () => {
     {
       label: 'Klienci',
       links: [
-        { to: '/admin/uzytkownicy', label: 'Użytkownicy' },
-        { to: '/admin/recenzje', label: 'Recenzje' },
+        { to: '/admin/uzytkownicy', label: 'Użytkownicy', badge: registrationUnread },
+        { to: '/admin/recenzje', label: 'Recenzje', badge: reviewUnread },
         { to: '/admin/beauty-plans', label: 'Beauty Plans' },
       ],
     },
@@ -209,9 +281,9 @@ export const AdminLayout = () => {
           >
             <Menu size={18} />
             Menu
-            {komunikacjaBadge + wizytyBadge > 0 && (
+            {komunikacjaBadge > 0 && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] text-white">
-                {komunikacjaBadge + wizytyBadge > 9 ? '9+' : komunikacjaBadge + wizytyBadge}
+                {komunikacjaBadge > 9 ? '9+' : komunikacjaBadge}
               </span>
             )}
           </button>
@@ -287,9 +359,10 @@ export const AdminLayout = () => {
         <div className="md:hidden px-3 py-2 border-b bg-card">
           <button
             onClick={subscribe}
-            className="w-full text-xs px-3 py-2 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
           >
-            🔔 Włącz powiadomienia push
+            <BellRing size={15} />
+            Włącz powiadomienia push
           </button>
         </div>
       )}
@@ -364,9 +437,9 @@ export const AdminLayout = () => {
               >
                 <span>Wizyty i personel</span>
                 <div className="flex items-center gap-1.5">
-                  {!wizytyOpen && wizytyBadge > 0 && (
+                  {!wizytyOpen && wizytySectionBadge > 0 && (
                     <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                      {wizytyBadge > 9 ? '9+' : wizytyBadge}
+                      {wizytySectionBadge > 9 ? '9+' : wizytySectionBadge}
                     </span>
                   )}
                   <ChevronDown size={14} className={wizytyOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
@@ -377,15 +450,15 @@ export const AdminLayout = () => {
                   <Link
                     to="/admin/wizyty"
                     className={`px-3 py-1.5 text-sm rounded-md flex items-center justify-between ${
-                      wizytyBadge > 0
+                      appointmentUnread > 0
                         ? 'bg-destructive/10 text-destructive animate-pulse font-semibold'
                         : 'hover:bg-accent hover:text-accent-foreground'
                     }`}
                   >
                     <span>Wizyty</span>
-                    {wizytyBadge > 0 && (
+                    {appointmentUnread > 0 && (
                       <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">
-                        {wizytyBadge > 9 ? '9+' : wizytyBadge}
+                        {appointmentUnread > 9 ? '9+' : appointmentUnread}
                       </span>
                     )}
                   </Link>
@@ -394,9 +467,9 @@ export const AdminLayout = () => {
                     className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
                   >
                     <span>Konsultacje</span>
-                    {newLeadsCount > 0 && (
+                    {consultationBadge > 0 && (
                       <span className="bg-primary text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">
-                        {newLeadsCount > 9 ? '9+' : newLeadsCount}
+                        {consultationBadge > 9 ? '9+' : consultationBadge}
                       </span>
                     )}
                   </Link>
@@ -417,15 +490,32 @@ export const AdminLayout = () => {
                 className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
               >
                 <span>Klienci</span>
-                <ChevronDown size={14} className={klienciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                <div className="flex items-center gap-1.5">
+                  {!klienciOpen && clientsBadge > 0 && (
+                    <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
+                      {clientsBadge > 9 ? '9+' : clientsBadge}
+                    </span>
+                  )}
+                  <ChevronDown size={14} className={klienciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                </div>
               </button>
               {klienciOpen && (
                 <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/uzytkownicy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Użytkownicy
+                  <Link to="/admin/uzytkownicy" className="flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground">
+                    <span>Użytkownicy</span>
+                    {registrationUnread > 0 && (
+                      <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
+                        {registrationUnread > 9 ? '9+' : registrationUnread}
+                      </span>
+                    )}
                   </Link>
-                  <Link to="/admin/recenzje" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Recenzje
+                  <Link to="/admin/recenzje" className="flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground">
+                    <span>Recenzje</span>
+                    {reviewUnread > 0 && (
+                      <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
+                        {reviewUnread > 9 ? '9+' : reviewUnread}
+                      </span>
+                    )}
                   </Link>
                   <Link to="/admin/beauty-plans" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
                     Beauty Plans
@@ -585,14 +675,33 @@ export const AdminLayout = () => {
               )}
             </div>
           </nav>
-          {isSupported && !isSubscribed && permission !== 'denied' && (
-            <div className="p-4 border-t">
-              <button
-                onClick={subscribe}
-                className="w-full text-xs px-3 py-2 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
-              >
-                🔔 Włącz powiadomienia push
-              </button>
+          {isSupported && (
+            <div className="border-t p-4">
+              {isSubscribed ? (
+                <button
+                  type="button"
+                  onClick={unsubscribe}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
+                  title="Wyłącz powiadomienia push"
+                >
+                  <BellRing size={15} />
+                  Push aktywny
+                </button>
+              ) : permission === 'denied' ? (
+                <div className="flex items-center justify-center gap-2 rounded-full bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
+                  <BellOff size={15} />
+                  Push zablokowany
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={subscribe}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                >
+                  <BellRing size={15} />
+                  Włącz push
+                </button>
+              )}
             </div>
           )}
         </aside>

@@ -48,6 +48,29 @@ export const markAllRead = async (userId: string, audience: NotificationAudience
   });
 };
 
+export const markRouteRead = async (
+  userId: string,
+  path: string,
+  audience: NotificationAudience = 'USER',
+) => {
+  const result = await prisma.notification.updateMany({
+    where: {
+      userId,
+      audience,
+      readAt: null,
+      OR: [
+        { url: path },
+        { url: { startsWith: `${path}/` } },
+        { url: { startsWith: `${path}?` } },
+        { url: { startsWith: `${path}#` } },
+      ],
+    },
+    data: { readAt: new Date() },
+  });
+
+  return result.count;
+};
+
 export const createNotification = async (data: {
   userId: string;
   type: NotificationType;
