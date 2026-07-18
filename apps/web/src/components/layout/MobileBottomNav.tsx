@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, type Transition } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
@@ -24,9 +24,65 @@ import {
   Flower2,
   MessageSquare,
   BadgePercent,
+  type LucideIcon,
 } from 'lucide-react';
 
 type MobileNavEnvironment = 'browser' | 'android-pwa' | 'ios-pwa';
+
+type BottomNavIconProps = {
+  icon: LucideIcon;
+  active: boolean;
+  environment: MobileNavEnvironment;
+  size: number;
+  badge?: number;
+  transition: Transition;
+};
+
+const BottomNavIcon = ({
+  icon: Icon,
+  active,
+  environment,
+  size,
+  badge,
+  transition,
+}: BottomNavIconProps) => {
+  const showIndicator = active && environment !== 'ios-pwa';
+  const wrapperClassName = environment === 'android-pwa'
+    ? 'h-8 w-14'
+    : environment === 'ios-pwa'
+      ? 'h-7 w-10'
+      : 'h-8 w-12';
+
+  return (
+    <span className={cn('relative z-10 flex shrink-0 items-center justify-center', wrapperClassName)}>
+      {showIndicator && (
+        <motion.span
+          layoutId="user-mobile-nav-active"
+          className="absolute inset-0 rounded-full"
+          transition={transition}
+          style={{
+            background: environment === 'android-pwa'
+              ? 'rgba(196,150,90,0.20)'
+              : 'rgba(196,150,90,0.12)',
+          }}
+        />
+      )}
+      <Icon
+        size={size}
+        strokeWidth={active ? 2.35 : 1.9}
+        className="relative z-10"
+      />
+      {badge != null && badge > 0 && (
+        <span
+          className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold"
+          style={{ background: '#C4965A', color: '#fff' }}
+        >
+          {badge > 9 ? '9+' : badge}
+        </span>
+      )}
+    </span>
+  );
+};
 
 export type MobileBottomNavMetrics = {
   environment: MobileNavEnvironment;
@@ -161,11 +217,11 @@ export function MobileBottomNav() {
     'relative isolate flex h-full w-full max-w-16 justify-self-center flex-col items-center justify-center transition-colors',
     isIOSPwa ? 'gap-0 px-2 py-0 text-[10px]' : 'gap-0.5 px-3 py-1 text-[11px]',
   );
-  const bottomNavIconSize = isIOSPwa ? 20 : 22;
+  const bottomNavIconSize = isIOSPwa ? 25 : 24;
   const activeBackdropVariants = shouldReduce ? backdropReducedVariants : backdropVariants;
   const activePanelVariants = shouldReduce ? panelReducedVariants : panelVariants;
   const activeItemVariants = shouldReduce ? itemReducedVariants : itemVariants;
-  const navIndicatorTransition = shouldReduce
+  const navIndicatorTransition: Transition = shouldReduce
     ? { duration: 0.16, ease: 'easeOut' }
     : { type: 'spring', stiffness: 420, damping: 34, mass: 0.7 };
 
@@ -175,6 +231,9 @@ export function MobileBottomNav() {
       : location.pathname.startsWith(path);
   const isMoreRoute = ALL_MORE_LINKS.some(({ to }) => to !== '/' && isActive(to));
   const isMoreActive = isMoreOpen || isMoreRoute;
+  const dashboardActive = isActive('/user') && !isMoreOpen;
+  const appointmentsActive = isActive('/user/wizyty') && !isMoreOpen;
+  const chatActive = isActive('/user/chat') && !isMoreOpen;
 
   useEffect(() => {
     setIsMoreOpen(false);
@@ -238,20 +297,23 @@ export function MobileBottomNav() {
                             isIOSPwa ? 'p-1.5' : 'p-2',
                             isActive(to) ? 'font-semibold' : 'opacity-60',
                           )}
-                          style={{ color: isActive(to) ? '#C4965A' : '#1A3828' }}
+                          style={{ color: isActive(to) ? '#9A6C32' : '#1A3828' }}
                         >
-                          {isActive(to) && (
+                          {isActive(to) && !isIOSPwa && (
                             <motion.span
                               layoutId="user-mobile-more-active"
                               className="absolute inset-0 rounded-xl"
                               transition={navIndicatorTransition}
                               style={{
-                                background: 'linear-gradient(135deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-                                boxShadow: 'inset 0 0 0 1px rgba(196,150,90,0.14)',
+                                background: 'rgba(196,150,90,0.12)',
                               }}
                             />
                           )}
-                          <Icon size={isIOSPwa ? 20 : 22} />
+                          <Icon
+                            size={isIOSPwa ? 23 : 24}
+                            strokeWidth={isActive(to) ? 2.3 : 1.9}
+                            className="relative z-10"
+                          />
                           <span className="relative z-10 text-center leading-tight">{label}</span>
                           {count > 0 && (
                             <span
@@ -279,12 +341,12 @@ export function MobileBottomNav() {
                           to={to}
                           onClick={() => setIsMoreOpen(false)}
                           className={cn(
-                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs opacity-50 transition-all duration-300 active:scale-95',
+                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs opacity-65 transition-all duration-300 active:scale-95',
                             isIOSPwa ? 'p-1.5' : 'p-2',
                           )}
                           style={{ color: '#1A3828' }}
                         >
-                          <Icon size={isIOSPwa ? 20 : 22} />
+                          <Icon size={isIOSPwa ? 23 : 24} strokeWidth={1.9} />
                           <span className="text-center leading-tight">{label}</span>
                         </Link>
                       </motion.div>
@@ -301,57 +363,44 @@ export function MobileBottomNav() {
         className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 items-center px-2 lg:hidden"
         style={{
           height: navMetrics.totalHeight,
-          background: '#F4F9F5',
-          borderTop: '1px solid rgba(0,0,0,0.07)',
+          background: isIOSPwa ? 'rgba(244,249,245,0.92)' : '#F4F9F5',
+          borderTop: isIOSPwa ? '1px solid rgba(26,56,40,0.08)' : '1px solid rgba(0,0,0,0.07)',
           paddingBottom: 'env(safe-area-inset-bottom)',
           boxSizing: 'border-box',
+          backdropFilter: isIOSPwa ? 'blur(18px) saturate(1.2)' : undefined,
+          WebkitBackdropFilter: isIOSPwa ? 'blur(18px) saturate(1.2)' : undefined,
         }}
         data-nav-environment={navMetrics.environment}
       >
         <Link
           to="/user"
-          className={bottomNavItemClassName}
-          style={{ color: isActive('/user') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
+          className={cn(bottomNavItemClassName, dashboardActive && 'font-semibold')}
+          style={{ color: dashboardActive ? '#9A6C32' : 'rgba(26,56,40,0.54)' }}
         >
-          {isActive('/user') && !isMoreOpen && (
-            <motion.span
-              layoutId="user-mobile-nav-active"
-              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
-              transition={navIndicatorTransition}
-              style={{
-                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-              }}
-            />
-          )}
-          <LayoutDashboard size={bottomNavIconSize} />
+          <BottomNavIcon
+            icon={LayoutDashboard}
+            active={dashboardActive}
+            environment={navMetrics.environment}
+            size={bottomNavIconSize}
+            transition={navIndicatorTransition}
+          />
           <span className="relative z-10 leading-none">Główna</span>
         </Link>
 
         <Link
           to="/user/wizyty"
-          className={bottomNavItemClassName}
-          style={{ color: isActive('/user/wizyty') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
+          className={cn(bottomNavItemClassName, appointmentsActive && 'font-semibold')}
+          style={{ color: appointmentsActive ? '#9A6C32' : 'rgba(26,56,40,0.54)' }}
         >
-          {isActive('/user/wizyty') && !isMoreOpen && (
-            <motion.span
-              layoutId="user-mobile-nav-active"
-              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
-              transition={navIndicatorTransition}
-              style={{
-                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-              }}
-            />
-          )}
-          <Calendar size={bottomNavIconSize} />
+          <BottomNavIcon
+            icon={Calendar}
+            active={appointmentsActive}
+            environment={navMetrics.environment}
+            size={bottomNavIconSize}
+            badge={getBadgeCount('/user/wizyty')}
+            transition={navIndicatorTransition}
+          />
           <span className="relative z-10 leading-none">Wizyty</span>
-          {getBadgeCount('/user/wizyty') > 0 && (
-            <span
-              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
-              style={{ background: '#C4965A', color: '#fff' }}
-            >
-              {getBadgeCount('/user/wizyty') > 9 ? '9+' : getBadgeCount('/user/wizyty')}
-            </span>
-          )}
         </Link>
 
         <Link
@@ -364,62 +413,40 @@ export function MobileBottomNav() {
           )}
           style={{ background: '#1A3828', color: '#fff' }}
         >
-          <Plus size={isIOSPwa ? 22 : 24} />
+          <Plus size={24} strokeWidth={2.2} />
         </Link>
 
         <Link
           to="/user/chat"
-          className={bottomNavItemClassName}
-          style={{ color: isActive('/user/chat') && !isMoreOpen ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
+          className={cn(bottomNavItemClassName, chatActive && 'font-semibold')}
+          style={{ color: chatActive ? '#9A6C32' : 'rgba(26,56,40,0.54)' }}
         >
-          {isActive('/user/chat') && !isMoreOpen && (
-            <motion.span
-              layoutId="user-mobile-nav-active"
-              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
-              transition={navIndicatorTransition}
-              style={{
-                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-              }}
-            />
-          )}
-          <MessageCircle size={bottomNavIconSize} />
+          <BottomNavIcon
+            icon={MessageCircle}
+            active={chatActive}
+            environment={navMetrics.environment}
+            size={bottomNavIconSize}
+            badge={getBadgeCount('/user/chat')}
+            transition={navIndicatorTransition}
+          />
           <span className="relative z-10 leading-none">Czat</span>
-          {getBadgeCount('/user/chat') > 0 && (
-            <span
-              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
-              style={{ background: '#C4965A', color: '#fff' }}
-            >
-              {getBadgeCount('/user/chat') > 9 ? '9+' : getBadgeCount('/user/chat')}
-            </span>
-          )}
         </Link>
 
         <button
           onClick={() => setIsMoreOpen((open) => !open)}
           aria-expanded={isMoreOpen}
-          className={bottomNavItemClassName}
-          style={{ color: isMoreActive ? '#C4965A' : 'rgba(26,56,40,0.5)' }}
+          className={cn(bottomNavItemClassName, isMoreActive && 'font-semibold')}
+          style={{ color: isMoreActive ? '#9A6C32' : 'rgba(26,56,40,0.54)' }}
         >
-          {isMoreActive && (
-            <motion.span
-              layoutId="user-mobile-nav-active"
-              className="absolute inset-x-0 -inset-y-1 rounded-2xl"
-              transition={navIndicatorTransition}
-              style={{
-                background: 'linear-gradient(180deg, rgba(196,150,90,0.16) 0%, rgba(196,150,90,0.08) 100%)',
-              }}
-            />
-          )}
-          {isMoreOpen ? <X size={bottomNavIconSize} /> : <UserIcon size={bottomNavIconSize} />}
+          <BottomNavIcon
+            icon={isMoreOpen ? X : UserIcon}
+            active={isMoreActive}
+            environment={navMetrics.environment}
+            size={bottomNavIconSize}
+            badge={!isMoreOpen ? moreBadge : undefined}
+            transition={navIndicatorTransition}
+          />
           <span className="relative z-10 leading-none">Więcej</span>
-          {moreBadge > 0 && !isMoreOpen && (
-            <span
-              className="absolute right-0.5 top-0.5 z-10 flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
-              style={{ background: '#C4965A', color: '#fff' }}
-            >
-              {moreBadge > 9 ? '9+' : moreBadge}
-            </span>
-          )}
         </button>
       </nav>
     </>
