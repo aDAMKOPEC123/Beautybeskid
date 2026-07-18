@@ -215,7 +215,7 @@ export function MobileBottomNav() {
   const isIOSPwa = navMetrics.environment === 'ios-pwa';
   const bottomNavItemClassName = cn(
     'relative isolate flex h-full w-full max-w-16 justify-self-center flex-col items-center justify-center transition-colors',
-    isIOSPwa ? 'gap-0 px-2 py-0 text-[10px]' : 'gap-0.5 px-3 py-1 text-[11px]',
+    isIOSPwa ? 'translate-y-1.5 gap-0 px-2 py-0 text-[10px]' : 'gap-0.5 px-3 py-1 text-[11px]',
   );
   const bottomNavIconSize = isIOSPwa ? 25 : 24;
   const activeBackdropVariants = shouldReduce ? backdropReducedVariants : backdropVariants;
@@ -409,7 +409,7 @@ export function MobileBottomNav() {
           aria-label="Umów wizytę"
           className={cn(
             'flex items-center justify-center justify-self-center rounded-full shadow-md transition-transform active:scale-95',
-            isIOSPwa ? '-mt-3 h-11 w-11' : '-mt-4 h-12 w-12',
+            isIOSPwa ? '-mt-1 h-11 w-11 translate-y-1.5' : '-mt-4 h-12 w-12',
           )}
           style={{ background: '#1A3828', color: '#fff' }}
         >
