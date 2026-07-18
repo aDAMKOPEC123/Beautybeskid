@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion, type Transition } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useDragControls,
+  useReducedMotion,
+  type PanInfo,
+  type Transition,
+} from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserMenuBadges } from '@/hooks/useUserMenuBadges';
 import {
@@ -178,8 +185,8 @@ const ALL_MORE_LINKS = MORE_LINK_GROUPS.reduce<MobileMoreLink[]>(
 
 const backdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.18 } },
-  exit: { opacity: 0, transition: { duration: 0.16 } },
+  visible: { opacity: 1, transition: { duration: 0.24, ease: 'easeOut' } },
+  exit: { opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
 };
 
 const backdropReducedVariants = {
@@ -189,29 +196,28 @@ const backdropReducedVariants = {
 };
 
 const panelVariants = {
-  hidden: { opacity: 0, y: 28, scale: 0.98 },
+  hidden: { opacity: 0.96, y: '100%' },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 420,
-      damping: 34,
+      stiffness: 340,
+      damping: 30,
+      mass: 0.82,
       staggerChildren: 0.025,
-      delayChildren: 0.04,
+      delayChildren: 0.08,
     },
   },
   exit: {
-    opacity: 0,
-    y: 18,
-    scale: 0.98,
-    transition: { duration: 0.16, ease: 'easeIn' },
+    opacity: 0.96,
+    y: '100%',
+    transition: { duration: 0.24, ease: [0.4, 0, 0.6, 1] as const },
   },
 };
 
 const panelReducedVariants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
@@ -223,8 +229,8 @@ const panelReducedVariants = {
   },
   exit: {
     opacity: 0,
-    y: 6,
-    transition: { duration: 0.12, ease: 'easeIn' },
+    y: 24,
+    transition: { duration: 0.14, ease: 'easeIn' },
   },
 };
 
@@ -240,6 +246,7 @@ const itemReducedVariants = {
 
 export function MobileBottomNav() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const morePanelDragControls = useDragControls();
   const location = useLocation();
   const { getBadgeCount, moreBadge } = useUserMenuBadges();
   const shouldReduce = useReducedMotion();
@@ -266,6 +273,11 @@ export function MobileBottomNav() {
   const dashboardActive = isActive('/user') && !isMoreOpen;
   const appointmentsActive = isActive('/user/wizyty') && !isMoreOpen;
   const chatActive = isActive('/user/chat') && !isMoreOpen;
+
+  const handleMorePanelDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const shouldClose = info.offset.y > 90 || info.velocity.y > 650;
+    if (shouldClose) setIsMoreOpen(false);
+  };
 
   useEffect(() => {
     setIsMoreOpen(false);
@@ -306,32 +318,51 @@ export function MobileBottomNav() {
                 background: '#F4F9F5',
                 borderTop: '1px solid rgba(0,0,0,0.07)',
                 bottom: navMetrics.totalHeight,
+                willChange: 'transform, opacity',
               }}
               data-nav-environment={navMetrics.environment}
               variants={activePanelVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
+              drag="y"
+              dragListener={false}
+              dragControls={morePanelDragControls}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0.02, bottom: 0.28 }}
+              dragMomentum={false}
+              onDragEnd={handleMorePanelDragEnd}
             >
               <div className={isIOSPwa ? 'space-y-3' : 'space-y-4'}>
-                <div className="flex items-start justify-between gap-4 px-1">
-                  <div>
-                    <h2 className="text-lg font-heading font-bold leading-tight" style={{ color: '#1A3828' }}>
-                      Więcej
-                    </h2>
-                    <p className="mt-0.5 text-xs" style={{ color: 'rgba(20,40,28,0.52)' }}>
-                      Wszystkie funkcje panelu klienta
-                    </p>
+                <div
+                  className="-mx-1 -mt-1 flex cursor-grab touch-none flex-col px-1 pb-1 active:cursor-grabbing"
+                  onPointerDown={(event) => morePanelDragControls.start(event)}
+                >
+                  <div
+                    className="mx-auto mb-3 h-1 w-10 rounded-full"
+                    style={{ background: 'rgba(26,56,40,0.2)' }}
+                    aria-hidden="true"
+                  />
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-lg font-heading font-bold leading-tight" style={{ color: '#1A3828' }}>
+                        Więcej
+                      </h2>
+                      <p className="mt-0.5 text-xs" style={{ color: 'rgba(20,40,28,0.52)' }}>
+                        Wszystkie funkcje panelu klienta
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsMoreOpen(false)}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-white"
+                      style={{ borderColor: 'rgba(26,56,40,0.12)', color: '#1A3828' }}
+                      aria-label="Zamknij menu"
+                    >
+                      <X size={18} />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsMoreOpen(false)}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-white"
-                    style={{ borderColor: 'rgba(26,56,40,0.12)', color: '#1A3828' }}
-                    aria-label="Zamknij menu"
-                  >
-                    <X size={18} />
-                  </button>
                 </div>
 
                 {MORE_LINK_GROUPS.map((group) => (
