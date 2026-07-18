@@ -1,7 +1,25 @@
 // filepath: apps/web/src/components/layout/AdminLayout.tsx
-import { useEffect, useState } from 'react';
-import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { BellOff, BellRing, ChevronDown, Menu, X } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Navigate, Outlet, Link, NavLink, useLocation } from 'react-router-dom';
+import {
+  Bell,
+  BellOff,
+  BellRing,
+  CalendarDays,
+  ChevronDown,
+  FileText,
+  GraduationCap,
+  LayoutDashboard,
+  Megaphone,
+  Menu,
+  MessageCircle,
+  ScanFace,
+  Settings,
+  ShoppingBag,
+  UsersRound,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -14,6 +32,116 @@ import { consultationsApi } from '@/api/consultations.api';
 import { notificationsApi, type NotificationUnreadMap } from '@/api/notifications.api';
 
 type MobileAdminLink = { to: string; label: string; badge?: number };
+
+type DesktopNavLinkProps = {
+  to: string;
+  label: string;
+  badge?: number;
+  icon?: LucideIcon;
+  end?: boolean;
+  nested?: boolean;
+};
+
+const DesktopBadge = ({ count, muted = false }: { count?: number; muted?: boolean }) => {
+  if (!count || count < 1) return null;
+
+  return (
+    <span
+      className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-bold tabular-nums ${
+        muted ? 'bg-primary/10 text-primary' : 'bg-destructive text-white'
+      }`}
+    >
+      {count > 9 ? '9+' : count}
+    </span>
+  );
+};
+
+const DesktopNavLink = ({
+  to,
+  label,
+  badge,
+  icon: Icon,
+  end = false,
+  nested = false,
+}: DesktopNavLinkProps) => (
+  <NavLink
+    to={to}
+    end={end}
+    className={({ isActive }) =>
+      `relative flex items-center justify-between gap-3 rounded-md transition-colors ${
+        nested ? 'min-h-9 px-3 py-2 text-[13px]' : 'min-h-10 px-3 py-2 text-sm font-medium'
+      } ${
+        isActive
+          ? 'bg-primary/10 font-semibold text-primary'
+          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+      }`
+    }
+  >
+    {({ isActive }) => (
+      <>
+        {nested && (
+          <span
+            className={`absolute -left-[13px] h-5 w-0.5 rounded-full transition-colors ${
+              isActive ? 'bg-primary' : 'bg-transparent'
+            }`}
+          />
+        )}
+        <span className="flex min-w-0 items-center gap-3">
+          {Icon && <Icon size={17} strokeWidth={1.8} className="shrink-0" />}
+          <span className="truncate">{label}</span>
+        </span>
+        <DesktopBadge count={badge} muted={isActive} />
+      </>
+    )}
+  </NavLink>
+);
+
+type DesktopNavSectionProps = {
+  label: string;
+  icon: LucideIcon;
+  open: boolean;
+  active: boolean;
+  badge?: number;
+  onToggle: () => void;
+  children: ReactNode;
+};
+
+const DesktopNavSection = ({
+  label,
+  icon: Icon,
+  open,
+  active,
+  badge,
+  onToggle,
+  children,
+}: DesktopNavSectionProps) => (
+  <div className="space-y-1">
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      className={`flex min-h-10 w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        active ? 'bg-accent/80 text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+      }`}
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <Icon size={17} strokeWidth={1.8} className={active ? 'shrink-0 text-primary' : 'shrink-0'} />
+        <span className="truncate">{label}</span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2">
+        {!open && <DesktopBadge count={badge} />}
+        <ChevronDown
+          size={15}
+          className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </span>
+    </button>
+    {open && <div className="ml-5 space-y-0.5 border-l border-border/80 pl-3">{children}</div>}
+  </div>
+);
+
+const isCurrentSection = (pathname: string, paths: readonly string[]) =>
+  paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
 const ADMIN_NOTIFICATION_PATHS = [
   '/admin/wizyty',
@@ -52,17 +180,8 @@ export const AdminLayout = () => {
   const [diagnostykaOpen, setDiagnostykaOpen] = useState(
     () => ['/admin/quizy', '/admin/pogoda-skory'].some(p => location.pathname.startsWith(p))
   );
-  const [akademiaOpen, setAkademiaOpen] = useState(
-    () => location.pathname.startsWith('/admin/akademia')
-  );
   const [sprzedazOpen, setSprzedazOpen] = useState(
     () => ['/admin/finanse', '/admin/kody-rabatowe', '/admin/promocje-sklepowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'].some(p => location.pathname.startsWith(p))
-  );
-  const [ustawieniaOpen, setUstawieniaOpen] = useState(
-    () => ['/admin/regulamin'].some(p => location.pathname.startsWith(p))
-  );
-  const [marketingOpen, setMarketingOpen] = useState(
-    () => location.pathname.startsWith('/admin/marketing')
   );
   const { socket, isConnected } = useSocket();
   const { staffUnreadTotal, setStaffUnreadTotal } = useChatStore();
@@ -136,6 +255,17 @@ export const AdminLayout = () => {
       void badgeNavigator.clearAppBadge?.().catch(() => {});
     };
   }, [appBadgeCount]);
+
+  useEffect(() => {
+    const pathname = location.pathname;
+
+    if (isCurrentSection(pathname, ['/admin/powiadomienia', '/admin/chat'])) setKomunikacjaOpen(true);
+    if (isCurrentSection(pathname, ['/admin/wizyty', '/admin/konsultacje', '/admin/pracownicy', '/admin/praca'])) setWizytyOpen(true);
+    if (isCurrentSection(pathname, ['/admin/uzytkownicy', '/admin/recenzje', '/admin/beauty-plans'])) setKlienciOpen(true);
+    if (isCurrentSection(pathname, ['/admin/hero', '/admin/polecane-zabiegi', '/admin/o-nas', '/admin/uslugi', '/admin/blog', '/admin/metamorfozy'])) setTresciOpen(true);
+    if (isCurrentSection(pathname, ['/admin/quizy', '/admin/pogoda-skory'])) setDiagnostykaOpen(true);
+    if (isCurrentSection(pathname, ['/admin/finanse', '/admin/kody-rabatowe', '/admin/promocje-sklepowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery'])) setSprzedazOpen(true);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!isConnected || !socket) return;
@@ -257,6 +387,13 @@ export const AdminLayout = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const komunikacjaActive = isCurrentSection(location.pathname, ['/admin/powiadomienia', '/admin/chat']);
+  const wizytyActive = isCurrentSection(location.pathname, ['/admin/wizyty', '/admin/konsultacje', '/admin/pracownicy', '/admin/praca']);
+  const klienciActive = isCurrentSection(location.pathname, ['/admin/uzytkownicy', '/admin/recenzje', '/admin/beauty-plans']);
+  const tresciActive = isCurrentSection(location.pathname, ['/admin/hero', '/admin/polecane-zabiegi', '/admin/o-nas', '/admin/uslugi', '/admin/blog', '/admin/metamorfozy']);
+  const diagnostykaActive = isCurrentSection(location.pathname, ['/admin/quizy', '/admin/pogoda-skory']);
+  const sprzedazActive = isCurrentSection(location.pathname, ['/admin/finanse', '/admin/kody-rabatowe', '/admin/promocje-sklepowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery']);
+
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
   if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
 
@@ -368,312 +505,120 @@ export const AdminLayout = () => {
       )}
 
       <div className="flex-1 flex overflow-hidden">
-        <aside className="w-64 bg-card border-r flex flex-col hidden md:flex">
-          <div
-            className="p-6 font-heading font-semibold text-lg"
-            style={{
-              background: 'linear-gradient(135deg, #1A3828 0%, #243f30 100%)',
-              borderBottom: '2px solid #C4965A',
-              boxShadow: '0 2px 16px rgba(26,56,40,0.18)',
-              color: '#fff',
-            }}
-          >
-            Administracja
+        <aside className="hidden w-72 shrink-0 flex-col border-r bg-card md:flex">
+          <div className="border-b px-5 py-4">
+            <p className="text-[11px] font-semibold uppercase text-primary/70">
+              BeskidStudio
+            </p>
+            <p className="mt-1 font-heading text-base font-semibold text-foreground">
+              Panel administracyjny
+            </p>
           </div>
-          <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
-            <Link to="/admin" className="px-4 py-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium">
-              Dashboard
-            </Link>
+          <nav className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4">
+            <DesktopNavLink
+              to="/admin"
+              label="Dashboard"
+              icon={LayoutDashboard}
+              end
+            />
+
+            <div className="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase text-muted-foreground/70">
+              Zarządzanie
+            </div>
 
             {/* Komunikacja */}
-            <div>
-              <button
-                onClick={() => setKomunikacjaOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Komunikacja</span>
-                <div className="flex items-center gap-1.5">
-                  {!komunikacjaOpen && komunikacjaBadge > 0 && (
-                    <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                      {komunikacjaBadge > 9 ? '9+' : komunikacjaBadge}
-                    </span>
-                  )}
-                  <ChevronDown size={14} className={komunikacjaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                </div>
-              </button>
-              {komunikacjaOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link
-                    to="/admin/powiadomienia"
-                    className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <span>Powiadomienia</span>
-                    {adminNotifUnread > 0 && (
-                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                        {adminNotifUnread > 9 ? '9+' : adminNotifUnread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    to="/admin/chat"
-                    className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <span>Chat</span>
-                    {staffUnreadTotal > 0 && (
-                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                        {staffUnreadTotal > 9 ? '9+' : staffUnreadTotal}
-                      </span>
-                    )}
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavSection
+              label="Komunikacja"
+              icon={Bell}
+              open={komunikacjaOpen}
+              active={komunikacjaActive}
+              badge={komunikacjaBadge}
+              onToggle={() => setKomunikacjaOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/powiadomienia" label="Powiadomienia" badge={adminNotifUnread} nested />
+              <DesktopNavLink to="/admin/chat" label="Chat" badge={staffUnreadTotal} nested />
+            </DesktopNavSection>
 
             {/* Wizyty i personel */}
-            <div>
-              <button
-                onClick={() => setWizytyOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Wizyty i personel</span>
-                <div className="flex items-center gap-1.5">
-                  {!wizytyOpen && wizytySectionBadge > 0 && (
-                    <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center animate-pulse">
-                      {wizytySectionBadge > 9 ? '9+' : wizytySectionBadge}
-                    </span>
-                  )}
-                  <ChevronDown size={14} className={wizytyOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                </div>
-              </button>
-              {wizytyOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link
-                    to="/admin/wizyty"
-                    className={`px-3 py-1.5 text-sm rounded-md flex items-center justify-between ${
-                      appointmentUnread > 0
-                        ? 'bg-destructive/10 text-destructive animate-pulse font-semibold'
-                        : 'hover:bg-accent hover:text-accent-foreground'
-                    }`}
-                  >
-                    <span>Wizyty</span>
-                    {appointmentUnread > 0 && (
-                      <span className="bg-destructive text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">
-                        {appointmentUnread > 9 ? '9+' : appointmentUnread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    to="/admin/konsultacje"
-                    className="px-3 py-1.5 text-sm rounded-md flex items-center justify-between hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <span>Konsultacje</span>
-                    {consultationBadge > 0 && (
-                      <span className="bg-primary text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">
-                        {consultationBadge > 9 ? '9+' : consultationBadge}
-                      </span>
-                    )}
-                  </Link>
-                  <Link to="/admin/pracownicy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Pracownicy
-                  </Link>
-                  <Link to="/admin/praca" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Praca
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavSection
+              label="Wizyty i personel"
+              icon={CalendarDays}
+              open={wizytyOpen}
+              active={wizytyActive}
+              badge={wizytySectionBadge}
+              onToggle={() => setWizytyOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/wizyty" label="Wizyty" badge={appointmentUnread} nested />
+              <DesktopNavLink to="/admin/konsultacje" label="Konsultacje" badge={consultationBadge} nested />
+              <DesktopNavLink to="/admin/pracownicy" label="Pracownicy" nested />
+              <DesktopNavLink to="/admin/praca" label="Praca" nested />
+            </DesktopNavSection>
 
             {/* Klienci */}
-            <div>
-              <button
-                onClick={() => setKlienciOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Klienci</span>
-                <div className="flex items-center gap-1.5">
-                  {!klienciOpen && clientsBadge > 0 && (
-                    <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
-                      {clientsBadge > 9 ? '9+' : clientsBadge}
-                    </span>
-                  )}
-                  <ChevronDown size={14} className={klienciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                </div>
-              </button>
-              {klienciOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/uzytkownicy" className="flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground">
-                    <span>Użytkownicy</span>
-                    {registrationUnread > 0 && (
-                      <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
-                        {registrationUnread > 9 ? '9+' : registrationUnread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link to="/admin/recenzje" className="flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground">
-                    <span>Recenzje</span>
-                    {reviewUnread > 0 && (
-                      <span className="min-w-[1.25rem] rounded-full bg-destructive px-1.5 text-center text-xs text-white">
-                        {reviewUnread > 9 ? '9+' : reviewUnread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link to="/admin/beauty-plans" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Beauty Plans
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavSection
+              label="Klienci"
+              icon={UsersRound}
+              open={klienciOpen}
+              active={klienciActive}
+              badge={clientsBadge}
+              onToggle={() => setKlienciOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/uzytkownicy" label="Użytkownicy" badge={registrationUnread} nested />
+              <DesktopNavLink to="/admin/recenzje" label="Recenzje" badge={reviewUnread} nested />
+              <DesktopNavLink to="/admin/beauty-plans" label="Beauty Plans" nested />
+            </DesktopNavSection>
 
             {/* Treści */}
-            <div>
-              <button
-                onClick={() => setTresciOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Treści</span>
-                <ChevronDown size={14} className={tresciOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {tresciOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/hero" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Slider strony głównej
-                  </Link>
-                  <Link to="/admin/polecane-zabiegi" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Polecane zabiegi
-                  </Link>
-                  <Link to="/admin/o-nas" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Strona „O nas"
-                  </Link>
-                  <Link to="/admin/uslugi" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Zarządzaj Usługami
-                  </Link>
-                  <Link to="/admin/blog" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Wpisy na Blogu
-                  </Link>
-                  <Link to="/admin/metamorfozy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Metamorfozy
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Akademia */}
-            <div>
-              <button
-                onClick={() => setAkademiaOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Akademia</span>
-                <ChevronDown size={14} className={akademiaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {akademiaOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/akademia" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Kursy i Quizy
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Forum */}
-            <div>
-              <Link
-                to="/admin/forum"
-                className="px-4 py-2 flex items-center text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                Forum
-              </Link>
-            </div>
+            <DesktopNavSection
+              label="Treści"
+              icon={FileText}
+              open={tresciOpen}
+              active={tresciActive}
+              onToggle={() => setTresciOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/hero" label="Slider strony głównej" nested />
+              <DesktopNavLink to="/admin/polecane-zabiegi" label="Polecane zabiegi" nested />
+              <DesktopNavLink to="/admin/o-nas" label="Strona „O nas”" nested />
+              <DesktopNavLink to="/admin/uslugi" label="Usługi" nested />
+              <DesktopNavLink to="/admin/blog" label="Blog" nested />
+              <DesktopNavLink to="/admin/metamorfozy" label="Metamorfozy" nested />
+            </DesktopNavSection>
 
             {/* Diagnostyka */}
-            <div>
-              <button
-                onClick={() => setDiagnostykaOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Diagnostyka</span>
-                <ChevronDown size={14} className={diagnostykaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {diagnostykaOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/quizy" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Quizy
-                  </Link>
-                  <Link to="/admin/pogoda-skory" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Twoja Skóra
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavSection
+              label="Diagnostyka"
+              icon={ScanFace}
+              open={diagnostykaOpen}
+              active={diagnostykaActive}
+              onToggle={() => setDiagnostykaOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/quizy" label="Quizy" nested />
+              <DesktopNavLink to="/admin/pogoda-skory" label="Pogoda skóry" nested />
+            </DesktopNavSection>
 
             {/* Sprzedaż */}
-            <div>
-              <button
-                onClick={() => setSprzedazOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Sprzedaż</span>
-                <ChevronDown size={14} className={sprzedazOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {sprzedazOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/kody-rabatowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Kody Rabatowe
-                  </Link>
-                  <Link to="/admin/finanse" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Finanse
-                  </Link>
-                  <Link to="/admin/promocje-sklepowe" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Promocje sklepowe
-                  </Link>
-                  <Link to="/admin/vouchery" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Vouchery
-                  </Link>
-                  <Link to="/admin/lojalnosc" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Program Lojalnościowy
-                  </Link>
-                  <Link to="/admin/asortyment" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Asortyment
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavSection
+              label="Sprzedaż"
+              icon={ShoppingBag}
+              open={sprzedazOpen}
+              active={sprzedazActive}
+              onToggle={() => setSprzedazOpen((open) => !open)}
+            >
+              <DesktopNavLink to="/admin/kody-rabatowe" label="Kody rabatowe" nested />
+              <DesktopNavLink to="/admin/finanse" label="Finanse" nested />
+              <DesktopNavLink to="/admin/promocje-sklepowe" label="Promocje sklepowe" nested />
+              <DesktopNavLink to="/admin/vouchery" label="Vouchery" nested />
+              <DesktopNavLink to="/admin/lojalnosc" label="Program lojalnościowy" nested />
+              <DesktopNavLink to="/admin/asortyment" label="Asortyment" nested />
+            </DesktopNavSection>
 
-            {/* Ustawienia */}
-            <div>
-              <button
-                onClick={() => setUstawieniaOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Ustawienia</span>
-                <ChevronDown size={14} className={ustawieniaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {ustawieniaOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/regulamin" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Regulamin
-                  </Link>
-                </div>
-              )}
+            <div className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase text-muted-foreground/70">
+              Narzędzia
             </div>
-
-            {/* Marketing */}
-            <div>
-              <button
-                onClick={() => setMarketingOpen(o => !o)}
-                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-md"
-              >
-                <span>Marketing</span>
-                <ChevronDown size={14} className={marketingOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
-              {marketingOpen && (
-                <div className="ml-3 mt-1 flex flex-col gap-1 border-l pl-3">
-                  <Link to="/admin/marketing" className="px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground">
-                    Planowanie contentu
-                  </Link>
-                </div>
-              )}
-            </div>
+            <DesktopNavLink to="/admin/akademia" label="Akademia" icon={GraduationCap} />
+            <DesktopNavLink to="/admin/forum" label="Forum" icon={MessageCircle} />
+            <DesktopNavLink to="/admin/marketing" label="Marketing" icon={Megaphone} />
+            <DesktopNavLink to="/admin/regulamin" label="Regulamin" icon={Settings} />
           </nav>
           {isSupported && (
             <div className="border-t p-4">
