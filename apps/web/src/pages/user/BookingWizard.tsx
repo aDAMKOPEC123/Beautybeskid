@@ -1282,6 +1282,7 @@ export const BookingWizard = () => {
 
   const [step, setStep] = useState(() => savedDraft ? 5 : 1);
   const [floatingVisible, setFloatingVisible] = useState(false);
+  const [floatingBottomInset, setFloatingBottomInset] = useState(16);
   const navRef = useRef<HTMLDivElement>(null);
   const wizardTopRef = useRef<HTMLDivElement>(null);
   const previousStepRef = useRef(step);
@@ -1304,20 +1305,34 @@ export const BookingWizard = () => {
     const el = navRef.current;
     if (!el) return;
     const media = window.matchMedia('(max-width: 1023px)');
-    let isIntersecting = false;
-    const updateFloatingVisibility = () => setFloatingVisible(media.matches && !isIntersecting);
+    let intersectionRatio = 0;
+    const getBottomNavHeight = () => {
+      const bottomNav = document.querySelector<HTMLElement>('nav[data-nav-environment]');
+      return bottomNav?.getBoundingClientRect().height ?? 0;
+    };
+    const updateFloatingVisibility = () => {
+      const bottomNavHeight = getBottomNavHeight();
+      const rect = el.getBoundingClientRect();
+      const visibleBottom = window.innerHeight - bottomNavHeight - 12;
+      const isFullyUsable = intersectionRatio >= 0.5 && rect.top >= 0 && rect.bottom <= visibleBottom;
+
+      setFloatingBottomInset(bottomNavHeight > 0 ? Math.ceil(bottomNavHeight + 12) : 16);
+      setFloatingVisible(media.matches && !isFullyUsable);
+    };
     const observer = new IntersectionObserver(
       ([entry]) => {
-        isIntersecting = entry.isIntersecting;
+        intersectionRatio = entry.intersectionRatio;
         updateFloatingVisibility();
       },
       { threshold: 0.5 }
     );
     observer.observe(el);
     media.addEventListener('change', updateFloatingVisibility);
+    window.addEventListener('resize', updateFloatingVisibility);
     return () => {
       observer.disconnect();
       media.removeEventListener('change', updateFloatingVisibility);
+      window.removeEventListener('resize', updateFloatingVisibility);
     };
   }, []);
 
@@ -1374,10 +1389,14 @@ export const BookingWizard = () => {
       if (!navigation) return;
 
       const rect = navigation.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      const bottomNav = document.querySelector<HTMLElement>('nav[data-nav-environment]');
+      const bottomNavHeight = bottomNav?.getBoundingClientRect().height ?? 0;
+      const visibleBottom = window.innerHeight - bottomNavHeight - 12;
+      const isVisible = rect.top >= 0 && rect.bottom <= visibleBottom;
       if (isVisible) return;
 
       if (window.matchMedia('(max-width: 1023px)').matches) {
+        setFloatingBottomInset(bottomNavHeight > 0 ? Math.ceil(bottomNavHeight + 12) : 16);
         setFloatingVisible(true);
         return;
       }
@@ -1704,7 +1723,10 @@ export const BookingWizard = () => {
 
       {/* Floating "Dalej" button — mobile only, hides when static nav is visible */}
       {floatingVisible && canProceed() && (
-      <div className="fixed bottom-20 inset-x-0 z-50 flex justify-center pointer-events-none lg:hidden">
+      <div
+        className="fixed inset-x-0 z-[60] flex justify-center pointer-events-none lg:hidden"
+        style={{ bottom: floatingBottomInset }}
+      >
         <div className="pointer-events-auto flex items-center gap-2">
           {step > 1 && (
             <button
