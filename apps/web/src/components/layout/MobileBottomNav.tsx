@@ -24,6 +24,7 @@ import {
   Flower2,
   MessageSquare,
   BadgePercent,
+  ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -121,28 +122,59 @@ export const getMobileBottomNavMetrics = (): MobileBottomNavMetrics => {
   };
 };
 
-const MORE_LINKS_PRIMARY = [
-  { to: '/user/lojalnosc',    label: 'Punkty',         icon: Star },
-  { to: '/user/polecenia',    label: 'Polecenia',      icon: Users },
-  { to: '/user/vouchery',     label: 'Vouchery',       icon: Gift },
-  { to: '/user/promocje-sklepowe', label: 'Promocje',  icon: BadgePercent },
-  { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
-  { to: '/user/profil',       label: 'Profil',         icon: UserIcon },
-  { to: '/user/historia',     label: 'Historia',       icon: Clock },
-  { to: '/user/dziennik',     label: 'Dziennik',       icon: BookOpen },
-  { to: '/user/rutyna',       label: 'Rutyna',         icon: Sparkles },
-  { to: '/user/produkty',     label: 'Produkty',       icon: ShoppingBag },
-  { to: '/user/pogoda-skory', label: 'Skóra',          icon: Cloud },
-  { to: '/user/zalecenia',    label: 'Beauty Plan',    icon: Flower2 },
-  { to: '/',                  label: 'Wizytówka',      icon: Globe },
+type MobileMoreLink = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+type MobileMoreGroup = {
+  label: string;
+  links: readonly MobileMoreLink[];
+};
+
+const MORE_LINK_GROUPS: readonly MobileMoreGroup[] = [
+  {
+    label: 'Konto i kontakt',
+    links: [
+      { to: '/user/powiadomienia', label: 'Powiadomienia', icon: Bell },
+      { to: '/user/profil', label: 'Ustawienia konta', icon: UserIcon },
+    ],
+  },
+  {
+    label: 'Moja pielęgnacja',
+    links: [
+      { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
+      { to: '/user/rutyna', label: 'Rutyna domowa', icon: Sparkles },
+      { to: '/user/dziennik', label: 'Dziennik skóry', icon: BookOpen },
+      { to: '/user/pogoda-skory', label: 'Profil skóry', icon: Cloud },
+      { to: '/user/produkty', label: 'Moje produkty', icon: ShoppingBag },
+      { to: '/user/historia', label: 'Historia zabiegów', icon: Clock },
+    ],
+  },
+  {
+    label: 'Korzyści',
+    links: [
+      { to: '/user/lojalnosc', label: 'Punkty i nagrody', icon: Star },
+      { to: '/user/vouchery', label: 'Vouchery', icon: Gift },
+      { to: '/user/polecenia', label: 'Program poleceń', icon: Users },
+      { to: '/user/promocje-sklepowe', label: 'Promocje sklepowe', icon: BadgePercent },
+    ],
+  },
+  {
+    label: 'Społeczność i wiedza',
+    links: [
+      { to: '/user/forum', label: 'Forum klientek', icon: MessageSquare },
+      { to: '/akademia', label: 'Akademia', icon: GraduationCap },
+      { to: '/', label: 'Strona główna', icon: Globe },
+    ],
+  },
 ] as const;
 
-const MORE_LINKS_SECONDARY = [
-  { to: '/user/forum',  label: 'Forum',    icon: MessageSquare },
-  { to: '/akademia',    label: 'Akademia', icon: GraduationCap },
-] as const;
-
-const ALL_MORE_LINKS = [...MORE_LINKS_PRIMARY, ...MORE_LINKS_SECONDARY] as const;
+const ALL_MORE_LINKS = MORE_LINK_GROUPS.reduce<MobileMoreLink[]>(
+  (links, group) => [...links, ...group.links],
+  [],
+);
 
 const backdropVariants = {
   hidden: { opacity: 0 },
@@ -282,77 +314,87 @@ export function MobileBottomNav() {
               exit="exit"
             >
               <div className={isIOSPwa ? 'space-y-3' : 'space-y-4'}>
-                {/* Primary links */}
-                <div className={cn('grid grid-cols-3 min-[360px]:grid-cols-4', isIOSPwa ? 'gap-1.5' : 'gap-2')}>
-                  {MORE_LINKS_PRIMARY.map(({ to, label, icon: Icon }) => {
-                    const count = getBadgeCount(to);
-                    return (
-                      <motion.div key={to} variants={activeItemVariants}>
-                        <Link
-                          to={to}
-                          state={to === '/' ? { fromPanel: true } : undefined}
-                          onClick={() => setIsMoreOpen(false)}
-                          className={cn(
-                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs transition-all duration-300 active:scale-95',
-                            isIOSPwa ? 'p-1.5' : 'p-2',
-                            isActive(to) ? 'font-semibold' : 'opacity-60',
-                          )}
-                          style={{ color: isActive(to) ? '#9A6C32' : '#1A3828' }}
-                        >
-                          {isActive(to) && !isIOSPwa && (
-                            <motion.span
-                              layoutId="user-mobile-more-active"
-                              className="absolute inset-0 rounded-xl"
-                              transition={navIndicatorTransition}
-                              style={{
-                                background: 'rgba(196,150,90,0.12)',
-                              }}
-                            />
-                          )}
-                          <Icon
-                            size={isIOSPwa ? 23 : 24}
-                            strokeWidth={isActive(to) ? 2.3 : 1.9}
-                            className="relative z-10"
-                          />
-                          <span className="relative z-10 text-center leading-tight">{label}</span>
-                          {count > 0 && (
-                            <span
-                              className="absolute right-1 top-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold"
-                              style={{ background: '#C4965A', color: '#fff' }}
-                            >
-                              {count > 9 ? '9+' : count}
-                            </span>
-                          )}
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
+                <div className="flex items-start justify-between gap-4 px-1">
+                  <div>
+                    <h2 className="text-lg font-heading font-bold leading-tight" style={{ color: '#1A3828' }}>
+                      Więcej
+                    </h2>
+                    <p className="mt-0.5 text-xs" style={{ color: 'rgba(20,40,28,0.52)' }}>
+                      Wszystkie funkcje panelu klienta
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMoreOpen(false)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-white"
+                    style={{ borderColor: 'rgba(26,56,40,0.12)', color: '#1A3828' }}
+                    aria-label="Zamknij menu"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
 
-                {/* Secondary links */}
-                <div>
-                  <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(20,40,28,0.35)' }}>
-                    Odkryj
-                  </p>
-                  <div className={cn('grid grid-cols-3 min-[360px]:grid-cols-4', isIOSPwa ? 'gap-1.5' : 'gap-2')}>
-                    {MORE_LINKS_SECONDARY.map(({ to, label, icon: Icon }) => (
-                      <motion.div key={to} variants={activeItemVariants}>
-                        <Link
-                          to={to}
-                          onClick={() => setIsMoreOpen(false)}
-                          className={cn(
-                            'relative isolate flex flex-col items-center gap-1 rounded-xl text-xs opacity-65 transition-all duration-300 active:scale-95',
-                            isIOSPwa ? 'p-1.5' : 'p-2',
-                          )}
-                          style={{ color: '#1A3828' }}
-                        >
-                          <Icon size={isIOSPwa ? 23 : 24} strokeWidth={1.9} />
-                          <span className="text-center leading-tight">{label}</span>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
+                {MORE_LINK_GROUPS.map((group) => (
+                  <section key={group.label} aria-labelledby={`mobile-more-${group.label.replace(/ /g, '-').toLowerCase()}`}>
+                    <h3
+                      id={`mobile-more-${group.label.replace(/ /g, '-').toLowerCase()}`}
+                      className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em]"
+                      style={{ color: 'rgba(20,40,28,0.48)' }}
+                    >
+                      {group.label}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-1.5 min-[360px]:grid-cols-2">
+                      {group.links.map(({ to, label, icon: Icon }) => {
+                        const count = getBadgeCount(to);
+                        const active = to !== '/' && isActive(to);
+
+                        return (
+                          <motion.div key={to} variants={activeItemVariants}>
+                            <Link
+                              to={to}
+                              state={to === '/' ? { fromPanel: true } : undefined}
+                              onClick={() => setIsMoreOpen(false)}
+                              className="relative isolate flex min-h-12 items-center gap-3 rounded-xl border bg-white px-3 py-2.5 text-sm transition-all active:scale-[0.98]"
+                              style={{
+                                borderColor: active ? 'rgba(196,150,90,0.38)' : 'rgba(26,56,40,0.09)',
+                                color: active ? '#9A6C32' : '#1A3828',
+                                boxShadow: active ? '0 4px 14px rgba(196,150,90,0.10)' : 'none',
+                              }}
+                            >
+                              {active && !isIOSPwa && (
+                                <motion.span
+                                  layoutId="user-mobile-more-active"
+                                  className="absolute inset-0 rounded-xl"
+                                  transition={navIndicatorTransition}
+                                  style={{ background: 'rgba(196,150,90,0.08)' }}
+                                />
+                              )}
+                              <span
+                                className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                                style={{ background: active ? 'rgba(196,150,90,0.15)' : 'rgba(26,56,40,0.06)' }}
+                              >
+                                <Icon size={18} strokeWidth={active ? 2.3 : 1.9} />
+                              </span>
+                              <span className={cn('relative z-10 min-w-0 flex-1 leading-tight', active && 'font-semibold')}>
+                                {label}
+                              </span>
+                              {count > 0 ? (
+                                <span
+                                  className="relative z-10 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold"
+                                  style={{ background: '#C4965A', color: '#fff' }}
+                                >
+                                  {count > 9 ? '9+' : count}
+                                </span>
+                              ) : (
+                                <ChevronRight size={15} className="relative z-10 shrink-0 opacity-30" />
+                              )}
+                            </Link>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
               </div>
             </motion.div>
           </>
