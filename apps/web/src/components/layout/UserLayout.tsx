@@ -10,7 +10,7 @@ import { discountCodesApi } from '@/api/discount-codes.api';
 import { authApi } from '@/api/auth.api';
 import { chatApi } from '@/api/chat.api';
 import type { ChatMessagePayload } from '@cosmo/shared';
-import { MobileBottomNav } from './MobileBottomNav';
+import { MobileBottomNav, MOBILE_BOTTOM_NAV_CONTENT_HEIGHT } from './MobileBottomNav';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { PageSEO } from '@/components/shared/SEO';
 import { useChatStore } from '@/store/chat.store';
@@ -512,7 +512,11 @@ const UserLayoutInner = () => {
           </nav>
         </div>
       </footer>}
-      <div className="lg:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} aria-hidden="true" />
+      <div
+        className="lg:hidden"
+        style={{ height: `calc(${MOBILE_BOTTOM_NAV_CONTENT_HEIGHT}px + env(safe-area-inset-bottom))` }}
+        aria-hidden="true"
+      />
       <ReviewPromptModal />
       <MobileBottomNav />
       <PwaInstallButton />
