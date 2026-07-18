@@ -554,6 +554,20 @@ function StepDate({
   activeHappyHours: any[];
 }) {
   const dateStr = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null;
+  const timeSlotsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selectedDate || !window.matchMedia('(max-width: 767px)').matches) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      timeSlotsRef.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedDate]);
 
   const { data: slots = [], isFetching } = useQuery<{ time: string; available: boolean }[]>({
     queryKey: ['availability', dateStr, service?.id, employeeId],
@@ -585,7 +599,7 @@ function StepDate({
       </div>
 
       {/* Time slots */}
-      <div>
+      <div ref={timeSlotsRef} className="scroll-mt-24">
         {!selectedDate ? (
           <div
             className="flex items-center justify-center h-full text-sm"
@@ -1269,6 +1283,22 @@ export const BookingWizard = () => {
   const [step, setStep] = useState(() => savedDraft ? 5 : 1);
   const [floatingVisible, setFloatingVisible] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+  const wizardTopRef = useRef<HTMLDivElement>(null);
+  const previousStepRef = useRef(step);
+
+  useEffect(() => {
+    if (previousStepRef.current === step) return;
+    previousStepRef.current = step;
+
+    const frame = window.requestAnimationFrame(() => {
+      wizardTopRef.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [step]);
 
   useEffect(() => {
     const el = navRef.current;
@@ -1338,6 +1368,27 @@ export const BookingWizard = () => {
     setState((prev) => ({ ...prev, [field]: value }));
   }, []);
 
+  const revealNavigation = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      const navigation = navRef.current;
+      if (!navigation) return;
+
+      const rect = navigation.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (isVisible) return;
+
+      if (window.matchMedia('(max-width: 1023px)').matches) {
+        setFloatingVisible(true);
+        return;
+      }
+
+      navigation.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'center',
+      });
+    });
+  }, []);
+
   const selectService = (service: any) => {
     setState((prev) => ({
       ...prev,
@@ -1348,7 +1399,13 @@ export const BookingWizard = () => {
       date: isFullyPreselected && preselectedDate ? new Date(preselectedDate) : null,
       time: isFullyPreselected ? (preselectedTime ?? null) : null,
     }));
+    revealNavigation();
   };
+
+  const selectEmployee = useCallback((employee: any | null) => {
+    setState((prev) => ({ ...prev, employee, employeeId: employee?.id ?? null }));
+    revealNavigation();
+  }, [revealNavigation]);
 
   const handleServiceAdvance = useCallback(() => {
     trackEvent('booking_started', { service_name: state.service?.name });
@@ -1358,6 +1415,11 @@ export const BookingWizard = () => {
   const selectDate = (date: Date) => {
     setState((prev) => ({ ...prev, date, time: null, appliedHappyHour: null }));
   };
+
+  const selectTime = useCallback((time: string) => {
+    update('time', time);
+    revealNavigation();
+  }, [revealNavigation, update]);
 
   const { mutateAsync: createAppointment, isPending } = useMutation<any, Error, any>({
     mutationFn: appointmentsApi.create,
@@ -1453,7 +1515,7 @@ export const BookingWizard = () => {
       canonical="/rezerwacja"
       noIndex
     />
-    <div className="mx-auto max-w-4xl space-y-8 px-4 animate-enter sm:px-6 lg:px-0">
+    <div ref={wizardTopRef} className="mx-auto max-w-4xl scroll-mt-20 space-y-8 px-4 animate-enter sm:px-6 lg:px-0">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 data-tour="booking-wizard" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
@@ -1560,7 +1622,7 @@ export const BookingWizard = () => {
         {step === 2 && (
           <StepEmployee
             selected={state.employeeId}
-            onSelect={(emp) => setState((prev) => ({ ...prev, employee: emp, employeeId: emp?.id ?? null }))}
+            onSelect={selectEmployee}
             service={state.service}
           />
         )}
@@ -1569,7 +1631,7 @@ export const BookingWizard = () => {
             selectedDate={state.date}
             selectedTime={state.time}
             onSelectDate={selectDate}
-            onSelectTime={(t) => update('time', t)}
+            onSelectTime={selectTime}
             onSelectHappyHour={(hh) => update('appliedHappyHour', hh)}
             service={state.service}
             employeeId={state.employeeId}
