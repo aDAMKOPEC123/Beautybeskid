@@ -1,5 +1,5 @@
 ﻿// filepath: apps/web/src/components/layout/UserLayout.tsx
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -149,7 +149,7 @@ const panelPageReducedVariants = {
   },
 };
 
-const UserLayoutInner = () => {
+const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
   const { isAuthenticated, isLoading, user: storeUser, setUser, logout, isAdmin, isEmployee } = useAuth();
   const storeUserRef = useRef(storeUser);
   storeUserRef.current = storeUser;
@@ -498,7 +498,7 @@ const UserLayoutInner = () => {
             exit="exit"
             style={{ transformOrigin: 'top center' }}
           >
-            <Outlet />
+            {children ?? <Outlet />}
           </motion.main>
         </AnimatePresence>
       </div>
@@ -536,8 +536,8 @@ const UserLayoutInner = () => {
   );
 };
 
-export const UserLayout = () => (
+export const UserLayout = ({ children }: { children?: ReactNode }) => (
   <TourProvider>
-    <UserLayoutInner />
+    <UserLayoutInner>{children}</UserLayoutInner>
   </TourProvider>
 );

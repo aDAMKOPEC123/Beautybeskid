@@ -1454,11 +1454,25 @@ export const BookingWizard = () => {
       noIndex
     />
     <div className="mx-auto max-w-4xl space-y-8 px-4 animate-enter sm:px-6 lg:px-0">
-      <div>
-        <h1 data-tour="booking-wizard" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
-          Umów wizytę
-        </h1>
-        <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 data-tour="booking-wizard" className="w-fit text-3xl font-heading font-bold" style={{ color: '#1A3828' }}>
+            Umów wizytę
+          </h1>
+          <p className="mt-1" style={{ color: 'rgba(20,40,28,0.5)' }}>Wypełnij formularz krok po kroku</p>
+        </div>
+        {step > 1 && (
+          <button
+            type="button"
+            onClick={() => setStep((current) => current - 1)}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-full border border-espresso px-3 py-2 text-xs font-semibold text-espresso transition-colors hover:bg-espresso hover:text-ivory sm:px-4"
+            aria-label={`Wróć do kroku ${step - 1}: ${STEPS[step - 2]}`}
+          >
+            <ChevronLeft size={16} />
+            <span className="hidden sm:inline">Cofnij krok</span>
+            <span className="sm:hidden">Wróć</span>
+          </button>
+        )}
       </div>
 
       {/* Czytelny postęp rezerwacji */}
@@ -1629,7 +1643,16 @@ export const BookingWizard = () => {
       {/* Floating "Dalej" button — mobile only, hides when static nav is visible */}
       {floatingVisible && canProceed() && (
       <div className="fixed bottom-20 inset-x-0 z-50 flex justify-center pointer-events-none lg:hidden">
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto flex items-center gap-2">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep((current) => current - 1)}
+              className="inline-flex min-h-12 items-center gap-1 rounded-full border border-espresso bg-white px-5 py-3.5 text-xs font-semibold text-espresso shadow-lg"
+            >
+              <ChevronLeft size={16} /> Wróć
+            </button>
+          )}
           {step < STEPS.length ? (
             <button
               onClick={() => setStep((s) => s + 1)}

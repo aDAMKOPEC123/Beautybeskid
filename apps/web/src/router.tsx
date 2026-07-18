@@ -127,6 +127,24 @@ const S = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={Spinner}>{children}</Suspense>
 );
 
+const BookingRoute = () => {
+  const { accessToken, user, isLoading } = useAuthStore();
+
+  if (isLoading) return Spinner;
+
+  return (
+    <S>
+      {accessToken && user ? (
+        <UserLayout>
+          <BookingWizard />
+        </UserLayout>
+      ) : (
+        <BookingWizard />
+      )}
+    </S>
+  );
+};
+
 const routeErrorElement = <RouteErrorFallback />;
 
 export const router = createBrowserRouter([
@@ -221,7 +239,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/rezerwacja',
-    element: <S><BookingWizard /></S>,
+    element: <BookingRoute />,
     errorElement: routeErrorElement,
   },
   {
