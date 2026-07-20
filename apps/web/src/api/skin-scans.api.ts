@@ -121,3 +121,12 @@ export const skinScansApi = {
     await api.delete(`${BASE}/${sessionId}`);
   },
 };
+
+export const getMetricOverlays = (
+  metric: SkinScanMetric,
+): Partial<Record<SkinScanAngle, string>> | null => {
+  const overlays = (metric.details as Record<string, unknown> | undefined)
+    ?.overlays;
+  if (!overlays || typeof overlays !== 'object') return null;
+  return overlays as Partial<Record<SkinScanAngle, string>>;
+};
