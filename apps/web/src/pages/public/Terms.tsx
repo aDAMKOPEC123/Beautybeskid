@@ -29,6 +29,19 @@ export const PublicTerms = () => {
       ) : (
         <p className="text-muted-foreground">Nie udało się załadować regulaminu.</p>
       )}
+      <section className="mt-6 rounded-2xl border border-border/50 bg-card p-6 text-sm leading-relaxed shadow-sm" aria-labelledby="google-maps-data-heading">
+        <h2 id="google-maps-data-heading" className="mb-3 text-xl font-heading font-bold text-primary">Dane z Google Maps Platform</h2>
+        <p>
+          Na stronie możemy wyświetlać aktualną ocenę, liczbę opinii oraz wybrane opinie pochodzące z Google Maps Platform.
+          Dane są pobierane podczas korzystania ze strony i prezentowane wraz z oznaczeniem źródła oraz informacjami o autorach.
+        </p>
+        <p className="mt-3">
+          Korzystanie z tych danych podlega{' '}
+          <a className="font-semibold underline underline-offset-4" href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noopener noreferrer">warunkom Google Maps Platform</a>
+          {' '}oraz{' '}
+          <a className="font-semibold underline underline-offset-4" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">polityce prywatności Google</a>.
+        </p>
+      </section>
     </div>
   );
 };

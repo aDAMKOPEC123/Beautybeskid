@@ -1332,8 +1332,39 @@ const TestimonialsSection = ({
                   &ldquo;{review.text}&rdquo;
                 </p>
                 <div className="mt-6 border-t border-espresso/10 pt-4">
-                  <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-mink">{review.relative_time_description}</p>
+                  <div className="flex items-center gap-3">
+                    {review.profile_photo_url && (
+                      <img
+                        src={review.profile_photo_url}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        className="h-11 w-11 shrink-0 rounded-full object-cover"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      {review.author_uri ? (
+                        <a
+                          href={review.author_uri}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-11 items-center text-sm font-semibold text-espresso underline decoration-oak/40 underline-offset-4"
+                        >
+                          {review.author_name}
+                        </a>
+                      ) : (
+                        <p className="text-sm font-semibold text-espresso">{review.author_name}</p>
+                      )}
+                      <p className="text-xs uppercase tracking-[0.16em] text-mink">{review.relative_time_description}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={review.google_maps_uri || googleData?.place_url || SEO.googleReviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-oak underline underline-offset-4"
+                  >
+                    Zobacz źródłową opinię w Google Maps
+                  </a>
                 </div>
               </article>
             </FadeUp>
@@ -1370,6 +1401,19 @@ const TestimonialsSection = ({
               {showAll ? 'Pokaż mniej opinii' : `Pokaż wszystkie opinie (${allReviews.length})`}
               <ChevronDown className={`h-4 w-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
             </Button>
+          </div>
+        </FadeUp>
+      )}
+
+      {googleData && (
+        <FadeUp>
+          <div className="mt-5 rounded-lg border border-espresso/10 bg-white px-4 py-3 text-xs leading-relaxed text-mink">
+            <p>
+              Pokazujemy opinie z oceną 4–5 gwiazdek. Kolejność odpowiada trafności ustalonej przez Google Maps.
+            </p>
+            <p className="mt-2">
+              Źródło: <span translate="no" className="font-sans text-sm font-normal tracking-normal text-[#5E5E5E]">Google Maps</span>
+            </p>
           </div>
         </FadeUp>
       )}
@@ -1856,7 +1900,9 @@ export const Home = () => {
   const { data: googleReviews } = useQuery<GoogleReviewsData>({
     queryKey: ['google-reviews'],
     queryFn: googleReviewsApi.get,
-    staleTime: 24 * 60 * 60_000,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
     retry: false,
   });
 

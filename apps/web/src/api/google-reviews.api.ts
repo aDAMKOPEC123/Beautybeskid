@@ -2,11 +2,13 @@ import { api } from '@/lib/axios';
 
 export interface GoogleReview {
   author_name: string;
+  author_uri: string;
   rating: number;
   text: string;
   time: number;
   relative_time_description: string;
   profile_photo_url: string;
+  google_maps_uri: string;
 }
 
 export interface GoogleReviewsData {

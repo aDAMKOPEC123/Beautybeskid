@@ -18,6 +18,8 @@ const envSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().min(1).optional(),
   VAPID_EMAIL: z.string().min(1).optional(),
   GOOGLE_CLIENT_ID: z.string().min(10),
+  GOOGLE_PLACES_API_KEY: z.string().min(10).optional(),
+  GOOGLE_PLACE_ID: z.string().min(3).optional(),
   STRIPE_SECRET_KEY: z.string().min(10).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(10).optional(),
   FACEBOOK_APP_ID: z.string().min(5).optional(),
@@ -41,6 +43,14 @@ const _env = envSchema.superRefine((data, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'FACEBOOK_APP_ID i FACEBOOK_APP_SECRET muszą być ustawione razem',
+    });
+  }
+
+  const googlePlacesCredentials = [data.GOOGLE_PLACES_API_KEY, data.GOOGLE_PLACE_ID];
+  if (googlePlacesCredentials.filter(Boolean).length === 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'GOOGLE_PLACES_API_KEY i GOOGLE_PLACE_ID muszą być ustawione razem',
     });
   }
 }).safeParse(process.env);

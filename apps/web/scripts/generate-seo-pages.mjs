@@ -450,15 +450,6 @@ const loadDynamicPages = async () => {
   };
 };
 
-const loadGoogleReviews = async () => {
-  try {
-    return await fetchApi('/api/google-reviews');
-  } catch (error) {
-    console.warn(`SEO API /api/google-reviews unavailable, skipping static Google reviews: ${error?.message ?? error}`);
-    return null;
-  }
-};
-
 function absoluteUrl(value) {
   if (!value) return undefined;
   return value.startsWith('http') ? value : `${DOMAIN}${value}`;
@@ -506,7 +497,6 @@ const staticContent = ({
   modifiedAt,
   noIndex = false,
   phoneOnly = false,
-  googleReviews,
 }) => {
   const textParagraphs = bodyText
     ? cleanText(bodyText).split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')
@@ -531,7 +521,6 @@ const staticContent = ({
           <ul style="margin:18px 0;padding-left:22px;line-height:1.9">${items.filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
         </section>
         ${faq.length ? `<section aria-labelledby="seo-faq"><h2 id="seo-faq">Najczęstsze pytania</h2>${faq.map(({ question, answer }) => `<h3>${escapeHtml(question)}</h3><p>${escapeHtml(answer)}</p>`).join('')}</section>` : ''}
-          ${googleReviews?.reviews?.length ? `<section aria-labelledby="seo-google-reviews"><h2 id="seo-google-reviews">Opinie Google</h2><p>Ocena Google: ${escapeHtml(Number(googleReviews.rating).toFixed(1))}/5 na podstawie ${escapeHtml(googleReviews.user_ratings_total)} opinii. <a href="${escapeHtml(googleReviews.place_url || 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505')}">Zobacz aktualny profil firmy w Google</a>.</p>${googleReviews.reviews.slice(0, 3).filter((review) => cleanText(review.text)).map((review) => `<blockquote><p>${escapeHtml(cleanText(review.text))}</p><footer>${escapeHtml(review.author_name)}${review.relative_time_description ? ` · ${escapeHtml(review.relative_time_description)}` : ''}</footer></blockquote>`).join('')}</section>` : ''}
         <nav aria-label="Najważniejsze strony" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:28px">
           <a href="/">Strona główna</a><a href="/uslugi">Usługi i ceny</a><a href="/kontakt">Kontakt</a><a href="/blog">Poradniki</a>${phoneOnly ? '<a href="tel:+48532128227">Zadzwoń w sprawie podologii</a>' : '<a href="/rezerwacja">Umów wizytę</a>'}<!--email_off--><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">Napisz e-mail</a><!--/email_off-->
         </nav>
@@ -601,10 +590,7 @@ const writePage = async (page) => {
   await writeFile(path.join(directory, 'index.html'), html);
 };
 
-const [{ pages: dynamicPages, services }, googleReviews] = await Promise.all([
-  loadDynamicPages(),
-  loadGoogleReviews(),
-]);
+const { pages: dynamicPages, services } = await loadDynamicPages();
 
 const serviceCatalogHtml = services.length
   ? `<section aria-labelledby="seo-service-catalog"><h2 id="seo-service-catalog">Aktualny cennik usług</h2>${services.map((service) => `<article><h3><a href="/uslugi/${escapeHtml(service.slug)}">${escapeHtml(service.name)}</a></h3><p><strong>${escapeHtml(service.price)} zł</strong> · ${escapeHtml(service.durationMinutes)} min${service.category ? ` · ${escapeHtml(service.category)}` : ''}</p>${service.description ? `<p>${escapeHtml(truncate(service.description, 260))}</p>` : ''}</article>`).join('')}</section>`
@@ -612,7 +598,6 @@ const serviceCatalogHtml = services.length
 
 const pages = [
   ...corePages.map((page) => {
-    if (page.path === '/') return { ...page, googleReviews };
     if (page.path === '/uslugi' && serviceCatalogHtml) {
       return {
         ...page,
