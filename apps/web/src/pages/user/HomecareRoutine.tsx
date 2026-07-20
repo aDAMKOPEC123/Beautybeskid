@@ -7,6 +7,7 @@ import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Clock, Sun, ShoppingBag, ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 type HomecareRoutineItem = {
   id: string;
@@ -23,6 +24,8 @@ type HomecareRoutineItem = {
 };
 
 export const HomecareRoutinePage = () => {
+  const [searchParams] = useSearchParams();
+  const requestedAppointmentId = searchParams.get('appointmentId');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data: routines = [], isLoading } = useQuery<HomecareRoutineItem[]>({
@@ -71,7 +74,13 @@ export const HomecareRoutinePage = () => {
     );
   }
 
-  const [active, ...history] = routines;
+  const requestedRoutine = requestedAppointmentId
+    ? routines.find((routine) => routine.appointmentId === requestedAppointmentId)
+    : undefined;
+  const orderedRoutines = requestedRoutine
+    ? [requestedRoutine, ...routines.filter((routine) => routine.id !== requestedRoutine.id)]
+    : routines;
+  const [active, ...history] = orderedRoutines;
 
   const formatDate = (dateStr: string) =>
     format(new Date(dateStr), 'd MMMM yyyy', { locale: pl });

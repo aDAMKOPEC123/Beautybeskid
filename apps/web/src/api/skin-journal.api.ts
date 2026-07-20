@@ -61,8 +61,8 @@ export type JournalSummary = {
 const BASE = '/skin-journal';
 
 export const skinJournalApi = {
-  getJournal: async (page = 1): Promise<JournalPage> => {
-    const res = await api.get(BASE, { params: { page } });
+  getJournal: async (page = 1, appointmentId?: string | null): Promise<JournalPage> => {
+    const res = await api.get(BASE, { params: { page, appointmentId: appointmentId || undefined } });
     return res.data.data;
   },
 

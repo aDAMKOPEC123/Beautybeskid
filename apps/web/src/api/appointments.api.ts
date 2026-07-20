@@ -1,4 +1,10 @@
 import { api } from '../lib/axios';
+import type {
+  Appointment,
+  AppointmentHistoryPage,
+  AppointmentHistoryStatus,
+  AppointmentOverview,
+} from '@cosmo/shared';
 
 export interface FollowUpReminder {
   serviceId: string;
@@ -13,6 +19,18 @@ export const appointmentsApi = {
   getMy: async () => {
     const res = await api.get('/appointments/me');
     return res.data.data.appointments;
+  },
+  getMyOverview: async (): Promise<AppointmentOverview> => {
+    const res = await api.get('/appointments/me/overview');
+    return res.data.data;
+  },
+  getMyHistory: async (params: {
+    status?: AppointmentHistoryStatus;
+    page?: number;
+    limit?: number;
+  }): Promise<AppointmentHistoryPage> => {
+    const res = await api.get('/appointments/me/history', { params });
+    return res.data.data.history;
   },
   getAll: async (params?: {
     userId?: string;
@@ -35,6 +53,7 @@ export const appointmentsApi = {
     discountCodeId?: string | null;
     voucherId?: string | null;
     voucherUsedAmount?: number;
+    happyHourId?: string | null;
   }) => {
     const res = await api.post('/appointments', data);
     return res.data.data.appointment;
@@ -94,6 +113,26 @@ export const appointmentsApi = {
   },
   requestReschedule: async (id: string, date: string) => {
     const res = await api.post(`/appointments/${id}/reschedule`, { date });
+    return res.data.data.appointment;
+  },
+  withdrawReschedule: async (id: string): Promise<Appointment> => {
+    const res = await api.delete(`/appointments/${id}/reschedule`);
+    return res.data.data.appointment;
+  },
+  requestCancellation: async (id: string, reason?: string): Promise<Appointment> => {
+    const res = await api.post(`/appointments/${id}/cancellation-request`, { reason });
+    return res.data.data.appointment;
+  },
+  withdrawCancellation: async (id: string): Promise<Appointment> => {
+    const res = await api.delete(`/appointments/${id}/cancellation-request`);
+    return res.data.data.appointment;
+  },
+  approveCancellation: async (id: string, decisionNote?: string): Promise<Appointment> => {
+    const res = await api.patch(`/appointments/${id}/cancellation-request/approve`, { decisionNote });
+    return res.data.data.appointment;
+  },
+  rejectCancellation: async (id: string, decisionNote?: string): Promise<Appointment> => {
+    const res = await api.patch(`/appointments/${id}/cancellation-request/reject`, { decisionNote });
     return res.data.data.appointment;
   },
   approveReschedule: async (id: string) => {

@@ -528,7 +528,7 @@ function getHappyHourForSlot(
       const dateMatch =
         hh.type === 'ONE_TIME'
           ? isSameDay(new Date(hh.date), date)
-          : hh.dayOfWeek === date.getDay();
+          : hh.dayOfWeek === (date.getDay() + 6) % 7;
       if (!dateMatch) return false;
       if (time < hh.startTime || time >= hh.endTime) return false;
       if (!hh.isAllServices && !hh.services.some((s: any) => s.id === serviceId)) return false;

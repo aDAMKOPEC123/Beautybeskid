@@ -9,7 +9,15 @@ export { TransactionType } from './types/loyalty.types';
 export type { LoyaltyReward, LoyaltyTransaction } from './types/loyalty.types';
 export * from './types/chat.types';
 export { AppointmentStatus } from './types/appointment.types';
-export type { Appointment } from './types/appointment.types';
+export type {
+  Appointment,
+  AppointmentCancellationRequest,
+  AppointmentDiscountSnapshot,
+  AppointmentHistoryPage,
+  AppointmentHistoryStatus,
+  AppointmentOverview,
+  AppointmentPostVisit,
+} from './types/appointment.types';
 
 export * from './schemas/auth.schema';
 export * from './schemas/service.schema';

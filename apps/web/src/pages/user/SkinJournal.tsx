@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { skinJournalApi, type SkinJournalEntry } from '@/api/skin-journal.api';
 import { SummaryModal } from '@/components/skin-journal/SummaryModal';
 import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
+import { useSearchParams } from 'react-router-dom';
 
 const MOODS: string[] = ['😟', '😕', '😐', '🙂', '😊'];
 
@@ -385,6 +386,8 @@ function AddEntryForm({ onClose }: { onClose: () => void }) {
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
 export function UserSkinJournal() {
+  const [searchParams] = useSearchParams();
+  const appointmentId = searchParams.get('appointmentId');
   const { user } = useAuth();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -392,8 +395,8 @@ export function UserSkinJournal() {
   const [showSummary, setShowSummary] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['journal', page],
-    queryFn: () => skinJournalApi.getJournal(page),
+    queryKey: ['journal', page, appointmentId],
+    queryFn: () => skinJournalApi.getJournal(page, appointmentId),
   });
 
   const { data: summaryData } = useQuery({

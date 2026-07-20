@@ -51,6 +51,38 @@ export const getMy = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+export const getMyOverview = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const overview = await appointmentsService.getUserAppointmentsOverview(req.user!.id);
+    res.status(200).json({ status: 'success', data: overview });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyHistory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const rawStatus = String(req.query.status ?? 'ALL').toUpperCase();
+    const allowed = ['ALL', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const;
+    if (!allowed.includes(rawStatus as (typeof allowed)[number])) {
+      throw new AppError('Nieprawidłowy filtr historii wizyt', 400);
+    }
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 10);
+    if (!Number.isInteger(page) || page < 1 || !Number.isInteger(limit) || limit < 1) {
+      throw new AppError('Nieprawidłowa paginacja historii wizyt', 400);
+    }
+    const history = await appointmentsService.getUserAppointmentHistory(req.user!.id, {
+      status: rawStatus as (typeof allowed)[number],
+      page,
+      limit,
+    });
+    res.status(200).json({ status: 'success', data: { history } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUpcomingCount = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const count = await appointmentsService.getUpcomingCount(req.user!.id);
@@ -129,7 +161,7 @@ export const updateStatus = async (req: Request, res: Response, next: NextFuncti
     if (!VALID_STATUSES.includes(status)) {
       throw new AppError('Nieprawidłowy status wizyty', 400);
     }
-    const appointment = await appointmentsService.updateStatus(req.params.id, status);
+    const appointment = await appointmentsService.updateStatus(req.params.id, status, req.user!.id);
     getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
     getIO().to(`user:${(appointment as any).userId}`).emit('appointment:updated', appointment as Record<string, unknown>);
     getIO().to('employee:global').emit('appointment:updated', appointment as Record<string, unknown>);
@@ -191,6 +223,66 @@ export const requestReschedule = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
+
+export const withdrawReschedule = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const appointment = await appointmentsService.withdrawReschedule(req.params.id, req.user!.id);
+    getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to('employee:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to(`user:${req.user!.id}`).emit('appointment:updated', appointment as Record<string, unknown>);
+    res.json({ status: 'success', data: { appointment } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestCancellation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const reason = typeof req.body.reason === 'string' ? req.body.reason : undefined;
+    const appointment = await appointmentsService.requestCancellation(req.params.id, req.user!.id, reason);
+    getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to('employee:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to(`user:${req.user!.id}`).emit('appointment:updated', appointment as Record<string, unknown>);
+    res.status(201).json({ status: 'success', data: { appointment } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const withdrawCancellation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const appointment = await appointmentsService.withdrawCancellation(req.params.id, req.user!.id);
+    getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
+    getIO().to(`user:${req.user!.id}`).emit('appointment:updated', appointment as Record<string, unknown>);
+    res.json({ status: 'success', data: { appointment } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const decideCancellation = (decision: 'APPROVED' | 'REJECTED') =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const decisionNote = typeof req.body.decisionNote === 'string' ? req.body.decisionNote : undefined;
+      const appointment = await appointmentsService.decideCancellation(
+        req.params.id,
+        req.user!.id,
+        decision,
+        decisionNote,
+      );
+      getIO().to('admin:global').emit('appointment:updated', appointment as Record<string, unknown>);
+      getIO().to('employee:global').emit('appointment:updated', appointment as Record<string, unknown>);
+      if ((appointment as any).userId) {
+        getIO().to(`user:${(appointment as any).userId}`).emit('appointment:updated', appointment as Record<string, unknown>);
+      }
+      res.json({ status: 'success', data: { appointment } });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const approveCancellation = decideCancellation('APPROVED');
+export const rejectCancellation = decideCancellation('REJECTED');
 
 export const approveReschedule = async (req: Request, res: Response, next: NextFunction) => {
   try {

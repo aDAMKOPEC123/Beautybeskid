@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
 import { markCouponUsed, getTierForPoints } from '../loyalty/loyalty.service';
@@ -30,10 +31,63 @@ const appointmentInclude = {
     },
   },
   employee: { select: { id: true, name: true, avatarPath: true } },
+  location: {
+    select: {
+      id: true,
+      name: true,
+      street: true,
+      postalCode: true,
+      city: true,
+      latitude: true,
+      longitude: true,
+      phone: true,
+      email: true,
+    },
+  },
   user: { select: { id: true, name: true } },
   coupon: { include: { reward: true } },
   discountCodeUsage: { include: { discountCode: true } },
+  cancellationRequests: {
+    where: { status: 'PENDING' as const },
+    orderBy: { createdAt: 'desc' as const },
+    take: 1,
+    select: {
+      id: true,
+      status: true,
+      reason: true,
+      policyNoticeHours: true,
+      policyVersion: true,
+      createdAt: true,
+    },
+  },
+  homecareRoutine: {
+    select: { id: true, sentAt: true },
+  },
+  _count: {
+    select: {
+      recommendations: true,
+      journalEntries: { where: { photoPath: { not: null } } },
+    },
+  },
 } as const;
+
+const DEFAULT_LOCATION = {
+  id: 'default-beskidstudio-location',
+  name: 'BeskidStudio By Wiktoria Ćwik',
+  street: 'Mordarka 505',
+  postalCode: '34-600',
+  city: 'Mordarka',
+  latitude: 49.689496,
+  longitude: 20.455024,
+  phone: '+48532128227',
+  email: 'kontakt@kosmetologwiktoriacwik.pl',
+};
+
+type DiscountSnapshot = {
+  source: 'SERVICE_PROMOTION' | 'HAPPY_HOUR' | 'COUPON' | 'DISCOUNT_CODE' | 'VOUCHER';
+  label: string;
+  amount: number;
+};
 
 const todayInclude = {
   service: { select: { id: true, name: true, durationMinutes: true, price: true } },
@@ -55,6 +109,238 @@ const todayInclude = {
   },
   coupon: { include: { reward: true } },
 } as const;
+
+type DiscountType = 'PERCENTAGE' | 'AMOUNT';
+
+const roundMoney = (value: number) => Math.round(Math.max(0, value) * 100) / 100;
+
+const applyDiscount = (price: number, type: DiscountType, rawValue: unknown) => {
+  const value = Number(rawValue);
+  if (!Number.isFinite(value) || value <= 0) return roundMoney(price);
+  return type === 'PERCENTAGE'
+    ? roundMoney(price * (1 - value / 100))
+    : roundMoney(price - value);
+};
+
+const isSameLocalDay = (left: Date, right: Date) =>
+  left.getFullYear() === right.getFullYear()
+  && left.getMonth() === right.getMonth()
+  && left.getDate() === right.getDate();
+
+async function resolveAppointmentPricing(
+  tx: Prisma.TransactionClient,
+  input: {
+    userId: string | null;
+    serviceId: string;
+    employeeId?: string | null;
+    date: Date;
+    couponId?: string;
+    discountCodeId?: string;
+    voucherId?: string;
+    voucherUsedAmount?: number;
+    happyHourId?: string;
+  },
+) {
+  const selectedBenefits = [input.couponId, input.discountCodeId, input.voucherId].filter(Boolean);
+  if (selectedBenefits.length > 1) {
+    throw new AppError('Do jednej wizyty można zastosować tylko jeden kupon, kod lub voucher', 400);
+  }
+
+  const service = await tx.service.findUnique({
+    where: { id: input.serviceId },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      promoDiscountType: true,
+      promoDiscountValue: true,
+      promoStartDate: true,
+      promoEndDate: true,
+      promoMaxUses: true,
+      location: {
+        select: {
+          id: true,
+          name: true,
+          street: true,
+          postalCode: true,
+          city: true,
+          latitude: true,
+          longitude: true,
+          phone: true,
+          email: true,
+        },
+      },
+    },
+  });
+  if (!service) throw new AppError('Usługa nie istnieje', 404);
+
+  const priceAtBooking = roundMoney(Number(service.price));
+  let finalPrice = priceAtBooking;
+  const discountBreakdown: DiscountSnapshot[] = [];
+  const now = new Date();
+
+  const applyTrackedDiscount = (
+    source: DiscountSnapshot['source'],
+    label: string,
+    type: DiscountType,
+    value: unknown,
+  ) => {
+    const before = finalPrice;
+    finalPrice = applyDiscount(finalPrice, type, value);
+    const amount = roundMoney(before - finalPrice);
+    if (amount > 0) discountBreakdown.push({ source, label, amount });
+  };
+
+  const promoIsActive = service.promoDiscountType
+    && service.promoDiscountValue
+    && service.promoStartDate
+    && service.promoEndDate
+    && now >= service.promoStartDate
+    && now <= service.promoEndDate;
+
+  if (promoIsActive) {
+    let promoHasCapacity = true;
+    if (service.promoMaxUses != null) {
+      const promoUsageCount = await tx.appointment.count({
+        where: {
+          serviceId: service.id,
+          status: { not: 'CANCELLED' },
+          createdAt: { gte: service.promoStartDate!, lte: service.promoEndDate! },
+        },
+      });
+      promoHasCapacity = promoUsageCount < service.promoMaxUses;
+    }
+    if (promoHasCapacity) {
+      applyTrackedDiscount(
+        'SERVICE_PROMOTION',
+        `Promocja: ${service.name}`,
+        service.promoDiscountType as DiscountType,
+        service.promoDiscountValue,
+      );
+    }
+  }
+
+  if (input.happyHourId) {
+    const happyHour = await tx.happyHour.findUnique({
+      where: { id: input.happyHourId },
+      include: {
+        services: { select: { id: true } },
+        employees: { select: { id: true } },
+      },
+    });
+    if (!happyHour || !happyHour.isActive) {
+      throw new AppError('Wybrana promocja Happy Hours nie jest już aktywna', 400);
+    }
+
+    const appointmentTime = `${String(input.date.getHours()).padStart(2, '0')}:${String(input.date.getMinutes()).padStart(2, '0')}`;
+    const appointmentDayOfWeek = (input.date.getDay() + 6) % 7;
+    const dateMatches = happyHour.type === 'ONE_TIME'
+      ? !!happyHour.date && isSameLocalDay(happyHour.date, input.date)
+      : happyHour.dayOfWeek === appointmentDayOfWeek;
+    const timeMatches = appointmentTime >= happyHour.startTime && appointmentTime < happyHour.endTime;
+    const serviceMatches = happyHour.isAllServices || happyHour.services.some(({ id }) => id === input.serviceId);
+    const employeeMatches = happyHour.isAllEmployees
+      || (!!input.employeeId && happyHour.employees.some(({ id }) => id === input.employeeId));
+
+    if (!dateMatches || !timeMatches || !serviceMatches || !employeeMatches) {
+      throw new AppError('Promocja Happy Hours nie obejmuje wybranego terminu', 400);
+    }
+    applyTrackedDiscount(
+      'HAPPY_HOUR',
+      happyHour.name,
+      happyHour.discountType as DiscountType,
+      happyHour.discountValue,
+    );
+  }
+
+  if (input.couponId) {
+    if (!input.userId) throw new AppError('Kupon wymaga konta klienta', 400);
+    const coupon = await tx.userCoupon.findUnique({
+      where: { id: input.couponId },
+      include: { reward: true },
+    });
+    if (!coupon || coupon.userId !== input.userId || coupon.status !== 'ACTIVE') {
+      throw new AppError('Kupon niedostępny lub już użyty', 400);
+    }
+    if (coupon.reward.discountType === 'PERCENTAGE' || coupon.reward.discountType === 'AMOUNT') {
+      applyTrackedDiscount(
+        'COUPON',
+        coupon.reward.name,
+        coupon.reward.discountType,
+        coupon.reward.discountValue,
+      );
+    }
+  }
+
+  if (input.discountCodeId) {
+    if (!input.userId) throw new AppError('Kod rabatowy wymaga konta klienta', 400);
+    const code = await tx.discountCode.findUnique({
+      where: { id: input.discountCodeId },
+      include: { voucher: { select: { serviceId: true } } },
+    });
+    const existingUsage = code
+      ? await tx.discountCodeUsage.findFirst({
+          where: { discountCodeId: code.id, userId: input.userId },
+          select: { id: true },
+        })
+      : null;
+    if (
+      !code
+      || !code.isActive
+      || (code.expiresAt && code.expiresAt < now)
+      || (code.lockedToUserId && code.lockedToUserId !== input.userId)
+      || (code.voucher?.serviceId && code.voucher.serviceId !== input.serviceId)
+      || existingUsage
+    ) {
+      throw new AppError('Kod rabatowy jest nieprawidłowy lub został już użyty', 400);
+    }
+    applyTrackedDiscount(
+      'DISCOUNT_CODE',
+      `Kod rabatowy ${code.code}`,
+      code.discountType as DiscountType,
+      code.discountValue,
+    );
+  }
+
+  let cashVoucherUsed = 0;
+  if (input.voucherId) {
+    const voucher = await tx.voucher.findUnique({ where: { id: input.voucherId } });
+    const requestedAmount = Number(input.voucherUsedAmount);
+    if (
+      !voucher
+      || voucher.type !== 'CASH'
+      || voucher.validUntil < now
+      || !Number.isFinite(requestedAmount)
+      || requestedAmount <= 0
+    ) {
+      throw new AppError('Nieprawidłowy voucher gotówkowy', 400);
+    }
+    const remainingAmount = Number(voucher.remainingAmount ?? 0);
+    if (remainingAmount <= 0) throw new AppError('Ten voucher został już w pełni wykorzystany', 400);
+    cashVoucherUsed = roundMoney(Math.min(requestedAmount, remainingAmount, finalPrice));
+    finalPrice = roundMoney(finalPrice - cashVoucherUsed);
+    if (cashVoucherUsed > 0) {
+      discountBreakdown.push({ source: 'VOUCHER', label: 'Voucher gotówkowy', amount: cashVoucherUsed });
+    }
+  }
+
+  const location = service.location ?? DEFAULT_LOCATION;
+  return {
+    priceAtBooking,
+    finalPrice,
+    discountTotal: roundMoney(priceAtBooking - finalPrice),
+    discountBreakdown,
+    cashVoucherUsed,
+    location: {
+      id: location.id,
+      name: location.name,
+      address: `${location.street}, ${location.postalCode} ${location.city}`,
+      latitude: location.latitude == null ? null : Number(location.latitude),
+      longitude: location.longitude == null ? null : Number(location.longitude),
+      phone: location.phone ?? DEFAULT_LOCATION.phone,
+    },
+  };
+}
 
 export const getTodayAppointments = async (employeeId?: string) => {
   const now = new Date();
@@ -171,12 +457,35 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
   }
 
   const appointment = await prisma.$transaction(async (tx) => {
+    const appointmentDate = new Date(rest.date);
+    const pricing = await resolveAppointmentPricing(tx, {
+      userId,
+      serviceId: rest.serviceId,
+      employeeId: rest.employeeId,
+      date: appointmentDate,
+      couponId,
+      discountCodeId,
+      voucherId,
+      voucherUsedAmount,
+      happyHourId,
+    });
+
     const created = await tx.appointment.create({
       data: {
         userId,
         serviceId: rest.serviceId,
         employeeId: rest.employeeId || null,
-        date: new Date(rest.date),
+        date: appointmentDate,
+        priceAtBooking: pricing.priceAtBooking,
+        finalPrice: pricing.finalPrice,
+        discountTotal: pricing.discountTotal,
+        discountBreakdown: pricing.discountBreakdown as Prisma.InputJsonValue,
+        locationId: pricing.location.id,
+        locationNameAtBooking: pricing.location.name,
+        locationAddressAtBooking: pricing.location.address,
+        locationLatitudeAtBooking: pricing.location.latitude,
+        locationLongitudeAtBooking: pricing.location.longitude,
+        salonPhoneAtBooking: pricing.location.phone,
         notes: rest.notes || null,
         allergies: rest.allergies || null,
         problemDescription: rest.problemDescription || null,
@@ -206,17 +515,13 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
       }
     }
 
-    if (voucherId && voucherUsedAmount && voucherUsedAmount > 0) {
+    if (voucherId && pricing.cashVoucherUsed > 0) {
       const v = await tx.voucher.findUnique({ where: { id: voucherId } });
-      if (!v || v.type !== 'CASH' || v.validUntil < new Date()) {
-        throw new AppError('Nieprawidłowy voucher gotówkowy', 400);
-      }
+      if (!v) throw new AppError('Nieprawidłowy voucher gotówkowy', 400);
       const current = Number(v.remainingAmount ?? 0);
-      if (current <= 0) throw new AppError('Ten voucher został już w pełni wykorzystany', 400);
-      const used = Math.min(voucherUsedAmount, current);
       await tx.voucher.update({
         where: { id: voucherId },
-        data: { remainingAmount: Math.max(0, current - used) },
+        data: { remainingAmount: Math.max(0, current - pricing.cashVoucherUsed) },
       });
     }
 
@@ -268,12 +573,156 @@ export const uploadAppointmentPhoto = async (id: string, userId: string, photoPa
 };
 
 export const getUserAppointments = async (userId: string) => {
-  return prisma.appointment.findMany({
-    where: { userId },
-    orderBy: { date: 'asc' },
-    include: appointmentInclude,
-    take: 200,
-  });
+  const now = new Date();
+  const [upcoming, history] = await Promise.all([
+    prisma.appointment.findMany({
+      where: {
+        userId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        date: { gte: now },
+      },
+      orderBy: { date: 'asc' },
+      include: appointmentInclude,
+      take: 100,
+    }),
+    prisma.appointment.findMany({
+      where: {
+        userId,
+        OR: [
+          { status: { in: ['CANCELLED', 'COMPLETED', 'NO_SHOW'] } },
+          { date: { lt: now } },
+        ],
+      },
+      orderBy: { date: 'desc' },
+      include: appointmentInclude,
+      take: 200,
+    }),
+  ]);
+
+  return [...upcoming, ...history];
+};
+
+type UserHistoryStatus = 'ALL' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+
+const presentUserAppointment = (appointment: any, hasPublishedBeautyPlan: boolean) => ({
+  ...appointment,
+  durationMinutes: appointment.customDurationMinutes ?? appointment.service?.durationMinutes ?? 60,
+  activeCancellationRequest: appointment.cancellationRequests?.[0] ?? null,
+  postVisit: {
+    recommendationsCount: appointment._count?.recommendations ?? 0,
+    hasHomecareRoutine: Boolean(appointment.homecareRoutine?.sentAt),
+    journalPhotoCount: appointment._count?.journalEntries ?? 0,
+    hasAppointmentPhoto: Boolean(appointment.photoPath),
+    hasPublishedBeautyPlan,
+  },
+});
+
+const getSalonAppointmentSettings = async () => {
+  const [terms, location] = await Promise.all([
+    prisma.salonTerms.findFirst({
+      select: { version: true, cancellationNoticeHours: true },
+    }),
+    prisma.salonLocation.findFirst({
+      where: { isDefault: true, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        street: true,
+        postalCode: true,
+        city: true,
+        latitude: true,
+        longitude: true,
+        phone: true,
+        email: true,
+      },
+    }),
+  ]);
+
+  const safeLocation = location ?? DEFAULT_LOCATION;
+  return {
+    cancellationPolicy: {
+      noticeHours: terms?.cancellationNoticeHours ?? 24,
+      version: terms?.version ?? '1.0',
+    },
+    salonContact: {
+      name: safeLocation.name,
+      address: `${safeLocation.street}, ${safeLocation.postalCode} ${safeLocation.city}`,
+      latitude: safeLocation.latitude == null ? null : Number(safeLocation.latitude),
+      longitude: safeLocation.longitude == null ? null : Number(safeLocation.longitude),
+      phone: safeLocation.phone ?? DEFAULT_LOCATION.phone,
+      email: safeLocation.email ?? DEFAULT_LOCATION.email,
+    },
+  };
+};
+
+export const getUserAppointmentsOverview = async (userId: string) => {
+  const now = new Date();
+  const [upcoming, hasPublishedBeautyPlan, settings] = await Promise.all([
+    prisma.appointment.findMany({
+      where: {
+        userId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        date: { gte: now },
+      },
+      orderBy: { date: 'asc' },
+      include: appointmentInclude,
+      take: 20,
+    }),
+    prisma.beautyPlan.findFirst({
+      where: { userId, isPublished: true },
+      select: { id: true },
+    }).then(Boolean),
+    getSalonAppointmentSettings(),
+  ]);
+
+  const presented = upcoming.map((appointment) => presentUserAppointment(appointment, hasPublishedBeautyPlan));
+  return {
+    nextAppointment: presented[0] ?? null,
+    otherUpcoming: presented.slice(1),
+    ...settings,
+  };
+};
+
+export const getUserAppointmentHistory = async (
+  userId: string,
+  filters: { status?: UserHistoryStatus; page?: number; limit?: number },
+) => {
+  const status = filters.status ?? 'ALL';
+  const page = Math.max(1, filters.page ?? 1);
+  const limit = Math.min(50, Math.max(1, filters.limit ?? 10));
+  const now = new Date();
+  const statusWhere: Prisma.AppointmentWhereInput = status === 'ALL'
+    ? {
+        OR: [
+          { status: { in: ['CANCELLED', 'COMPLETED', 'NO_SHOW'] } },
+          { date: { lt: now } },
+        ],
+      }
+    : { status };
+  const where: Prisma.AppointmentWhereInput = { userId, ...statusWhere };
+
+  const [items, total, hasPublishedBeautyPlan] = await Promise.all([
+    prisma.appointment.findMany({
+      where,
+      orderBy: { date: 'desc' },
+      include: appointmentInclude,
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.appointment.count({ where }),
+    prisma.beautyPlan.findFirst({
+      where: { userId, isPublished: true },
+      select: { id: true },
+    }).then(Boolean),
+  ]);
+
+  return {
+    items: items.map((appointment) => presentUserAppointment(appointment, hasPublishedBeautyPlan)),
+    page,
+    limit,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / limit)),
+  };
 };
 
 export const getAllAppointments = async (filters?: {
@@ -341,12 +790,29 @@ export const createAppointmentByAdmin = async (data: {
   }
 
   const result = await prisma.$transaction(async (tx) => {
+    const appointmentDate = new Date(data.date);
+    const pricing = await resolveAppointmentPricing(tx, {
+      userId: user.id,
+      serviceId: data.serviceId,
+      employeeId: data.employeeId,
+      date: appointmentDate,
+    });
     const appointment = await tx.appointment.create({
       data: {
         userId: user.id,
         serviceId: data.serviceId,
         employeeId: data.employeeId || null,
-        date: new Date(data.date),
+        date: appointmentDate,
+        priceAtBooking: pricing.priceAtBooking,
+        finalPrice: pricing.finalPrice,
+        discountTotal: pricing.discountTotal,
+        discountBreakdown: pricing.discountBreakdown as Prisma.InputJsonValue,
+        locationId: pricing.location.id,
+        locationNameAtBooking: pricing.location.name,
+        locationAddressAtBooking: pricing.location.address,
+        locationLatitudeAtBooking: pricing.location.latitude,
+        locationLongitudeAtBooking: pricing.location.longitude,
+        salonPhoneAtBooking: pricing.location.phone,
         notes: data.notes || null,
         status: 'CONFIRMED',
       },
@@ -438,6 +904,13 @@ export const createExternalClientAppointment = async (data: {
   }
 
   const result = await prisma.$transaction(async (tx) => {
+    const appointmentDate = new Date(data.date);
+    const pricing = await resolveAppointmentPricing(tx, {
+      userId: null,
+      serviceId: data.serviceId,
+      employeeId: data.employeeId,
+      date: appointmentDate,
+    });
     const appointment = await tx.appointment.create({
       data: {
         userId: null,
@@ -447,7 +920,17 @@ export const createExternalClientAppointment = async (data: {
         customDurationMinutes: data.customDurationMinutes ?? null,
         serviceId: data.serviceId,
         employeeId: data.employeeId || null,
-        date: new Date(data.date),
+        date: appointmentDate,
+        priceAtBooking: pricing.priceAtBooking,
+        finalPrice: pricing.finalPrice,
+        discountTotal: pricing.discountTotal,
+        discountBreakdown: pricing.discountBreakdown as Prisma.InputJsonValue,
+        locationId: pricing.location.id,
+        locationNameAtBooking: pricing.location.name,
+        locationAddressAtBooking: pricing.location.address,
+        locationLatitudeAtBooking: pricing.location.latitude,
+        locationLongitudeAtBooking: pricing.location.longitude,
+        salonPhoneAtBooking: pricing.location.phone,
         notes: data.notes || null,
         status: 'CONFIRMED',
       },
@@ -488,6 +971,9 @@ export const requestReschedule = async (id: string, userId: string, newDate: str
   }
   if (appointment.rescheduleStatus === 'PENDING') {
     throw new AppError('Wniosek o zmiane terminu juz czeka na decyzje', 400);
+  }
+  if (appointment.cancellationRequests.length > 0) {
+    throw new AppError('Najpierw wycofaj oczekujący wniosek o anulowanie wizyty', 409);
   }
 
   const date = new Date(newDate);
@@ -530,10 +1016,22 @@ export const requestReschedule = async (id: string, userId: string, newDate: str
 };
 
 export const approveReschedule = async (id: string) => {
-  const appointment = await prisma.appointment.findUnique({ where: { id } });
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+    include: { service: { select: { id: true } }, employee: { select: { id: true } } },
+  });
   if (!appointment) throw new AppError('Wizyta nie istnieje', 404);
-  if (appointment.rescheduleStatus !== 'PENDING') {
+  if (appointment.rescheduleStatus !== 'PENDING' || !appointment.rescheduleDate) {
     throw new AppError('Brak oczekujacego wniosku o zmiane terminu', 400);
+  }
+
+  const requestedDate = appointment.rescheduleDate;
+  const dateStr = `${requestedDate.getFullYear()}-${String(requestedDate.getMonth() + 1).padStart(2, '0')}-${String(requestedDate.getDate()).padStart(2, '0')}`;
+  const timeStr = `${String(requestedDate.getHours()).padStart(2, '0')}:${String(requestedDate.getMinutes()).padStart(2, '0')}`;
+  const slots = await getAvailability(dateStr, appointment.serviceId, appointment.employeeId ?? undefined);
+  const slot = slots.find((entry) => entry.time === timeStr);
+  if (!slot?.available) {
+    throw new AppError('Proponowany termin nie jest już dostępny. Odrzuć wniosek i skontaktuj się z klientem.', 409);
   }
 
   const updated = await prisma.appointment.update({
@@ -564,6 +1062,173 @@ export const approveReschedule = async (id: string) => {
   }
 
   return updated;
+};
+
+export const withdrawReschedule = async (id: string, userId: string) => {
+  const result = await prisma.appointment.updateMany({
+    where: {
+      id,
+      userId,
+      status: { in: ['PENDING', 'CONFIRMED'] },
+      rescheduleStatus: 'PENDING',
+    },
+    data: { rescheduleDate: null, rescheduleStatus: null },
+  });
+  if (result.count === 0) {
+    const existing = await prisma.appointment.findUnique({ where: { id }, select: { userId: true } });
+    if (!existing) throw new AppError('Wizyta nie istnieje', 404);
+    if (existing.userId !== userId) throw new AppError('Brak dostępu', 403);
+    throw new AppError('Wniosek o zmianę terminu nie oczekuje już na decyzję', 409);
+  }
+
+  const appointment = await prisma.appointment.findUniqueOrThrow({ where: { id }, include: appointmentInclude });
+  try {
+    const io = getIO();
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    await Promise.all(admins.map((admin) => createAndEmitNotification(io, {
+      userId: admin.id,
+      type: 'GENERIC',
+      title: 'Wycofano prośbę o zmianę terminu',
+      body: `${appointment.user?.name ?? 'Klient'} wycofał prośbę o zmianę terminu wizyty.`,
+      url: '/admin/wizyty',
+      audience: 'ADMIN',
+    })));
+  } catch (error) {
+    console.error('Notification delivery failed (withdrawReschedule):', error);
+  }
+  return appointment;
+};
+
+export const requestCancellation = async (id: string, userId: string, reason?: string) => {
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+    include: appointmentInclude,
+  });
+  if (!appointment) throw new AppError('Wizyta nie istnieje', 404);
+  if (appointment.userId !== userId) throw new AppError('Brak dostępu', 403);
+  if (!['PENDING', 'CONFIRMED'].includes(appointment.status) || appointment.date <= new Date()) {
+    throw new AppError('Anulowanie jest możliwe tylko dla aktywnej przyszłej wizyty', 400);
+  }
+  if (appointment.rescheduleStatus === 'PENDING') {
+    throw new AppError('Najpierw wycofaj oczekujący wniosek o zmianę terminu', 409);
+  }
+  if (appointment.cancellationRequests.length > 0) {
+    throw new AppError('Wniosek o anulowanie już oczekuje na decyzję', 409);
+  }
+
+  const settings = await getSalonAppointmentSettings();
+  const noticeHours = settings.cancellationPolicy.noticeHours;
+  const hoursUntilAppointment = (appointment.date.getTime() - Date.now()) / 3_600_000;
+  if (hoursUntilAppointment < noticeHours) {
+    throw new AppError(
+      `Wniosek online można złożyć najpóźniej ${noticeHours} godz. przed wizytą. Skontaktuj się bezpośrednio z salonem.`,
+      409,
+    );
+  }
+
+  const cleanReason = reason?.trim().slice(0, 500) || null;
+  try {
+    await prisma.appointmentCancellationRequest.create({
+      data: {
+        appointmentId: id,
+        userId,
+        reason: cleanReason,
+        policyNoticeHours: noticeHours,
+        policyVersion: settings.cancellationPolicy.version,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new AppError('Wniosek o anulowanie już oczekuje na decyzję', 409);
+    }
+    throw error;
+  }
+
+  const updated = await prisma.appointment.findUniqueOrThrow({ where: { id }, include: appointmentInclude });
+  try {
+    const io = getIO();
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    const body = `${updated.user?.name ?? 'Klient'} prosi o anulowanie wizyty.`;
+    await Promise.all(admins.map((admin) => createAndEmitNotification(io, {
+      userId: admin.id,
+      type: 'GENERIC',
+      title: 'Prośba o anulowanie wizyty',
+      body,
+      url: '/admin/wizyty',
+      audience: 'ADMIN',
+    })));
+    await sendPushToAdmins({ title: 'Prośba o anulowanie wizyty', body, url: '/admin/wizyty' });
+  } catch (error) {
+    console.error('Notification delivery failed (requestCancellation):', error);
+  }
+  return updated;
+};
+
+export const withdrawCancellation = async (id: string, userId: string) => {
+  const request = await prisma.appointmentCancellationRequest.findFirst({
+    where: { appointmentId: id, userId, status: 'PENDING' },
+    orderBy: { createdAt: 'desc' },
+  });
+  if (!request) throw new AppError('Brak oczekującego wniosku o anulowanie', 409);
+
+  await prisma.appointmentCancellationRequest.update({
+    where: { id: request.id },
+    data: { status: 'WITHDRAWN', withdrawnAt: new Date() },
+  });
+  return prisma.appointment.findUniqueOrThrow({ where: { id }, include: appointmentInclude });
+};
+
+export const decideCancellation = async (
+  id: string,
+  adminId: string,
+  decision: 'APPROVED' | 'REJECTED',
+  decisionNote?: string,
+) => {
+  const pending = await prisma.appointmentCancellationRequest.findFirst({
+    where: { appointmentId: id, status: 'PENDING' },
+    orderBy: { createdAt: 'desc' },
+  });
+  if (!pending) throw new AppError('Brak oczekującego wniosku o anulowanie', 409);
+
+  const appointment = await prisma.$transaction(async (tx) => {
+    const changed = await tx.appointmentCancellationRequest.updateMany({
+      where: { id: pending.id, status: 'PENDING' },
+      data: {
+        status: decision,
+        decidedById: adminId,
+        decisionNote: decisionNote?.trim().slice(0, 500) || null,
+        decidedAt: new Date(),
+      },
+    });
+    if (changed.count === 0) throw new AppError('Wniosek został już rozpatrzony', 409);
+    if (decision === 'APPROVED') {
+      await tx.appointment.update({
+        where: { id },
+        data: { status: 'CANCELLED', rescheduleDate: null, rescheduleStatus: null },
+      });
+    }
+    return tx.appointment.findUniqueOrThrow({ where: { id }, include: appointmentInclude });
+  });
+
+  if (appointment.userId) try {
+    const io = getIO();
+    const approved = decision === 'APPROVED';
+    const title = approved ? 'Wizyta została anulowana' : 'Wniosek o anulowanie odrzucony';
+    const body = approved
+      ? 'Salon zatwierdził anulowanie Twojej wizyty.'
+      : decisionNote?.trim() || 'Wizyta pozostaje aktywna. W razie pytań skontaktuj się z salonem.';
+    await createAndEmitNotification(io, {
+      userId: appointment.userId,
+      type: 'GENERIC',
+      title,
+      body,
+      url: '/user/wizyty',
+    });
+    await sendPushToUser(appointment.userId, { title, body, url: '/user/wizyty' });
+  } catch (error) {
+    console.error('Notification delivery failed (decideCancellation):', error);
+  }
+  return appointment;
 };
 
 export const rejectReschedule = async (id: string) => {
@@ -601,6 +1266,7 @@ export const rejectReschedule = async (id: string) => {
 export const updateStatus = async (
   id: string,
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW',
+  actorId?: string,
 ) => {
   const result = await prisma.$transaction(async (tx) => {
     const existing = await tx.appointment.findUnique({
@@ -617,16 +1283,40 @@ export const updateStatus = async (
       throw new AppError('Nie mozna zmienic statusu zakonczonej wizyty', 400);
     }
 
+    const pointsToAward = status === 'COMPLETED' && existing.status !== 'COMPLETED'
+      ? Math.floor(Number(existing.finalPrice))
+      : null;
+
     const appointment = await tx.appointment.update({
       where: { id },
       data: {
         status,
+        ...(['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(status)
+          ? { rescheduleDate: null, rescheduleStatus: null }
+          : {}),
         ...(status === 'COMPLETED' && existing.status !== 'COMPLETED'
-          ? { completedAt: new Date() }
+          ? { completedAt: new Date(), loyaltyPointsAwarded: pointsToAward }
           : {}),
       },
       include: { service: true, user: true, employee: { select: { id: true, name: true } } },
     });
+
+    if (status === 'CANCELLED') {
+      await tx.appointmentCancellationRequest.updateMany({
+        where: { appointmentId: id, status: 'PENDING' },
+        data: { status: 'APPROVED', decidedById: actorId ?? null, decidedAt: new Date() },
+      });
+    } else if (status === 'COMPLETED' || status === 'NO_SHOW') {
+      await tx.appointmentCancellationRequest.updateMany({
+        where: { appointmentId: id, status: 'PENDING' },
+        data: {
+          status: 'REJECTED',
+          decidedById: actorId ?? null,
+          decisionNote: 'Wizyta została już zakończona.',
+          decidedAt: new Date(),
+        },
+      });
+    }
 
     let tierChanged = false;
     let routineAutoSent = false;
@@ -654,7 +1344,7 @@ export const updateStatus = async (
       }
 
       if (appointment.user) {
-        const points = Math.floor(Number(appointment.service.price));
+        const points = appointment.loyaltyPointsAwarded ?? Math.floor(Number(appointment.finalPrice));
 
         await tx.loyaltyTransaction.create({
           data: {

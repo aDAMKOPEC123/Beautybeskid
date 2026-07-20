@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ShoppingBag, Calendar, Sparkles, Package, CheckCircle, Clock, Trash2 } from 'lucide-react';
 import { recommendationsApi, type RecommendationGroup, type AppointmentRecommendation } from '../../api/recommendations.api';
 import { toast } from 'sonner';
+import { useSearchParams } from 'react-router-dom';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('pl-PL', {
@@ -112,10 +113,15 @@ function SkeletonGroup() {
 }
 
 export function UserProducts() {
+  const [searchParams] = useSearchParams();
+  const appointmentId = searchParams.get('appointmentId');
   const { data: groups, isLoading } = useQuery({
     queryKey: ['recommendations'],
     queryFn: recommendationsApi.getMy,
   });
+  const visibleGroups = appointmentId
+    ? groups?.filter((group) => group.appointmentId === appointmentId)
+    : groups;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -139,13 +145,13 @@ export function UserProducts() {
             <SkeletonGroup />
             <SkeletonGroup />
           </>
-        ) : !groups || groups.length === 0 ? (
+        ) : !visibleGroups || visibleGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-2xl bg-[#C4965A]/10 flex items-center justify-center mb-4">
               <ShoppingBag size={28} className="text-[#C4965A]/60" />
             </div>
             <h3 className="font-heading text-base font-semibold text-[#1A3828] mb-2">
-              Brak rekomendacji
+              {appointmentId ? 'Brak zaleceń dla tej wizyty' : 'Brak rekomendacji'}
             </h3>
             <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
               Po Twojej wizycie specjalista może dodać rekomendacje produktów do pielęgnacji domowej
@@ -156,7 +162,7 @@ export function UserProducts() {
             </div>
           </div>
         ) : (
-          groups.map((group) => (
+          visibleGroups.map((group) => (
             <AppointmentGroup key={group.appointmentId} group={group} />
           ))
         )}

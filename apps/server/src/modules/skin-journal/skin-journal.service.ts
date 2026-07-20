@@ -2,11 +2,12 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { getISOWeek, getISOWeekYear } from 'date-fns';
 
-export const getJournal = async (userId: string, page = 1, limit = 10) => {
+export const getJournal = async (userId: string, page = 1, limit = 10, appointmentId?: string) => {
   const skip = (page - 1) * limit;
+  const where = { userId, ...(appointmentId ? { linkedAppointmentId: appointmentId } : {}) };
   const [entries, total] = await Promise.all([
     prisma.skinJournalEntry.findMany({
-      where: { userId },
+      where,
       orderBy: { date: 'desc' },
       skip,
       take: limit,
@@ -19,7 +20,7 @@ export const getJournal = async (userId: string, page = 1, limit = 10) => {
         _count: { select: { comments: true } },
       },
     }),
-    prisma.skinJournalEntry.count({ where: { userId } }),
+    prisma.skinJournalEntry.count({ where }),
   ]);
   return { entries, total, page, limit, totalPages: Math.ceil(total / limit) };
 };

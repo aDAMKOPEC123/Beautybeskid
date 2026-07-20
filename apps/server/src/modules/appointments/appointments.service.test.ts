@@ -12,7 +12,7 @@ vi.mock('../../config/prisma', () => ({
 }));
 
 import { prisma } from '../../config/prisma';
-import { getAllAppointments } from './appointments.service';
+import { getAllAppointments, getUserAppointments } from './appointments.service';
 
 describe('getAllAppointments', () => {
   beforeEach(() => {
@@ -61,6 +61,42 @@ describe('NO_SHOW status filter', () => {
     await getAllAppointments({ status: 'NO_SHOW' });
     expect(prisma.appointment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { status: 'NO_SHOW' } })
+    );
+  });
+});
+
+describe('getUserAppointments', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns upcoming visits first and newest history afterwards', async () => {
+    (prisma.appointment.findMany as any)
+      .mockResolvedValueOnce([{ id: 'upcoming' }])
+      .mockResolvedValueOnce([{ id: 'newest-history' }, { id: 'older-history' }]);
+
+    const result = await getUserAppointments('user-123');
+
+    expect(result.map((appointment: any) => appointment.id)).toEqual([
+      'upcoming',
+      'newest-history',
+      'older-history',
+    ]);
+    expect(prisma.appointment.findMany).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ orderBy: { date: 'asc' }, take: 100 }),
+    );
+    expect(prisma.appointment.findMany).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        orderBy: { date: 'desc' },
+        take: 200,
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            { status: { in: ['CANCELLED', 'COMPLETED', 'NO_SHOW'] } },
+          ]),
+        }),
+      }),
     );
   });
 });

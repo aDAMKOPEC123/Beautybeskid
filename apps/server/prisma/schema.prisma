@@ -57,6 +57,13 @@ enum RescheduleStatus {
   REJECTED
 }
 
+enum CancellationRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
 enum TreatmentSeriesStatus {
   ACTIVE
   COMPLETED
@@ -220,48 +227,50 @@ model User {
   referrals      User[]  @relation("Referrals")
   referralCount  Int     @default(0)
 
-  appointments               Appointment[]
-  loyaltyTransactions        LoyaltyTransaction[]
-  coupons                    UserCoupon[]
-  sentMessages               ChatMessage[]               @relation("SentMessages")
-  receivedMessages           ChatMessage[]               @relation("ReceivedMessages")
-  chatRoom                   ChatRoom?                   @relation("UserChatRoom")
-  adminChatRooms             ChatRoom[]                  @relation("AdminChatRooms")
-  blogPosts                  BlogPost[]
-  blogComments               BlogComment[]               @relation("BlogCommentAuthor")
-  blogCommentReactions       BlogCommentReaction[]       @relation("BlogCommentReactions")
-  employee                   Employee?
-  lockedDiscountCodes        DiscountCode[]              @relation("LockedDiscountCodes")
-  discountCodeUsages         DiscountCodeUsage[]         @relation("DiscountCodeUsages")
-  pushSubscriptions          PushSubscription[]
-  reviews                    Review[]
-  achievements               UserAchievement[]
-  serviceReminders           ServiceReminder[]
-  treatmentSeries            TreatmentSeries[]
-  notifications              Notification[]
-  appointmentRecommendations AppointmentRecommendation[]
-  addedRecommendations       AppointmentRecommendation[] @relation("RecommendationAddedBy")
-  createdStorePromotions     StorePromotion[]            @relation("StorePromotionCreatedBy")
-  storePromotionFavorites    StorePromotionFavorite[]
-  storePromotionReminders    StorePromotionReminder[]
-  storePromotionEvents       StorePromotionEvent[]
-  skinJournalEntries         SkinJournalEntry[]
-  journalEntriesAuthored     SkinJournalEntry[]          @relation("JournalEntryAuthor")
-  journalComments            SkinJournalComment[]
-  blogPostLikes              BlogPostLike[]
-  skinWeatherProfile         SkinWeatherProfile?
-  skinWeatherReports         SkinWeatherReport[]
-  academyAccessLogs          AcademyAccessLog[]
-  refreshTokens              RefreshToken[]
-  passkeys                   Passkey[]
-  beautyPlans                BeautyPlan[]                @relation("UserBeautyPlans")
-  createdBeautyPlans         BeautyPlan[]                @relation("BeautyPlanCreatedBy")
-  forumThreads               ForumThread[]               @relation("ForumThreadAuthor")
-  forumPosts                 ForumPost[]                 @relation("ForumPostAuthor")
-  forumWatches               ForumWatch[]                @relation("ForumWatchUser")
-  forumReactions             ForumReaction[]             @relation("ForumReactionUser")
-  createdVouchers            Voucher[]                   @relation("VoucherCreatedBy")
-  financeRevenueEntries      FinanceRevenue[]            @relation("FinanceRevenueUser")
+  appointments                Appointment[]
+  loyaltyTransactions         LoyaltyTransaction[]
+  coupons                     UserCoupon[]
+  sentMessages                ChatMessage[]                    @relation("SentMessages")
+  receivedMessages            ChatMessage[]                    @relation("ReceivedMessages")
+  chatRoom                    ChatRoom?                        @relation("UserChatRoom")
+  adminChatRooms              ChatRoom[]                       @relation("AdminChatRooms")
+  blogPosts                   BlogPost[]
+  blogComments                BlogComment[]                    @relation("BlogCommentAuthor")
+  blogCommentReactions        BlogCommentReaction[]            @relation("BlogCommentReactions")
+  employee                    Employee?
+  lockedDiscountCodes         DiscountCode[]                   @relation("LockedDiscountCodes")
+  discountCodeUsages          DiscountCodeUsage[]              @relation("DiscountCodeUsages")
+  pushSubscriptions           PushSubscription[]
+  reviews                     Review[]
+  achievements                UserAchievement[]
+  serviceReminders            ServiceReminder[]
+  treatmentSeries             TreatmentSeries[]
+  notifications               Notification[]
+  appointmentRecommendations  AppointmentRecommendation[]
+  addedRecommendations        AppointmentRecommendation[]      @relation("RecommendationAddedBy")
+  createdStorePromotions      StorePromotion[]                 @relation("StorePromotionCreatedBy")
+  storePromotionFavorites     StorePromotionFavorite[]
+  storePromotionReminders     StorePromotionReminder[]
+  storePromotionEvents        StorePromotionEvent[]
+  skinJournalEntries          SkinJournalEntry[]
+  journalEntriesAuthored      SkinJournalEntry[]               @relation("JournalEntryAuthor")
+  journalComments             SkinJournalComment[]
+  blogPostLikes               BlogPostLike[]
+  skinWeatherProfile          SkinWeatherProfile?
+  skinWeatherReports          SkinWeatherReport[]
+  academyAccessLogs           AcademyAccessLog[]
+  refreshTokens               RefreshToken[]
+  passkeys                    Passkey[]
+  beautyPlans                 BeautyPlan[]                     @relation("UserBeautyPlans")
+  createdBeautyPlans          BeautyPlan[]                     @relation("BeautyPlanCreatedBy")
+  forumThreads                ForumThread[]                    @relation("ForumThreadAuthor")
+  forumPosts                  ForumPost[]                      @relation("ForumPostAuthor")
+  forumWatches                ForumWatch[]                     @relation("ForumWatchUser")
+  forumReactions              ForumReaction[]                  @relation("ForumReactionUser")
+  createdVouchers             Voucher[]                        @relation("VoucherCreatedBy")
+  financeRevenueEntries       FinanceRevenue[]                 @relation("FinanceRevenueUser")
+  cancellationRequests        AppointmentCancellationRequest[] @relation("CancellationRequestUser")
+  decidedCancellationRequests AppointmentCancellationRequest[] @relation("CancellationRequestDecider")
 
   @@index([role])
 }
@@ -325,31 +334,33 @@ model PushSubscription {
 }
 
 model Service {
-  id                      String   @id @default(cuid())
+  id                      String         @id @default(cuid())
   name                    String
-  slug                    String   @unique
+  slug                    String         @unique
   description             String
-  price                   Decimal  @db.Decimal(10, 2)
+  price                   Decimal        @db.Decimal(10, 2)
   durationMinutes         Int
   category                String
-  displayOrder            Int      @unique @default(1)
+  displayOrder            Int            @unique @default(1)
   imagePath               String?
-  isActive                Boolean  @default(true)
+  isActive                Boolean        @default(true)
   detailedContent         String?
   recommendedIntervalDays Int?
-  isMultiVisit            Boolean  @default(false)
-  seriesIntervalsDays     Int[]    @default([])
-  seasons                 Season[] @default([])
+  isMultiVisit            Boolean        @default(false)
+  seriesIntervalsDays     Int[]          @default([])
+  seasons                 Season[]       @default([])
   routineFirst48h         String?
   routineFollowingDays    String?
   routineProducts         String?
   promoDiscountType       DiscountType?
-  promoDiscountValue      Decimal?      @db.Decimal(10, 2)
+  promoDiscountValue      Decimal?       @db.Decimal(10, 2)
   promoStartDate          DateTime?
   promoEndDate            DateTime?
   promoMaxUses            Int?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  locationId              String?
+  location                SalonLocation? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
 
   appointments          Appointment[]
   metamorphoses         Metamorphosis[]
@@ -366,6 +377,7 @@ model Service {
 
   @@index([category])
   @@index([isActive])
+  @@index([locationId])
 }
 
 model BlogPost {
@@ -552,36 +564,50 @@ model EmployeeWeeklySchedule {
 }
 
 model Appointment {
-  id                    String            @id @default(cuid())
-  userId                String?
-  user                  User?             @relation(fields: [userId], references: [id])
-  clientName            String?
-  clientPhone           String?
-  clientEmail           String?
-  customDurationMinutes Int?
-  serviceId             String
-  service               Service           @relation(fields: [serviceId], references: [id])
-  employeeId            String?
-  employee              Employee?         @relation(fields: [employeeId], references: [id])
-  date                  DateTime
-  status                AppointmentStatus @default(PENDING)
-  notes                 String?
-  allergies             String?
-  problemDescription    String?
-  photoPath             String?
-  staffNote             String?
-  completedAt           DateTime?
-  treatmentSeriesId     String?
-  treatmentSeries       TreatmentSeries?  @relation(fields: [treatmentSeriesId], references: [id], onDelete: SetNull)
-  treatmentSeriesStep   Int?
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
+  id                         String            @id @default(cuid())
+  userId                     String?
+  user                       User?             @relation(fields: [userId], references: [id])
+  clientName                 String?
+  clientPhone                String?
+  clientEmail                String?
+  customDurationMinutes      Int?
+  serviceId                  String
+  service                    Service           @relation(fields: [serviceId], references: [id])
+  employeeId                 String?
+  employee                   Employee?         @relation(fields: [employeeId], references: [id])
+  date                       DateTime
+  status                     AppointmentStatus @default(PENDING)
+  priceAtBooking             Decimal           @db.Decimal(10, 2)
+  finalPrice                 Decimal           @db.Decimal(10, 2)
+  discountTotal              Decimal           @default(0) @db.Decimal(10, 2)
+  discountBreakdown          Json              @default("[]")
+  loyaltyPointsAwarded       Int?
+  locationId                 String?
+  location                   SalonLocation?    @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  locationNameAtBooking      String?
+  locationAddressAtBooking   String?
+  locationLatitudeAtBooking  Decimal?          @db.Decimal(9, 6)
+  locationLongitudeAtBooking Decimal?          @db.Decimal(9, 6)
+  salonPhoneAtBooking        String?
+  notes                      String?
+  allergies                  String?
+  problemDescription         String?
+  photoPath                  String?
+  staffNote                  String?
+  completedAt                DateTime?
+  treatmentSeriesId          String?
+  treatmentSeries            TreatmentSeries?  @relation(fields: [treatmentSeriesId], references: [id], onDelete: SetNull)
+  treatmentSeriesStep        Int?
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
 
   coupon                UserCoupon?
   discountCodeUsage     DiscountCodeUsage?
   review                Review?
   recommendations       AppointmentRecommendation[]
   homecareRoutine       HomecareRoutine?
+  journalEntries        SkinJournalEntry[]
+  cancellationRequests  AppointmentCancellationRequest[]
   financeRevenueEntries FinanceRevenue[]
 
   happyHourId String?
@@ -595,6 +621,29 @@ model Appointment {
   @@index([userId, status])
   @@index([date])
   @@index([employeeId])
+  @@index([locationId])
+}
+
+model AppointmentCancellationRequest {
+  id                String                    @id @default(cuid())
+  appointmentId     String
+  appointment       Appointment               @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User                      @relation("CancellationRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  status            CancellationRequestStatus @default(PENDING)
+  reason            String?
+  policyNoticeHours Int
+  policyVersion     String
+  decidedById       String?
+  decidedBy         User?                     @relation("CancellationRequestDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decisionNote      String?
+  decidedAt         DateTime?
+  withdrawnAt       DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  @@index([appointmentId, status])
+  @@index([userId, status])
 }
 
 model DiscountCode {
@@ -636,10 +685,31 @@ model AmbassadorConfig {
 }
 
 model SalonTerms {
-  id        String   @id @default(cuid())
-  content   String
-  version   String   @default("1.0")
-  updatedAt DateTime @updatedAt
+  id                      String   @id @default(cuid())
+  content                 String
+  version                 String   @default("1.0")
+  cancellationNoticeHours Int      @default(24)
+  updatedAt               DateTime @updatedAt
+}
+
+model SalonLocation {
+  id           String        @id @default(cuid())
+  name         String
+  street       String
+  postalCode   String
+  city         String
+  latitude     Decimal?      @db.Decimal(9, 6)
+  longitude    Decimal?      @db.Decimal(9, 6)
+  phone        String?
+  email        String?
+  isDefault    Boolean       @default(false)
+  isActive     Boolean       @default(true)
+  services     Service[]
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([isDefault, isActive])
 }
 
 model HeroSlide {
@@ -1011,16 +1081,16 @@ enum NotificationAudience {
 }
 
 model Notification {
-  id        String           @id @default(cuid())
+  id        String               @id @default(cuid())
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType @default(GENERIC)
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType     @default(GENERIC)
   audience  NotificationAudience @default(USER)
   title     String
   body      String
   url       String?
   readAt    DateTime?
-  createdAt DateTime         @default(now())
+  createdAt DateTime             @default(now())
 
   @@index([userId, createdAt])
   @@index([userId, readAt])
@@ -1155,24 +1225,26 @@ model AppointmentRecommendation {
 }
 
 model SkinJournalEntry {
-  id                  String   @id @default(cuid())
+  id                  String       @id @default(cuid())
   userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   authorId            String?
-  author              User?    @relation("JournalEntryAuthor", fields: [authorId], references: [id])
-  isAdminEntry        Boolean  @default(false)
-  date                DateTime @default(now())
+  author              User?        @relation("JournalEntryAuthor", fields: [authorId], references: [id])
+  isAdminEntry        Boolean      @default(false)
+  date                DateTime     @default(now())
   mood                Int?
   notes               String?
   photoPath           String?
   linkedAppointmentId String?
-  tags                String[] @default([])
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  linkedAppointment   Appointment? @relation(fields: [linkedAppointmentId], references: [id], onDelete: SetNull)
+  tags                String[]     @default([])
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   comments SkinJournalComment[]
 
   @@index([userId, date])
+  @@index([linkedAppointmentId])
 }
 
 model SkinJournalComment {
@@ -1416,50 +1488,50 @@ model AcademyAnalyticsEvent {
 }
 
 model AcademyOrder {
-  id                       String             @id @default(cuid())
+  id                       String               @id @default(cuid())
   userId                   String
-  user                     AcademyUser        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user                     AcademyUser          @relation(fields: [userId], references: [id], onDelete: Restrict)
   courseId                 String?
-  course                   Course?            @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course                   Course?              @relation(fields: [courseId], references: [id], onDelete: Restrict)
   bundleId                 String?
-  bundle                   AcademyBundle?     @relation(fields: [bundleId], references: [id], onDelete: Restrict)
-  status                   AcademyOrderStatus @default(PENDING)
-  amount                   Decimal            @db.Decimal(10, 2)
-  currency                 String             @default("PLN")
-  stripeSessionId          String?            @unique
-  stripePaymentId          String?            @unique
+  bundle                   AcademyBundle?       @relation(fields: [bundleId], references: [id], onDelete: Restrict)
+  status                   AcademyOrderStatus   @default(PENDING)
+  amount                   Decimal              @db.Decimal(10, 2)
+  currency                 String               @default("PLN")
+  stripeSessionId          String?              @unique
+  stripePaymentId          String?              @unique
   checkoutExpiresAt        DateTime?
   paidAt                   DateTime?
   cancelledAt              DateTime?
   refundedAt               DateTime?
-  refundAmount             Decimal?           @db.Decimal(10, 2)
+  refundAmount             Decimal?             @db.Decimal(10, 2)
   refundReason             String?
   failureReason            String?
-  termsVersion             String             @default("")
-  privacyVersion           String             @default("")
-  termsAcceptedAt          DateTime           @default(now())
-  immediateDeliveryConsent Boolean            @default(false)
-  withdrawalAcknowledged   Boolean            @default(false)
-  billingName              String             @default("")
+  termsVersion             String               @default("")
+  privacyVersion           String               @default("")
+  termsAcceptedAt          DateTime             @default(now())
+  immediateDeliveryConsent Boolean              @default(false)
+  withdrawalAcknowledged   Boolean              @default(false)
+  billingName              String               @default("")
   billingAddress           String?
   billingPostalCode        String?
   billingCity              String?
-  billingCountry           String             @default("PL")
+  billingCountry           String               @default("PL")
   billingTaxId             String?
-  isBusiness               Boolean            @default(false)
-  invoiceRequested         Boolean            @default(false)
+  isBusiness               Boolean              @default(false)
+  invoiceRequested         Boolean              @default(false)
   invoiceNumber            String?
   invoiceUrl               String?
   confirmationSentAt       DateTime?
-  grantedCourseIds         String[]           @default([])
-  originalAmount           Decimal?           @db.Decimal(10, 2)
-  discountAmount           Decimal            @default(0) @db.Decimal(10, 2)
+  grantedCourseIds         String[]             @default([])
+  originalAmount           Decimal?             @db.Decimal(10, 2)
+  discountAmount           Decimal              @default(0) @db.Decimal(10, 2)
   promotionId              String?
-  promotion                AcademyPromotion?  @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  promotion                AcademyPromotion?    @relation(fields: [promotionId], references: [id], onDelete: SetNull)
   discountCodeId           String?
   discountCode             AcademyDiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
 
   events AcademyOrderEvent[]
   items  AcademyOrderItem[]
@@ -1471,15 +1543,15 @@ model AcademyOrder {
 }
 
 model AcademyOrderItem {
-  id        String        @id @default(cuid())
+  id        String       @id @default(cuid())
   orderId   String
-  order     AcademyOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     AcademyOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   courseId  String?
   bundleId  String?
   title     String
-  unitPrice Decimal       @db.Decimal(10, 2)
-  courseIds String[]      @default([])
-  createdAt DateTime      @default(now())
+  unitPrice Decimal      @db.Decimal(10, 2)
+  courseIds String[]     @default([])
+  createdAt DateTime     @default(now())
 
   @@index([orderId])
 }
@@ -1518,9 +1590,9 @@ model AcademyBundle {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  courses      AcademyBundleCourse[]
-  orders       AcademyOrder[]
-  priceHistory AcademyBundlePriceHistory[]
+  courses         AcademyBundleCourse[]
+  orders          AcademyOrder[]
+  priceHistory    AcademyBundlePriceHistory[]
   promotionUsages AcademyPromotionUsage[]
 }
 
@@ -1538,7 +1610,7 @@ enum AcademyLeadType {
 }
 
 model AcademyBanner {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   title          String
   subtitle       String?
   badge          String?
@@ -1548,63 +1620,63 @@ model AcademyBanner {
   buttonUrl      String?
   startsAt       DateTime?
   endsAt         DateTime?
-  isActive       Boolean  @default(true)
-  sortOrder      Int      @default(0)
-  impressions    Int      @default(0)
-  clicks         Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isActive       Boolean   @default(true)
+  sortOrder      Int       @default(0)
+  impressions    Int       @default(0)
+  clicks         Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([isActive, startsAt, endsAt, sortOrder])
 }
 
 model AcademyPromotion {
-  id                    String                 @id @default(cuid())
-  name                  String
-  publicLabel           String?
-  target                AcademyMarketingTarget @default(ALL)
-  targetIds             String[]               @default([])
-  discountType          DiscountType
-  discountValue         Decimal                @db.Decimal(10, 2)
-  startsAt              DateTime
-  endsAt                DateTime
-  isActive              Boolean                @default(true)
-  newCustomersOnly      Boolean                @default(false)
-  eligibleEmails        String[]               @default([])
-  maxUses               Int?
-  maxUsesPerCustomer    Int                    @default(1)
-  minimumAmount         Decimal?               @db.Decimal(10, 2)
-  showCountdown         Boolean                @default(false)
-  usageCount            Int                    @default(0)
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  orders                AcademyOrder[]
-  usages                AcademyPromotionUsage[]
+  id                 String                  @id @default(cuid())
+  name               String
+  publicLabel        String?
+  target             AcademyMarketingTarget  @default(ALL)
+  targetIds          String[]                @default([])
+  discountType       DiscountType
+  discountValue      Decimal                 @db.Decimal(10, 2)
+  startsAt           DateTime
+  endsAt             DateTime
+  isActive           Boolean                 @default(true)
+  newCustomersOnly   Boolean                 @default(false)
+  eligibleEmails     String[]                @default([])
+  maxUses            Int?
+  maxUsesPerCustomer Int                     @default(1)
+  minimumAmount      Decimal?                @db.Decimal(10, 2)
+  showCountdown      Boolean                 @default(false)
+  usageCount         Int                     @default(0)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  orders             AcademyOrder[]
+  usages             AcademyPromotionUsage[]
 
   @@index([isActive, startsAt, endsAt])
 }
 
 model AcademyDiscountCode {
-  id                    String                  @id @default(cuid())
-  code                  String                  @unique
-  description           String?
-  target                AcademyMarketingTarget @default(ALL)
-  targetIds             String[]                @default([])
-  discountType          DiscountType
-  discountValue         Decimal                 @db.Decimal(10, 2)
-  startsAt              DateTime?
-  endsAt                DateTime?
-  isActive              Boolean                 @default(true)
-  newCustomersOnly      Boolean                 @default(false)
-  eligibleEmails        String[]                @default([])
-  maxUses               Int?
-  maxUsesPerCustomer    Int                     @default(1)
-  minimumAmount         Decimal?                @db.Decimal(10, 2)
-  usageCount            Int                     @default(0)
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  orders                AcademyOrder[]
-  usages                AcademyPromotionUsage[]
+  id                 String                  @id @default(cuid())
+  code               String                  @unique
+  description        String?
+  target             AcademyMarketingTarget  @default(ALL)
+  targetIds          String[]                @default([])
+  discountType       DiscountType
+  discountValue      Decimal                 @db.Decimal(10, 2)
+  startsAt           DateTime?
+  endsAt             DateTime?
+  isActive           Boolean                 @default(true)
+  newCustomersOnly   Boolean                 @default(false)
+  eligibleEmails     String[]                @default([])
+  maxUses            Int?
+  maxUsesPerCustomer Int                     @default(1)
+  minimumAmount      Decimal?                @db.Decimal(10, 2)
+  usageCount         Int                     @default(0)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  orders             AcademyOrder[]
+  usages             AcademyPromotionUsage[]
 
   @@index([isActive, startsAt, endsAt])
 }
@@ -1629,23 +1701,23 @@ model AcademyPromotionUsage {
 }
 
 model AcademyMarketingLead {
-  id          String          @id @default(cuid())
-  email       String
-  name        String?
-  type        AcademyLeadType
-  courseId    String           @default("")
-  source      String?
-  consentAt   DateTime?
-  unsubscribedAt DateTime?
-  unsubscribeToken String        @unique @default(uuid())
-  tags        String[]        @default([])
-  utmSource   String?
-  utmMedium   String?
-  utmCampaign String?
-  convertedAt DateTime?
-  metadata    Json?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id               String          @id @default(cuid())
+  email            String
+  name             String?
+  type             AcademyLeadType
+  courseId         String          @default("")
+  source           String?
+  consentAt        DateTime?
+  unsubscribedAt   DateTime?
+  unsubscribeToken String          @unique @default(uuid())
+  tags             String[]        @default([])
+  utmSource        String?
+  utmMedium        String?
+  utmCampaign      String?
+  convertedAt      DateTime?
+  metadata         Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@unique([email, type, courseId])
   @@index([type, createdAt])
@@ -1667,83 +1739,83 @@ enum AcademyEmailDeliveryStatus {
 }
 
 model AcademyEmailCampaign {
-  id          String                      @id @default(cuid())
-  name        String
-  subject     String
-  content     String                      @db.Text
-  audience    String
-  courseId    String?
-  scheduledAt DateTime?
-  status      AcademyEmailCampaignStatus  @default(DRAFT)
-  sentAt      DateTime?
-  recipients  Int                         @default(0)
-  sentCount   Int                         @default(0)
-  failedCount Int                         @default(0)
-  openedCount Int                         @default(0)
+  id           String                     @id @default(cuid())
+  name         String
+  subject      String
+  content      String                     @db.Text
+  audience     String
+  courseId     String?
+  scheduledAt  DateTime?
+  status       AcademyEmailCampaignStatus @default(DRAFT)
+  sentAt       DateTime?
+  recipients   Int                        @default(0)
+  sentCount    Int                        @default(0)
+  failedCount  Int                        @default(0)
+  openedCount  Int                        @default(0)
   clickedCount Int                        @default(0)
-  createdAt   DateTime                    @default(now())
-  updatedAt   DateTime                    @updatedAt
-  deliveries  AcademyEmailDelivery[]
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  deliveries   AcademyEmailDelivery[]
 
   @@index([status, scheduledAt])
 }
 
 model AcademyEmailDelivery {
-  id          String                     @id @default(cuid())
-  campaignId  String
-  campaign    AcademyEmailCampaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  email       String
-  status      AcademyEmailDeliveryStatus @default(QUEUED)
-  attempts    Int                        @default(0)
-  nextAttemptAt DateTime                 @default(now())
-  sentAt      DateTime?
-  openedAt    DateTime?
-  clickedAt   DateTime?
-  lastError   String?
-  token       String                     @unique @default(uuid())
-  createdAt   DateTime                   @default(now())
-  updatedAt   DateTime                   @updatedAt
+  id            String                     @id @default(cuid())
+  campaignId    String
+  campaign      AcademyEmailCampaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email         String
+  status        AcademyEmailDeliveryStatus @default(QUEUED)
+  attempts      Int                        @default(0)
+  nextAttemptAt DateTime                   @default(now())
+  sentAt        DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  lastError     String?
+  token         String                     @unique @default(uuid())
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
 
   @@unique([campaignId, email])
   @@index([status, nextAttemptAt])
 }
 
 model AcademyMedia {
-  id          String   @id @default(cuid())
-  url         String
-  mobileUrl   String?
-  avifUrl     String?
+  id            String   @id @default(cuid())
+  url           String
+  mobileUrl     String?
+  avifUrl       String?
   mobileAvifUrl String?
-  thumbnailUrl String?
-  alt         String
-  kind        String
-  width       Int?
-  height      Int?
-  sizeBytes   Int?
-  createdAt   DateTime @default(now())
+  thumbnailUrl  String?
+  alt           String
+  kind          String
+  width         Int?
+  height        Int?
+  sizeBytes     Int?
+  createdAt     DateTime @default(now())
 }
 
 model AcademyAutomationLog {
-  id        String   @id @default(cuid())
-  userId    String
-  courseId  String?
-  orderId   String?
-  type      String
-  sentAt    DateTime @default(now())
-  details   Json?
+  id       String   @id @default(cuid())
+  userId   String
+  courseId String?
+  orderId  String?
+  type     String
+  sentAt   DateTime @default(now())
+  details  Json?
 
   @@unique([userId, courseId, orderId, type])
   @@index([type, sentAt])
 }
 
 model AcademyOperationalEvent {
-  id        String   @id @default(cuid())
-  severity  String
-  source    String
-  message   String
-  details   Json?
+  id         String    @id @default(cuid())
+  severity   String
+  source     String
+  message    String
+  details    Json?
   resolvedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([severity, resolvedAt, createdAt])
 }

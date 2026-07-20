@@ -129,6 +129,8 @@ function StatusSelect({ appointmentId, current }: { appointmentId: string; curre
 function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: boolean }) {
   const qc = useQueryClient();
   const [editingTime, setEditingTime] = useState(false);
+  const [rejectionOpen, setRejectionOpen] = useState(false);
+  const [rejectionNote, setRejectionNote] = useState('');
 
   const apptStart = new Date(a.date);
   const apptDuration = (a.customDurationMinutes ?? a.service?.durationMinutes ?? 0) as number;
@@ -178,7 +180,24 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
     onError: () => toast.error('Błąd podczas odrzucania'),
   });
 
-  const baseClass = a.rescheduleStatus === 'PENDING'
+  const cancellationRequest = a.cancellationRequests?.[0] ?? null;
+  const { mutate: approveCancellation, isPending: isApprovingCancellation } = useMutation({
+    mutationFn: () => appointmentsApi.approveCancellation(a.id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['appointments'] }); toast.success('Anulowanie zatwierdzone'); },
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Błąd podczas zatwierdzania anulowania'),
+  });
+  const { mutate: rejectCancellation, isPending: isRejectingCancellation } = useMutation({
+    mutationFn: (decisionNote?: string) => appointmentsApi.rejectCancellation(a.id, decisionNote),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['appointments'] });
+      setRejectionOpen(false);
+      setRejectionNote('');
+      toast.success('Wniosek o anulowanie odrzucony');
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Błąd podczas odrzucania anulowania'),
+  });
+
+  const baseClass = a.rescheduleStatus === 'PENDING' || cancellationRequest
     ? 'bg-red-50 border-red-400'
     : highlighted
       ? 'bg-primary/5 border-primary/40 ring-2 ring-primary/20 animate-pulse'
@@ -212,6 +231,11 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
                 🔄 Prośba o zmianę terminu
               </span>
             )}
+            {cancellationRequest && (
+              <span className="rounded-full border border-red-400 bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-800">
+                Prośba o anulowanie
+              </span>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
             {a.user?.name}{' '}
@@ -229,6 +253,13 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
             <p className="text-xs text-red-700">
               Proponowany termin: <strong>{format(new Date(a.rescheduleDate), 'dd.MM.yyyy HH:mm', { locale: pl })}</strong>
             </p>
+          )}
+          {cancellationRequest && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+              <p className="font-semibold">Wniosek z {format(new Date(cancellationRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: pl })}</p>
+              <p>Polityka: minimum {cancellationRequest.policyNoticeHours} godz. przed wizytą (wersja {cancellationRequest.policyVersion}).</p>
+              {cancellationRequest.reason && <p className="mt-1"><strong>Powód:</strong> {cancellationRequest.reason}</p>}
+            </div>
           )}
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -322,6 +353,28 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
               </button>
             </div>
           )}
+          {cancellationRequest && (
+            <div className="flex shrink-0 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Zatwierdzić anulowanie tej wizyty?')) approveCancellation();
+                }}
+                disabled={isApprovingCancellation || isRejectingCancellation}
+                className="min-h-10 rounded-lg bg-green-700 px-3 text-xs font-medium text-white disabled:opacity-50"
+              >
+                {isApprovingCancellation ? '...' : 'Anuluj wizytę'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setRejectionOpen(true)}
+                disabled={isApprovingCancellation || isRejectingCancellation}
+                className="min-h-10 rounded-lg bg-red-700 px-3 text-xs font-medium text-white disabled:opacity-50"
+              >
+                {isRejectingCancellation ? '...' : 'Odrzuć wniosek'}
+              </button>
+            </div>
+          )}
           {a.photoPath && (
             <a
               href={a.photoPath}
@@ -334,6 +387,27 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
           )}
         </div>
       </div>
+      {cancellationRequest && rejectionOpen && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3">
+          <label htmlFor={`cancellation-rejection-${a.id}`} className="text-xs font-semibold text-red-900">
+            Powód odrzucenia widoczny dla klienta — opcjonalnie
+          </label>
+          <textarea
+            id={`cancellation-rejection-${a.id}`}
+            value={rejectionNote}
+            onChange={(event) => setRejectionNote(event.target.value.slice(0, 500))}
+            rows={3}
+            maxLength={500}
+            className="mt-2 w-full rounded-lg border border-red-200 bg-white p-2 text-sm outline-none focus:ring-2 focus:ring-red-300"
+          />
+          <div className="mt-2 flex justify-end gap-2">
+            <button type="button" className="min-h-10 rounded-lg border border-red-200 bg-white px-3 text-xs font-semibold" onClick={() => setRejectionOpen(false)}>Wróć</button>
+            <button type="button" className="min-h-10 rounded-lg bg-red-700 px-3 text-xs font-semibold text-white disabled:opacity-50" disabled={isRejectingCancellation} onClick={() => rejectCancellation(rejectionNote)}>
+              {isRejectingCancellation ? 'Odrzucam...' : 'Potwierdź odrzucenie'}
+            </button>
+          </div>
+        </div>
+      )}
       {(a.status === 'CONFIRMED' || a.status === 'COMPLETED') && (
         <HomecareRoutinePanel appointmentId={a.id} />
       )}

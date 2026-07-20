@@ -11,12 +11,19 @@ router.use(authenticate);
 
 router.post('/', appointmentsController.create);
 router.get('/me', appointmentsController.getMy);
+router.get('/me/overview', appointmentsController.getMyOverview);
+router.get('/me/history', appointmentsController.getMyHistory);
 router.get('/follow-up-reminders', appointmentsController.getFollowUpReminders);
 router.post('/:id/photo', upload.single('photo'), appointmentsController.uploadPhoto);
 
 router.post('/:id/reschedule', appointmentsController.requestReschedule);
+router.delete('/:id/reschedule', appointmentsController.withdrawReschedule);
 router.patch('/:id/reschedule/approve', requireAdmin, appointmentsController.approveReschedule);
 router.patch('/:id/reschedule/reject', requireAdmin, appointmentsController.rejectReschedule);
+router.post('/:id/cancellation-request', appointmentsController.requestCancellation);
+router.delete('/:id/cancellation-request', appointmentsController.withdrawCancellation);
+router.patch('/:id/cancellation-request/approve', requireAdmin, appointmentsController.approveCancellation);
+router.patch('/:id/cancellation-request/reject', requireAdmin, appointmentsController.rejectCancellation);
 
 router.get('/today', requireAdmin, appointmentsController.getToday);
 router.get('/', requireAdmin, appointmentsController.getAll);

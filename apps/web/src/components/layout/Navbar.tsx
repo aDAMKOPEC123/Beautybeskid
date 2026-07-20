@@ -160,14 +160,15 @@ export const Navbar = () => {
   }, [mobileOpen]);
 
   const handleLogout = async () => {
-    try {
-      await authApi.logout();
-      await unsubscribeCurrentPushSubscription();
-      logout();
-      navigate('/');
-    } catch (e) {
-      console.error(e);
-    }
+    const results = await Promise.allSettled([
+      authApi.logout(),
+      unsubscribeCurrentPushSubscription(),
+    ]);
+    results.forEach((result) => {
+      if (result.status === 'rejected') console.error(result.reason);
+    });
+    logout();
+    navigate('/');
     setMobileOpen(false);
   };
 

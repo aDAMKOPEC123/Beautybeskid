@@ -10,6 +10,7 @@ export const AdminTerms = () => {
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
   const [version, setVersion] = useState('1.0');
+  const [cancellationNoticeHours, setCancellationNoticeHours] = useState(24);
 
   const { data, isLoading } = useQuery({
     queryKey: ['terms'],
@@ -23,12 +24,13 @@ export const AdminTerms = () => {
     if (data) {
       setContent(data.content);
       setVersion(data.version);
+      setCancellationNoticeHours(data.cancellationNoticeHours ?? 24);
     }
   }, [data]);
 
   const { mutate: saveTerms, isPending } = useMutation({
     mutationFn: async () => {
-      const res = await api.put('/terms', { content, version });
+      const res = await api.put('/terms', { content, version, cancellationNoticeHours });
       return res.data;
     },
     onSuccess: () => {
@@ -61,6 +63,22 @@ export const AdminTerms = () => {
                   className="w-32"
                   placeholder="np. 1.0"
                 />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <label htmlFor="cancellation-notice-hours" className="text-sm font-medium text-muted-foreground">
+                  Minimalny czas na wniosek o anulowanie
+                </label>
+                <Input
+                  id="cancellation-notice-hours"
+                  type="number"
+                  min={1}
+                  max={168}
+                  value={cancellationNoticeHours}
+                  onChange={(event) => setCancellationNoticeHours(Number(event.target.value))}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">godz.</span>
               </div>
 
               <textarea

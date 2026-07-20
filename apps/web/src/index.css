@@ -129,6 +129,15 @@
 
 /* Ukrycie natywnego scrollbara w karuzeli */
 .tile-track::-webkit-scrollbar { display: none; }
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
 .tile-track { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Szerokość kafelka — mobile: 100% (pełna); desktop ≥640px: 2 kafelki obok siebie */

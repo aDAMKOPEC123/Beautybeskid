@@ -63,13 +63,14 @@ export const getTerms = async () => {
   return terms;
 };
 
-export const upsertTerms = async (content: string, version: string) => {
+export const upsertTerms = async (content: string, version: string, cancellationNoticeHours = 24) => {
+  const safeNoticeHours = Math.min(168, Math.max(1, Math.trunc(cancellationNoticeHours)));
   const existing = await prisma.salonTerms.findFirst();
   if (existing) {
     return prisma.salonTerms.update({
       where: { id: existing.id },
-      data: { content, version },
+      data: { content, version, cancellationNoticeHours: safeNoticeHours },
     });
   }
-  return prisma.salonTerms.create({ data: { content, version } });
+  return prisma.salonTerms.create({ data: { content, version, cancellationNoticeHours: safeNoticeHours } });
 };

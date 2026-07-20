@@ -156,10 +156,10 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {}
-    await unsubscribeCurrentPushSubscription();
+    await Promise.allSettled([
+      authApi.logout(),
+      unsubscribeCurrentPushSubscription(),
+    ]);
     logout();
     navigate('/');
   };
@@ -350,7 +350,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
         <div className="container flex items-center justify-between" style={{ height: '48px' }}>
           <Link
             to="/user"
-            className="font-display text-[13px] tracking-[0.45em] uppercase"
+            className="inline-flex min-h-11 items-center font-display text-[13px] tracking-[0.45em] uppercase"
             style={{ color: '#F0EDE6', fontStyle: 'normal', fontWeight: 300, letterSpacing: '0.45em' }}
           >
             BeskidStudio
@@ -360,7 +360,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
+                className="inline-flex min-h-11 items-center text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
                 style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Admina
@@ -369,7 +369,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
             {!isAdmin && isEmployee && (
               <Link
                 to="/employee"
-                className="text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
+                className="inline-flex min-h-11 items-center text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
                 style={{ color: '#C4965A', fontWeight: 600 }}
               >
                 Panel Pracownika
@@ -388,7 +388,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
             </Link>
             <button
               onClick={handleLogout}
-              className="min-h-11 inline-flex items-center gap-2 rounded-full px-3 text-xs font-semibold transition-colors hover:bg-white/10"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-xs font-semibold transition-colors hover:bg-white/10"
               style={{ color: 'rgba(240,237,230,0.78)' }}
               aria-label="Wyloguj się"
             >
@@ -507,9 +507,9 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
         <div className="container flex flex-col gap-3 py-6 text-sm sm:flex-row sm:items-center sm:justify-between" style={{ color: 'rgba(20,40,28,0.62)' }}>
           <p>© {new Date().getFullYear()} BeskidStudio By Wiktoria Ćwik</p>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Linki pomocnicze panelu">
-            <Link to="/kontakt" className="transition-colors hover:text-foreground">Kontakt</Link>
-            <Link to="/regulamin" className="transition-colors hover:text-foreground">Regulamin i prywatność</Link>
-            <Link to="/" state={{ fromPanel: true }} className="transition-colors hover:text-foreground">Strona główna</Link>
+            <Link to="/kontakt" className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">Kontakt</Link>
+            <Link to="/regulamin" className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">Regulamin i prywatność</Link>
+            <Link to="/" state={{ fromPanel: true }} className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">Strona główna</Link>
           </nav>
         </div>
       </footer>}

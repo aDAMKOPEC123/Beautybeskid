@@ -10,7 +10,8 @@ export const getJournal = async (req: Request, res: Response, next: NextFunction
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const data = await journalService.getJournal(req.user!.id, page, limit);
+    const appointmentId = typeof req.query.appointmentId === 'string' ? req.query.appointmentId : undefined;
+    const data = await journalService.getJournal(req.user!.id, page, limit, appointmentId);
     res.status(200).json({ status: 'success', data });
   } catch (error) {
     next(error);
