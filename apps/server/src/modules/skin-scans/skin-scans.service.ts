@@ -201,8 +201,28 @@ export const completeSession = async (userId: string, sessionId: string) => {
   }
 };
 
+const removeSessionOverlays = async (session: Awaited<ReturnType<typeof getOwnedSession>>) => {
+  const analysis = session.analysis as Record<string, unknown> | null;
+  if (!analysis) return;
+
+  const metrics = analysis.metrics as Record<string, Record<string, unknown>> | undefined;
+  if (!metrics) return;
+
+  const paths: string[] = [];
+  for (const metric of Object.values(metrics)) {
+    const details = metric.details as Record<string, unknown> | undefined;
+    const overlays = details?.overlays as Record<string, string> | undefined;
+    if (overlays) {
+      paths.push(...Object.values(overlays));
+    }
+  }
+
+  await Promise.all(paths.map(removeStoredScanImage));
+};
+
 export const deleteSession = async (userId: string, sessionId: string) => {
   const session = await getOwnedSession(userId, sessionId);
+  await removeSessionOverlays(session);
   await prisma.skinScanSession.delete({ where: { id: session.id } });
   await Promise.all(session.images.map((image) => removeStoredScanImage(image.imagePath)));
 };
