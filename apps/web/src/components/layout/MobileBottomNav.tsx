@@ -32,6 +32,7 @@ import {
   MessageSquare,
   BadgePercent,
   ChevronRight,
+  Camera,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -154,6 +155,7 @@ const MORE_LINK_GROUPS: readonly MobileMoreGroup[] = [
       { to: '/user/zalecenia', label: 'Beauty Plan', icon: Flower2 },
       { to: '/user/rutyna', label: 'Rutyna domowa', icon: Sparkles },
       { to: '/user/dziennik', label: 'Dziennik skóry', icon: BookOpen },
+      { to: '/user/skan-skory', label: 'Skan skóry', icon: Camera },
       { to: '/user/pogoda-skory', label: 'Profil skóry', icon: Cloud },
       { to: '/user/produkty', label: 'Moje produkty', icon: ShoppingBag },
       { to: '/user/historia', label: 'Historia zabiegów', icon: Clock },

@@ -80,6 +80,8 @@ ssh "$VPS" "cd $REMOTE_DIR && git stash && git pull origin main"
 # so the migrated backend data must be available first.
 if [ "$MODE" = "full" ] || [ "$MODE" = "backend" ]; then
   echo "[3/4] Migrating and building backend..."
+  echo "      Installing/restarting the private skin-analysis service..."
+  ssh "$VPS" "cd $REMOTE_DIR && bash deploy/skin-analysis/install.sh"
   ssh "$VPS" "cd $REMOTE_DIR/packages/shared && pnpm build && cd $REMOTE_DIR/apps/server && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"
   echo "      Starting/restarting PM2..."
   ssh "$VPS" "cd $REMOTE_DIR && if pm2 describe cosmo-server >/dev/null; then pm2 restart cosmo-server; else pm2 start ecosystem.config.js --only cosmo-server; fi && pm2 save"

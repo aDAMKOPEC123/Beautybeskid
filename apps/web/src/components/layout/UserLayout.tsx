@@ -53,6 +53,7 @@ import {
   Gift,
   BadgePercent,
   LogOut,
+  Camera,
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -70,6 +71,7 @@ const NAV_GROUPS = [
     links: [
       { to: '/user/historia', label: 'Historia zabiegów', icon: Clock },
       { to: '/user/dziennik', label: 'Dziennik skóry', icon: BookOpen },
+      { to: '/user/skan-skory', label: 'Skan skóry', icon: Camera },
       { to: '/user/rutyna', label: 'Rutyna domowa', icon: Sparkles },
       { to: '/user/produkty', label: 'Moje produkty', icon: ShoppingBag },
       { to: '/user/pogoda-skory', label: 'Profil skóry', icon: Cloud },
@@ -97,6 +99,7 @@ const USER_PAGE_TITLES: Record<string, string> = {
   '/user/chat': 'Czat z gabinetem',
   '/user/historia': 'Historia zabiegów',
   '/user/dziennik': 'Dziennik skóry',
+  '/user/skan-skory': 'Skan skóry',
   '/user/rutyna': 'Rutyna domowa',
   '/user/produkty': 'Moje produkty',
   '/user/pogoda-skory': 'Profil skóry',

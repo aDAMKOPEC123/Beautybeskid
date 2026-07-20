@@ -1,0 +1,122 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { z } from 'zod';
+import { env } from '../../config/env';
+import type { SkinScanAnalysis } from './skin-scans.types';
+
+export type SkinScanProviderInput = {
+  sessionId: string;
+  images: Array<{ angle: string; imagePath: string }>;
+};
+
+export interface SkinScanAnalysisProvider {
+  readonly name: string;
+  readonly version: string;
+  analyze(input: SkinScanProviderInput): Promise<SkinScanAnalysis>;
+}
+
+const metricSchema = z.object({
+  status: z.enum(['AVAILABLE', 'MODEL_NOT_CONFIGURED', 'UNAVAILABLE_WITH_RGB', 'INSUFFICIENT_QUALITY']),
+  value: z.number().nullable(),
+  unit: z.string().nullable(),
+  confidence: z.number().min(0).max(1).nullable(),
+  modelVersion: z.string().nullable(),
+  message: z.string().min(1),
+  details: z.record(z.unknown()).optional(),
+});
+
+const analysisSchema = z.object({
+  schemaVersion: z.literal('1.0'),
+  mode: z.enum(['QUALITY_ONLY', 'COSMETOLOGY_RESEARCH']),
+  generatedAt: z.string().datetime({ offset: true }),
+  disclaimer: z.string().min(1),
+  modelVersions: z.record(z.string()),
+  metrics: z.object({
+    acne: metricSchema,
+    pigmentation: metricSchema,
+    redness: metricSchema,
+    wrinkles: metricSchema,
+    pores: metricSchema,
+    spfCoverage: metricSchema,
+  }),
+});
+
+const unavailableMetric = (message: string) => ({
+  status: 'MODEL_NOT_CONFIGURED' as const,
+  value: null,
+  unit: null,
+  confidence: null,
+  modelVersion: null,
+  message,
+});
+
+export const qualityOnlyProvider: SkinScanAnalysisProvider = {
+  name: 'quality-only',
+  version: 'quality-v1',
+  async analyze() {
+    return {
+      schemaVersion: '1.0',
+      mode: 'QUALITY_ONLY',
+      generatedAt: new Date().toISOString(),
+      disclaimer:
+        'To nie jest diagnoza medyczna. Wersja MVP sprawdza wyłącznie jakość materiału zdjęciowego; metryki skóry wymagają zwalidowanych modeli.',
+      modelVersions: {
+        captureQuality: 'quality-v1',
+      },
+      metrics: {
+        acne: unavailableMetric('Model trądziku nie został jeszcze skonfigurowany.'),
+        pigmentation: unavailableMetric('Model przebarwień nie został jeszcze skonfigurowany.'),
+        redness: unavailableMetric('Model rumienia nie został jeszcze skonfigurowany.'),
+        wrinkles: unavailableMetric('Model zmarszczek nie został jeszcze skonfigurowany.'),
+        pores: unavailableMetric('Model porów nie został jeszcze skonfigurowany.'),
+        spfCoverage: {
+          status: 'UNAVAILABLE_WITH_RGB',
+          value: null,
+          unit: null,
+          confidence: null,
+          modelVersion: null,
+          message: 'Pokrycia SPF nie można wiarygodnie zmierzyć zwykłą kamerą RGB. Wymagany jest tor UV lub zgodne urządzenie pomiarowe.',
+        },
+      },
+    };
+  },
+};
+
+const getStoredImage = async (imagePath: string) => {
+  const uploadsRoot = path.resolve(process.cwd(), 'uploads', 'skin-scans');
+  const absolutePath = path.resolve(process.cwd(), imagePath.replace(/^[/\\]+/, ''));
+  if (!absolutePath.startsWith(`${uploadsRoot}${path.sep}`)) {
+    throw new Error('Skin scan image path is outside the private upload directory');
+  }
+  return fs.readFile(absolutePath);
+};
+
+export const mlServiceProvider: SkinScanAnalysisProvider = {
+  name: 'cosmo-skin-analysis',
+  version: 'research-v1',
+  async analyze(input) {
+    if (!env.SKIN_ANALYSIS_URL) throw new Error('SKIN_ANALYSIS_URL is not configured');
+    const formData = new FormData();
+    for (const image of input.images) {
+      const content = await getStoredImage(image.imagePath);
+      const fieldName = image.angle.toLowerCase();
+      formData.append(fieldName, new Blob([content], { type: 'image/webp' }), `${fieldName}.webp`);
+    }
+
+    const endpoint = new URL('/v1/analyze', env.SKIN_ANALYSIS_URL);
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: env.SKIN_ANALYSIS_API_KEY ? { 'x-api-key': env.SKIN_ANALYSIS_API_KEY } : undefined,
+      body: formData,
+      signal: AbortSignal.timeout(env.SKIN_ANALYSIS_TIMEOUT_MS),
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      throw new Error(`Skin analysis service returned ${response.status}${body ? `: ${body.slice(0, 300)}` : ''}`);
+    }
+    return analysisSchema.parse(await response.json()) as SkinScanAnalysis;
+  },
+};
+
+export const getConfiguredSkinScanProvider = (): SkinScanAnalysisProvider =>
+  env.SKIN_ANALYSIS_URL ? mlServiceProvider : qualityOnlyProvider;

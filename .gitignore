@@ -48,3 +48,10 @@ Thumbs.db
 nul
 *.tmp
 .worktrees/
+
+# Local Python environments and downloaded ML checkpoints
+.venv/
+services/skin-analysis/models/
+services/skin-analysis/.pytest_cache/
+services/skin-analysis/__pycache__/
+services/skin-analysis/**/__pycache__/

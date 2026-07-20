@@ -151,6 +151,20 @@ enum SkinType {
   WRAZLIWA
 }
 
+enum SkinScanStatus {
+  DRAFT
+  CAPTURING
+  NEEDS_RETAKE
+  COMPLETED
+  FAILED
+}
+
+enum SkinScanAngle {
+  FRONT
+  LEFT
+  RIGHT
+}
+
 enum Difficulty {
   BEGINNER
   INTERMEDIATE
@@ -253,6 +267,7 @@ model User {
   storePromotionReminders     StorePromotionReminder[]
   storePromotionEvents        StorePromotionEvent[]
   skinJournalEntries          SkinJournalEntry[]
+  skinScanSessions            SkinScanSession[]
   journalEntriesAuthored      SkinJournalEntry[]               @relation("JournalEntryAuthor")
   journalComments             SkinJournalComment[]
   blogPostLikes               BlogPostLike[]
@@ -1260,6 +1275,42 @@ model SkinJournalComment {
 
   @@index([entryId])
   @@index([authorId])
+}
+
+model SkinScanSession {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status            SkinScanStatus  @default(DRAFT)
+  consentAcceptedAt DateTime
+  consentVersion    String          @default("skin-scan-v1")
+  captureContext    Json            @default("{}")
+  qualitySummary    Json?
+  analysis          Json?
+  analysisProvider  String          @default("quality-only")
+  analysisVersion   String          @default("quality-v1")
+  completedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  images            SkinScanImage[]
+
+  @@index([userId, createdAt])
+}
+
+model SkinScanImage {
+  id         String          @id @default(cuid())
+  sessionId  String
+  session    SkinScanSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  angle      SkinScanAngle
+  imagePath  String
+  width      Int
+  height     Int
+  quality    Json
+  capturedAt DateTime        @default(now())
+  createdAt  DateTime        @default(now())
+
+  @@unique([sessionId, angle])
+  @@index([sessionId])
 }
 
 model HomecareRoutine {

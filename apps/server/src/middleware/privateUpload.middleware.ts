@@ -5,7 +5,7 @@ import { env } from '../config/env';
 import { prisma } from '../config/prisma';
 
 // Folders that require authentication + ownership check
-const PRIVATE_FOLDERS = ['journal', 'appointments', 'academy-support'];
+const PRIVATE_FOLDERS = ['journal', 'appointments', 'academy-support', 'skin-scans'];
 
 export const privateUploadMiddleware = async (
   req: Request,
@@ -74,6 +74,14 @@ export const privateUploadMiddleware = async (
         where: { attachmentUrl: { endsWith: filename }, thread: { userId: decoded.id } },
       });
       if (!message) {
+        res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+        return;
+      }
+    } else if (folder === 'skin-scans') {
+      const image = await prisma.skinScanImage.findFirst({
+        where: { imagePath: { endsWith: filename }, session: { userId: decoded.id } },
+      });
+      if (!image) {
         res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
         return;
       }

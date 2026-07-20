@@ -26,6 +26,9 @@ const envSchema = z.object({
   FACEBOOK_APP_SECRET: z.string().min(10).optional(),
   FACEBOOK_REDIRECT_URI: z.string().url().optional(),
   FACEBOOK_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/).default('v23.0'),
+  SKIN_ANALYSIS_URL: z.string().url().optional(),
+  SKIN_ANALYSIS_API_KEY: z.string().min(16).optional(),
+  SKIN_ANALYSIS_TIMEOUT_MS: z.coerce.number().int().min(5_000).max(180_000).default(90_000),
 });
 
 const _env = envSchema.superRefine((data, ctx) => {

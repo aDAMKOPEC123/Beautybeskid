@@ -52,6 +52,7 @@ const UserNotifications = lazy(() => import('./pages/user/Notifications').then(m
 const UserReferrals = lazy(() => import('./pages/user/Referrals').then(m => ({ default: m.UserReferrals })));
 const UserProducts = lazy(() => import('./pages/user/Products').then(m => ({ default: m.UserProducts })));
 const UserSkinJournal = lazy(() => import('./pages/user/SkinJournal').then(m => ({ default: m.UserSkinJournal })));
+const UserSkinScan = lazy(() => import('./pages/user/SkinScan').then(m => ({ default: m.UserSkinScan })));
 const HomecareRoutinePage = lazy(() => import('./pages/user/HomecareRoutine').then(m => ({ default: m.HomecareRoutinePage })));
 const ChangePassword = lazy(() => import('./pages/user/ChangePassword').then(m => ({ default: m.ChangePassword })));
 const SkinWeatherProfile = lazy(() => import('./pages/user/SkinWeatherProfile').then(m => ({ default: m.SkinWeatherProfile })));
@@ -211,6 +212,7 @@ export const router = createBrowserRouter([
       { path: 'polecenia', element: <S><UserReferrals /></S> },
       { path: 'produkty', element: <S><UserProducts /></S> },
       { path: 'dziennik', element: <S><UserSkinJournal /></S> },
+      { path: 'skan-skory', element: <S><UserSkinScan /></S> },
       { path: 'rutyna', element: <S><HomecareRoutinePage /></S> },
       { path: 'zmien-haslo', element: <S><ChangePassword /></S> },
       { path: 'pogoda-skory', element: <S><SkinWeatherProfile /></S> },

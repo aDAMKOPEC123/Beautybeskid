@@ -1,0 +1,37 @@
+[Unit]
+Description=COSMO research skin analysis service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/cosmo-app/services/skin-analysis
+EnvironmentFile=/home/ubuntu/cosmo-app/services/skin-analysis/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=MALLOC_ARENA_MAX=2
+Environment=OMP_NUM_THREADS=2
+Environment=MKL_NUM_THREADS=2
+ExecStart=/home/ubuntu/cosmo-app/services/skin-analysis/.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8010 --workers 1
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=240
+TimeoutStopSec=30
+MemoryHigh=2200M
+MemoryMax=2800M
+CPUQuota=180%
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
