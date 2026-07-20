@@ -82,8 +82,19 @@ export const privateUploadMiddleware = async (
         where: { imagePath: { endsWith: filename }, session: { userId: decoded.id } },
       });
       if (!image) {
-        res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
-        return;
+        const overlayMatch = filename.match(/^overlay-([a-f0-9-]+)-/i);
+        if (overlayMatch) {
+          const session = await prisma.skinScanSession.findFirst({
+            where: { id: overlayMatch[1], userId: decoded.id },
+          });
+          if (!session) {
+            res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+            return;
+          }
+        } else {
+          res.status(403).json({ status: 'error', message: 'Brak dostępu do pliku' });
+          return;
+        }
       }
     }
     next();
