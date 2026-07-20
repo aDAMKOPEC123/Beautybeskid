@@ -91,6 +91,31 @@ const getStoredImage = async (imagePath: string) => {
   return fs.readFile(absolutePath);
 };
 
+type RawOverlays = Record<string, Record<string, string>>;
+
+const saveOverlayFiles = async (
+  sessionId: string,
+  rawOverlays: RawOverlays,
+): Promise<Record<string, Record<string, string>>> => {
+  const uploadsDir = path.resolve(process.cwd(), 'uploads', 'skin-scans');
+  await fs.mkdir(uploadsDir, { recursive: true });
+
+  const savedPaths: Record<string, Record<string, string>> = {};
+
+  for (const [metric, angles] of Object.entries(rawOverlays)) {
+    savedPaths[metric] = {};
+    for (const [angle, base64Data] of Object.entries(angles)) {
+      const buffer = Buffer.from(base64Data, 'base64');
+      const filename = `overlay-${sessionId}-${metric}-${angle.toLowerCase()}.png`;
+      const filePath = path.join(uploadsDir, filename);
+      await fs.writeFile(filePath, buffer);
+      savedPaths[metric][angle] = `uploads/skin-scans/${filename}`;
+    }
+  }
+
+  return savedPaths;
+};
+
 export const mlServiceProvider: SkinScanAnalysisProvider = {
   name: 'cosmo-skin-analysis',
   version: 'research-v1',
@@ -114,7 +139,21 @@ export const mlServiceProvider: SkinScanAnalysisProvider = {
       const body = await response.text().catch(() => '');
       throw new Error(`Skin analysis service returned ${response.status}${body ? `: ${body.slice(0, 300)}` : ''}`);
     }
-    return analysisSchema.parse(await response.json()) as SkinScanAnalysis;
+    const raw = await response.json();
+    const rawOverlays: RawOverlays | undefined = raw.overlays;
+    const analysis = analysisSchema.parse(raw) as SkinScanAnalysis;
+
+    if (rawOverlays && Object.keys(rawOverlays).length > 0) {
+      const savedPaths = await saveOverlayFiles(input.sessionId, rawOverlays);
+      for (const [metricKey, anglePaths] of Object.entries(savedPaths)) {
+        const metricObj = analysis.metrics[metricKey as keyof typeof analysis.metrics];
+        if (metricObj) {
+          metricObj.details = { ...metricObj.details, overlays: anglePaths };
+        }
+      }
+    }
+
+    return analysis;
   },
 };
 
