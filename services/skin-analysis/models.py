@@ -131,6 +131,7 @@ class WrinkleModel:
             "wrinkle_pixels": wrinkle_pixels,
             "skin_pixels": skin_pixels,
             "confidence": confidence,
+            "wrinkle_mask": prediction,
         }
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from datetime import UTC, datetime
 from statistics import median
 from typing import Iterable
@@ -57,6 +58,32 @@ def decode_image(content: bytes) -> np.ndarray:
     return image
 
 
+OVERLAY_COLORS = {
+    "wrinkles": (147, 51, 234, 128),
+    "pigmentation": (180, 120, 50, 128),
+    "redness": (220, 38, 38, 128),
+    "acne": (234, 179, 8, 200),
+}
+
+
+def encode_overlay(mask: np.ndarray, color: tuple[int, int, int, int], original_shape: tuple[int, int]) -> str:
+    """Encode a boolean mask as a semi-transparent RGBA PNG, returned as base64."""
+    h, w = original_shape
+    if mask.shape[:2] != (h, w):
+        mask_u8 = mask.astype(np.uint8) * 255
+        mask_u8 = cv2.resize(mask_u8, (w, h), interpolation=cv2.INTER_NEAREST)
+        mask = mask_u8 > 127
+
+    overlay = np.zeros((h, w, 4), dtype=np.uint8)
+    overlay[mask] = color
+
+    ok, encoded = cv2.imencode(".png", overlay)
+    if not ok:
+        raise RuntimeError("Failed to encode overlay PNG")
+
+    return base64.b64encode(encoded.tobytes()).decode("ascii")
+
+
 def robust_threshold(values: np.ndarray, direction: str, minimum_delta: float, mad_scale: float) -> float:
     center = float(np.median(values))
     deviation = float(np.median(np.abs(values - center)))
@@ -64,7 +91,7 @@ def robust_threshold(values: np.ndarray, direction: str, minimum_delta: float, m
     return center + delta if direction == "above" else center - delta
 
 
-def color_indices(bgr: np.ndarray, skin_mask: np.ndarray) -> dict[str, float | int]:
+def color_indices(bgr: np.ndarray, skin_mask: np.ndarray) -> tuple[dict[str, float | int], np.ndarray, np.ndarray]:
     lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
     pixels = lab[skin_mask]
     if len(pixels) < 5_000:
@@ -76,11 +103,19 @@ def color_indices(bgr: np.ndarray, skin_mask: np.ndarray) -> dict[str, float | i
     red_threshold = robust_threshold(green_red, "above", minimum_delta=5.0, mad_scale=1.25)
     pigmentation = (lightness < dark_threshold) & (blue_yellow > brown_threshold)
     redness = green_red > red_threshold
-    return {
+
+    stats = {
         "skinPixels": int(len(pixels)),
         "pigmentationCoverage": float(pigmentation.mean() * 100.0),
         "rednessCoverage": float(redness.mean() * 100.0),
     }
+
+    pigmentation_full = np.zeros(skin_mask.shape, dtype=bool)
+    redness_full = np.zeros(skin_mask.shape, dtype=bool)
+    pigmentation_full[skin_mask] = pigmentation
+    redness_full[skin_mask] = redness
+
+    return stats, pigmentation_full, redness_full
 
 
 def weighted_coverage(rows: Iterable[dict[str, float | int]], key: str) -> float:
@@ -120,16 +155,21 @@ class SkinAnalyzer:
                 redness=insufficient,
                 wrinkles=insufficient,
                 face_details={"skinRatioByAngle": skin_ratios, "usableAngles": []},
+                overlays={},
             )
 
         color_rows: list[dict[str, float | int]] = []
         color_by_angle: dict[str, dict[str, float | int]] = {}
+        pig_masks: dict[str, np.ndarray] = {}
+        red_masks: dict[str, np.ndarray] = {}
         for angle in usable_angles:
             try:
-                row = color_indices(decoded[angle], face_masks[angle])
+                row, pig_mask, red_mask = color_indices(decoded[angle], face_masks[angle])
             except ValueError:
                 continue
             color_rows.append(row)
+            pig_masks[angle] = pig_mask
+            red_masks[angle] = red_mask
             color_by_angle[angle] = {
                 "pigmentationCoverage": round(float(row["pigmentationCoverage"]), 2),
                 "rednessCoverage": round(float(row["rednessCoverage"]), 2),
@@ -215,12 +255,38 @@ class SkinAnalyzer:
             pigmentation_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu przebarwień.", "INSUFFICIENT_QUALITY")
             redness_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu zaczerwienienia.", "INSUFFICIENT_QUALITY")
 
+        # --- Generate overlay images ---
+        overlays: dict[str, dict[str, str]] = {}
+
+        wrinkle_mask = wrinkle.get("wrinkle_mask")
+        if wrinkle_mask is not None and wrinkle_coverage > 0:
+            overlays["wrinkles"] = {
+                wrinkle_angle: encode_overlay(
+                    wrinkle_mask, OVERLAY_COLORS["wrinkles"], decoded[wrinkle_angle].shape[:2],
+                ),
+            }
+
+        if color_rows:
+            pig_overlays: dict[str, str] = {}
+            red_overlays: dict[str, str] = {}
+            for angle in pig_masks:
+                shape = decoded[angle].shape[:2]
+                if pig_masks[angle].any():
+                    pig_overlays[angle] = encode_overlay(pig_masks[angle], OVERLAY_COLORS["pigmentation"], shape)
+                if red_masks[angle].any():
+                    red_overlays[angle] = encode_overlay(red_masks[angle], OVERLAY_COLORS["redness"], shape)
+            if pig_overlays:
+                overlays["pigmentation"] = pig_overlays
+            if red_overlays:
+                overlays["redness"] = red_overlays
+
         return self._result(
             acne=acne_metric,
             pigmentation=pigmentation_metric,
             redness=redness_metric,
             wrinkles=wrinkle_metric,
             face_details={"skinRatioByAngle": skin_ratios, "usableAngles": usable_angles},
+            overlays=overlays,
         )
 
     def _result(
@@ -231,9 +297,10 @@ class SkinAnalyzer:
         redness: dict[str, object],
         wrinkles: dict[str, object],
         face_details: dict[str, object],
+        overlays: dict[str, dict[str, str]] | None = None,
     ) -> dict[str, object]:
         versions = {"captureQuality": "quality-v1", **self.models.versions}
-        return {
+        result: dict[str, object] = {
             "schemaVersion": "1.0",
             "mode": "COSMETOLOGY_RESEARCH",
             "generatedAt": datetime.now(UTC).isoformat(),
@@ -255,3 +322,6 @@ class SkinAnalyzer:
             },
             "faceParsing": face_details,
         }
+        if overlays:
+            result["overlays"] = overlays
+        return result
