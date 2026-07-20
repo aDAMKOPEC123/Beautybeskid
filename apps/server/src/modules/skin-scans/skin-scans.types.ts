@@ -40,7 +40,9 @@ export type SkinScanAnalysisMetric = {
   confidence: number | null;
   modelVersion: string | null;
   message: string;
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown> & {
+    overlays?: Partial<Record<string, string>>;
+  };
 };
 
 export type SkinScanAnalysis = {
