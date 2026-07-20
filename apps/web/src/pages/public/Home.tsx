@@ -1286,6 +1286,18 @@ const TestimonialsSection = ({
   const allReviews = googleData?.reviews?.filter((review) => review.text?.trim()) ?? [];
   const displayReviews = showAll ? allReviews : allReviews.slice(0, 3);
   const hasMore = allReviews.length > 3;
+  const hiddenReviewsCount = Math.max(allReviews.length - 3, 0);
+  const reviewCountLabel = (count: number) => {
+    const lastDigit = count % 10;
+    const lastTwoDigits = count % 100;
+    const noun = count === 1
+      ? 'opinię'
+      : lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)
+        ? 'opinie'
+        : 'opinii';
+
+    return `${count} ${noun}`;
+  };
 
   return (
   <section className="home-deferred-section bg-ivory py-16 md:py-24">
@@ -1389,18 +1401,29 @@ const TestimonialsSection = ({
         </FadeUp>
       )}
 
-      {hasMore && (
+      {googleData && allReviews.length > 0 && (
         <FadeUp>
-          <div className="mt-6 text-center">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAll(!showAll)}
-              className="gap-2 border-oak/30 text-espresso hover:bg-cream"
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 text-center sm:flex-row">
+            {hasMore && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAll(!showAll)}
+                className="gap-2 border-oak/30 text-espresso hover:bg-cream"
+              >
+                {showAll ? 'Pokaż mniej opinii' : `Pokaż jeszcze ${reviewCountLabel(hiddenReviewsCount)}`}
+                <ChevronDown className={`h-4 w-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
+              </Button>
+            )}
+            <a
+              href={googleData.place_url || SEO.googleReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-semibold text-oak underline decoration-oak/40 underline-offset-4 transition-colors hover:text-walnut"
             >
-              {showAll ? 'Pokaż mniej opinii' : `Pokaż wszystkie opinie (${allReviews.length})`}
-              <ChevronDown className={`h-4 w-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
-            </Button>
+              Zobacz wszystkie {reviewCountLabel(googleData.user_ratings_total)} w Google Maps
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </FadeUp>
       )}
