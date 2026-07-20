@@ -5,6 +5,7 @@ import {
   type SkinScanAngle,
   type SkinScanSession,
 } from '@/api/skin-scans.api';
+import { usePrivateImage } from '@/hooks/usePrivateImage';
 
 const ANGLES: SkinScanAngle[] = ['FRONT', 'LEFT', 'RIGHT'];
 
@@ -22,6 +23,24 @@ const METRIC_CONFIG = {
 } as const;
 
 type MetricKey = keyof typeof METRIC_CONFIG;
+
+const PrivateImg = ({
+  path,
+  alt,
+  className,
+  style,
+  onLoad,
+}: {
+  path: string;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+  onLoad?: () => void;
+}) => {
+  const src = usePrivateImage(path);
+  if (!src) return null;
+  return <img src={src} alt={alt} className={className} style={style} onLoad={onLoad} />;
+};
 
 type Props = {
   session: SkinScanSession;
@@ -112,8 +131,8 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
 
         <div className="relative mt-4 overflow-hidden rounded-2xl bg-[#102219]">
           {currentImage && (
-            <img
-              src={`/${currentImage.imagePath}`}
+            <PrivateImg
+              path={currentImage.imagePath}
               alt={`Skan: ${ANGLE_LABELS[activeAngle]}`}
               className="block w-full"
             />
@@ -124,9 +143,9 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
             if (!overlayPath) return null;
             const loadKey = `${metricKey}-${activeAngle}`;
             return (
-              <img
+              <PrivateImg
                 key={loadKey}
-                src={`/${overlayPath}`}
+                path={overlayPath}
                 alt={`Overlay: ${METRIC_CONFIG[metricKey].label}`}
                 className="pointer-events-none absolute inset-0 h-full w-full object-cover"
                 style={{ opacity: opacity / 100 }}
