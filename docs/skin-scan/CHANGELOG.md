@@ -1,5 +1,11 @@
 # Historia modułu skanowania skóry
 
+## 2026-07-20 — hotfix podglądu kamery
+
+- element `<video>` pozostaje zamontowany po wykonaniu zdjęcia, dzięki czemu aktywny `MediaStream` nie traci powiązania przy przejściu do kolejnego kąta;
+- zapisane zdjęcie jest nakładane nad działającym podglądem zamiast zastępować węzeł wideo;
+- usuwa to czarny ekran pojawiający się po pierwszym ujęciu.
+
 ## 2026-07-20 — przygotowanie wdrożenia VPS
 
 - dodano usługę systemd `cosmo-skin-analysis`, nasłuchującą wyłącznie na `127.0.0.1:8010`;

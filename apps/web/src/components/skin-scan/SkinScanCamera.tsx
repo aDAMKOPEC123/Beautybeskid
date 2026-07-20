@@ -153,15 +153,20 @@ export const SkinScanCamera = ({ angle, previewUrl, onCapture }: Props) => {
       </div>
 
       <div className="relative mx-auto aspect-[4/3] w-full max-w-2xl overflow-hidden rounded-3xl bg-[#102219] shadow-xl">
-        {previewUrl ? (
-          <img src={previewUrl} alt={`Podgląd: ${copy.title}`} className="h-full w-full object-cover" />
-        ) : (
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            className="h-full w-full object-cover [transform:scaleX(-1)]"
-            aria-label="Podgląd z przedniej kamery"
+        {/* Keep the same video node mounted so its MediaStream survives angle changes. */}
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          className={`h-full w-full object-cover [transform:scaleX(-1)] ${previewUrl ? 'opacity-0' : 'opacity-100'}`}
+          aria-label="Podgląd z przedniej kamery"
+          aria-hidden={Boolean(previewUrl)}
+        />
+        {previewUrl && (
+          <img
+            src={previewUrl}
+            alt={`Podgląd: ${copy.title}`}
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
 
