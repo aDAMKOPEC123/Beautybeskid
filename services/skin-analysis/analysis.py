@@ -255,6 +255,25 @@ class SkinAnalyzer:
             pigmentation_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu przebarwień.", "INSUFFICIENT_QUALITY")
             redness_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu zaczerwienienia.", "INSUFFICIENT_QUALITY")
 
+        # --- Acne lesion detection (YOLOv8-nano, optional) ---
+        acne_detections_by_angle: dict[str, list[dict[str, object]]] = {}
+        if self.models.acne_detector.available:
+            for angle in usable_angles:
+                dets = self.models.acne_detector.predict(decoded[angle])
+                if dets:
+                    acne_detections_by_angle[angle] = dets
+            if acne_detections_by_angle:
+                total_dets = sum(len(d) for d in acne_detections_by_angle.values())
+                acne_metric["details"]["detectedLesions"] = total_dets
+                acne_metric["details"]["detectionsByAngle"] = {
+                    angle: [
+                        {"x": d["x"], "y": d["y"], "w": d["width"], "h": d["height"], "conf": d["confidence"]}
+                        for d in dets
+                    ]
+                    for angle, dets in acne_detections_by_angle.items()
+                }
+                acne_metric["details"]["detectorVersion"] = self.models.versions.get("acneDetector", "unknown")
+
         # --- Generate overlay images ---
         overlays: dict[str, dict[str, str]] = {}
 
@@ -279,6 +298,18 @@ class SkinAnalyzer:
                 overlays["pigmentation"] = pig_overlays
             if red_overlays:
                 overlays["redness"] = red_overlays
+
+        # Acne detection overlay (bbox)
+        if acne_detections_by_angle:
+            acne_overlays: dict[str, str] = {}
+            for angle, dets in acne_detections_by_angle.items():
+                shape = decoded[angle].shape[:2]
+                overlay_img = self.models.acne_detector.render_overlay(dets, shape)
+                ok, encoded = cv2.imencode(".png", overlay_img)
+                if ok:
+                    acne_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
+            if acne_overlays:
+                overlays["acne"] = acne_overlays
 
         return self._result(
             acne=acne_metric,

@@ -135,18 +135,157 @@ class WrinkleModel:
         }
 
 
+class AcneDetectorModel:
+    """YOLOv8-nano acne lesion detector (ONNX inference)."""
+
+    INPUT_SIZE = 640
+    CONFIDENCE_THRESHOLD = 0.25
+    IOU_THRESHOLD = 0.45
+
+    def __init__(self, path: Path):
+        if not path.is_file():
+            self.session = None
+            return
+        self.session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+        self.input_name = self.session.get_inputs()[0].name
+
+    @property
+    def available(self) -> bool:
+        return self.session is not None
+
+    def predict(self, bgr: np.ndarray) -> list[dict[str, object]]:
+        if not self.session:
+            return []
+
+        orig_h, orig_w = bgr.shape[:2]
+        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        resized = cv2.resize(rgb, (self.INPUT_SIZE, self.INPUT_SIZE), interpolation=cv2.INTER_LINEAR)
+        blob = resized.astype(np.float32) / 255.0
+        blob = np.transpose(blob, (2, 0, 1))[None]
+
+        outputs = self.session.run(None, {self.input_name: blob})
+        predictions = outputs[0]  # shape: [1, 5, N] for single class (4 bbox + 1 score)
+
+        if predictions.ndim == 3:
+            predictions = predictions[0].T  # [N, 5]
+
+        if len(predictions) == 0:
+            return []
+
+        # Filter by confidence
+        scores = predictions[:, 4]
+        mask = scores >= self.CONFIDENCE_THRESHOLD
+        predictions = predictions[mask]
+        scores = scores[mask]
+
+        if len(predictions) == 0:
+            return []
+
+        # Convert from center format to corner format for NMS
+        boxes_cx = predictions[:, 0]
+        boxes_cy = predictions[:, 1]
+        boxes_w = predictions[:, 2]
+        boxes_h = predictions[:, 3]
+
+        x1 = boxes_cx - boxes_w / 2
+        y1 = boxes_cy - boxes_h / 2
+        x2 = boxes_cx + boxes_w / 2
+        y2 = boxes_cy + boxes_h / 2
+
+        # NMS
+        indices = self._nms(
+            np.stack([x1, y1, x2, y2], axis=1),
+            scores,
+            self.IOU_THRESHOLD,
+        )
+
+        scale_x = orig_w / self.INPUT_SIZE
+        scale_y = orig_h / self.INPUT_SIZE
+
+        detections = []
+        for idx in indices:
+            detections.append({
+                "x": int(round(float(x1[idx]) * scale_x)),
+                "y": int(round(float(y1[idx]) * scale_y)),
+                "width": int(round(float(boxes_w[idx]) * scale_x)),
+                "height": int(round(float(boxes_h[idx]) * scale_y)),
+                "confidence": round(float(scores[idx]), 4),
+                "class": "acne_lesion",
+            })
+
+        return detections
+
+    @staticmethod
+    def _nms(boxes: np.ndarray, scores: np.ndarray, iou_threshold: float) -> list[int]:
+        """Simple greedy NMS."""
+        order = scores.argsort()[::-1]
+        keep: list[int] = []
+
+        while len(order) > 0:
+            i = order[0]
+            keep.append(int(i))
+            if len(order) == 1:
+                break
+
+            rest = order[1:]
+            xx1 = np.maximum(boxes[i, 0], boxes[rest, 0])
+            yy1 = np.maximum(boxes[i, 1], boxes[rest, 1])
+            xx2 = np.minimum(boxes[i, 2], boxes[rest, 2])
+            yy2 = np.minimum(boxes[i, 3], boxes[rest, 3])
+
+            inter = np.maximum(0, xx2 - xx1) * np.maximum(0, yy2 - yy1)
+            area_i = (boxes[i, 2] - boxes[i, 0]) * (boxes[i, 3] - boxes[i, 1])
+            area_rest = (boxes[rest, 2] - boxes[rest, 0]) * (boxes[rest, 3] - boxes[rest, 1])
+            iou = inter / (area_i + area_rest - inter + 1e-6)
+
+            order = rest[iou <= iou_threshold]
+
+        return keep
+
+    def render_overlay(self, detections: list[dict[str, object]], shape: tuple[int, int]) -> np.ndarray:
+        """Draw bounding boxes on a transparent RGBA image."""
+        h, w = shape
+        overlay = np.zeros((h, w, 4), dtype=np.uint8)
+        color = (234, 179, 8, 200)  # yellow
+
+        for det in detections:
+            x = int(det["x"])
+            y = int(det["y"])
+            bw = int(det["width"])
+            bh = int(det["height"])
+            thickness = max(2, min(h, w) // 200)
+
+            # Draw rectangle border
+            cv2.rectangle(overlay, (x, y), (x + bw, y + bh), color, thickness)
+
+            # Semi-transparent fill
+            fill_color = (234, 179, 8, 50)
+            overlay[max(0, y):min(h, y + bh), max(0, x):min(w, x + bw)] = np.maximum(
+                overlay[max(0, y):min(h, y + bh), max(0, x):min(w, x + bw)],
+                np.array(fill_color, dtype=np.uint8),
+            )
+            # Re-draw border on top of fill
+            cv2.rectangle(overlay, (x, y), (x + bw, y + bh), color, thickness)
+
+        return overlay
+
+
 class ModelBundle:
     def __init__(self, settings: Settings):
         self.device = resolve_device(settings.device)
         self.face_parser = FaceParser(settings.face_parsing_model)
         self.acne = AcneModel(settings.acne_model, self.device)
         self.wrinkles = WrinkleModel(settings.wrinkle_model, self.device, settings.wrinkle_image_size)
+        self.acne_detector = AcneDetectorModel(settings.acne_detector_model)
 
     @property
     def versions(self) -> dict[str, str]:
-        return {
+        versions = {
             "faceParsing": "BiSeNet-ResNet18-CelebAMaskHQ-ONNX",
             "acne": "Acne-LDS-ACNE04-fold0",
             "wrinkles": "FFHQ-Wrinkle-stage2-U-Net",
             "colorIndices": "COSMO-relative-color-v1",
         }
+        if self.acne_detector.available:
+            versions["acneDetector"] = "YOLOv8n-ACNE04v2-ONNX"
+        return versions

@@ -11,6 +11,7 @@ class Settings:
     model_dir: Path
     face_parsing_model: Path
     acne_model: Path
+    acne_detector_model: Path
     wrinkle_model: Path
     api_key: str | None
     device: str
@@ -33,6 +34,7 @@ def get_settings() -> Settings:
         model_dir=model_dir,
         face_parsing_model=model_dir / "bisenet-resnet18.onnx",
         acne_model=model_dir / "acne-lds-fold0.pth",
+        acne_detector_model=model_dir / "acne-yolov8n.onnx",
         wrinkle_model=model_dir / "ffhq-wrinkle-stage2-unet.pth",
         api_key=os.getenv("SKIN_ANALYSIS_API_KEY") or None,
         device=configured_device,
