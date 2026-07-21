@@ -84,6 +84,39 @@ def encode_overlay(mask: np.ndarray, color: tuple[int, int, int, int], original_
     return base64.b64encode(encoded.tobytes()).decode("ascii")
 
 
+def crop_face(bgr: np.ndarray, mask: np.ndarray, padding: float = 0.15, min_size: int = 640) -> tuple[np.ndarray, np.ndarray, tuple[int, int, int, int]]:
+    """Crop image to face bounding box with padding, upscale if needed.
+
+    Returns (cropped_bgr, cropped_mask, (y1, y2, x1, x2)) in original coords.
+    """
+    ys, xs = np.where(mask)
+    if len(ys) == 0:
+        return bgr, mask, (0, bgr.shape[0], 0, bgr.shape[1])
+
+    h, w = bgr.shape[:2]
+    y1, y2 = int(ys.min()), int(ys.max()) + 1
+    x1, x2 = int(xs.min()), int(xs.max()) + 1
+
+    pad_h = int((y2 - y1) * padding)
+    pad_w = int((x2 - x1) * padding)
+    y1 = max(0, y1 - pad_h)
+    y2 = min(h, y2 + pad_h)
+    x1 = max(0, x1 - pad_w)
+    x2 = min(w, x2 + pad_w)
+
+    cropped = bgr[y1:y2, x1:x2]
+    cropped_mask = mask[y1:y2, x1:x2]
+
+    crop_h, crop_w = cropped.shape[:2]
+    if max(crop_h, crop_w) < min_size:
+        scale = min_size / max(crop_h, crop_w)
+        new_w, new_h = int(crop_w * scale), int(crop_h * scale)
+        cropped = cv2.resize(cropped, (new_w, new_h), interpolation=cv2.INTER_LANCZOS4)
+        cropped_mask = cv2.resize(cropped_mask.astype(np.uint8), (new_w, new_h), interpolation=cv2.INTER_NEAREST).astype(bool)
+
+    return cropped, cropped_mask, (y1, y2, x1, x2)
+
+
 def robust_threshold(values: np.ndarray, direction: str, minimum_delta: float, mad_scale: float) -> float:
     center = float(np.median(values))
     deviation = float(np.median(np.abs(values - center)))
@@ -158,18 +191,36 @@ class SkinAnalyzer:
                 overlays={},
             )
 
+        # Crop face regions for better detail in analysis
+        cropped = {}
+        cropped_masks = {}
+        crop_boxes = {}
+        for angle in usable_angles:
+            c_img, c_mask, c_box = crop_face(decoded[angle], face_masks[angle])
+            cropped[angle] = c_img
+            cropped_masks[angle] = c_mask
+            crop_boxes[angle] = c_box
+
         color_rows: list[dict[str, float | int]] = []
         color_by_angle: dict[str, dict[str, float | int]] = {}
         pig_masks: dict[str, np.ndarray] = {}
         red_masks: dict[str, np.ndarray] = {}
         for angle in usable_angles:
             try:
-                row, pig_mask, red_mask = color_indices(decoded[angle], face_masks[angle])
+                row, pig_mask, red_mask = color_indices(cropped[angle], cropped_masks[angle])
             except ValueError:
                 continue
             color_rows.append(row)
-            pig_masks[angle] = pig_mask
-            red_masks[angle] = red_mask
+            # Map cropped masks back to original image size for overlay
+            full_pig = np.zeros(face_masks[angle].shape, dtype=bool)
+            full_red = np.zeros(face_masks[angle].shape, dtype=bool)
+            y1, y2, x1, x2 = crop_boxes[angle]
+            pig_resized = cv2.resize(pig_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
+            red_resized = cv2.resize(red_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
+            full_pig[y1:y2, x1:x2] = pig_resized
+            full_red[y1:y2, x1:x2] = red_resized
+            pig_masks[angle] = full_pig
+            red_masks[angle] = full_red
             color_by_angle[angle] = {
                 "pigmentationCoverage": round(float(row["pigmentationCoverage"]), 2),
                 "rednessCoverage": round(float(row["rednessCoverage"]), 2),
@@ -177,7 +228,7 @@ class SkinAnalyzer:
 
         acne_rows: list[dict[str, object]] = []
         for angle in usable_angles:
-            prediction = self.models.acne.predict(decoded[angle])
+            prediction = self.models.acne.predict(cropped[angle])
             acne_rows.append({"angle": angle, **prediction})
 
         acne_probabilities = np.mean(
@@ -211,7 +262,7 @@ class SkinAnalyzer:
         )
 
         wrinkle_angle = "FRONT" if "FRONT" in usable_angles else usable_angles[0]
-        wrinkle = self.models.wrinkles.predict(decoded[wrinkle_angle], face_masks[wrinkle_angle])
+        wrinkle = self.models.wrinkles.predict(cropped[wrinkle_angle], cropped_masks[wrinkle_angle])
         wrinkle_coverage = round(float(wrinkle["coverage"]), 2)
         wrinkle_metric = metric(
             status="AVAILABLE",
@@ -259,8 +310,19 @@ class SkinAnalyzer:
         acne_detections_by_angle: dict[str, list[dict[str, object]]] = {}
         if self.models.acne_detector.available:
             for angle in usable_angles:
-                dets = self.models.acne_detector.predict(decoded[angle])
+                dets = self.models.acne_detector.predict(cropped[angle])
                 if dets:
+                    # Map detection coords back to original image
+                    y1, y2, x1, x2 = crop_boxes[angle]
+                    crop_h, crop_w = cropped[angle].shape[:2]
+                    orig_crop_w, orig_crop_h = x2 - x1, y2 - y1
+                    sx = orig_crop_w / crop_w
+                    sy = orig_crop_h / crop_h
+                    for d in dets:
+                        d["x"] = int(round(d["x"] * sx)) + x1
+                        d["y"] = int(round(d["y"] * sy)) + y1
+                        d["width"] = int(round(d["width"] * sx))
+                        d["height"] = int(round(d["height"] * sy))
                     acne_detections_by_angle[angle] = dets
             if acne_detections_by_angle:
                 total_dets = sum(len(d) for d in acne_detections_by_angle.values())
@@ -279,9 +341,15 @@ class SkinAnalyzer:
 
         wrinkle_mask = wrinkle.get("wrinkle_mask")
         if wrinkle_mask is not None and wrinkle_coverage > 0:
+            # Map wrinkle mask from cropped back to original image coords
+            orig_shape = decoded[wrinkle_angle].shape[:2]
+            full_wrinkle = np.zeros(orig_shape, dtype=bool)
+            y1, y2, x1, x2 = crop_boxes[wrinkle_angle]
+            wr_resized = cv2.resize(wrinkle_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
+            full_wrinkle[y1:y2, x1:x2] = wr_resized
             overlays["wrinkles"] = {
                 wrinkle_angle: encode_overlay(
-                    wrinkle_mask, OVERLAY_COLORS["wrinkles"], decoded[wrinkle_angle].shape[:2],
+                    full_wrinkle, OVERLAY_COLORS["wrinkles"], orig_shape,
                 ),
             }
 
