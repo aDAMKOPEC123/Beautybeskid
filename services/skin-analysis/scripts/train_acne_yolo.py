@@ -31,7 +31,7 @@ MODEL_DIR = ROOT / "models"
 DATASET_DIR = ROOT / "datasets" / "acne04v2"
 
 ACNE04V2_ANNOTATIONS_URL = (
-    "https://raw.githubusercontent.com/AIpourlapeau/acne04v2/main/annotations/acne04v2_annotations.json"
+    "https://raw.githubusercontent.com/AIpourlapeau/acne04v2/main/Acne04-v2_annotations.json"
 )
 ACNE04_IMAGES_DRIVE_ID = None  # Set if you have a Google Drive link for ACNE04 images
 
@@ -105,11 +105,21 @@ def coco_to_yolo(coco: dict, images_dir: Path, output_dir: Path, split_ratio: fl
 
             lines = []
             for ann in ann_by_image.get(img_id, []):
-                x, y, w, h = ann["bbox"]  # COCO: top-left x, y, width, height
-                cx = (x + w / 2) / img_w
-                cy = (y + h / 2) / img_h
-                nw = w / img_w
-                nh = h / img_h
+                if "bbox" in ann:
+                    x, y, w, h = ann["bbox"]
+                    cx = (x + w / 2) / img_w
+                    cy = (y + h / 2) / img_h
+                    nw = w / img_w
+                    nh = h / img_h
+                elif "coordinates" in ann:
+                    px, py = ann["coordinates"]
+                    r = ann.get("radius", 20)
+                    cx = px / img_w
+                    cy = py / img_h
+                    nw = (2 * r) / img_w
+                    nh = (2 * r) / img_h
+                else:
+                    continue
                 # Clamp to [0, 1]
                 cx = max(0, min(1, cx))
                 cy = max(0, min(1, cy))
