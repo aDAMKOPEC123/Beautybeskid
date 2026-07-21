@@ -47,11 +47,26 @@ export type SkinScanZone = {
   closeup?: string;
 };
 
+export type SkinScanZoneCloseup = {
+  label: string;
+  skinPixels: number;
+  pigmentationCoverage: number;
+  rednessCoverage: number;
+  acneGrade?: number;
+  acneCountEstimate?: number;
+  acneLesionCount?: number;
+  anomalyCount?: number;
+  wrinkleCoverage?: number;
+  closeup?: string;
+};
+
 export type SkinScanFaceParsing = {
   skinRatioByAngle: Record<string, number>;
   usableAngles: SkinScanAngle[];
   zones?: Record<string, SkinScanZone>;
+  zoneCloseups?: Record<string, SkinScanZoneCloseup>;
   zoneGridOverlay?: Partial<Record<SkinScanAngle, string>>;
+  skinChangesOverlay?: Partial<Record<SkinScanAngle, string>>;
 };
 
 export type SkinScanAnalysis = {

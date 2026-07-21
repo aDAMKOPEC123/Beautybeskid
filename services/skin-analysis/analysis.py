@@ -480,31 +480,42 @@ class SkinAnalyzer:
     def __init__(self, models: ModelBundle):
         self.models = models
 
-    def _analyze_zone_closeup(self, bgr: np.ndarray, zone_name: str) -> dict[str, object]:
-        """Analyze a single zone close-up photo at full resolution.
-
-        For close-ups the user already framed the zone, so we use the full image
-        as skin area (with face parsing to exclude non-skin).
-        """
+    def _get_skin_mask_for_closeup(self, bgr: np.ndarray) -> np.ndarray:
+        """Get skin mask for a close-up photo. Falls back to center region if parser fails."""
         parsed = self.models.face_parser.predict(bgr)
         skin_mask = np.isin(parsed, (1, 10))
-        # For close-ups, also include nose (10) and accept lower skin ratios
         skin_ratio = float(skin_mask.sum() / skin_mask.size)
         if skin_ratio < 0.02:
-            # If face parser fails on close-up, assume center 80% is skin
             h, w = bgr.shape[:2]
             skin_mask = np.zeros((h, w), dtype=bool)
             margin_y, margin_w = h // 10, w // 10
             skin_mask[margin_y:h - margin_y, margin_w:w - margin_w] = True
+        return skin_mask
 
+    def _analyze_zone_closeup(
+        self,
+        bgr: np.ndarray,
+        zone_name: str,
+        overlays_out: dict[str, dict[str, str]],
+    ) -> dict[str, object]:
+        """Analyze a single zone close-up photo at full resolution.
+
+        Runs all available models (acne classifier, acne detector, wrinkle segmentation,
+        color analysis, anomaly detection) on the close-up image.
+        Overlay results are added to overlays_out keyed by metric and angle.
+        """
+        skin_mask = self._get_skin_mask_for_closeup(bgr)
         preprocessed = preprocess_skin(bgr, skin_mask)
+        shape = bgr.shape[:2]
 
         result: dict[str, object] = {
             "label": ZONE_CLOSEUP_LABELS.get(zone_name, zone_name),
             "skinPixels": int(skin_mask.sum()),
         }
 
-        # Color analysis
+        # --- Color analysis (pigmentation + redness) ---
+        pig_mask = np.zeros(skin_mask.shape, dtype=bool)
+        red_mask = np.zeros(skin_mask.shape, dtype=bool)
         try:
             color_stats, pig_mask, red_mask = color_indices(preprocessed, skin_mask)
             result["pigmentationCoverage"] = round(float(color_stats["pigmentationCoverage"]), 2)
@@ -512,32 +523,58 @@ class SkinAnalyzer:
         except ValueError:
             result["pigmentationCoverage"] = 0.0
             result["rednessCoverage"] = 0.0
-            pig_mask = np.zeros(skin_mask.shape, dtype=bool)
-            red_mask = np.zeros(skin_mask.shape, dtype=bool)
 
-        # Color anomaly detection on close-up
+        # Pigmentation overlay
+        if pig_mask.any():
+            overlays_out.setdefault("pigmentation", {})[zone_name] = encode_overlay(
+                pig_mask, OVERLAY_COLORS["pigmentation"], shape,
+            )
+        # Redness overlay
+        if red_mask.any():
+            overlays_out.setdefault("redness", {})[zone_name] = encode_overlay(
+                red_mask, OVERLAY_COLORS["redness"], shape,
+            )
+
+        # --- Acne classifier (severity grade) ---
+        acne_pred = self.models.acne.predict(preprocessed)
+        result["acneGrade"] = int(np.asarray(acne_pred["probabilities"]).argmax()) + 1
+        result["acneCountEstimate"] = int(acne_pred["count"])
+        result["acneProbabilities"] = [round(float(v), 4) for v in acne_pred["probabilities"]]
+
+        # --- Acne lesion detector (YOLO bboxes) ---
+        acne_dets: list[dict[str, object]] = []
+        if self.models.acne_detector.available:
+            acne_dets = self.models.acne_detector.predict(preprocessed)
+            result["acneLesionCount"] = len(acne_dets)
+            if acne_dets:
+                overlay_img = self.models.acne_detector.render_overlay(acne_dets, shape)
+                ok, enc = cv2.imencode(".png", overlay_img)
+                if ok:
+                    overlays_out.setdefault("acne", {})[zone_name] = base64.b64encode(
+                        enc.tobytes()
+                    ).decode("ascii")
+
+        # --- Color-based anomaly detection ---
         anomalies = detect_color_anomalies(preprocessed, skin_mask)
         result["anomalyCount"] = len(anomalies)
-
-        # Generate close-up thumbnail from preprocessed
-        closeup_b64 = extract_zone_closeup(preprocessed, skin_mask, target_size=320)
-        if closeup_b64:
-            result["closeup"] = closeup_b64
-
-        # Generate pigmentation + redness overlay for this zone
-        overlays: dict[str, str] = {}
-        shape = bgr.shape[:2]
-        if pig_mask.any():
-            overlays["pigmentation"] = encode_overlay(pig_mask, OVERLAY_COLORS["pigmentation"], shape)
-        if red_mask.any():
-            overlays["redness"] = encode_overlay(red_mask, OVERLAY_COLORS["redness"], shape)
         if anomalies:
             anom_overlay = render_anomaly_overlay(anomalies, shape)
             ok, enc = cv2.imencode(".png", anom_overlay)
             if ok:
-                overlays["skinChanges"] = base64.b64encode(enc.tobytes()).decode("ascii")
-        if overlays:
-            result["overlays"] = overlays
+                overlays_out.setdefault("skinChanges", {})[zone_name] = base64.b64encode(
+                    enc.tobytes()
+                ).decode("ascii")
+
+        # --- Wrinkle segmentation (forehead is best candidate) ---
+        if zone_name in ("FOREHEAD", "LEFT_CHEEK", "RIGHT_CHEEK"):
+            wrinkle = self.models.wrinkles.predict(bgr, skin_mask)
+            wrinkle_coverage = round(float(wrinkle["coverage"]), 2)
+            result["wrinkleCoverage"] = wrinkle_coverage
+            wrinkle_mask = wrinkle.get("wrinkle_mask")
+            if wrinkle_mask is not None and wrinkle_coverage > 0:
+                overlays_out.setdefault("wrinkles", {})[zone_name] = encode_overlay(
+                    wrinkle_mask, OVERLAY_COLORS["wrinkles"], shape,
+                )
 
         return result
 
@@ -556,6 +593,10 @@ class SkinAnalyzer:
         }
         usable_angles = [angle for angle in overview_angles if skin_ratios[angle] >= 0.04]
 
+        # Determine which zone close-ups are available
+        zone_angles_present = [a for a in ZONE_CLOSEUP_ANGLES if a in images]
+        has_zone_closeups = len(zone_angles_present) > 0
+
         if not usable_angles:
             insufficient = unavailable(
                 "Nie wykryto wystarczająco dużego obszaru twarzy. Powtórz zdjęcia bliżej aparatu, bez włosów na twarzy.",
@@ -570,7 +611,7 @@ class SkinAnalyzer:
                 overlays={},
             )
 
-        # Crop face regions for better detail in analysis
+        # Crop face regions for overview analysis
         cropped = {}
         cropped_masks = {}
         crop_boxes = {}
@@ -580,22 +621,100 @@ class SkinAnalyzer:
             cropped_masks[angle] = c_mask
             crop_boxes[angle] = c_box
 
-        # Preprocess cropped images for better color change visibility
         preprocessed = {}
         for angle in usable_angles:
             preprocessed[angle] = preprocess_skin(cropped[angle], cropped_masks[angle])
 
+        # =====================================================================
+        # Analyze zone close-ups (PRIMARY analysis source when available)
+        # =====================================================================
+        overlays: dict[str, dict[str, str]] = {}
+        zone_closeup_results: dict[str, dict[str, object]] = {}
+
+        for zone_angle in zone_angles_present:
+            zone_bgr = decode_image(images[zone_angle])
+            zone_data = self._analyze_zone_closeup(zone_bgr, zone_angle, overlays)
+            zone_closeup_results[zone_angle] = zone_data
+
+        # =====================================================================
+        # Build metrics — prefer zone close-up data when available
+        # =====================================================================
+
+        # --- Acne: merge overview + close-up results ---
+        all_acne_probs: list[np.ndarray] = []
+        all_acne_counts: list[int] = []
+        acne_by_angle: dict[str, dict[str, object]] = {}
+
+        # Overview angles
+        for angle in usable_angles:
+            prediction = self.models.acne.predict(preprocessed[angle])
+            all_acne_probs.append(prediction["probabilities"])
+            all_acne_counts.append(int(prediction["count"]))
+            acne_by_angle[angle] = {
+                "grade": int(np.asarray(prediction["probabilities"]).argmax()) + 1,
+                "countEstimate": int(prediction["count"]),
+                "source": "overview",
+            }
+
+        # Zone close-ups (higher weight — closer photos see more detail)
+        for zone_angle, zdata in zone_closeup_results.items():
+            probs = zdata.get("acneProbabilities")
+            if probs:
+                arr = np.array(probs, dtype=np.float32)
+                # Double-weight close-up results (they're more reliable)
+                all_acne_probs.append(arr)
+                all_acne_probs.append(arr)
+                all_acne_counts.append(int(zdata.get("acneCountEstimate", 0)))
+                acne_by_angle[zone_angle] = {
+                    "grade": int(zdata.get("acneGrade", 1)),
+                    "countEstimate": int(zdata.get("acneCountEstimate", 0)),
+                    "lesionCount": int(zdata.get("acneLesionCount", 0)),
+                    "source": "closeup",
+                }
+
+        acne_probabilities = np.mean(np.stack(all_acne_probs), axis=0)
+        acne_grade = int(acne_probabilities.argmax()) + 1
+        acne_confidence = float(acne_probabilities.max())
+        acne_count = int(round(median(all_acne_counts)))
+        total_lesions = sum(
+            int(zd.get("acneLesionCount", 0)) for zd in zone_closeup_results.values()
+        )
+
+        acne_msg = f"Model oszacował nasilenie zmian na stopień {acne_grade}/4"
+        if total_lesions > 0:
+            acne_msg += f", wykryto {total_lesions} zmian na zbliżeniach stref."
+        else:
+            acne_msg += f" i około {acne_count} zmian."
+
+        acne_metric = metric(
+            status="AVAILABLE",
+            value=acne_grade,
+            unit="stopień 1-4",
+            confidence=acne_confidence,
+            model_version=self.models.versions["acne"],
+            message=acne_msg,
+            details={
+                "countEstimate": acne_count,
+                "detectedLesions": total_lesions,
+                "scale": "Hayashi",
+                "probabilities": [round(float(v), 4) for v in acne_probabilities],
+                "byAngle": acne_by_angle,
+                "validation": "Model badawczy; wynik nie jest diagnozą.",
+            },
+        )
+
+        # --- Pigmentation & Redness: merge overview + close-ups ---
         color_rows: list[dict[str, float | int]] = []
         color_by_angle: dict[str, dict[str, float | int]] = {}
-        pig_masks: dict[str, np.ndarray] = {}
-        red_masks: dict[str, np.ndarray] = {}
+
+        # Overview color analysis
         for angle in usable_angles:
             try:
                 row, pig_mask, red_mask = color_indices(preprocessed[angle], cropped_masks[angle])
             except ValueError:
                 continue
             color_rows.append(row)
-            # Map cropped masks back to original image size for overlay
+            # Map cropped masks back to original for overlays
             full_pig = np.zeros(face_masks[angle].shape, dtype=bool)
             full_red = np.zeros(face_masks[angle].shape, dtype=bool)
             y1, y2, x1, x2 = crop_boxes[angle]
@@ -603,71 +722,38 @@ class SkinAnalyzer:
             red_resized = cv2.resize(red_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
             full_pig[y1:y2, x1:x2] = pig_resized
             full_red[y1:y2, x1:x2] = red_resized
-            pig_masks[angle] = full_pig
-            red_masks[angle] = full_red
+            # Overview overlays
+            shape = decoded[angle].shape[:2]
+            if full_pig.any():
+                overlays.setdefault("pigmentation", {})[angle] = encode_overlay(full_pig, OVERLAY_COLORS["pigmentation"], shape)
+            if full_red.any():
+                overlays.setdefault("redness", {})[angle] = encode_overlay(full_red, OVERLAY_COLORS["redness"], shape)
             color_by_angle[angle] = {
                 "pigmentationCoverage": round(float(row["pigmentationCoverage"]), 2),
                 "rednessCoverage": round(float(row["rednessCoverage"]), 2),
+                "source": "overview",
             }
 
-        acne_rows: list[dict[str, object]] = []
-        for angle in usable_angles:
-            prediction = self.models.acne.predict(preprocessed[angle])
-            acne_rows.append({"angle": angle, **prediction})
-
-        acne_probabilities = np.mean(
-            np.stack([row["probabilities"] for row in acne_rows]),
-            axis=0,
-        )
-        acne_grade = int(acne_probabilities.argmax()) + 1
-        acne_confidence = float(acne_probabilities.max())
-        acne_count = int(round(median(int(row["count"]) for row in acne_rows)))
-        acne_by_angle = {
-            str(row["angle"]): {
-                "grade": int(np.asarray(row["probabilities"]).argmax()) + 1,
-                "countEstimate": int(row["count"]),
-            }
-            for row in acne_rows
-        }
-        acne_metric = metric(
-            status="AVAILABLE",
-            value=acne_grade,
-            unit="stopień 1-4",
-            confidence=acne_confidence,
-            model_version=self.models.versions["acne"],
-            message=f"Model oszacował nasilenie zmian na stopień {acne_grade}/4 i około {acne_count} zmian w pojedynczym ujęciu.",
-            details={
-                "countEstimate": acne_count,
-                "scale": "Hayashi",
-                "probabilities": [round(float(value), 4) for value in acne_probabilities],
-                "byAngle": acne_by_angle,
-                "validation": "Model badawczy; wynik nie jest diagnozą.",
-            },
-        )
-
-        wrinkle_angle = "FRONT" if "FRONT" in usable_angles else usable_angles[0]
-        wrinkle = self.models.wrinkles.predict(cropped[wrinkle_angle], cropped_masks[wrinkle_angle])
-        wrinkle_coverage = round(float(wrinkle["coverage"]), 2)
-        wrinkle_metric = metric(
-            status="AVAILABLE",
-            value=wrinkle_coverage,
-            unit="% obszaru skóry",
-            confidence=wrinkle["confidence"],
-            model_version=self.models.versions["wrinkles"],
-            message=f"Model zaznaczył linie zmarszczek na {wrinkle_coverage}% analizowanego obszaru skóry.",
-            details={
-                "angle": wrinkle_angle,
-                "wrinklePixels": wrinkle["wrinkle_pixels"],
-                "skinPixels": wrinkle["skin_pixels"],
-                "input": "RGB + maskowana mapa tekstury",
-                "validation": "Model badawczy; porównuj tylko zdjęcia wykonane w podobnych warunkach.",
-            },
-        )
+        # Zone close-up color results (double-weighted)
+        for zone_angle, zdata in zone_closeup_results.items():
+            pig_cov = float(zdata.get("pigmentationCoverage", 0))
+            red_cov = float(zdata.get("rednessCoverage", 0))
+            skin_px = int(zdata.get("skinPixels", 0))
+            if skin_px > 0:
+                row = {"skinPixels": skin_px, "pigmentationCoverage": pig_cov, "rednessCoverage": red_cov}
+                # Double-weight close-up results
+                color_rows.append(row)
+                color_rows.append(row)
+                color_by_angle[zone_angle] = {
+                    "pigmentationCoverage": pig_cov,
+                    "rednessCoverage": red_cov,
+                    "source": "closeup",
+                }
 
         if color_rows:
             pigmentation_coverage = round(weighted_coverage(color_rows, "pigmentationCoverage"), 2)
             redness_coverage = round(weighted_coverage(color_rows, "rednessCoverage"), 2)
-            color_confidence = min(0.9, 0.55 + 0.1 * len(color_rows))
+            color_confidence = min(0.9, 0.55 + 0.05 * len(color_rows))
             pigmentation_metric = metric(
                 status="AVAILABLE",
                 value=pigmentation_coverage,
@@ -690,11 +776,96 @@ class SkinAnalyzer:
             pigmentation_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu przebarwień.", "INSUFFICIENT_QUALITY")
             redness_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu zaczerwienienia.", "INSUFFICIENT_QUALITY")
 
-        # --- Zone-based analysis (FRONT angle only) ---
-        zone_results: dict[str, dict[str, object]] = {}
+        # --- Wrinkles: prefer close-up data ---
+        wrinkle_coverages: list[float] = []
+        wrinkle_details: dict[str, object] = {}
+
+        # Close-up wrinkle data
+        for zone_angle, zdata in zone_closeup_results.items():
+            wc = zdata.get("wrinkleCoverage")
+            if wc is not None:
+                wrinkle_coverages.append(float(wc))
+                wrinkle_details[zone_angle] = {"coverage": float(wc), "source": "closeup"}
+
+        # Fallback: overview wrinkle analysis
+        wrinkle_angle = "FRONT" if "FRONT" in usable_angles else usable_angles[0]
+        wrinkle = self.models.wrinkles.predict(cropped[wrinkle_angle], cropped_masks[wrinkle_angle])
+        overview_wrinkle_coverage = round(float(wrinkle["coverage"]), 2)
+        wrinkle_coverages.append(overview_wrinkle_coverage)
+        wrinkle_details[wrinkle_angle] = {"coverage": overview_wrinkle_coverage, "source": "overview"}
+
+        # Overview wrinkle overlay
+        wrinkle_mask = wrinkle.get("wrinkle_mask")
+        if wrinkle_mask is not None and overview_wrinkle_coverage > 0:
+            orig_shape = decoded[wrinkle_angle].shape[:2]
+            full_wrinkle = np.zeros(orig_shape, dtype=bool)
+            y1, y2, x1, x2 = crop_boxes[wrinkle_angle]
+            wr_resized = cv2.resize(wrinkle_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
+            full_wrinkle[y1:y2, x1:x2] = wr_resized
+            overlays.setdefault("wrinkles", {})[wrinkle_angle] = encode_overlay(
+                full_wrinkle, OVERLAY_COLORS["wrinkles"], orig_shape,
+            )
+
+        final_wrinkle_coverage = round(float(np.mean(wrinkle_coverages)), 2)
+        wrinkle_metric = metric(
+            status="AVAILABLE",
+            value=final_wrinkle_coverage,
+            unit="% obszaru skóry",
+            confidence=wrinkle["confidence"],
+            model_version=self.models.versions["wrinkles"],
+            message=f"Model zaznaczył linie zmarszczek na {final_wrinkle_coverage}% analizowanego obszaru skóry.",
+            details={
+                "byAngle": wrinkle_details,
+                "input": "RGB + maskowana mapa tekstury",
+                "validation": "Model badawczy; porównuj tylko zdjęcia wykonane w podobnych warunkach.",
+            },
+        )
+
+        # --- Overview-only detections (YOLO + anomalies on FRONT) ---
+        if self.models.acne_detector.available:
+            for angle in usable_angles:
+                if angle in overlays.get("acne", {}):
+                    continue  # already has overlay from close-up
+                dets = self.models.acne_detector.predict(preprocessed[angle])
+                if dets:
+                    y1, y2, x1, x2 = crop_boxes[angle]
+                    crop_h, crop_w = cropped[angle].shape[:2]
+                    sx = (x2 - x1) / crop_w
+                    sy = (y2 - y1) / crop_h
+                    for d in dets:
+                        d["x"] = int(round(d["x"] * sx)) + x1
+                        d["y"] = int(round(d["y"] * sy)) + y1
+                        d["width"] = int(round(d["width"] * sx))
+                        d["height"] = int(round(d["height"] * sy))
+                    shape = decoded[angle].shape[:2]
+                    overlay_img = self.models.acne_detector.render_overlay(dets, shape)
+                    ok, encoded = cv2.imencode(".png", overlay_img)
+                    if ok:
+                        overlays.setdefault("acne", {})[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
+
+        # Overview anomaly detection
+        for angle in usable_angles:
+            if angle in overlays.get("skinChanges", {}):
+                continue
+            anomalies = detect_color_anomalies(preprocessed[angle], cropped_masks[angle])
+            if anomalies:
+                y1, y2, x1, x2 = crop_boxes[angle]
+                crop_h, crop_w = cropped[angle].shape[:2]
+                sx = (x2 - x1) / crop_w
+                sy = (y2 - y1) / crop_h
+                for d in anomalies:
+                    d["x"] = int(round(int(d["x"]) * sx)) + x1
+                    d["y"] = int(round(int(d["y"]) * sy)) + y1
+                    d["width"] = int(round(int(d["width"]) * sx))
+                    d["height"] = int(round(int(d["height"]) * sy))
+                shape = decoded[angle].shape[:2]
+                overlay_img = render_anomaly_overlay(anomalies, shape)
+                ok, encoded = cv2.imencode(".png", overlay_img)
+                if ok:
+                    overlays.setdefault("skinChanges", {})[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
+
+        # --- Zone grid from FRONT face parsing ---
         front_angle = "FRONT" if "FRONT" in usable_angles else usable_angles[0]
-        # Build zones on the cropped/preprocessed FRONT image
-        # We need the parsed mask for the cropped region
         y1z, y2z, x1z, x2z = crop_boxes[front_angle]
         cropped_parsed = parsed_masks[front_angle][y1z:y2z, x1z:x2z]
         crop_h_z, crop_w_z = cropped[front_angle].shape[:2]
@@ -703,12 +874,14 @@ class SkinAnalyzer:
             cropped_parsed = cv2.resize(cropped_parsed, (crop_w_z, crop_h_z), interpolation=cv2.INTER_NEAREST)
 
         zone_masks = build_zone_masks(cropped_parsed, cropped_masks[front_angle])
+
+        # Build zone results from FRONT parsing (fallback when no close-ups)
+        zone_results: dict[str, dict[str, object]] = {}
         for zone_name, zone_mask in zone_masks.items():
             try:
-                zone_color, zone_pig, zone_red = color_indices(preprocessed[front_angle], zone_mask)
+                zone_color, _, _ = color_indices(preprocessed[front_angle], zone_mask)
             except ValueError:
                 continue
-            # Generate closeup from preprocessed image
             closeup_b64 = extract_zone_closeup(preprocessed[front_angle], zone_mask)
             zone_entry: dict[str, object] = {
                 "label": FACE_ZONES[zone_name],
@@ -720,10 +893,7 @@ class SkinAnalyzer:
                 zone_entry["closeup"] = closeup_b64
             zone_results[zone_name] = zone_entry
 
-        # Generate zone grid overlay for FRONT angle
-        zone_grid_b64: str | None = None
         if zone_masks:
-            # Map zone masks from cropped coords back to original image coords
             orig_shape = decoded[front_angle].shape[:2]
             full_zone_masks: dict[str, np.ndarray] = {}
             for zname, zmask in zone_masks.items():
@@ -736,149 +906,17 @@ class SkinAnalyzer:
             grid_overlay = render_zone_grid(decoded[front_angle], full_zone_masks, FACE_ZONES)
             ok, enc = cv2.imencode(".png", grid_overlay)
             if ok:
-                zone_grid_b64 = base64.b64encode(enc.tobytes()).decode("ascii")
+                overlays["zoneGrid"] = {front_angle: base64.b64encode(enc.tobytes()).decode("ascii")}
 
-        # --- Acne lesion detection (YOLOv8-nano, optional) ---
-        acne_detections_by_angle: dict[str, list[dict[str, object]]] = {}
-        if self.models.acne_detector.available:
-            for angle in usable_angles:
-                dets = self.models.acne_detector.predict(preprocessed[angle])
-                if dets:
-                    # Map detection coords back to original image
-                    y1, y2, x1, x2 = crop_boxes[angle]
-                    crop_h, crop_w = cropped[angle].shape[:2]
-                    orig_crop_w, orig_crop_h = x2 - x1, y2 - y1
-                    sx = orig_crop_w / crop_w
-                    sy = orig_crop_h / crop_h
-                    for d in dets:
-                        d["x"] = int(round(d["x"] * sx)) + x1
-                        d["y"] = int(round(d["y"] * sy)) + y1
-                        d["width"] = int(round(d["width"] * sx))
-                        d["height"] = int(round(d["height"] * sy))
-                    acne_detections_by_angle[angle] = dets
-            if acne_detections_by_angle:
-                total_dets = sum(len(d) for d in acne_detections_by_angle.values())
-                acne_metric["details"]["detectedLesions"] = total_dets
-                acne_metric["details"]["detectionsByAngle"] = {
-                    angle: [
-                        {"x": d["x"], "y": d["y"], "w": d["width"], "h": d["height"], "conf": d["confidence"]}
-                        for d in dets
-                    ]
-                    for angle, dets in acne_detections_by_angle.items()
-                }
-                acne_metric["details"]["detectorVersion"] = self.models.versions.get("acneDetector", "unknown")
-
-        # --- Color-based anomaly detection (fallback/supplement to YOLO) ---
-        anomaly_detections_by_angle: dict[str, list[dict[str, object]]] = {}
-        for angle in usable_angles:
-            anomalies = detect_color_anomalies(preprocessed[angle], cropped_masks[angle])
-            if anomalies:
-                y1, y2, x1, x2 = crop_boxes[angle]
-                crop_h, crop_w = cropped[angle].shape[:2]
-                orig_crop_w, orig_crop_h = x2 - x1, y2 - y1
-                sx = orig_crop_w / crop_w
-                sy = orig_crop_h / crop_h
-                for d in anomalies:
-                    d["x"] = int(round(int(d["x"]) * sx)) + x1
-                    d["y"] = int(round(int(d["y"]) * sy)) + y1
-                    d["width"] = int(round(int(d["width"]) * sx))
-                    d["height"] = int(round(int(d["height"]) * sy))
-                anomaly_detections_by_angle[angle] = anomalies
-
-        # --- Generate overlay images ---
-        overlays: dict[str, dict[str, str]] = {}
-
-        wrinkle_mask = wrinkle.get("wrinkle_mask")
-        if wrinkle_mask is not None and wrinkle_coverage > 0:
-            # Map wrinkle mask from cropped back to original image coords
-            orig_shape = decoded[wrinkle_angle].shape[:2]
-            full_wrinkle = np.zeros(orig_shape, dtype=bool)
-            y1, y2, x1, x2 = crop_boxes[wrinkle_angle]
-            wr_resized = cv2.resize(wrinkle_mask.astype(np.uint8), (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST).astype(bool)
-            full_wrinkle[y1:y2, x1:x2] = wr_resized
-            overlays["wrinkles"] = {
-                wrinkle_angle: encode_overlay(
-                    full_wrinkle, OVERLAY_COLORS["wrinkles"], orig_shape,
-                ),
-            }
-
-        if color_rows:
-            pig_overlays: dict[str, str] = {}
-            red_overlays: dict[str, str] = {}
-            for angle in pig_masks:
-                shape = decoded[angle].shape[:2]
-                if pig_masks[angle].any():
-                    pig_overlays[angle] = encode_overlay(pig_masks[angle], OVERLAY_COLORS["pigmentation"], shape)
-                if red_masks[angle].any():
-                    red_overlays[angle] = encode_overlay(red_masks[angle], OVERLAY_COLORS["redness"], shape)
-            if pig_overlays:
-                overlays["pigmentation"] = pig_overlays
-            if red_overlays:
-                overlays["redness"] = red_overlays
-
-        # Acne detection overlay (bbox)
-        if acne_detections_by_angle:
-            acne_overlays: dict[str, str] = {}
-            for angle, dets in acne_detections_by_angle.items():
-                shape = decoded[angle].shape[:2]
-                overlay_img = self.models.acne_detector.render_overlay(dets, shape)
-                ok, encoded = cv2.imencode(".png", overlay_img)
-                if ok:
-                    acne_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
-            if acne_overlays:
-                overlays["acne"] = acne_overlays
-
-        # Color anomaly overlay (supplements YOLO with color-based detection)
-        if anomaly_detections_by_angle:
-            anomaly_overlays: dict[str, str] = {}
-            total_anomalies = 0
-            for angle, dets in anomaly_detections_by_angle.items():
-                shape = decoded[angle].shape[:2]
-                overlay_img = render_anomaly_overlay(dets, shape)
-                ok, encoded = cv2.imencode(".png", overlay_img)
-                if ok:
-                    anomaly_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
-                total_anomalies += len(dets)
-            if anomaly_overlays:
-                overlays["skinChanges"] = anomaly_overlays
-            # Add anomaly count to acne details
-            acne_metric["details"]["colorAnomalies"] = total_anomalies
-            acne_metric["details"]["anomaliesByAngle"] = {
-                angle: len(dets) for angle, dets in anomaly_detections_by_angle.items()
-            }
-
-        # Zone grid overlay
-        if zone_grid_b64:
-            overlays["zoneGrid"] = {front_angle: zone_grid_b64}
-
-        # --- Analyze zone close-up photos (if provided) ---
-        zone_closeups: dict[str, dict[str, object]] = {}
-        zone_closeup_overlays: dict[str, dict[str, str]] = {}
-        for zone_angle in ZONE_CLOSEUP_ANGLES:
-            if zone_angle not in images:
-                continue
-            zone_bgr = decode_image(images[zone_angle])
-            zone_data = self._analyze_zone_closeup(zone_bgr, zone_angle)
-            # Extract overlays from zone data for saving
-            zone_ovs = zone_data.pop("overlays", None)
-            if isinstance(zone_ovs, dict):
-                for ov_type, ov_b64 in zone_ovs.items():
-                    key = f"{ov_type}_{zone_angle}"
-                    zone_closeup_overlays[key] = {zone_angle: ov_b64}
-            zone_closeups[zone_angle] = zone_data
-
-        # Merge zone close-up overlays
-        for key, angle_data in zone_closeup_overlays.items():
-            overlays[key] = angle_data
-
+        # --- Build face details ---
         face_details: dict[str, object] = {
             "skinRatioByAngle": skin_ratios,
             "usableAngles": usable_angles,
         }
         if zone_results:
             face_details["zones"] = zone_results
-        if zone_closeups:
-            face_details["zoneCloseups"] = zone_closeups
+        if zone_closeup_results:
+            face_details["zoneCloseups"] = zone_closeup_results
 
         return self._result(
             acne=acne_metric,

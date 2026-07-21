@@ -147,33 +147,43 @@ export const mlServiceProvider: SkinScanAnalysisProvider = {
     if (rawOverlays && Object.keys(rawOverlays).length > 0) {
       const savedPaths = await saveOverlayFiles(input.sessionId, rawOverlays);
       for (const [metricKey, anglePaths] of Object.entries(savedPaths)) {
-        if (metricKey === 'zoneGrid' || metricKey === 'skinChanges') {
-          // Non-metric overlays go into faceParsing
+        if (metricKey === 'zoneGrid') {
+          // Zone grid overlay goes into faceParsing
           if (analysis.faceParsing) {
-            const key = metricKey === 'zoneGrid' ? 'zoneGridOverlay' : 'skinChangesOverlay';
-            (analysis.faceParsing as Record<string, unknown>)[key] = anglePaths;
+            (analysis.faceParsing as Record<string, unknown>).zoneGridOverlay = anglePaths;
           }
           continue;
         }
+        // All other overlays (pigmentation, redness, acne, wrinkles, skinChanges)
+        // are keyed by metric name with angle sub-keys — store in metric details
         const metricObj = analysis.metrics[metricKey as keyof typeof analysis.metrics];
         if (metricObj) {
-          metricObj.details = { ...metricObj.details, overlays: anglePaths };
+          // Merge with existing overlays (overview + close-up angles)
+          const existing = (metricObj.details as Record<string, unknown> | undefined)?.overlays as Record<string, string> | undefined;
+          metricObj.details = { ...metricObj.details, overlays: { ...existing, ...anglePaths } };
+        } else if (metricKey === 'skinChanges' && analysis.faceParsing) {
+          // skinChanges is not a metric — store in faceParsing
+          (analysis.faceParsing as Record<string, unknown>).skinChangesOverlay = anglePaths;
         }
       }
     }
 
-    // Save zone closeup images from base64 to files
+    // Save zone closeup images from base64 to files (from faceParsing.zones and faceParsing.zoneCloseups)
     const fp = analysis.faceParsing as Record<string, unknown> | undefined;
-    const zones = fp?.zones as Record<string, Record<string, unknown>> | undefined;
-    if (zones) {
+    if (fp) {
       const uploadsDir = path.resolve(process.cwd(), 'uploads', 'skin-scans');
-      for (const [zoneName, zoneData] of Object.entries(zones)) {
-        if (typeof zoneData.closeup === 'string' && zoneData.closeup.length > 0) {
-          const buffer = Buffer.from(zoneData.closeup, 'base64');
-          const filename = `zone-${input.sessionId}-${zoneName}.jpg`;
-          const filePath = path.join(uploadsDir, filename);
-          await fs.writeFile(filePath, buffer);
-          zoneData.closeup = `uploads/skin-scans/${filename}`;
+      await fs.mkdir(uploadsDir, { recursive: true });
+      for (const section of ['zones', 'zoneCloseups']) {
+        const items = fp[section] as Record<string, Record<string, unknown>> | undefined;
+        if (!items) continue;
+        for (const [zoneName, zoneData] of Object.entries(items)) {
+          if (typeof zoneData.closeup === 'string' && zoneData.closeup.length > 0) {
+            const buffer = Buffer.from(zoneData.closeup, 'base64');
+            const filename = `zone-${input.sessionId}-${section}-${zoneName}.jpg`;
+            const filePath = path.join(uploadsDir, filename);
+            await fs.writeFile(filePath, buffer);
+            zoneData.closeup = `uploads/skin-scans/${filename}`;
+          }
         }
       }
     }
