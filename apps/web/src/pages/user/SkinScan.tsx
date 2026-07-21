@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   AlertCircle, ArrowLeft, ArrowRight, Camera, CheckCircle2, Clock3, Info,
-  Loader2, LockKeyhole, RotateCcw, ShieldCheck, Sparkles, Sun, Trash2,
+  Loader2, RotateCcw, ShieldCheck, Sparkles, Sun, Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SkinScanCamera } from '@/components/skin-scan/SkinScanCamera';
@@ -20,14 +20,14 @@ import {
 const ANGLES: SkinScanAngle[] = ['FRONT', 'FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'];
 
 const ANGLE_LABELS: Record<SkinScanAngle, string> = {
-  FRONT: 'Twarz — na wprost',
-  LEFT: 'Lewy półprofil',
-  RIGHT: 'Prawy półprofil',
-  FOREHEAD: 'Czoło — zbliżenie',
-  LEFT_CHEEK: 'Lewy policzek — zbliżenie',
-  RIGHT_CHEEK: 'Prawy policzek — zbliżenie',
-  CHIN: 'Broda — zbliżenie',
-  NECK: 'Szyja — zbliżenie',
+  FRONT: 'Twarz',
+  LEFT: 'Lewy profil',
+  RIGHT: 'Prawy profil',
+  FOREHEAD: 'Czoło',
+  LEFT_CHEEK: 'L. policzek',
+  RIGHT_CHEEK: 'P. policzek',
+  CHIN: 'Broda',
+  NECK: 'Szyja',
 };
 
 const ANGLE_HINTS: Partial<Record<SkinScanAngle, string>> = {
@@ -65,97 +65,66 @@ const formatMetricValue = (metric: SkinScanMetric) => {
   return `${metric.value}${metric.unit ? ` ${metric.unit}` : ''}`;
 };
 
+const VISIBLE_METRICS = ['acne', 'pigmentation', 'redness', 'wrinkles'] as const;
+
 const ResultReport = ({ session, onNewScan }: { session: SkinScanSession; onNewScan: () => void }) => {
   const summary = session.qualitySummary;
   const analysis = session.analysis;
+  const detectedLesions = analysis?.metrics.acne?.status === 'AVAILABLE'
+    ? (analysis.metrics.acne.details?.detectedLesions as number | undefined) ?? null
+    : null;
   return (
-    <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-[#C4965A]/25 bg-white shadow-sm">
-        <div className="bg-gradient-to-br from-[#173526] to-[#284b38] px-6 py-7 text-white sm:px-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D9B57B]">Raport skanu</p>
-              <h1 className="mt-2 font-heading text-2xl font-semibold">Raport analizy skóry gotowy</h1>
-              <p className="mt-2 text-sm text-white/70">{formatDate(session.createdAt)}</p>
+    <div className="space-y-4">
+      {/* Compact header */}
+      <div className="overflow-hidden rounded-2xl border border-[#C4965A]/25 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#173526] to-[#284b38] px-4 py-5 text-white sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-heading text-lg font-semibold sm:text-xl">Raport analizy skóry</h1>
+              <p className="mt-1 text-xs text-white/60">{formatDate(session.createdAt)}</p>
             </div>
-            <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full border border-white/20 bg-white/10">
-              <span className="text-3xl font-semibold">{summary?.averageScore ?? '—'}</span>
-              <span className="text-[10px] uppercase tracking-wider text-white/60">jakość / 100</span>
+            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border border-white/20 bg-white/10 sm:h-16 sm:w-16">
+              <span className="text-lg font-bold sm:text-xl">{summary?.averageScore ?? '—'}</span>
+              <span className="text-[8px] uppercase tracking-wider text-white/50">jakość</span>
             </div>
           </div>
-        </div>
-        <div className="grid gap-3 p-5 sm:grid-cols-3 sm:p-7">
-          {ANGLES.map((angle) => {
-            const image = session.images.find((item) => item.angle === angle);
-            return (
-              <div key={angle} className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-[#1A3828]">{ANGLE_LABELS[angle]}</span>
-                  {image?.quality.passed
-                    ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    : <AlertCircle className="h-4 w-4 text-amber-600" />}
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">Jakość: <strong className="text-foreground">{image?.quality.score ?? '—'}/100</strong></p>
-                {image?.quality.issues.map((item) => <p key={item.code} className="mt-2 text-xs text-amber-800">{item.message}</p>)}
-              </div>
-            );
-          })}
         </div>
       </div>
 
-      <section className="rounded-3xl border border-border bg-white p-5 shadow-sm sm:p-7">
-        <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-[#C4965A]/10 p-3 text-[#9A6C32]"><Sparkles className="h-5 w-5" /></div>
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-[#1A3828]">Analiza skóry</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {analysis?.mode === 'COSMETOLOGY_RESEARCH'
-                ? 'Badawcza analiza obrazu z użyciem modeli trądziku, zmarszczek i segmentacji twarzy.'
-                : 'Usługa modeli nie jest skonfigurowana — dostępna jest wyłącznie kontrola jakości zdjęć.'}
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {analysis && Object.entries(analysis.metrics).map(([key, metric]) => {
-            const available = metric.status === 'AVAILABLE';
-            const value = formatMetricValue(metric);
-            const countEstimate = key === 'acne' && typeof metric.details?.countEstimate === 'number'
-              ? metric.details.countEstimate
-              : null;
+      {/* Key metrics — compact horizontal cards */}
+      {analysis && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {VISIBLE_METRICS.map((key) => {
+            const m = analysis.metrics[key];
+            if (!m || m.status !== 'AVAILABLE') return null;
+            const value = formatMetricValue(m);
             return (
-              <div key={key} className={`rounded-2xl border p-4 ${available ? 'border-emerald-200 bg-emerald-50/40' : 'border-border/70'}`}>
-                <div className="flex items-center gap-2">
-                  {available
-                    ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    : <LockKeyhole className="h-4 w-4 text-[#9A6C32]" />}
-                  <h3 className="text-sm font-semibold text-[#1A3828]">{METRIC_LABELS[key as keyof typeof METRIC_LABELS]}</h3>
-                </div>
-                {value && <p className="mt-3 text-2xl font-semibold text-[#1A3828]">{value}</p>}
-                {countEstimate !== null && <p className="mt-1 text-xs font-medium text-emerald-900">Szacowana liczba zmian: {countEstimate}</p>}
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{metric.message}</p>
-                {available && metric.confidence !== null && (
-                  <p className="mt-3 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
-                    Pewność modelu: {Math.round(metric.confidence * 100)}%
-                  </p>
+              <div key={key} className="rounded-2xl border border-border/70 bg-white p-3 shadow-sm">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{METRIC_LABELS[key]}</p>
+                {value && <p className="mt-1 text-xl font-bold text-[#1A3828]">{value}</p>}
+                {key === 'acne' && detectedLesions != null && detectedLesions > 0 && (
+                  <p className="mt-0.5 text-[10px] font-semibold text-amber-700">Wykryto {detectedLesions} zmian</p>
                 )}
               </div>
             );
           })}
         </div>
-        {analysis?.mode === 'COSMETOLOGY_RESEARCH' && (
-          <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
-            Wersje: {Object.entries(analysis.modelVersions).map(([name, version]) => `${name}: ${version}`).join(' • ')}
-          </p>
-        )}
-        {analysis && (
-          <div className="mt-5 flex items-start gap-2 rounded-2xl bg-sky-50 p-4 text-xs leading-relaxed text-sky-900">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" /><span>{analysis.disclaimer}</span>
-          </div>
-        )}
-      </section>
-      <SkinScanOverlayViewer session={session} />
+      )}
+
+      {/* Zone analysis — most important section */}
       {analysis && <SkinScanZoneMap analysis={analysis} session={session} />}
-      <div className="flex justify-center"><Button type="button" onClick={onNewScan}><RotateCcw className="mr-2 h-4 w-4" /> Nowy skan</Button></div>
+
+      {/* Overlay viewer */}
+      <SkinScanOverlayViewer session={session} />
+
+      {/* Disclaimer */}
+      {analysis && (
+        <div className="flex items-start gap-2 rounded-xl bg-gray-50 px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{analysis.disclaimer}</span>
+        </div>
+      )}
+
+      <div className="flex justify-center pb-4"><Button type="button" onClick={onNewScan}><RotateCcw className="mr-2 h-4 w-4" /> Nowy skan</Button></div>
     </div>
   );
 };
@@ -281,24 +250,25 @@ export function UserSkinScan() {
   if (stage === 'capture') {
     const activeIssues = failedByAngle.get(activeAngle) ?? [];
     return (
-      <div className="mx-auto max-w-4xl px-1 py-3 sm:py-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <Button type="button" variant="ghost" onClick={resetScan}><ArrowLeft className="mr-2 h-4 w-4" /> Anuluj</Button>
-          <div className="text-right text-xs text-muted-foreground">{capturedCount}/{ANGLES.length} ujęcia zapisane</div>
+      <div className="mx-auto max-w-4xl px-1 py-2 sm:py-6">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <Button type="button" variant="ghost" size="sm" onClick={resetScan}><ArrowLeft className="mr-1 h-4 w-4" /> Anuluj</Button>
+          <div className="text-right text-xs text-muted-foreground">{capturedCount}/{ANGLES.length}</div>
         </div>
-        <div className="mb-5 flex flex-wrap gap-2">
-          {ANGLES.map((angle) => {
+        {/* Step indicator — scrollable on mobile */}
+        <div className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-1">
+          {ANGLES.map((angle, i) => {
             const isFailed = retakeSession?.qualitySummary?.failedAngles.includes(angle);
-            const isZone = angle !== 'FRONT' && angle !== 'LEFT' && angle !== 'RIGHT';
-            const stateClass = activeAngle === angle
-              ? 'border-[#C4965A] bg-[#C4965A]/10 text-[#7D5428]'
-              : isFailed ? 'border-amber-300 bg-amber-50 text-amber-900'
-                : captures[angle] ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                  : 'border-border bg-white text-muted-foreground';
+            const isActive = activeAngle === angle;
+            const isDone = !!captures[angle];
             return (
-              <button key={angle} type="button" onClick={() => setActiveAngle(angle)} className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-semibold ${stateClass}`}>
-                {captures[angle] && <CheckCircle2 className="h-3.5 w-3.5" />}
-                {isZone && !captures[angle] && <Camera className="h-3.5 w-3.5" />}
+              <button key={angle} type="button" onClick={() => setActiveAngle(angle)} className={`flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
+                isActive ? 'border-[#C4965A] bg-[#C4965A]/10 text-[#7D5428]'
+                  : isFailed ? 'border-amber-300 bg-amber-50 text-amber-900'
+                    : isDone ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                      : 'border-border bg-white text-muted-foreground'
+              }`}>
+                {isDone ? <CheckCircle2 className="h-3 w-3" /> : <span className="flex h-4 w-4 items-center justify-center rounded-full bg-current/10 text-[9px]">{i + 1}</span>}
                 {ANGLE_LABELS[angle]}
               </button>
             );
@@ -317,19 +287,19 @@ export function UserSkinScan() {
           </div>
         )}
         <SkinScanCamera angle={activeAngle} previewUrl={captures[activeAngle]?.previewUrl} onCapture={(file) => replaceCapture(activeAngle, file)} />
-        <div className="mt-6 flex flex-col-reverse items-center justify-between gap-3 border-t pt-5 sm:flex-row">
-          <Button type="button" variant="outline" disabled={activeIndex === 0} onClick={() => setActiveAngle(ANGLES[activeIndex - 1])}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Poprzednie
+        <div className="mt-4 flex items-center justify-between gap-2 border-t pt-4">
+          <Button type="button" variant="ghost" size="sm" disabled={activeIndex === 0} onClick={() => setActiveAngle(ANGLES[activeIndex - 1])}>
+            <ArrowLeft className="mr-1 h-4 w-4" /> Wstecz
           </Button>
           {allCaptured ? (
-            <Button type="button" onClick={() => analyzeMutation.mutate()} disabled={analyzeMutation.isPending}>
+            <Button type="button" size="sm" onClick={() => analyzeMutation.mutate()} disabled={analyzeMutation.isPending}>
               {analyzeMutation.isPending
-                ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analizuję skórę…</>
-                : <><Sparkles className="mr-2 h-4 w-4" /> Zapisz i analizuj skan</>}
+                ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Analizuję…</>
+                : <><Sparkles className="mr-1 h-4 w-4" /> Analizuj</>}
             </Button>
           ) : (
-            <Button type="button" disabled={!captures[activeAngle] || activeIndex === ANGLES.length - 1} onClick={() => setActiveAngle(ANGLES[activeIndex + 1])}>
-              Następne <ArrowRight className="ml-2 h-4 w-4" />
+            <Button type="button" size="sm" disabled={!captures[activeAngle] || activeIndex === ANGLES.length - 1} onClick={() => setActiveAngle(ANGLES[activeIndex + 1])}>
+              Dalej <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           )}
         </div>

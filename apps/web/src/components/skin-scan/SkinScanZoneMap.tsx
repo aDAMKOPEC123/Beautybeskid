@@ -31,16 +31,18 @@ const ZONE_COLORS: Record<string, string> = {
 };
 
 const severityLabel = (value: number): { text: string; className: string } => {
-  if (value < 3) return { text: 'Minimalne', className: 'text-emerald-700 bg-emerald-50' };
-  if (value < 8) return { text: 'Umiarkowane', className: 'text-amber-700 bg-amber-50' };
-  return { text: 'Podwyższone', className: 'text-red-700 bg-red-50' };
+  if (value < 1.5) return { text: 'Norma', className: 'text-emerald-700 bg-emerald-50' };
+  if (value < 4) return { text: 'Lekkie', className: 'text-lime-800 bg-lime-50' };
+  if (value < 8) return { text: 'Umiarkowane', className: 'text-amber-800 bg-amber-50' };
+  if (value < 15) return { text: 'Widoczne', className: 'text-orange-800 bg-orange-50' };
+  return { text: 'Nasilone', className: 'text-red-800 bg-red-50' };
 };
 
-const acneGradeLabel = (grade: number): string => {
-  if (grade <= 1) return 'Brak / minimalne';
-  if (grade === 2) return 'Łagodne';
-  if (grade === 3) return 'Umiarkowane';
-  return 'Nasilone';
+const acneGradeLabel = (grade: number): { text: string; className: string } => {
+  if (grade <= 1) return { text: 'Czysta skóra', className: 'text-emerald-700 bg-emerald-50' };
+  if (grade === 2) return { text: 'Lekki trądzik', className: 'text-amber-800 bg-amber-50' };
+  if (grade === 3) return { text: 'Umiarkowany', className: 'text-orange-800 bg-orange-50' };
+  return { text: 'Nasilony trądzik', className: 'text-red-800 bg-red-50' };
 };
 
 const PrivateImg = ({ path, alt, className }: { path: string; alt: string; className?: string }) => {
@@ -225,7 +227,7 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
                         <MetricRow label="Przebarwienia" value={`${zd.pigmentationCoverage}%`} severity={severityLabel(zd.pigmentationCoverage)} />
                         <MetricRow label="Rumień" value={`${zd.rednessCoverage}%`} severity={severityLabel(zd.rednessCoverage)} />
                         {zd.acneGrade != null && (
-                          <MetricRow label="Trądzik" value={acneGradeLabel(zd.acneGrade)} />
+                          <MetricRow label="Trądzik" value={acneGradeLabel(zd.acneGrade).text} />
                         )}
                         {zd.acneLesionCount != null && zd.acneLesionCount > 0 && (
                           <MetricRow label="Wykryte zmiany" value={String(zd.acneLesionCount)} />
@@ -340,43 +342,48 @@ const ZoneDetailView = ({
       {/* Zone metrics */}
       <div className="grid gap-3 sm:grid-cols-2">
         {/* Pigmentation */}
-        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4">
+        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Przebarwienia</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${pigSev.className}`}>{pigSev.text}</span>
           </div>
-          <p className="mt-1 text-xl font-semibold text-[#1A3828]">{data.pigmentationCoverage}%</p>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.pigmentationCoverage * 3)}%`, backgroundColor: '#B47832' }} />
+          <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.pigmentationCoverage}%</p>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.pigmentationCoverage * 5)}%`, backgroundColor: '#B47832' }} />
           </div>
         </div>
 
         {/* Redness */}
-        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4">
+        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Rumień / zaczerwienienie</span>
+            <span className="text-xs font-medium text-muted-foreground">Rumień</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${redSev.className}`}>{redSev.text}</span>
           </div>
-          <p className="mt-1 text-xl font-semibold text-[#1A3828]">{data.rednessCoverage}%</p>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.rednessCoverage * 3)}%`, backgroundColor: '#DC2626' }} />
+          <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.rednessCoverage}%</p>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.rednessCoverage * 5)}%`, backgroundColor: '#DC2626' }} />
           </div>
         </div>
 
         {/* Acne */}
-        {data.acneGrade != null && (
-          <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4">
-            <span className="text-xs font-medium text-muted-foreground">Nasilenie trądziku</span>
-            <p className="mt-1 text-xl font-semibold text-[#1A3828]">{data.acneGrade}/4</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{acneGradeLabel(data.acneGrade)}</p>
-            {data.acneLesionCount != null && data.acneLesionCount > 0 && (
-              <div className="mt-2 flex items-center gap-1.5 text-xs">
-                <AlertTriangle className="h-3 w-3 text-amber-600" />
-                <span className="font-medium text-amber-800">Wykryto {data.acneLesionCount} zmian</span>
+        {data.acneGrade != null && (() => {
+          const acneSev = acneGradeLabel(data.acneGrade);
+          return (
+            <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">Trądzik</span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${acneSev.className}`}>{acneSev.text}</span>
               </div>
-            )}
-          </div>
-        )}
+              <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.acneGrade}/4</p>
+              {data.acneLesionCount != null && data.acneLesionCount > 0 && (
+                <div className="mt-1 flex items-center gap-1 text-[11px]">
+                  <AlertTriangle className="h-3 w-3 text-amber-600" />
+                  <span className="font-semibold text-amber-800">Wykryto {data.acneLesionCount} zmian</span>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Wrinkles */}
         {data.wrinkleCoverage != null && (

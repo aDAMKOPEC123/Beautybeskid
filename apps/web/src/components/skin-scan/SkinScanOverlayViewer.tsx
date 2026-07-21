@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import {
   getMetricOverlays,
   type SkinScanAngle,
@@ -114,28 +114,19 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
   };
 
   return (
-    <section className={`rounded-3xl border border-border bg-white shadow-sm ${className ?? ''}`}>
-      <div className="p-5 sm:p-7">
-        <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-[#9333EA]/10 p-3 text-[#7C22CE]">
-            <Eye className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-[#1A3828]">Mapa zmian</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Włącz warstwę, aby zobaczyć gdzie na twarzy wykryto zmiany.
-            </p>
-          </div>
-        </div>
+    <section className={`rounded-2xl border border-border bg-white shadow-sm ${className ?? ''}`}>
+      <div className="p-4 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#1A3828]">Mapa zmian na zdjęciach</h2>
 
+        {/* Scrollable angle tabs */}
         {anglesWithOverlays.length > 1 && (
-          <div className="mt-5 flex gap-2">
+          <div className="-mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
             {anglesWithOverlays.map((angle) => (
               <button
                 key={angle}
                 type="button"
                 onClick={() => setActiveAngle(angle)}
-                className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${
+                className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                   activeAngle === angle
                     ? 'bg-[#1A3828] text-white'
                     : 'bg-[#FAF9F6] text-muted-foreground hover:bg-[#F0EDE6]'
@@ -147,7 +138,8 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
           </div>
         )}
 
-        <div className="relative mt-4 overflow-hidden rounded-2xl bg-[#102219]">
+        {/* Image with overlays */}
+        <div className="relative mt-3 overflow-hidden rounded-xl bg-[#102219]">
           {currentImage && (
             <PrivateImg
               path={currentImage.imagePath}
@@ -172,13 +164,14 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
             );
           })}
           {loadingOverlays.size > 0 && (
-            <div className="absolute right-3 top-3 rounded-full bg-black/50 p-2">
-              <Loader2 className="h-4 w-4 animate-spin text-white" />
+            <div className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
             </div>
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        {/* Overlay toggles — compact */}
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {Array.from(availableOverlays.keys()).map((metricKey) => {
             const config = METRIC_CONFIG[metricKey];
             const isActive = activeMetrics.has(metricKey);
@@ -189,39 +182,30 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
                 type="button"
                 onClick={() => toggleMetric(metricKey)}
                 disabled={!hasOverlayForAngle}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-40 ${
+                className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-30 ${
                   isActive
                     ? 'border-[#1A3828] bg-[#1A3828] text-white'
-                    : 'border-border bg-white text-[#30483A] hover:bg-[#FAF9F6]'
+                    : 'border-border bg-white text-[#30483A]'
                 }`}
               >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: config.color }}
-                />
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: config.color }} />
                 {config.label}
-                {isActive ? (
-                  <EyeOff className="h-3.5 w-3.5" />
-                ) : (
-                  <Eye className="h-3.5 w-3.5" />
-                )}
               </button>
             );
           })}
         </div>
 
         {activeMetrics.size > 0 && (
-          <div className="mt-4 flex items-center gap-3">
-            <span className="text-xs font-medium text-muted-foreground">Przezroczystość</span>
+          <div className="mt-3 flex items-center gap-2">
             <input
               type="range"
               min={0}
               max={100}
               value={opacity}
               onChange={(e) => setOpacity(Number(e.target.value))}
-              className="h-2 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-[#1A3828]"
+              className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-[#1A3828]"
             />
-            <span className="w-8 text-right text-xs font-semibold text-[#1A3828]">{opacity}%</span>
+            <span className="text-[10px] font-semibold text-muted-foreground">{opacity}%</span>
           </div>
         )}
       </div>
