@@ -304,6 +304,102 @@ def extract_zone_closeup(bgr: np.ndarray, mask: np.ndarray, target_size: int = 2
     return base64.b64encode(encoded.tobytes()).decode("ascii")
 
 
+def detect_color_anomalies(
+    bgr: np.ndarray,
+    skin_mask: np.ndarray,
+    min_area: int = 30,
+    max_detections: int = 30,
+) -> list[dict[str, object]]:
+    """Detect red/dark spots on skin using color analysis in LAB space.
+
+    Returns list of detections with x, y, width, height, confidence, type.
+    Works without ML — purely color-based on preprocessed images.
+    """
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
+    l_ch, a_ch, b_ch = lab[:, :, 0], lab[:, :, 1], lab[:, :, 2]
+
+    skin_pixels_l = l_ch[skin_mask]
+    skin_pixels_a = a_ch[skin_mask]
+
+    if len(skin_pixels_l) < 1000:
+        return []
+
+    # Red spots: high a* channel (red-green axis) relative to skin median
+    a_median = float(np.median(skin_pixels_a))
+    a_mad = float(np.median(np.abs(skin_pixels_a - a_median)))
+    red_threshold = a_median + max(4.0, a_mad * 1.8)
+    red_mask = (a_ch > red_threshold) & skin_mask
+
+    # Dark spots: low L channel relative to skin median
+    l_median = float(np.median(skin_pixels_l))
+    l_mad = float(np.median(np.abs(skin_pixels_l - l_median)))
+    dark_threshold = l_median - max(8.0, l_mad * 1.6)
+    dark_mask = (l_ch < dark_threshold) & (b_ch > float(np.median(b_ch[skin_mask]))) & skin_mask
+
+    detections: list[dict[str, object]] = []
+
+    for anomaly_type, mask in [("redness", red_mask), ("dark_spot", dark_mask)]:
+        mask_u8 = mask.astype(np.uint8) * 255
+        # Morphological close to merge nearby spots
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        mask_u8 = cv2.morphologyEx(mask_u8, cv2.MORPH_CLOSE, kernel)
+        contours, _ = cv2.findContours(mask_u8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if area < min_area:
+                continue
+            x, y, w, h = cv2.boundingRect(cnt)
+            # Confidence based on color deviation intensity
+            roi_mask = mask[y : y + h, x : x + w]
+            if anomaly_type == "redness":
+                roi_vals = a_ch[y : y + h, x : x + w][roi_mask]
+                deviation = float(roi_vals.mean()) - a_median if len(roi_vals) else 0
+                conf = min(0.95, 0.3 + deviation / 20.0)
+            else:
+                roi_vals = l_ch[y : y + h, x : x + w][roi_mask]
+                deviation = l_median - float(roi_vals.mean()) if len(roi_vals) else 0
+                conf = min(0.95, 0.3 + deviation / 30.0)
+            conf = max(0.1, conf)
+            detections.append({
+                "x": int(x), "y": int(y), "width": int(w), "height": int(h),
+                "confidence": round(conf, 3),
+                "class": anomaly_type,
+            })
+
+    # Sort by confidence, limit count
+    detections.sort(key=lambda d: float(d["confidence"]), reverse=True)
+    return detections[:max_detections]
+
+
+def render_anomaly_overlay(
+    detections: list[dict[str, object]], shape: tuple[int, int],
+) -> np.ndarray:
+    """Draw colored circles/ellipses for detected color anomalies on RGBA."""
+    h, w = shape
+    overlay = np.zeros((h, w, 4), dtype=np.uint8)
+
+    for det in detections:
+        x, y, bw, bh = int(det["x"]), int(det["y"]), int(det["width"]), int(det["height"])
+        cx, cy = x + bw // 2, y + bh // 2
+        rx, ry = max(bw // 2, 3), max(bh // 2, 3)
+
+        if det["class"] == "redness":
+            color = (220, 60, 60, 140)
+            border = (255, 80, 80, 220)
+        else:
+            color = (160, 100, 40, 120)
+            border = (200, 130, 60, 200)
+
+        # Semi-transparent fill ellipse
+        cv2.ellipse(overlay, (cx, cy), (rx, ry), 0, 0, 360, color, -1)
+        # Border
+        thickness = max(1, min(h, w) // 300)
+        cv2.ellipse(overlay, (cx, cy), (rx, ry), 0, 0, 360, border, thickness)
+
+    return overlay
+
+
 def preprocess_skin(bgr: np.ndarray, skin_mask: np.ndarray) -> np.ndarray:
     """Enhance skin details using CLAHE on L-channel and a* channel boost.
 
@@ -601,6 +697,23 @@ class SkinAnalyzer:
                 }
                 acne_metric["details"]["detectorVersion"] = self.models.versions.get("acneDetector", "unknown")
 
+        # --- Color-based anomaly detection (fallback/supplement to YOLO) ---
+        anomaly_detections_by_angle: dict[str, list[dict[str, object]]] = {}
+        for angle in usable_angles:
+            anomalies = detect_color_anomalies(preprocessed[angle], cropped_masks[angle])
+            if anomalies:
+                y1, y2, x1, x2 = crop_boxes[angle]
+                crop_h, crop_w = cropped[angle].shape[:2]
+                orig_crop_w, orig_crop_h = x2 - x1, y2 - y1
+                sx = orig_crop_w / crop_w
+                sy = orig_crop_h / crop_h
+                for d in anomalies:
+                    d["x"] = int(round(int(d["x"]) * sx)) + x1
+                    d["y"] = int(round(int(d["y"]) * sy)) + y1
+                    d["width"] = int(round(int(d["width"]) * sx))
+                    d["height"] = int(round(int(d["height"]) * sy))
+                anomaly_detections_by_angle[angle] = anomalies
+
         # --- Generate overlay images ---
         overlays: dict[str, dict[str, str]] = {}
 
@@ -643,6 +756,25 @@ class SkinAnalyzer:
                     acne_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
             if acne_overlays:
                 overlays["acne"] = acne_overlays
+
+        # Color anomaly overlay (supplements YOLO with color-based detection)
+        if anomaly_detections_by_angle:
+            anomaly_overlays: dict[str, str] = {}
+            total_anomalies = 0
+            for angle, dets in anomaly_detections_by_angle.items():
+                shape = decoded[angle].shape[:2]
+                overlay_img = render_anomaly_overlay(dets, shape)
+                ok, encoded = cv2.imencode(".png", overlay_img)
+                if ok:
+                    anomaly_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
+                total_anomalies += len(dets)
+            if anomaly_overlays:
+                overlays["skinChanges"] = anomaly_overlays
+            # Add anomaly count to acne details
+            acne_metric["details"]["colorAnomalies"] = total_anomalies
+            acne_metric["details"]["anomaliesByAngle"] = {
+                angle: len(dets) for angle, dets in anomaly_detections_by_angle.items()
+            }
 
         # Zone grid overlay
         if zone_grid_b64:

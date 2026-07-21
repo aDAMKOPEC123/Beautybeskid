@@ -139,7 +139,7 @@ class AcneDetectorModel:
     """YOLOv8-nano acne lesion detector (ONNX inference)."""
 
     INPUT_SIZE = 640
-    CONFIDENCE_THRESHOLD = 0.25
+    CONFIDENCE_THRESHOLD = 0.15
     IOU_THRESHOLD = 0.45
 
     def __init__(self, path: Path):

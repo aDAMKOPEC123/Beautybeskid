@@ -147,10 +147,11 @@ export const mlServiceProvider: SkinScanAnalysisProvider = {
     if (rawOverlays && Object.keys(rawOverlays).length > 0) {
       const savedPaths = await saveOverlayFiles(input.sessionId, rawOverlays);
       for (const [metricKey, anglePaths] of Object.entries(savedPaths)) {
-        if (metricKey === 'zoneGrid') {
-          // Zone grid overlay goes into faceParsing, not metrics
+        if (metricKey === 'zoneGrid' || metricKey === 'skinChanges') {
+          // Non-metric overlays go into faceParsing
           if (analysis.faceParsing) {
-            (analysis.faceParsing as Record<string, unknown>).zoneGridOverlay = anglePaths;
+            const key = metricKey === 'zoneGrid' ? 'zoneGridOverlay' : 'skinChangesOverlay';
+            (analysis.faceParsing as Record<string, unknown>)[key] = anglePaths;
           }
           continue;
         }
