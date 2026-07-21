@@ -65,6 +65,15 @@ export const completeSession = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const getComparison = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const comparison = await skinScansService.getComparison(req.user!.id);
+    res.status(200).json({ status: 'success', data: { comparison } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteSession = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await skinScansService.deleteSession(req.user!.id, req.params.id);

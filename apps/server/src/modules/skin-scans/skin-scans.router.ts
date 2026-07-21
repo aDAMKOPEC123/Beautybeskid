@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticate);
 router.get('/', controller.listSessions);
 router.post('/', controller.createSession);
+router.get('/comparison', controller.getComparison);
 router.get('/:id', controller.getSession);
 router.post(
   '/:id/images',

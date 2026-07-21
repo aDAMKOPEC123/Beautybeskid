@@ -3,6 +3,7 @@ import path from 'path';
 import { z } from 'zod';
 import { env } from '../../config/env';
 import type { SkinScanAnalysis } from './skin-scans.types';
+import { computeSkinScore } from './skin-score';
 
 export type SkinScanProviderInput = {
   sessionId: string;
@@ -187,6 +188,10 @@ export const mlServiceProvider: SkinScanAnalysisProvider = {
         }
       }
     }
+
+    const { skinScore, skinScoreBreakdown } = computeSkinScore(analysis.metrics);
+    analysis.skinScore = skinScore;
+    analysis.skinScoreBreakdown = skinScoreBreakdown;
 
     return analysis;
   },

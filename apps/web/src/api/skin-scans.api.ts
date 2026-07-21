@@ -77,6 +77,8 @@ export type SkinScanAnalysis = {
   modelVersions: Record<string, string>;
   metrics: Record<'acne' | 'pigmentation' | 'redness' | 'wrinkles' | 'pores' | 'spfCoverage', SkinScanMetric>;
   faceParsing?: SkinScanFaceParsing;
+  skinScore?: number | null;
+  skinScoreBreakdown?: Partial<Record<'acne' | 'pigmentation' | 'redness' | 'wrinkles', number>>;
 };
 
 export type SkinScanSession = {
@@ -103,6 +105,7 @@ export type SkinScanSession = {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  imagesDeletedAt: string | null;
   images: SkinScanImage[];
 };
 
@@ -155,6 +158,16 @@ export const skinScansApi = {
   delete: async (sessionId: string): Promise<void> => {
     await api.delete(`${BASE}/${sessionId}`);
   },
+
+  comparison: async (): Promise<SkinScanComparison> => {
+    const response = await api.get(`${BASE}/comparison`);
+    return response.data.data.comparison;
+  },
+};
+
+export type SkinScanComparison = {
+  first: SkinScanSession | null;
+  latest: SkinScanSession | null;
 };
 
 export const getMetricOverlays = (

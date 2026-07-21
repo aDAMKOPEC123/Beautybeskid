@@ -62,4 +62,6 @@ export type SkinScanAnalysis = {
     spfCoverage: SkinScanAnalysisMetric;
   };
   faceParsing?: Record<string, unknown>;
+  skinScore?: number | null;
+  skinScoreBreakdown?: Partial<Record<'acne' | 'pigmentation' | 'redness' | 'wrinkles', number>>;
 };

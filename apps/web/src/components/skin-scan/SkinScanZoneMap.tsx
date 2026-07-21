@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Grid3X3, Crosshair, ZoomIn, AlertTriangle } from 'lucide-react';
+import { Camera, Grid3X3, Crosshair, ZoomIn, AlertTriangle } from 'lucide-react';
 import {
   getMetricOverlays,
   type SkinScanAnalysis,
@@ -64,6 +64,17 @@ const ZonePhoto = ({
 }) => {
   const image = session.images.find((img) => img.angle === angle);
   if (!image) return null;
+
+  if (session.imagesDeletedAt || !image.imagePath) {
+    return (
+      <div className="flex h-32 items-center justify-center rounded-2xl bg-gray-50">
+        <div className="flex flex-col items-center gap-1 text-muted-foreground">
+          <Camera className="h-6 w-6 opacity-40" />
+          <span className="text-[10px]">Zdjęcie usunięte</span>
+        </div>
+      </div>
+    );
+  }
 
   const overlayPath = showOverlay ? overlayPaths[showOverlay] : null;
 

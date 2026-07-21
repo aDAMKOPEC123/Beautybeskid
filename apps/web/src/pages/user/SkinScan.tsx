@@ -16,6 +16,7 @@ import {
   type SkinScanSession,
   type SkinScanStatus,
 } from '@/api/skin-scans.api';
+import { SkinScanComparison } from '@/components/skin-scan/SkinScanComparison';
 
 const ANGLES: SkinScanAngle[] = ['FRONT', 'FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'];
 
@@ -67,8 +68,25 @@ const formatMetricValue = (metric: SkinScanMetric) => {
 
 const VISIBLE_METRICS = ['acne', 'pigmentation', 'redness', 'wrinkles'] as const;
 
+const SCORE_CLASSIFICATION = [
+  { min: 85, label: 'Skóra w świetnej kondycji', color: '#16a34a' },
+  { min: 70, label: 'Dobra kondycja, drobne problemy', color: '#65a30d' },
+  { min: 50, label: 'Wymaga uwagi', color: '#d97706' },
+  { min: 30, label: 'Widoczne problemy', color: '#ea580c' },
+  { min: 0, label: 'Wymaga intensywnej pielęgnacji', color: '#dc2626' },
+] as const;
+
+const getScoreClassification = (score: number) =>
+  SCORE_CLASSIFICATION.find((c) => score >= c.min) ?? SCORE_CLASSIFICATION[SCORE_CLASSIFICATION.length - 1];
+
 const ResultReport = ({ session, onNewScan }: { session: SkinScanSession; onNewScan: () => void }) => {
-  const summary = session.qualitySummary;
+  const comparisonQuery = useQuery({
+    queryKey: ['skin-scans', 'comparison'],
+    queryFn: skinScansApi.comparison,
+  });
+  const [showComparison, setShowComparison] = useState(false);
+  const hasComparison = comparisonQuery.data?.first != null && comparisonQuery.data?.latest != null;
+
   const analysis = session.analysis;
   const detectedLesions = analysis?.metrics.acne?.status === 'AVAILABLE'
     ? (analysis.metrics.acne.details?.detectedLesions as number | undefined) ?? null
@@ -83,13 +101,45 @@ const ResultReport = ({ session, onNewScan }: { session: SkinScanSession; onNewS
               <h1 className="font-heading text-lg font-semibold sm:text-xl">Raport analizy skóry</h1>
               <p className="mt-1 text-xs text-white/60">{formatDate(session.createdAt)}</p>
             </div>
-            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border border-white/20 bg-white/10 sm:h-16 sm:w-16">
-              <span className="text-lg font-bold sm:text-xl">{summary?.averageScore ?? '—'}</span>
-              <span className="text-[8px] uppercase tracking-wider text-white/50">jakość</span>
-            </div>
+            {analysis?.skinScore != null ? (
+              <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-2 sm:h-16 sm:w-16"
+                style={{ borderColor: getScoreClassification(analysis.skinScore).color }}>
+                <span className="text-lg font-bold sm:text-xl">{analysis.skinScore}</span>
+                <span className="text-[8px] uppercase tracking-wider text-white/50">pkt</span>
+              </div>
+            ) : (
+              <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border border-white/20 bg-white/10 sm:h-16 sm:w-16">
+                <span className="text-lg font-bold sm:text-xl">—</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Classification label */}
+      {analysis?.skinScore != null && (() => {
+        const cls = getScoreClassification(analysis.skinScore);
+        return (
+          <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-white px-3 py-2 shadow-sm">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: cls.color }} />
+            <span className="text-sm font-semibold text-[#1A3828]">{cls.label}</span>
+          </div>
+        );
+      })()}
+
+      {/* Comparison button */}
+      {hasComparison && !showComparison && (
+        <button type="button" onClick={() => setShowComparison(true)}
+          className="w-full rounded-xl border border-[#C4965A]/30 bg-[#FAF9F6] px-4 py-3 text-sm font-semibold text-[#1A3828] transition-colors hover:bg-[#F0EDE6]">
+          Zobacz zmianę
+        </button>
+      )}
+
+      {showComparison && comparisonQuery.data && (
+        <div className="rounded-2xl border border-border bg-white p-4 shadow-sm sm:p-6">
+          <SkinScanComparison comparison={comparisonQuery.data} onClose={() => setShowComparison(false)} />
+        </div>
+      )}
 
       {/* Key metrics — compact horizontal cards */}
       {analysis && (

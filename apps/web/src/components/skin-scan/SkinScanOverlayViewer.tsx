@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Camera, Loader2 } from 'lucide-react';
 import {
   getMetricOverlays,
   type SkinScanAngle,
@@ -62,6 +62,17 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
 
   const analysis = session.analysis;
   if (!analysis) return null;
+
+  if (session.imagesDeletedAt) {
+    return (
+      <section className={`rounded-2xl border border-border bg-white shadow-sm ${className ?? ''}`}>
+        <div className="flex flex-col items-center gap-2 p-6 text-center text-muted-foreground">
+          <Camera className="h-8 w-8 opacity-40" />
+          <p className="text-xs font-medium">Zdjęcia usunięte po 7 dniach od analizy</p>
+        </div>
+      </section>
+    );
+  }
 
   const availableOverlays = new Map<MetricKey, Partial<Record<SkinScanAngle, string>>>();
   for (const [key, metric] of Object.entries(analysis.metrics)) {

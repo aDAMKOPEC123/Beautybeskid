@@ -1295,6 +1295,7 @@ model SkinScanSession {
   analysisProvider  String          @default("quality-only")
   analysisVersion   String          @default("quality-v1")
   completedAt       DateTime?
+  imagesDeletedAt   DateTime?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   images            SkinScanImage[]

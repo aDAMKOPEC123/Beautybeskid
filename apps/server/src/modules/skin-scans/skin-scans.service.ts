@@ -11,6 +11,7 @@ import {
   type SkinScanCaptureContext,
   type SkinScanImageQuality,
 } from './skin-scans.types';
+import { extractAnalysisFilePaths } from './skin-scans.cleanup';
 
 type UploadedScanFile = Express.Multer.File & { fieldname: string };
 
@@ -211,22 +212,18 @@ export const completeSession = async (userId: string, sessionId: string) => {
 };
 
 const removeSessionOverlays = async (session: Awaited<ReturnType<typeof getOwnedSession>>) => {
-  const analysis = session.analysis as Record<string, unknown> | null;
-  if (!analysis) return;
-
-  const metrics = analysis.metrics as Record<string, Record<string, unknown>> | undefined;
-  if (!metrics) return;
-
-  const paths: string[] = [];
-  for (const metric of Object.values(metrics)) {
-    const details = metric.details as Record<string, unknown> | undefined;
-    const overlays = details?.overlays as Record<string, string> | undefined;
-    if (overlays) {
-      paths.push(...Object.values(overlays));
-    }
-  }
-
+  const paths = extractAnalysisFilePaths(session.analysis as Record<string, unknown> | null);
   await Promise.all(paths.map(removeStoredScanImage));
+};
+
+export const getComparison = async (userId: string) => {
+  const sessions = await prisma.skinScanSession.findMany({
+    where: { userId, status: SkinScanStatus.COMPLETED },
+    orderBy: { completedAt: 'asc' },
+    include: sessionInclude,
+  });
+  if (sessions.length < 2) return { first: null, latest: null };
+  return { first: sessions[0], latest: sessions[sessions.length - 1] };
 };
 
 export const deleteSession = async (userId: string, sessionId: string) => {
