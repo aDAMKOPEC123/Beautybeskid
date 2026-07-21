@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Camera, Grid3X3, Crosshair, ZoomIn, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Camera, Grid3X3, ZoomIn, AlertTriangle } from 'lucide-react';
 import {
   getMetricOverlays,
   type SkinScanAnalysis,
@@ -13,10 +13,10 @@ const FRONT_ZONE_ORDER = ['forehead', 'left_cheek', 'right_cheek', 'nose', 'peri
 
 const ZONE_CLOSEUP_ORDER: SkinScanAngle[] = ['FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'];
 
-const ZONE_CLOSEUP_LABELS: Record<string, string> = {
+const ZONE_LABELS: Record<string, string> = {
   FOREHEAD: 'Czoło',
-  LEFT_CHEEK: 'Lewy policzek',
-  RIGHT_CHEEK: 'Prawy policzek',
+  LEFT_CHEEK: 'L. policzek',
+  RIGHT_CHEEK: 'P. policzek',
   CHIN: 'Broda',
   NECK: 'Szyja',
 };
@@ -30,19 +30,19 @@ const ZONE_COLORS: Record<string, string> = {
   chin: '#DC2626',
 };
 
-const severityLabel = (value: number): { text: string; className: string } => {
-  if (value < 1.5) return { text: 'Norma', className: 'text-emerald-700 bg-emerald-50' };
-  if (value < 4) return { text: 'Lekkie', className: 'text-lime-800 bg-lime-50' };
-  if (value < 8) return { text: 'Umiarkowane', className: 'text-amber-800 bg-amber-50' };
-  if (value < 15) return { text: 'Widoczne', className: 'text-orange-800 bg-orange-50' };
-  return { text: 'Nasilone', className: 'text-red-800 bg-red-50' };
+const severity = (value: number): { text: string; cls: string } => {
+  if (value < 1.5) return { text: 'OK', cls: 'text-emerald-700 bg-emerald-50' };
+  if (value < 4) return { text: 'Lekkie', cls: 'text-lime-800 bg-lime-50' };
+  if (value < 8) return { text: 'Średnie', cls: 'text-amber-800 bg-amber-50' };
+  if (value < 15) return { text: 'Widoczne', cls: 'text-orange-800 bg-orange-50' };
+  return { text: 'Nasilone', cls: 'text-red-800 bg-red-50' };
 };
 
-const acneGradeLabel = (grade: number): { text: string; className: string } => {
-  if (grade <= 1) return { text: 'Czysta skóra', className: 'text-emerald-700 bg-emerald-50' };
-  if (grade === 2) return { text: 'Lekki trądzik', className: 'text-amber-800 bg-amber-50' };
-  if (grade === 3) return { text: 'Umiarkowany', className: 'text-orange-800 bg-orange-50' };
-  return { text: 'Nasilony trądzik', className: 'text-red-800 bg-red-50' };
+const acneLabel = (grade: number): { text: string; cls: string } => {
+  if (grade <= 1) return { text: 'OK', cls: 'text-emerald-700 bg-emerald-50' };
+  if (grade === 2) return { text: 'Lekki', cls: 'text-amber-800 bg-amber-50' };
+  if (grade === 3) return { text: 'Średni', cls: 'text-orange-800 bg-orange-50' };
+  return { text: 'Nasilony', cls: 'text-red-800 bg-red-50' };
 };
 
 const PrivateImg = ({ path, alt, className }: { path: string; alt: string; className?: string }) => {
@@ -67,9 +67,9 @@ const ZonePhoto = ({
 
   if (session.imagesDeletedAt || !image.imagePath) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl bg-gray-50">
+      <div className="flex h-32 items-center justify-center rounded-xl bg-gray-50">
         <div className="flex flex-col items-center gap-1 text-muted-foreground">
-          <Camera className="h-6 w-6 opacity-40" />
+          <Camera className="h-5 w-5 opacity-40" />
           <span className="text-[10px]">Zdjęcie usunięte</span>
         </div>
       </div>
@@ -79,7 +79,7 @@ const ZonePhoto = ({
   const overlayPath = showOverlay ? overlayPaths[showOverlay] : null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#102219]">
+    <div className="relative overflow-hidden rounded-xl bg-[#102219]">
       <PrivateImg path={image.imagePath} alt={`Zdjęcie: ${angle}`} className="block w-full" />
       {overlayPath && (
         <PrivateImg
@@ -92,30 +92,12 @@ const ZonePhoto = ({
   );
 };
 
-const GridOverlayImage = ({ basePath, overlayPath }: { basePath: string; overlayPath: string }) => {
-  const baseSrc = usePrivateImage(basePath);
-  const overlaySrc = usePrivateImage(overlayPath);
-  if (!baseSrc) return null;
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#102219]">
-      <img src={baseSrc} alt="Skan z siatką stref" className="block w-full" />
-      {overlaySrc && (
-        <img
-          src={overlaySrc}
-          alt="Siatka stref"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        />
-      )}
-    </div>
-  );
-};
-
 const OVERLAY_TYPES = [
   { key: 'acne', label: 'Trądzik', color: '#EAB308' },
-  { key: 'pigmentation', label: 'Przebarwienia', color: '#B47832' },
+  { key: 'pigmentation', label: 'Przebarw.', color: '#B47832' },
   { key: 'redness', label: 'Rumień', color: '#DC2626' },
   { key: 'wrinkles', label: 'Zmarszczki', color: '#9333EA' },
-  { key: 'skinChanges', label: 'Zmiany skórne', color: '#F97316' },
+  { key: 'skinChanges', label: 'Zmiany', color: '#F97316' },
 ] as const;
 
 type Props = {
@@ -136,7 +118,7 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
 
   if (!hasCloseups && !hasZones) return null;
 
-  // Collect all overlays for each angle from metrics
+  // Collect overlays per angle
   const overlaysByAngle: Record<string, Record<string, string>> = {};
   for (const [key, m] of Object.entries(analysis.metrics)) {
     if (m.status !== 'AVAILABLE') continue;
@@ -148,7 +130,6 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
       overlaysByAngle[angle][key] = path;
     }
   }
-  // skinChanges overlay from faceParsing
   const skinChangesOv = analysis.faceParsing?.skinChangesOverlay;
   if (skinChangesOv) {
     for (const [angle, path] of Object.entries(skinChangesOv)) {
@@ -161,94 +142,65 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
   const frontImage = session.images.find((img) => img.angle === 'FRONT');
   const gridPath = gridOverlay?.FRONT;
 
-  const availableCloseupAngles = ZONE_CLOSEUP_ORDER.filter(
+  const availableAngles = ZONE_CLOSEUP_ORDER.filter(
     (a) => zoneCloseups?.[a] && session.images.some((img) => img.angle === a),
   );
 
   return (
-    <section className={`rounded-3xl border border-border bg-white shadow-sm ${className ?? ''}`}>
-      <div className="p-5 sm:p-7">
-        {/* Header */}
-        <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-[#2563EB]/10 p-3 text-[#1D4ED8]">
-            <Crosshair className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-[#1A3828]">Analiza stref</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {hasCloseups
-                ? 'Każda strefa przeanalizowana ze zbliżenia — trądzik, przebarwienia, rumień i zmarszczki.'
-                : 'Twarz podzielona na strefy z analizą przebarwień i zaczerwienienia.'}
-            </p>
-          </div>
-        </div>
+    <section className={`rounded-2xl border border-border bg-white shadow-sm ${className ?? ''}`}>
+      <div className="p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[#1A3828]">Analiza stref</h2>
 
-        {/* Zone close-up cards (primary when available) */}
         {hasCloseups && (
           <>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {availableCloseupAngles.map((angle) => (
+            {/* Zone detail view */}
+            {selectedZone && zoneCloseups?.[selectedZone] ? (
+              <div className="mt-3">
+                {/* Back button */}
                 <button
-                  key={angle}
                   type="button"
-                  onClick={() => {
-                    setSelectedZone(selectedZone === angle ? null : angle);
-                    setActiveOverlay(null);
-                  }}
-                  className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${
-                    selectedZone === angle
-                      ? 'bg-[#1A3828] text-white'
-                      : 'bg-[#FAF9F6] text-muted-foreground hover:bg-[#F0EDE6]'
-                  }`}
+                  onClick={() => { setSelectedZone(null); setActiveOverlay(null); }}
+                  className="mb-3 flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-[#1A3828]"
                 >
-                  {ZONE_CLOSEUP_LABELS[angle]}
+                  <ArrowLeft className="h-3.5 w-3.5" /> Wszystkie strefy
                 </button>
-              ))}
-            </div>
 
-            {/* Selected zone detail view */}
-            {selectedZone && zoneCloseups?.[selectedZone] && (
-              <ZoneDetailView
-                angle={selectedZone}
-                data={zoneCloseups[selectedZone]}
-                session={session}
-                overlays={overlaysByAngle[selectedZone] ?? {}}
-                activeOverlay={activeOverlay}
-                onToggleOverlay={(key) => setActiveOverlay(activeOverlay === key ? null : key)}
-              />
-            )}
-
-            {/* Summary grid when nothing selected */}
-            {!selectedZone && (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {availableCloseupAngles.map((angle) => {
+                <ZoneDetail
+                  angle={selectedZone}
+                  data={zoneCloseups[selectedZone]}
+                  session={session}
+                  overlays={overlaysByAngle[selectedZone] ?? {}}
+                  activeOverlay={activeOverlay}
+                  onToggleOverlay={(key) => setActiveOverlay(activeOverlay === key ? null : key)}
+                />
+              </div>
+            ) : (
+              /* Summary cards */
+              <div className="mt-3 space-y-2">
+                {availableAngles.map((angle) => {
                   const zd = zoneCloseups![angle]!;
                   return (
                     <button
                       key={angle}
                       type="button"
                       onClick={() => { setSelectedZone(angle); setActiveOverlay(null); }}
-                      className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4 text-left transition-all hover:border-border hover:shadow-sm"
+                      className="flex w-full items-center gap-3 rounded-xl border border-border/60 bg-[#FAF9F6] p-3 text-left transition-all hover:border-border hover:shadow-sm"
                     >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-[#1A3828]">{ZONE_CLOSEUP_LABELS[angle]}</h3>
-                        <ZoomIn className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                        <MetricRow label="Przebarwienia" value={`${zd.pigmentationCoverage}%`} severity={severityLabel(zd.pigmentationCoverage)} />
-                        <MetricRow label="Rumień" value={`${zd.rednessCoverage}%`} severity={severityLabel(zd.rednessCoverage)} />
-                        {zd.acneGrade != null && (
-                          <MetricRow label="Trądzik" value={acneGradeLabel(zd.acneGrade).text} />
-                        )}
-                        {zd.acneLesionCount != null && zd.acneLesionCount > 0 && (
-                          <MetricRow label="Wykryte zmiany" value={String(zd.acneLesionCount)} />
-                        )}
-                        {zd.wrinkleCoverage != null && (
-                          <MetricRow label="Zmarszczki" value={`${zd.wrinkleCoverage}%`} />
-                        )}
-                        {zd.anomalyCount != null && zd.anomalyCount > 0 && (
-                          <MetricRow label="Anomalie" value={String(zd.anomalyCount)} />
-                        )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xs font-semibold text-[#1A3828]">{ZONE_LABELS[angle]}</h3>
+                          <ZoomIn className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+                          <Pill label="Przebarw." value={`${zd.pigmentationCoverage}%`} sev={severity(zd.pigmentationCoverage)} />
+                          <Pill label="Rumień" value={`${zd.rednessCoverage}%`} sev={severity(zd.rednessCoverage)} />
+                          {zd.acneGrade != null && (
+                            <Pill label="Trądzik" value={`${zd.acneGrade}/4`} sev={acneLabel(zd.acneGrade)} />
+                          )}
+                          {zd.wrinkleCoverage != null && (
+                            <Pill label="Zmarszcz." value={`${zd.wrinkleCoverage}%`} />
+                          )}
+                        </div>
                       </div>
                     </button>
                   );
@@ -258,27 +210,27 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
           </>
         )}
 
-        {/* FRONT zone grid (always shown if available) */}
-        {frontImage && gridPath && hasZones && (
-          <div className="mt-6">
-            <div className="flex items-center gap-2">
-              <Grid3X3 className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-[#1A3828]">Siatka stref (zdjęcie frontalne)</h3>
+        {/* FRONT zone grid */}
+        {frontImage && gridPath && hasZones && !session.imagesDeletedAt && (
+          <div className="mt-4">
+            <div className="flex items-center gap-1.5">
+              <Grid3X3 className="h-3.5 w-3.5 text-muted-foreground" />
+              <h3 className="text-xs font-semibold text-[#1A3828]">Siatka stref</h3>
             </div>
-            <div className="mt-3">
-              <GridOverlayImage basePath={frontImage.imagePath} overlayPath={gridPath} />
-              <div className="mt-2 flex flex-wrap gap-2">
-                {FRONT_ZONE_ORDER.map((zoneKey) => {
-                  const zone = zones![zoneKey];
-                  if (!zone) return null;
-                  return (
-                    <div key={zoneKey} className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground">
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: ZONE_COLORS[zoneKey] }} />
-                      {zone.label}
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="mt-2 overflow-hidden rounded-xl bg-[#102219]">
+              <GridOverlay basePath={frontImage.imagePath} overlayPath={gridPath} />
+            </div>
+            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+              {FRONT_ZONE_ORDER.map((zoneKey) => {
+                const zone = zones![zoneKey];
+                if (!zone) return null;
+                return (
+                  <div key={zoneKey} className="flex items-center gap-1 text-[9px] font-medium text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ZONE_COLORS[zoneKey] }} />
+                    {zone.label}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -287,21 +239,31 @@ export const SkinScanZoneMap = ({ analysis, session, className }: Props) => {
   );
 };
 
-const MetricRow = ({ label, value, severity }: { label: string; value: string; severity?: { text: string; className: string } }) => (
-  <div className="flex items-center justify-between">
-    <span className="text-muted-foreground">{label}</span>
-    <div className="flex items-center gap-1">
-      <span className="font-semibold text-[#1A3828]">{value}</span>
-      {severity && (
-        <span className={`rounded-full px-1.5 py-px text-[9px] font-semibold ${severity.className}`}>
-          {severity.text}
-        </span>
-      )}
-    </div>
-  </div>
+/* ── Compact inline metric pill ────────────────────── */
+const Pill = ({ label, value, sev }: { label: string; value: string; sev?: { text: string; cls: string } }) => (
+  <span className="inline-flex items-center gap-1 text-muted-foreground">
+    {label} <strong className="text-[#1A3828]">{value}</strong>
+    {sev && <span className={`rounded px-1 py-px text-[9px] font-semibold ${sev.cls}`}>{sev.text}</span>}
+  </span>
 );
 
-const ZoneDetailView = ({
+/* ── Grid overlay image ────────────────────── */
+const GridOverlay = ({ basePath, overlayPath }: { basePath: string; overlayPath: string }) => {
+  const baseSrc = usePrivateImage(basePath);
+  const overlaySrc = usePrivateImage(overlayPath);
+  if (!baseSrc) return null;
+  return (
+    <div className="relative">
+      <img src={baseSrc} alt="Skan z siatką stref" className="block w-full" />
+      {overlaySrc && (
+        <img src={overlaySrc} alt="Siatka stref" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+      )}
+    </div>
+  );
+};
+
+/* ── Zone detail view (shown after selecting a zone) ────────────────────── */
+const ZoneDetail = ({
   angle,
   data,
   session,
@@ -316,18 +278,17 @@ const ZoneDetailView = ({
   activeOverlay: string | null;
   onToggleOverlay: (key: string) => void;
 }) => {
-  const pigSev = severityLabel(data.pigmentationCoverage);
-  const redSev = severityLabel(data.rednessCoverage);
   const hasOverlays = Object.keys(overlays).length > 0;
 
   return (
-    <div className="mt-4 space-y-4">
-      {/* Zone photo with overlay */}
+    <div className="space-y-3">
+      <h3 className="text-xs font-semibold text-[#1A3828]">{ZONE_LABELS[angle]}</h3>
+
       <ZonePhoto session={session} angle={angle} overlayPaths={overlays} showOverlay={activeOverlay} />
 
-      {/* Overlay toggle buttons */}
+      {/* Overlay toggles */}
       {hasOverlays && (
-        <div className="flex flex-wrap gap-2">
+        <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
           {OVERLAY_TYPES.map(({ key, label, color }) => {
             if (!overlays[key]) return null;
             const isActive = activeOverlay === key;
@@ -336,13 +297,13 @@ const ZoneDetailView = ({
                 key={key}
                 type="button"
                 onClick={() => onToggleOverlay(key)}
-                className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold transition-colors ${
                   isActive
                     ? 'border-[#1A3828] bg-[#1A3828] text-white'
-                    : 'border-border bg-white text-[#30483A] hover:bg-[#FAF9F6]'
+                    : 'border-border bg-white text-[#30483A]'
                 }`}
               >
-                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
                 {label}
               </button>
             );
@@ -350,61 +311,44 @@ const ZoneDetailView = ({
         </div>
       )}
 
-      {/* Zone metrics */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {/* Pigmentation */}
-        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Przebarwienia</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${pigSev.className}`}>{pigSev.text}</span>
-          </div>
-          <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.pigmentationCoverage}%</p>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.pigmentationCoverage * 5)}%`, backgroundColor: '#B47832' }} />
-          </div>
-        </div>
-
-        {/* Redness */}
-        <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Rumień</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${redSev.className}`}>{redSev.text}</span>
-          </div>
-          <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.rednessCoverage}%</p>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full rounded-full" style={{ width: `${Math.min(100, data.rednessCoverage * 5)}%`, backgroundColor: '#DC2626' }} />
-          </div>
-        </div>
-
-        {/* Acne */}
-        {data.acneGrade != null && (() => {
-          const acneSev = acneGradeLabel(data.acneGrade);
-          return (
-            <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">Trądzik</span>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${acneSev.className}`}>{acneSev.text}</span>
-              </div>
-              <p className="mt-1 text-xl font-bold text-[#1A3828]">{data.acneGrade}/4</p>
-              {data.acneLesionCount != null && data.acneLesionCount > 0 && (
-                <div className="mt-1 flex items-center gap-1 text-[11px]">
-                  <AlertTriangle className="h-3 w-3 text-amber-600" />
-                  <span className="font-semibold text-amber-800">Wykryto {data.acneLesionCount} zmian</span>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* Wrinkles */}
+      {/* Metrics — compact 2-col */}
+      <div className="grid grid-cols-2 gap-2">
+        <MetricCard label="Przebarwienia" value={`${data.pigmentationCoverage}%`} sev={severity(data.pigmentationCoverage)} bar={data.pigmentationCoverage * 5} barColor="#B47832" />
+        <MetricCard label="Rumień" value={`${data.rednessCoverage}%`} sev={severity(data.rednessCoverage)} bar={data.rednessCoverage * 5} barColor="#DC2626" />
+        {data.acneGrade != null && (
+          <MetricCard label="Trądzik" value={`${data.acneGrade}/4`} sev={acneLabel(data.acneGrade)} extra={
+            data.acneLesionCount != null && data.acneLesionCount > 0
+              ? <span className="flex items-center gap-0.5 text-[10px] text-amber-700"><AlertTriangle className="h-2.5 w-2.5" />{data.acneLesionCount} zmian</span>
+              : undefined
+          } />
+        )}
         {data.wrinkleCoverage != null && (
-          <div className="rounded-2xl border border-border/70 bg-[#FAF9F6] p-4">
-            <span className="text-xs font-medium text-muted-foreground">Zmarszczki</span>
-            <p className="mt-1 text-xl font-semibold text-[#1A3828]">{data.wrinkleCoverage}%</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">pokrycia obszaru skóry</p>
-          </div>
+          <MetricCard label="Zmarszczki" value={`${data.wrinkleCoverage}%`} />
         )}
       </div>
     </div>
   );
 };
+
+const MetricCard = ({ label, value, sev, bar, barColor, extra }: {
+  label: string;
+  value: string;
+  sev?: { text: string; cls: string };
+  bar?: number;
+  barColor?: string;
+  extra?: React.ReactNode;
+}) => (
+  <div className="rounded-xl border border-border/60 bg-[#FAF9F6] p-2.5">
+    <div className="flex items-center justify-between gap-1">
+      <span className="text-[10px] text-muted-foreground">{label}</span>
+      {sev && <span className={`rounded px-1.5 py-px text-[9px] font-semibold ${sev.cls}`}>{sev.text}</span>}
+    </div>
+    <p className="mt-0.5 text-base font-bold text-[#1A3828]">{value}</p>
+    {bar != null && barColor && (
+      <div className="mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
+        <div className="h-full rounded-full" style={{ width: `${Math.min(100, bar)}%`, backgroundColor: barColor }} />
+      </div>
+    )}
+    {extra}
+  </div>
+);

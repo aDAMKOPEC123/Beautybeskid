@@ -396,23 +396,25 @@ export function UserSkinScan() {
             </div>
           ))}
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4">
-            <input type="checkbox" checked={makeup} onChange={(event) => setMakeup(event.target.checked)} className="mt-1 h-4 w-4 accent-[#1A3828]" />
-            <span><strong className="block text-sm text-[#1A3828]">Mam makijaż</strong><span className="mt-1 block text-xs text-muted-foreground">Najlepiej wykonać skan bez makijażu.</span></span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4">
-            <input type="checkbox" checked={spfApplied} onChange={(event) => setSpfApplied(event.target.checked)} className="mt-1 h-4 w-4 accent-[#1A3828]" />
-            <span><strong className="block text-sm text-[#1A3828]">Mam nałożony SPF</strong><span className="mt-1 block text-xs text-muted-foreground">Kamera RGB nie oceni pokrycia, ale zapiszemy kontekst.</span></span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4 sm:col-span-2">
-            <input type="checkbox" checked={recentTreatment} onChange={(event) => setRecentTreatment(event.target.checked)} className="mt-1 h-4 w-4 accent-[#1A3828]" />
-            <span className="min-w-0 flex-1">
-              <strong className="block text-sm text-[#1A3828]">Niedawny zabieg lub silna reakcja skóry</strong>
-              <span className="mt-1 block text-xs text-muted-foreground">Zaznacz, jeśli dotyczy ostatnich 7 dni.</span>
-              {recentTreatment && <textarea value={recentTreatmentNotes} onChange={(event) => setRecentTreatmentNotes(event.target.value)} maxLength={500} rows={2} className="mt-3 w-full rounded-xl border border-border px-3 py-2 text-sm" placeholder="Opcjonalnie: jaki zabieg lub reakcja?" />}
-            </span>
-          </label>
+        <div className="mt-6 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Zaznacz, co dotyczy Twojej skóry teraz</p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <label className={`flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors ${makeup ? 'border-[#C4965A] bg-[#FBF8F2]' : 'border-border'}`}>
+              <input type="checkbox" checked={makeup} onChange={(e) => setMakeup(e.target.checked)} className="h-4 w-4 accent-[#1A3828]" />
+              <span className="text-sm font-medium text-[#1A3828]">Makijaż</span>
+            </label>
+            <label className={`flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors ${spfApplied ? 'border-[#C4965A] bg-[#FBF8F2]' : 'border-border'}`}>
+              <input type="checkbox" checked={spfApplied} onChange={(e) => setSpfApplied(e.target.checked)} className="h-4 w-4 accent-[#1A3828]" />
+              <span className="text-sm font-medium text-[#1A3828]">Nałożony SPF</span>
+            </label>
+            <label className={`flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors ${recentTreatment ? 'border-[#C4965A] bg-[#FBF8F2]' : 'border-border'}`}>
+              <input type="checkbox" checked={recentTreatment} onChange={(e) => setRecentTreatment(e.target.checked)} className="h-4 w-4 accent-[#1A3828]" />
+              <span className="text-sm font-medium text-[#1A3828]">Zabieg &lt;7 dni</span>
+            </label>
+          </div>
+          {recentTreatment && (
+            <textarea value={recentTreatmentNotes} onChange={(e) => setRecentTreatmentNotes(e.target.value)} maxLength={500} rows={2} className="w-full rounded-xl border border-border px-3 py-2 text-sm" placeholder="Opcjonalnie: jaki zabieg?" />
+          )}
         </div>
         <div className="mt-6 space-y-3 rounded-2xl border border-[#C4965A]/25 bg-[#FBF8F2] p-4">
           <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-[#30483A]">
