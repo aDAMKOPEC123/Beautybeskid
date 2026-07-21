@@ -15,6 +15,11 @@ router.post(
     { name: 'front', maxCount: 1 },
     { name: 'left', maxCount: 1 },
     { name: 'right', maxCount: 1 },
+    { name: 'forehead', maxCount: 1 },
+    { name: 'left_cheek', maxCount: 1 },
+    { name: 'right_cheek', maxCount: 1 },
+    { name: 'chin', maxCount: 1 },
+    { name: 'neck', maxCount: 1 },
   ]),
   controller.uploadImages,
 );

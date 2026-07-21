@@ -17,10 +17,26 @@ import {
   type SkinScanStatus,
 } from '@/api/skin-scans.api';
 
-const ANGLES: SkinScanAngle[] = ['FRONT', 'LEFT', 'RIGHT'];
+const ANGLES: SkinScanAngle[] = ['FRONT', 'FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'];
 
 const ANGLE_LABELS: Record<SkinScanAngle, string> = {
-  FRONT: 'Na wprost', LEFT: 'Lewy półprofil', RIGHT: 'Prawy półprofil',
+  FRONT: 'Twarz — na wprost',
+  LEFT: 'Lewy półprofil',
+  RIGHT: 'Prawy półprofil',
+  FOREHEAD: 'Czoło — zbliżenie',
+  LEFT_CHEEK: 'Lewy policzek — zbliżenie',
+  RIGHT_CHEEK: 'Prawy policzek — zbliżenie',
+  CHIN: 'Broda — zbliżenie',
+  NECK: 'Szyja — zbliżenie',
+};
+
+const ANGLE_HINTS: Partial<Record<SkinScanAngle, string>> = {
+  FRONT: 'Zrób zdjęcie całej twarzy na wprost, na wyciągnięcie ręki.',
+  FOREHEAD: 'Zbliż aparat do czoła na ok. 15 cm. Odsuń włosy.',
+  LEFT_CHEEK: 'Zbliż aparat do lewego policzka na ok. 15 cm.',
+  RIGHT_CHEEK: 'Zbliż aparat do prawego policzka na ok. 15 cm.',
+  CHIN: 'Zbliż aparat do brody i okolic ust na ok. 15 cm.',
+  NECK: 'Zbliż aparat do szyi na ok. 15 cm. Odchyl głowę do tyłu.',
 };
 
 const STATUS_COPY: Record<SkinScanStatus, { label: string; className: string }> = {
@@ -268,23 +284,32 @@ export function UserSkinScan() {
       <div className="mx-auto max-w-4xl px-1 py-3 sm:py-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <Button type="button" variant="ghost" onClick={resetScan}><ArrowLeft className="mr-2 h-4 w-4" /> Anuluj</Button>
-          <div className="text-right text-xs text-muted-foreground">{capturedCount}/3 ujęcia zapisane</div>
+          <div className="text-right text-xs text-muted-foreground">{capturedCount}/{ANGLES.length} ujęcia zapisane</div>
         </div>
-        <div className="mb-5 grid grid-cols-3 gap-2">
+        <div className="mb-5 flex flex-wrap gap-2">
           {ANGLES.map((angle) => {
             const isFailed = retakeSession?.qualitySummary?.failedAngles.includes(angle);
+            const isZone = angle !== 'FRONT' && angle !== 'LEFT' && angle !== 'RIGHT';
             const stateClass = activeAngle === angle
               ? 'border-[#C4965A] bg-[#C4965A]/10 text-[#7D5428]'
               : isFailed ? 'border-amber-300 bg-amber-50 text-amber-900'
                 : captures[angle] ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                   : 'border-border bg-white text-muted-foreground';
             return (
-              <button key={angle} type="button" onClick={() => setActiveAngle(angle)} className={`min-h-12 rounded-2xl border px-2 py-2 text-xs font-semibold ${stateClass}`}>
-                {captures[angle] && <CheckCircle2 className="mx-auto mb-1 h-4 w-4" />}{ANGLE_LABELS[angle]}
+              <button key={angle} type="button" onClick={() => setActiveAngle(angle)} className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-semibold ${stateClass}`}>
+                {captures[angle] && <CheckCircle2 className="h-3.5 w-3.5" />}
+                {isZone && !captures[angle] && <Camera className="h-3.5 w-3.5" />}
+                {ANGLE_LABELS[angle]}
               </button>
             );
           })}
         </div>
+        {ANGLE_HINTS[activeAngle] && (
+          <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 p-3 text-xs text-sky-900">
+            <div className="flex items-center gap-2 font-semibold"><Info className="h-4 w-4" /> Wskazówka</div>
+            <p className="mt-1">{ANGLE_HINTS[activeAngle]}</p>
+          </div>
+        )}
         {activeIssues.length > 0 && (
           <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <div className="flex items-center gap-2 font-semibold"><AlertCircle className="h-4 w-4" /> Powtórz to ujęcie</div>
@@ -320,14 +345,14 @@ export function UserSkinScan() {
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#1A3828]/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1A3828]">
               <Camera className="h-4 w-4" /> Skan skóry — wersja badawcza
             </div>
-            <h1 className="font-heading text-3xl font-semibold leading-tight text-[#1A3828] sm:text-4xl">Porównywalne zdjęcia twarzy w trzech ujęciach</h1>
+            <h1 className="font-heading text-3xl font-semibold leading-tight text-[#1A3828] sm:text-4xl">Szczegółowy skan stref twarzy</h1>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Aparat poprowadzi Cię przez zdjęcie na wprost i dwa półprofile. System sprawdzi jakość, wytnie skórę twarzy i przygotuje badawczą ocenę zmian trądzikowych, przebarwień, zaczerwienienia oraz zmarszczek.
+              Aparat poprowadzi Cię przez zdjęcie ogólne i zbliżenia 5 stref twarzy (czoło, policzki, broda, szyja). Dzięki zbliżeniom system widzi nawet najsubtelniejsze zmiany.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: Sun, label: 'Kontrola światła' }, { icon: Camera, label: '3 kąty twarzy' },
+              { icon: Sun, label: 'Kontrola światła' }, { icon: Camera, label: '6 zdjęć stref' },
               { icon: ShieldCheck, label: 'Prywatne zdjęcia' }, { icon: Clock3, label: 'Historia skanów' },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="rounded-2xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
@@ -344,7 +369,7 @@ export function UserSkinScan() {
           {[
             'Zdejmij okulary i odsuń włosy od twarzy.',
             'Stań przodem do okna, bez ostrego słońca i cieni.',
-            'Nie używaj filtra upiększającego ani trybu portretowego.',
+            'Zbliżenia rób z odległości ok. 15 cm od skóry, bez filtrów.',
           ].map((item, index) => (
             <div key={item} className="flex gap-3 rounded-2xl bg-[#FAF9F6] p-4 text-sm text-[#30483A]">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1A3828] text-xs font-semibold text-white">{index + 1}</span>{item}

@@ -18,6 +18,11 @@ const fieldToAngle: Record<string, SkinScanAngle> = {
   front: SkinScanAngle.FRONT,
   left: SkinScanAngle.LEFT,
   right: SkinScanAngle.RIGHT,
+  forehead: SkinScanAngle.FOREHEAD,
+  left_cheek: SkinScanAngle.LEFT_CHEEK,
+  right_cheek: SkinScanAngle.RIGHT_CHEEK,
+  chin: SkinScanAngle.CHIN,
+  neck: SkinScanAngle.NECK,
 };
 
 const sessionInclude = {
@@ -141,9 +146,13 @@ export const completeSession = async (userId: string, sessionId: string) => {
   const session = await getOwnedSession(userId, sessionId);
   if (session.status === SkinScanStatus.COMPLETED) return session;
   const availableAngles = new Set(session.images.map((image) => image.angle));
-  const missingAngles = REQUIRED_SCAN_ANGLES.filter((angle) => !availableAngles.has(angle as SkinScanAngle));
-  if (missingAngles.length > 0) {
-    throw new AppError(`Brakuje zdjęć: ${missingAngles.join(', ')}`, 400);
+  // FRONT is always required; zone close-ups are the main analysis source
+  if (!availableAngles.has(SkinScanAngle.FRONT)) {
+    throw new AppError('Brakuje zdjęcia: FRONT', 400);
+  }
+  // Need at least FRONT + some zone close-ups or LEFT/RIGHT
+  if (availableAngles.size < 2) {
+    throw new AppError('Wymagane są co najmniej 2 zdjęcia (FRONT + zbliżenia stref)', 400);
   }
 
   const images = session.images.map((image) => ({

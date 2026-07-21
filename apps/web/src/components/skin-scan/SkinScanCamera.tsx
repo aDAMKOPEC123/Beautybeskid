@@ -5,19 +5,44 @@ import type { SkinScanAngle } from '@/api/skin-scans.api';
 
 const ANGLE_COPY: Record<SkinScanAngle, { eyebrow: string; title: string; instruction: string }> = {
   FRONT: {
-    eyebrow: 'Ujęcie 1 z 3',
+    eyebrow: 'Zdjęcie 1 z 6',
     title: 'Twarz na wprost',
     instruction: 'Spójrz prosto w obiektyw. Trzymaj neutralny wyraz twarzy i schowaj włosy.',
   },
   LEFT: {
-    eyebrow: 'Ujęcie 2 z 3',
+    eyebrow: 'Półprofil',
     title: 'Lewy półprofil',
     instruction: 'Powoli obróć głowę około 30° w lewo. Oba oczy powinny pozostać widoczne.',
   },
   RIGHT: {
-    eyebrow: 'Ujęcie 3 z 3',
+    eyebrow: 'Półprofil',
     title: 'Prawy półprofil',
     instruction: 'Powoli obróć głowę około 30° w prawo. Oba oczy powinny pozostać widoczne.',
+  },
+  FOREHEAD: {
+    eyebrow: 'Zbliżenie 1 z 5',
+    title: 'Czoło — zbliżenie',
+    instruction: 'Zbliż aparat na ok. 15 cm do czoła. Odsuń włosy, aby czoło było widoczne.',
+  },
+  LEFT_CHEEK: {
+    eyebrow: 'Zbliżenie 2 z 5',
+    title: 'Lewy policzek — zbliżenie',
+    instruction: 'Zbliż aparat na ok. 15 cm do lewego policzka. Policzek powinien wypełnić kadr.',
+  },
+  RIGHT_CHEEK: {
+    eyebrow: 'Zbliżenie 3 z 5',
+    title: 'Prawy policzek — zbliżenie',
+    instruction: 'Zbliż aparat na ok. 15 cm do prawego policzka. Policzek powinien wypełnić kadr.',
+  },
+  CHIN: {
+    eyebrow: 'Zbliżenie 4 z 5',
+    title: 'Broda — zbliżenie',
+    instruction: 'Zbliż aparat na ok. 15 cm do brody i okolic ust.',
+  },
+  NECK: {
+    eyebrow: 'Zbliżenie 5 z 5',
+    title: 'Szyja — zbliżenie',
+    instruction: 'Zbliż aparat na ok. 15 cm do szyi. Odchyl lekko głowę do tyłu.',
   },
 };
 

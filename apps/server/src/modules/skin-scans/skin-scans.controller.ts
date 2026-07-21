@@ -48,7 +48,7 @@ export const uploadImages = async (req: Request, res: Response, next: NextFuncti
   try {
     const fileMap = (req.files ?? {}) as Record<string, Express.Multer.File[]>;
     const files = Object.values(fileMap).flat();
-    if (files.length > 3) throw new AppError('Sesja może zawierać maksymalnie trzy zdjęcia', 400);
+    if (files.length > 8) throw new AppError('Sesja może zawierać maksymalnie osiem zdjęć', 400);
     const session = await skinScansService.uploadImages(req.user!.id, req.params.id, files);
     res.status(200).json({ status: 'success', data: { session } });
   } catch (error) {

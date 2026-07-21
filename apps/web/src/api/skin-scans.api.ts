@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios';
 
-export type SkinScanAngle = 'FRONT' | 'LEFT' | 'RIGHT';
+export type SkinScanAngle = 'FRONT' | 'LEFT' | 'RIGHT' | 'FOREHEAD' | 'LEFT_CHEEK' | 'RIGHT_CHEEK' | 'CHIN' | 'NECK';
 export type SkinScanStatus = 'DRAFT' | 'CAPTURING' | 'NEEDS_RETAKE' | 'COMPLETED' | 'FAILED';
 
 export type SkinScanQualityIssue = {
@@ -116,7 +116,11 @@ export const skinScansApi = {
     captures: Partial<Record<SkinScanAngle, File>>,
   ): Promise<SkinScanSession> => {
     const formData = new FormData();
-    const fields: Record<SkinScanAngle, string> = { FRONT: 'front', LEFT: 'left', RIGHT: 'right' };
+    const fields: Record<SkinScanAngle, string> = {
+      FRONT: 'front', LEFT: 'left', RIGHT: 'right',
+      FOREHEAD: 'forehead', LEFT_CHEEK: 'left_cheek', RIGHT_CHEEK: 'right_cheek',
+      CHIN: 'chin', NECK: 'neck',
+    };
     (Object.keys(captures) as SkinScanAngle[]).forEach((angle) => {
       const file = captures[angle];
       if (file) formData.append(fields[angle], file, `${fields[angle]}.jpg`);

@@ -44,6 +44,12 @@ async def read_image(upload: UploadFile) -> bytes:
     return content
 
 
+async def read_optional(upload: UploadFile | None) -> bytes | None:
+    if upload is None:
+        return None
+    return await read_image(upload)
+
+
 @app.get("/health")
 async def health() -> dict[str, object]:
     analyzer: SkinAnalyzer | None = getattr(app.state, "analyzer", None)
@@ -58,17 +64,28 @@ async def health() -> dict[str, object]:
 @app.post("/v1/analyze")
 async def analyze(
     front: UploadFile = File(...),
-    left: UploadFile = File(...),
-    right: UploadFile = File(...),
+    left: UploadFile = File(None),
+    right: UploadFile = File(None),
+    forehead: UploadFile = File(None),
+    left_cheek: UploadFile = File(None),
+    right_cheek: UploadFile = File(None),
+    chin: UploadFile = File(None),
+    neck: UploadFile = File(None),
     x_api_key: str | None = Header(default=None),
 ) -> dict[str, object]:
     authorize(x_api_key)
     try:
-        images = {
-            "FRONT": await read_image(front),
-            "LEFT": await read_image(left),
-            "RIGHT": await read_image(right),
-        }
+        images: dict[str, bytes] = {"FRONT": await read_image(front)}
+
+        for name, upload in [
+            ("LEFT", left), ("RIGHT", right),
+            ("FOREHEAD", forehead), ("LEFT_CHEEK", left_cheek),
+            ("RIGHT_CHEEK", right_cheek), ("CHIN", chin), ("NECK", neck),
+        ]:
+            data = await read_optional(upload)
+            if data is not None:
+                images[name] = data
+
         analyzer: SkinAnalyzer = app.state.analyzer
         return await run_in_threadpool(analyzer.analyze, images)
     except HTTPException:

@@ -1,4 +1,6 @@
-export const REQUIRED_SCAN_ANGLES = ['FRONT', 'LEFT', 'RIGHT'] as const;
+export const OVERVIEW_ANGLES = ['FRONT'] as const;
+export const ZONE_ANGLES = ['FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'] as const;
+export const REQUIRED_SCAN_ANGLES = [...OVERVIEW_ANGLES, ...ZONE_ANGLES] as const;
 
 export type SkinScanAngleValue = (typeof REQUIRED_SCAN_ANGLES)[number];
 

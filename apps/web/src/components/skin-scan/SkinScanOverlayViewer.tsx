@@ -7,12 +7,17 @@ import {
 } from '@/api/skin-scans.api';
 import { usePrivateImage } from '@/hooks/usePrivateImage';
 
-const ANGLES: SkinScanAngle[] = ['FRONT', 'LEFT', 'RIGHT'];
+const ANGLES: SkinScanAngle[] = ['FRONT', 'LEFT', 'RIGHT', 'FOREHEAD', 'LEFT_CHEEK', 'RIGHT_CHEEK', 'CHIN', 'NECK'];
 
 const ANGLE_LABELS: Record<SkinScanAngle, string> = {
   FRONT: 'Na wprost',
   LEFT: 'Lewy półprofil',
   RIGHT: 'Prawy półprofil',
+  FOREHEAD: 'Czoło',
+  LEFT_CHEEK: 'Lewy policzek',
+  RIGHT_CHEEK: 'Prawy policzek',
+  CHIN: 'Broda',
+  NECK: 'Szyja',
 };
 
 const METRIC_CONFIG = {

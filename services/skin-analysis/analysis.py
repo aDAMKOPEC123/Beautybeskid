@@ -12,6 +12,15 @@ from models import ModelBundle
 
 
 ANGLE_ORDER = ("FRONT", "LEFT", "RIGHT")
+ZONE_CLOSEUP_ANGLES = ("FOREHEAD", "LEFT_CHEEK", "RIGHT_CHEEK", "CHIN", "NECK")
+
+ZONE_CLOSEUP_LABELS = {
+    "FOREHEAD": "Czoło",
+    "LEFT_CHEEK": "Lewy policzek",
+    "RIGHT_CHEEK": "Prawy policzek",
+    "CHIN": "Broda",
+    "NECK": "Szyja",
+}
 
 
 def metric(
@@ -471,19 +480,81 @@ class SkinAnalyzer:
     def __init__(self, models: ModelBundle):
         self.models = models
 
-    def analyze(self, images: dict[str, bytes]) -> dict[str, object]:
-        missing = [angle for angle in ANGLE_ORDER if angle not in images]
-        if missing:
-            raise ValueError(f"Brakuje wymaganych ujęć: {', '.join(missing)}")
+    def _analyze_zone_closeup(self, bgr: np.ndarray, zone_name: str) -> dict[str, object]:
+        """Analyze a single zone close-up photo at full resolution.
 
-        decoded = {angle: decode_image(images[angle]) for angle in ANGLE_ORDER}
-        parsed_masks = {angle: self.models.face_parser.predict(decoded[angle]) for angle in ANGLE_ORDER}
-        face_masks = {angle: np.isin(parsed_masks[angle], (1, 10)) for angle in ANGLE_ORDER}
+        For close-ups the user already framed the zone, so we use the full image
+        as skin area (with face parsing to exclude non-skin).
+        """
+        parsed = self.models.face_parser.predict(bgr)
+        skin_mask = np.isin(parsed, (1, 10))
+        # For close-ups, also include nose (10) and accept lower skin ratios
+        skin_ratio = float(skin_mask.sum() / skin_mask.size)
+        if skin_ratio < 0.02:
+            # If face parser fails on close-up, assume center 80% is skin
+            h, w = bgr.shape[:2]
+            skin_mask = np.zeros((h, w), dtype=bool)
+            margin_y, margin_w = h // 10, w // 10
+            skin_mask[margin_y:h - margin_y, margin_w:w - margin_w] = True
+
+        preprocessed = preprocess_skin(bgr, skin_mask)
+
+        result: dict[str, object] = {
+            "label": ZONE_CLOSEUP_LABELS.get(zone_name, zone_name),
+            "skinPixels": int(skin_mask.sum()),
+        }
+
+        # Color analysis
+        try:
+            color_stats, pig_mask, red_mask = color_indices(preprocessed, skin_mask)
+            result["pigmentationCoverage"] = round(float(color_stats["pigmentationCoverage"]), 2)
+            result["rednessCoverage"] = round(float(color_stats["rednessCoverage"]), 2)
+        except ValueError:
+            result["pigmentationCoverage"] = 0.0
+            result["rednessCoverage"] = 0.0
+            pig_mask = np.zeros(skin_mask.shape, dtype=bool)
+            red_mask = np.zeros(skin_mask.shape, dtype=bool)
+
+        # Color anomaly detection on close-up
+        anomalies = detect_color_anomalies(preprocessed, skin_mask)
+        result["anomalyCount"] = len(anomalies)
+
+        # Generate close-up thumbnail from preprocessed
+        closeup_b64 = extract_zone_closeup(preprocessed, skin_mask, target_size=320)
+        if closeup_b64:
+            result["closeup"] = closeup_b64
+
+        # Generate pigmentation + redness overlay for this zone
+        overlays: dict[str, str] = {}
+        shape = bgr.shape[:2]
+        if pig_mask.any():
+            overlays["pigmentation"] = encode_overlay(pig_mask, OVERLAY_COLORS["pigmentation"], shape)
+        if red_mask.any():
+            overlays["redness"] = encode_overlay(red_mask, OVERLAY_COLORS["redness"], shape)
+        if anomalies:
+            anom_overlay = render_anomaly_overlay(anomalies, shape)
+            ok, enc = cv2.imencode(".png", anom_overlay)
+            if ok:
+                overlays["skinChanges"] = base64.b64encode(enc.tobytes()).decode("ascii")
+        if overlays:
+            result["overlays"] = overlays
+
+        return result
+
+    def analyze(self, images: dict[str, bytes]) -> dict[str, object]:
+        if "FRONT" not in images:
+            raise ValueError("Brakuje wymaganego zdjęcia: FRONT")
+
+        # Decode overview angles (FRONT required, LEFT/RIGHT optional)
+        overview_angles = [a for a in ANGLE_ORDER if a in images]
+        decoded = {angle: decode_image(images[angle]) for angle in overview_angles}
+        parsed_masks = {angle: self.models.face_parser.predict(decoded[angle]) for angle in overview_angles}
+        face_masks = {angle: np.isin(parsed_masks[angle], (1, 10)) for angle in overview_angles}
         skin_ratios = {
             angle: float(face_masks[angle].sum() / face_masks[angle].size)
-            for angle in ANGLE_ORDER
+            for angle in overview_angles
         }
-        usable_angles = [angle for angle in ANGLE_ORDER if skin_ratios[angle] >= 0.04]
+        usable_angles = [angle for angle in overview_angles if skin_ratios[angle] >= 0.04]
 
         if not usable_angles:
             insufficient = unavailable(
@@ -780,12 +851,34 @@ class SkinAnalyzer:
         if zone_grid_b64:
             overlays["zoneGrid"] = {front_angle: zone_grid_b64}
 
+        # --- Analyze zone close-up photos (if provided) ---
+        zone_closeups: dict[str, dict[str, object]] = {}
+        zone_closeup_overlays: dict[str, dict[str, str]] = {}
+        for zone_angle in ZONE_CLOSEUP_ANGLES:
+            if zone_angle not in images:
+                continue
+            zone_bgr = decode_image(images[zone_angle])
+            zone_data = self._analyze_zone_closeup(zone_bgr, zone_angle)
+            # Extract overlays from zone data for saving
+            zone_ovs = zone_data.pop("overlays", None)
+            if isinstance(zone_ovs, dict):
+                for ov_type, ov_b64 in zone_ovs.items():
+                    key = f"{ov_type}_{zone_angle}"
+                    zone_closeup_overlays[key] = {zone_angle: ov_b64}
+            zone_closeups[zone_angle] = zone_data
+
+        # Merge zone close-up overlays
+        for key, angle_data in zone_closeup_overlays.items():
+            overlays[key] = angle_data
+
         face_details: dict[str, object] = {
             "skinRatioByAngle": skin_ratios,
             "usableAngles": usable_angles,
         }
         if zone_results:
             face_details["zones"] = zone_results
+        if zone_closeups:
+            face_details["zoneCloseups"] = zone_closeups
 
         return self._result(
             acne=acne_metric,
