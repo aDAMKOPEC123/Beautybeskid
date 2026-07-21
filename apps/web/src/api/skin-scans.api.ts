@@ -39,6 +39,19 @@ export type SkinScanMetric = {
   details?: Record<string, unknown>;
 };
 
+export type SkinScanZone = {
+  label: string;
+  skinPixels: number;
+  pigmentationCoverage: number;
+  rednessCoverage: number;
+};
+
+export type SkinScanFaceParsing = {
+  skinRatioByAngle: Record<string, number>;
+  usableAngles: SkinScanAngle[];
+  zones?: Record<string, SkinScanZone>;
+};
+
 export type SkinScanAnalysis = {
   schemaVersion: '1.0';
   mode: 'QUALITY_ONLY' | 'COSMETOLOGY_RESEARCH';
@@ -46,6 +59,7 @@ export type SkinScanAnalysis = {
   disclaimer: string;
   modelVersions: Record<string, string>;
   metrics: Record<'acne' | 'pigmentation' | 'redness' | 'wrinkles' | 'pores' | 'spfCoverage', SkinScanMetric>;
+  faceParsing?: SkinScanFaceParsing;
 };
 
 export type SkinScanSession = {

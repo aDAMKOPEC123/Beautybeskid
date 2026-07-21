@@ -117,6 +117,134 @@ def crop_face(bgr: np.ndarray, mask: np.ndarray, padding: float = 0.15, min_size
     return cropped, cropped_mask, (y1, y2, x1, x2)
 
 
+# BiSeNet CelebAMask-HQ class IDs
+_SKIN = 1
+_L_BROW = 2
+_R_BROW = 3
+_L_EYE = 4
+_R_EYE = 5
+_NOSE = 10
+_U_LIP = 11
+_L_LIP = 13
+
+# Zone definitions: map anatomical zones from face parsing mask
+FACE_ZONES = {
+    "forehead": "Czoło",
+    "left_cheek": "Lewy policzek",
+    "right_cheek": "Prawy policzek",
+    "nose": "Nos",
+    "chin": "Broda",
+    "perioral": "Okolice ust",
+}
+
+
+def build_zone_masks(parsed: np.ndarray, skin_mask: np.ndarray) -> dict[str, np.ndarray]:
+    """Split face into anatomical zones using the BiSeNet segmentation map.
+
+    Uses spatial relationships between facial landmarks (brows, eyes, nose, lips)
+    to define zones on the skin mask.
+    """
+    h, w = parsed.shape[:2]
+    zones: dict[str, np.ndarray] = {}
+
+    brow_mask = np.isin(parsed, (_L_BROW, _R_BROW))
+    eye_mask = np.isin(parsed, (_L_EYE, _R_EYE))
+    nose_mask = parsed == _NOSE
+    lip_mask = np.isin(parsed, (_U_LIP, _L_LIP))
+
+    # Find vertical reference lines from facial features
+    brow_ys = np.where(brow_mask.any(axis=1))[0]
+    eye_ys = np.where(eye_mask.any(axis=1))[0]
+    nose_ys = np.where(nose_mask.any(axis=1))[0]
+    lip_ys = np.where(lip_mask.any(axis=1))[0]
+
+    # Default boundaries (fractions of face height if features not found)
+    face_ys = np.where(skin_mask.any(axis=1))[0]
+    if len(face_ys) == 0:
+        return {}
+    face_top, face_bot = int(face_ys.min()), int(face_ys.max())
+    face_h = face_bot - face_top
+
+    brow_top = int(brow_ys.min()) if len(brow_ys) else face_top + face_h // 5
+    eye_bot = int(eye_ys.max()) if len(eye_ys) else face_top + face_h * 2 // 5
+    nose_bot = int(nose_ys.max()) if len(nose_ys) else face_top + face_h * 3 // 5
+    lip_top = int(lip_ys.min()) if len(lip_ys) else face_top + face_h * 3 // 4
+
+    # Midline from nose center
+    nose_xs = np.where(nose_mask.any(axis=0))[0]
+    mid_x = int(nose_xs.mean()) if len(nose_xs) else w // 2
+
+    # Forehead: skin above brows
+    forehead = skin_mask.copy()
+    forehead[brow_top:, :] = False
+    zones["forehead"] = forehead
+
+    # Cheeks: skin between eye bottom and nose bottom, left/right of nose
+    cheek_region = skin_mask.copy()
+    cheek_region[:eye_bot, :] = False
+    cheek_region[nose_bot:, :] = False
+    cheek_region &= ~nose_mask  # exclude nose itself
+
+    left_cheek = cheek_region.copy()
+    left_cheek[:, mid_x:] = False
+    zones["left_cheek"] = left_cheek
+
+    right_cheek = cheek_region.copy()
+    right_cheek[:, :mid_x] = False
+    zones["right_cheek"] = right_cheek
+
+    # Nose: use parsed nose mask intersected with skin
+    zones["nose"] = nose_mask & skin_mask
+
+    # Perioral: skin around lips
+    perioral = skin_mask.copy()
+    perioral[:nose_bot, :] = False
+    perioral[face_bot:, :] = False
+    lip_xs = np.where(lip_mask.any(axis=0))[0]
+    if len(lip_xs) >= 2:
+        lip_left = max(0, int(lip_xs.min()) - face_h // 8)
+        lip_right = min(w, int(lip_xs.max()) + face_h // 8)
+        perioral[:, :lip_left] = False
+        perioral[:, lip_right:] = False
+    perioral &= ~lip_mask
+    zones["perioral"] = perioral
+
+    # Chin: skin below lips
+    chin = skin_mask.copy()
+    chin[:lip_top, :] = False
+    chin &= ~lip_mask
+    zones["chin"] = chin
+
+    # Filter out zones with too few pixels
+    min_pixels = 500
+    return {name: mask for name, mask in zones.items() if mask.sum() >= min_pixels}
+
+
+def preprocess_skin(bgr: np.ndarray, skin_mask: np.ndarray) -> np.ndarray:
+    """Enhance skin details using CLAHE on L-channel and a* channel boost.
+
+    Improves visibility of subtle redness, pigmentation and texture changes
+    that are hard to see in raw selfie photos.
+    Returns a preprocessed BGR image (same shape).
+    """
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+
+    # CLAHE on L-channel — adaptive contrast to reveal texture/pigmentation
+    clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+    lab[:, :, 0] = clahe.apply(lab[:, :, 0])
+
+    # Boost a* channel (green-red axis) within skin region to amplify redness
+    a_channel = lab[:, :, 1].astype(np.float32)
+    skin_mean = float(a_channel[skin_mask].mean()) if skin_mask.any() else 128.0
+    # Amplify deviation from mean by 1.4x — makes red spots stand out
+    a_enhanced = skin_mean + (a_channel - skin_mean) * 1.4
+    a_enhanced = np.clip(a_enhanced, 0, 255).astype(np.uint8)
+    # Only apply enhancement within skin mask to avoid background artifacts
+    lab[:, :, 1] = np.where(skin_mask, a_enhanced, lab[:, :, 1])
+
+    return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+
+
 def robust_threshold(values: np.ndarray, direction: str, minimum_delta: float, mad_scale: float) -> float:
     center = float(np.median(values))
     deviation = float(np.median(np.abs(values - center)))
@@ -201,13 +329,18 @@ class SkinAnalyzer:
             cropped_masks[angle] = c_mask
             crop_boxes[angle] = c_box
 
+        # Preprocess cropped images for better color change visibility
+        preprocessed = {}
+        for angle in usable_angles:
+            preprocessed[angle] = preprocess_skin(cropped[angle], cropped_masks[angle])
+
         color_rows: list[dict[str, float | int]] = []
         color_by_angle: dict[str, dict[str, float | int]] = {}
         pig_masks: dict[str, np.ndarray] = {}
         red_masks: dict[str, np.ndarray] = {}
         for angle in usable_angles:
             try:
-                row, pig_mask, red_mask = color_indices(cropped[angle], cropped_masks[angle])
+                row, pig_mask, red_mask = color_indices(preprocessed[angle], cropped_masks[angle])
             except ValueError:
                 continue
             color_rows.append(row)
@@ -228,7 +361,7 @@ class SkinAnalyzer:
 
         acne_rows: list[dict[str, object]] = []
         for angle in usable_angles:
-            prediction = self.models.acne.predict(cropped[angle])
+            prediction = self.models.acne.predict(preprocessed[angle])
             acne_rows.append({"angle": angle, **prediction})
 
         acne_probabilities = np.mean(
@@ -306,11 +439,36 @@ class SkinAnalyzer:
             pigmentation_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu przebarwień.", "INSUFFICIENT_QUALITY")
             redness_metric = unavailable("Za mało widocznej skóry do wyliczenia indeksu zaczerwienienia.", "INSUFFICIENT_QUALITY")
 
+        # --- Zone-based analysis (FRONT angle only) ---
+        zone_results: dict[str, dict[str, object]] = {}
+        front_angle = "FRONT" if "FRONT" in usable_angles else usable_angles[0]
+        # Build zones on the cropped/preprocessed FRONT image
+        # We need the parsed mask for the cropped region
+        y1z, y2z, x1z, x2z = crop_boxes[front_angle]
+        cropped_parsed = parsed_masks[front_angle][y1z:y2z, x1z:x2z]
+        crop_h_z, crop_w_z = cropped[front_angle].shape[:2]
+        orig_crop_h_z, orig_crop_w_z = y2z - y1z, x2z - x1z
+        if (crop_h_z, crop_w_z) != (orig_crop_h_z, orig_crop_w_z):
+            cropped_parsed = cv2.resize(cropped_parsed, (crop_w_z, crop_h_z), interpolation=cv2.INTER_NEAREST)
+
+        zone_masks = build_zone_masks(cropped_parsed, cropped_masks[front_angle])
+        for zone_name, zone_mask in zone_masks.items():
+            try:
+                zone_color, zone_pig, zone_red = color_indices(preprocessed[front_angle], zone_mask)
+            except ValueError:
+                continue
+            zone_results[zone_name] = {
+                "label": FACE_ZONES[zone_name],
+                "skinPixels": zone_color["skinPixels"],
+                "pigmentationCoverage": round(float(zone_color["pigmentationCoverage"]), 2),
+                "rednessCoverage": round(float(zone_color["rednessCoverage"]), 2),
+            }
+
         # --- Acne lesion detection (YOLOv8-nano, optional) ---
         acne_detections_by_angle: dict[str, list[dict[str, object]]] = {}
         if self.models.acne_detector.available:
             for angle in usable_angles:
-                dets = self.models.acne_detector.predict(cropped[angle])
+                dets = self.models.acne_detector.predict(preprocessed[angle])
                 if dets:
                     # Map detection coords back to original image
                     y1, y2, x1, x2 = crop_boxes[angle]
@@ -379,12 +537,19 @@ class SkinAnalyzer:
             if acne_overlays:
                 overlays["acne"] = acne_overlays
 
+        face_details: dict[str, object] = {
+            "skinRatioByAngle": skin_ratios,
+            "usableAngles": usable_angles,
+        }
+        if zone_results:
+            face_details["zones"] = zone_results
+
         return self._result(
             acne=acne_metric,
             pigmentation=pigmentation_metric,
             redness=redness_metric,
             wrinkles=wrinkle_metric,
-            face_details={"skinRatioByAngle": skin_ratios, "usableAngles": usable_angles},
+            face_details=face_details,
             overlays=overlays,
         )
 

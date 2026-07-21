@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { SkinScanCamera } from '@/components/skin-scan/SkinScanCamera';
 import { SkinScanOverlayViewer } from '@/components/skin-scan/SkinScanOverlayViewer';
+import { SkinScanZoneMap } from '@/components/skin-scan/SkinScanZoneMap';
 import {
   skinScansApi,
   type SkinScanAngle,
@@ -137,6 +138,7 @@ const ResultReport = ({ session, onNewScan }: { session: SkinScanSession; onNewS
         )}
       </section>
       <SkinScanOverlayViewer session={session} />
+      {analysis && <SkinScanZoneMap analysis={analysis} />}
       <div className="flex justify-center"><Button type="button" onClick={onNewScan}><RotateCcw className="mr-2 h-4 w-4" /> Nowy skan</Button></div>
     </div>
   );
