@@ -59,4 +59,5 @@ export type SkinScanAnalysis = {
     pores: SkinScanAnalysisMetric;
     spfCoverage: SkinScanAnalysisMetric;
   };
+  faceParsing?: Record<string, unknown>;
 };

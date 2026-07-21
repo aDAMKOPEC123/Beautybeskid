@@ -44,12 +44,14 @@ export type SkinScanZone = {
   skinPixels: number;
   pigmentationCoverage: number;
   rednessCoverage: number;
+  closeup?: string;
 };
 
 export type SkinScanFaceParsing = {
   skinRatioByAngle: Record<string, number>;
   usableAngles: SkinScanAngle[];
   zones?: Record<string, SkinScanZone>;
+  zoneGridOverlay?: Partial<Record<SkinScanAngle, string>>;
 };
 
 export type SkinScanAnalysis = {

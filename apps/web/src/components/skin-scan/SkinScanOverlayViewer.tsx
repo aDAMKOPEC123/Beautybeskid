@@ -20,6 +20,7 @@ const METRIC_CONFIG = {
   pigmentation: { label: 'Przebarwienia', color: '#B47832' },
   redness: { label: 'Rumień', color: '#DC2626' },
   acne: { label: 'Trądzik', color: '#EAB308' },
+  zoneGrid: { label: 'Siatka stref', color: '#2563EB' },
 } as const;
 
 type MetricKey = keyof typeof METRIC_CONFIG;
@@ -63,6 +64,13 @@ export const SkinScanOverlayViewer = ({ session, className }: Props) => {
     if (overlays && Object.keys(overlays).length > 0) {
       availableOverlays.set(key as MetricKey, overlays);
     }
+  }
+
+  // Add zone grid overlay from faceParsing
+  const fp = analysis.faceParsing as Record<string, unknown> | undefined;
+  const zoneGridOverlay = fp?.zoneGridOverlay as Partial<Record<SkinScanAngle, string>> | undefined;
+  if (zoneGridOverlay && Object.keys(zoneGridOverlay).length > 0) {
+    availableOverlays.set('zoneGrid', zoneGridOverlay);
   }
 
   if (availableOverlays.size === 0) return null;

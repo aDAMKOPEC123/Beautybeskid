@@ -220,6 +220,90 @@ def build_zone_masks(parsed: np.ndarray, skin_mask: np.ndarray) -> dict[str, np.
     return {name: mask for name, mask in zones.items() if mask.sum() >= min_pixels}
 
 
+ZONE_COLORS_BGR = {
+    "forehead": (237, 58, 124),    # purple
+    "left_cheek": (235, 99, 37),   # blue
+    "right_cheek": (178, 145, 8),  # teal
+    "nose": (105, 150, 5),         # green
+    "perioral": (6, 119, 217),     # orange
+    "chin": (38, 38, 220),         # red
+}
+
+
+def render_zone_grid(bgr: np.ndarray, zone_masks: dict[str, np.ndarray], zone_labels: dict[str, str]) -> np.ndarray:
+    """Draw a colored zone grid overlay on the face image as RGBA PNG."""
+    h, w = bgr.shape[:2]
+    overlay = np.zeros((h, w, 4), dtype=np.uint8)
+
+    for zone_name, mask in zone_masks.items():
+        if zone_name not in ZONE_COLORS_BGR:
+            continue
+        b, g, r = ZONE_COLORS_BGR[zone_name]
+
+        # Semi-transparent fill
+        overlay[mask] = (r, g, b, 45)
+
+        # Draw contour border
+        mask_u8 = mask.astype(np.uint8) * 255
+        contours, _ = cv2.findContours(mask_u8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        thickness = max(2, min(h, w) // 250)
+        for cnt in contours:
+            pts = cnt.reshape(-1, 2)
+            for i in range(len(pts)):
+                p1 = tuple(pts[i])
+                p2 = tuple(pts[(i + 1) % len(pts)])
+                cv2.line(overlay, p1, p2, (r, g, b, 200), thickness)
+
+        # Add zone label
+        label = zone_labels.get(zone_name, zone_name)
+        ys, xs = np.where(mask)
+        if len(ys) > 0:
+            cy, cx = int(ys.mean()), int(xs.mean())
+            font_scale = max(0.4, min(h, w) / 1200)
+            font_thickness = max(1, int(font_scale * 2))
+            text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)[0]
+            tx = cx - text_size[0] // 2
+            ty = cy + text_size[1] // 2
+            # Background for text
+            pad = 4
+            cv2.rectangle(overlay,
+                          (tx - pad, ty - text_size[1] - pad),
+                          (tx + text_size[0] + pad, ty + pad),
+                          (0, 0, 0, 160), -1)
+            cv2.putText(overlay, label, (tx, ty),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255, 255), font_thickness)
+
+    return overlay
+
+
+def extract_zone_closeup(bgr: np.ndarray, mask: np.ndarray, target_size: int = 256) -> str | None:
+    """Crop the bounding box of a zone mask, resize to target, encode as base64 JPEG."""
+    ys, xs = np.where(mask)
+    if len(ys) < 100:
+        return None
+    y1, y2 = int(ys.min()), int(ys.max()) + 1
+    x1, x2 = int(xs.min()), int(xs.max()) + 1
+    # Add small padding
+    h, w = bgr.shape[:2]
+    pad = max(5, (y2 - y1) // 10)
+    y1 = max(0, y1 - pad)
+    y2 = min(h, y2 + pad)
+    x1 = max(0, x1 - pad)
+    x2 = min(w, x2 + pad)
+
+    crop = bgr[y1:y2, x1:x2]
+    # Resize keeping aspect ratio
+    ch, cw = crop.shape[:2]
+    scale = target_size / max(ch, cw)
+    new_w, new_h = int(cw * scale), int(ch * scale)
+    resized = cv2.resize(crop, (new_w, new_h), interpolation=cv2.INTER_LANCZOS4)
+
+    ok, encoded = cv2.imencode(".jpg", resized, [cv2.IMWRITE_JPEG_QUALITY, 85])
+    if not ok:
+        return None
+    return base64.b64encode(encoded.tobytes()).decode("ascii")
+
+
 def preprocess_skin(bgr: np.ndarray, skin_mask: np.ndarray) -> np.ndarray:
     """Enhance skin details using CLAHE on L-channel and a* channel boost.
 
@@ -457,12 +541,35 @@ class SkinAnalyzer:
                 zone_color, zone_pig, zone_red = color_indices(preprocessed[front_angle], zone_mask)
             except ValueError:
                 continue
-            zone_results[zone_name] = {
+            # Generate closeup from preprocessed image
+            closeup_b64 = extract_zone_closeup(preprocessed[front_angle], zone_mask)
+            zone_entry: dict[str, object] = {
                 "label": FACE_ZONES[zone_name],
                 "skinPixels": zone_color["skinPixels"],
                 "pigmentationCoverage": round(float(zone_color["pigmentationCoverage"]), 2),
                 "rednessCoverage": round(float(zone_color["rednessCoverage"]), 2),
             }
+            if closeup_b64:
+                zone_entry["closeup"] = closeup_b64
+            zone_results[zone_name] = zone_entry
+
+        # Generate zone grid overlay for FRONT angle
+        zone_grid_b64: str | None = None
+        if zone_masks:
+            # Map zone masks from cropped coords back to original image coords
+            orig_shape = decoded[front_angle].shape[:2]
+            full_zone_masks: dict[str, np.ndarray] = {}
+            for zname, zmask in zone_masks.items():
+                full_z = np.zeros(orig_shape, dtype=bool)
+                z_resized = cv2.resize(zmask.astype(np.uint8), (x2z - x1z, y2z - y1z),
+                                       interpolation=cv2.INTER_NEAREST).astype(bool)
+                full_z[y1z:y2z, x1z:x2z] = z_resized
+                full_zone_masks[zname] = full_z
+
+            grid_overlay = render_zone_grid(decoded[front_angle], full_zone_masks, FACE_ZONES)
+            ok, enc = cv2.imencode(".png", grid_overlay)
+            if ok:
+                zone_grid_b64 = base64.b64encode(enc.tobytes()).decode("ascii")
 
         # --- Acne lesion detection (YOLOv8-nano, optional) ---
         acne_detections_by_angle: dict[str, list[dict[str, object]]] = {}
@@ -536,6 +643,10 @@ class SkinAnalyzer:
                     acne_overlays[angle] = base64.b64encode(encoded.tobytes()).decode("ascii")
             if acne_overlays:
                 overlays["acne"] = acne_overlays
+
+        # Zone grid overlay
+        if zone_grid_b64:
+            overlays["zoneGrid"] = {front_angle: zone_grid_b64}
 
         face_details: dict[str, object] = {
             "skinRatioByAngle": skin_ratios,

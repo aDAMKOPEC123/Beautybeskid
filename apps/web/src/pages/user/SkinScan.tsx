@@ -138,7 +138,7 @@ const ResultReport = ({ session, onNewScan }: { session: SkinScanSession; onNewS
         )}
       </section>
       <SkinScanOverlayViewer session={session} />
-      {analysis && <SkinScanZoneMap analysis={analysis} />}
+      {analysis && <SkinScanZoneMap analysis={analysis} session={session} />}
       <div className="flex justify-center"><Button type="button" onClick={onNewScan}><RotateCcw className="mr-2 h-4 w-4" /> Nowy skan</Button></div>
     </div>
   );
