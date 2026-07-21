@@ -22,8 +22,10 @@ export const processAndSaveImage = async (
     const outputH = folder === 'hero' ? 1080 : 675;
 
     const meta = await sharp(buffer).metadata();
-    const srcW = meta.width!;
-    const srcH = meta.height!;
+    // EXIF orientation 5-8 means the image is rotated 90°/270° — swap dimensions
+    const swapped = meta.orientation && meta.orientation >= 5;
+    const srcW = swapped ? meta.height! : meta.width!;
+    const srcH = swapped ? meta.width! : meta.height!;
 
     const targetRatio = 16 / 9;
     let cropW: number, cropH: number, left: number, top: number;
@@ -45,12 +47,14 @@ export const processAndSaveImage = async (
     }
 
     await sharp(buffer)
+      .rotate()
       .extract({ left, top, width: cropW, height: cropH })
       .resize(outputW, outputH, { fit: 'fill' })
       .webp({ quality: 75 })
       .toFile(filepath);
   } else {
     await sharp(buffer)
+      .rotate()
       .resize(1200, 1200, {
         fit: 'inside',
         withoutEnlargement: true,
@@ -73,6 +77,7 @@ export const processAndSaveThumbnail = async (
   const filepath = path.join(targetDir, filename);
 
   await sharp(buffer)
+    .rotate()
     .resize(400, 400, {
       fit: 'cover',
     })
