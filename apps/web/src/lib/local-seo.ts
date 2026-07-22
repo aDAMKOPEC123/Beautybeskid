@@ -208,13 +208,13 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'kosmetolog-limanowa': {
     slug: 'kosmetolog-limanowa',
     shortLabel: 'Kosmetolog Limanowa',
-    title: 'Kosmetolog Limanowa — konsultacje i zabiegi',
+    title: 'Kosmetolog Limanowa — konsultacje i zabiegi | BeskidStudio',
     description:
-      'Kosmetolog Limanowa: BeskidStudio Wiktoria Ćwik. Konsultacje, indywidualny plan zabiegowy, rezerwacja online i opieka dla klientek z Limanowej, Mordarki i okolic.',
+      'Kosmetolog Limanowa: BeskidStudio Wiktoria Ćwik w Mordarce 505 (5 min od centrum). Laminacja brwi i rzęs, konsultacje, rezerwacja online. ☎ 532 128 227.',
     eyebrow: 'Kosmetolog Limanowa',
-    h1: 'Kosmetolog w Limanowej dla świadomej pielęgnacji skóry',
+    h1: 'Kosmetolog w Limanowej — zabiegi i konsultacje w BeskidStudio',
     lead:
-      'Szukasz kosmetologa w Limanowej, który dobierze zabieg spokojnie, bez presji i z jasnym planem? BeskidStudio By Wiktoria Ćwik łączy konsultację, aktualną ofertę zabiegów i wygodną rezerwację online.',
+      'Szukasz kosmetologa w Limanowej, który dobierze zabieg spokojnie, bez presji i z jasnym planem? BeskidStudio By Wiktoria Ćwik w Mordarce 505 — 5 minut jazdy z centrum Limanowej, z parkingiem pod gabinetem.',
     serviceName: 'Konsultacja kosmetologiczna i zabiegi kosmetologiczne',
     serviceType: 'Kosmetologia',
     location: 'Limanowa',
@@ -235,9 +235,53 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Po zabiegu dostajesz jasne zalecenia i możliwość powrotu do historii wizyt.',
     ],
     localCopy:
-      'Jako salon kosmetologiczny w Mordarce 505 obsługujemy klientki z Limanowej i całego powiatu limanowskiego. Niezależnie czy szukasz konsultacji, planu zabiegowego, czy regularnej opieki nad skórą — w BeskidStudio By Wiktoria Ćwik znajdziesz konkretne terminy i aktualną ofertę.',
-    faq: beautyFaq('konsultację kosmetologiczną', 'Limanowej'),
-    related: ['kosmetyczka-limanowa', 'laminacja-brwi-limanowa', 'podolog-limanowa'],
+      'Jako salon kosmetologiczny w Mordarce 505 obsługujemy klientki z Limanowej i całego powiatu limanowskiego. Gabinet mieści się przy głównej drodze przez Mordarkę, 5 minut jazdy z centrum Limanowej — dojedziesz wygodnie samochodem (parking pod budynkiem) lub autobusem (przystanek w pobliżu). Niezależnie czy szukasz konsultacji, planu zabiegowego, czy regularnej opieki nad skórą — w BeskidStudio By Wiktoria Ćwik znajdziesz konkretne terminy i aktualną ofertę.',
+    faq: [
+      ...beautyFaq('konsultację kosmetologiczną', 'Limanowej'),
+      {
+        question: 'Ile kosztują zabiegi u kosmetologa w okolicach Limanowej?',
+        answer:
+          'Ceny zależą od rodzaju zabiegu — konsultacja kosmetologiczna, laminacja brwi, laminacja rzęs i pielęgnacja twarzy mają różne stawki. Aktualny cennik z konkretnymi kwotami znajdziesz na naszej stronie z usługami lub w systemie rezerwacji online.',
+      },
+      {
+        question: 'Jak dojechać do kosmetologa w Mordarce z Limanowej?',
+        answer:
+          'Gabinet BeskidStudio mieści się w Mordarce 505, około 5 minut jazdy z centrum Limanowej. Dojazd jest wygodny zarówno samochodem (parking pod gabinetem), jak i autobusem — przystanek w pobliżu. Dokładną lokalizację znajdziesz na stronie kontaktowej z mapą.',
+      },
+      {
+        question: 'Czy kosmetolog w BeskidStudio przyjmuje bez wcześniejszej rezerwacji?',
+        answer:
+          'Preferujemy rezerwację online lub telefoniczną, żeby zagwarantować Ci komfort i odpowiednią ilość czasu na zabieg. W wyjątkowych sytuacjach możesz zadzwonić i sprawdzić dostępność w danym dniu.',
+      },
+    ],
+    related: ['laminacja-brwi-limanowa', 'laminacja-rzes-limanowa', 'podolog-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Co oferuje kosmetolog w okolicach Limanowej?',
+        content:
+          'Kosmetolog to specjalista z wykształceniem wyższym, który posiada pogłębioną wiedzę o budowie skóry, przeciwwskazaniach i nowoczesnych metodach pielęgnacji. W BeskidStudio By Wiktoria Ćwik każda wizyta zaczyna się od rozmowy o stanie skóry, dotychczasowej pielęgnacji i celu wizyty.\n\nOferujemy pełen zakres usług kosmetycznych: konsultację kosmetologiczną, laminację brwi i rzęs, hennę brwi, oprawę oka, peelingi oraz zaawansowane zabiegi pielęgnacyjne na twarz. Niezależnie czy szukasz zabiegu na specjalną okazję, czy regularnej opieki — znajdziesz u nas aktualną ofertę z przejrzystymi cenami i wygodną rezerwacją online.',
+      },
+      {
+        heading: 'Jak wybrać dobrego kosmetologa w Limanowej?',
+        content:
+          'Wybierając kosmetologa w Limanowej, zwróć uwagę na kilka kluczowych aspektów. Po pierwsze — kwalifikacje. Kosmetolog to osoba z wykształceniem wyższym kierunkowym, nie tylko z kursem.\n\nPo drugie — podejście do klientki. Dobry kosmetolog nie sprzedaje zabiegów na siłę, ale najpierw słucha i ocenia potrzeby. W BeskidStudio stawiamy na konsultację przed pierwszym zabiegiem, co pozwala uniknąć rozczarowań i dobrać pielęgnację precyzyjnie.\n\nPo trzecie — przejrzystość oferty. Cennik, dostępne terminy i zakres usług powinny być jasne jeszcze przed wizytą. Dlatego udostępniamy rezerwację online z aktualnym grafikiem i widocznymi cenami.',
+      },
+      {
+        heading: 'Najpopularniejsze zabiegi kosmetyczne w naszym gabinecie',
+        content:
+          'Klientki z Limanowej i okolic najczęściej wybierają laminację brwi — zabieg porządkujący kierunek włosków, nadający brwiom pełniejszy, naturalny wygląd na 4–6 tygodni. Równie popularna jest laminacja rzęs i lifting rzęs, który podkreśla spojrzenie bez potrzeby codziennego makijażu.\n\nOprawa oka to kompleksowy zabieg łączący stylizację brwi i rzęs — idealny dla osób, które chcą jednorazowo zadbać o całą okolicę oczu. Dla osób z problemami skórnymi polecamy konsultację kosmetologiczną, podczas której analizujemy stan skóry i proponujemy odpowiednią ścieżkę zabiegową.',
+      },
+      {
+        heading: 'Czego spodziewać się podczas pierwszej wizyty?',
+        content:
+          'Pierwsza wizyta w BeskidStudio to przede wszystkim rozmowa. Nie zaczynamy od razu od zabiegu — chcemy zrozumieć Twoje potrzeby, ewentualne alergie, stosowane kosmetyki i wcześniejsze doświadczenia.\n\nNa podstawie tej rozmowy proponujemy konkretny zabieg lub plan zabiegowy. Omawiamy oczekiwane efekty, czas trwania, ewentualne przeciwwskazania i pielęgnację domową po zabiegu. Gabinet mieści się w Mordarce 505, zaledwie 5 minut jazdy z centrum Limanowej, z wygodnym parkingiem.',
+      },
+      {
+        heading: 'Pielęgnacja między wizytami u kosmetologa',
+        content:
+          'Regularna pielęgnacja domowa to podstawa utrzymania efektów zabiegów gabinetowych. Po każdej wizycie w BeskidStudio otrzymujesz konkretne zalecenia — jakich kosmetyków używać, czego unikać i kiedy wrócić na kolejny zabieg.\n\nW panelu klienta masz dostęp do historii wizyt i zaleceń, dzięki czemu zawsze możesz wrócić do rekomendacji. To nasza metoda na ciągłość opieki — nie tylko jednorazowy zabieg, ale budowanie świadomej pielęgnacji krok po kroku.',
+      },
+    ],
   },
   'kosmetolog-mordarka': {
     slug: 'kosmetolog-mordarka',
@@ -382,75 +426,18 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
       'Szukasz dobrej kosmetyczki w Limanowej? Laminacja brwi i rzęs, henna pudrowa, pedicure, depilacja. Gabinet 5 min od centrum. ☎ 532 128 227. Umów wizytę online.',
     eyebrow: 'Kosmetyczka Limanowa',
     h1: 'Kosmetyczka w Limanowej — zabiegi beauty z planem i spokojem',
-    lead:
-      'Wiele klientek wpisuje w Google kosmetyczka Limanowa, choć szuka po prostu zaufanego gabinetu beauty. BeskidStudio By Wiktoria Ćwik łączy estetykę, konsultację i wygodny zapis online.',
+    lead: '',
     serviceName: 'Zabiegi kosmetyczne i konsultacje beauty',
     serviceType: 'Usługi kosmetyczne',
     location: 'Limanowa',
     nearbyContext: limanowaContext,
-    heroPoints: [
-      'aktualna oferta zabiegów w jednym miejscu',
-      'konsultacja dla nowych klientek',
-      'rezerwacja online i kontakt telefoniczny',
-    ],
-    benefits: [
-      'Zabiegi dobierane do oczekiwań, okazji i realnego efektu.',
-      'Przyjazna atmosfera bez presji sprzedażowej.',
-      'Możliwość sprawdzenia najbliższych terminów przed założeniem konta.',
-    ],
-    visitSteps: [
-      'Wybierasz usługę z aktualnej oferty albo zaczynasz od konsultacji.',
-      'Sprawdzasz termin i potwierdzasz wizytę online.',
-      'Po wizycie masz dostęp do historii i zaleceń w panelu klienta.',
-    ],
-    localCopy:
-      'W BeskidStudio By Wiktoria Ćwik podchodzimy do każdej klientki indywidualnie — czy szukasz zabiegu na wyjątkową okazję, regularnej pielęgnacji, czy po prostu chcesz sprawdzić aktualną ofertę. Obsługujemy klientki z Limanowej, Mordarki i całego powiatu limanowskiego.',
-    faq: [
-      ...beautyFaq('zabieg kosmetyczny', 'Limanowej'),
-      {
-        question: 'Ile kosztują zabiegi u kosmetyczki w okolicach Limanowej?',
-        answer:
-          'Ceny zależą od rodzaju zabiegu — konsultacja kosmetologiczna, laminacja brwi, laminacja rzęs i pielęgnacja twarzy mają różne stawki. Aktualny cennik z konkretnymi kwotami znajdziesz na naszej stronie z usługami lub w systemie rezerwacji online.',
-      },
-      {
-        question: 'Czy kosmetyczka w BeskidStudio przyjmuje bez wcześniejszej rezerwacji?',
-        answer:
-          'Preferujemy rezerwację online lub telefoniczną, żeby zagwarantować Ci komfort i odpowiednią ilość czasu na zabieg. W wyjątkowych sytuacjach możesz zadzwonić i sprawdzić dostępność w danym dniu.',
-      },
-      {
-        question: 'Jak dojechać do kosmetyczki w Mordarce z Limanowej?',
-        answer:
-          'Gabinet BeskidStudio mieści się w Mordarce 505, około 5 minut jazdy z centrum Limanowej. Dojazd jest wygodny zarówno samochodem (parking pod gabinetem), jak i autobusem — przystanek w pobliżu. Dokładną lokalizację znajdziesz na stronie kontaktowej z mapą.',
-      },
-    ],
-    related: ['kosmetolog-mordarka', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
-    extendedSections: [
-      {
-        heading: 'Co oferuje kosmetyczka w okolicach Limanowej?',
-        content:
-          'Dobra kosmetyczka w okolicy Limanowej to nie tylko osoba wykonująca zabiegi — to specjalistka, która rozumie potrzeby skóry i potrafi dobrać pielęgnację do indywidualnych oczekiwań. W BeskidStudio By Wiktoria Ćwik każda wizyta zaczyna się od rozmowy o stanie skóry, dotychczasowej pielęgnacji i celu wizyty.\n\nOferujemy pełen zakres usług kosmetycznych: konsultację kosmetologiczną, laminację brwi i rzęs, hennę brwi, oprawę oka, peelingi oraz zaawansowane zabiegi pielęgnacyjne na twarz. Niezależnie czy szukasz zabiegu na specjalną okazję, czy regularnej opieki — znajdziesz u nas aktualną ofertę z przejrzystymi cenami i wygodną rezerwacją online.',
-      },
-      {
-        heading: 'Jak wybrać dobrą kosmetyczkę w Limanowej?',
-        content:
-          'Wybierając kosmetyczkę w Limanowej, zwróć uwagę na kilka kluczowych aspektów. Po pierwsze — kwalifikacje. Kosmetolog to osoba z wykształceniem wyższym, która posiada pogłębioną wiedzę o budowie skóry, przeciwwskazaniach i nowoczesnych metodach pielęgnacji.\n\nPo drugie — podejście do klientki. Dobra kosmetyczka nie sprzedaje zabiegów na siłę, ale najpierw słucha i ocenia potrzeby. W BeskidStudio stawiamy na konsultację przed pierwszym zabiegiem, co pozwala uniknąć rozczarowań i dobrać pielęgnację precyzyjnie.\n\nPo trzecie — przejrzystość oferty. Cennik, dostępne terminy i zakres usług powinny być jasne jeszcze przed wizytą. Dlatego udostępniamy rezerwację online z aktualnym grafikiem i widocznymi cenami.',
-      },
-      {
-        heading: 'Najpopularniejsze zabiegi kosmetyczne w naszym gabinecie',
-        content:
-          'Klientki z Limanowej i okolic najczęściej wybierają laminację brwi — zabieg porządkujący kierunek włosków, nadający brwiom pełniejszy, naturalny wygląd na 4–6 tygodni. Równie popularna jest laminacja rzęs i lifting rzęs, który podkreśla spojrzenie bez potrzeby codziennego makijażu.\n\nOprawa oka to kompleksowy zabieg łączący stylizację brwi i rzęs — idealny dla osób, które chcą jednorazowo zadbać o całą okolicę oczu. Dla osób z problemami skórnymi polecamy konsultację kosmetologiczną, podczas której analizujemy stan skóry i proponujemy odpowiednią ścieżkę zabiegową.',
-      },
-      {
-        heading: 'Czego spodziewać się podczas pierwszej wizyty?',
-        content:
-          'Pierwsza wizyta w BeskidStudio to przede wszystkim rozmowa. Nie zaczynamy od razu od zabiegu — chcemy zrozumieć Twoje potrzeby, ewentualne alergie, stosowane kosmetyki i wcześniejsze doświadczenia.\n\nNa podstawie tej rozmowy proponujemy konkretny zabieg lub plan zabiegowy. Omawiamy oczekiwane efekty, czas trwania, ewentualne przeciwwskazania i pielęgnację domową po zabiegu. Gabinet mieści się w Mordarce 505, zaledwie 5 minut jazdy z centrum Limanowej, z wygodnym parkingiem.',
-      },
-      {
-        heading: 'Pielęgnacja między wizytami u kosmetyczki',
-        content:
-          'Regularna pielęgnacja domowa to podstawa utrzymania efektów zabiegów gabinetowych. Po każdej wizycie w BeskidStudio otrzymujesz konkretne zalecenia — jakich kosmetyków używać, czego unikać i kiedy wrócić na kolejny zabieg.\n\nW panelu klienta masz dostęp do historii wizyt i zaleceń, dzięki czemu zawsze możesz wrócić do rekomendacji. To nasza metoda na ciągłość opieki — nie tylko jednorazowy zabieg, ale budowanie świadomej pielęgnacji krok po kroku.',
-      },
-    ],
+    heroPoints: [],
+    benefits: [],
+    visitSteps: [],
+    localCopy: '',
+    faq: beautyFaq('zabieg kosmetyczny', 'Limanowej'),
+    related: ['kosmetolog-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
+    redirectTo: '/kosmetolog-limanowa',
   },
   'kosmetyczka-mordarka': {
     slug: 'kosmetyczka-mordarka',
@@ -519,8 +506,52 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     ],
     localCopy:
       'Laminacja brwi to jeden z najchętniej wybieranych zabiegów w naszym salonie — naturalnie ułożone brwi, które wyglądają zadbanie bez codziennego stylizowania. Obsługujemy klientki z Limanowej, Mordarki, Sowlin i całego powiatu limanowskiego.',
-    faq: beautyFaq('laminację brwi', 'Limanowej'),
-    related: ['laminacja-rzes-limanowa', 'kosmetyczka-limanowa', 'kosmetolog-mordarka'],
+    faq: [
+      ...beautyFaq('laminację brwi', 'Limanowej'),
+      {
+        question: 'Ile kosztuje laminacja brwi w BeskidStudio?',
+        answer:
+          'Cena laminacji brwi zaczyna się od 70 zł za sam zabieg. Laminacja z koloryzacją to 110 zł. Aktualny cennik z pełną listą wariantów znajdziesz na stronie usług lub w systemie rezerwacji online.',
+      },
+      {
+        question: 'Ile trwa laminacja brwi i jak długo utrzymuje się efekt?',
+        answer:
+          'Zabieg laminacji brwi trwa około 30–60 minut, w zależności od wybranego wariantu (z koloryzacją lub bez). Efekt — ułożone, pełniejsze brwi — utrzymuje się przez 4–6 tygodni.',
+      },
+      {
+        question: 'Jak przygotować się do laminacji brwi?',
+        answer:
+          'Przed zabiegiem nie należy regulować brwi samodzielnie przez ok. 2 tygodnie — im więcej włosków, tym lepszy efekt. Nie nakładaj olejków ani ciężkich kremów na okolice brwi w dniu zabiegu.',
+      },
+    ],
+    related: ['laminacja-rzes-limanowa', 'kosmetolog-limanowa', 'oprawa-oka-limanowa'],
+    extendedSections: [
+      {
+        heading: 'Czym jest laminacja brwi?',
+        content:
+          'Laminacja brwi to zabieg kosmetyczny polegający na zmianie kierunku wzrostu włosków za pomocą specjalnych preparatów. Dzięki temu brwi wyglądają na pełniejsze, bardziej uporządkowane i naturalnie uniesione — bez potrzeby codziennego żelowania czy układania.\n\nZabieg jest nieinwazyjny i bezbolesny. Efekt utrzymuje się od 4 do 6 tygodni, w zależności od tempa wzrostu włosków i pielęgnacji domowej.',
+      },
+      {
+        heading: 'Jak wygląda zabieg laminacji brwi w BeskidStudio?',
+        content:
+          'Przed zabiegiem omawiamy oczekiwany kształt i kierunek ułożenia brwi. Następnie oczyszczamy okolice brwi i aplikujemy preparaty w odpowiedniej kolejności — laminujące, utrwalające i odżywcze.\n\nCały zabieg trwa 30–60 minut. Laminację brwi można połączyć z koloryzacją (hennę lub farbkę) oraz regulacją, co daje kompletny efekt oprawy oka w jednej wizycie. Gabinet mieści się w Mordarce 505, 5 minut od centrum Limanowej.',
+      },
+      {
+        heading: 'Laminacja brwi — dla kogo?',
+        content:
+          'Laminacja brwi sprawdzi się szczególnie u osób z niesfornymi, rosnącymi w różnych kierunkach włoskami, a także u klientek z cienkimi brwiami, które chcą uzyskać optycznie pełniejszy wygląd.\n\nZabieg odkładamy przy aktywnym podrażnieniu skóry wokół brwi, świeżych ranach lub znanych alergiach na składniki preparatów. Wszelkie wątpliwości omawiamy podczas konsultacji przed zabiegiem.',
+      },
+      {
+        heading: 'Pielęgnacja brwi po laminacji',
+        content:
+          'Przez pierwsze 24 godziny po zabiegu nie należy moczyć brwi, nakładać makijażu na okolice brwi ani pocierać ich. Unikaj sauny, basenu i intensywnego pocenia się.\n\nPo tym czasie wystarczy delikatnie czesać brwi szczoteczką i stosować olejek lub serum odżywcze. Odpowiednia pielęgnacja domowa przedłuża efekt laminacji nawet o 1–2 tygodnie.',
+      },
+      {
+        heading: 'Cennik laminacji brwi w BeskidStudio',
+        content:
+          'Laminacja brwi (sam zabieg) — od 70 zł, czas: ok. 30 min. Laminacja brwi z koloryzacją — 110 zł, czas: ok. 60 min. LamiSet (laminacja brwi + lifting rzęs) — 180 zł, czas: ok. 90 min.\n\nDokładne ceny mogą się różnić w zależności od zakresu pracy. Aktualny cennik jest zawsze widoczny w systemie rezerwacji online na naszej stronie.',
+      },
+    ],
   },
   'laminacja-brwi-mordarka': {
     slug: 'laminacja-brwi-mordarka',

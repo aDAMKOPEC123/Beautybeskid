@@ -71,6 +71,29 @@ const localBusinessSchema = {
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laminacja rzęs Limanowa' } },
     ],
   },
+  image: `${SEO.domain}/images/beautybeskid-hero-premium.webp`,
+  priceRange: '30–180 PLN',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '5.0',
+    reviewCount: '18',
+    bestRating: '5',
+  },
+  potentialAction: {
+    '@type': 'ReserveAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SEO.domain}/rezerwacja`,
+      actionPlatform: [
+        'https://schema.org/DesktopWebPlatform',
+        'https://schema.org/MobileWebPlatform',
+      ],
+    },
+    result: {
+      '@type': 'Reservation',
+      name: 'Rezerwacja wizyty',
+    },
+  },
   sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
   url: SEO.domain,
 };
