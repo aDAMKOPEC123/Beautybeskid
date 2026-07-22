@@ -444,9 +444,13 @@ export function UserSkinScan() {
           return (
             <div key={session.id} className="flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="flex flex-wrap items-center gap-2"><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${status.className}`}>{status.label}</span><span className="text-xs text-muted-foreground">{session.images.length}/3 ujęcia</span></div>
+                <div className="flex flex-wrap items-center gap-2"><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${status.className}`}>{status.label}</span><span className="text-xs text-muted-foreground">{session.images.length}/{ANGLES.length} ujęć</span></div>
                 <p className="mt-2 text-sm font-semibold text-[#1A3828]">{formatDate(session.createdAt)}</p>
-                {session.qualitySummary && <p className="mt-1 text-xs text-muted-foreground">Jakość: {session.qualitySummary.averageScore}/100</p>}
+                {session.analysis?.skinScore != null && (
+                  <p className="mt-1 text-xs font-semibold" style={{ color: getScoreClassification(session.analysis.skinScore).color }}>
+                    Kondycja skóry: {session.analysis.skinScore}/100
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {session.status === 'COMPLETED' && <Button type="button" variant="outline" size="sm" onClick={() => { setReportSession(session); setStage('report'); }}>Zobacz raport</Button>}
