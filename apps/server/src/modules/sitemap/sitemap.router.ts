@@ -7,9 +7,8 @@ const router = Router();
 
 const DOMAIN = 'https://kosmetologwiktoriacwik.pl';
 
-// Static pages do not have a trustworthy per-page modification timestamp.
-// Omitting lastmod is more accurate than changing every URL on each restart.
-const STATIC_LASTMOD: string | undefined = undefined;
+// Use the build date so static pages get a real lastmod that updates on each deploy.
+const STATIC_LASTMOD: string = new Date().toISOString().split('T')[0];
 
 const staticUrls = [
   { loc: '/', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },

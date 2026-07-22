@@ -73,6 +73,8 @@ const localBusinessSchema = {
   },
   image: `${SEO.domain}/images/beautybeskid-hero-premium.webp`,
   priceRange: '30–180 PLN',
+  paymentAccepted: 'Cash, Credit Card, BLIK',
+  currenciesAccepted: 'PLN',
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '5.0',
