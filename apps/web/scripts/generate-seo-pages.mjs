@@ -108,7 +108,7 @@ const corePages = [
     heading: 'Kontakt i dojazd do BeskidStudio',
     lead: 'Salon mieści się pod adresem Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.',
     items: ['Telefon: +48 532 128 227', 'E-mail: kontakt@kosmetologwiktoriacwik.pl', 'Poniedziałek–piątek: 09:00–18:00', 'Sobota: 09:00–14:00'],
-    bodyText: 'Do BeskidStudio przyjeżdżają klientki z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i pobliskich miejscowości. Termin możesz sprawdzić online, a pytania dotyczące dojazdu, przygotowania do zabiegu lub wyboru usługi zadać telefonicznie albo przez czat po zalogowaniu.',
+    bodyText: 'Do BeskidStudio przyjeżdżają klientki z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i pobliskich miejscowości. Termin możesz sprawdzić online, a pytania dotyczące dojazdu, przygotowania do zabiegu lub wyboru usługi zadać telefonicznie albo przez czat po zalogowaniu. Z centrum Limanowej dojazd zajmuje około 5 minut — kierunek Mszana Dolna, po ok. 3 km skręt w prawo do Mordarki. Przy gabinecie znajduje się bezpłatny parking. Akceptujemy gotówkę, karty płatnicze oraz BLIK. Zalecamy rezerwację online lub telefoniczną — dzięki temu mamy pewność, że poświęcimy Ci odpowiednią ilość czasu. Termin wizyty możesz zmienić lub odwołać przez system rezerwacji online lub telefonicznie, najlepiej z min. 24-godzinnym wyprzedzeniem.',
   },
   {
     path: '/blog',
