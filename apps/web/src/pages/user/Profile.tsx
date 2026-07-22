@@ -56,6 +56,8 @@ export const UserProfile = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [fitzpatrickType, setFitzpatrickType] = useState<number | null>(null);
+  const [fitzpatrickManual, setFitzpatrickManual] = useState(false);
   const [activeTab, setActiveTab] = useState<'account' | 'card' | 'preferences' | 'security'>('account');
 
   useEffect(() => {
@@ -65,6 +67,8 @@ export const UserProfile = () => {
       setCardAllergies(profile.cardAllergies ?? '');
       setCardConditions(profile.cardConditions ?? '');
       setCardPreferences(profile.cardPreferences ?? '');
+      setFitzpatrickType(profile.fitzpatrickType ?? null);
+      setFitzpatrickManual(profile.fitzpatrickManual ?? false);
     }
   }, [profile]);
 
@@ -91,6 +95,17 @@ export const UserProfile = () => {
       queryClient.invalidateQueries({ queryKey: ['profile-consents'] });
     },
     onError: () => toast.error('Nie udało się zapisać kartoteki.'),
+  });
+
+  const { mutate: saveFitzpatrick, isPending: savingFitzpatrick } = useMutation({
+    mutationFn: (type: number | null) => usersApi.updateMyFitzpatrick(type),
+    onSuccess: (user) => {
+      setFitzpatrickType(user.fitzpatrickType ?? null);
+      setFitzpatrickManual(user.fitzpatrickManual ?? false);
+      toast.success(user.fitzpatrickManual ? 'Fototyp został ustawiony.' : 'Fototyp zostanie wykryty automatycznie.');
+      queryClient.invalidateQueries({ queryKey: ['profile-consents'] });
+    },
+    onError: () => toast.error('Nie udało się zapisać fototypu.'),
   });
 
   const { mutate: saveConsents, isPending: savingConsents } = useMutation({
@@ -356,6 +371,59 @@ export const UserProfile = () => {
             </button>
           </div>
         </div>
+      )}
+      {activeTab === 'card' && cardSection(
+        'Fototyp skóry (Fitzpatrick)',
+        fitzpatrickManual
+          ? 'Ustawiony ręcznie. Analiza skóry użyje tych progów zamiast automatycznej detekcji.'
+          : fitzpatrickType
+            ? `Wykryty automatycznie: typ ${fitzpatrickType}. Możesz go zastąpić ręcznie.`
+            : 'Fototyp zostanie wykryty automatycznie przy następnej analizie skóry.',
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {([
+              { type: 1, label: 'Typ I', color: '#FDEBD0', desc: 'Bardzo jasna' },
+              { type: 2, label: 'Typ II', color: '#F5CBA7', desc: 'Jasna' },
+              { type: 3, label: 'Typ III', color: '#E5B98B', desc: 'Średnia' },
+              { type: 4, label: 'Typ IV', color: '#C4956A', desc: 'Oliwkowa' },
+              { type: 5, label: 'Typ V', color: '#8B6F47', desc: 'Ciemna' },
+              { type: 6, label: 'Typ VI', color: '#5C4033', desc: 'Bardzo ciemna' },
+            ] as const).map(({ type, label, color, desc }) => {
+              const isSelected = fitzpatrickType === type && fitzpatrickManual;
+              const isDetected = fitzpatrickType === type && !fitzpatrickManual;
+              return (
+                <button
+                  key={type}
+                  onClick={() => saveFitzpatrick(type)}
+                  disabled={savingFitzpatrick}
+                  className="flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all disabled:opacity-60"
+                  style={{
+                    border: isSelected ? '2px solid #1A3828' : isDetected ? '2px dashed #C4965A' : '2px solid transparent',
+                    background: isSelected ? 'rgba(26,56,40,0.06)' : 'transparent',
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full border border-black/10"
+                    style={{ background: color }}
+                  />
+                  <span className="text-xs font-semibold" style={{ color: '#1A3828' }}>{label}</span>
+                  <span className="text-[10px]" style={{ color: '#6B7280' }}>{desc}</span>
+                </button>
+              );
+            })}
+          </div>
+          {fitzpatrickManual && (
+            <button
+              onClick={() => saveFitzpatrick(null)}
+              disabled={savingFitzpatrick}
+              className="inline-flex items-center gap-1.5 text-sm transition-opacity hover:opacity-70 disabled:opacity-60"
+              style={{ color: '#C4965A' }}
+            >
+              {savingFitzpatrick && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Resetuj do automatycznej detekcji
+            </button>
+          )}
+        </div>,
       )}
 
       {/* Consents */}

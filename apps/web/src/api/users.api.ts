@@ -23,6 +23,10 @@ export const usersApi = {
     const res = await api.patch('/users/me/card', data);
     return res.data.data.user;
   },
+  updateMyFitzpatrick: async (fitzpatrickType: number | null) => {
+    const res = await api.patch('/users/me/fitzpatrick', { fitzpatrickType });
+    return res.data.data.user;
+  },
   updateUserCard: async (userId: string, data: { cardAllergies?: string; cardConditions?: string; cardPreferences?: string; cardStaffNotes?: string }) => {
     const res = await api.patch(`/users/${userId}/card`, data);
     return res.data.data.user;
