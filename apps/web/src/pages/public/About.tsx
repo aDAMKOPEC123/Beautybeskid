@@ -28,7 +28,6 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?:
 };
 
 const ownerSchema = (ownerName: string, ownerTitle: string, ownerPhoto?: string) => ({
-  '@context': 'https://schema.org',
   '@type': 'Person',
   '@id': `${SEO.domain}/o-nas#person`,
   name: ownerName,
@@ -85,7 +84,19 @@ export const About = () => {
         title="Kosmetolog Wiktoria Ćwik — o BeskidStudio Limanowa"
         description="Wiktoria Ćwik, dyplomowany kosmetolog z Limanowej. Poznaj BeskidStudio w Mordarce — indywidualne konsultacje, spokojna atmosfera i świadoma pielęgnacja skóry."
         canonical="/o-nas"
-        schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka', about?.ownerPhoto ?? undefined)}
+        schema={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka', about?.ownerPhoto ?? undefined),
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+                { '@type': 'ListItem', position: 2, name: 'O nas', item: 'https://kosmetologwiktoriacwik.pl/o-nas' },
+              ],
+            },
+          ],
+        }}
       />
 
       {/* Hero */}

@@ -223,6 +223,7 @@ export const BlogPost = () => {
       ],
     },
     publisher: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+    inLanguage: 'pl-PL',
     isAccessibleForFree: true,
   },
   {

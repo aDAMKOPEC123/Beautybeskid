@@ -19,7 +19,6 @@ const TikTokIcon = () => (
 );
 
 const localBusinessSchema = {
-  '@context': 'https://schema.org',
   '@type': 'BeautySalon',
   '@id': `${SEO.domain}/#beautysalon`,
   name: SEO.siteName,
@@ -52,14 +51,14 @@ const localBusinessSchema = {
       closes: '14:00',
     },
   ],
-  areaServed: localAreas.map((name) => ({ '@type': 'Place', name })),
+  areaServed: localAreas.map((name) => ({ '@type': 'City', name })),
   knowsAbout: [
-    'kosmetolog Limanowa',
-    'kosmetyczka Limanowa',
-    'laminacja brwi Limanowa',
-    'laminacja rzęs Limanowa',
-    'kosmetolog Mordarka',
-    'kosmetyczka Mordarka',
+    'kosmetologia',
+    'laminacja brwi',
+    'laminacja rzęs',
+    'pielęgnacja skóry',
+    'stylizacja oprawy oka',
+    'podologia',
   ],
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
@@ -120,7 +119,19 @@ export const Contact = () => {
         title="Kontakt – BeskidStudio Mordarka 505 | tel. 532 128 227"
         description="📍 Mordarka 505 koło Limanowej ☎ 532 128 227. Salon kosmetologiczny Wiktoria Ćwik. Pon–Pt 9:00–18:00, Sob 9:00–14:00. Dojazd 5 min z centrum Limanowej. Umów wizytę online."
         canonical="/kontakt"
-        schema={localBusinessSchema}
+        schema={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            localBusinessSchema,
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+                { '@type': 'ListItem', position: 2, name: 'Kontakt', item: 'https://kosmetologwiktoriacwik.pl/kontakt' },
+              ],
+            },
+          ],
+        }}
       />
 
       {/* Hero */}

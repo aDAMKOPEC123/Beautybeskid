@@ -245,10 +245,23 @@ export const BlogList = () => {
         canonical="/blog"
         schema={{
           '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
-            { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://kosmetologwiktoriacwik.pl/blog' },
+          '@graph': [
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+                { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://kosmetologwiktoriacwik.pl/blog' },
+              ],
+            },
+            {
+              '@type': 'CollectionPage',
+              '@id': 'https://kosmetologwiktoriacwik.pl/blog#collection',
+              name: 'Blog kosmetologiczny BeskidStudio',
+              url: 'https://kosmetologwiktoriacwik.pl/blog',
+              isPartOf: { '@id': 'https://kosmetologwiktoriacwik.pl/#website' },
+              about: { '@id': 'https://kosmetologwiktoriacwik.pl/#beautysalon' },
+              inLanguage: 'pl-PL',
+            },
           ],
         }}
       />

@@ -51,10 +51,24 @@ export const ServiceList = () => {
         canonical="/uslugi"
         schema={{
           '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
-            { '@type': 'ListItem', position: 2, name: 'Usługi', item: 'https://kosmetologwiktoriacwik.pl/uslugi' },
+          '@graph': [
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://kosmetologwiktoriacwik.pl' },
+                { '@type': 'ListItem', position: 2, name: 'Usługi', item: 'https://kosmetologwiktoriacwik.pl/uslugi' },
+              ],
+            },
+            {
+              '@type': 'ItemList',
+              name: 'Usługi kosmetyczne BeskidStudio',
+              itemListElement: (services ?? []).filter((s: any) => s.slug !== 'inne').map((s: any, i: number) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `https://kosmetologwiktoriacwik.pl/uslugi/${s.slug}`,
+                name: s.name,
+              })),
+            },
           ],
         }}
       />
