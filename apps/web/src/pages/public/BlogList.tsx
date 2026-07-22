@@ -358,22 +358,55 @@ export const BlogList = () => {
           <div className="flex flex-col gap-4">
             {filteredPosts.length === 0 && !isLoading && (
               <div
-                className="text-center py-16 rounded-2xl"
+                className="py-12 px-6 rounded-2xl"
                 style={{ backgroundColor: '#fff', border: '1px solid rgba(20,40,28,0.07)' }}
               >
-                <p className="text-base font-medium" style={{ color: 'rgba(20,40,28,0.5)' }}>
-                  {search || activeCategory
-                    ? 'Brak artykułów pasujących do filtrów.'
-                    : 'Brak artykułów.'}
-                </p>
-                {(search || activeCategory) && (
-                  <button
-                    onClick={() => { setSearch(''); setActiveCategory(null); }}
-                    className="mt-3 text-sm font-semibold underline"
-                    style={{ color: '#3D7A54' }}
-                  >
-                    Wyczyść filtry
-                  </button>
+                {search || activeCategory ? (
+                  <div className="text-center">
+                    <p className="text-base font-medium" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                      Brak artykułów pasujących do filtrów.
+                    </p>
+                    <button
+                      onClick={() => { setSearch(''); setActiveCategory(null); }}
+                      className="mt-3 text-sm font-semibold underline"
+                      style={{ color: '#3D7A54' }}
+                    >
+                      Wyczyść filtry
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-center text-base font-medium mb-6" style={{ color: 'rgba(20,40,28,0.5)' }}>
+                      Pierwsze artykuły już wkrótce! Tymczasem zobacz, o czym będziemy pisać:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                      {[
+                        { title: 'Pielęgnacja skóry', desc: 'Jak dbać o skórę na co dzień — porady kosmetologa, dobór kosmetyków i rutyny pielęgnacyjne.' },
+                        { title: 'Laminacja brwi i rzęs', desc: 'Czym jest laminacja, jak przebiega zabieg, ile trwa efekt i jak się przygotować do wizyty.' },
+                        { title: 'Zabiegi na twarz', desc: 'Peelingi, oczyszczanie, nawilżanie — kiedy wybrać jaki zabieg i czego się spodziewać.' },
+                        { title: 'Podologia i stopy', desc: 'Wrastające paznokcie, modzele, pękające pięty — kiedy warto udać się do podologa.' },
+                      ].map(({ title, desc }) => (
+                        <div
+                          key={title}
+                          className="p-4"
+                          style={{
+                            borderRadius: '12px',
+                            backgroundColor: '#F0F7F1',
+                            border: '1px solid rgba(20,40,28,0.06)',
+                          }}
+                        >
+                          <p className="font-semibold text-sm mb-1" style={{ color: '#1A3828' }}>{title}</p>
+                          <p className="text-xs leading-relaxed" style={{ color: 'rgba(20,40,28,0.55)' }}>{desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-center mt-6 text-sm" style={{ color: 'rgba(20,40,28,0.45)' }}>
+                      Chcesz się umówić na wizytę?{' '}
+                      <Link to="/rezerwacja" className="font-semibold underline" style={{ color: '#3D7A54' }}>
+                        Zarezerwuj termin online
+                      </Link>
+                    </p>
+                  </div>
                 )}
               </div>
             )}

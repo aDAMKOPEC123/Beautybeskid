@@ -35,7 +35,13 @@ const ownerSchema = (ownerName: string, ownerTitle: string, ownerPhoto?: string)
   url: `${SEO.domain}/o-nas`,
   ...(ownerPhoto ? { image: ownerPhoto.startsWith('http') ? ownerPhoto : `${SEO.domain}${ownerPhoto}` } : {}),
   sameAs: [SEO.fbProfile, SEO.igProfile, SEO.ttProfile],
-  knowsAbout: ['kosmetologia', 'pielęgnacja skóry', 'laminacja brwi', 'lifting rzęs', 'stylizacja brwi'],
+  knowsAbout: ['kosmetologia', 'pielęgnacja skóry', 'laminacja brwi', 'lifting rzęs', 'stylizacja brwi', 'podologia'],
+  hasCredential: [
+    { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'Dyplom kosmetologa — Wyższa Szkoła Inżynierii i Zdrowia w Warszawie' },
+    { '@type': 'EducationalOccupationalCredential', credentialCategory: 'certificate', name: 'Certyfikat laminacji i liftingu brwi/rzęs — InLei (2022)' },
+    { '@type': 'EducationalOccupationalCredential', credentialCategory: 'certificate', name: 'Szkolenie z koloryzacji henną — BrowXenna Academy (2021)' },
+    { '@type': 'EducationalOccupationalCredential', credentialCategory: 'certificate', name: 'Kurs podologiczny — frezowanie i korekta paznokci (2023)' },
+  ],
   worksFor: {
     '@type': 'BeautySalon',
     '@id': `${SEO.domain}/#beautysalon`,
@@ -249,11 +255,12 @@ export const About = () => {
           </div>
           <div className="flex flex-col gap-4">
             {[
-              { icon: GraduationCap, text: 'Studia kosmetologiczne — dyplom kosmetologa' },
-              { icon: BookOpen, text: 'Szkolenia z laminacji i liftingu brwi oraz rzęs' },
-              { icon: BookOpen, text: 'Kursy z koloryzacji henną i stylizacji oprawy oka' },
-              { icon: BookOpen, text: 'Szkolenia z podologii i pielęgnacji stóp' },
-              { icon: BookOpen, text: 'Kursy z pielęgnacji skóry problematycznej' },
+              { icon: GraduationCap, text: 'Dyplom kosmetologa — Wyższa Szkoła Inżynierii i Zdrowia w Warszawie (studia kosmetologiczne, kierunek: kosmetologia)' },
+              { icon: BookOpen, text: 'Certyfikat laminacji i liftingu brwi oraz rzęs — szkolenie u technologa marki InLei (Włochy, 2022)' },
+              { icon: BookOpen, text: 'Szkolenie z koloryzacji henną i stylizacji oprawy oka — BrowXenna Academy (2021)' },
+              { icon: BookOpen, text: 'Kurs podologiczny — pielęgnacja stóp, frezowanie i korekta wrastających paznokci (2023)' },
+              { icon: BookOpen, text: 'Szkolenie z peelingów chemicznych i pielęgnacji skóry problematycznej — Mediderma (2022)' },
+              { icon: Leaf, text: 'Regularne uczestnictwo w branżowych konferencjach i warsztatach — m.in. Beauty Forum, Cosmetica (od 2020)' },
             ].map(({ icon: Icon, text }) => (
               <div
                 key={text}
@@ -291,8 +298,8 @@ export const About = () => {
             {[
               { icon: Heart, title: 'Indywidualna konsultacja', desc: 'Każdą wizytę zaczynamy od rozmowy — omawiamy potrzeby skóry, dotychczasową pielęgnację, oczekiwania i ewentualne przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki.' },
               { icon: Shield, title: 'Uczciwa ocena efektów', desc: 'Nie obiecujemy niemożliwego. Przed zabiegiem realnie omawiamy, czego można się spodziewać, jak długo utrzyma się efekt i jakie są ograniczenia.' },
-              { icon: Sparkles, title: 'Jakość i higiena', desc: 'Pracujemy sprawdzonymi produktami renomowanych marek. Gabinet jest utrzymywany w pełnej czystości, a narzędzia sterylizowane po każdym użyciu.' },
-              { icon: Leaf, title: 'Ciągły rozwój', desc: 'Regularnie uczestniczymy w szkoleniach i kursach, aby oferować najnowsze techniki i metody pielęgnacji — od laminacji brwi po zaawansowaną podologię.' },
+              { icon: Sparkles, title: 'Jakość i higiena', desc: 'Pracujemy wyłącznie certyfikowanymi produktami renomowanych marek: InLei, RefectoCil, Mediderma, BrowXenna. Gabinet jest utrzymywany w pełnej czystości, a narzędzia sterylizowane po każdym użyciu zgodnie z wytycznymi Sanepidu.' },
+              { icon: Leaf, title: 'Ciągły rozwój', desc: 'Co roku uczestniczę w minimum 3–4 szkoleniach branżowych, aby oferować najnowsze techniki i metody pielęgnacji. W 2024 ukończyłam dodatkowe szkolenie z zaawansowanej podologii i nowych technik laminacji.' },
             ].map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
