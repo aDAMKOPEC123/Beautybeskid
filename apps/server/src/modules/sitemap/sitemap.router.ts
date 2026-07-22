@@ -10,26 +10,27 @@ const DOMAIN = 'https://kosmetologwiktoriacwik.pl';
 // Use the build date so static pages get a real lastmod that updates on each deploy.
 const STATIC_LASTMOD: string = new Date().toISOString().split('T')[0];
 
+// Google ignores <priority> and <changefreq> — keep only <loc> and <lastmod>.
 const staticUrls = [
-  { loc: '/', priority: '1.0', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/uslugi', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/blog', priority: '0.8', changefreq: 'daily', lastmod: STATIC_LASTMOD },
-  { loc: '/metamorfozy', priority: '0.8', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/o-nas', priority: '0.7', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
-  { loc: '/kontakt', priority: '0.6', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
-  { loc: '/program-lojalnosciowy', priority: '0.6', changefreq: 'monthly', lastmod: STATIC_LASTMOD },
-  { loc: '/regulamin', priority: '0.3', changefreq: 'yearly', lastmod: STATIC_LASTMOD },
+  { loc: '/', lastmod: STATIC_LASTMOD },
+  { loc: '/uslugi', lastmod: STATIC_LASTMOD },
+  { loc: '/blog', lastmod: STATIC_LASTMOD },
+  { loc: '/metamorfozy', lastmod: STATIC_LASTMOD },
+  { loc: '/o-nas', lastmod: STATIC_LASTMOD },
+  { loc: '/kontakt', lastmod: STATIC_LASTMOD },
+  { loc: '/program-lojalnosciowy', lastmod: STATIC_LASTMOD },
+  { loc: '/regulamin', lastmod: STATIC_LASTMOD },
   // Canonical local SEO landing pages only. Redirect sources belong in Nginx,
   // never in the sitemap, because Google should index their final destinations.
-  { loc: '/kosmetolog-limanowa', priority: '0.95', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/podolog-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/spa-stop-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/wrastajace-paznokcie-limanowa', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/pedicure-podologiczny-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
+  { loc: '/kosmetolog-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/kosmetolog-mordarka', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-brwi-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/laminacja-rzes-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/oprawa-oka-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/podolog-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/spa-stop-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/wrastajace-paznokcie-limanowa', lastmod: STATIC_LASTMOD },
+  { loc: '/pedicure-podologiczny-limanowa', lastmod: STATIC_LASTMOD },
 ];
 
 function toXmlDate(date: Date): string {
@@ -58,11 +59,10 @@ router.get('/', async (_req: Request, res: Response) => {
 
     const staticEntries = staticUrls
       .map(
-        ({ loc, priority, changefreq, lastmod }) => `
+        ({ loc, lastmod }) => `
   <url>
     <loc>${DOMAIN}${escapeXml(loc)}</loc>
-    ${lastmod ? `<lastmod>${lastmod}</lastmod>\n    ` : ''}<changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}
   </url>`,
       )
       .join('');
@@ -73,8 +73,6 @@ router.get('/', async (_req: Request, res: Response) => {
   <url>
     <loc>${DOMAIN}/uslugi/${escapeXml(s.slug)}</loc>
     <lastmod>${toXmlDate(s.updatedAt)}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
   </url>`,
       )
       .join('');
@@ -85,8 +83,6 @@ router.get('/', async (_req: Request, res: Response) => {
   <url>
     <loc>${DOMAIN}/blog/${escapeXml(p.slug)}</loc>
     <lastmod>${toXmlDate(p.updatedAt)}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
   </url>`,
       )
       .join('');
