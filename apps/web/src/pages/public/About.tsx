@@ -1,8 +1,9 @@
 ﻿import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Calendar, Star, Shield, Heart, Sparkles, Zap, Award, Users, Clock, Smile,
-  CheckCircle, BadgeCheck, Camera, User,
+  CheckCircle, BadgeCheck, Camera, User, GraduationCap, BookOpen, Leaf, MapPin,
 } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { RichTextViewer } from '@/components/shared/RichTextViewer';
@@ -81,8 +82,8 @@ export const About = () => {
   return (
     <>
       <PageSEO
-        title="O salonie BeskidStudio – poznaj Wiktorię Ćwik"
-        description={`${about?.salonTagline || 'Poznaj salon kosmetologiczny BeskidStudio By Wiktoria Ćwik w Mordarce 505 koło Limanowej.'} Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej i Tymbarku.`}
+        title="Kosmetolog Wiktoria Ćwik — o BeskidStudio Limanowa"
+        description="Wiktoria Ćwik, dyplomowany kosmetolog z Limanowej. Poznaj BeskidStudio w Mordarce — indywidualne konsultacje, spokojna atmosfera i świadoma pielęgnacja skóry."
         canonical="/o-nas"
         schema={ownerSchema(about?.ownerName ?? 'Wiktoria Ćwik', about?.ownerTitle ?? 'Kosmetolożka', about?.ownerPhoto ?? undefined)}
       />
@@ -100,7 +101,7 @@ export const About = () => {
             className="text-4xl font-heading font-display tracking-tight sm:text-5xl"
             style={{ color: '#1A3828', fontStyle: 'italic', fontWeight: 300 }}
           >
-            O nas
+            Wiktoria Ćwik — kosmetolog koło Limanowej
           </h1>
           {about?.salonTagline && (
             <p className="mt-4 text-lg max-w-2xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
@@ -218,6 +219,138 @@ export const About = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Wykształcenie i doświadczenie */}
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+        <div className="container max-w-3xl">
+          <div className="text-center mb-10">
+            <div
+              className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
+            >
+              Kwalifikacje
+            </div>
+            <h2 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+              Wykształcenie i doświadczenie
+            </h2>
+          </div>
+          <div className="flex flex-col gap-4">
+            {[
+              { icon: GraduationCap, text: 'Studia kosmetologiczne — dyplom kosmetologa' },
+              { icon: BookOpen, text: 'Szkolenia z laminacji i liftingu brwi oraz rzęs' },
+              { icon: BookOpen, text: 'Kursy z koloryzacji henną i stylizacji oprawy oka' },
+              { icon: BookOpen, text: 'Szkolenia z podologii i pielęgnacji stóp' },
+              { icon: BookOpen, text: 'Kursy z pielęgnacji skóry problematycznej' },
+            ].map(({ icon: Icon, text }) => (
+              <div
+                key={text}
+                className="flex items-center gap-4 p-5"
+                style={{
+                  borderRadius: '16px',
+                  backgroundColor: '#fff',
+                  borderLeft: '3px solid #C4965A',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                }}
+              >
+                <Icon className="h-5 w-5 shrink-0" style={{ color: '#C4965A' }} />
+                <span className="text-sm font-medium" style={{ color: '#1A3828' }}>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Filozofia pracy */}
+      <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
+        <div className="container max-w-3xl">
+          <div className="text-center mb-10">
+            <div
+              className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
+            >
+              Podejście
+            </div>
+            <h2 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+              Filozofia pracy
+            </h2>
+          </div>
+          <div className="flex flex-col gap-5">
+            {[
+              { icon: Heart, title: 'Indywidualna konsultacja', desc: 'Każdą wizytę zaczynamy od rozmowy — omawiamy potrzeby skóry, dotychczasową pielęgnację, oczekiwania i ewentualne przeciwwskazania. Na tej podstawie dobieramy zabieg i plan dalszej opieki.' },
+              { icon: Shield, title: 'Uczciwa ocena efektów', desc: 'Nie obiecujemy niemożliwego. Przed zabiegiem realnie omawiamy, czego można się spodziewać, jak długo utrzyma się efekt i jakie są ograniczenia.' },
+              { icon: Sparkles, title: 'Jakość i higiena', desc: 'Pracujemy sprawdzonymi produktami renomowanych marek. Gabinet jest utrzymywany w pełnej czystości, a narzędzia sterylizowane po każdym użyciu.' },
+              { icon: Leaf, title: 'Ciągły rozwój', desc: 'Regularnie uczestniczymy w szkoleniach i kursach, aby oferować najnowsze techniki i metody pielęgnacji — od laminacji brwi po zaawansowaną podologię.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div
+                key={title}
+                className="p-6"
+                style={{
+                  borderRadius: '20px',
+                  backgroundColor: '#fff',
+                  border: '1px solid rgba(0,0,0,0.07)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: 'rgba(196,150,90,0.1)' }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  </div>
+                  <h3 className="font-semibold" style={{ color: '#1A3828' }}>{title}</h3>
+                </div>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dlaczego BeskidStudio */}
+      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+        <div className="container max-w-3xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+              Dlaczego BeskidStudio?
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { icon: Heart, text: 'Indywidualne podejście do każdej klientki' },
+              { icon: Sparkles, text: 'Spokojna, kameralna atmosfera' },
+              { icon: MapPin, text: '5 min od centrum Limanowej' },
+              { icon: Clock, text: 'Rezerwacja online 24/7' },
+              { icon: Star, text: '5.0 gwiazdek w Google (18 opinii)' },
+            ].map(({ icon: Ico, text }) => (
+              <div
+                key={text}
+                className="flex items-center gap-3 p-4"
+                style={{
+                  borderRadius: '16px',
+                  backgroundColor: '#fff',
+                  border: '1px solid rgba(0,0,0,0.07)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                }}
+              >
+                <Ico className="h-5 w-5 shrink-0" style={{ color: '#C4965A' }} />
+                <span className="text-sm font-medium" style={{ color: '#1A3828' }}>{text}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-8 text-center text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
+            Zapraszamy do{' '}
+            <Link to="/kontakt" style={{ color: '#C4965A', textDecoration: 'underline' }}>naszego gabinetu w Mordarce</Link>
+            {' '}lub sprawdź{' '}
+            <Link to="/uslugi" style={{ color: '#C4965A', textDecoration: 'underline' }}>pełną ofertę zabiegów</Link>
+            {' '}i{' '}
+            <Link to="/rezerwacja" style={{ color: '#C4965A', textDecoration: 'underline' }}>umów wizytę online</Link>.
+            Obsługujemy klientki z{' '}
+            <Link to="/kosmetolog-limanowa" style={{ color: '#C4965A', textDecoration: 'underline' }}>Limanowej</Link>,
+            Mordarki, Laskowej, Dobrej i Tymbarku.
+          </p>
         </div>
       </section>
 

@@ -61,7 +61,7 @@ const serviceSeoOverrides = {
 };
 
 const localPageTitles = {
-  'kosmetolog-limanowa': 'Kosmetolog Limanowa | BeskidStudio',
+  'kosmetolog-limanowa': 'Kosmetolog Limanowa — zabiegi i rezerwacja | BeskidStudio',
   'kosmetolog-mordarka': 'Kosmetolog Mordarka | BeskidStudio',
   'laminacja-brwi-limanowa': 'Laminacja brwi Limanowa – efekty i cena | BeskidStudio',
   'laminacja-rzes-limanowa': 'Laminacja rzęs Limanowa | BeskidStudio',
@@ -121,12 +121,12 @@ const corePages = [
   },
   {
     path: '/o-nas',
-    title: 'O salonie BeskidStudio – poznaj Wiktorię Ćwik',
-    description: 'Poznaj Wiktorię Ćwik i BeskidStudio w Mordarce koło Limanowej. Indywidualne konsultacje, spokojna atmosfera i świadoma pielęgnacja.',
-    heading: 'Wiktoria Ćwik – kosmetolog koło Limanowej',
+    title: 'Kosmetolog Wiktoria Ćwik — o BeskidStudio Limanowa',
+    description: 'Wiktoria Ćwik, dyplomowany kosmetolog z Limanowej. Poznaj BeskidStudio w Mordarce — indywidualne konsultacje, spokojna atmosfera i świadoma pielęgnacja skóry.',
+    heading: 'Wiktoria Ćwik — kosmetolog koło Limanowej',
     lead: 'BeskidStudio łączy profesjonalną konsultację, indywidualny plan pielęgnacji i opiekę także po wizycie.',
-    items: ['Indywidualne konsultacje', 'Jasny plan pielęgnacji', 'Bezpieczne procedury', 'Kontakt po zabiegu'],
-    bodyText: 'Salon prowadzi Wiktoria Ćwik, dyplomowany kosmetolog. W pracy stawia na spokojną konsultację, realistyczne omówienie efektów oraz czytelne zalecenia po zabiegu. Klientki mogą wrócić do historii wizyt, zaleceń i kontaktu z salonem w swoim panelu online.',
+    items: ['Indywidualne konsultacje', 'Jasny plan pielęgnacji', 'Bezpieczne procedury', 'Kontakt po zabiegu', 'Dyplomowany kosmetolog', 'Ciągły rozwój zawodowy'],
+    bodyText: 'Salon prowadzi Wiktoria Ćwik, dyplomowany kosmetolog. W pracy stawia na spokojną konsultację, realistyczne omówienie efektów oraz czytelne zalecenia po zabiegu. Klientki mogą wrócić do historii wizyt, zaleceń i kontaktu z salonem w swoim panelu online. Wiktoria ukończyła studia kosmetologiczne i regularnie uczestniczy w szkoleniach z laminacji brwi i rzęs, koloryzacji henną, stylizacji oprawy oka oraz podologii. Filozofia BeskidStudio opiera się na indywidualnym podejściu — każdą wizytę zaczynamy od konsultacji, podczas której omawiamy potrzeby skóry, oczekiwania i ewentualne przeciwwskazania. Gabinet mieści się w Mordarce 505, zaledwie 5 minut od centrum Limanowej, w spokojnej, kameralnej atmosferze. Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej, Tymbarku i całego powiatu limanowskiego.',
   },
   {
     path: '/metamorfozy',

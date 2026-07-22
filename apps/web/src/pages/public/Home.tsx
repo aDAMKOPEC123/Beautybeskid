@@ -1888,10 +1888,30 @@ const AreaSection = () => (
           Salon kosmetologiczny Limanowa i okolice
         </h2>
         <p className="mt-5 text-sm leading-relaxed text-espresso/75">
-          BeskidStudio By Wiktoria Ćwik przyjmuje klientki z Limanowej i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
-          z Mordarki, Laskowej, Słopnic, Mszany Dolnej, Nowego Sącza, Ujanowic, Dobrej, Kasiny Wielkiej, Sowlin,
+          BeskidStudio By Wiktoria Ćwik przyjmuje klientki z{' '}
+          <Link to="/kosmetolog-limanowa" className="underline text-oak hover:text-espresso transition-colors">Limanowej</Link>
+          {' '}i całego powiatu limanowskiego. Regularnie odwiedzają nas osoby
+          z{' '}<Link to="/kosmetolog-mordarka" className="underline text-oak hover:text-espresso transition-colors">Mordarki</Link>,
+          {' '}Laskowej, Słopnic, Mszany Dolnej, Nowego Sącza, Ujanowic, Dobrej, Kasiny Wielkiej, Sowlin,
           Tymbarku, Jodłownika oraz pobliskich miejscowości.
         </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {[
+            { to: '/laminacja-brwi-limanowa', label: 'Laminacja brwi Limanowa' },
+            { to: '/laminacja-rzes-limanowa', label: 'Laminacja rzęs Limanowa' },
+            { to: '/oprawa-oka-limanowa', label: 'Oprawa oka Limanowa' },
+            { to: '/podolog-limanowa', label: 'Podolog Limanowa' },
+            { to: '/pedicure-podologiczny-limanowa', label: 'Pedicure podologiczny' },
+          ].map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className="rounded-full border border-espresso/15 px-3 py-1 text-xs font-medium text-espresso/70 transition-colors hover:border-oak hover:text-oak"
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </FadeUp>
     </div>
   </section>

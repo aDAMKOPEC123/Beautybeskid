@@ -1,5 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock, Star, ArrowRight } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, MessageCircle, MapPin, Clock, Star, ArrowRight, Car, HelpCircle } from 'lucide-react';
 import { PageSEO } from '@/components/shared/SEO';
 import { SEO } from '@/lib/seo-config';
 import { trackEvent } from '@/lib/analytics';
@@ -308,6 +308,76 @@ export const Contact = () => {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
+
+              {/* Dojazd */}
+              <div className="p-7" style={cardStyle}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Car className="h-5 w-5" style={{ color: '#C4965A' }} />
+                  <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Dojazd</h2>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
+                    <strong style={{ color: '#1A3828' }}>Z centrum Limanowej:</strong> kierunek Mszana Dolna,
+                    po ok. 3 km skręt w prawo do Mordarki. Dojazd zajmuje około 5 minut samochodem.
+                  </p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
+                    <strong style={{ color: '#1A3828' }}>Parking:</strong> bezpłatny parking przy gabinecie.
+                  </p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>
+                    <strong style={{ color: '#1A3828' }}>Dojazd własny</strong> — salon znajduje się w Mordarce 505,
+                    w spokojnej okolicy koło Limanowej.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* FAQ */}
+          <div className="mt-12">
+            <div className="text-center mb-8">
+              <div
+                className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
+              >
+                FAQ
+              </div>
+              <h2 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
+                Najczęściej zadawane pytania
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {[
+                {
+                  q: 'Czy muszę rezerwować wizytę z wyprzedzeniem?',
+                  a: 'Tak, zalecamy rezerwację online lub telefoniczną. Dzięki temu mamy pewność, że poświęcimy Ci odpowiednią ilość czasu na zabieg i konsultację.',
+                },
+                {
+                  q: 'Czy jest parking przy salonie?',
+                  a: 'Tak, przy gabinecie znajduje się bezpłatny parking. Nie musisz się martwić o miejsce do zaparkowania.',
+                },
+                {
+                  q: 'Jak dojechać z Limanowej?',
+                  a: 'Z centrum Limanowej kierunek Mszana Dolna, po ok. 3 km skręt w prawo do Mordarki. Dojazd zajmuje około 5 minut samochodem.',
+                },
+                {
+                  q: 'Czy mogę zmienić termin wizyty?',
+                  a: 'Tak, termin można zmienić lub odwołać przez system rezerwacji online lub telefonicznie, najlepiej z min. 24-godzinnym wyprzedzeniem.',
+                },
+                {
+                  q: 'Jakie formy płatności akceptujecie?',
+                  a: 'Akceptujemy gotówkę, karty płatnicze oraz BLIK.',
+                },
+              ].map(({ q, a }) => (
+                <div key={q} className="p-6" style={cardStyle}>
+                  <div className="flex items-start gap-3">
+                    <HelpCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#C4965A' }} />
+                    <div>
+                      <h3 className="font-semibold text-sm mb-2" style={{ color: '#1A3828' }}>{q}</h3>
+                      <p className="text-sm leading-relaxed" style={{ color: 'rgba(20,40,28,0.6)' }}>{a}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

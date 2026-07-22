@@ -208,9 +208,9 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
   'kosmetolog-limanowa': {
     slug: 'kosmetolog-limanowa',
     shortLabel: 'Kosmetolog Limanowa',
-    title: 'Kosmetolog Limanowa — konsultacje i zabiegi | BeskidStudio',
+    title: 'Kosmetolog Limanowa — zabiegi i rezerwacja | BeskidStudio',
     description:
-      'Kosmetolog Limanowa: BeskidStudio Wiktoria Ćwik w Mordarce 505 (5 min od centrum). Laminacja brwi i rzęs, konsultacje, rezerwacja online. ☎ 532 128 227.',
+      'Kosmetolog w Limanowej — laminacja brwi i rzęs, oprawa oka, pielęgnacja skóry. Gabinet 5 min od centrum. Rezerwacja online, tel. 532 128 227.',
     eyebrow: 'Kosmetolog Limanowa',
     h1: 'Kosmetolog w Limanowej — zabiegi i konsultacje w BeskidStudio',
     lead:
