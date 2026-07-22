@@ -74,6 +74,7 @@ export const useFaceMesh = (
     };
 
     const loadFaceLandmarker = async () => {
+      // @ts-ignore — devDependency, types may not be present in prod build
       const vision = await import('@mediapipe/tasks-vision');
       const { FaceLandmarker, FilesetResolver } = vision;
       const filesetResolver = await FilesetResolver.forVisionTasks(
