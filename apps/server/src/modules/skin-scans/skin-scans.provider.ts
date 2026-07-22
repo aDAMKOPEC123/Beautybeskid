@@ -8,6 +8,7 @@ import { computeSkinScore } from './skin-score';
 export type SkinScanProviderInput = {
   sessionId: string;
   images: Array<{ angle: string; imagePath: string }>;
+  fitzpatrickType?: number | null;
 };
 
 export interface SkinScanAnalysisProvider {
@@ -41,6 +42,11 @@ const analysisSchema = z.object({
     spfCoverage: metricSchema,
   }),
   faceParsing: z.record(z.unknown()).optional(),
+  fitzpatrick: z.object({
+    detected: z.number().int().min(1).max(6).nullable(),
+    provided: z.number().int().min(1).max(6).nullable(),
+    effective: z.number().int().min(1).max(6).nullable(),
+  }).optional(),
 });
 
 const unavailableMetric = (message: string) => ({
@@ -128,6 +134,9 @@ export const mlServiceProvider: SkinScanAnalysisProvider = {
       const content = await getStoredImage(image.imagePath);
       const fieldName = image.angle.toLowerCase();
       formData.append(fieldName, new Blob([content], { type: 'image/webp' }), `${fieldName}.webp`);
+    }
+    if (input.fitzpatrickType != null) {
+      formData.append('fitzpatrick_type', String(input.fitzpatrickType));
     }
 
     const endpoint = new URL('/v1/analyze', env.SKIN_ANALYSIS_URL);

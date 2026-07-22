@@ -16,6 +16,7 @@ router.patch('/me', usersController.updateMe);
 router.patch('/me/avatar', upload.single('avatar'), usersController.updateAvatar);
 router.patch('/me/consents', usersController.updateConsents);
 router.patch('/me/card', usersController.updateMyCard);
+router.patch('/me/fitzpatrick', usersController.updateMyFitzpatrick);
 router.get('/me/timeline', usersController.getMyTimeline);
 router.get('/me/referrals', usersController.getMyReferrals);
 router.get('/me/recommendations', recommendationsController.getMyRecommendations);

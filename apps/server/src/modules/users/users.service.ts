@@ -62,6 +62,8 @@ export const getAllUsers = async (page = 1, limit = 50) => {
         cardConditions: true,
         cardPreferences: true,
         cardStaffNotes: true,
+        fitzpatrickType: true,
+        fitzpatrickManual: true,
         _count: {
           select: {
             appointments: {
@@ -102,6 +104,8 @@ export const getUserById = async (id: string) => {
       cardAllergies: true,
       cardConditions: true,
       cardPreferences: true,
+      fitzpatrickType: true,
+      fitzpatrickManual: true,
       onboardingCompleted: true,
       accountStatus: true,
       mustChangePassword: true,
@@ -143,6 +147,8 @@ export const getUserDetails = async (id: string) => {
       cardConditions: true,
       cardPreferences: true,
       cardStaffNotes: true,
+      fitzpatrickType: true,
+      fitzpatrickManual: true,
       appointments: {
         select: {
           id: true,
@@ -441,6 +447,8 @@ type UpdateUserData = Partial<{
   cardConditions: string | null;
   cardPreferences: string | null;
   cardStaffNotes: string | null;
+  fitzpatrickType: number | null;
+  fitzpatrickManual: boolean;
   passwordHash: string;
   mustChangePassword: boolean;
   passwordChangedAt: Date;

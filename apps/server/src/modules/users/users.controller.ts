@@ -54,6 +54,30 @@ export const updateAvatar = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const updateMyFitzpatrick = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { fitzpatrickType } = req.body;
+    if (fitzpatrickType === null) {
+      // Reset to auto-detect
+      const user = await usersService.updateUser(req.user!.id, {
+        fitzpatrickType: null,
+        fitzpatrickManual: false,
+      });
+      return res.status(200).json({ status: 'success', data: { user } });
+    }
+    if (typeof fitzpatrickType !== 'number' || fitzpatrickType < 1 || fitzpatrickType > 6) {
+      throw new AppError('fitzpatrickType must be a number between 1 and 6, or null to reset', 400);
+    }
+    const user = await usersService.updateUser(req.user!.id, {
+      fitzpatrickType,
+      fitzpatrickManual: true,
+    });
+    res.status(200).json({ status: 'success', data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateMyCard = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { cardAllergies, cardConditions, cardPreferences } = req.body;

@@ -185,11 +185,26 @@ export const completeSession = async (userId: string, sessionId: string) => {
   }
 
   try {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { fitzpatrickType: true, fitzpatrickManual: true },
+    });
+
     const provider = getConfiguredSkinScanProvider();
     const analysis = await provider.analyze({
       sessionId,
       images: session.images.map(({ angle, imagePath }) => ({ angle, imagePath })),
+      fitzpatrickType: user.fitzpatrickManual ? user.fitzpatrickType : undefined,
     });
+
+    // Auto-update user's fitzpatrickType if not manually set
+    if (!user.fitzpatrickManual && analysis.fitzpatrick?.detected != null) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { fitzpatrickType: analysis.fitzpatrick.detected },
+      });
+    }
+
     return prisma.skinScanSession.update({
       where: { id: sessionId },
       data: {
