@@ -24,7 +24,6 @@ const staticUrls = [
   // never in the sitemap, because Google should index their final destinations.
   { loc: '/kosmetolog-limanowa', priority: '0.95', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/kosmetolog-mordarka', priority: '0.88', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
-  { loc: '/kosmetyczka-limanowa', priority: '0.92', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/laminacja-brwi-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/laminacja-rzes-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
   { loc: '/oprawa-oka-limanowa', priority: '0.9', changefreq: 'weekly', lastmod: STATIC_LASTMOD },
