@@ -50,7 +50,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsData> {
   return {
     rating: json.rating,
     user_ratings_total: json.userRatingCount,
-    place_url: json.googleMapsUri ?? 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505',
+    place_url: json.googleMapsUri ?? 'https://www.google.com/maps/place/?q=place_id:ChIJY6kyM0odFkcRMunk0OJ9lic',
     reviews: (json.reviews || [])
       .filter(r => r.rating >= 4)
       .map(r => ({
