@@ -91,6 +91,13 @@ const corePages = [
     lead: 'BeskidStudio w Mordarce koło Limanowej. Konsultacje, zabiegi kosmetologiczne, stylizacja brwi i rzęs oraz wygodna rezerwacja online.',
     items: ['Konsultacje kosmetologiczne', 'Laminacja brwi i rzęs', 'Pielęgnacja skóry', 'Podologia: odrębna lokalizacja i zapisy telefoniczne'],
     bodyText: 'Każdą wizytę zaczynamy od rozmowy o potrzebach skóry lub oczekiwanym efekcie stylizacji. Dzięki temu zabieg jest dopasowany do konkretnej osoby, a nie wybierany przypadkowo. W ofercie znajdziesz konsultacje kosmetologiczne, laminację brwi, lifting i laminację rzęs, hennę z regulacją, oprawę oka oraz zabiegi pielęgnacyjne na twarz. Ceny, czas zabiegów i wolne terminy beauty sprawdzisz online. Salon BeskidStudio mieści się w Mordarce 505, kilka minut od Limanowej, i obsługuje klientki z całego powiatu limanowskiego. Podologia jest aktywna, ale odbywa się w odrębnej lokalizacji; termin i dokładny adres ustalisz telefonicznie pod numerem 532 128 227.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', name: 'Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio', description: 'BeskidStudio By Wiktoria Ćwik — kosmetolog koło Limanowej.', url: `${DOMAIN}/`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/', ['Strona główna']),
+      ],
+    },
   },
   {
     path: '/uslugi',
@@ -100,6 +107,13 @@ const corePages = [
     lead: 'Sprawdź aktualne zabiegi BeskidStudio Wiktoria Ćwik, ich czas, ceny oraz najbliższe terminy.',
     items: ['Konsultacja kosmetologiczna', 'Laminacja brwi', 'Lifting i laminacja rzęs', 'Henna i regulacja brwi', 'Oprawa oka', 'Podologia — zapisy telefoniczne'],
     bodyText: 'Salon kosmetyczny BeskidStudio oferuje zabiegi dobierane do potrzeb skóry, brwi i rzęs. Laminacja brwi porządkuje kierunek włosków, lifting rzęs unosi naturalne rzęsy bez przedłużania, a henna z regulacją podkreśla kształt brwi. Oferta beauty jest połączona z systemem rezerwacji, który pokazuje aktywne usługi, ceny i wolne terminy. Salon mieści się w Mordarce 505, kilka minut od Limanowej. Podologia jest aktywna w odrębnej lokalizacji i nie korzysta z kalendarza online — zapisy, termin i dokładny adres potwierdzamy pod numerem 532 128 227.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', name: 'Usługi kosmetyczne Limanowa | BeskidStudio', description: 'Salon koło Limanowej: laminacja brwi i rzęs, oprawa oka i pielęgnacja skóry.', url: `${DOMAIN}/uslugi`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/uslugi', ['Strona główna', 'Usługi']),
+      ],
+    },
   },
   {
     path: '/kontakt',
@@ -109,6 +123,13 @@ const corePages = [
     lead: 'Salon mieści się pod adresem Mordarka 505, 34-600 Mordarka, kilka minut od Limanowej.',
     items: ['Telefon: +48 532 128 227', 'E-mail: kontakt@kosmetologwiktoriacwik.pl', 'Poniedziałek–piątek: 09:00–18:00', 'Sobota: 09:00–14:00'],
     bodyText: 'Do BeskidStudio przyjeżdżają klientki z Limanowej, Mordarki, Laskowej, Słopnic, Tymbarku, Dobrej i pobliskich miejscowości. Termin możesz sprawdzić online, a pytania dotyczące dojazdu, przygotowania do zabiegu lub wyboru usługi zadać telefonicznie albo przez czat po zalogowaniu. Z centrum Limanowej dojazd zajmuje około 5 minut — kierunek Mszana Dolna, po ok. 3 km skręt w prawo do Mordarki. Przy gabinecie znajduje się bezpłatny parking. Akceptujemy gotówkę, karty płatnicze oraz BLIK. Zalecamy rezerwację online lub telefoniczną — dzięki temu mamy pewność, że poświęcimy Ci odpowiednią ilość czasu. Termin wizyty możesz zmienić lub odwołać przez system rezerwacji online lub telefonicznie, najlepiej z min. 24-godzinnym wyprzedzeniem.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'ContactPage', name: 'Kontakt i dojazd – BeskidStudio', description: 'Kontakt, adres i godziny otwarcia BeskidStudio.', url: `${DOMAIN}/kontakt`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/kontakt', ['Strona główna', 'Kontakt']),
+      ],
+    },
   },
   {
     path: '/blog',
@@ -118,6 +139,13 @@ const corePages = [
     lead: 'Praktyczne wskazówki o świadomej pielęgnacji skóry, przygotowaniu do zabiegów oraz opiece po wizycie.',
     items: ['Pielęgnacja skóry', 'Laminacja brwi i rzęs', 'Zabiegi na twarz', 'Kosmetologia i zalecenia po zabiegach'],
     bodyText: 'Artykuły przygotowuje Wiktoria Ćwik, dyplomowany kosmetolog (absolwentka WSIiZ w Warszawie) i właścicielka BeskidStudio koło Limanowej. Na blogu znajdziesz poradniki o laminacji brwi i rzęs, pielęgnacji skóry tłustej i mieszanej, zabiegach na twarz, podologii oraz przygotowaniu do wizyty w gabinecie. Każdy wpis odpowiada na konkretne pytania klientek — ile trwa efekt laminacji, jak dbać o skórę po zabiegu, kiedy warto umówić konsultację. Planowane tematy obejmują: pielęgnację skóry na co dzień (dobór kosmetyków, rutyny), przebieg laminacji brwi i rzęs (przygotowanie, trwałość efektu), zabiegi na twarz (peelingi, oczyszczanie, nawilżanie) oraz podologię (wrastające paznokcie, modzele, pękające pięty). Treści pomagają podjąć świadomą decyzję, ale nie zastępują indywidualnej konsultacji w salonie.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'CollectionPage', name: 'Blog kosmetologiczny BeskidStudio', description: 'Porady kosmetologa o pielęgnacji skóry, zabiegach, brwiach i rzęsach.', url: `${DOMAIN}/blog`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/blog', ['Strona główna', 'Blog']),
+      ],
+    },
   },
   {
     path: '/o-nas',
@@ -127,6 +155,13 @@ const corePages = [
     lead: 'BeskidStudio łączy profesjonalną konsultację, indywidualny plan pielęgnacji i opiekę także po wizycie.',
     items: ['Dyplom kosmetologa — WSIiZ Warszawa', 'Certyfikat InLei (laminacja)', 'Szkolenie BrowXenna Academy', 'Kurs podologiczny (2023)', 'Szkolenie Mediderma (peelingi)', 'Konferencje Beauty Forum i Cosmetica'],
     bodyText: 'Salon prowadzi Wiktoria Ćwik, dyplomowany kosmetolog — absolwentka Wyższej Szkoły Inżynierii i Zdrowia w Warszawie (kierunek: kosmetologia). Posiada certyfikat laminacji i liftingu brwi oraz rzęs od technologa marki InLei (Włochy, 2022), ukończyła szkolenie z koloryzacji henną w BrowXenna Academy (2021), kurs podologiczny z frezowania i korekty wrastających paznokci (2023) oraz szkolenie z peelingów chemicznych Mediderma (2022). Co roku uczestniczy w minimum 3–4 szkoleniach branżowych — m.in. Beauty Forum i Cosmetica. Filozofia BeskidStudio opiera się na indywidualnym podejściu: każdą wizytę zaczynamy od konsultacji, podczas której omawiamy potrzeby skóry, oczekiwania i ewentualne przeciwwskazania. Pracujemy wyłącznie certyfikowanymi produktami renomowanych marek: InLei, RefectoCil, Mediderma, BrowXenna. Gabinet mieści się w Mordarce 505, zaledwie 5 minut od centrum Limanowej, w spokojnej, kameralnej atmosferze. Klientki mogą wrócić do historii wizyt, zaleceń i kontaktu z salonem w swoim panelu online. Obsługujemy klientki z Limanowej, Mordarki, Laskowej, Dobrej, Tymbarku i całego powiatu limanowskiego.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'AboutPage', name: 'O BeskidStudio — Wiktoria Ćwik', description: 'Wiktoria Ćwik, dyplomowany kosmetolog z Limanowej.', url: `${DOMAIN}/o-nas`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/o-nas', ['Strona główna', 'O nas']),
+      ],
+    },
   },
   {
     path: '/metamorfozy',
@@ -136,6 +171,13 @@ const corePages = [
     lead: 'Galeria efektów pracy BeskidStudio Wiktoria Ćwik dla klientek z Limanowej, Mordarki i okolic.',
     items: ['Efekty przed i po', 'Naturalne rezultaty', 'Indywidualnie dobrane zabiegi'],
     bodyText: 'Zdjęcia pokazują rzeczywiste rezultaty zabiegów wykonanych w salonie. Efekt zawsze zależy od stanu wyjściowego, indywidualnych cech i prawidłowej pielęgnacji po wizycie, dlatego fotografie są przykładem, a nie obietnicą identycznego rezultatu u każdej osoby.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'CollectionPage', name: 'Metamorfozy BeskidStudio', description: 'Galeria efektów zabiegów kosmetologicznych.', url: `${DOMAIN}/metamorfozy`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/metamorfozy', ['Strona główna', 'Metamorfozy']),
+      ],
+    },
   },
   {
     path: '/program-lojalnosciowy',
@@ -145,6 +187,13 @@ const corePages = [
     lead: 'Punkty za wizyty, polecenia i aktywność możesz wymieniać na nagrody dostępne w panelu klienta.',
     items: ['Punkty za wizyty', 'Nagrody w panelu klienta', 'Historia punktów online'],
     bodyText: 'Po zalogowaniu sprawdzisz saldo punktów, historię transakcji i dostępne nagrody. Program jest częścią panelu klienta BeskidStudio i pomaga planować kolejne wizyty bez papierowych kart. Aktualne zasady oraz wartość nagród są zawsze widoczne w aplikacji.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', name: 'Program lojalnościowy BeskidStudio', description: 'Zbieraj punkty za wizyty i wymieniaj na nagrody.', url: `${DOMAIN}/program-lojalnosciowy`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/program-lojalnosciowy', ['Strona główna', 'Program lojalnościowy']),
+      ],
+    },
   },
   {
     path: '/regulamin',
@@ -154,6 +203,13 @@ const corePages = [
     lead: 'Zasady korzystania z serwisu, rezerwacji wizyt oraz informacje dotyczące przetwarzania danych.',
     items: ['Zasady rezerwacji', 'Płatności i odwołanie wizyty', 'Prywatność i dane osobowe'],
     bodyText: 'Dokument opisuje zasady umawiania i odwoływania wizyt, korzystania z konta klienta, płatności oraz przetwarzania danych osobowych. Data i numer aktualnej wersji są publikowane bezpośrednio na stronie regulaminu.',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', name: 'Regulamin BeskidStudio', description: 'Regulamin i polityka prywatności.', url: `${DOMAIN}/regulamin`, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        breadcrumbSchema('/regulamin', ['Strona główna', 'Regulamin']),
+      ],
+    },
   },
 ];
 
@@ -198,6 +254,33 @@ const localPages = [
     { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Aktualna cena, czas zabiegu i wolne godziny są publikowane na stronie usług oraz w systemie rezerwacji online.' },
     { question: 'Czy przed pierwszą wizytą można skonsultować wybór zabiegu?', answer: 'Tak. Jeśli nie wiesz, co wybrać, skontaktuj się z salonem lub umów konsultację przed rezerwacją właściwego zabiegu.' },
   ],
+  schema: (() => {
+    const pageUrl = `${DOMAIN}/${slug}`;
+    const title = localPageTitles[slug] || `${label} | BeskidStudio`;
+    const faqItems = phoneOnly ? [
+      { question: `Gdzie odbywa się ${label}?`, answer: 'Wizyty odbywają się w odrębnej lokalizacji.' },
+      { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Zadzwoń pod numer 532 128 227.' },
+      { question: 'Czy podologię można zarezerwować online?', answer: 'Nie. Zapisy telefonicznie pod 532 128 227.' },
+    ] : [
+      { question: `Gdzie znajduje się ${label}?`, answer: 'BeskidStudio, Mordarka 505, 34-600 Mordarka.' },
+      { question: 'Jak sprawdzić aktualną cenę i termin?', answer: 'Na stronie usług i w systemie rezerwacji online.' },
+      { question: 'Czy przed pierwszą wizytą można skonsultować wybór zabiegu?', answer: 'Tak. Skontaktuj się lub umów konsultację.' },
+    ];
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', name: title, description: offer, url: pageUrl, isPartOf: { '@id': `${DOMAIN}/#website` } },
+        {
+          '@type': 'FAQPage',
+          mainEntity: faqItems.map(({ question, answer }) => ({
+            '@type': 'Question', name: question,
+            acceptedAnswer: { '@type': 'Answer', text: answer },
+          })),
+        },
+        breadcrumbSchema(`/${slug}`, ['Strona główna', label]),
+      ],
+    };
+  })(),
   };
 });
 
