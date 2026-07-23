@@ -216,7 +216,7 @@ export const ServiceDetail = () => {
           address: {
             '@type': 'PostalAddress',
             streetAddress: 'Mordarka 505',
-            addressLocality: 'Mordarka',
+            addressLocality: 'Limanowa',
             postalCode: '34-600',
             addressRegion: 'Małopolskie',
             addressCountry: 'PL',

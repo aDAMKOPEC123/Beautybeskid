@@ -5,7 +5,7 @@
   email: 'kontakt@kosmetologwiktoriacwik.pl',
   address: {
     street: 'Mordarka 505',
-    city: 'Mordarka',
+    city: 'Limanowa',
     postalCode: '34-600',
     region: 'Małopolskie',
   },
@@ -16,8 +16,8 @@
   ttProfile: 'https://www.tiktok.com/@wiktoriabeauty_brows',
   mapQuery: 'Mordarka 505, 34-600 Mordarka, Polska',
   googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Mordarka%20505%2C%2034-600%20Mordarka%2C%20Polska',
-  googleBusinessUrl: 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505',
-  googleReviewUrl: 'https://www.google.com/maps/search/?api=1&query=BeskidStudio+By+Wiktoria+%C4%86wik+Mordarka+505',
+  googleBusinessUrl: 'https://www.google.com/maps/place/?q=place_id:ChIJY6kyM0odFkcRMunk0OJ9lic',
+  googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJY6kyM0odFkcRMunk0OJ9lic',
   owner: {
     name: 'Wiktoria Ćwik',
     role: 'Dyplomowany kosmetolog',

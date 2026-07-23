@@ -144,7 +144,7 @@ export const Contact = () => {
             Jesteśmy tu dla Ciebie
           </div>
           <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A3828' }}>
-            Kontakt
+            Kontakt — salon kosmetologiczny koło Limanowej
           </h1>
           <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Salon kosmetologiczny w Mordarce 505 koło Limanowej — obsługujemy klientki z Limanowej,

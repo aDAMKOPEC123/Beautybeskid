@@ -314,6 +314,23 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     ],
     localCopy:
       'Mordarka leży w centrum powiatu limanowskiego, a salon BeskidStudio By Wiktoria Ćwik jest dostępny bez długiego dojazdu. Dla klientek z Mordarki i okolicznych miejscowości oferujemy wygodne terminy, kontakt telefoniczny i rezerwację online.',
+    extendedSections: [
+      {
+        heading: 'Dlaczego klientki z Mordarki wybierają BeskidStudio?',
+        content:
+          'Salon mieści się bezpośrednio w Mordarce 505, więc nie trzeba planować dojazdu do centrum Limanowej. Dla osób mieszkających w okolicy to najwygodniejsza opcja — kilka minut spacerem lub autem i jesteś na miejscu.\n\nKlientki z Mordarki cenią też kameralną atmosferę gabinetu i możliwość sprawdzenia wolnych terminów online bez telefonowania. Po zabiegu można wrócić do domu w kilka minut, co jest szczególnie wygodne po zabiegach na twarz wymagających unikania słońca.',
+      },
+      {
+        heading: 'Jakie zabiegi wykonujemy w Mordarce?',
+        content:
+          'W gabinecie w Mordarce 505 wykonujemy pełen zakres zabiegów kosmetologicznych: konsultacje kosmetologiczne, laminację brwi i rzęs, hennę z regulacją brwi, oprawę oka oraz zabiegi pielęgnacyjne na twarz — peelingi i nawilżanie.\n\nKażdy zabieg dobieramy indywidualnie po rozmowie o stanie skóry, oczekiwaniach i ewentualnych przeciwwskazaniach. Aktualne ceny i dostępne usługi sprawdzisz na stronie usług lub w systemie rezerwacji online.',
+      },
+      {
+        heading: 'Jak umówić wizytę z Mordarki?',
+        content:
+          'Najwygodniej przez system rezerwacji online — wybierasz zabieg, widzisz aktualne ceny i wolne godziny, a potwierdzenie otrzymujesz od razu. Możesz też zadzwonić pod numer 532 128 227 lub napisać na czacie po zalogowaniu w panelu klienta.\n\nPrzed pierwszą wizytą warto umówić się na konsultację kosmetologiczną — podczas niej omawiamy potrzeby skóry i plan dalszej pielęgnacji. Termin wizyty możesz zmienić lub odwołać przez system online, najlepiej z min. 24-godzinnym wyprzedzeniem.',
+      },
+    ],
     faq: beautyFaq('konsultację kosmetologiczną', 'Mordarki'),
     related: ['kosmetyczka-limanowa', 'laminacja-brwi-limanowa', 'laminacja-rzes-limanowa'],
   },
@@ -704,6 +721,23 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     ],
     localCopy:
       'Klientki z Limanowej szukają oprawa oka, mając na myśli naturalnie zadbane brwi i rzęsy bez widocznego makijażu. W BeskidStudio By Wiktoria Ćwik w Mordarce 505 dobieramy laminację brwi, stylizację i laminację rzęs do realnych potrzeb każdej klientki.',
+    extendedSections: [
+      {
+        heading: 'Co obejmuje oprawa oka w BeskidStudio?',
+        content:
+          'Oprawa oka to zestaw zabiegów na brwi i rzęsy wykonywanych podczas jednej wizyty. Może obejmować laminację brwi, lifting rzęs, koloryzację henną i regulację kształtu — zakres dobieramy do naturalnych cech twarzy i oczekiwanego efektu.\n\nDzięki połączeniu kilku zabiegów oszczędzasz czas i uzyskujesz spójny, harmonijny rezultat. Aktualne zestawy, ceny i czas wykonania sprawdzisz na stronie usług BeskidStudio.',
+      },
+      {
+        heading: 'Dla kogo jest oprawa oka?',
+        content:
+          'Oprawa oka sprawdza się u osób, które chcą zadbać jednocześnie o brwi i rzęsy — zamiast rezerwować dwie osobne wizyty. To wygodne rozwiązanie szczególnie przed ważnymi wydarzeniami lub dla osób, które cenią efekt podkreślonego spojrzenia bez codziennego makijażu.\n\nPrzed zabiegiem omawiamy stan brwi i rzęs, ewentualne przeciwwskazania oraz preferencje dotyczące intensywności efektu. Jeśli nie wiesz, co wybrać — umów się na konsultację, a pomożemy dobrać odpowiedni wariant.',
+      },
+      {
+        heading: 'Jak długo utrzymuje się efekt oprawy oka?',
+        content:
+          'Trwałość efektu zależy od rodzaju wykonanych zabiegów i indywidualnych cech włosków. Laminacja brwi utrzymuje się zwykle 4–6 tygodni, lifting rzęs — podobnie. Koloryzacja henną może trwać 2–4 tygodnie na skórze i nieco dłużej na włoskach.\n\nPo wizycie otrzymujesz zalecenia pielęgnacyjne, które pomagają przedłużyć rezultat. Kolejną wizytę planujemy dopiero po ocenie stanu brwi i rzęs — nie narzucamy sztywnego harmonogramu.',
+      },
+    ],
     faq: eyeFramingFaq('Limanowej'),
     related: ['laminacja-brwi-limanowa', 'laminacja-rzes-limanowa', 'kosmetyczka-limanowa'],
   },
