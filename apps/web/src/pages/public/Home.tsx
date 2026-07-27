@@ -340,11 +340,11 @@ const SectionIntro = ({
   description?: string;
   align?: 'left' | 'center';
 }) => (
-  <div className={align === 'center' ? 'mx-auto mb-10 max-w-3xl text-center' : 'mb-10 max-w-2xl'}>
-    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-oak">{eyebrow}</p>
-    <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">{title}</h2>
+  <div className={align === 'center' ? 'mx-auto mb-7 max-w-3xl text-center sm:mb-10' : 'mb-7 max-w-2xl sm:mb-10'}>
+    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-oak sm:mb-3 sm:text-xs sm:tracking-[0.18em]">{eyebrow}</p>
+    <h2 className="font-heading text-2xl font-bold leading-tight text-espresso sm:text-3xl md:text-4xl">{title}</h2>
     {description && (
-      <p className="mt-4 text-base leading-relaxed text-espresso/75 md:text-lg">{description}</p>
+      <p className="mt-3 text-[15px] leading-relaxed text-espresso/75 sm:mt-4 sm:text-base md:text-lg">{description}</p>
     )}
   </div>
 );
@@ -469,35 +469,32 @@ const HeroSection = ({
   onCheckAvailability: () => void;
 }) => (
   <section className="premium-home-bg relative overflow-hidden">
-    <div className="container relative z-10 max-w-7xl px-5 py-10 md:py-16">
+    <div className="container relative z-10 max-w-7xl px-5 py-8 md:py-16">
       <div className="grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
         <FadeUp className="min-w-0">
           <div className="min-w-0 max-w-3xl">
-            <div className="mb-5 flex w-fit max-w-full items-center gap-2 rounded-full border border-oak/25 bg-white/75 px-4 py-2 text-xs font-semibold leading-relaxed tracking-[0.06em] text-espresso/72 shadow-sm">
+            <div className="mb-4 hidden w-fit max-w-full items-center gap-2 rounded-full border border-oak/25 bg-white/75 px-4 py-2 text-xs font-semibold leading-relaxed tracking-[0.06em] text-espresso/72 shadow-sm sm:flex">
               <Sparkles className="h-3.5 w-3.5 text-oak" />
               <span className="min-w-0">Wiktoria Ćwik · BeskidStudio By Wiktoria Ćwik Limanowa</span>
             </div>
 
-            <h1 className="font-heading text-4xl font-bold leading-[1.08] text-espresso sm:text-5xl lg:text-6xl">
+            <h1 className="font-heading text-[28px] font-bold leading-[1.12] text-espresso sm:text-5xl lg:text-6xl">
               Piękno, które wygląda naturalnie. Termin, który wybierasz wygodnie.
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-espresso/75 md:text-lg">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-espresso/75 sm:mt-5 md:text-lg">
               Wybierz zabieg dla siebie i zarezerwuj wizytę online w BeskidStudio.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:items-center">
               <BookingButton to={bookingTo} state={bookingState} label="Sprawdź wolny termin" />
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-espresso/72">
               <button
                 type="button"
                 onClick={onConsultationClick}
-                className="inline-flex items-center gap-2 font-semibold text-espresso transition-colors hover:text-oak"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-espresso transition-colors hover:text-oak sm:justify-start"
               >
                 <CheckCircle2 className="h-4 w-4 text-oak" />
-                Bezpłatna konsultacja dla nowych klientek
+                Bezpłatna konsultacja
               </button>
             </div>
 
@@ -513,14 +510,14 @@ const HeroSection = ({
               />
             </div>
 
-            <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-espresso/12 pt-5 md:grid-cols-4">
+            <div className="mt-6 flex gap-4 overflow-x-auto border-t border-espresso/12 pt-4 sm:mt-8 sm:grid sm:grid-cols-2 sm:gap-x-5 sm:gap-y-6 sm:overflow-visible sm:pt-5 md:grid-cols-4">
               {heroTrust.map(({ value, label, Icon }) => (
-                <div key={label} className="min-w-0 md:border-r md:border-espresso/10 md:pr-4 md:last:border-r-0">
-                  <Icon className="mb-2 h-4 w-4 text-oak" strokeWidth={1.8} />
-                  <p className="font-heading text-xl font-bold text-espresso">
+                <div key={label} className="min-w-[100px] shrink-0 sm:min-w-0 md:border-r md:border-espresso/10 md:pr-4 md:last:border-r-0">
+                  <Icon className="mb-1.5 h-4 w-4 text-oak sm:mb-2" strokeWidth={1.8} />
+                  <p className="font-heading text-lg font-bold text-espresso sm:text-xl">
                     {label === 'ocena Google' && googleRating ? googleRating.toFixed(1) + '/5' : value}
                   </p>
-                  <p className="mt-1 text-xs leading-snug text-espresso/72">{label}</p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-espresso/72 sm:mt-1 sm:text-xs">{label}</p>
                 </div>
               ))}
             </div>
@@ -596,7 +593,7 @@ const BenefitsStrip = () => (
 );
 
 const PodologyPromoSection = () => (
-  <section className="home-deferred-section bg-[#F8F5EF] py-14 md:py-18" aria-labelledby="podology-home-heading">
+  <section className="home-deferred-section bg-[#F8F5EF] py-10 sm:py-14 md:py-18" aria-labelledby="podology-home-heading">
     <div className="container max-w-7xl px-5">
       <FadeUp>
         <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-white p-6 shadow-[0_20px_65px_rgba(26,56,40,0.12)] md:grid-cols-[auto_1fr_auto] md:p-8">
@@ -738,7 +735,7 @@ const AvailabilityPreviewSection = ({
   }, [selectedService?.id, monthAvailability, selectedDate, todayKey]);
 
   return (
-    <section id="terminy" className="home-deferred-section bg-espresso py-16 text-ivory md:py-24">
+    <section id="terminy" className="home-deferred-section bg-espresso py-10 text-ivory sm:py-16 md:py-24">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <div className="mb-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
@@ -1074,7 +1071,7 @@ const ServicesSection = ({
   const hiddenServicesCount = Math.max(activeAdminServices.length - visibleServices.length, 0);
 
   return (
-    <section id="zabiegi" className="home-deferred-section bg-ivory py-16 md:py-24">
+    <section id="zabiegi" className="home-deferred-section bg-ivory py-10 sm:py-16 md:py-24">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1193,7 +1190,7 @@ const SeasonalSection = ({
   if (seasonalServices.length === 0) return null;
 
   return (
-  <section className="home-deferred-section bg-cream py-16">
+  <section className="home-deferred-section bg-cream py-10 sm:py-16">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1232,10 +1229,10 @@ const ConsultationSection = ({
 }: {
   onConsultationClick: () => void;
 }) => (
-  <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-20">
+  <section className="home-deferred-section bg-[#F8F5EF] py-10 sm:py-16 md:py-20">
     <div className="container max-w-6xl px-5">
       <FadeUp>
-        <div className="grid items-center gap-8 rounded-lg border border-oak/25 bg-espresso p-6 text-ivory shadow-[0_24px_80px_rgba(26,56,40,0.22)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
+        <div className="grid items-center gap-6 rounded-lg border border-oak/25 bg-espresso p-5 text-ivory shadow-[0_24px_80px_rgba(26,56,40,0.22)] sm:gap-8 sm:p-6 md:grid-cols-[1.2fr_0.8fr] md:p-10">
           <div>
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#DDB87F]">Bezpłatna konsultacja</p>
             <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
@@ -1300,10 +1297,10 @@ const TestimonialsSection = ({
   };
 
   return (
-  <section className="home-deferred-section bg-ivory py-16 md:py-24">
+  <section className="home-deferred-section bg-ivory py-10 sm:py-16 md:py-24">
     <div className="container max-w-7xl px-5">
       <FadeUp>
-        <div className="mb-10 grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+        <div className="mb-7 grid items-end gap-4 sm:mb-10 sm:gap-6 lg:grid-cols-[1fr_auto]">
           <SectionIntro
             eyebrow="Opinie klientek"
             title="Zaufanie buduje się spokojem, dokładnością i kontaktem po wizycie"
@@ -1464,7 +1461,7 @@ const TestimonialsSection = ({
 };
 
 const ProcessSection = () => (
-  <section className="home-deferred-section bg-cream py-16 md:py-24">
+  <section className="home-deferred-section bg-cream py-10 sm:py-16 md:py-24">
     <div className="container max-w-7xl px-5">
       <FadeUp>
         <SectionIntro
@@ -1514,7 +1511,7 @@ const ReservationFormSection = ({
   };
 
   return (
-    <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-24">
+    <section className="home-deferred-section bg-[#F8F5EF] py-10 sm:py-16 md:py-24">
       <div className="container max-w-7xl px-5">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
           <FadeUp>
@@ -1638,7 +1635,7 @@ const AboutOwnerSection = () => {
   const ownerPhoto = about?.ownerPhoto;
 
   return (
-    <section className="home-deferred-section bg-cream py-16 md:py-24" aria-labelledby="about-heading">
+    <section className="home-deferred-section bg-cream py-10 sm:py-16 md:py-24" aria-labelledby="about-heading">
     <div className="container max-w-6xl px-5">
       <FadeUp>
         <div className="grid items-center gap-8 md:grid-cols-[auto_1fr]">
@@ -1713,7 +1710,7 @@ const BlogPreviewSection = ({ posts }: { posts: any[] }) => {
   if (visiblePosts.length === 0) return null;
 
   return (
-    <section className="home-deferred-section bg-ivory py-16 md:py-24" aria-labelledby="blog-heading">
+    <section className="home-deferred-section bg-ivory py-10 sm:py-16 md:py-24" aria-labelledby="blog-heading">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1779,7 +1776,7 @@ const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }
   const visible = metamorphoses.slice(0, 4);
 
   return (
-    <section className="home-deferred-section bg-[#F8F5EF] py-16 md:py-24" aria-labelledby="metamorphoses-heading">
+    <section className="home-deferred-section bg-[#F8F5EF] py-10 sm:py-16 md:py-24" aria-labelledby="metamorphoses-heading">
       <div className="container max-w-7xl px-5">
         <FadeUp>
           <SectionIntro
@@ -1850,7 +1847,7 @@ const MetamorphosesPreviewSection = ({ metamorphoses }: { metamorphoses: any[] }
 
 const FaqSection = () => {
   return (
-    <section className="home-deferred-section bg-ivory py-16 md:py-24" aria-labelledby="faq-heading">
+    <section className="home-deferred-section bg-ivory py-10 sm:py-16 md:py-24" aria-labelledby="faq-heading">
       <div className="container max-w-3xl px-5">
         <FadeUp>
           <div className="mb-10 text-center">
@@ -1881,7 +1878,7 @@ const FaqSection = () => {
 };
 
 const AreaSection = () => (
-  <section className="home-deferred-section bg-cream py-14" aria-labelledby="area-heading">
+  <section className="home-deferred-section bg-cream py-10 sm:py-14" aria-labelledby="area-heading">
     <div className="container max-w-4xl px-5 text-center">
       <FadeUp>
         <h2 id="area-heading" className="font-heading text-2xl font-bold text-espresso">

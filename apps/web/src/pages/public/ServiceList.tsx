@@ -74,14 +74,14 @@ export const ServiceList = () => {
       />
 
       <header className="border-b border-espresso/10 bg-[#F8F7F2]">
-        <div className="container max-w-7xl px-5 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-oak">Oferta BeskidStudio</p>
-          <div className="mt-4 grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+        <div className="container max-w-7xl px-5 py-10 sm:py-14 md:py-16">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-oak sm:text-xs">Oferta BeskidStudio</p>
+          <div className="mt-3 grid items-end gap-4 sm:mt-4 sm:gap-6 lg:grid-cols-[1fr_auto]">
             <div className="max-w-3xl">
-              <h1 className="font-heading text-4xl font-semibold leading-tight text-espresso md:text-5xl">
+              <h1 className="font-heading text-[28px] font-semibold leading-tight text-espresso sm:text-4xl md:text-5xl">
                 Usługi i ceny
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-espresso/68 md:text-lg">
+              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-espresso/68 sm:mt-4 sm:text-base md:text-lg">
                 Wybierz zabieg dopasowany do Twoich potrzeb. Przy każdej usłudze znajdziesz aktualną cenę, czas trwania i szczegóły wizyty.
               </p>
             </div>
@@ -146,11 +146,11 @@ export const ServiceList = () => {
         </div>
       </main>
 
-      <section className="border-t border-espresso/10 bg-[#F8F7F2] py-14 md:py-16" aria-labelledby="popular-local-services">
+      <section className="border-t border-espresso/10 bg-[#F8F7F2] py-10 sm:py-14 md:py-16" aria-labelledby="popular-local-services">
         <div className="container max-w-7xl px-5">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-oak">Usługi w okolicy</p>
-            <h2 id="popular-local-services" className="mt-3 font-heading text-3xl font-semibold leading-tight text-espresso md:text-4xl">
+            <h2 id="popular-local-services" className="mt-3 font-heading text-2xl font-semibold leading-tight text-espresso sm:text-3xl md:text-4xl">
               Najczęściej wybierane zabiegi w Limanowej i Mordarce
             </h2>
             <p className="mt-4 text-base leading-relaxed text-espresso/65">

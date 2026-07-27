@@ -77,7 +77,7 @@ const localBusinessSchema = {
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '5.0',
-    reviewCount: '18',
+    reviewCount: '17',
     bestRating: '5',
   },
   potentialAction: {
@@ -135,18 +135,18 @@ export const Contact = () => {
       />
 
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
+      <section className="py-10 text-center sm:py-16" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div
-            className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
+            className="hidden sm:inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
             style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Jesteśmy tu dla Ciebie
           </div>
-          <h1 className="text-4xl font-heading font-bold tracking-tight sm:text-5xl" style={{ color: '#1A3828' }}>
+          <h1 className="text-[26px] font-heading font-bold tracking-tight leading-[1.15] sm:text-4xl md:text-5xl" style={{ color: '#1A3828' }}>
             Kontakt — salon kosmetologiczny koło Limanowej
           </h1>
-          <p className="mt-4 text-lg max-w-xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
+          <p className="mt-3 text-[15px] max-w-xl mx-auto sm:mt-4 sm:text-lg" style={{ color: 'rgba(20,40,28,0.55)' }}>
             Salon kosmetologiczny w Mordarce 505 koło Limanowej — obsługujemy klientki z Limanowej,
             Laskowej, Dobrej, Tymbarku i całej okolicy.
           </p>
@@ -154,18 +154,18 @@ export const Contact = () => {
       </section>
 
       {/* Main grid */}
-      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Left column */}
             <div className="flex flex-col gap-6">
               {/* Phone card */}
-              <div className="p-7" style={cardStyle}>
+              <div className="p-5 sm:p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-4">
                   <Phone className="h-5 w-5" style={{ color: '#C4965A' }} />
                   <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Telefon i e-mail</h2>
                 </div>
-                <p className="text-3xl font-bold tracking-wide mb-5" style={{ color: '#1A3828' }}>{phoneDisplay}</p>
+                <p className="text-2xl font-bold tracking-wide mb-4 sm:text-3xl sm:mb-5" style={{ color: '#1A3828' }}>{phoneDisplay}</p>
                 <div className="flex flex-wrap gap-3">
                   <a
                     href={`tel:${SEO.phone}`}
@@ -194,7 +194,7 @@ export const Contact = () => {
               </div>
 
               {/* Chat card */}
-              <div className="p-7" style={cardStyle}>
+              <div className="p-5 sm:p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-4">
                   <MessageCircle className="h-5 w-5" style={{ color: '#C4965A' }} />
                   <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Czat z salonem</h2>
@@ -237,7 +237,7 @@ export const Contact = () => {
               </div>
 
               {/* Review CTA */}
-              <div className="p-7" style={cardStyle}>
+              <div className="p-5 sm:p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-4">
                   <Star className="h-5 w-5" style={{ color: '#C4965A' }} />
                   <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Byłaś u nas? Podziel się opinią</h2>
@@ -259,7 +259,7 @@ export const Contact = () => {
               </div>
 
               {/* Address & hours */}
-              <div className="p-7" style={cardStyle}>
+              <div className="p-5 sm:p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-5">
                   <MapPin className="h-5 w-5" style={{ color: '#C4965A' }} />
                   <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Adres i godziny</h2>
@@ -321,7 +321,7 @@ export const Contact = () => {
               </div>
 
               {/* Dojazd */}
-              <div className="p-7" style={cardStyle}>
+              <div className="p-5 sm:p-7" style={cardStyle}>
                 <div className="flex items-center gap-2 mb-4">
                   <Car className="h-5 w-5" style={{ color: '#C4965A' }} />
                   <h2 className="font-semibold text-base" style={{ color: '#1A3828' }}>Dojazd</h2>

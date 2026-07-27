@@ -106,22 +106,22 @@ export const About = () => {
       />
 
       {/* Hero */}
-      <section className="py-16 text-center" style={{ backgroundColor: '#F0F7F1' }}>
+      <section className="py-10 text-center sm:py-16" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div
-            className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
+            className="hidden sm:inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6"
             style={{ backgroundColor: 'rgba(196,150,90,0.12)', color: '#C4965A' }}
           >
             Poznaj nas
           </div>
           <h1
-            className="text-4xl font-heading font-display tracking-tight sm:text-5xl"
+            className="text-[26px] font-heading font-display tracking-tight leading-[1.15] sm:text-4xl md:text-5xl"
             style={{ color: '#1A3828', fontStyle: 'italic', fontWeight: 300 }}
           >
             Wiktoria Ćwik — kosmetolog koło Limanowej
           </h1>
           {about?.salonTagline && (
-            <p className="mt-4 text-lg max-w-2xl mx-auto" style={{ color: 'rgba(20,40,28,0.55)' }}>
+            <p className="mt-3 text-[15px] max-w-2xl mx-auto sm:mt-4 sm:text-lg" style={{ color: 'rgba(20,40,28,0.55)' }}>
               {about.salonTagline}
             </p>
           )}
@@ -129,7 +129,7 @@ export const About = () => {
       </section>
 
       {/* Salon info */}
-      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
             {/* Cover image */}
@@ -174,7 +174,7 @@ export const About = () => {
       </section>
 
       {/* Owner */}
-      <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
             {/* Bio */}
@@ -240,7 +240,7 @@ export const About = () => {
       </section>
 
       {/* Wykształcenie i doświadczenie */}
-      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl">
           <div className="text-center mb-10">
             <div
@@ -281,7 +281,7 @@ export const About = () => {
       </section>
 
       {/* Filozofia pracy */}
-      <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F0F7F1' }}>
         <div className="container max-w-3xl">
           <div className="text-center mb-10">
             <div
@@ -328,7 +328,7 @@ export const About = () => {
       </section>
 
       {/* Dlaczego BeskidStudio */}
-      <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+      <section className="py-10 sm:py-16" style={{ backgroundColor: '#F4F9F5' }}>
         <div className="container max-w-3xl">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-heading font-bold" style={{ color: '#1A3828' }}>
@@ -341,7 +341,7 @@ export const About = () => {
               { icon: Sparkles, text: 'Spokojna, kameralna atmosfera' },
               { icon: MapPin, text: '5 min od centrum Limanowej' },
               { icon: Clock, text: 'Rezerwacja online 24/7' },
-              { icon: Star, text: '5.0 gwiazdek w Google (18 opinii)' },
+              { icon: Star, text: '5.0 gwiazdek w Google (17 opinii)' },
             ].map(({ icon: Ico, text }) => (
               <div
                 key={text}
@@ -374,12 +374,12 @@ export const About = () => {
 
       {/* Employees */}
       {activeEmployees.length > 0 && (
-        <section className="py-16" style={{ backgroundColor: '#F4F9F5' }}>
+        <section className="py-10 sm:py-16" style={{ backgroundColor: '#F4F9F5' }}>
           <div className="container">
             <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
               Nasz Zespół
             </h2>
-            <p className="text-center text-sm mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
+            <p className="text-center text-sm mb-8 sm:mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Poznaj specjalistów, którzy zadbają o Twój wygląd i samopoczucie.
             </p>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -443,12 +443,12 @@ export const About = () => {
 
       {/* Features / App */}
       {about && ((about.features?.length ?? 0) > 0 || about.appDescription) && (
-        <section className="py-16" style={{ backgroundColor: '#F0F7F1' }}>
+        <section className="py-10 sm:py-16" style={{ backgroundColor: '#F0F7F1' }}>
           <div className="container">
             <h2 className="text-2xl font-heading font-bold mb-2 text-center" style={{ color: '#1A3828' }}>
               {about.featuresTitle || 'Dlaczego warto wybrać BeskidStudio By Wiktoria Ćwik?'}
             </h2>
-            <p className="text-center text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
+            <p className="text-center text-sm max-w-xl mx-auto mb-8 sm:mb-12" style={{ color: 'rgba(20,40,28,0.55)' }}>
               Nowoczesna aplikacja to więcej niż rezerwacje — to pełne doświadczenie klienta.
             </p>
 

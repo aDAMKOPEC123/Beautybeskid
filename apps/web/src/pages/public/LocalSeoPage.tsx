@@ -91,23 +91,23 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
       />
 
       <section className="relative overflow-hidden bg-cream">
-        <div className="container grid min-h-[calc(100svh-72px)] max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-[1fr_0.82fr] lg:py-20">
+        <div className="container grid max-w-7xl items-center gap-8 px-5 py-10 sm:py-16 lg:min-h-[calc(100svh-72px)] lg:grid-cols-[1fr_0.82fr] lg:gap-10 lg:py-20">
           <div className="min-w-0">
-            <p className={sectionLabelClass}>{page.eyebrow}</p>
-            <h1 className="max-w-4xl break-words font-heading text-4xl font-bold leading-tight text-espresso sm:text-5xl lg:text-6xl">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">{page.eyebrow}</p>
+            <h1 className="max-w-4xl break-words font-heading text-[26px] font-bold leading-[1.15] text-espresso sm:text-5xl lg:text-6xl">
               {page.h1}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-espresso/68">
+            <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-espresso/68 sm:mt-6 sm:text-lg">
               {page.lead}
             </p>
 
             {page.statusNote ? (
-              <div className="mt-6 rounded-lg border border-oak/30 bg-white/80 p-4 text-sm leading-relaxed text-espresso/70">
+              <div className="mt-4 rounded-lg border border-oak/30 bg-white/80 p-3 text-sm leading-relaxed text-espresso/70 sm:mt-6 sm:p-4">
                 <strong className="text-espresso">Aktualna dostępność:</strong> {page.statusNote}
               </div>
             ) : null}
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row">
               <Button
                 size="lg"
                 className="premium-shine w-full gap-2 whitespace-normal bg-oak text-center text-espresso shadow-[0_18px_45px_rgba(196,150,90,0.3)] hover:bg-oak/90 sm:w-auto"
@@ -156,11 +156,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
               ) : null}
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid gap-2 sm:mt-8 sm:grid-cols-3 sm:gap-3">
               {page.heroPoints.map((point) => (
-                <div key={point} className="flex items-start gap-3 rounded-lg border border-espresso/10 bg-white/75 p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-oak" />
-                  <p className="text-sm leading-relaxed text-espresso/68">{point}</p>
+                <div key={point} className="flex items-center gap-2.5 rounded-lg border border-espresso/10 bg-white/75 px-3 py-2.5 sm:items-start sm:gap-3 sm:p-4">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-oak sm:mt-0.5 sm:h-5 sm:w-5" />
+                  <p className="text-[13px] leading-snug text-espresso/68 sm:text-sm sm:leading-relaxed">{point}</p>
                 </div>
               ))}
             </div>
@@ -173,7 +173,7 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
                 <img
                   src={heroImage}
                   alt="BeskidStudio By Wiktoria Ćwik Limanowa — gabinet kosmetologiczny"
-                  className="aspect-[4/5] w-full object-cover"
+                  className="aspect-[16/10] w-full object-cover sm:aspect-[4/5]"
                   loading="eager"
                 />
               </picture>
@@ -226,11 +226,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         </div>
       </section>
 
-      <section className="bg-ivory py-16 md:py-20">
+      <section className="bg-ivory py-10 sm:py-16 md:py-20">
         <div className="container max-w-7xl px-5">
-          <div className="mx-auto mb-10 max-w-3xl text-center">
-            <p className={sectionLabelClass}>Dlaczego BeskidStudio By Wiktoria Ćwik</p>
-            <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">
+          <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-10">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">Dlaczego BeskidStudio By Wiktoria Ćwik</p>
+            <h2 className="font-heading text-2xl font-bold leading-tight text-espresso sm:text-3xl md:text-4xl">
               Lokalna usługa, jasny plan i spokojna decyzja
             </h2>
             <p className="mt-4 text-base leading-relaxed text-espresso/62">
@@ -255,11 +255,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         </div>
       </section>
 
-      <section className="bg-[#F8F5EF] py-16 md:py-20">
-        <div className="container grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.75fr_1fr]">
+      <section className="bg-[#F8F5EF] py-10 sm:py-16 md:py-20">
+        <div className="container grid max-w-7xl gap-6 px-5 sm:gap-8 lg:grid-cols-[0.75fr_1fr]">
           <div>
-            <p className={sectionLabelClass}>Jak wygląda wizyta</p>
-            <h2 className="font-heading text-3xl font-bold leading-tight text-espresso md:text-4xl">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">Jak wygląda wizyta</p>
+            <h2 className="font-heading text-2xl font-bold leading-tight text-espresso sm:text-3xl md:text-4xl">
               Od pierwszego kontaktu do konkretnego terminu
             </h2>
             <p className="mt-4 text-base leading-relaxed text-espresso/62">
@@ -288,12 +288,12 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
       </section>
 
       {page.extendedSections && page.extendedSections.length > 0 && (
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-white py-10 sm:py-16 md:py-20">
           <div className="container max-w-4xl px-5">
-            <div className="space-y-12">
+            <div className="space-y-8 sm:space-y-12">
               {page.extendedSections.map((section, index) => (
                 <article key={index}>
-                  <h2 className="font-heading text-2xl font-bold leading-tight text-espresso md:text-3xl">
+                  <h2 className="font-heading text-xl font-bold leading-tight text-espresso sm:text-2xl md:text-3xl">
                     {section.heading}
                   </h2>
                   <div className="mt-4 space-y-4">
@@ -310,11 +310,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         </section>
       )}
 
-      <section className="bg-espresso py-16 text-ivory md:py-20">
-        <div className="container grid max-w-7xl gap-8 px-5 lg:grid-cols-[1fr_0.82fr]">
+      <section className="bg-espresso py-10 text-ivory sm:py-16 md:py-20">
+        <div className="container grid max-w-7xl gap-6 px-5 sm:gap-8 lg:grid-cols-[1fr_0.82fr]">
           <div>
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-oak">Lokalny zasięg</p>
-            <h2 className="font-heading text-3xl font-bold leading-tight md:text-4xl">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">Lokalny zasięg</p>
+            <h2 className="font-heading text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">
               {page.phoneOnly
                 ? 'Aktywna podologia dla Limanowej i okolic'
                 : 'BeskidStudio By Wiktoria Ćwik dla Limanowej, Mordarki i okolic'}
@@ -357,11 +357,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         </div>
       </section>
 
-      <section className="bg-ivory py-16 md:py-20" aria-labelledby="local-faq-heading">
+      <section className="bg-ivory py-10 sm:py-16 md:py-20" aria-labelledby="local-faq-heading">
         <div className="container max-w-3xl px-5">
-          <div className="mb-10 text-center">
-            <p className={sectionLabelClass}>FAQ</p>
-            <h2 id="local-faq-heading" className="font-heading text-3xl font-bold text-espresso md:text-4xl">
+          <div className="mb-6 text-center sm:mb-10">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">FAQ</p>
+            <h2 id="local-faq-heading" className="font-heading text-2xl font-bold text-espresso sm:text-3xl md:text-4xl">
               Najczęstsze pytania przed wizytą
             </h2>
           </div>
@@ -381,11 +381,11 @@ export const LocalSeoPage = ({ pageKey }: LocalSeoPageProps) => {
         </div>
       </section>
 
-      <section className="bg-cream py-14">
-        <div className="container flex max-w-5xl flex-col items-center justify-between gap-5 px-5 text-center md:flex-row md:text-left">
+      <section className="bg-cream py-10 sm:py-14">
+        <div className="container flex max-w-5xl flex-col items-center justify-between gap-4 px-5 text-center sm:gap-5 md:flex-row md:text-left">
           <div className="min-w-0">
-            <p className={sectionLabelClass}>{page.phoneOnly ? 'Zapisy telefoniczne' : 'Rezerwacja'}</p>
-            <h2 className="font-heading text-3xl font-bold text-espresso">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-oak sm:mb-3 sm:text-[10px] sm:tracking-[0.32em]">{page.phoneOnly ? 'Zapisy telefoniczne' : 'Rezerwacja'}</p>
+            <h2 className="font-heading text-2xl font-bold text-espresso sm:text-3xl">
               {page.phoneOnly
                 ? 'Umów wizytę podologiczną telefonicznie'
                 : 'Sprawdź aktualne terminy w BeskidStudio By Wiktoria Ćwik'}
