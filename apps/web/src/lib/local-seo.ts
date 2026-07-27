@@ -350,7 +350,7 @@ export const localSeoPages: Record<LocalSeoPageKey, LocalSeoPageConfig> = {
     nearbyContext: limanowaContext,
     phoneOnly: true,
     statusNote:
-      'Podologia jest aktywna, ale wizyty odbywają się w odrębnej lokalizacji. Zadzwoń pod numer 532 128 227, aby ustalić termin i otrzymać dokładny adres.',
+      'Strona podologiczna jest w trakcie rozbudowy — więcej informacji wkrótce. Aby umówić wizytę podologiczną, zadzwoń pod numer 532 128 227.',
     heroPoints: [
       'pedicure podologiczny i pielęgnacja stóp',
       'konsultacja stanu stóp przed zabiegiem',
