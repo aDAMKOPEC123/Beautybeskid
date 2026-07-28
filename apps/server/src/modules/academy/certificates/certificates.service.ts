@@ -4,6 +4,7 @@ import { PDFDocument, rgb, PDFFont } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import QRCode from 'qrcode';
 import { nanoid } from 'nanoid';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 
@@ -109,7 +110,7 @@ export const issueCertificate = async (
   const verificationCode = nanoid(12);
   const issuedAt = new Date();
 
-  // Guard against race condition: if a certificate was already issued between the caller's check and now, return early.
+  // Check for existing certificate first (fast path).
   const alreadyIssued = await prisma.academyCertificate.findFirst({
     where: {
       userId,
@@ -139,6 +140,13 @@ export const issueCertificate = async (
   } catch (err) {
     // Remove the PDF file if the DB insert failed to avoid orphaned files.
     await fs.unlink(pdfPath).catch(() => {});
+    // Race condition: another request created the certificate between our findFirst and create.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const existing = await prisma.academyCertificate.findFirst({
+        where: { userId, status: 'ACTIVE', ...(opts.courseId ? { courseId: opts.courseId } : {}), ...(opts.quizId ? { quizId: opts.quizId } : {}) },
+      });
+      if (existing) return existing;
+    }
     throw err;
   }
 

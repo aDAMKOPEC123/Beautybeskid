@@ -184,8 +184,10 @@ const fulfill = async (orderId: string, session: Stripe.Checkout.Session) => {
   }
   if (order.status !== 'PAID') {
     const purchasedAt = new Date();
+    const cartCourses = order.items.length ? await prisma.course.findMany({ where: { id: { in: order.items.flatMap(item => item.courseIds) } }, select: { id: true, accessDays: true } }) : [];
+    const cartCourseMap = new Map(cartCourses.map(c => [c.id, c.accessDays]));
     const rawEnrollments = order.items.length
-      ? order.items.flatMap(item=>item.courseIds.map(courseId=>({courseId,expiresAt:null,accessDays:null})))
+      ? order.items.flatMap(item=>item.courseIds.map(courseId=>({courseId,expiresAt:expiry(cartCourseMap.get(courseId)),accessDays:cartCourseMap.get(courseId)??null})))
       : order.courseId && order.course
       ? [{ courseId: order.courseId, expiresAt: expiry(order.course.accessDays), accessDays: order.course.accessDays }]
       : (order.bundle?.courses ?? []).map((item) => ({

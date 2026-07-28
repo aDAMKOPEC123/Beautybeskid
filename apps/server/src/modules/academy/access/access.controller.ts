@@ -4,7 +4,7 @@ import * as accessService from './access.service';
 export const grantAccess = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, expiresAt } = req.body;
-    const adminId = (req as any).user.id;
+    const adminId = req.academyUser!.id;
     await accessService.grantAccess(userId, adminId, expiresAt ? new Date(expiresAt) : undefined);
     res.json({ message: 'Dostęp do Akademii nadany' });
   } catch (error) {
@@ -15,7 +15,7 @@ export const grantAccess = async (req: Request, res: Response, next: NextFunctio
 export const revokeAccess = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.body;
-    const adminId = (req as any).user.id;
+    const adminId = req.academyUser!.id;
     await accessService.revokeAccess(userId, adminId);
     res.json({ message: 'Dostęp do Akademii cofnięty' });
   } catch (error) {

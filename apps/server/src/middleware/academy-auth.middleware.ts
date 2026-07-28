@@ -47,7 +47,7 @@ export const academyRequireAdmin = async (req: Request, _res: Response, next: Ne
   } catch (error) { next(error); }
 };
 
-export const academyRequirePurchase = async (req: Request, _res: Response, next: NextFunction) => {
+export const academyRequireAnyPurchase = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     if (req.academyUser?.role === 'ADMIN') return next();
     if (!req.academyUser) throw new AppError('Materiał będzie dostępny po zakupie kursu', 403);
@@ -56,3 +56,6 @@ export const academyRequirePurchase = async (req: Request, _res: Response, next:
     next();
   } catch (error) { next(error); }
 };
+
+/** @deprecated Use academyRequireAnyPurchase — kept as alias */
+export const academyRequirePurchase = academyRequireAnyPurchase;

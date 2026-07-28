@@ -80,15 +80,26 @@ export const saveNote = async (userId: string, lessonId: string, content: string
 };
 
 export const deleteNote = async (userId: string, lessonId: string) => {
+  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { module: { select: { courseId: true, course: { select: { accessDays: true } } } } } });
+  if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
+  const enrolled = await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: lesson.module.courseId } } });
+  if (!hasActiveCourseAccess(enrolled, lesson.module.course.accessDays)) throw new AppError('Nie masz aktywnego dostępu do tej lekcji', 403);
   await prisma.lessonNote.deleteMany({ where: { userId, lessonId } });
 };
 
+const LESSON_FIELDS = ['title', 'slug', 'type', 'order', 'estimatedMinutes', 'isRequired', 'videoId', 'contentHtml', 'transcriptHtml', 'thumbnailUrl'] as const;
+const pickLessonFields = (data: Record<string, unknown>) => {
+  const picked: Record<string, unknown> = {};
+  for (const key of LESSON_FIELDS) if (data[key] !== undefined) picked[key] = data[key];
+  return sanitizeLessonData(picked);
+};
+
 export const createLesson = async (moduleId: string, data: Record<string, unknown>) => {
-  return prisma.lesson.create({ data: { moduleId, ...sanitizeLessonData(data) } as any });
+  return prisma.lesson.create({ data: { moduleId, ...pickLessonFields(data) } as any });
 };
 
 export const updateLesson = async (id: string, data: Record<string, unknown>) => {
-  return prisma.lesson.update({ where: { id }, data: sanitizeLessonData(data) as any });
+  return prisma.lesson.update({ where: { id }, data: pickLessonFields(data) as any });
 };
 
 export const deleteLesson = async (id: string) => {

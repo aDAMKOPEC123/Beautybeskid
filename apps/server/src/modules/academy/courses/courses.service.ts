@@ -393,6 +393,9 @@ export const deleteCourse = async (id: string) => {
 };
 
 export const reorderModules = async (courseId: string, order: string[]) => {
+  const modules = await prisma.courseModule.findMany({ where: { courseId }, select: { id: true } });
+  const valid = new Set(modules.map((m) => m.id));
+  if (order.some((id) => !valid.has(id))) throw new AppError('Podano moduł nienależący do tego kursu', 400);
   await Promise.all(
     order.map((moduleId, index) =>
       prisma.courseModule.update({ where: { id: moduleId }, data: { order: index } })
@@ -401,6 +404,9 @@ export const reorderModules = async (courseId: string, order: string[]) => {
 };
 
 export const reorderLessons = async (moduleId: string, order: string[]) => {
+  const lessons = await prisma.lesson.findMany({ where: { moduleId }, select: { id: true } });
+  const valid = new Set(lessons.map((l) => l.id));
+  if (order.some((id) => !valid.has(id))) throw new AppError('Podano lekcję nienależącą do tego modułu', 400);
   await Promise.all(
     order.map((lessonId, index) =>
       prisma.lesson.update({ where: { id: lessonId }, data: { order: index } })

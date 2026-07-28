@@ -1,11 +1,12 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { issueCertificate } from '../certificates/certificates.service';
+import { hasActiveCourseAccess } from '../access';
 
 const stripCorrect = (options: { isCorrect: boolean; [key: string]: unknown }[]) =>
   options.map(({ isCorrect: _ic, ...opt }) => opt);
 
-export const getQuizForLesson = async (lessonId: string) => {
+export const getQuizForLesson = async (lessonId: string, userId: string, isAdmin = false) => {
   const quiz = await prisma.academyQuiz.findUnique({
     where: { lessonId },
     include: {
@@ -13,14 +14,21 @@ export const getQuizForLesson = async (lessonId: string) => {
         include: { options: { orderBy: { order: 'asc' } } },
         orderBy: { order: 'asc' },
       },
+      lesson: { select: { module: { select: { courseId: true, course: { select: { accessDays: true } } } } } },
     },
   });
 
   if (!quiz) throw new AppError('Brak quizu dla tej lekcji', 404);
   if (!quiz.isPublished) throw new AppError('Quiz nie jest opublikowany', 403);
 
+  if (!isAdmin && quiz.lesson) {
+    const enrollment = await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: quiz.lesson.module.courseId } } });
+    if (!hasActiveCourseAccess(enrollment, quiz.lesson.module.course.accessDays)) throw new AppError('Kup kurs, aby uzyskać dostęp do quizu', 403);
+  }
+
+  const { lesson: _lesson, ...quizData } = quiz;
   return {
-    ...quiz,
+    ...quizData,
     questions: quiz.questions.map((q) => ({ ...q, options: stripCorrect(q.options) })),
   };
 };
@@ -50,7 +58,7 @@ export const listStandaloneQuizzes = async (userId: string) => {
 
 export const getStandaloneQuiz = async (quizId: string) => {
   const quiz = await prisma.academyQuiz.findUnique({
-    where: { id: quizId, lessonId: undefined },
+    where: { id: quizId },
     include: {
       questions: {
         include: { options: { orderBy: { order: 'asc' } } },
@@ -170,12 +178,19 @@ export const adminGetQuiz = async (id: string) => {
   return quiz;
 };
 
+const QUIZ_FIELDS = ['title', 'description', 'thumbnailUrl', 'passingScore', 'maxAttempts', 'timeLimitMinutes', 'isPublished', 'lessonId'] as const;
+const pickQuizFields = (data: Record<string, unknown>) => {
+  const picked: Record<string, unknown> = {};
+  for (const key of QUIZ_FIELDS) if (data[key] !== undefined) picked[key] = data[key];
+  return picked;
+};
+
 export const createQuiz = async (data: Record<string, unknown>) => {
-  return prisma.academyQuiz.create({ data: data as any });
+  return prisma.academyQuiz.create({ data: pickQuizFields(data) as any });
 };
 
 export const updateQuiz = async (id: string, data: Record<string, unknown>) => {
-  return prisma.academyQuiz.update({ where: { id }, data: data as any });
+  return prisma.academyQuiz.update({ where: { id }, data: pickQuizFields(data) as any });
 };
 
 export const deleteQuiz = async (id: string) => {
@@ -197,8 +212,15 @@ export const createQuestion = async (
   });
 };
 
+const QUESTION_FIELDS = ['text', 'type', 'order', 'explanation'] as const;
+const pickQuestionFields = (data: Record<string, unknown>) => {
+  const picked: Record<string, unknown> = {};
+  for (const key of QUESTION_FIELDS) if (data[key] !== undefined) picked[key] = data[key];
+  return picked;
+};
+
 export const updateQuestion = async (questionId: string, data: Record<string, unknown>) => {
-  return prisma.academyQuizQuestion.update({ where: { id: questionId }, data: data as any });
+  return prisma.academyQuizQuestion.update({ where: { id: questionId }, data: pickQuestionFields(data) as any });
 };
 
 export const deleteQuestion = async (questionId: string) => {

@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { authenticate } from '../../../middleware/auth.middleware';
-import { requireAdmin } from '../../../middleware/admin.middleware';
+import { academyAuthenticate, academyRequireAdmin } from '../../../middleware/academy-auth.middleware';
 import * as accessController from './access.controller';
 
 const router = Router();
 
-router.use(authenticate, requireAdmin);
+router.use(academyAuthenticate, academyRequireAdmin);
 
 router.post('/grant', accessController.grantAccess);
 router.post('/revoke', accessController.revokeAccess);

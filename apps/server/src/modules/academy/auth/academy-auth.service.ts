@@ -11,6 +11,7 @@ import { getCurrentVersions } from '../legal/legal.service';
 const refreshTtl = '30d';
 const academySecret = `${env.JWT_SECRET}:academy`;
 const hash = (value: string) => crypto.createHash('sha256').update(value).digest('hex');
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c]!);
 const toUser = (user: { id: string; email: string; name: string; role: string; emailVerifiedAt?: Date | null }) => ({
   id: user.id,
   email: user.email,
@@ -39,7 +40,7 @@ const sendVerification = async (user: { id: string; email: string; name: string 
   const raw = crypto.randomBytes(32).toString('hex');
   await prisma.academyUser.update({ where: { id: user.id }, data: { emailVerificationToken: hash(raw), emailVerificationExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) } });
   const url = `${env.ACADEMY_URL ?? 'http://localhost:5174'}/potwierdz-email?token=${raw}`;
-  await sendEmail(user.email, 'Potwierdź adres e-mail w Akademii', `<p>Dzień dobry ${user.name},</p><p>Potwierdź adres e-mail, klikając poniższy link:</p><p><a href="${url}">Potwierdź adres e-mail</a></p><p>Link jest ważny przez 24 godziny.</p>`);
+  await sendEmail(user.email, 'Potwierdź adres e-mail w Akademii', `<p>Dzień dobry ${escapeHtml(user.name)},</p><p>Potwierdź adres e-mail, klikając poniższy link:</p><p><a href="${url}">Potwierdź adres e-mail</a></p><p>Link jest ważny przez 24 godziny.</p>`);
 };
 
 export const register = async (input: { email: string; password: string; name: string } & LegalAcceptance) => {
@@ -126,7 +127,7 @@ export const requestPasswordReset = async (emailInput: string) => {
   const raw = crypto.randomBytes(32).toString('hex');
   await prisma.academyUser.update({ where: { id: user.id }, data: { passwordResetToken: hash(raw), passwordResetExpiresAt: new Date(Date.now() + 60 * 60 * 1000) } });
   const url = `${env.ACADEMY_URL ?? 'http://localhost:5174'}/nowe-haslo?token=${raw}`;
-  await sendEmail(user.email, 'Ustaw nowe hasło do Akademii', `<p>Dzień dobry ${user.name},</p><p><a href="${url}">Ustaw nowe hasło</a>.</p><p>Link jest ważny przez godzinę. Jeśli nie prosiłaś o zmianę, zignoruj tę wiadomość.</p>`);
+  await sendEmail(user.email, 'Ustaw nowe hasło do Akademii', `<p>Dzień dobry ${escapeHtml(user.name)},</p><p><a href="${url}">Ustaw nowe hasło</a>.</p><p>Link jest ważny przez godzinę. Jeśli nie prosiłaś o zmianę, zignoruj tę wiadomość.</p>`);
 };
 
 export const resetPassword = async (rawToken: string, password: string) => {

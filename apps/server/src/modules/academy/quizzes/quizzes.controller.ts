@@ -3,7 +3,7 @@ import * as quizzesService from './quizzes.service';
 
 export const getQuizForLesson = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const quiz = await quizzesService.getQuizForLesson(req.params.lessonId);
+    const quiz = await quizzesService.getQuizForLesson(req.params.lessonId, req.academyUser!.id, req.academyUser!.role === 'ADMIN');
     res.json({ data: quiz });
   } catch (error) {
     next(error);
