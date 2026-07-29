@@ -1486,6 +1486,7 @@ model AcademyUser {
   academyQuizAttempts       AcademyQuizAttempt[]
   courseFavorites           CourseFavorite[]
   lessonNotes               LessonNote[]
+  lessonComments            LessonComment[]
   academySupportThread      AcademySupportThread?   @relation("AcademySupportUser")
   academySupportAssignments AcademySupportThread[]  @relation("AcademySupportAdmin")
   academySupportMessages    AcademySupportMessage[] @relation("AcademySupportAuthor")
@@ -1980,7 +1981,10 @@ model Lesson {
 
   progress UserLessonProgress[]
   quiz     AcademyQuiz?
-  notes    LessonNote[]
+  notes        LessonNote[]
+  attachments  LessonAttachment[]
+  caseStudies  LessonCaseStudy[]
+  comments     LessonComment[]
 
   @@unique([moduleId, slug])
   @@index([moduleId])
@@ -2116,6 +2120,74 @@ model LessonNote {
   updatedAt      DateTime    @updatedAt
 
   @@index([userId, lessonId])
+}
+
+model LessonAttachment {
+  id           String   @id @default(cuid())
+  lessonId     String
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileName     String
+  originalName String
+  fileSize     Int
+  mimeType     String
+  description  String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([lessonId])
+}
+
+enum CaseStudyImageType {
+  BEFORE
+  AFTER
+  DURING
+}
+
+model LessonCaseStudy {
+  id                   String             @id @default(cuid())
+  lessonId             String
+  lesson               Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title                String
+  problemDescription   String
+  treatmentDescription String
+  resultsDescription   String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+
+  images CaseStudyImage[]
+
+  @@index([lessonId])
+}
+
+model CaseStudyImage {
+  id          String              @id @default(cuid())
+  caseStudyId String
+  caseStudy   LessonCaseStudy     @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  imageUrl    String
+  caption     String?
+  type        CaseStudyImageType
+  order       Int                 @default(0)
+
+  @@index([caseStudyId])
+}
+
+model LessonComment {
+  id           String          @id @default(cuid())
+  lessonId     String
+  lesson       Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userId       String
+  user         AcademyUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      LessonComment[] @relation("CommentReplies")
+  content      String
+  isAdminReply Boolean         @default(false)
+  isDeleted    Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([lessonId, createdAt])
+  @@index([userId])
 }
 
 model AcademyAccessLog {
