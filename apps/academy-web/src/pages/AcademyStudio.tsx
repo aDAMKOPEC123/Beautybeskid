@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { Bold, BookOpen, CheckCircle2, ChevronRight, CircleHelp, FileText, Film, Heading1, Heading2, ImagePlus, Italic, Layers3, Lightbulb, Link2, List, ListOrdered, Play, Plus, Save, Sparkles, Underline } from 'lucide-react';
+import { Bold, BookOpen, CheckCircle2, ChevronRight, CircleHelp, Download, FileText, Film, Heading1, Heading2, ImagePlus, Italic, Layers3, Lightbulb, Link2, List, ListOrdered, Paperclip, Play, Plus, Save, Sparkles, Trash2, Underline, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -42,15 +43,15 @@ export function AcademyStudio() {
       <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Strona sprzedażowa</span><small>Argumenty, materiały próbne i FAQ kursu</small></div><div className="studio-form-grid"><Field label="Rezultaty nauki" hint="Jeden rezultat w linii"><textarea value={draft.learningOutcomesText} onChange={e=>setDraft({...draft,learningOutcomesText:e.target.value})}/></Field><Field label="Dla kogo"><textarea value={draft.targetAudience} onChange={e=>setDraft({...draft,targetAudience:e.target.value})}/></Field><Field label="Dla kogo nie jest"><textarea value={draft.notForAudience} onChange={e=>setDraft({...draft,notForAudience:e.target.value})}/></Field><Field label="Wymagania wstępne" hint="Jedno w linii"><textarea value={draft.prerequisitesText} onChange={e=>setDraft({...draft,prerequisitesText:e.target.value})}/></Field><Field label="ID zwiastuna Vimeo/YouTube"><input value={draft.trailerVideoId} onChange={e=>setDraft({...draft,trailerVideoId:e.target.value})}/></Field><Field label="Adres próbki PDF"><input value={draft.samplePdfUrl} onChange={e=>setDraft({...draft,samplePdfUrl:e.target.value})}/></Field><Field label="FAQ" hint="Pytanie|Odpowiedź — jedno w linii"><textarea value={draft.salesFaqsText} onChange={e=>setDraft({...draft,salesFaqsText:e.target.value})}/></Field></div></section>
       {selected && <section className="studio-card"><div className="studio-card-head"><span><Play />Bezpłatny podgląd</span><small>Wybierz jedną istniejącą lekcję widoczną przed zakupem</small></div><div className="p-4"><Field label="Lekcja podglądowa" hint="Po zmianie kliknij Zapisz kurs"><select value={draft.previewLessonId} onChange={event => setDraft({ ...draft, previewLessonId: event.target.value })}><option value="">Bez podglądu</option>{selected.modules?.flatMap((module: any) => module.lessons?.map((lesson: any) => <option key={lesson.id} value={lesson.id}>{module.title} — {lesson.title}</option>) ?? [])}</select></Field></div></section>}
       <section className="studio-card"><div className="studio-card-head"><span><Play />Podgląd strony kursu</span><div className="academy-preview-switch"><button className={previewMode==='desktop'?'active':''} onClick={()=>setPreviewMode('desktop')}>Desktop</button><button className={previewMode==='mobile'?'active':''} onClick={()=>setPreviewMode('mobile')}>Telefon</button></div></div><div className={`academy-course-live-preview ${previewMode}`}><article><div className="academy-course-cover">{draft.thumbnailUrl?<img src={draft.thumbnailUrl} alt=""/>:<div className="academy-course-placeholder"><BookOpen/></div>}</div><div><p className="academy-kicker">{draft.difficulty}</p><h2>{draft.title||'Tytuł kursu'}</h2><p>{draft.description||'Opis i obietnica kursu pojawią się tutaj.'}</p><strong>{draft.isFree?'Bezpłatny':draft.isComingSoon?'Wkrótce':`${Number(draft.price).toLocaleString('pl-PL')} zł`}</strong>{draft.compareAtPrice&&Number(draft.compareAtPrice)>Number(draft.price)&&<del>{Number(draft.compareAtPrice).toLocaleString('pl-PL')} zł</del>}<ul>{draft.learningOutcomesText.split('\n').filter(Boolean).slice(0,4).map(item=><li key={item}><CheckCircle2/>{item}</li>)}</ul><button type="button">{draft.isComingSoon?'Dołącz do listy':'Kup kurs'}</button></div></article></div></section>
-      {selected && <Curriculum course={selected} addModule={addModule.mutate} addLesson={addLesson.mutate} updateLesson={updateLesson.mutate} addQuiz={addQuiz.mutate} addQuestion={addQuestion.mutate} />}
+      {selected && <Curriculum course={selected} addModule={addModule.mutate} addLesson={addLesson.mutate} updateLesson={updateLesson.mutate} addQuiz={addQuiz.mutate} addQuestion={addQuestion.mutate} refresh={refresh} />}
       {!selected && <div className="studio-next"><CheckCircle2 /><div><strong>Najpierw zapisz kartę kursu</strong><p>Po utworzeniu kursu dodasz moduły, lekcje, osadzone materiały i punkty kontrolne.</p></div></div>}
     </main>
   </div>;
 }
 
-function Curriculum({ course, addModule, addLesson, updateLesson, addQuiz, addQuestion }: { course: any; addModule: (title: string) => void; addLesson: (input: any) => void; updateLesson: (input: any) => void; addQuiz: (input: any) => void; addQuestion: (input: any) => void }) {
+function Curriculum({ course, addModule, addLesson, updateLesson, addQuiz, addQuestion, refresh }: { course: any; addModule: (title: string) => void; addLesson: (input: any) => void; updateLesson: (input: any) => void; addQuiz: (input: any) => void; addQuestion: (input: any) => void; refresh: () => void }) {
   const [moduleTitle, setModuleTitle] = useState(''); const [open, setOpen] = useState<string | null>(course.modules?.[0]?.id ?? null);
-  return <section className="studio-card"><div className="studio-card-head"><span><Layers3 />Program kursu</span><small>Buduj kolejność: wprowadzenie → demonstracja → praktyka → sprawdzenie.</small></div><div className="studio-modules">{course.modules?.map((mod: any, index: number) => <div className="studio-module" key={mod.id}><button className="studio-module-head" onClick={() => setOpen(open === mod.id ? null : mod.id)}><span>{String(index + 1).padStart(2, '0')}</span><strong>{mod.title}</strong><small>{mod.lessons?.length ?? 0} lekcji</small><ChevronRight className={open === mod.id ? 'open' : ''} /></button>{open === mod.id && <div className="studio-module-content">{mod.lessons?.map((lesson: any) => <div key={lesson.id}><div className="studio-lesson">{lesson.type === 'VIDEO' ? <Film /> : lesson.type === 'QUIZ' ? <CircleHelp /> : <FileText />}<span><strong>{lesson.title}</strong><small>{lesson.type === 'QUIZ' ? `${lesson.quiz?._count?.questions ?? 0} pytań kontrolnych` : lesson.type === 'TEXT' ? 'Tekst / materiał osadzony' : lesson.transcriptHtml ? 'Materiał wideo · transkrypcja gotowa' : 'Materiał wideo · brak transkrypcji'}</small></span></div>{lesson.type === 'VIDEO' && <TranscriptEditor lesson={lesson} updateLesson={updateLesson} />}{lesson.quiz && <QuestionComposer quiz={lesson.quiz} addQuestion={addQuestion} />}</div>)}<LessonComposer module={mod} addLesson={addLesson} addQuiz={addQuiz} /></div>}</div>)}</div><div className="studio-add-module"><input value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} placeholder="np. Diagnostyka i przygotowanie" /><button onClick={() => { if(moduleTitle.trim()) { addModule(moduleTitle); setModuleTitle(''); } }}><Plus />Dodaj moduł</button></div></section>;
+  return <section className="studio-card"><div className="studio-card-head"><span><Layers3 />Program kursu</span><small>Buduj kolejność: wprowadzenie → demonstracja → praktyka → sprawdzenie.</small></div><div className="studio-modules">{course.modules?.map((mod: any, index: number) => <div className="studio-module" key={mod.id}><button className="studio-module-head" onClick={() => setOpen(open === mod.id ? null : mod.id)}><span>{String(index + 1).padStart(2, '0')}</span><strong>{mod.title}</strong><small>{mod.lessons?.length ?? 0} lekcji</small><ChevronRight className={open === mod.id ? 'open' : ''} /></button>{open === mod.id && <div className="studio-module-content">{mod.lessons?.map((lesson: any) => <div key={lesson.id}><div className="studio-lesson">{lesson.type === 'VIDEO' ? <Film /> : lesson.type === 'QUIZ' ? <CircleHelp /> : <FileText />}<span><strong>{lesson.title}</strong><small>{lesson.type === 'QUIZ' ? `${lesson.quiz?._count?.questions ?? 0} pytań kontrolnych` : lesson.type === 'TEXT' ? 'Tekst / materiał osadzony' : lesson.transcriptHtml ? 'Materiał wideo · transkrypcja gotowa' : 'Materiał wideo · brak transkrypcji'}</small></span></div>{lesson.type === 'VIDEO' && <TranscriptEditor lesson={lesson} updateLesson={updateLesson} />}{lesson.quiz && <QuestionComposer quiz={lesson.quiz} addQuestion={addQuestion} />}<AttachmentsManager lesson={lesson} onRefresh={refresh} /><CaseStudiesManager lesson={lesson} onRefresh={refresh} /></div>)}<LessonComposer module={mod} addLesson={addLesson} addQuiz={addQuiz} /></div>}</div>)}</div><div className="studio-add-module"><input value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} placeholder="np. Diagnostyka i przygotowanie" /><button onClick={() => { if(moduleTitle.trim()) { addModule(moduleTitle); setModuleTitle(''); } }}><Plus />Dodaj moduł</button></div></section>;
 }
 
 function TranscriptEditor({ lesson, updateLesson }: { lesson: any; updateLesson: (input: any) => void }) {
@@ -128,4 +129,154 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
     {error && <p className="rich-editor-error">{error}</p>}
   </div>;
 }
+function AttachmentsManager({ lesson, onRefresh }: { lesson: any; onRefresh: () => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [desc, setDesc] = useState('');
+  const attachments: any[] = lesson.attachments ?? [];
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      await academyApi.adminAddAttachment(lesson.id, file, desc.trim() || undefined);
+      setDesc('');
+      onRefresh();
+      toast.success('Plik dodany');
+    } catch { toast.error('Nie udalo sie wgrac pliku'); }
+    finally { setUploading(false); }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('Usunac zalacznik?')) return;
+    try { await academyApi.adminDeleteAttachment(id); onRefresh(); toast.success('Zalacznik usuniety'); }
+    catch { toast.error('Blad usuwania'); }
+  };
+
+  return (
+    <details className="studio-transcript">
+      <summary><Paperclip className="w-3.5 h-3.5 inline mr-1" />Materialy do pobrania ({attachments.length})</summary>
+      <div className="space-y-2 py-2">
+        {attachments.map((att: any) => (
+          <div key={att.id} className="flex items-center gap-2 text-sm bg-accent/20 rounded px-2 py-1.5">
+            <Download className="w-3.5 h-3.5 shrink-0" />
+            <span className="flex-1 truncate">{att.originalName}</span>
+            <span className="text-xs text-muted-foreground">{(att.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+            <button className="text-destructive/70 hover:text-destructive" onClick={() => remove(att.id)}><Trash2 className="w-3.5 h-3.5" /></button>
+          </div>
+        ))}
+        <div className="space-y-1">
+          <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Opis pliku (opcjonalnie)" className="w-full text-sm rounded border px-2 py-1" />
+          <input ref={fileRef} type="file" accept=".pdf,.zip,.docx" onChange={upload} hidden />
+          <button className="studio-add-lesson text-xs" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            <Plus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie...' : 'Dodaj plik (PDF, ZIP, DOCX, max 20 MB)'}
+          </button>
+        </div>
+      </div>
+    </details>
+  );
+}
+
+function CaseStudiesManager({ lesson, onRefresh }: { lesson: any; onRefresh: () => void }) {
+  const [adding, setAdding] = useState(false);
+  const [title, setTitle] = useState('');
+  const [problem, setProblem] = useState('');
+  const [treatment, setTreatment] = useState('');
+  const [results, setResults] = useState('');
+  const caseStudies: any[] = lesson.caseStudies ?? [];
+
+  const create = async () => {
+    if (!title.trim()) return;
+    try {
+      await academyApi.adminCreateCaseStudy(lesson.id, { title, problemDescription: problem, treatmentDescription: treatment, resultsDescription: results });
+      setTitle(''); setProblem(''); setTreatment(''); setResults(''); setAdding(false);
+      onRefresh();
+      toast.success('Case study dodane');
+    } catch { toast.error('Blad tworzenia case study'); }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('Usunac case study?')) return;
+    try { await academyApi.adminDeleteCaseStudy(id); onRefresh(); toast.success('Case study usuniete'); }
+    catch { toast.error('Blad usuwania'); }
+  };
+
+  return (
+    <details className="studio-transcript">
+      <summary><ImageIcon className="w-3.5 h-3.5 inline mr-1" />Studia przypadkow ({caseStudies.length})</summary>
+      <div className="space-y-3 py-2">
+        {caseStudies.map((cs: any) => (
+          <div key={cs.id} className="rounded border bg-accent/10 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <strong className="text-sm">{cs.title}</strong>
+              <button className="text-destructive/70 hover:text-destructive" onClick={() => remove(cs.id)}><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+            {cs.images?.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {cs.images.map((img: any) => (
+                  <div key={img.id} className="relative group">
+                    <img src={img.imageUrl} alt={img.caption || ''} className="w-16 h-16 object-cover rounded" />
+                    <span className="absolute bottom-0 left-0 text-[9px] bg-black/60 text-white px-1 rounded-tr">{img.type === 'BEFORE' ? 'Przed' : img.type === 'AFTER' ? 'Po' : 'W trakcie'}</span>
+                    <button className="absolute top-0 right-0 bg-destructive text-white rounded-full w-4 h-4 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity" onClick={async () => { try { await academyApi.adminDeleteCaseStudyImage(img.id); onRefresh(); } catch { toast.error('Blad usuwania zdjecia'); } }}>x</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <CaseStudyImageUpload caseStudyId={cs.id} onRefresh={onRefresh} />
+          </div>
+        ))}
+        {adding ? (
+          <div className="space-y-2 border rounded p-3">
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Tytul case study" className="w-full text-sm rounded border px-2 py-1" />
+            <textarea value={problem} onChange={e => setProblem(e.target.value)} placeholder="Opis problemu" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
+            <textarea value={treatment} onChange={e => setTreatment(e.target.value)} placeholder="Zastosowany zabieg" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
+            <textarea value={results} onChange={e => setResults(e.target.value)} placeholder="Efekty" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
+            <div className="flex gap-2">
+              <button className="studio-add-lesson text-xs" onClick={create}><Plus className="w-3.5 h-3.5" />Zapisz</button>
+              <button className="text-xs text-muted-foreground" onClick={() => setAdding(false)}>Anuluj</button>
+            </div>
+          </div>
+        ) : (
+          <button className="studio-add-lesson text-xs" onClick={() => setAdding(true)}><Plus className="w-3.5 h-3.5" />Dodaj case study</button>
+        )}
+      </div>
+    </details>
+  );
+}
+
+function CaseStudyImageUpload({ caseStudyId, onRefresh }: { caseStudyId: string; onRefresh: () => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [type, setType] = useState('BEFORE');
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      await academyApi.adminAddCaseStudyImage(caseStudyId, file, type);
+      onRefresh();
+      toast.success('Zdjecie dodane');
+    } catch { toast.error('Nie udalo sie wgrac zdjecia'); }
+    finally { setUploading(false); }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <select value={type} onChange={e => setType(e.target.value)} className="text-xs rounded border px-1 py-0.5">
+        <option value="BEFORE">Przed</option>
+        <option value="DURING">W trakcie</option>
+        <option value="AFTER">Po</option>
+      </select>
+      <input ref={fileRef} type="file" accept="image/*" onChange={upload} hidden />
+      <button className="text-xs text-primary flex items-center gap-1" onClick={() => fileRef.current?.click()} disabled={uploading}>
+        <ImagePlus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie...' : 'Dodaj zdjecie'}
+      </button>
+    </div>
+  );
+}
+
 function Field({ label, hint, children }: { label:string; hint?:string; children:React.ReactNode }) { return <label className="studio-field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>; }

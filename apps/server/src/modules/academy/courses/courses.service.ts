@@ -275,7 +275,11 @@ export const adminListAll = async () => {
         include: {
           _count: { select: { lessons: true } },
           lessons: {
-            include: { quiz: { select: { id: true, title: true, isPublished: true, _count: { select: { questions: true } } } } },
+            include: {
+              quiz: { select: { id: true, title: true, isPublished: true, _count: { select: { questions: true } } } },
+              attachments: { orderBy: { order: 'asc' } },
+              caseStudies: { include: { images: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
+            },
             orderBy: { order: 'asc' },
           },
         },

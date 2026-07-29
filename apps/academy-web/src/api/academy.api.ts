@@ -127,8 +127,31 @@ export const academyApi = {
   },
   adminCreateCheckpoint: (moduleId: string, data: { title: string; order?: number; passingScore?: number }) => api.post(`/academy/admin/modules/${moduleId}/checkpoints`, data).then((r) => r.data.data),
   adminUpdateLesson: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/lessons/${id}`, data).then((r) => r.data.data),
+  adminDeleteLesson: (id: string) => api.delete(`/academy/admin/lessons/${id}`).then((r) => r.data),
   adminCreateQuiz: (data: Record<string, unknown>) => api.post('/academy/admin/quizzes', data).then((r) => r.data.data),
   adminCreateQuestion: (quizId: string, data: Record<string, unknown>) => api.post(`/academy/admin/quizzes/${quizId}/questions`, data).then((r) => r.data.data),
+
+  // Admin attachments
+  adminAddAttachment: (lessonId: string, file: File, description?: string) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    if (description) fd.append('description', description);
+    return api.post(`/academy/admin/lessons/${lessonId}/attachments`, fd).then((r) => r.data.data);
+  },
+  adminDeleteAttachment: (id: string) => api.delete(`/academy/admin/attachments/${id}`).then((r) => r.data),
+
+  // Admin case studies
+  adminCreateCaseStudy: (lessonId: string, data: Record<string, unknown>) => api.post(`/academy/admin/lessons/${lessonId}/case-studies`, data).then((r) => r.data.data),
+  adminUpdateCaseStudy: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/case-studies/${id}`, data).then((r) => r.data.data),
+  adminDeleteCaseStudy: (id: string) => api.delete(`/academy/admin/case-studies/${id}`).then((r) => r.data),
+  adminAddCaseStudyImage: (caseStudyId: string, file: File, type: string, caption?: string) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('type', type);
+    if (caption) fd.append('caption', caption);
+    return api.post(`/academy/admin/case-studies/${caseStudyId}/images`, fd).then((r) => r.data.data);
+  },
+  adminDeleteCaseStudyImage: (id: string) => api.delete(`/academy/admin/case-study-images/${id}`).then((r) => r.data),
 
   // Academy-only support — deliberately separate from the salon chat.
   getMySupportThread: () => api.get('/academy/support/my-thread').then((r) => r.data.data),
