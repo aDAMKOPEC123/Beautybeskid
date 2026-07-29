@@ -7,6 +7,7 @@ const router = Router();
 // Public storefront — course details are intentionally visible before purchase.
 router.get('/public/courses', coursesController.listPublic);
 router.get('/public/sitemap.xml', coursesController.publicSitemap);
+router.get('/public/courses/:slug/preview', coursesController.getPreviewLesson);
 router.get('/public/courses/:slug', coursesController.getPublicCourse);
 router.get('/public/bundles', coursesController.listPublicBundles);
 router.get('/public/bundles/:slug', coursesController.getPublicBundle);

@@ -91,6 +91,27 @@ export const getPublicCourse = async (slug: string) => {
   };
 };
 
+export const getPreviewLesson = async (slug: string) => {
+  const course = await prisma.course.findUnique({
+    where: { slug },
+    select: { id: true, status: true, isActive: true, previewLessonId: true },
+  });
+  if (!course || course.status !== 'PUBLISHED' || !course.isActive) throw new AppError('Nie znaleziono kursu', 404);
+  if (!course.previewLessonId) throw new AppError('Ten kurs nie ma lekcji próbnej', 404);
+
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: course.previewLessonId },
+    select: {
+      id: true, title: true, slug: true, type: true,
+      videoProvider: true, videoId: true,
+      contentHtml: true, transcriptHtml: true,
+      thumbnailUrl: true, estimatedMinutes: true,
+    },
+  });
+  if (!lesson) throw new AppError('Lekcja próbna nie jest dostępna', 404);
+  return lesson;
+};
+
 export const getCourseBySlug = async (slug: string, userId: string, isAdmin = false) => {
   const course = await prisma.course.findUnique({
     where: { slug },

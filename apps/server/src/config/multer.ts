@@ -35,3 +35,19 @@ export const upload = multer({
     cb(new AppError('Tylko pliki obrazów są dozwolone!', 400));
   },
 });
+
+const DOCUMENT_MIMETYPES = [
+  'application/pdf',
+  'application/zip',
+  'application/x-zip-compressed',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+export const uploadDocument = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (DOCUMENT_MIMETYPES.includes(file.mimetype)) return cb(null, true);
+    cb(new AppError('Dozwolone formaty: PDF, ZIP, DOCX', 400));
+  },
+});

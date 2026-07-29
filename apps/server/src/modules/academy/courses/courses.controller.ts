@@ -29,6 +29,10 @@ export const publicSitemap = async (_req: Request, res: Response, next: NextFunc
   } catch (error) { next(error); }
 };
 
+export const getPreviewLesson = async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await coursesService.getPreviewLesson(req.params.slug) }); } catch (error) { next(error); }
+};
+
 export const listPublished = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.academyUser!.id;
