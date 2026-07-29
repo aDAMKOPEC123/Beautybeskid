@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { CheckCircle, ChevronLeft, MessageCircleHeart, NotebookPen, Play, Save, Trash2 } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Download, FileText, ImageIcon, MessageCircle, MessageCircleHeart, NotebookPen, Play, Reply, Save, Send, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import DOMPurify from 'dompurify';
@@ -177,7 +177,192 @@ export function LessonPlayer() {
         <textarea className="w-full min-h-32 rounded-lg border bg-background p-3 text-sm" value={note} onChange={(event) => setNote(event.target.value)} maxLength={5000} placeholder="Zapisz najważniejsze wnioski z tej lekcji…" />
         <div className="flex items-center justify-between gap-3"><span className="text-xs text-muted-foreground">{note.length}/5000{progressRef.current > 0 ? ` · przy ${Math.floor(progressRef.current / 60)}:${String(progressRef.current % 60).padStart(2, '0')}` : ''}</span><div className="flex gap-2">{lesson.notes?.length > 0 && <button className="flex items-center gap-1 px-3 py-2 text-xs text-destructive" onClick={() => deleteNoteMutation.mutate()} disabled={deleteNoteMutation.isPending}><Trash2 className="w-4 h-4" />Usuń</button>}<button className="flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground" onClick={() => noteMutation.mutate()} disabled={!note.trim() || noteMutation.isPending}><Save className="w-4 h-4" />{noteMutation.isPending ? 'Zapisywanie…' : 'Zapisz'}</button></div></div>
       </section>
+      {/* Attachments */}
+      {lesson.attachments?.length > 0 && (
+        <section className="rounded-xl border bg-card p-5 space-y-3">
+          <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-primary" /><h2 className="font-semibold">Materialy do pobrania</h2></div>
+          <div className="divide-y">
+            {lesson.attachments.map((att: any) => (
+              <a key={att.id} href={academyApi.downloadAttachmentUrl(lesson.id, att.id)} className="flex items-center gap-3 py-3 text-sm hover:bg-accent/50 rounded-md px-2 transition-colors" download>
+                <Download className="w-4 h-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{att.originalName}</p>
+                  {att.description && <p className="text-xs text-muted-foreground">{att.description}</p>}
+                </div>
+                <span className="text-xs text-muted-foreground shrink-0">{(att.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Case Studies */}
+      {lesson.caseStudies?.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><h2 className="font-semibold">Studia przypadkow</h2></div>
+          {lesson.caseStudies.map((cs: any) => (
+            <div key={cs.id} className="rounded-xl border bg-card overflow-hidden">
+              <div className="p-5 space-y-3">
+                <h3 className="font-semibold text-lg">{cs.title}</h3>
+                {cs.problemDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Problem</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.problemDescription) }} /></div>}
+                {cs.treatmentDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Zastosowany zabieg</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.treatmentDescription) }} /></div>}
+                {cs.resultsDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Efekty</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.resultsDescription) }} /></div>}
+              </div>
+              {cs.images?.length > 0 && (
+                <div className="border-t p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {cs.images.map((img: any) => (
+                      <figure key={img.id} className="space-y-1">
+                        <img src={img.imageUrl} alt={img.caption || cs.title} className="w-full aspect-[4/3] object-cover rounded-lg" loading="lazy" />
+                        <figcaption className="text-xs text-muted-foreground text-center">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase ${img.type === 'BEFORE' ? 'bg-red-100 text-red-700' : img.type === 'AFTER' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>{img.type === 'BEFORE' ? 'Przed' : img.type === 'AFTER' ? 'Po' : 'W trakcie'}</span>
+                          {img.caption && <span className="ml-1">{img.caption}</span>}
+                        </figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Comments */}
+      <LessonComments lessonId={lesson.id} />
+
       <Link to="/zapytaj-kosmetologa" state={{ course: slug, lesson: lesson.title }} className="flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm font-semibold text-primary"><MessageCircleHeart className="w-5 h-5" />Zapytaj kosmetologa o tę lekcję</Link>
     </div>
+  );
+}
+
+function LessonComments({ lessonId }: { lessonId: string }) {
+  const queryClient = useQueryClient();
+  const [newComment, setNewComment] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+
+  const { data: comments = [] } = useQuery({
+    queryKey: ['academy', 'comments', lessonId],
+    queryFn: () => academyApi.getLessonComments(lessonId),
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['academy', 'comments', lessonId] });
+
+  const addMutation = useMutation({
+    mutationFn: () => academyApi.addLessonComment(lessonId, newComment.trim()),
+    onSuccess: () => { setNewComment(''); invalidate(); toast.success('Komentarz dodany'); },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udalo sie dodac komentarza'),
+  });
+
+  const replyMutation = useMutation({
+    mutationFn: (commentId: string) => academyApi.addCommentReply(commentId, replyText.trim()),
+    onSuccess: () => { setReplyingTo(null); setReplyText(''); invalidate(); toast.success('Odpowiedz dodana'); },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udalo sie dodac odpowiedzi'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (commentId: string) => academyApi.deleteComment(commentId),
+    onSuccess: () => { invalidate(); toast.success('Komentarz usuniety'); },
+  });
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <section className="rounded-xl border bg-card p-5 space-y-4" aria-labelledby="comments-title">
+      <div className="flex items-center gap-2">
+        <MessageCircle className="w-5 h-5 text-primary" />
+        <h2 id="comments-title" className="font-semibold">Dyskusja ({(comments as any[]).length})</h2>
+      </div>
+
+      {/* New comment form */}
+      <div className="space-y-2">
+        <textarea
+          className="w-full min-h-20 rounded-lg border bg-background p-3 text-sm"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          maxLength={2000}
+          placeholder="Zadaj pytanie lub podziel sie refleksja..."
+        />
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-muted-foreground">{newComment.length}/2000</span>
+          <button
+            className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+            onClick={() => addMutation.mutate()}
+            disabled={!newComment.trim() || addMutation.isPending}
+          >
+            <Send className="w-3.5 h-3.5" />
+            {addMutation.isPending ? 'Wysylanie...' : 'Wyslij'}
+          </button>
+        </div>
+      </div>
+
+      {/* Comments list */}
+      <div className="space-y-4">
+        {(comments as any[]).map((comment: any) => (
+          <div key={comment.id} className="space-y-2">
+            <div className="rounded-lg bg-accent/30 p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium">{comment.user?.name || 'Uzytkownik'}</span>
+                {comment.isAdminReply && <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-primary/10 text-primary">Instruktor</span>}
+                <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
+              </div>
+              <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+              <div className="flex gap-2 mt-2">
+                <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1" onClick={() => { setReplyingTo(replyingTo === comment.id ? null : comment.id); setReplyText(''); }}>
+                  <Reply className="w-3.5 h-3.5" />Odpowiedz
+                </button>
+                {comment.user?.id && <button className="text-xs text-destructive/70 hover:text-destructive flex items-center gap-1" onClick={() => { if (confirm('Usunac komentarz?')) deleteMutation.mutate(comment.id); }}>
+                  <Trash2 className="w-3.5 h-3.5" />Usun
+                </button>}
+              </div>
+            </div>
+
+            {/* Reply form */}
+            {replyingTo === comment.id && (
+              <div className="ml-6 space-y-2">
+                <textarea
+                  className="w-full min-h-16 rounded-lg border bg-background p-3 text-sm"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  maxLength={2000}
+                  placeholder="Napisz odpowiedz..."
+                  autoFocus
+                />
+                <div className="flex gap-2 justify-end">
+                  <button className="text-xs text-muted-foreground px-3 py-1.5" onClick={() => setReplyingTo(null)}>Anuluj</button>
+                  <button
+                    className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                    onClick={() => replyMutation.mutate(comment.id)}
+                    disabled={!replyText.trim() || replyMutation.isPending}
+                  >
+                    <Send className="w-3 h-3" />{replyMutation.isPending ? 'Wysylanie...' : 'Wyslij'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Replies */}
+            {comment.replies?.length > 0 && (
+              <div className="ml-6 space-y-2">
+                {comment.replies.map((reply: any) => (
+                  <div key={reply.id} className="rounded-lg bg-accent/20 p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium">{reply.user?.name || 'Uzytkownik'}</span>
+                      {reply.isAdminReply && <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-primary/10 text-primary">Instruktor</span>}
+                      <span className="text-xs text-muted-foreground ml-auto">{formatDate(reply.createdAt)}</span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{reply.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

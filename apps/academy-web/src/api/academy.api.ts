@@ -39,6 +39,15 @@ export const academyApi = {
     api.put(`/academy/lessons/${lessonId}/note`, { content, videoTimestamp }).then((r) => r.data.data),
   deleteLessonNote: (lessonId: string) => api.delete(`/academy/lessons/${lessonId}/note`),
 
+  // Attachments
+  downloadAttachmentUrl: (lessonId: string, attachmentId: string) => `/api/academy/lessons/${lessonId}/attachments/${attachmentId}/download`,
+
+  // Comments
+  getLessonComments: (lessonId: string) => api.get(`/academy/lessons/${lessonId}/comments`).then((r) => r.data.data),
+  addLessonComment: (lessonId: string, content: string) => api.post(`/academy/lessons/${lessonId}/comments`, { content }).then((r) => r.data.data),
+  addCommentReply: (commentId: string, content: string) => api.post(`/academy/comments/${commentId}/replies`, { content }).then((r) => r.data.data),
+  deleteComment: (commentId: string) => api.delete(`/academy/comments/${commentId}`),
+
   // Progress
   markLessonComplete: (lessonId: string) =>
     api.post(`/academy/progress/lesson/${lessonId}/complete`).then((r) => r.data),
