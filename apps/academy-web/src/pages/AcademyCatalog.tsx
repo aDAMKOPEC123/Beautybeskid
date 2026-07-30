@@ -70,6 +70,9 @@ export function AcademyCatalog() {
       <link rel="canonical" href="https://akademia.kosmetologwiktoriacwik.pl/" />
       <meta property="og:title" content="Akademia Kosmetologii | BeskidStudio" />
       <meta property="og:description" content="Praktyczna kosmetologia, którą wykorzystasz w gabinecie — krok po kroku." />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Akademia Kosmetologii | BeskidStudio" />
+      <meta name="twitter:description" content="Praktyczne kursy kosmetologiczne online — uczysz się we własnym tempie." />
     </Helmet>
 
     {storefront?.banners?.length>0&&<AcademyBannerSlider banners={storefront.banners}/>}

@@ -27,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         setAcademySessionHint(false);
         set({ user: null, accessToken: null });
+        try { localStorage.removeItem('academy-cart'); } catch { /* noop */ }
       },
       hydrate: () => set({ isLoading: false }),
     }),

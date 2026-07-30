@@ -34,7 +34,7 @@ export function AcademyLayout() {
           </Link>
           <nav className={`academy-desktop-nav ${isAuthenticated ? 'authenticated' : 'anonymous'}`} aria-label="Główna nawigacja">
             {navItems.map(({ to, label, icon: Icon, exact, locked }) => locked
-              ? <span key={to} className="locked" title="Dostępne po zalogowaniu" aria-label={`${label} — dostępne po zalogowaniu`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></span>
+              ? <Link key={to} to="/logowanie" state={{ from: to }} className="locked" aria-label={`${label} — zaloguj się, aby uzyskać dostęp`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></Link>
               : <Link key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
             )}
           </nav>
@@ -51,7 +51,7 @@ export function AcademyLayout() {
         </div>
         {menuOpen && <nav id="academy-mobile-menu" className="academy-mobile-nav" aria-label="Menu mobilne">
           {navItems.map(({ to, label, icon: Icon, exact, locked }) => locked
-            ? <span key={to} className="locked" aria-label={`${label} — dostępne po zalogowaniu`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></span>
+            ? <Link key={to} to="/logowanie" state={{ from: to }} onClick={() => setMenuOpen(false)} className="locked" aria-label={`${label} — zaloguj się, aby uzyskać dostęp`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></Link>
             : <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
           )}
           {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/rejestracja" className="academy-mobile-register"><UserPlus className="w-4 h-4" />Załóż darmowe konto</Link>}
