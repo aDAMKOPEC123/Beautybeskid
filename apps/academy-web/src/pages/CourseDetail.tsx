@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { ChevronDown, Clock, Play, FileText, HelpCircle, CheckCircle, ChevronRight, Star } from 'lucide-react';
+import { ChevronDown, Clock, Play, FileText, HelpCircle, CheckCircle, ChevronRight, Star, Shield, Award, BookOpen, Lock, UserPlus, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
@@ -79,20 +79,128 @@ export function CourseDetail() {
     } finally { setSubmittingInterest(false); }
   };
 
-  if (!hasAccess) return <div className="space-y-6">
+  const totalLessons = course.modules?.reduce((acc: number, mod: any) => acc + (mod.lessonCount || mod.lessons?.length || 0), 0) ?? 0;
+  const totalMinutes = course.estimatedMinutes || course.modules?.reduce((acc: number, mod: any) => acc + (mod.estimatedMinutes || 0), 0) || 0;
+
+  if (!hasAccess) return <div className="academy-sales-page">
     <DocumentTitle title={`${course.title} | Akademia BeskidStudio`} /><Helmet><meta name="description" content={String(course.description).slice(0, 155)} /><link rel="canonical" href={`https://akademia.kosmetologwiktoriacwik.pl/kurs/${course.slug}`} /><meta property="og:title" content={course.title} /><meta property="og:description" content={String(course.description).slice(0, 200)} />{course.thumbnailUrl && <meta property="og:image" content={course.thumbnailUrl} />}<script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'Course', name: course.title, description: course.description, provider: { '@type': 'Organization', name: 'Akademia BeskidStudio' }, offers: Number(course.price) > 0 ? { '@type': 'Offer', price: Number(course.price).toFixed(2), priceCurrency: 'PLN', availability: course.isComingSoon ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock' } : undefined })}</script></Helmet>
+
+    {/* Hero with course info */}
     <div className="academy-preview-hero">
       {course.thumbnailUrl && <img src={course.thumbnailUrl} alt={course.title} width="1280" height="720" />}
-      <div className="academy-preview-overlay"><span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span><h1>{course.title}</h1><p>{course.description}</p><div className="flex gap-3 text-sm"><Clock className="w-4 h-4" />{course.estimatedMinutes > 0 ? `${course.estimatedMinutes} min materiału` : 'Program w przygotowaniu'}</div></div>
+      <div className="academy-preview-overlay">
+        <span>{difficultyLabel[course.difficulty] ?? course.difficulty}</span>
+        <h1>{course.title}</h1>
+        <p>{course.description}</p>
+        <div className="academy-hero-stats-row">
+          {totalMinutes > 0 && <span><Clock className="w-4 h-4" />{totalMinutes} min materiału</span>}
+          {totalLessons > 0 && <span><BookOpen className="w-4 h-4" />{totalLessons} lekcji</span>}
+          <span><Award className="w-4 h-4" />Certyfikat ukończenia</span>
+        </div>
+      </div>
     </div>
-    <div className="academy-purchase-box"><div><p className="academy-kicker text-caramel">{course.isFree ? 'Bezpłatny dostęp' : 'Pełny dostęp'}</p><h2>Opanuj temat krok po kroku</h2><p>Otrzymasz wszystkie lekcje, materiały, quizy i certyfikat ukończenia.</p></div><div className="academy-purchase-action"><strong>{formattedPrice}</strong>{Number(course.compareAtPrice) > price && <del>{Number(course.compareAtPrice).toLocaleString('pl-PL')} zł</del>}{Number(course.lowestPrice30Days) > 0 && Number(course.compareAtPrice) > price && <small>Najniższa cena z 30 dni przed obniżką: {Number(course.lowestPrice30Days).toLocaleString('pl-PL')} zł</small>}{course.isComingSoon || (!course.isFree && price <= 0) ? <span className="academy-button academy-buy disabled" aria-disabled="true">{course.isComingSoon ? 'Kurs w przygotowaniu' : 'Cena wymaga uzupełnienia'} <ChevronRight className="w-4 h-4" /></span> : isAuthenticated ? course.isFree ? <button disabled={submittingInterest} className="academy-button academy-buy" onClick={registerInterest}>{submittingInterest ? 'Dodajemy…' : 'Dodaj bezpłatny kurs'} <ChevronRight className="w-4 h-4" /></button> : <Link className="academy-button academy-buy" to={`/zamowienie/kurs/${slug}`} onClick={()=>trackAcademyEvent('CHECKOUT_STARTED',{courseId:course.id})}>Przejdź do zamówienia <ChevronRight className="w-4 h-4" /></Link> : <Link className="academy-button academy-buy" to="/logowanie" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }} onClick={()=>trackAcademyEvent('CHECKOUT_STARTED',{courseId:course.id})}>Zaloguj się, aby kontynuować <ChevronRight className="w-4 h-4" /></Link>}<small>{course.accessDays ? `Dostęp przez ${course.accessDays} dni.` : 'Dostęp bez ograniczenia czasowego.'} Certyfikat potwierdza ukończenie kursu i nie nadaje kwalifikacji zawodowych.</small></div></div>
-    <section className="academy-preview-program"><p className="academy-kicker text-caramel">Program kursu</p><h2>Czego się nauczysz</h2>{course.modules?.map((module: any, index: number) => <div key={module.id}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{module.title}</strong><p>{module.lessonCount} lekcji{module.estimatedMinutes > 0 ? ` · ${module.estimatedMinutes} min praktyki` : ' · zakres w przygotowaniu'}</p></div><span className="academy-locked">Dostęp po zakupie</span></div>)}</section>
-    <SalesDetails course={course}/>
-    {course.previewLesson && <section className="rounded-xl border bg-card p-6 space-y-4"><p className="academy-kicker text-caramel">Bezpłatny podgląd</p><h2 className="font-heading text-2xl font-semibold">{course.previewLesson.title}</h2>{course.previewLesson.type === 'VIDEO' && course.previewLesson.videoId ? <><ExternalVideo videoId={course.previewLesson.videoId} title={course.previewLesson.title} />{course.previewLesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja filmu</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{__html:DOMPurify.sanitize(course.previewLesson.transcriptHtml)}} /></details>}</> : course.previewLesson.contentHtml && <div className="prose max-w-none" dangerouslySetInnerHTML={{__html:DOMPurify.sanitize(course.previewLesson.contentHtml)}} />}</section>}
-    <section className="rounded-xl bg-primary/5 p-6"><p className="academy-kicker text-caramel">Prowadząca</p><h2 className="font-heading text-2xl font-semibold">{course.instructorName || 'Wiktoria Ćwik'}</h2><p className="mt-2 text-sm text-muted-foreground">{course.instructorBio || 'Dyplomowana kosmetolog i praktyk gabinetowy. Program powstał z myślą o wiedzy, którą można bezpiecznie zastosować w codziennej pracy.'}</p></section>
-    {course.academyReviews?.length > 0 && <section className="space-y-3"><h2 className="font-heading text-2xl font-semibold">Zweryfikowane opinie kursantek</h2><p className="text-sm text-muted-foreground">Opinię może dodać wyłącznie osoba, która ukończyła ten kurs.</p><div className="grid gap-3 sm:grid-cols-2">{course.academyReviews.map((review:any)=><blockquote key={review.id} className="rounded-xl border bg-card p-5"><p className="text-amber-600">{'★'.repeat(review.rating)}</p><p className="mt-2 text-sm">{review.content}</p><footer className="mt-3 text-xs text-muted-foreground">{review.user.name} · zweryfikowane ukończenie</footer></blockquote>)}</div></section>}
-    {course.bundles?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Pakiety</p><h2 className="font-heading text-2xl font-semibold">Ten kurs kupisz także w pakiecie</h2><div className="grid gap-3 sm:grid-cols-2">{course.bundles.map((bundle:any)=><Link key={bundle.id} to={`/pakiet/${bundle.slug}`} className="rounded-xl border bg-card p-5"><strong>{bundle.title}</strong><p className="mt-2 text-sm text-muted-foreground">{bundle.description}</p><span className="mt-3 block font-semibold">{Number(bundle.price).toLocaleString('pl-PL')} zł</span></Link>)}</div></section>}
-    {course.recommendedCourses?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Kontynuuj ścieżkę</p><h2 className="font-heading text-2xl font-semibold">Polecane kursy z tego pakietu</h2><div className="grid gap-3 sm:grid-cols-3">{course.recommendedCourses.map((recommended:any) => <Link key={recommended.id} to={`/kurs/${recommended.slug}`} className="rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">{recommended.thumbnailUrl && <img className="mb-3 aspect-video w-full rounded-lg object-cover" src={recommended.thumbnailUrl} alt="" loading="lazy" />}<strong>{recommended.title}</strong><p className="mt-1 text-sm text-muted-foreground">{recommended.isFree ? 'Bezpłatny' : Number(recommended.price) > 0 ? `${Number(recommended.price).toLocaleString('pl-PL')} zł` : 'Cena wkrótce'}</p></Link>)}</div></section>}
+
+    {/* Primary purchase section — prominent conversion area */}
+    <div className="academy-purchase-card">
+      <div className="academy-purchase-card-left">
+        <p className="academy-kicker text-caramel">{course.isFree ? 'Bezpłatny dostęp' : 'Pełny dostęp do kursu'}</p>
+        <h2>Opanuj temat krok po kroku</h2>
+        <ul className="academy-purchase-includes">
+          <li><CheckCircle className="w-4 h-4" />{totalLessons > 0 ? `${totalLessons} lekcji wideo i tekstowych` : 'Kompletny program lekcji'}</li>
+          <li><CheckCircle className="w-4 h-4" />Quizy sprawdzające wiedzę</li>
+          <li><CheckCircle className="w-4 h-4" />Materiały do pobrania (PDF)</li>
+          <li><CheckCircle className="w-4 h-4" />Certyfikat ukończenia kursu</li>
+          <li><CheckCircle className="w-4 h-4" />{course.accessDays ? `${course.accessDays} dni dostępu` : 'Dostęp bez limitu czasowego'}</li>
+        </ul>
+      </div>
+      <div className="academy-purchase-card-right">
+        <div className="academy-purchase-price-block">
+          <strong className="academy-price-big">{formattedPrice}</strong>
+          {Number(course.compareAtPrice) > price && <><del className="academy-price-old">{Number(course.compareAtPrice).toLocaleString('pl-PL')} zł</del><span className="academy-price-save">-{Math.round((1 - price / Number(course.compareAtPrice)) * 100)}%</span></>}
+        </div>
+        {Number(course.lowestPrice30Days) > 0 && Number(course.compareAtPrice) > price && <small className="academy-price-lowest">Najniższa cena z 30 dni: {Number(course.lowestPrice30Days).toLocaleString('pl-PL')} zł</small>}
+
+        {course.isComingSoon || (!course.isFree && price <= 0)
+          ? <span className="academy-cta-button disabled" aria-disabled="true">{course.isComingSoon ? 'Kurs w przygotowaniu' : 'Cena wkrótce'}</span>
+          : isAuthenticated
+            ? course.isFree
+              ? <button disabled={submittingInterest} className="academy-cta-button" onClick={registerInterest}>{submittingInterest ? 'Dodajemy...' : 'Rozpocznij naukę za darmo'} <ArrowRight className="w-4 h-4" /></button>
+              : <Link className="academy-cta-button" to={`/zamowienie/kurs/${slug}`} onClick={() => trackAcademyEvent('CHECKOUT_STARTED', { courseId: course.id })}>Kup kurs i zacznij naukę <ArrowRight className="w-4 h-4" /></Link>
+            : <>
+              <Link className="academy-cta-button" to="/rejestracja" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }} onClick={() => trackAcademyEvent('CHECKOUT_STARTED', { courseId: course.id })}>
+                <UserPlus className="w-4 h-4" />{course.isFree ? 'Załóż konto i zacznij za darmo' : 'Załóż konto i kup kurs'}
+              </Link>
+              <Link className="academy-cta-login" to="/logowanie" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }}>
+                Masz już konto? <strong>Zaloguj się</strong>
+              </Link>
+            </>
+        }
+        <div className="academy-trust-signals">
+          <span><Shield className="w-3.5 h-3.5" />Bezpieczna płatność</span>
+          <span><Lock className="w-3.5 h-3.5" />14 dni na zwrot</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Free preview lesson — if available, show it prominently */}
+    {course.previewLesson && <section className="academy-preview-lesson-section">
+      <div className="academy-preview-lesson-badge"><Play className="w-4 h-4" />Bezpłatny fragment kursu</div>
+      <h2>{course.previewLesson.title}</h2>
+      {course.previewLesson.type === 'VIDEO' && course.previewLesson.videoId
+        ? <><ExternalVideo videoId={course.previewLesson.videoId} title={course.previewLesson.title} />{course.previewLesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja filmu</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(course.previewLesson.transcriptHtml) }} /></details>}</>
+        : course.previewLesson.contentHtml && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(course.previewLesson.contentHtml) }} />}
+      {!isAuthenticated && <div className="academy-preview-lesson-cta">
+        <p>Podoba Ci się? Cały kurs zawiera {totalLessons > 0 ? `${totalLessons} lekcji` : 'pełny program'}.</p>
+        <Link to="/rejestracja" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }}>Załóż konto i kontynuuj naukę <ArrowRight className="w-4 h-4" /></Link>
+      </div>}
+    </section>}
+
+    {/* Course program */}
+    <section className="academy-preview-program">
+      <p className="academy-kicker text-caramel">Program kursu</p>
+      <h2>Czego się nauczysz</h2>
+      {course.modules?.map((module: any, index: number) => <div key={module.id}>
+        <span>{String(index + 1).padStart(2, '0')}</span>
+        <div><strong>{module.title}</strong><p>{module.lessonCount} lekcji{module.estimatedMinutes > 0 ? ` · ${module.estimatedMinutes} min praktyki` : ' · zakres w przygotowaniu'}</p></div>
+        <span className="academy-locked"><Lock className="w-3 h-3" />{isAuthenticated ? 'Dostęp po zakupie' : 'Po rejestracji'}</span>
+      </div>)}
+    </section>
+
+    <SalesDetails course={course} />
+
+    {/* Reviews — social proof */}
+    {course.academyReviews?.length > 0 && <section className="academy-reviews-section">
+      <div className="academy-reviews-header">
+        <div><p className="academy-kicker text-caramel">Opinie kursantek</p><h2>Co mówią osoby, które ukończyły ten kurs</h2></div>
+        <div className="academy-reviews-avg"><Star className="w-5 h-5" /><strong>{(course.academyReviews.reduce((s: number, r: any) => s + r.rating, 0) / course.academyReviews.length).toFixed(1)}</strong><span>/ 5 ({course.academyReviews.length} {course.academyReviews.length === 1 ? 'opinia' : course.academyReviews.length < 5 ? 'opinie' : 'opinii'})</span></div>
+      </div>
+      <div className="academy-reviews-grid">{course.academyReviews.map((review: any) => <blockquote key={review.id}><p className="academy-review-stars">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p><p>{review.content}</p><footer><strong>{review.user.name}</strong><span>Zweryfikowane ukończenie</span></footer></blockquote>)}</div>
+    </section>}
+
+    {/* Instructor */}
+    <section className="academy-instructor-section">
+      <p className="academy-kicker text-caramel">Prowadząca</p>
+      <h2>{course.instructorName || 'Wiktoria Ćwik'}</h2>
+      <p>{course.instructorBio || 'Dyplomowana kosmetolog i praktyk gabinetowy. Program powstał z myślą o wiedzy, którą można bezpiecznie zastosować w codziennej pracy.'}</p>
+    </section>
+
+    {/* Bundles cross-sell */}
+    {course.bundles?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Pakiety</p><h2 className="font-heading text-2xl font-semibold">Ten kurs kupisz także w pakiecie</h2><div className="grid gap-3 sm:grid-cols-2">{course.bundles.map((bundle: any) => <Link key={bundle.id} to={`/pakiet/${bundle.slug}`} className="rounded-xl border bg-card p-5"><strong>{bundle.title}</strong><p className="mt-2 text-sm text-muted-foreground">{bundle.description}</p><span className="mt-3 block font-semibold">{Number(bundle.price).toLocaleString('pl-PL')} zł</span></Link>)}</div></section>}
+
+    {/* Recommended courses */}
+    {course.recommendedCourses?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Kontynuuj ścieżkę</p><h2 className="font-heading text-2xl font-semibold">Polecane kursy</h2><div className="grid gap-3 sm:grid-cols-3">{course.recommendedCourses.map((recommended: any) => <Link key={recommended.id} to={`/kurs/${recommended.slug}`} className="rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">{recommended.thumbnailUrl && <img className="mb-3 aspect-video w-full rounded-lg object-cover" src={recommended.thumbnailUrl} alt="" loading="lazy" />}<strong>{recommended.title}</strong><p className="mt-1 text-sm text-muted-foreground">{recommended.isFree ? 'Bezpłatny' : Number(recommended.price) > 0 ? `${Number(recommended.price).toLocaleString('pl-PL')} zł` : 'Cena wkrótce'}</p></Link>)}</div></section>}
+
+    {/* Bottom CTA for anonymous users */}
+    {!isAuthenticated && <section className="academy-bottom-cta">
+      <div>
+        <h2>Gotowa, żeby zacząć?</h2>
+        <p>Załóż darmowe konto w 30 sekund. Nie potrzebujesz karty płatniczej.</p>
+      </div>
+      <div className="academy-bottom-cta-actions">
+        <Link to="/rejestracja" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }} className="academy-cta-button"><UserPlus className="w-4 h-4" />{course.isFree ? 'Załóż konto i zacznij za darmo' : 'Załóż konto i kup kurs'}</Link>
+        <Link to="/logowanie" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }} className="academy-cta-login">Masz już konto? <strong>Zaloguj się</strong></Link>
+      </div>
+    </section>}
   </div>;
 
   return (

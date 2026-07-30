@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart, Lock, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
@@ -33,18 +33,28 @@ export function AcademyLayout() {
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>
           <nav className={`academy-desktop-nav ${isAuthenticated ? 'authenticated' : 'anonymous'}`} aria-label="Główna nawigacja">
-            {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zalogowaniu</span>}</Link>)}
+            {navItems.map(({ to, label, icon: Icon, exact, locked }) => locked
+              ? <span key={to} className="locked" title="Dostępne po zalogowaniu" aria-label={`${label} — dostępne po zalogowaniu`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></span>
+              : <Link key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
+            )}
           </nav>
           <div className="academy-top-actions">
             <Link to="/koszyk" className="academy-cart-link" aria-label={`Koszyk, ${cartCount} produktów`}><ShoppingCart/>{cartCount>0&&<span>{cartCount}</span>}</Link>
             <a href="https://kosmetologwiktoriacwik.pl" className="hidden xl:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
             {user?.role === 'ADMIN' && <Link to="/admin" className="hidden lg:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
-            {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <Link to="/logowanie" className="academy-login" aria-label="Zaloguj się"><LogIn className="w-4 h-4" /><span className="academy-login-label">Zaloguj się</span></Link>}
+            {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <>
+              <Link to="/logowanie" className="academy-login-text" aria-label="Zaloguj się"><LogIn className="w-4 h-4" /><span>Zaloguj się</span></Link>
+              <Link to="/rejestracja" className="academy-register-cta" aria-label="Załóż darmowe konto"><UserPlus className="w-4 h-4" /><span>Załóż konto</span></Link>
+            </>}
             <button onClick={() => setMenuOpen(!menuOpen)} className="academy-menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={menuOpen} aria-controls="academy-mobile-menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
         {menuOpen && <nav id="academy-mobile-menu" className="academy-mobile-nav" aria-label="Menu mobilne">
-          {navItems.map(({ to, label, icon: Icon, exact, locked }) => <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={`${active(to, exact) ? 'active' : ''}${locked ? ' locked' : ''}`}><Icon className="w-4 h-4" />{label}{locked && <span className="academy-nav-lock">Po zalogowaniu</span>}</Link>)}
+          {navItems.map(({ to, label, icon: Icon, exact, locked }) => locked
+            ? <span key={to} className="locked" aria-label={`${label} — dostępne po zalogowaniu`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></span>
+            : <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
+          )}
+          {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/rejestracja" className="academy-mobile-register"><UserPlus className="w-4 h-4" />Załóż darmowe konto</Link>}
           {user?.role === 'ADMIN' && <Link onClick={() => setMenuOpen(false)} to="/admin" className="academy-mobile-admin"><Settings2 className="w-4 h-4" />Przejdź do panelu administratora</Link>}
         </nav>}
       </header>

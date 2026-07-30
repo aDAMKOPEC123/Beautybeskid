@@ -4,7 +4,7 @@ import { academyApi } from '@/api/academy.api';
 import {
   ArrowRight, Award, BookOpen, Check, CheckCircle2, Clock3, GraduationCap,
   Heart, HeartHandshake, PlayCircle, Search, ShieldCheck, Sparkles, Star, Target,
-  Mail, UsersRound,
+  Mail, UsersRound, UserPlus, Shield,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -132,11 +132,27 @@ export function AcademyCatalog() {
       <ol><li><span>1</span><div><strong>Wybierasz konkretny cel</strong><p>Program kursu pokazuje dokładnie, czego i w jakiej kolejności się nauczysz.</p></div></li><li><span>2</span><div><strong>Uczysz się na swoich zasadach</strong><p>Wracasz do lekcji, robisz notatki i utrwalasz materiał quizami.</p></div></li><li><span>3</span><div><strong>Wdrażasz i potwierdzasz wiedzę</strong><p>Stosujesz nowe umiejętności w praktyce i zdobywasz certyfikat.</p></div></li></ol>
     </section>
 
-    <section className="academy-quiz-section"><div><p className="academy-kicker text-caramel">{hasAccess ? 'Sprawdź siebie' : 'W cenie kursu'}</p><h2>{hasAccess ? 'Krótka sesja wiedzy?' : 'Nie tylko oglądasz. Naprawdę się uczysz.'}</h2><p>{hasAccess ? 'Quizy utrwalają materiał i pokazują, co warto jeszcze powtórzyć.' : 'Lekcje, uporządkowany program, quizy, materiały i certyfikat tworzą jedną spójną ścieżkę.'}</p></div><div className="academy-quiz-list">{hasAccess && quizzesLoading ? <div className="academy-skeleton h-28" /> : hasAccess ? (quizzes as any[]).slice(0, 3).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span><Star className="w-4 h-4" /></span><div><strong>{quiz.title}</strong><small>{quiz._count?.questions ?? 0} pytań · próg {quiz.passingScore}%</small></div><ArrowRight className="w-4 h-4" /></Link>) : <a href="#kursy"><span><GraduationCap className="w-4 h-4" /></span><div><strong>Znajdź kurs dla siebie</strong><small>Zobacz program przed podjęciem decyzji.</small></div><ArrowRight className="w-4 h-4" /></a>}</div></section>
+    <section className="academy-quiz-section"><div><p className="academy-kicker text-caramel">{hasAccess ? 'Sprawdź siebie' : 'Co zyskujesz w Akademii?'}</p><h2>{hasAccess ? 'Krótka sesja wiedzy?' : 'Nie tylko oglądasz. Naprawdę się uczysz.'}</h2><p>{hasAccess ? 'Quizy utrwalają materiał i pokazują, co warto jeszcze powtórzyć.' : 'Lekcje, quizy, materiały, certyfikat i wsparcie — wszystko w jednym miejscu.'}</p></div><div className="academy-quiz-list">{hasAccess && quizzesLoading ? <div className="academy-skeleton h-28" /> : hasAccess ? (quizzes as any[]).slice(0, 3).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span><Star className="w-4 h-4" /></span><div><strong>{quiz.title}</strong><small>{quiz._count?.questions ?? 0} pytań · próg {quiz.passingScore}%</small></div><ArrowRight className="w-4 h-4" /></Link>) : <><div className="academy-benefit-item"><span><PlayCircle className="w-4 h-4" /></span><div><strong>Lekcje wideo i tekstowe</strong><small>Krótkie, praktyczne jednostki — uczysz się, kiedy chcesz.</small></div></div><div className="academy-benefit-item"><span><Shield className="w-4 h-4" /></span><div><strong>Quizy i ćwiczenia</strong><small>Sprawdzasz wiedzę po każdym module, a nie na końcu.</small></div></div><div className="academy-benefit-item"><span><Award className="w-4 h-4" /></span><div><strong>Certyfikat ukończenia</strong><small>Potwierdzenie kompetencji do portfolio i CV.</small></div></div></>}</div></section>
 
     <section className="academy-faq-section"><div><p className="academy-kicker text-caramel">Zanim zaczniesz</p><h2>Najczęstsze pytania</h2><p>Konkretne zasady dostępu, nauki i certyfikacji.</p></div><div className="academy-faq-list"><details><summary>Jak długo mam dostęp do kursu?</summary><p>Informacja o okresie dostępu jest podawana przy konkretnym kursie. Kursy bez wskazanego terminu pozostają dostępne bez ograniczenia czasowego.</p></details><details><summary>Kiedy otrzymam certyfikat?</summary><p>Certyfikat jest generowany automatycznie po ukończeniu wszystkich wymaganych lekcji lub zdaniu właściwego quizu.</p></details><details><summary>Czy mogę uczyć się na telefonie?</summary><p>Tak. Akademia działa na telefonie, tablecie i komputerze, a postęp zapisuje się na Twoim koncie.</p></details><details><summary>Gdzie mogę zadać pytanie?</summary><p>Każda zalogowana kursantka może skorzystać z prywatnej sekcji „Zapytaj kosmetologa”, również bezpośrednio z lekcji.</p></details></div></section>
 
-    {!isAuthenticated && <section className="academy-final-cta"><div><p className="academy-kicker">Twoja wiedza pracuje razem z Tobą</p><h2>Zacznij od jednego konkretnego kroku.</h2><p>Przejrzyj dostępne programy i wybierz obszar, który dziś najbardziej rozwinie Twoją praktykę.</p></div><a href="#kursy" className="academy-button academy-button-light">Zobacz kursy <ArrowRight /></a></section>}
+    {!isAuthenticated && <section className="academy-final-cta academy-final-cta-rich">
+      <div>
+        <p className="academy-kicker">Dołącz do Akademii</p>
+        <h2>Załóż darmowe konto i zacznij naukę.</h2>
+        <p>Nie potrzebujesz karty płatniczej. Rejestracja zajmuje 30 sekund.</p>
+        <ul className="academy-final-cta-perks">
+          <li><Check />Przeglądaj pełny katalog kursów</li>
+          <li><Check />Zapisuj postęp nauki</li>
+          <li><Check />Zdobywaj certyfikaty</li>
+          <li><Check />Zadawaj pytania prowadzącej</li>
+        </ul>
+      </div>
+      <div className="academy-final-cta-actions">
+        <Link to="/rejestracja" className="academy-button academy-button-gold"><UserPlus className="w-4 h-4" />Załóż darmowe konto</Link>
+        <Link to="/logowanie" className="academy-final-cta-login">Masz już konto? <strong>Zaloguj się</strong></Link>
+      </div>
+    </section>}
   </div>;
 }
 
