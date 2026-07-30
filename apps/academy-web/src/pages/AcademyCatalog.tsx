@@ -6,7 +6,7 @@ import {
   Heart, HeartHandshake, PlayCircle, Search, ShieldCheck, Sparkles, Star, Target,
   Mail, UsersRound, UserPlus, Shield,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Helmet } from 'react-helmet-async';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
@@ -21,6 +21,7 @@ export function AcademyCatalog() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
+  const deferredQuery = useDeferredValue(query);
   const [level, setLevel] = useState(searchParams.get('poziom') ?? 'ALL');
   const [tag, setTag] = useState(searchParams.get('temat') ?? 'ALL');
   const [sort, setSort] = useState(searchParams.get('sort') ?? 'RECOMMENDED');
@@ -38,20 +39,20 @@ export function AcademyCatalog() {
   const availableTags = useMemo(() => Array.from(new Set((courses as any[]).flatMap(course => course.tags || []))).sort(), [courses]);
   const filteredCourses = useMemo(() => (courses as any[]).filter(course => {
     const phrase = `${course.title} ${course.description || ''} ${(course.tags || []).join(' ')}`.toLowerCase();
-    return phrase.includes(query.trim().toLowerCase()) && (level === 'ALL' || course.difficulty === level) && (tag === 'ALL' || course.tags?.includes(tag)) && (!savedOnly || favoriteIds.has(course.id));
-  }).sort((a, b) => sort === 'PRICE_ASC' ? Number(a.price) - Number(b.price) : sort === 'DURATION' ? a.estimatedMinutes - b.estimatedMinutes : sort === 'NEWEST' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : Number(a.displayOrder||0)-Number(b.displayOrder||0)), [courses, query, level, tag, savedOnly, favoriteIds, sort]);
+    return phrase.includes(deferredQuery.trim().toLowerCase()) && (level === 'ALL' || course.difficulty === level) && (tag === 'ALL' || course.tags?.includes(tag)) && (!savedOnly || favoriteIds.has(course.id));
+  }).sort((a, b) => sort === 'PRICE_ASC' ? Number(a.price) - Number(b.price) : sort === 'DURATION' ? a.estimatedMinutes - b.estimatedMinutes : sort === 'NEWEST' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : Number(a.displayOrder||0)-Number(b.displayOrder||0)), [courses, deferredQuery, level, tag, savedOnly, favoriteIds, sort]);
   const started = (courses as any[]).filter(c => c.progress && !c.progress.completedAt);
   const completed = (courses as any[]).filter(c => c.progress?.completedAt).length;
   useEffect(() => { trackAcademyEvent('CATALOG_VIEW'); }, []);
   useEffect(() => {
     const next: Record<string, string> = {};
-    if (query) next.q = query;
+    if (deferredQuery) next.q = deferredQuery;
     if (level !== 'ALL') next.poziom = level;
     if (tag !== 'ALL') next.temat = tag;
     if (sort !== 'RECOMMENDED') next.sort = sort;
     if (savedOnly) next.zapisane = '1';
     setSearchParams(next, { replace: true });
-  }, [query, level, tag, sort, savedOnly, setSearchParams]);
+  }, [deferredQuery, level, tag, sort, savedOnly, setSearchParams]);
 
   const chooseLevel = (value: string) => {
     setLevel(value);
@@ -125,7 +126,7 @@ export function AcademyCatalog() {
       <div className="academy-section-heading"><div><p className="academy-kicker text-caramel">Kursy online</p><h2>Wybierz swój następny krok</h2></div><p>Najpierw zobacz program i efekty nauki. Decyzję podejmujesz bez presji.</p></div>
       <div className="academy-discovery-bar"><label><Search className="w-4 h-4" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Czego chcesz się nauczyć?" aria-label="Szukaj kursu" /></label><div className="academy-filters">{levels.map(([key, label]) => <button key={key} aria-pressed={level === key} onClick={() => setLevel(key)} className={level === key ? 'selected' : ''}>{label}</button>)}</div></div>
       <div className="academy-catalog-tools"><select value={tag} onChange={event => setTag(event.target.value)} aria-label="Temat kursu"><option value="ALL">Wszystkie tematy</option>{availableTags.map(item => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={event => setSort(event.target.value)} aria-label="Sortowanie kursów"><option value="RECOMMENDED">Polecane</option><option value="NEWEST">Nowości</option><option value="PRICE_ASC">Cena: od najniższej</option><option value="DURATION">Najkrótsze</option></select>{isAuthenticated && <button aria-pressed={savedOnly} className={savedOnly ? 'selected' : ''} onClick={() => setSavedOnly(value => !value)}><Heart className="w-4 h-4" />Zapisane</button>}</div>
-      {coursesLoading ? <div className="academy-course-grid">{[1,2,3].map(i => <div key={i} className="academy-skeleton h-[360px]" />)}</div> : coursesError ? <div className="academy-empty"><Search /><h3>Nie udało się pobrać katalogu</h3><p>Sprawdź połączenie i spróbuj ponownie.</p><button onClick={() => refetchCourses()}>Spróbuj ponownie</button></div> : filteredCourses.length === 0 ? <div className="academy-empty"><Search /><h3>Nie znaleźliśmy pasującego kursu</h3><p>Zmień kryteria albo pokaż wszystkie kursy.</p><button onClick={() => { setQuery(''); setLevel('ALL'); setTag('ALL'); setSavedOnly(false); }}>Pokaż wszystkie kursy</button></div> : <div className="academy-course-grid">{filteredCourses.map((course) => <CourseCard key={course.id} course={course} featured={course.isFeatured} favorite={favoriteIds.has(course.id)} canFavorite={isAuthenticated} onToggleFavorite={() => toggleFavorite(course.id)} />)}</div>}
+      {coursesLoading ? <div className="academy-course-grid">{[1,2,3].map(i => <div key={i} className="academy-skeleton" style={{height:420}} />)}</div> : coursesError ? <div className="academy-empty"><Search /><h3>Nie udało się pobrać katalogu</h3><p>Sprawdź połączenie i spróbuj ponownie.</p><button onClick={() => refetchCourses()}>Spróbuj ponownie</button></div> : filteredCourses.length === 0 ? <div className="academy-empty"><Search /><h3>Nie znaleźliśmy pasującego kursu</h3><p>Zmień kryteria albo pokaż wszystkie kursy.</p><button onClick={() => { setQuery(''); setLevel('ALL'); setTag('ALL'); setSavedOnly(false); }}>Pokaż wszystkie kursy</button></div> : <div className="academy-course-grid">{filteredCourses.map((course) => <CourseCard key={course.id} course={course} featured={course.isFeatured} favorite={favoriteIds.has(course.id)} canFavorite={isAuthenticated} onToggleFavorite={() => toggleFavorite(course.id)} />)}</div>}
     </section>
 
     {(bundles as any[]).length > 0 && <section className="academy-bundles-section"><div className="academy-section-heading"><div><p className="academy-kicker text-caramel">Pakiety edukacyjne</p><h2>Pełniejsze ścieżki w lepszej cenie</h2></div><p>Jeden zakup odblokowuje wszystkie kursy wskazane w pakiecie.</p></div><div className="academy-bundle-grid">{(bundles as any[]).map(bundle=><Link key={bundle.id} to={`/pakiet/${bundle.slug}`}><span>{bundle.courses.length} kursy</span><h3>{bundle.title}</h3><p>{bundle.description}</p><ul>{bundle.courses.slice(0,4).map((item:any)=><li key={item.courseId}><Check />{item.course.title}</li>)}</ul><strong>{Number(bundle.price).toLocaleString('pl-PL',{style:'currency',currency:'PLN'})}</strong>{Number(bundle.compareAtPrice)>Number(bundle.price)&&<><del>{Number(bundle.compareAtPrice).toLocaleString('pl-PL')} zł</del><small className="academy-card-lowest">Najniższa cena z 30 dni: {Number(bundle.lowestPrice30Days).toLocaleString('pl-PL')} zł</small></>}<em>Zobacz pakiet <ArrowRight /></em></Link>)}</div></section>}
@@ -184,7 +185,7 @@ function AcademyBannerSlider({banners}:{banners:any[]}){
   const [index,setIndex]=useState(0); const banner=banners[index%banners.length];
   useEffect(()=>{if(!banner)return;academyApi.recordBannerEvent(banner.id,'impression').catch(()=>undefined);const timer=window.setTimeout(()=>setIndex(value=>(value+1)%banners.length),6500);return()=>window.clearTimeout(timer);},[banner?.id,banners.length]);
   if(!banner)return null;
-  return <section className="academy-marketing-slider">{banner.imageUrl&&<picture><source media="(max-width:760px)" srcSet={banner.mobileImageUrl||banner.imageUrl}/><img src={banner.imageUrl} alt=""/></picture>}<div><span>{banner.badge}</span><h2>{banner.title}</h2><p>{banner.subtitle}</p>{banner.buttonUrl&&<a href={banner.buttonUrl} onClick={()=>academyApi.recordBannerEvent(banner.id,'click').catch(()=>undefined)}>{banner.buttonLabel||'Zobacz więcej'}<ArrowRight/></a>}</div>{banners.length>1&&<nav aria-label="Slajdy">{banners.map((item,i)=><button key={item.id} aria-label={`Slajd ${i+1}`} aria-current={i===index} onClick={()=>setIndex(i)}/>)}</nav>}</section>;
+  return <section className="academy-marketing-slider">{banner.imageUrl&&<picture><source media="(max-width:760px)" srcSet={banner.mobileImageUrl||banner.imageUrl}/><img src={banner.imageUrl} alt={banner.title || 'Baner promocyjny Akademii'}/></picture>}<div><span>{banner.badge}</span><h2>{banner.title}</h2><p>{banner.subtitle}</p>{banner.buttonUrl&&<a href={banner.buttonUrl} onClick={()=>academyApi.recordBannerEvent(banner.id,'click').catch(()=>undefined)}>{banner.buttonLabel||'Zobacz więcej'}<ArrowRight/></a>}</div>{banners.length>1&&<nav aria-label="Slajdy">{banners.map((item,i)=><button key={item.id} aria-label={`Slajd ${i+1}`} aria-current={i===index} onClick={()=>setIndex(i)}/>)}</nav>}</section>;
 }
 
 function Countdown({until}:{until:string}){const [now,setNow]=useState(Date.now());useEffect(()=>{const id=window.setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id)},[]);const seconds=Math.max(0,Math.floor((new Date(until).getTime()-now)/1000));return <b>{Math.floor(seconds/86400)}d {String(Math.floor(seconds/3600)%24).padStart(2,'0')}:{String(Math.floor(seconds/60)%60).padStart(2,'0')}:{String(seconds%60).padStart(2,'0')}</b>}

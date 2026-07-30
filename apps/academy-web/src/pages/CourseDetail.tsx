@@ -70,7 +70,7 @@ export function CourseDetail() {
       const result = await academyApi.registerCourseInterest(course.id);
       if (result.status === 'ENROLLED') {
         toast.success('Kurs został dodany do Twojej nauki');
-        window.location.reload();
+        window.location.href = `/kurs/${slug}`;
         return;
       }
       toast.info('Ten kurs wymaga przejścia przez podsumowanie zamówienia.');
@@ -188,7 +188,7 @@ export function CourseDetail() {
     {course.bundles?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Pakiety</p><h2 className="font-heading text-2xl font-semibold">Ten kurs kupisz także w pakiecie</h2><div className="grid gap-3 sm:grid-cols-2">{course.bundles.map((bundle: any) => <Link key={bundle.id} to={`/pakiet/${bundle.slug}`} className="rounded-xl border bg-card p-5"><strong>{bundle.title}</strong><p className="mt-2 text-sm text-muted-foreground">{bundle.description}</p><span className="mt-3 block font-semibold">{Number(bundle.price).toLocaleString('pl-PL')} zł</span></Link>)}</div></section>}
 
     {/* Recommended courses */}
-    {course.recommendedCourses?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Kontynuuj ścieżkę</p><h2 className="font-heading text-2xl font-semibold">Polecane kursy</h2><div className="grid gap-3 sm:grid-cols-3">{course.recommendedCourses.map((recommended: any) => <Link key={recommended.id} to={`/kurs/${recommended.slug}`} className="rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">{recommended.thumbnailUrl && <img className="mb-3 aspect-video w-full rounded-lg object-cover" src={recommended.thumbnailUrl} alt="" loading="lazy" />}<strong>{recommended.title}</strong><p className="mt-1 text-sm text-muted-foreground">{recommended.isFree ? 'Bezpłatny' : Number(recommended.price) > 0 ? `${Number(recommended.price).toLocaleString('pl-PL')} zł` : 'Cena wkrótce'}</p></Link>)}</div></section>}
+    {course.recommendedCourses?.length > 0 && <section className="space-y-3"><p className="academy-kicker text-caramel">Kontynuuj ścieżkę</p><h2 className="font-heading text-2xl font-semibold">Polecane kursy</h2><div className="grid gap-3 sm:grid-cols-3">{course.recommendedCourses.map((recommended: any) => <Link key={recommended.id} to={`/kurs/${recommended.slug}`} className="rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">{recommended.thumbnailUrl && <img className="mb-3 aspect-video w-full rounded-lg object-cover" src={recommended.thumbnailUrl} alt={recommended.title} loading="lazy" />}<strong>{recommended.title}</strong><p className="mt-1 text-sm text-muted-foreground">{recommended.isFree ? 'Bezpłatny' : Number(recommended.price) > 0 ? `${Number(recommended.price).toLocaleString('pl-PL')} zł` : 'Cena wkrótce'}</p></Link>)}</div></section>}
 
     {/* Bottom CTA for anonymous users */}
     {!isAuthenticated && <section className="academy-bottom-cta">

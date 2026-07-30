@@ -74,6 +74,7 @@
 }
 
 @layer base {
+  html { scrollbar-gutter: stable; }
   html, body { overflow-x: hidden; }
   * { @apply border-border; }
   body {

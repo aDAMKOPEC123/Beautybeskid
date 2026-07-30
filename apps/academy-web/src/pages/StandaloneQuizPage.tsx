@@ -1,9 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { academyApi } from '@/api/academy.api';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import { ArrowRight, CheckCircle2, Clock, Star } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { DocumentTitle } from '@/components/DocumentTitle';
 
 export function StandaloneQuizPage() {
   const { isAuthenticated } = useAuth();
@@ -24,7 +26,7 @@ export function StandaloneQuizPage() {
       <div className="h-32 bg-muted rounded-lg" />
     </div>
   );
-  if (!quizId) return <div className="space-y-6"><div><p className="academy-kicker text-caramel">Sprawdź swoją wiedzę</p><h1 className="text-2xl font-bold font-heading">Quizy i historia wyników</h1><p className="text-sm text-muted-foreground">Wracaj do quizów, obserwuj postęp i utrwalaj materiał.</p></div>{isError ? <div className="academy-empty"><Star /><h2>Nie udało się pobrać quizów</h2><button onClick={() => refetch()}>Spróbuj ponownie</button></div> : (quizzes as any[]).length ? <div className="grid gap-4 sm:grid-cols-2">{(quizzes as any[]).map(item => <Link key={item.id} to={`/quiz/${item.id}`} className="rounded-xl border bg-card p-5 space-y-3 hover:shadow-md"><div className="flex items-start justify-between"><Star className="text-primary" /><ArrowRight className="w-4 h-4" /></div><h2 className="font-semibold">{item.title}</h2><p className="text-xs text-muted-foreground">{item._count?.questions ?? 0} pytań · próg {item.passingScore}%</p>{item.attempts?.length ? <div className="border-t pt-3"><p className="text-xs font-semibold">Ostatni wynik: {item.attempts[0].score}%</p><p className="flex items-center gap-1 text-xs text-muted-foreground">{item.attempts[0].passed && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}{item.attempts.length} zapisanych prób</p></div> : <p className="border-t pt-3 text-xs text-muted-foreground">Jeszcze nierozwiązany</p>}</Link>)}</div> : <div className="academy-empty"><Star /><h2>Brak dostępnych quizów</h2><p>Nowe zestawy wiedzy pojawią się tutaj.</p></div>}</div>;
+  if (!quizId) return <div className="space-y-6"><DocumentTitle title="Quizy | Akademia BeskidStudio" /><Helmet><meta name="robots" content="noindex" /></Helmet><div><p className="academy-kicker text-caramel">Sprawdź swoją wiedzę</p><h1 className="text-2xl font-bold font-heading">Quizy i historia wyników</h1><p className="text-sm text-muted-foreground">Wracaj do quizów, obserwuj postęp i utrwalaj materiał.</p></div>{isError ? <div className="academy-empty"><Star /><h2>Nie udało się pobrać quizów</h2><button onClick={() => refetch()}>Spróbuj ponownie</button></div> : (quizzes as any[]).length ? <div className="grid gap-4 sm:grid-cols-2">{(quizzes as any[]).map(item => <Link key={item.id} to={`/quiz/${item.id}`} className="rounded-xl border bg-card p-5 space-y-3 hover:shadow-md"><div className="flex items-start justify-between"><Star className="text-primary" /><ArrowRight className="w-4 h-4" /></div><h2 className="font-semibold">{item.title}</h2><p className="text-xs text-muted-foreground">{item._count?.questions ?? 0} pytań · próg {item.passingScore}%</p>{item.attempts?.length ? <div className="border-t pt-3"><p className="text-xs font-semibold">Ostatni wynik: {item.attempts[0].score}%</p><p className="flex items-center gap-1 text-xs text-muted-foreground">{item.attempts[0].passed && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}{item.attempts.length} zapisanych prób</p></div> : <p className="border-t pt-3 text-xs text-muted-foreground">Jeszcze nierozwiązany</p>}</Link>)}</div> : <div className="academy-empty"><Star /><h2>Brak dostępnych quizów</h2><p>Nowe zestawy wiedzy pojawią się tutaj.</p></div>}</div>;
   if (!quiz) return <p className="text-muted-foreground">Nie znaleziono quizu.</p>;
 
   return (
@@ -34,6 +36,8 @@ export function StandaloneQuizPage() {
           <Star className="w-5 h-5 text-primary" />
           <span className="text-sm text-muted-foreground">Quiz standalone</span>
         </div>
+        <DocumentTitle title={`${quiz.title} | Akademia BeskidStudio`} />
+        <Helmet><meta name="robots" content="noindex" /></Helmet>
         <h1 className="text-2xl font-bold font-heading">{quiz.title}</h1>
         {quiz.description && (
           <p className="text-muted-foreground text-sm">{quiz.description}</p>

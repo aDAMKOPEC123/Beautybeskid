@@ -18,7 +18,10 @@ export function AcademyLegalPage() {
   const { data, isLoading, isError } = useQuery({ queryKey: ['academy', 'legal', slug], queryFn: () => academyApi.getLegalDocument(slug) });
   return <div className="academy-legal-page">
     <DocumentTitle title={`${labels[slug] || 'Dokument prawny'} | Akademia BeskidStudio`} />
-    <Helmet><meta name="description" content={`${labels[slug] || 'Dokument'} Akademii BeskidStudio.`} /></Helmet>
+    <Helmet>
+      <meta name="description" content={`${labels[slug] || 'Dokument'} Akademii BeskidStudio.`} />
+      <link rel="canonical" href={`https://akademia.kosmetologwiktoriacwik.pl/${slug}`} />
+    </Helmet>
     <nav aria-label="Dokumenty prawne"><Link to="/">Akademia</Link><span aria-hidden="true">/</span><span>{labels[slug]}</span></nav>
     {isLoading && <p role="status">Ładowanie dokumentu…</p>}
     {isError && <section><h1>Dokument jest chwilowo niedostępny</h1><p>Spróbuj ponownie lub napisz na kontakt@kosmetologwiktoriacwik.pl.</p></section>}

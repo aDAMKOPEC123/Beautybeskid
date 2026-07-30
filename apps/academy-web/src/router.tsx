@@ -1,10 +1,18 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AcademyError } from './pages/AcademyError';
+import { useAuth } from './hooks/useAuth';
 
 const S = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<div className="academy-route-loading" role="status">Ładowanie…</div>}>{children}</Suspense>
 );
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="academy-route-loading" role="status">Ładowanie…</div>;
+  if (!isAuthenticated) return <Navigate to="/logowanie" replace />;
+  return <>{children}</>;
+}
 
 const AcademyLayout = lazy(() => import('./pages/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
 const AcademyAdminLayout = lazy(() => import('./pages/AcademyAdminLayout').then(m => ({ default: m.AcademyAdminLayout })));
@@ -58,16 +66,16 @@ export const router = createBrowserRouter([
         element: <S><AcademyLayout /></S>,
         children: [
           { index: true, element: <S><AcademyCatalog /></S> },
-          { path: 'moje-kursy', element: <S><MyCourses /></S> },
-          { path: 'certyfikaty', element: <S><Certificates /></S> },
-          { path: 'profil', element: <S><AcademyProfile /></S> },
-          { path: 'zapytaj-kosmetologa', element: <S><AcademyConsultation /></S> },
-          { path: 'quizy', element: <S><StandaloneQuizPage /></S> },
-          { path: 'quiz/:quizId', element: <S><StandaloneQuizPage /></S> },
+          { path: 'moje-kursy', element: <S><RequireAuth><MyCourses /></RequireAuth></S> },
+          { path: 'certyfikaty', element: <S><RequireAuth><Certificates /></RequireAuth></S> },
+          { path: 'profil', element: <S><RequireAuth><AcademyProfile /></RequireAuth></S> },
+          { path: 'zapytaj-kosmetologa', element: <S><RequireAuth><AcademyConsultation /></RequireAuth></S> },
+          { path: 'quizy', element: <S><RequireAuth><StandaloneQuizPage /></RequireAuth></S> },
+          { path: 'quiz/:quizId', element: <S><RequireAuth><StandaloneQuizPage /></RequireAuth></S> },
           { path: 'kurs/:slug', element: <S><CourseDetail /></S> },
           { path: 'pakiet/:slug', element: <S><BundleDetail /></S> },
-          { path: 'zamowienie/kurs/:slug', element: <S><CheckoutPage type="course" /></S> },
-          { path: 'zamowienie/pakiet/:slug', element: <S><CheckoutPage type="bundle" /></S> },
+          { path: 'zamowienie/kurs/:slug', element: <S><RequireAuth><CheckoutPage type="course" /></RequireAuth></S> },
+          { path: 'zamowienie/pakiet/:slug', element: <S><RequireAuth><CheckoutPage type="bundle" /></RequireAuth></S> },
           { path: 'koszyk', element: <S><AcademyCart /></S> },
           { path: ':slug', element: <S><AcademyLegalPage /></S> },
           { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
