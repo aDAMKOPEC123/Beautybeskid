@@ -4,6 +4,7 @@ import { academyApi } from '@/api/academy.api';
 import { CheckCircle, ChevronLeft, Download, FileText, ImageIcon, MessageCircle, MessageCircleHeart, NotebookPen, Play, Reply, Save, Send, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
+import { useAuth } from '@/hooks/useAuth';
 import DOMPurify from 'dompurify';
 import { toast } from 'sonner';
 
@@ -65,7 +66,9 @@ export function LessonPlayer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['academy', 'course', slug] });
       queryClient.invalidateQueries({ queryKey: ['academy', 'lesson', slug, lessonSlug] });
+      toast.success('Lekcja oznaczona jako ukończona');
     },
+    onError: () => toast.error('Nie udało się oznaczyć lekcji jako ukończonej'),
   });
   useEffect(() => { setNote(lesson?.notes?.[0]?.content ?? ''); }, [lesson?.id, lesson?.notes]);
   useEffect(() => { setVideoStarted(false); }, [lesson?.id]);
@@ -77,6 +80,7 @@ export function LessonPlayer() {
   const deleteNoteMutation = useMutation({
     mutationFn: () => academyApi.deleteLessonNote(lesson!.id),
     onSuccess: () => { setNote(''); queryClient.invalidateQueries({ queryKey: ['academy', 'lesson', slug, lessonSlug] }); toast.success('Notatka została usunięta'); },
+    onError: () => toast.error('Nie udało się usunąć notatki'),
   });
 
   const videoProgressMutation = useMutation({
@@ -92,7 +96,7 @@ export function LessonPlayer() {
         videoProgressMutation.mutate(seconds);
       }
     },
-    [lesson]
+    [lesson?.id]
   );
 
   if (isLoading) return (
@@ -179,8 +183,8 @@ export function LessonPlayer() {
       </section>
       {/* Attachments */}
       {lesson.attachments?.length > 0 && (
-        <section className="rounded-xl border bg-card p-5 space-y-3">
-          <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-primary" /><h2 className="font-semibold">Materialy do pobrania</h2></div>
+        <section className="rounded-xl border bg-card p-5 space-y-3" aria-labelledby="attachments-title">
+          <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-primary" /><h2 id="attachments-title" className="font-semibold">Materiały do pobrania</h2></div>
           <div className="divide-y">
             {lesson.attachments.map((att: any) => (
               <a key={att.id} href={academyApi.downloadAttachmentUrl(lesson.id, att.id)} className="flex items-center gap-3 py-3 text-sm hover:bg-accent/50 rounded-md px-2 transition-colors" download>
@@ -198,8 +202,8 @@ export function LessonPlayer() {
 
       {/* Case Studies */}
       {lesson.caseStudies?.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><h2 className="font-semibold">Studia przypadkow</h2></div>
+        <section className="space-y-4" aria-labelledby="case-studies-title">
+          <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><h2 id="case-studies-title" className="font-semibold">Studia przypadków</h2></div>
           {lesson.caseStudies.map((cs: any) => (
             <div key={cs.id} className="rounded-xl border bg-card overflow-hidden">
               <div className="p-5 space-y-3">
@@ -238,6 +242,7 @@ export function LessonPlayer() {
 
 function LessonComments({ lessonId }: { lessonId: string }) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
@@ -252,19 +257,22 @@ function LessonComments({ lessonId }: { lessonId: string }) {
   const addMutation = useMutation({
     mutationFn: () => academyApi.addLessonComment(lessonId, newComment.trim()),
     onSuccess: () => { setNewComment(''); invalidate(); toast.success('Komentarz dodany'); },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udalo sie dodac komentarza'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się dodać komentarza'),
   });
 
   const replyMutation = useMutation({
     mutationFn: (commentId: string) => academyApi.addCommentReply(commentId, replyText.trim()),
-    onSuccess: () => { setReplyingTo(null); setReplyText(''); invalidate(); toast.success('Odpowiedz dodana'); },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udalo sie dodac odpowiedzi'),
+    onSuccess: () => { setReplyingTo(null); setReplyText(''); invalidate(); toast.success('Odpowiedź dodana'); },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się dodać odpowiedzi'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (commentId: string) => academyApi.deleteComment(commentId),
-    onSuccess: () => { invalidate(); toast.success('Komentarz usuniety'); },
+    onSuccess: () => { invalidate(); toast.success('Komentarz usunięty'); },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się usunąć komentarza'),
   });
+
+  const canDelete = (comment: any) => user?.role === 'ADMIN' || comment.user?.id === user?.id;
 
   const formatDate = (date: string) => {
     const d = new Date(date);
@@ -285,7 +293,7 @@ function LessonComments({ lessonId }: { lessonId: string }) {
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           maxLength={2000}
-          placeholder="Zadaj pytanie lub podziel sie refleksja..."
+          placeholder="Zadaj pytanie lub podziel się refleksją…"
         />
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">{newComment.length}/2000</span>
@@ -295,18 +303,19 @@ function LessonComments({ lessonId }: { lessonId: string }) {
             disabled={!newComment.trim() || addMutation.isPending}
           >
             <Send className="w-3.5 h-3.5" />
-            {addMutation.isPending ? 'Wysylanie...' : 'Wyslij'}
+            {addMutation.isPending ? 'Wysyłanie…' : 'Wyślij'}
           </button>
         </div>
       </div>
 
       {/* Comments list */}
       <div className="space-y-4">
+        {(comments as any[]).length === 0 && <p className="text-sm text-muted-foreground text-center py-2">Brak komentarzy — bądź pierwszą osobą!</p>}
         {(comments as any[]).map((comment: any) => (
           <div key={comment.id} className="space-y-2">
             <div className="rounded-lg bg-accent/30 p-3">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-medium">{comment.user?.name || 'Uzytkownik'}</span>
+                <span className="text-sm font-medium">{comment.user?.name || 'Użytkownik'}</span>
                 {comment.isAdminReply && <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-primary/10 text-primary">Instruktor</span>}
                 <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
               </div>
@@ -315,8 +324,8 @@ function LessonComments({ lessonId }: { lessonId: string }) {
                 <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1" onClick={() => { setReplyingTo(replyingTo === comment.id ? null : comment.id); setReplyText(''); }}>
                   <Reply className="w-3.5 h-3.5" />Odpowiedz
                 </button>
-                {comment.user?.id && <button className="text-xs text-destructive/70 hover:text-destructive flex items-center gap-1" onClick={() => { if (confirm('Usunac komentarz?')) deleteMutation.mutate(comment.id); }}>
-                  <Trash2 className="w-3.5 h-3.5" />Usun
+                {canDelete(comment) && <button className="text-xs text-destructive/70 hover:text-destructive flex items-center gap-1" onClick={() => { if (confirm('Usunąć komentarz?')) deleteMutation.mutate(comment.id); }}>
+                  <Trash2 className="w-3.5 h-3.5" />Usuń
                 </button>}
               </div>
             </div>
@@ -329,7 +338,7 @@ function LessonComments({ lessonId }: { lessonId: string }) {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   maxLength={2000}
-                  placeholder="Napisz odpowiedz..."
+                  placeholder="Napisz odpowiedź…"
                   autoFocus
                 />
                 <div className="flex gap-2 justify-end">
@@ -339,7 +348,7 @@ function LessonComments({ lessonId }: { lessonId: string }) {
                     onClick={() => replyMutation.mutate(comment.id)}
                     disabled={!replyText.trim() || replyMutation.isPending}
                   >
-                    <Send className="w-3 h-3" />{replyMutation.isPending ? 'Wysylanie...' : 'Wyslij'}
+                    <Send className="w-3 h-3" />{replyMutation.isPending ? 'Wysyłanie…' : 'Wyślij'}
                   </button>
                 </div>
               </div>
@@ -351,7 +360,7 @@ function LessonComments({ lessonId }: { lessonId: string }) {
                 {comment.replies.map((reply: any) => (
                   <div key={reply.id} className="rounded-lg bg-accent/20 p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium">{reply.user?.name || 'Uzytkownik'}</span>
+                      <span className="text-sm font-medium">{reply.user?.name || 'Użytkownik'}</span>
                       {reply.isAdminReply && <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-primary/10 text-primary">Instruktor</span>}
                       <span className="text-xs text-muted-foreground ml-auto">{formatDate(reply.createdAt)}</span>
                     </div>

@@ -17,8 +17,8 @@ const lessonTypeIcon: Record<string, React.ElementType> = {
 };
 
 const difficultyLabel: Record<string, string> = {
-  BEGINNER: 'Poczatkujacy',
-  INTERMEDIATE: 'Sredniozaawansowany',
+  BEGINNER: 'Początkujący',
+  INTERMEDIATE: 'Średniozaawansowany',
   ADVANCED: 'Zaawansowany',
 };
 
@@ -115,7 +115,7 @@ export function CourseDetail() {
           {course.userProgress && (
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Postep kursu</span>
+                <span>Postęp kursu</span>
                 <span>{Math.round(percent)}%</span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -128,7 +128,7 @@ export function CourseDetail() {
 
       {/* Modules */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Zawartosc kursu</h2>
+        <h2 className="text-lg font-semibold">Zawartość kursu</h2>
         {course.modules?.map((mod: any) => {
           const isOpen = openModules.has(mod.id);
           return (
@@ -171,7 +171,7 @@ export function CourseDetail() {
           );
         })}
       </div>
-      {course.userProgress?.completedAt && <section className="rounded-xl border bg-card p-6 space-y-3"><div className="flex items-center gap-2"><Star className="text-amber-500" /><h2 className="font-semibold">Oceń ukończony kurs</h2></div><div className="flex gap-2" aria-label="Ocena kursu">{[1,2,3,4,5].map(value=><button key={value} aria-label={`${value} gwiazdek`} aria-pressed={reviewRating===value} onClick={()=>setReviewRating(value)}><Star className={value<=reviewRating?'fill-amber-400 text-amber-400':'text-muted-foreground'} /></button>)}</div><textarea className="w-full rounded-lg border p-3 text-sm" minLength={10} maxLength={1500} value={reviewContent} onChange={e=>setReviewContent(e.target.value)} placeholder="Napisz, co było dla Ciebie najbardziej wartościowe…"/><button className="academy-button academy-buy" disabled={reviewContent.trim().length<10} onClick={async()=>{try{await academyApi.submitCourseReview(course.id,reviewRating,reviewContent.trim());setReviewContent('');toast.success('Dziękujemy — opinia trafiła do moderacji');}catch{toast.error('Nie udało się zapisać opinii');}}}>Wyślij opinię</button></section>}
+      {course.userProgress?.completedAt && <section className="rounded-xl border bg-card p-6 space-y-3"><div className="flex items-center gap-2"><Star className="text-amber-500" /><h2 className="font-semibold">Oceń ukończony kurs</h2></div><div className="flex gap-2" aria-label="Ocena kursu">{[1,2,3,4,5].map(value=><button key={value} aria-label={`${value} ${value === 1 ? 'gwiazdka' : value < 5 ? 'gwiazdki' : 'gwiazdek'}`} aria-pressed={reviewRating===value} onClick={()=>setReviewRating(value)}><Star className={value<=reviewRating?'fill-amber-400 text-amber-400':'text-muted-foreground'} /></button>)}</div><textarea className="w-full rounded-lg border p-3 text-sm" minLength={10} maxLength={1500} value={reviewContent} onChange={e=>setReviewContent(e.target.value)} placeholder="Napisz, co było dla Ciebie najbardziej wartościowe…"/><button className="academy-button academy-buy" disabled={reviewContent.trim().length<10} onClick={async()=>{try{await academyApi.submitCourseReview(course.id,reviewRating,reviewContent.trim());setReviewContent('');toast.success('Dziękujemy — opinia trafiła do moderacji');}catch{toast.error('Nie udało się zapisać opinii');}}}>Wyślij opinię</button></section>}
     </div>
   );
 }

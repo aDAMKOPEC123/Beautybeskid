@@ -19,7 +19,7 @@ export function AcademyStudio() {
   const [draft, setDraft] = useState(emptyDraft);
   const selected = useMemo(() => (courses as any[]).find(c => c.id === selectedId), [courses, selectedId]);
   const refresh = () => client.invalidateQueries({ queryKey: ['studio', 'courses'] });
-  const saveCourse = useMutation({ mutationFn: () => { const { tagsText,learningOutcomesText,prerequisitesText,salesFaqsText, ...data } = draft; const payload = { ...data, bundleGroup: data.bundleGroup || null, instructorBio: data.instructorBio || null, targetAudience:data.targetAudience||null,notForAudience:data.notForAudience||null,trailerVideoId:data.trailerVideoId||null,samplePdfUrl:data.samplePdfUrl||null, tags: tagsText.split(',').map(tag => tag.trim()).filter(Boolean),learningOutcomes:learningOutcomesText.split('\n').map(v=>v.trim()).filter(Boolean),prerequisites:prerequisitesText.split('\n').map(v=>v.trim()).filter(Boolean),salesFaqs:salesFaqsText.split('\n').map(line=>{const [question,...answer]=line.split('|');return{question:question?.trim(),answer:answer.join('|').trim()}}).filter(item=>item.question&&item.answer) }; return selected ? academyApi.adminUpdateCourse(selected.id, { ...payload, slug: selected.slug }) : academyApi.adminCreateCourse({ ...payload, slug: slugify(draft.title) }); }, onSuccess: (course: any) => { setSelectedId(course.id ?? selectedId); refresh(); } });
+  const saveCourse = useMutation({ mutationFn: () => { const { tagsText,learningOutcomesText,prerequisitesText,salesFaqsText, ...data } = draft; const payload = { ...data, bundleGroup: data.bundleGroup || null, instructorBio: data.instructorBio || null, targetAudience:data.targetAudience||null,notForAudience:data.notForAudience||null,trailerVideoId:data.trailerVideoId||null,samplePdfUrl:data.samplePdfUrl||null, tags: tagsText.split(',').map(tag => tag.trim()).filter(Boolean),learningOutcomes:learningOutcomesText.split('\n').map(v=>v.trim()).filter(Boolean),prerequisites:prerequisitesText.split('\n').map(v=>v.trim()).filter(Boolean),salesFaqs:salesFaqsText.split('\n').map(line=>{const [question,...answer]=line.split('|');return{question:question?.trim(),answer:answer.join('|').trim()}}).filter(item=>item.question&&item.answer) }; return selected ? academyApi.adminUpdateCourse(selected.id, { ...payload, slug: selected.slug }) : academyApi.adminCreateCourse({ ...payload, slug: slugify(draft.title) }); }, onSuccess: (course: any) => { setSelectedId(course.id ?? selectedId); refresh(); toast.success(selected ? 'Kurs zapisany' : 'Kurs utworzony'); }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się zapisać kursu') });
   const addModule = useMutation({ mutationFn: (title: string) => academyApi.adminCreateModule(selected!.id, { title, order: selected?.modules?.length ?? 0 }), onSuccess: refresh });
   const addLesson = useMutation({ mutationFn: ({ moduleId, data }: any) => academyApi.adminCreateLesson(moduleId, data), onSuccess: refresh });
   const updateLesson = useMutation({ mutationFn: ({ lessonId, data }: any) => academyApi.adminUpdateLesson(lessonId, data), onSuccess: refresh });
@@ -69,7 +69,7 @@ function LessonComposer({ module, addLesson, addQuiz }: { module: any; addLesson
   const add = () => { if (!title.trim()) return; const base = { title, slug: slugify(title), order: module.lessons?.length ?? 0, estimatedMinutes: 8, isRequired: true };
     if (kind === 'QUIZ') { addQuiz({ moduleId: module.id, title, order: base.order }); setTitle(''); return; }
     if (kind === 'VIDEO') addLesson({ moduleId: module.id, data: {...base, type:'VIDEO', videoProvider:'YOUTUBE', videoId: source.replace(/^.*(?:v=|youtu\.be\/)/, '').split(/[?&]/)[0], transcriptHtml} });
-    if (kind === 'EMBED') { if (!/^https:\/\/(www\.youtube\.com|player\.vimeo\.com)\//.test(source)) return alert('Wklej bezpieczny adres osadzania YouTube lub Vimeo.'); addLesson({moduleId:module.id,data:{...base,type:'TEXT',contentHtml:embedHtml(source)}}); }
+    if (kind === 'EMBED') { if (!/^https:\/\/(www\.youtube\.com|player\.vimeo\.com)\//.test(source)) return void toast.error('Wklej bezpieczny adres osadzania YouTube lub Vimeo.'); addLesson({moduleId:module.id,data:{...base,type:'TEXT',contentHtml:embedHtml(source)}}); }
     if (kind === 'TEXT') addLesson({ moduleId: module.id, data: {...base, type:'TEXT',contentHtml:source} }); setTitle(''); setSource(''); setTranscriptHtml(''); };
   return <div className="studio-composer"><div className="studio-composer-title"><Plus />Dodaj element do tej sekcji</div><div className="studio-kind-tabs">{[['VIDEO','Film YouTube'],['EMBED','iframe / Vimeo'],['TEXT','Instrukcja'],['QUIZ','Punkt kontrolny']].map(([value,label]) => <button key={value} onClick={() => setKind(value)} className={kind===value?'selected':''}>{label}</button>)}</div><input value={title} onChange={e => setTitle(e.target.value)} placeholder={kind === 'QUIZ' ? 'np. Sprawdź wiedzę po sekcji' : 'Tytuł lekcji'} />{kind === 'TEXT' ? <RichTextEditor value={source} onChange={setSource} /> : kind !== 'QUIZ' && <textarea value={source} onChange={e => setSource(e.target.value)} placeholder={kind === 'VIDEO' ? 'Link do filmu YouTube' : 'Adres osadzania, np. https://player.vimeo.com/video/…'} />}{kind === 'VIDEO' && <textarea value={transcriptHtml} onChange={e => setTranscriptHtml(e.target.value)} placeholder="Transkrypcja filmu (wymagana przed publikacją dostępnego kursu)" />}{kind === 'QUIZ' && <p className="studio-hint">Po dodaniu punktu kontrolnego utwórz pytania w sekcji „Quizy” — w kolejnym kroku połączymy je bezpośrednio z tym miejscem.</p>}<button className="studio-add-lesson" onClick={add}><Plus />Dodaj {kind === 'QUIZ' ? 'punkt kontrolny' : 'lekcję'}</button></div>;
 }
@@ -145,33 +145,33 @@ function AttachmentsManager({ lesson, onRefresh }: { lesson: any; onRefresh: () 
       setDesc('');
       onRefresh();
       toast.success('Plik dodany');
-    } catch { toast.error('Nie udalo sie wgrac pliku'); }
+    } catch { toast.error('Nie udało się wgrać pliku'); }
     finally { setUploading(false); }
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Usunac zalacznik?')) return;
-    try { await academyApi.adminDeleteAttachment(id); onRefresh(); toast.success('Zalacznik usuniety'); }
-    catch { toast.error('Blad usuwania'); }
+    if (!confirm('Usunąć załącznik?')) return;
+    try { await academyApi.adminDeleteAttachment(id); onRefresh(); toast.success('Załącznik usunięty'); }
+    catch { toast.error('Błąd usuwania'); }
   };
 
   return (
     <details className="studio-transcript">
-      <summary><Paperclip className="w-3.5 h-3.5 inline mr-1" />Materialy do pobrania ({attachments.length})</summary>
+      <summary><Paperclip className="w-3.5 h-3.5 inline mr-1" />Materiały do pobrania ({attachments.length})</summary>
       <div className="space-y-2 py-2">
         {attachments.map((att: any) => (
           <div key={att.id} className="flex items-center gap-2 text-sm bg-accent/20 rounded px-2 py-1.5">
             <Download className="w-3.5 h-3.5 shrink-0" />
             <span className="flex-1 truncate">{att.originalName}</span>
             <span className="text-xs text-muted-foreground">{(att.fileSize / 1024 / 1024).toFixed(1)} MB</span>
-            <button className="text-destructive/70 hover:text-destructive" onClick={() => remove(att.id)}><Trash2 className="w-3.5 h-3.5" /></button>
+            <button className="text-destructive/70 hover:text-destructive" title="Usuń załącznik" aria-label="Usuń załącznik" onClick={() => remove(att.id)}><Trash2 className="w-3.5 h-3.5" /></button>
           </div>
         ))}
         <div className="space-y-1">
           <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Opis pliku (opcjonalnie)" className="w-full text-sm rounded border px-2 py-1" />
           <input ref={fileRef} type="file" accept=".pdf,.zip,.docx" onChange={upload} hidden />
           <button className="studio-add-lesson text-xs" onClick={() => fileRef.current?.click()} disabled={uploading}>
-            <Plus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie...' : 'Dodaj plik (PDF, ZIP, DOCX, max 20 MB)'}
+            <Plus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie…' : 'Dodaj plik (PDF, ZIP, DOCX, max 20 MB)'}
           </button>
         </div>
       </div>
@@ -193,25 +193,25 @@ function CaseStudiesManager({ lesson, onRefresh }: { lesson: any; onRefresh: () 
       await academyApi.adminCreateCaseStudy(lesson.id, { title, problemDescription: problem, treatmentDescription: treatment, resultsDescription: results });
       setTitle(''); setProblem(''); setTreatment(''); setResults(''); setAdding(false);
       onRefresh();
-      toast.success('Case study dodane');
-    } catch { toast.error('Blad tworzenia case study'); }
+      toast.success('Studium przypadku dodane');
+    } catch { toast.error('Błąd tworzenia studium przypadku'); }
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Usunac case study?')) return;
-    try { await academyApi.adminDeleteCaseStudy(id); onRefresh(); toast.success('Case study usuniete'); }
-    catch { toast.error('Blad usuwania'); }
+    if (!confirm('Usunąć studium przypadku?')) return;
+    try { await academyApi.adminDeleteCaseStudy(id); onRefresh(); toast.success('Studium przypadku usunięte'); }
+    catch { toast.error('Błąd usuwania'); }
   };
 
   return (
     <details className="studio-transcript">
-      <summary><ImageIcon className="w-3.5 h-3.5 inline mr-1" />Studia przypadkow ({caseStudies.length})</summary>
+      <summary><ImageIcon className="w-3.5 h-3.5 inline mr-1" />Studia przypadków ({caseStudies.length})</summary>
       <div className="space-y-3 py-2">
         {caseStudies.map((cs: any) => (
           <div key={cs.id} className="rounded border bg-accent/10 p-3 space-y-2">
             <div className="flex items-center justify-between">
               <strong className="text-sm">{cs.title}</strong>
-              <button className="text-destructive/70 hover:text-destructive" onClick={() => remove(cs.id)}><Trash2 className="w-3.5 h-3.5" /></button>
+              <button className="text-destructive/70 hover:text-destructive" title="Usuń studium" aria-label="Usuń studium przypadku" onClick={() => remove(cs.id)}><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
             {cs.images?.length > 0 && (
               <div className="flex gap-2 flex-wrap">
@@ -219,7 +219,7 @@ function CaseStudiesManager({ lesson, onRefresh }: { lesson: any; onRefresh: () 
                   <div key={img.id} className="relative group">
                     <img src={img.imageUrl} alt={img.caption || ''} className="w-16 h-16 object-cover rounded" />
                     <span className="absolute bottom-0 left-0 text-[9px] bg-black/60 text-white px-1 rounded-tr">{img.type === 'BEFORE' ? 'Przed' : img.type === 'AFTER' ? 'Po' : 'W trakcie'}</span>
-                    <button className="absolute top-0 right-0 bg-destructive text-white rounded-full w-4 h-4 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity" onClick={async () => { try { await academyApi.adminDeleteCaseStudyImage(img.id); onRefresh(); } catch { toast.error('Blad usuwania zdjecia'); } }}>x</button>
+                    <button className="absolute top-0 right-0 bg-destructive text-white rounded-full w-4 h-4 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity" onClick={async () => { try { await academyApi.adminDeleteCaseStudyImage(img.id); onRefresh(); } catch { toast.error('Błąd usuwania zdjęcia'); } }}>x</button>
                   </div>
                 ))}
               </div>
@@ -229,17 +229,17 @@ function CaseStudiesManager({ lesson, onRefresh }: { lesson: any; onRefresh: () 
         ))}
         {adding ? (
           <div className="space-y-2 border rounded p-3">
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Tytul case study" className="w-full text-sm rounded border px-2 py-1" />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Tytuł studium przypadku" className="w-full text-sm rounded border px-2 py-1" />
             <textarea value={problem} onChange={e => setProblem(e.target.value)} placeholder="Opis problemu" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
             <textarea value={treatment} onChange={e => setTreatment(e.target.value)} placeholder="Zastosowany zabieg" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
             <textarea value={results} onChange={e => setResults(e.target.value)} placeholder="Efekty" className="w-full text-sm rounded border px-2 py-1 min-h-16" />
             <div className="flex gap-2">
-              <button className="studio-add-lesson text-xs" onClick={create}><Plus className="w-3.5 h-3.5" />Zapisz</button>
+              <button className="studio-add-lesson text-xs" onClick={create}><Plus className="w-3.5 h-3.5" />Zapisz studium</button>
               <button className="text-xs text-muted-foreground" onClick={() => setAdding(false)}>Anuluj</button>
             </div>
           </div>
         ) : (
-          <button className="studio-add-lesson text-xs" onClick={() => setAdding(true)}><Plus className="w-3.5 h-3.5" />Dodaj case study</button>
+          <button className="studio-add-lesson text-xs" onClick={() => setAdding(true)}><Plus className="w-3.5 h-3.5" />Dodaj studium przypadku</button>
         )}
       </div>
     </details>
@@ -259,8 +259,8 @@ function CaseStudyImageUpload({ caseStudyId, onRefresh }: { caseStudyId: string;
     try {
       await academyApi.adminAddCaseStudyImage(caseStudyId, file, type);
       onRefresh();
-      toast.success('Zdjecie dodane');
-    } catch { toast.error('Nie udalo sie wgrac zdjecia'); }
+      toast.success('Zdjęcie dodane');
+    } catch { toast.error('Nie udało się wgrać zdjęcia'); }
     finally { setUploading(false); }
   };
 
@@ -273,7 +273,7 @@ function CaseStudyImageUpload({ caseStudyId, onRefresh }: { caseStudyId: string;
       </select>
       <input ref={fileRef} type="file" accept="image/*" onChange={upload} hidden />
       <button className="text-xs text-primary flex items-center gap-1" onClick={() => fileRef.current?.click()} disabled={uploading}>
-        <ImagePlus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie...' : 'Dodaj zdjecie'}
+        <ImagePlus className="w-3.5 h-3.5" />{uploading ? 'Wgrywanie…' : 'Dodaj zdjęcie'}
       </button>
     </div>
   );

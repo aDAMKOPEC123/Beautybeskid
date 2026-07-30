@@ -14,8 +14,7 @@ const lessonHtmlOptions: sanitizeHtml.IOptions = {
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
     img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
-    iframe: ['src', 'title', 'loading', 'allowfullscreen', 'style', 'frameborder', 'allow'],
-    '*': ['style'],
+    iframe: ['src', 'title', 'loading', 'allowfullscreen', 'frameborder', 'allow', 'style'],
   },
   allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com'],
   allowedSchemes: ['http', 'https', 'mailto'],
@@ -114,12 +113,31 @@ export const updateLesson = async (id: string, data: Record<string, unknown>) =>
 };
 
 export const deleteLesson = async (id: string) => {
+  const lesson = await prisma.lesson.findUnique({
+    where: { id },
+    select: {
+      attachments: { select: { fileName: true } },
+      caseStudies: { select: { images: { select: { imageUrl: true } } } },
+    },
+  });
   await prisma.lesson.delete({ where: { id } });
+  if (lesson) {
+    for (const att of lesson.attachments) {
+      await fs.unlink(path.join(UPLOADS_DIR, 'academy-attachments', att.fileName)).catch(() => {});
+    }
+    for (const cs of lesson.caseStudies) {
+      for (const img of cs.images) {
+        const filePath = img.imageUrl.startsWith('/uploads/') ? path.join(UPLOADS_DIR, img.imageUrl.replace('/uploads/', '')) : null;
+        if (filePath) await fs.unlink(filePath).catch(() => {});
+      }
+    }
+  }
 };
 
 // ---- Attachments ----
 
 export const addAttachment = async (lessonId: string, file: Express.Multer.File, description?: string) => {
+  if (file.size === 0) throw new AppError('Plik jest pusty', 400);
   const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { id: true } });
   if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
   const ext = path.extname(file.originalname).toLowerCase();
@@ -176,7 +194,14 @@ export const updateCaseStudy = async (id: string, data: Record<string, unknown>)
 };
 
 export const deleteCaseStudy = async (id: string) => {
+  const cs = await prisma.lessonCaseStudy.findUnique({ where: { id }, select: { images: { select: { imageUrl: true } } } });
   await prisma.lessonCaseStudy.delete({ where: { id } });
+  if (cs) {
+    for (const img of cs.images) {
+      const filePath = img.imageUrl.startsWith('/uploads/') ? path.join(UPLOADS_DIR, img.imageUrl.replace('/uploads/', '')) : null;
+      if (filePath) await fs.unlink(filePath).catch(() => {});
+    }
+  }
 };
 
 export const addCaseStudyImage = async (caseStudyId: string, file: Express.Multer.File, type: string, caption?: string) => {
@@ -196,7 +221,13 @@ export const deleteCaseStudyImage = async (id: string) => {
 
 // ---- Comments ----
 
-export const getComments = async (lessonId: string) => {
+export const getComments = async (lessonId: string, userId: string, isAdmin: boolean) => {
+  if (!isAdmin) {
+    const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { module: { select: { courseId: true, course: { select: { accessDays: true } } } } } });
+    if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
+    const enrollment = await prisma.academyEnrollment.findUnique({ where: { userId_courseId: { userId, courseId: lesson.module.courseId } } });
+    if (!hasActiveCourseAccess(enrollment, lesson.module.course.accessDays)) throw new AppError('Komentarze dostępne po zakupie kursu', 403);
+  }
   const comments = await prisma.lessonComment.findMany({
     where: { lessonId, parentId: null },
     include: {

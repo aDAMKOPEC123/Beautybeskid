@@ -18,7 +18,10 @@ export const saveNote = async (req: Request, res: Response, next: NextFunction) 
     const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
     if (!content) throw new AppError('Notatka nie może być pusta', 400);
     if (content.length > 5000) throw new AppError('Notatka może mieć maksymalnie 5000 znaków', 400);
-    const note = await lessonsService.saveNote(req.academyUser!.id, req.params.lessonId, content, req.body.videoTimestamp);
+    const rawTs = req.body.videoTimestamp;
+    const videoTimestamp = rawTs != null ? Math.round(Number(rawTs)) : undefined;
+    if (videoTimestamp !== undefined && (!Number.isFinite(videoTimestamp) || videoTimestamp < 0 || videoTimestamp > 86400)) throw new AppError('Nieprawidłowy znacznik czasu', 400);
+    const note = await lessonsService.saveNote(req.academyUser!.id, req.params.lessonId, content, videoTimestamp);
     res.json({ data: note });
   } catch (error) { next(error); }
 };
@@ -136,7 +139,7 @@ export const deleteCaseStudyImage = async (req: Request, res: Response, next: Ne
 
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const comments = await lessonsService.getComments(req.params.lessonId);
+    const comments = await lessonsService.getComments(req.params.lessonId, req.academyUser!.id, req.academyUser!.role === 'ADMIN');
     res.json({ data: comments });
   } catch (error) { next(error); }
 };

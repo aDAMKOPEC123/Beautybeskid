@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../../../middleware/error.middleware';
 import * as progressService from './progress.service';
 
 export const markLessonComplete = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +15,9 @@ export const markLessonComplete = async (req: Request, res: Response, next: Next
 export const updateVideoProgress = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.academyUser!.id;
-    await progressService.updateVideoProgress(userId, req.params.lessonId, req.body.watchedSeconds, req.academyUser!.role === 'ADMIN');
+    const watchedSeconds = Number(req.body.watchedSeconds);
+    if (!Number.isFinite(watchedSeconds) || watchedSeconds < 0 || watchedSeconds > 86400) throw new AppError('Nieprawidłowy czas oglądania', 400);
+    await progressService.updateVideoProgress(userId, req.params.lessonId, Math.round(watchedSeconds), req.academyUser!.role === 'ADMIN');
     res.json({ message: 'Postęp zaktualizowany' });
   } catch (error) {
     next(error);
