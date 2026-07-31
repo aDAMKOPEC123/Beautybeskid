@@ -1,9 +1,10 @@
 #!/bin/bash
 # Deploy script for COSMO app
 # Usage:
-#   ./deploy.sh          - deploy frontend + backend
-#   ./deploy.sh frontend - deploy frontend only
+#   ./deploy.sh          - deploy frontend + backend + academy
+#   ./deploy.sh frontend - deploy frontend + academy
 #   ./deploy.sh backend  - deploy backend only
+#   ./deploy.sh academy  - deploy academy-web only
 
 set -e
 
@@ -23,13 +24,13 @@ WEBROOT="/var/www/kosmetologwiktoriacwik.pl"
 
 MODE=${1:-"full"}
 
-if [ "$MODE" != "full" ] && [ "$MODE" != "frontend" ] && [ "$MODE" != "backend" ]; then
+if [ "$MODE" != "full" ] && [ "$MODE" != "frontend" ] && [ "$MODE" != "backend" ] && [ "$MODE" != "academy" ]; then
   echo "ERROR: unsupported deploy mode: $MODE"
-  echo "Usage: ./deploy.sh [full|frontend|backend]"
+  echo "Usage: ./deploy.sh [full|frontend|backend|academy]"
   exit 1
 fi
 
-if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ] || [ "$MODE" = "academy" ]; then
   if [ -z "${CLOUDFLARE_ZONE_ID:-}" ] || [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
     echo "ERROR: frontend deploy requires CLOUDFLARE_ZONE_ID and CLOUDFLARE_API_TOKEN."
     echo "Fill in both values in $DEPLOY_ENV_FILE."
@@ -116,6 +117,20 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "      Frontend deployed."
 fi
 
+# 5. Build and deploy academy-web (separate subdomain app).
+ACADEMY_WEBROOT="/var/www/akademia.kosmetologwiktoriacwik.pl"
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ] || [ "$MODE" = "academy" ]; then
+  echo "[5/5] Building academy-web..."
+  ssh "$VPS" "cd $REMOTE_DIR/apps/academy-web && pnpm build"
+  echo "      Synchronizing academy webroot..."
+  ssh "$VPS" "sudo rsync -a --delete --exclude='assets/' $REMOTE_DIR/apps/academy-web/dist/ $ACADEMY_WEBROOT/"
+  ssh "$VPS" "sudo mkdir -p $ACADEMY_WEBROOT/assets && sudo rsync -a $REMOTE_DIR/apps/academy-web/dist/assets/ $ACADEMY_WEBROOT/assets/"
+  ssh "$VPS" "sudo find $ACADEMY_WEBROOT/assets -type f -mtime +30 -delete"
+  echo "      Installing academy nginx configuration..."
+  ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/akademia.conf /etc/nginx/sites-available/akademia.kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
+  echo "      Academy deployed."
+fi
+
 if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
   echo "Checking the local production origin..."
   ssh "$VPS" "curl --fail --silent --show-error -H 'Host: kosmetologwiktoriacwik.pl' http://127.0.0.1:8080/ >/dev/null"
@@ -124,7 +139,7 @@ fi
 echo "Checking Cloudflare Tunnel when installed..."
 ssh "$VPS" "if systemctl is-active --quiet cloudflared-cosmo.service; then curl --fail --silent --show-error http://127.0.0.1:20241/ready >/dev/null; fi"
 
-if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ]; then
+if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ] || [ "$MODE" = "academy" ]; then
   purge_cloudflare_cache
 fi
 
