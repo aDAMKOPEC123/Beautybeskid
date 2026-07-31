@@ -127,7 +127,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ] || [ "$MODE" = "academy" ]; 
   ssh "$VPS" "sudo mkdir -p $ACADEMY_WEBROOT/assets && sudo rsync -a $REMOTE_DIR/apps/academy-web/dist/assets/ $ACADEMY_WEBROOT/assets/"
   ssh "$VPS" "sudo find $ACADEMY_WEBROOT/assets -type f -mtime +30 -delete"
   echo "      Installing academy nginx configuration..."
-  ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/akademia.conf /etc/nginx/sites-available/akademia.kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
+  ssh "$VPS" "sudo cp $REMOTE_DIR/deploy/nginx/academy.conf /etc/nginx/sites-available/akademia.kosmetologwiktoriacwik.pl && sudo nginx -t && sudo systemctl reload nginx"
   echo "      Academy deployed."
 fi
 
