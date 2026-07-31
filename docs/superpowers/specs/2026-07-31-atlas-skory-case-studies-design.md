@@ -24,20 +24,26 @@ Interaktywna encyklopedia z dwoma trybami:
 
 ### Struktura danych (Prisma)
 
+Wszystkie ID sa typu `String @id @default(cuid())` — zgodnie z konwencja projektu.
+Wszystkie modele maja `createdAt DateTime @default(now())` i `updatedAt DateTime @updatedAt`.
+
 ```
 SkinAtlasRegion
-  - id: Int @id
+  - id: String @id @default(cuid())
   - name: String (np. "Twarz", "Stopy", "Dekolt", "Cialo")
   - slug: String @unique
   - thumbnailUrl: String (zdjecie-miniaturka regionu)
   - hotspotX: Float (pozycja pinu na mapie ciala, %)
   - hotspotY: Float
   - order: Int
+  - published: Boolean @default(false)
   - conditions: SkinAtlasCondition[]
+  - createdAt: DateTime @default(now())
+  - updatedAt: DateTime @updatedAt
 
 SkinAtlasCondition
-  - id: Int @id
-  - regionId: Int -> SkinAtlasRegion
+  - id: String @id @default(cuid())
+  - regionId: String -> SkinAtlasRegion
   - name: String (np. "Tradzik grudkowy")
   - slug: String @unique
   - description: String (rich text — opis kliniczny)
@@ -45,33 +51,51 @@ SkinAtlasCondition
   - treatments: String (rich text — wskazania zabiegowe)
   - contraindications: String (rich text — przeciwwskazania)
   - order: Int
+  - published: Boolean @default(false)
   - images: SkinAtlasImage[]
   - quizQuestions: SkinAtlasQuizQuestion[]
-  - relatedCourseId: Int? -> AcademyCourse (cross-sell)
+  - relatedCourseId: String? -> AcademyCourse (cross-sell)
+  - relatedCaseStudyId: String? -> DiagnosticCaseStudy (cross-sell do case study)
+  - createdAt: DateTime @default(now())
+  - updatedAt: DateTime @updatedAt
+  - @@index([regionId])
 
 SkinAtlasImage
-  - id: Int @id
-  - conditionId: Int -> SkinAtlasCondition
+  - id: String @id @default(cuid())
+  - conditionId: String -> SkinAtlasCondition
   - url: String
   - alt: String
   - severity: Enum (MILD, MODERATE, SEVERE)
   - order: Int
+  - @@index([conditionId])
 
 SkinAtlasQuizQuestion
-  - id: Int @id
-  - conditionId: Int -> SkinAtlasCondition
+  - id: String @id @default(cuid())
+  - conditionId: String -> SkinAtlasCondition
   - questionText: String
   - questionImageUrl: String? (zdjecie do rozpoznania)
   - explanation: String (wyjasnienie po odpowiedzi)
   - order: Int
   - answers: SkinAtlasQuizAnswer[]
+  - @@index([conditionId])
 
 SkinAtlasQuizAnswer
-  - id: Int @id
-  - questionId: Int -> SkinAtlasQuizQuestion
+  - id: String @id @default(cuid())
+  - questionId: String -> SkinAtlasQuizQuestion
   - text: String
   - isCorrect: Boolean
   - order: Int
+  - @@index([questionId])
+
+SkinAtlasQuizAttempt
+  - id: String @id @default(cuid())
+  - userId: String -> AcademyUser
+  - regionSlug: String? (null = quiz ze wszystkich regionow)
+  - score: Int
+  - maxScore: Int
+  - answers: Json (shape: { questionId: string, selectedAnswerId: string, correct: boolean }[])
+  - completedAt: DateTime @default(now())
+  - @@index([userId])
 ```
 
 ### Mapa ciala
@@ -81,27 +105,40 @@ SkinAtlasQuizAnswer
 - Admin ustawia pozycje pinow (X%, Y%) per region
 - Hover na pinie -> tooltip z nazwa regionu i liczba problemow
 - Click -> przejscie do listy problemow
+- Zdjecia uploadowane przez istniejacy `processAndSaveImage` -> katalog `/uploads`
 
-Mobile: zamiast zdjecia z pinami -> lista regionow jako karty z miniaturkami (lepszy UX na malym ekranie)
+Mobile (breakpoint < 768px): zamiast zdjecia z pinami -> lista regionow jako karty z miniaturkami (lepszy UX na malym ekranie)
 
 ### Trasy
 
+Slug `quiz` jest zarezerwowany i nie moze byc uzyty jako slug regionu (walidacja w adminie).
+Trasy w routerze musza byc zdefiniowane w kolejnosci: statyczne (`quiz/*`) przed dynamicznymi (`:region`).
+
 ```
 /akademia/atlas                        -> mapa ciala
-/akademia/atlas/:region                -> lista problemow regionu
-/akademia/atlas/:region/:condition     -> karta problemu
 /akademia/atlas/quiz                   -> quiz (losowe pytania, wszystkie regiony)
 /akademia/atlas/quiz/:region           -> quiz z konkretnego regionu
+/akademia/atlas/:region                -> lista problemow regionu
+/akademia/atlas/:region/:condition     -> karta problemu
 ```
 
 ### Panel admina
 
-- CRUD regionow (nazwa, slug, miniaturka, pozycja hotspota)
-- CRUD problemow skornych per region (opis, przyczyny, zabiegi, przeciwwskazania)
-- Upload zdjec z tagowaniem stopnia nasilenia (MILD/MODERATE/SEVERE)
+Trasy admina zyja w apps/academy-web (nie w apps/web):
+
+```
+/admin/atlas         -> AdminSkinAtlas
+/admin/przypadki     -> AdminCaseStudies
+```
+
+Funkcje:
+- CRUD regionow (nazwa, slug, miniaturka, pozycja hotspota, published)
+- CRUD problemow skornych per region (opis, przyczyny, zabiegi, przeciwwskazania, published)
+- Upload zdjec z tagowaniem stopnia nasilenia (MILD/MODERATE/SEVERE) — uzywa `processAndSaveImage`
 - Edytor pytan quizowych per problem (pytanie + opcjonalne zdjecie + 4 odpowiedzi + wyjasnienie)
-- Powiazywanie problemow z kursami (dropdown)
+- Powiazywanie problemow z kursami i case studies (dropdown)
 - Podglad mapy z hotspotami
+- Walidacja: slug regionu nie moze byc "quiz"; name min 2 znaki; description min 10 znakow
 
 ### UI Desktop — mapa ciala
 
@@ -123,6 +160,8 @@ Mobile: zamiast zdjecia z pinami -> lista regionow jako karty z miniaturkami (le
 |   +------------------+   +---------------------+  |
 +--------------------------------------------------+
 ```
+
+Przycisk "Quiz mode" to link nawigacyjny do `/akademia/atlas/quiz` (osobna trasa, nie in-page toggle).
 
 ### UI Desktop — karta problemu
 
@@ -163,6 +202,8 @@ Mobile: zamiast zdjecia z pinami -> lista regionow jako karty z miniaturkami (le
 
 Symulacja diagnostyczna — kursantka wchodzi w role kosmetyczki. Dostaje opis klientki + zdjecia i podejmuje decyzje krok po kroku. Po kazdym kroku dostaje feedback.
 
+Nazwa modelu: `DiagnosticCaseStudy` (nie `CaseStudy`) — unikamy kolizji z istniejacym `LessonCaseStudy`.
+
 ### Przebieg (3-4 kroki)
 
 ```
@@ -183,55 +224,89 @@ Krok 4: WYNIK
   + wyjasnienie instruktorki (tekst/wideo)
   + podsumowanie z ocena (ile krokow dobrze)
   + link do powiazanego kursu
+  UWAGA: step.type === RESULT nie ma pytania — frontend pomija renderowanie
+  odpowiedzi. Pole question jest null, answers[] jest puste.
 ```
 
 ### Struktura danych (Prisma)
 
 ```
-CaseStudy
-  - id: Int @id
+DiagnosticCaseStudy
+  - id: String @id @default(cuid())
   - title: String
   - description: String
   - thumbnailUrl: String?
-  - difficulty: Enum (EASY, MEDIUM, HARD)
+  - difficulty: Enum DiagnosticDifficulty (EASY, MEDIUM, HARD)
   - regionSlug: String? (powiazanie z atlasem)
-  - courseId: Int? -> AcademyCourse (cross-sell)
+  - courseId: String? -> AcademyCourse (cross-sell, okresla tez dostep)
   - published: Boolean @default(false)
   - order: Int
   - clientName: String (np. "Anna")
   - clientAge: Int
   - clientDescription: String (rich text — historia, oczekiwania)
-  - steps: CaseStudyStep[]
-  - attempts: CaseStudyAttempt[]
+  - steps: DiagnosticCaseStep[]
+  - attempts: DiagnosticCaseAttempt[]
+  - createdAt: DateTime @default(now())
+  - updatedAt: DateTime @updatedAt
+  - @@index([courseId])
 
-CaseStudyStep
-  - id: Int @id
-  - caseStudyId: Int -> CaseStudy
-  - type: Enum (INTERVIEW, DIAGNOSIS, TREATMENT, RESULT)
+DiagnosticCaseStep
+  - id: String @id @default(cuid())
+  - caseStudyId: String -> DiagnosticCaseStudy
+  - type: Enum DiagnosticStepType (INTERVIEW, DIAGNOSIS, TREATMENT, RESULT)
   - content: String (rich text — tresc kroku)
-  - imageUrls: String[] (zdjecia before/during/after)
-  - question: String?
+  - question: String? (null dla RESULT)
   - multiSelect: Boolean @default(false)
   - order: Int
-  - answers: CaseStudyAnswer[]
+  - answers: DiagnosticCaseAnswer[]
+  - images: DiagnosticCaseStepImage[]
+  - @@index([caseStudyId])
 
-CaseStudyAnswer
-  - id: Int @id
-  - stepId: Int -> CaseStudyStep
+DiagnosticCaseStepImage
+  - id: String @id @default(cuid())
+  - stepId: String -> DiagnosticCaseStep
+  - url: String
+  - alt: String?
+  - type: Enum DiagnosticImageType (BEFORE, DURING, AFTER)
+  - order: Int
+  - @@index([stepId])
+
+DiagnosticCaseAnswer
+  - id: String @id @default(cuid())
+  - stepId: String -> DiagnosticCaseStep
   - text: String
   - isCorrect: Boolean
   - explanation: String? (wyjasnienie po wyborze)
   - order: Int
+  - @@index([stepId])
 
-CaseStudyAttempt
-  - id: Int @id
-  - caseStudyId: Int -> CaseStudy
-  - userId: Int
+DiagnosticCaseAttempt
+  - id: String @id @default(cuid())
+  - caseStudyId: String -> DiagnosticCaseStudy
+  - userId: String -> AcademyUser
   - score: Int (ile krokow poprawnie)
   - maxScore: Int (ile krokow lacznie)
-  - completedAt: DateTime
-  - answers: Json (zapis odpowiedzi per krok)
+  - startedAt: DateTime @default(now())
+  - completedAt: DateTime? (null = w trakcie lub porzucone)
+  - answers: Json
+  - @@index([userId])
+  - @@index([caseStudyId])
 ```
+
+Ksztalt `answers` Json:
+```json
+[
+  {
+    "stepId": "clxyz...",
+    "selectedAnswerIds": ["clxyz..."],
+    "correct": true
+  }
+]
+```
+
+### Wznawianie sesji (v1)
+
+Case study NIE wspiera wznawiania w v1 — jesli kursantka zamknie przegladarke w polowie, zaczyna od nowa. Stan krokow trzymany w React state (nie w bazie). `DiagnosticCaseAttempt` tworzony dopiero po ukonczeniu wszystkich krokow. To akceptowalne bo case study ma 3-4 krotkie kroki (< 5 minut).
 
 ### Gdzie case studies zyja w UI
 
@@ -239,12 +314,17 @@ CaseStudyAttempt
 - Tryb interaktywny pelnoekranowy — `/akademia/kurs/:slug/przypadek/:id`
 - Na stronie sprzedazowej kursu: "Ten kurs zawiera X interaktywnych case studies" jako element wartosci
 
+### Dostep do case studies
+
+Case studies sa course-specific: kursantka widzi i moze grac tylko case studies powiazane z kursami ktore posiada (`DiagnosticCaseStudy.courseId` musi odpowiadac zakupionemu kursowi). Backend weryfikuje dostep per courseId.
+
 ### Panel admina
 
 - Kreator case study: dane klientki + kroki (drag & drop kolejnosci)
-- Per krok: typ, tresc rich text, upload zdjec, pytanie + odpowiedzi z wyjasnienami
+- Per krok: typ, tresc rich text, upload zdjec (z tagowaniem BEFORE/DURING/AFTER), pytanie + odpowiedzi z wyjasnienami
 - Podglad calego flow przed publikacja
 - Statystyki: ile kursantek ukonczylo, sredni wynik
+- Walidacja: min 2 kroki, ostatni krok musi byc RESULT, title min 3 znaki
 
 ### UI — tryb interaktywny
 
@@ -280,17 +360,19 @@ CaseStudyAttempt
 
 ### Cross-sell
 
-- Atlas -> kurs: problem skorny linkuje do powiazanego kursu ("Naucz sie to leczyc")
-- Atlas -> case study: problem skorny linkuje do case study ("Sprawdz sie w praktyce")
-- Case study -> kurs: ekran wyniku linkuje do kursu ("Chcesz poglebic wiedze?")
-- Case study -> atlas: ekran wyniku linkuje do problemu ("Zobacz w atlasie")
+- Atlas -> kurs: `SkinAtlasCondition.relatedCourseId` linkuje do kursu ("Naucz sie to leczyc")
+- Atlas -> case study: `SkinAtlasCondition.relatedCaseStudyId` linkuje do case study ("Sprawdz sie w praktyce")
+- Case study -> kurs: ekran wyniku linkuje do `DiagnosticCaseStudy.courseId` ("Chcesz poglebic wiedze?")
+- Case study -> atlas: ekran wyniku linkuje do problemu via `DiagnosticCaseStudy.regionSlug` ("Zobacz w atlasie")
 - Kurs -> case studies: strona sprzedazowa pokazuje liczbe case studies
 
-### Dostepnosc
+### Kontrola dostepu
 
-- Niezalogowani: na stronie sprzedazowej widza info "Dostep do Atlasu Skory i interaktywnych case studies w cenie kursu"
-- Zalogowani bez kursu: widza info o braku dostepu z CTA do zakupu
-- Zalogowani z kursem: pelny dostep do atlasu i case studies powiazanych z ich kursami
+Trzy stany uzytkownika na stronach atlasu i case studies:
+
+1. **Niezalogowany**: redirect do `/logowanie` z return URL
+2. **Zalogowany bez zadnego kursu**: strona "Brak dostepu" z opisem atlasu/case studies + CTA "Zobacz kursy" -> katalog. Frontend rozpoznaje ten stan po 403 z backendu (middleware `academyRequireAnyPurchase`).
+3. **Zalogowany z kursem**: pelny dostep do atlasu; dostep do case studies powiazanych z posiadanymi kursami
 
 ### Nowe elementy na AcademyCatalog (strona glowna)
 
@@ -306,45 +388,50 @@ apps/server/src/modules/academy/
   |   +-- skin-atlas.router.ts
   |   +-- skin-atlas.controller.ts
   |   +-- skin-atlas.service.ts
-  +-- case-studies/
-      +-- case-studies.router.ts
-      +-- case-studies.controller.ts
-      +-- case-studies.service.ts
+  +-- diagnostic-cases/
+      +-- diagnostic-cases.router.ts
+      +-- diagnostic-cases.controller.ts
+      +-- diagnostic-cases.service.ts
 ```
 
-Endpointy montowane pod `/api/academy/atlas/*` i `/api/academy/case-studies/*`.
+Endpointy montowane pod `/api/academy/atlas/*` i `/api/academy/diagnostic-cases/*`.
+Zdjecia uploadowane przez istniejacy `processAndSaveImage` -> katalog `/uploads`.
 
 ### Frontend — nowe komponenty
 
+Wszystkie w apps/academy-web/src/:
+
 ```
-apps/academy-web/src/
-  +-- pages/
-  |   +-- atlas/
-  |   |   +-- SkinAtlasMap.tsx        (mapa ciala z hotspotami)
-  |   |   +-- SkinAtlasRegion.tsx     (lista problemow regionu)
-  |   |   +-- SkinAtlasCondition.tsx  (karta problemu)
-  |   |   +-- SkinAtlasQuiz.tsx       (tryb quizowy)
-  |   +-- case-studies/
-  |       +-- CaseStudyList.tsx       (lista case studies kursu)
-  |       +-- CaseStudyPlayer.tsx     (interaktywny tryb krokowy)
-  +-- admin/
-      +-- AdminSkinAtlas.tsx          (CRUD atlasu)
-      +-- AdminCaseStudies.tsx        (kreator case studies)
+pages/
+  +-- atlas/
+  |   +-- SkinAtlasMap.tsx        (mapa ciala z hotspotami)
+  |   +-- SkinAtlasRegion.tsx     (lista problemow regionu)
+  |   +-- SkinAtlasCondition.tsx  (karta problemu)
+  |   +-- SkinAtlasQuiz.tsx       (tryb quizowy)
+  +-- case-studies/
+      +-- CaseStudyList.tsx       (lista case studies kursu)
+      +-- CaseStudyPlayer.tsx     (interaktywny tryb krokowy)
+
+admin/
+  +-- AdminSkinAtlas.tsx          (CRUD atlasu)
+  +-- AdminCaseStudies.tsx        (kreator case studies)
 ```
 
 ### Trasy
 
 ```
-Public (wymagaja auth + dostep do kursu):
+Public (wymagaja auth + min. 1 kurs):
 /akademia/atlas                        -> SkinAtlasMap
+/akademia/atlas/quiz                   -> SkinAtlasQuiz (statyczna przed dynamiczna!)
+/akademia/atlas/quiz/:region           -> SkinAtlasQuiz (filtrowany)
 /akademia/atlas/:region                -> SkinAtlasRegion
 /akademia/atlas/:region/:condition     -> SkinAtlasCondition
-/akademia/atlas/quiz                   -> SkinAtlasQuiz
-/akademia/atlas/quiz/:region           -> SkinAtlasQuiz (filtrowany)
+
+Public (wymagaja auth + dostep do konkretnego kursu):
 /akademia/kurs/:slug/przypadki         -> CaseStudyList
 /akademia/kurs/:slug/przypadek/:id     -> CaseStudyPlayer
 
-Admin:
+Admin (w apps/academy-web):
 /admin/atlas                           -> AdminSkinAtlas
 /admin/przypadki                       -> AdminCaseStudies
 ```
@@ -358,3 +445,4 @@ Admin:
 - AI skin analyzer (moze w przyszlosci)
 - Spolecznosc/forum absolwentek
 - Program ambasadorski w akademii (juz istnieje w glownej aplikacji)
+- Wznawianie case study w polowie sesji (v1 — case study trwa < 5 min)
