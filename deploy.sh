@@ -121,7 +121,7 @@ fi
 ACADEMY_WEBROOT="/var/www/akademia.kosmetologwiktoriacwik.pl"
 if [ "$MODE" = "full" ] || [ "$MODE" = "frontend" ] || [ "$MODE" = "academy" ]; then
   echo "[5/5] Building academy-web..."
-  ssh "$VPS" "cd $REMOTE_DIR/apps/academy-web && pnpm build"
+  ssh "$VPS" "cd $REMOTE_DIR && pnpm install --frozen-lockfile && cd apps/academy-web && pnpm build"
   echo "      Synchronizing academy webroot..."
   ssh "$VPS" "sudo rsync -a --delete --exclude='assets/' $REMOTE_DIR/apps/academy-web/dist/ $ACADEMY_WEBROOT/"
   ssh "$VPS" "sudo mkdir -p $ACADEMY_WEBROOT/assets && sudo rsync -a $REMOTE_DIR/apps/academy-web/dist/assets/ $ACADEMY_WEBROOT/assets/"
