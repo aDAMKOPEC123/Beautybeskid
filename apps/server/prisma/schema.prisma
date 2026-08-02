@@ -1457,6 +1457,8 @@ model Course {
   bundleCourses   AcademyBundleCourse[]
   priceHistory    AcademyCoursePriceHistory[]
   promotionUsages AcademyPromotionUsage[]
+  atlasConditions       SkinAtlasCondition[]
+  diagnosticCaseStudies DiagnosticCaseStudy[]
 }
 
 model AcademyUser {
@@ -1495,6 +1497,8 @@ model AcademyUser {
   academyCourseReviews      AcademyCourseReview[]
   academyLearningGoal       AcademyLearningGoal?
   promotionUsages           AcademyPromotionUsage[]
+  atlasQuizAttempts         SkinAtlasQuizAttempt[]
+  diagnosticCaseAttempts    DiagnosticCaseAttempt[]
 
   @@index([role])
 }
@@ -2353,6 +2357,31 @@ enum Priority {
   WYSOKI
 }
 
+enum SkinAtlasSeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+enum DiagnosticDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum DiagnosticStepType {
+  INTERVIEW
+  DIAGNOSIS
+  TREATMENT
+  RESULT
+}
+
+enum DiagnosticImageType {
+  BEFORE
+  DURING
+  AFTER
+}
+
 model ContentPost {
   id           String         @id @default(cuid())
   title        String
@@ -2592,4 +2621,173 @@ model Voucher {
   updatedAt       DateTime      @updatedAt
   createdById     String?
   createdBy       User?         @relation("VoucherCreatedBy", fields: [createdById], references: [id])
+}
+
+// ── Skin Atlas ──────────────────────────────────────────────
+
+model SkinAtlasRegion {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  thumbnailUrl String?
+  hotspotX     Float    @default(50)
+  hotspotY     Float    @default(50)
+  order        Int      @default(0)
+  published    Boolean  @default(false)
+  conditions   SkinAtlasCondition[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SkinAtlasCondition {
+  id                   String   @id @default(cuid())
+  regionId             String
+  region               SkinAtlasRegion @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  name                 String
+  slug                 String   @unique
+  description          String   @db.Text
+  causes               String   @db.Text
+  treatments           String   @db.Text
+  contraindications    String   @db.Text
+  order                Int      @default(0)
+  published            Boolean  @default(false)
+  relatedCourseId      String?
+  relatedCourse        Course?  @relation(fields: [relatedCourseId], references: [id], onDelete: SetNull)
+  relatedCaseStudyId   String?
+  relatedCaseStudy     DiagnosticCaseStudy? @relation(fields: [relatedCaseStudyId], references: [id], onDelete: SetNull)
+  images               SkinAtlasImage[]
+  quizQuestions        SkinAtlasQuizQuestion[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([regionId])
+}
+
+model SkinAtlasImage {
+  id          String              @id @default(cuid())
+  conditionId String
+  condition   SkinAtlasCondition  @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  url         String
+  alt         String              @default("")
+  severity    SkinAtlasSeverity
+  order       Int                 @default(0)
+
+  @@index([conditionId])
+}
+
+model SkinAtlasQuizQuestion {
+  id               String              @id @default(cuid())
+  conditionId      String
+  condition        SkinAtlasCondition  @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  questionText     String
+  questionImageUrl String?
+  explanation      String              @db.Text
+  order            Int                 @default(0)
+  answers          SkinAtlasQuizAnswer[]
+
+  @@index([conditionId])
+}
+
+model SkinAtlasQuizAnswer {
+  id         String                  @id @default(cuid())
+  questionId String
+  question   SkinAtlasQuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean                 @default(false)
+  order      Int                     @default(0)
+
+  @@index([questionId])
+}
+
+model SkinAtlasQuizAttempt {
+  id         String       @id @default(cuid())
+  userId     String
+  user       AcademyUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regionSlug String?
+  score      Int
+  maxScore   Int
+  answers    Json
+  completedAt DateTime    @default(now())
+
+  @@index([userId])
+}
+
+// ── Diagnostic Case Studies ─────────────────────────────────
+
+model DiagnosticCaseStudy {
+  id                String   @id @default(cuid())
+  title             String
+  description       String   @db.Text
+  thumbnailUrl      String?
+  difficulty        DiagnosticDifficulty @default(MEDIUM)
+  regionSlug        String?
+  courseId           String?
+  course            Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  published         Boolean  @default(false)
+  order             Int      @default(0)
+  clientName        String
+  clientAge         Int
+  clientDescription String   @db.Text
+  steps             DiagnosticCaseStep[]
+  attempts          DiagnosticCaseAttempt[]
+  referencedByConditions SkinAtlasCondition[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model DiagnosticCaseStep {
+  id           String               @id @default(cuid())
+  caseStudyId  String
+  caseStudy    DiagnosticCaseStudy  @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  type         DiagnosticStepType
+  content      String               @db.Text
+  question     String?
+  multiSelect  Boolean              @default(false)
+  order        Int                  @default(0)
+  answers      DiagnosticCaseAnswer[]
+  images       DiagnosticCaseStepImage[]
+
+  @@index([caseStudyId])
+}
+
+model DiagnosticCaseStepImage {
+  id     String              @id @default(cuid())
+  stepId String
+  step   DiagnosticCaseStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  url    String
+  alt    String?
+  type   DiagnosticImageType
+  order  Int                 @default(0)
+
+  @@index([stepId])
+}
+
+model DiagnosticCaseAnswer {
+  id          String              @id @default(cuid())
+  stepId      String
+  step        DiagnosticCaseStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  text        String
+  isCorrect   Boolean             @default(false)
+  explanation String?             @db.Text
+  order       Int                 @default(0)
+
+  @@index([stepId])
+}
+
+model DiagnosticCaseAttempt {
+  id          String               @id @default(cuid())
+  caseStudyId String
+  caseStudy   DiagnosticCaseStudy  @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  userId      String
+  user        AcademyUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score       Int
+  maxScore    Int
+  startedAt   DateTime             @default(now())
+  completedAt DateTime?
+  answers     Json
+
+  @@index([userId])
+  @@index([caseStudyId])
 }
