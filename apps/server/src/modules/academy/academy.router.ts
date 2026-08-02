@@ -12,6 +12,7 @@ import legalRouter from './legal/legal.router';
 import marketingRouter from './marketing/marketing.router';
 import operationsRouter from './operations/operations.router';
 import skinAtlasRouter from './skin-atlas/skin-atlas.router';
+import diagnosticCasesRouter from './diagnostic-cases/diagnostic-cases.router';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/', legalRouter);
 router.use('/', marketingRouter);
 router.use('/', operationsRouter);
 router.use('/', skinAtlasRouter);
+router.use('/', diagnosticCasesRouter);
 
 export { router as academyRouter };
