@@ -11,6 +11,7 @@ import paymentsRouter from './payments/payments.router';
 import legalRouter from './legal/legal.router';
 import marketingRouter from './marketing/marketing.router';
 import operationsRouter from './operations/operations.router';
+import skinAtlasRouter from './skin-atlas/skin-atlas.router';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/', paymentsRouter);
 router.use('/', legalRouter);
 router.use('/', marketingRouter);
 router.use('/', operationsRouter);
+router.use('/', skinAtlasRouter);
 
 export { router as academyRouter };
