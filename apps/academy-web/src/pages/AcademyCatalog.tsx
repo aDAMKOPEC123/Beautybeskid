@@ -2,8 +2,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import {
-  ArrowRight, Award, BookOpen, Check, CheckCircle2, Clock3, GraduationCap,
-  Heart, HeartHandshake, PlayCircle, Search, ShieldCheck, Sparkles, Star, Target,
+  ArrowRight, Award, BookOpen, Brain, Check, CheckCircle2, Clock3, GraduationCap,
+  Heart, HeartHandshake, MapPin, PlayCircle, Search, ShieldCheck, Sparkles, Star, Stethoscope, Target,
   Mail, UsersRound, UserPlus, Shield,
 } from 'lucide-react';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
@@ -238,6 +238,29 @@ export function AcademyCatalog() {
     {/* === 11. INSTRUCTOR === */}
     <InstructorSection preview={preview} />
 
+    {/* === 11b. FEATURE CARDS — Ucz się inaczej === */}
+    <section className="academy-page-section">
+      <h2 className="academy-section-title">Ucz się inaczej</h2>
+      <p className="academy-section-subtitle">Interaktywne narzędzia, które wzbogacą Twoją naukę</p>
+      <div className="academy-features">
+        <div className="academy-feature-card">
+          <MapPin className="w-10 h-10" />
+          <h3>Atlas skóry</h3>
+          <p>Interaktywna encyklopedia problemów skórnych z galerią zdjęć i opisami klinicznymi</p>
+        </div>
+        <div className="academy-feature-card">
+          <Stethoscope className="w-10 h-10" />
+          <h3>Case studies</h3>
+          <p>Symulacje diagnostyczne krok po kroku — postaw diagnozę i zaplanuj zabieg</p>
+        </div>
+        <div className="academy-feature-card">
+          <Brain className="w-10 h-10" />
+          <h3>Quizy diagnostyczne</h3>
+          <p>Sprawdź swoją wiedzę rozpoznając problemy skórne na zdjęciach</p>
+        </div>
+      </div>
+    </section>
+
     {/* === 12. FAQ === */}
     <section className="academy-faq-section">
       <div>
@@ -251,6 +274,7 @@ export function AcademyCatalog() {
         <details><summary>Czy mogę uczyć się na telefonie?</summary><p>Tak. Akademia działa na telefonie, tablecie i komputerze, a postęp zapisuje się na Twoim koncie.</p></details>
         <details><summary>Gdzie mogę zadać pytanie?</summary><p>Każda zalogowana kursantka może skorzystać z prywatnej sekcji &bdquo;Zapytaj kosmetologa&rdquo;, również bezpośrednio z lekcji.</p></details>
         <details><summary>Czy mogę otrzymać fakturę?</summary><p>Tak. Po zakupie faktura jest generowana automatycznie i dostępna w panelu kursantki.</p></details>
+        <details><summary>Czym jest Atlas Skóry?</summary><p>Atlas Skóry to interaktywna encyklopedia problemów skórnych dostępna dla kursantek. Zawiera opisy kliniczne, zdjęcia różnych stopni nasilenia i quizy diagnostyczne. Dostęp do Atlasu otrzymujesz wraz z zakupem dowolnego kursu.</p></details>
       </div>
     </section>
 
@@ -294,6 +318,7 @@ function CourseCard({ course, featured, favorite, canFavorite, onToggleFavorite 
         <div className="academy-course-meta">
           {course.estimatedMinutes > 0 ? <span><Clock3 />{course.estimatedMinutes} min</span> : <span><Clock3 />Program w przygotowaniu</span>}
           {course.lessonCount > 0 && <span><PlayCircle />{course.lessonCount} lekcji</span>}
+          {(course._count?.diagnosticCaseStudies ?? 0) > 0 && <span><Stethoscope />{course._count.diagnosticCaseStudies} case {course._count.diagnosticCaseStudies === 1 ? 'study' : 'studies'}</span>}
         </div>
         <h3>{course.title}</h3>
         <p>{course.description || 'Starannie przygotowany kurs dla specjalistek beauty.'}</p>

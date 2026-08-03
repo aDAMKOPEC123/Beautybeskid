@@ -171,4 +171,44 @@ export const academyApi = {
   adminMarkSupportRead: (threadId: string) => api.post(`/academy/admin/support/threads/${threadId}/read`),
   adminSendSupportMessage: (threadId: string, content: string) => api.post(`/academy/admin/support/threads/${threadId}/messages`, { content }).then((r) => r.data.data),
   adminSetSupportStatus: (threadId: string, status: string) => api.patch(`/academy/admin/support/threads/${threadId}/status`, { status }).then(r => r.data.data),
+
+  // ── Skin Atlas ──────────────────────────────────────────
+  getAtlasRegions: () => api.get('/academy/atlas/regions').then(r => r.data.data),
+  getAtlasRegion: (slug: string) => api.get(`/academy/atlas/${slug}`).then(r => r.data.data),
+  getAtlasCondition: (region: string, condition: string) =>
+    api.get(`/academy/atlas/${region}/${condition}`).then(r => r.data.data),
+  getAtlasQuizQuestions: (region?: string) =>
+    api.get(region ? `/academy/atlas/quiz/${region}` : '/academy/atlas/quiz').then(r => r.data.data),
+  submitAtlasQuiz: (data: { regionSlug?: string; answers: { questionId: string; selectedAnswerId: string }[] }) =>
+    api.post('/academy/atlas/quiz', data).then(r => r.data.data),
+
+  // Atlas Admin
+  adminGetAtlasRegions: () => api.get('/academy/admin/atlas/regions').then(r => r.data.data),
+  adminCreateAtlasRegion: (data: Record<string, unknown>) => api.post('/academy/admin/atlas/regions', data).then(r => r.data.data),
+  adminUpdateAtlasRegion: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/atlas/regions/${id}`, data).then(r => r.data.data),
+  adminDeleteAtlasRegion: (id: string) => api.delete(`/academy/admin/atlas/regions/${id}`),
+  adminCreateAtlasCondition: (data: Record<string, unknown>) => api.post('/academy/admin/atlas/conditions', data).then(r => r.data.data),
+  adminUpdateAtlasCondition: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/atlas/conditions/${id}`, data).then(r => r.data.data),
+  adminDeleteAtlasCondition: (id: string) => api.delete(`/academy/admin/atlas/conditions/${id}`),
+  adminCreateAtlasQuizQuestion: (data: Record<string, unknown>) => api.post('/academy/admin/atlas/questions', data).then(r => r.data.data),
+  adminDeleteAtlasQuizQuestion: (id: string) => api.delete(`/academy/admin/atlas/questions/${id}`),
+  adminUploadAtlasImage: (formData: FormData) => api.post('/academy/admin/atlas/images', formData).then(r => r.data.data),
+  adminDeleteAtlasImage: (id: string) => api.delete(`/academy/admin/atlas/images/${id}`),
+
+  // ── Diagnostic Cases ────────────────────────────────────
+  getDiagnosticCasesForCourse: (courseSlug: string) =>
+    api.get(`/academy/diagnostic-cases/course/${courseSlug}`).then(r => r.data.data),
+  getDiagnosticCase: (id: string) => api.get(`/academy/diagnostic-cases/${id}`).then(r => r.data.data),
+  submitDiagnosticCaseAttempt: (id: string, stepAnswers: { stepId: string; selectedAnswerIds: string[] }[]) =>
+    api.post(`/academy/diagnostic-cases/${id}/attempt`, { stepAnswers }).then(r => r.data.data),
+
+  // Diagnostic Cases Admin
+  adminGetDiagnosticCases: () => api.get('/academy/admin/diagnostic-cases').then(r => r.data.data),
+  adminGetDiagnosticCase: (id: string) => api.get(`/academy/admin/diagnostic-cases/${id}`).then(r => r.data.data),
+  adminCreateDiagnosticCase: (data: Record<string, unknown>) => api.post('/academy/admin/diagnostic-cases', data).then(r => r.data.data),
+  adminUpdateDiagnosticCase: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/diagnostic-cases/${id}`, data).then(r => r.data.data),
+  adminDeleteDiagnosticCase: (id: string) => api.delete(`/academy/admin/diagnostic-cases/${id}`),
+  adminGetDiagnosticCaseStats: (id: string) => api.get(`/academy/admin/diagnostic-cases/${id}/stats`).then(r => r.data.data),
+  adminUploadDiagnosticCaseImage: (formData: FormData) =>
+    api.post('/academy/admin/diagnostic-cases/images', formData).then(r => r.data.data),
 };

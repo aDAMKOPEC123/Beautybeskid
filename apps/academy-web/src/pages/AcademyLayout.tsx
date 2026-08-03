@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart, Lock, UserPlus } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart, Lock, UserPlus, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
@@ -18,6 +18,7 @@ export function AcademyLayout() {
     { to: '/quizy', label: 'Wiedza', icon: Sparkles, locked: !isAuthenticated },
     { to: '/certyfikaty', label: 'Certyfikaty', icon: Award, locked: !isAuthenticated },
     { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart, locked: !isAuthenticated },
+    { to: '/atlas', label: 'Atlas skóry', icon: MapPin, locked: !isAuthenticated },
     ...(isAuthenticated ? [{ to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
   ];
   const active = (to: string, exact?: boolean) => exact ? location.pathname === to : location.pathname.startsWith(to);

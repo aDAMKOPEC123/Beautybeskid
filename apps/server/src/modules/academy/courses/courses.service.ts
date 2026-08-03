@@ -44,6 +44,7 @@ export const listPublic = async () => {
     include: {
       modules: { include: { lessons: { select: { id: true } } }, orderBy: { order: 'asc' } },
       priceHistory: { orderBy: { validFrom: 'asc' } },
+      _count: { select: { diagnosticCaseStudies: { where: { published: true } } } },
     },
     orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
   });

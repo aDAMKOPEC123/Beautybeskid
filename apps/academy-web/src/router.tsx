@@ -46,6 +46,14 @@ const AcademyUnsubscribe = lazy(() => import('./pages/AcademyUnsubscribe').then(
 const AcademyMediaAdmin = lazy(() => import('./pages/AcademyMediaAdmin').then(m=>({default:m.AcademyMediaAdmin})));
 const AcademyCart=lazy(()=>import('./pages/AcademyCart').then(m=>({default:m.AcademyCart})));
 const AcademyOperationsAdmin=lazy(()=>import('./pages/AcademyOperationsAdmin').then(m=>({default:m.AcademyOperationsAdmin})));
+const SkinAtlasMap = lazy(() => import('./pages/atlas/SkinAtlasMap').then(m => ({ default: m.SkinAtlasMap })));
+const SkinAtlasRegion = lazy(() => import('./pages/atlas/SkinAtlasRegion').then(m => ({ default: m.SkinAtlasRegion })));
+const SkinAtlasCondition = lazy(() => import('./pages/atlas/SkinAtlasCondition').then(m => ({ default: m.SkinAtlasCondition })));
+const SkinAtlasQuiz = lazy(() => import('./pages/atlas/SkinAtlasQuiz').then(m => ({ default: m.SkinAtlasQuiz })));
+const CaseStudyList = lazy(() => import('./pages/case-studies/CaseStudyList').then(m => ({ default: m.CaseStudyList })));
+const CaseStudyPlayer = lazy(() => import('./pages/case-studies/CaseStudyPlayer').then(m => ({ default: m.CaseStudyPlayer })));
+const AdminSkinAtlas = lazy(() => import('./pages/admin/AdminSkinAtlas').then(m => ({ default: m.AdminSkinAtlas })));
+const AdminCaseStudies = lazy(() => import('./pages/admin/AdminCaseStudies').then(m => ({ default: m.AdminCaseStudies })));
 
 export const router = createBrowserRouter([
   {
@@ -77,6 +85,13 @@ export const router = createBrowserRouter([
           { path: 'zamowienie/kurs/:slug', element: <S><RequireAuth><CheckoutPage type="course" /></RequireAuth></S> },
           { path: 'zamowienie/pakiet/:slug', element: <S><RequireAuth><CheckoutPage type="bundle" /></RequireAuth></S> },
           { path: 'koszyk', element: <S><AcademyCart /></S> },
+          { path: 'atlas', element: <S><RequireAuth><SkinAtlasMap /></RequireAuth></S> },
+          { path: 'atlas/quiz', element: <S><RequireAuth><SkinAtlasQuiz /></RequireAuth></S> },
+          { path: 'atlas/quiz/:region', element: <S><RequireAuth><SkinAtlasQuiz /></RequireAuth></S> },
+          { path: 'atlas/:region', element: <S><RequireAuth><SkinAtlasRegion /></RequireAuth></S> },
+          { path: 'atlas/:region/:condition', element: <S><RequireAuth><SkinAtlasCondition /></RequireAuth></S> },
+          { path: 'kurs/:slug/przypadki', element: <S><RequireAuth><CaseStudyList /></RequireAuth></S> },
+          { path: 'kurs/:slug/przypadek/:id', element: <S><RequireAuth><CaseStudyPlayer /></RequireAuth></S> },
           { path: ':slug', element: <S><AcademyLegalPage /></S> },
           { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
         ],
@@ -94,6 +109,8 @@ export const router = createBrowserRouter([
           { path: 'pakiety', element: <S><AcademyBundlesAdmin /></S> },
           { path: 'marketing', element: <S><AcademyMarketingAdmin /></S> },
           { path: 'media', element: <S><AcademyMediaAdmin /></S> },
+          { path: 'atlas', element: <S><AdminSkinAtlas /></S> },
+          { path: 'przypadki', element: <S><AdminCaseStudies /></S> },
           { path: 'system', element: <S><AcademyOperationsAdmin /></S> },
           { path: 'prawo', element: <S><AcademyLegalAdmin /></S> },
         ],

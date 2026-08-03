@@ -1,5 +1,5 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity } from 'lucide-react';
+import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, Map, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity, Stethoscope } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
@@ -12,6 +12,8 @@ const navigation = [
   { to: '/admin/pakiety', label: 'Pakiety', icon: Package },
   { to: '/admin/marketing', label: 'Marketing Akademii', icon: Megaphone },
   { to: '/admin/media', label: 'Biblioteka mediów', icon: Images },
+  { to: '/admin/atlas', label: 'Atlas skóry', icon: Map },
+  { to: '/admin/przypadki', label: 'Case studies', icon: Stethoscope },
   { to: '/admin/system', label: 'Stan systemu', icon: Activity },
   { to: '/admin/prawo', label: 'Prawo i sprzedawca', icon: Scale },
 ];
