@@ -17,7 +17,7 @@ export function AcademyLayout() {
     { to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen, locked: !isAuthenticated },
     { to: '/quizy', label: 'Wiedza', icon: Sparkles, locked: !isAuthenticated },
     { to: '/certyfikaty', label: 'Certyfikaty', icon: Award, locked: !isAuthenticated },
-    { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', icon: MessageCircleHeart, locked: !isAuthenticated },
+    { to: '/zapytaj-kosmetologa', label: 'Zapytaj kosmetologa', short: 'Konsultacje', icon: MessageCircleHeart, locked: !isAuthenticated },
     { to: '/atlas', label: 'Atlas skóry', icon: MapPin, locked: !isAuthenticated },
     ...(isAuthenticated ? [{ to: '/profil', label: 'Mój profil', icon: UserRound }] : []),
   ];
@@ -34,14 +34,15 @@ export function AcademyLayout() {
             <span><strong>Akademia</strong><em>BeskidStudio</em></span>
           </Link>
           <nav className={`academy-desktop-nav ${isAuthenticated ? 'authenticated' : 'anonymous'}`} aria-label="Główna nawigacja">
-            {navItems.map(({ to, label, icon: Icon, exact, locked }) => locked
-              ? <Link key={to} to="/logowanie" state={{ from: to }} className="locked" aria-label={`${label} — zaloguj się, aby uzyskać dostęp`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></Link>
-              : <Link key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
+            {navItems.map(({ to, label, short, icon: Icon, exact, locked }) => locked
+              ? <Link key={to} to="/logowanie" state={{ from: to }} className="locked" title={`${label} — zaloguj się, aby uzyskać dostęp`} aria-label={`${label} — zaloguj się, aby uzyskać dostęp`}><Icon className="w-4 h-4" />{short ?? label}<Lock className="academy-lock-icon" /></Link>
+              : <Link key={to} to={to} className={active(to, exact) ? 'active' : ''} title={label}><Icon className="w-4 h-4" />{short ?? label}</Link>
             )}
           </nav>
           <div className="academy-top-actions">
-            <Link to="/koszyk" className="academy-cart-link" aria-label={`Koszyk, ${cartCount} produktów`}><ShoppingCart/>{cartCount>0&&<span>{cartCount}</span>}</Link>
-            <a href="https://kosmetologwiktoriacwik.pl" className="hidden xl:flex academy-home-link"><ExternalLink className="w-4 h-4" />Strona Salonu</a>
+            <Link to="/koszyk" className="academy-icon-button academy-cart-link" title="Koszyk" aria-label={`Koszyk, ${cartCount} produktów`}><ShoppingCart/>{cartCount>0&&<span>{cartCount}</span>}</Link>
+            <a href="https://kosmetologwiktoriacwik.pl" className="academy-icon-button academy-home-link" title="Strona Salonu" aria-label="Przejdź na stronę salonu"><ExternalLink /></a>
+            <span className="academy-nav-divider" aria-hidden="true" />
             {user?.role === 'ADMIN' && <Link to="/admin" className="hidden lg:flex academy-admin-entry"><Settings2 className="w-4 h-4" />Panel admina</Link>}
             {isAuthenticated ? <Link to={user?.role === 'ADMIN' ? '/admin' : '/profil'} className="academy-account" aria-label={user?.role === 'ADMIN' ? 'Przejdź do panelu administratora' : 'Przejdź do mojego profilu'}><span className="academy-avatar" title={user?.name || user?.email}>{initials}</span><span className="hidden sm:block academy-account-copy"><span>{user?.name?.split(' ')[0] || user?.email}</span>{user?.role === 'ADMIN' && <small>Konto administratora</small>}</span><span className="sm:hidden">{user?.role === 'ADMIN' && <small className="academy-admin-badge">Admin</small>}</span></Link> : <>
               <Link to="/logowanie" className="academy-login-text" aria-label="Zaloguj się"><LogIn className="w-4 h-4" /><span>Zaloguj się</span></Link>
