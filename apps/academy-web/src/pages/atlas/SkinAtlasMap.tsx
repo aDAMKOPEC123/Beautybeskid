@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Brain, ChevronRight, ArrowLeft } from 'lucide-react';
 import { academyApi } from '@/api/academy.api';
+import { BodySilhouette } from './BodySilhouette';
 
 interface AtlasRegion {
   id: string;
@@ -19,7 +20,6 @@ export function SkinAtlasMap() {
   const [searchParams] = useSearchParams();
   const parentSlug = searchParams.get('parent');
 
-  // If we have a parentSlug, load the parent region for breadcrumb and its children
   const { data: parentRegion } = useQuery({
     queryKey: ['academy', 'atlas', 'region', parentSlug],
     queryFn: () => academyApi.getAtlasRegion(parentSlug!),
@@ -28,7 +28,6 @@ export function SkinAtlasMap() {
 
   const parentId = parentRegion?.id ?? undefined;
 
-  // Fetch regions: top-level (no parentId) or children of a specific region
   const { data: regions, isLoading } = useQuery<AtlasRegion[]>({
     queryKey: ['academy', 'atlas', 'regions', parentId ?? 'root'],
     queryFn: () => academyApi.getAtlasRegions(parentSlug ? parentId : null),
@@ -39,7 +38,6 @@ export function SkinAtlasMap() {
 
   return (
     <div className="academy-page">
-      {/* Breadcrumb */}
       {isSubView && parentRegion && (
         <div className="atlas-breadcrumb">
           <Link to="/atlas">Atlas</Link>
@@ -91,8 +89,9 @@ export function SkinAtlasMap() {
 
       {!isLoading && regions && regions.length > 0 && (
         <div className="atlas-map">
-          {/* Body silhouette with hotspot pins — hidden on mobile via CSS */}
+          {/* Body silhouette with hotspot pins */}
           <div className="atlas-body-image">
+            <BodySilhouette />
             {regions
               .filter((r) => r.hotspotX != null && r.hotspotY != null)
               .map((region) => {

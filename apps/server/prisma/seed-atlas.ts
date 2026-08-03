@@ -34,7 +34,7 @@ const bodyRegions: TopRegionData[] = [
     name: 'Twarz',
     slug: 'twarz',
     hotspotX: 50,
-    hotspotY: 8,
+    hotspotY: 7,
     subRegions: [
       {
         name: 'Czoło',
@@ -202,7 +202,7 @@ const bodyRegions: TopRegionData[] = [
     name: 'Szyja i dekolt',
     slug: 'szyja-dekolt',
     hotspotX: 50,
-    hotspotY: 18,
+    hotspotY: 16,
     subRegions: [
       {
         name: 'Szyja',
@@ -258,7 +258,7 @@ const bodyRegions: TopRegionData[] = [
     name: 'Ciało — tułów',
     slug: 'tulow',
     hotspotX: 50,
-    hotspotY: 40,
+    hotspotY: 38,
     subRegions: [
       {
         name: 'Plecy',
@@ -321,8 +321,8 @@ const bodyRegions: TopRegionData[] = [
   {
     name: 'Ramiona i ręce',
     slug: 'ramiona-rece',
-    hotspotX: 25,
-    hotspotY: 35,
+    hotspotX: 16,
+    hotspotY: 30,
     subRegions: [
       {
         name: 'Ramiona',
@@ -377,8 +377,8 @@ const bodyRegions: TopRegionData[] = [
   {
     name: 'Nogi i stopy',
     slug: 'nogi-stopy',
-    hotspotX: 40,
-    hotspotY: 75,
+    hotspotX: 35,
+    hotspotY: 68,
     subRegions: [
       {
         name: 'Uda i kolana',
@@ -458,7 +458,7 @@ const bodyRegions: TopRegionData[] = [
     name: 'Skóra głowy',
     slug: 'skora-glowy',
     hotspotX: 50,
-    hotspotY: 3,
+    hotspotY: 2,
     subRegions: [
       {
         name: 'Owłosiona skóra głowy',
@@ -497,8 +497,8 @@ const bodyRegions: TopRegionData[] = [
   {
     name: 'Paznokcie',
     slug: 'paznokcie',
-    hotspotX: 75,
-    hotspotY: 55,
+    hotspotX: 90,
+    hotspotY: 40,
     subRegions: [
       {
         name: 'Paznokcie rąk',
