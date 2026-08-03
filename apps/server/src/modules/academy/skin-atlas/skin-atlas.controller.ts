@@ -7,7 +7,8 @@ import { AppError } from '../../../middleware/error.middleware';
 
 export const listRegions = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const regions = await atlasService.listPublishedRegions();
+    const parentId = req.query.parentId as string | undefined;
+    const regions = await atlasService.listPublishedRegions(parentId ?? undefined);
     res.json({ data: regions });
   } catch (error) { next(error); }
 };

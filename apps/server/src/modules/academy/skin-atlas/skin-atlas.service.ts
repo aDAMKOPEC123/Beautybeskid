@@ -5,11 +5,21 @@ const RESERVED_SLUGS = ['quiz'];
 
 // ── Public ──────────────────────────────────────────────────
 
-export async function listPublishedRegions() {
+export async function listPublishedRegions(parentId?: string | null) {
   return prisma.skinAtlasRegion.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      parentId: parentId === undefined ? null : parentId,
+    },
     orderBy: { order: 'asc' },
-    include: { _count: { select: { conditions: { where: { published: true } } } } },
+    include: {
+      _count: {
+        select: {
+          conditions: { where: { published: true } },
+          children: { where: { published: true } },
+        },
+      },
+    },
   });
 }
 
@@ -17,6 +27,14 @@ export async function getRegionBySlug(slug: string) {
   const region = await prisma.skinAtlasRegion.findUnique({
     where: { slug },
     include: {
+      parent: { select: { slug: true, name: true } },
+      children: {
+        where: { published: true },
+        orderBy: { order: 'asc' },
+        include: {
+          _count: { select: { conditions: { where: { published: true } }, children: { where: { published: true } } } },
+        },
+      },
       conditions: {
         where: { published: true },
         orderBy: { order: 'asc' },
@@ -93,7 +111,10 @@ export async function submitQuizAttempt(
 export async function adminListRegions() {
   return prisma.skinAtlasRegion.findMany({
     orderBy: { order: 'asc' },
-    include: { _count: { select: { conditions: true } } },
+    include: {
+      parent: { select: { id: true, name: true } },
+      _count: { select: { conditions: true, children: true } },
+    },
   });
 }
 
@@ -110,6 +131,7 @@ export async function adminCreateRegion(data: Record<string, any>) {
       hotspotY: data.hotspotY ?? 50,
       order: data.order ?? 0,
       published: data.published ?? false,
+      parentId: data.parentId || null,
     },
   });
 }

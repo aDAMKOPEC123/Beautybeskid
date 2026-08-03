@@ -14,7 +14,9 @@ interface AtlasRegion {
   hotspotY: number;
   order: number;
   published: boolean;
-  _count: { conditions: number };
+  parentId?: string | null;
+  parent?: { id: string; name: string } | null;
+  _count: { conditions: number; children: number };
 }
 
 interface AtlasCondition {
@@ -86,6 +88,7 @@ function Field({
 const emptyRegion = {
   name: '',
   slug: '',
+  parentId: '',
   hotspotX: 50,
   hotspotY: 50,
   order: 0,
@@ -133,7 +136,7 @@ function RegionsTab() {
 
   const save = useMutation({
     mutationFn: () => {
-      const payload = { ...form, hotspotX: Number(form.hotspotX), hotspotY: Number(form.hotspotY), order: Number(form.order) };
+      const payload = { ...form, hotspotX: Number(form.hotspotX), hotspotY: Number(form.hotspotY), order: Number(form.order), parentId: form.parentId || null };
       return editingId
         ? academyApi.adminUpdateAtlasRegion(editingId, payload)
         : academyApi.adminCreateAtlasRegion(payload);
@@ -167,6 +170,7 @@ function RegionsTab() {
     setForm({
       name: region.name,
       slug: region.slug,
+      parentId: region.parentId ?? '',
       hotspotX: region.hotspotX,
       hotspotY: region.hotspotY,
       order: region.order,
@@ -208,6 +212,21 @@ function RegionsTab() {
               value={form.slug}
               onChange={(e) => set('slug', e.target.value)}
             />
+          </Field>
+          <Field label="Region nadrzędny">
+            <select
+              value={form.parentId}
+              onChange={(e) => set('parentId', e.target.value)}
+            >
+              <option value="">— brak (główny) —</option>
+              {(regions as AtlasRegion[])
+                .filter((r) => r.id !== editingId)
+                .map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.parent ? `${r.parent.name} → ` : ''}{r.name}
+                  </option>
+                ))}
+            </select>
           </Field>
           <Field label="Hotspot X (0–100)">
             <input
@@ -260,9 +279,9 @@ function RegionsTab() {
           {regions.map((region) => (
             <article key={region.id}>
               <div>
-                <strong>{region.name}</strong>
+                <strong>{region.parent ? `${region.parent.name} → ` : ''}{region.name}</strong>
                 <p>
-                  {region.slug} · {region._count.conditions} problemów ·{' '}
+                  {region.slug} · {region._count.conditions} problemów · {region._count.children} podregionów ·{' '}
                   hotspot ({region.hotspotX}%, {region.hotspotY}%) · pozycja{' '}
                   {region.order} · {region.published ? 'opublikowany' : 'szkic'}
                 </p>

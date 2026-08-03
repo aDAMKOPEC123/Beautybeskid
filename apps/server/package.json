@@ -9,6 +9,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:seed-blog": "tsx prisma/seed-blog.ts",
+    "prisma:seed-atlas": "tsx prisma/seed-atlas.ts",
     "test": "vitest run",
     "backup:academy": "powershell -ExecutionPolicy Bypass -File scripts/backup-academy.ps1"
   },

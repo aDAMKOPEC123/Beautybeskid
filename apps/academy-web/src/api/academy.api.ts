@@ -173,7 +173,8 @@ export const academyApi = {
   adminSetSupportStatus: (threadId: string, status: string) => api.patch(`/academy/admin/support/threads/${threadId}/status`, { status }).then(r => r.data.data),
 
   // ── Skin Atlas ──────────────────────────────────────────
-  getAtlasRegions: () => api.get('/academy/atlas/regions').then(r => r.data.data),
+  getAtlasRegions: (parentId?: string | null) =>
+    api.get('/academy/atlas/regions', { params: parentId !== undefined ? { parentId } : {} }).then(r => r.data.data),
   getAtlasRegion: (slug: string) => api.get(`/academy/atlas/${slug}`).then(r => r.data.data),
   getAtlasCondition: (region: string, condition: string) =>
     api.get(`/academy/atlas/${region}/${condition}`).then(r => r.data.data),
