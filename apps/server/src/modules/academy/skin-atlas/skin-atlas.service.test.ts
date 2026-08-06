@@ -50,7 +50,7 @@ describe('Skin Atlas Service', () => {
       expect(result).toHaveLength(1);
       expect(result[0].slug).toBe('twarz');
       expect(mocks.regionFindMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { published: true } })
+        expect.objectContaining({ where: { published: true, parentId: null } })
       );
     });
   });
