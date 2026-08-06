@@ -2,9 +2,11 @@ import { useSearchParams } from 'react-router-dom';
 import { AdminCourseList } from './AdminCourseList';
 import { AdminStandaloneQuizEditor } from './AdminStandaloneQuizEditor';
 import { AdminAccessManager } from './AdminAccessManager';
+import { AdminInstructors } from './AdminInstructors';
 
 const TABS = [
   { key: 'kursy', label: 'Kursy' },
+  { key: 'prowadzace', label: 'Prowadzące' },
   { key: 'quizy', label: 'Quizy Standalone' },
   { key: 'dostepy', label: 'Dostępy użytkowników' },
 ];
@@ -41,6 +43,7 @@ export function AdminAkademia() {
       </div>
 
       {tab === 'kursy' && <AdminCourseList />}
+      {tab === 'prowadzace' && <AdminInstructors />}
       {tab === 'quizy' && <AdminStandaloneQuizEditor />}
       {tab === 'dostepy' && <AdminAccessManager />}
     </div>

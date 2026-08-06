@@ -28,6 +28,10 @@ router.get('/admin/reviews', academyAuthenticate, academyRequireAdmin, coursesCo
 router.patch('/admin/reviews/:id', academyAuthenticate, academyRequireAdmin, coursesController.adminApproveReview);
 router.patch('/admin/courses/:id', academyAuthenticate, academyRequireAdmin, coursesController.updateCourse);
 router.delete('/admin/courses/:id', academyAuthenticate, academyRequireAdmin, coursesController.deleteCourse);
+router.get('/admin/instructors', academyAuthenticate, academyRequireAdmin, coursesController.adminListInstructors);
+router.post('/admin/instructors', academyAuthenticate, academyRequireAdmin, coursesController.createInstructor);
+router.patch('/admin/instructors/:id', academyAuthenticate, academyRequireAdmin, coursesController.updateInstructor);
+router.delete('/admin/instructors/:id', academyAuthenticate, academyRequireAdmin, coursesController.deleteInstructor);
 router.get('/admin/bundles', academyAuthenticate, academyRequireAdmin, coursesController.adminListBundles);
 router.post('/admin/bundles', academyAuthenticate, academyRequireAdmin, coursesController.createBundle);
 router.patch('/admin/bundles/:id', academyAuthenticate, academyRequireAdmin, coursesController.updateBundle);

@@ -14,6 +14,7 @@ export function AcademyLayout() {
 
   const navItems = [
     { to: '/', label: 'Odkrywaj', icon: LayoutGrid, exact: true },
+    { to: '/kursy', label: 'Kursy', icon: GraduationCap },
     { to: '/moje-kursy', label: 'Moja nauka', icon: BookOpen, locked: !isAuthenticated },
     { to: '/quizy', label: 'Wiedza', icon: Sparkles, locked: !isAuthenticated },
     { to: '/certyfikaty', label: 'Certyfikaty', icon: Award, locked: !isAuthenticated },

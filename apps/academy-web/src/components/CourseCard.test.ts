@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPrice } from './AcademyCatalog';
+import { formatPrice } from './CourseCard';
 
 describe('formatPrice', () => {
   it('does not confuse an unpriced course with a free course', () => {

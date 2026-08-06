@@ -67,6 +67,8 @@ export const academyApi = {
     difficulty: string;
     estimatedMinutes?: number;
     tags?: string[];
+    audiences?: string[];
+    instructorId?: string | null;
     thumbnailUrl?: string;
     status?: string;
   }) => api.post('/academy/admin/courses', data).then((r) => r.data.data),
@@ -78,10 +80,22 @@ export const academyApi = {
     difficulty: string;
     estimatedMinutes: number;
     tags: string[];
+    audiences: string[];
+    instructorId: string | null;
     thumbnailUrl: string;
     status: string;
     isActive: boolean;
   }>) => api.patch(`/academy/admin/courses/${id}`, data).then((r) => r.data.data),
+
+  // === Admin: Instructors ===
+  adminGetInstructors: () =>
+    api.get('/academy/admin/instructors').then((r) => r.data.data),
+  adminCreateInstructor: (data: Record<string, unknown>) =>
+    api.post('/academy/admin/instructors', data).then((r) => r.data.data),
+  adminUpdateInstructor: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/academy/admin/instructors/${id}`, data).then((r) => r.data.data),
+  adminDeleteInstructor: (id: string) =>
+    api.delete(`/academy/admin/instructors/${id}`).then((r) => r.data.data),
 
   adminDeleteCourse: (id: string) =>
     api.delete(`/academy/admin/courses/${id}`).then((r) => r.data),

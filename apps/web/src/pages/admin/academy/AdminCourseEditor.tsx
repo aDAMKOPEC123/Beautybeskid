@@ -29,7 +29,17 @@ interface CourseForm {
   estimatedMinutes: number;
   tags: string;
   status: string;
+  audiences: string[];
+  instructorId: string | null;
 }
+
+/** Persony lejka. Świadomie odrębne od `difficulty` — właścicielka salonu to rola
+ *  biznesowa, nie poziom zaawansowania, a kurs może trafiać do kilku grup naraz. */
+const AUDIENCES = [
+  { value: 'STARTER', label: 'Początkująca', hint: 'dopiero wchodzi do branży' },
+  { value: 'PRACTITIONER', label: 'Praktyk', hint: 'pracuje już w gabinecie' },
+  { value: 'SALON_OWNER', label: 'Właścicielka salonu', hint: 'prowadzi własny biznes' },
+];
 
 export function AdminCourseEditor() {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +49,12 @@ export function AdminCourseEditor() {
 
   const [form, setForm] = useState<CourseForm>({
     title: '', slug: '', description: '', difficulty: 'BEGINNER', estimatedMinutes: 60, tags: '', status: 'DRAFT',
+    audiences: [], instructorId: null,
+  });
+
+  const { data: instructors = [] } = useQuery({
+    queryKey: ['admin', 'academy', 'instructors'],
+    queryFn: academyApi.adminGetInstructors,
   });
 
   const [modules, setModules] = useState<any[]>([]);
@@ -60,6 +76,8 @@ export function AdminCourseEditor() {
         estimatedMinutes: course.estimatedMinutes ?? 60,
         tags: (course.tags ?? []).join(', '),
         status: course.status ?? 'DRAFT',
+        audiences: course.audiences ?? [],
+        instructorId: course.instructorId ?? null,
       });
       setModules(course.modules ?? []);
     }
@@ -210,6 +228,42 @@ export function AdminCourseEditor() {
               <option value="PUBLISHED">Opublikowany</option>
               <option value="ARCHIVED">Zarchiwizowany</option>
             </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Prowadząca</label>
+            <select value={form.instructorId ?? ''} onChange={(e) => setForm((p) => ({ ...p, instructorId: e.target.value || null }))}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none">
+              <option value="">— brak —</option>
+              {(instructors as any[]).map((person) => (
+                <option key={person.id} value={person.id}>{person.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Dla kogo jest ten kurs</label>
+            <div className="grid sm:grid-cols-3 gap-2">
+              {AUDIENCES.map(({ value, label, hint }) => {
+                const checked = form.audiences.includes(value);
+                return (
+                  <label key={value}
+                    className={`flex items-start gap-2 border rounded-md px-3 py-2 cursor-pointer transition-colors ${checked ? 'border-primary bg-primary/5' : 'hover:bg-accent'}`}>
+                    <input type="checkbox" checked={checked} className="mt-0.5"
+                      onChange={(e) => setForm((p) => ({
+                        ...p,
+                        audiences: e.target.checked ? [...p.audiences, value] : p.audiences.filter((a) => a !== value),
+                      }))}/>
+                    <span className="text-sm leading-tight">{label}<br/>
+                      <span className="text-xs text-muted-foreground">{hint}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            {form.audiences.length === 0 && (
+              <p className="text-xs text-amber-600 mt-1.5">
+                Bez wybranej grupy kurs nie pojawi się na żadnej stronie lejka — tylko w pełnym katalogu.
+              </p>
+            )}
           </div>
         </div>
       </div>

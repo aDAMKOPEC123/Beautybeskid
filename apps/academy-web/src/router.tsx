@@ -17,7 +17,9 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 const AcademyLayout = lazy(() => import('./pages/AcademyLayout').then(m => ({ default: m.AcademyLayout })));
 const AcademyAdminLayout = lazy(() => import('./pages/AcademyAdminLayout').then(m => ({ default: m.AcademyAdminLayout })));
 const NoAccess = lazy(() => import('./pages/NoAccess').then(m => ({ default: m.NoAccess })));
-const AcademyCatalog = lazy(() => import('./pages/AcademyCatalog').then(m => ({ default: m.AcademyCatalog })));
+const Discover = lazy(() => import('./pages/Discover').then(m => ({ default: m.Discover })));
+const CourseCatalog = lazy(() => import('./pages/CourseCatalog').then(m => ({ default: m.CourseCatalog })));
+const PersonaLanding = lazy(() => import('./pages/PersonaLanding').then(m => ({ default: m.PersonaLanding })));
 const MyCourses = lazy(() => import('./pages/MyCourses').then(m => ({ default: m.MyCourses })));
 const Certificates = lazy(() => import('./pages/Certificates').then(m => ({ default: m.Certificates })));
 const StandaloneQuizPage = lazy(() => import('./pages/StandaloneQuizPage').then(m => ({ default: m.StandaloneQuizPage })));
@@ -73,7 +75,11 @@ export const router = createBrowserRouter([
       {
         element: <S><AcademyLayout /></S>,
         children: [
-          { index: true, element: <S><AcademyCatalog /></S> },
+          { index: true, element: <S><Discover /></S> },
+          { path: 'kursy', element: <S><CourseCatalog /></S> },
+          { path: 'dla-poczatkujacych', element: <S><PersonaLanding /></S> },
+          { path: 'dla-praktykow', element: <S><PersonaLanding /></S> },
+          { path: 'dla-salonow', element: <S><PersonaLanding /></S> },
           { path: 'moje-kursy', element: <S><RequireAuth><MyCourses /></RequireAuth></S> },
           { path: 'certyfikaty', element: <S><RequireAuth><Certificates /></RequireAuth></S> },
           { path: 'profil', element: <S><RequireAuth><AcademyProfile /></RequireAuth></S> },

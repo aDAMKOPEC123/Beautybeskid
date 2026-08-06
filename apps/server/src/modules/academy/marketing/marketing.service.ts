@@ -8,16 +8,36 @@ const clean = (value: unknown, max = 500) => typeof value === 'string' ? value.t
 const date = (value: unknown) => value ? new Date(String(value)) : null;
 const activeWindow = (now = new Date()) => ({ isActive: true, AND: [{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] }, { OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] });
 
+const publishedCourse = { status: 'PUBLISHED' as const, isActive: true };
+
 export const publicStorefront = async () => {
   const now = new Date();
-  const [banners, students, completions, approvedReviews, activePromotion] = await Promise.all([
+  const [banners, students, completions, approvedReviews, ratings, courseCount, lessonCount, minutes, activePromotion] = await Promise.all([
     prisma.academyBanner.findMany({ where: activeWindow(now), orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }] }),
     prisma.academyEnrollment.groupBy({ by: ['userId'] }).then(rows => rows.length),
     prisma.userCourseProgress.count({ where: { completedAt: { not: null } } }),
     prisma.academyCourseReview.findMany({ where: { isApproved: true }, include: { user: { select: { name: true } }, course: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 8 }),
+    prisma.academyCourseReview.aggregate({ where: { isApproved: true }, _avg: { rating: true }, _count: true }),
+    prisma.course.count({ where: publishedCourse }),
+    prisma.lesson.count({ where: { module: { course: publishedCourse } } }),
+    prisma.course.aggregate({ where: publishedCourse, _sum: { estimatedMinutes: true } }),
     prisma.academyPromotion.findFirst({ where: { isActive: true, newCustomersOnly: false, eligibleEmails: { isEmpty: true }, startsAt: { lte: now }, endsAt: { gt: now }, showCountdown: true }, orderBy: { endsAt: 'asc' } }),
   ]);
-  return { banners, socialProof: { students, completions, reviews: approvedReviews }, activePromotion };
+  return {
+    banners,
+    socialProof: {
+      students,
+      completions,
+      reviews: approvedReviews,
+      // Bez zatwierdzonych opinii oddajemy null zamiast zera — front ma wtedy
+      // ukryć gwiazdki, a nie pokazać ocenę 0/5.
+      avgRating: ratings._count ? Math.round(Number(ratings._avg.rating) * 10) / 10 : null,
+      reviewCount: ratings._count,
+      // Twardy dowód „ile tu realnie jest” na czas, gdy opinii jeszcze nie ma.
+      catalog: { courses: courseCount, lessons: lessonCount, hours: Math.round((minutes._sum.estimatedMinutes ?? 0) / 60) },
+    },
+    activePromotion,
+  };
 };
 
 export const recordBannerEvent = async (id: string, type: 'impression' | 'click') => {

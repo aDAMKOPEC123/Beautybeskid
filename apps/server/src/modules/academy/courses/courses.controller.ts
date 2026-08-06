@@ -66,6 +66,11 @@ export const submitReview = async (req: Request, res: Response, next: NextFuncti
 export const adminListReviews = async (_req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.adminListReviews() }); } catch (error) { next(error); } };
 export const adminApproveReview = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.adminApproveReview(req.params.id, Boolean(req.body.isApproved)) }); } catch (error) { next(error); } };
 
+export const adminListInstructors = async (_req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.adminListInstructors() }); } catch (error) { next(error); } };
+export const createInstructor = async (req: Request, res: Response, next: NextFunction) => { try { res.status(201).json({ data: await coursesService.createInstructor(req.body) }); } catch (error) { next(error); } };
+export const updateInstructor = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.updateInstructor(req.params.id, req.body) }); } catch (error) { next(error); } };
+export const deleteInstructor = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await coursesService.deleteInstructor(req.params.id) }); } catch (error) { next(error); } };
+
 export const adminListAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const courses = await coursesService.adminListAll();

@@ -57,6 +57,10 @@ export default defineConfig({
       },
     },
   },
+  // Testy e2e uruchamia Playwright — bez tego vitest zbiera je razem z unitami i wywala się.
+  test: {
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
+  },
   server: {
     port: 5174,
     host: true,

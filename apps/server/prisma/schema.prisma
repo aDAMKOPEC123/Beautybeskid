@@ -1414,49 +1414,52 @@ model SkinTypeAdvice {
 // ============ Academy Module ============
 
 model Course {
-  id               String       @id @default(cuid())
+  id               String            @id @default(cuid())
   title            String
-  slug             String       @unique
+  slug             String            @unique
   description      String
-  status           CourseStatus @default(DRAFT)
+  status           CourseStatus      @default(DRAFT)
   thumbnailUrl     String?
-  difficulty       Difficulty   @default(BEGINNER)
-  estimatedMinutes Int          @default(0)
-  price            Decimal      @default(0) @db.Decimal(10, 2)
-  compareAtPrice   Decimal?     @db.Decimal(10, 2)
-  isFree           Boolean      @default(false)
+  difficulty       Difficulty        @default(BEGINNER)
+  estimatedMinutes Int               @default(0)
+  price            Decimal           @default(0) @db.Decimal(10, 2)
+  compareAtPrice   Decimal?          @db.Decimal(10, 2)
+  isFree           Boolean           @default(false)
   accessDays       Int?
-  isFeatured       Boolean      @default(false)
-  isBestseller     Boolean      @default(false)
-  isComingSoon     Boolean      @default(false)
-  displayOrder     Int          @default(0)
-  learningOutcomes String[]     @default([])
+  isFeatured       Boolean           @default(false)
+  isBestseller     Boolean           @default(false)
+  isComingSoon     Boolean           @default(false)
+  displayOrder     Int               @default(0)
+  learningOutcomes String[]          @default([])
   targetAudience   String?
   notForAudience   String?
-  prerequisites    String[]     @default([])
+  prerequisites    String[]          @default([])
   trailerVideoId   String?
   samplePdfUrl     String?
-  salesFaqs        Json         @default("[]")
+  salesFaqs        Json              @default("[]")
   previewLessonId  String?
-  instructorName   String       @default("Wiktoria Ćwik")
+  instructorName   String            @default("Wiktoria Ćwik")
   instructorBio    String?
   bundleGroup      String?
-  tags             String[]     @default([])
-  isActive         Boolean      @default(true)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  tags             String[]          @default([])
+  audiences        AcademyAudience[] @default([])
+  instructorId     String?
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  modules         CourseModule[]
-  progress        UserCourseProgress[]
-  certificates    AcademyCertificate[]
-  favorites       CourseFavorite[]
-  enrollments     AcademyEnrollment[]
-  analyticsEvents AcademyAnalyticsEvent[]
-  orders          AcademyOrder[]
-  academyReviews  AcademyCourseReview[]
-  bundleCourses   AcademyBundleCourse[]
-  priceHistory    AcademyCoursePriceHistory[]
-  promotionUsages AcademyPromotionUsage[]
+  instructor            AcademyInstructor?          @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  modules               CourseModule[]
+  progress              UserCourseProgress[]
+  certificates          AcademyCertificate[]
+  favorites             CourseFavorite[]
+  enrollments           AcademyEnrollment[]
+  analyticsEvents       AcademyAnalyticsEvent[]
+  orders                AcademyOrder[]
+  academyReviews        AcademyCourseReview[]
+  bundleCourses         AcademyBundleCourse[]
+  priceHistory          AcademyCoursePriceHistory[]
+  promotionUsages       AcademyPromotionUsage[]
   atlasConditions       SkinAtlasCondition[]
   diagnosticCaseStudies DiagnosticCaseStudy[]
 }
@@ -1640,20 +1643,49 @@ model AcademyPaymentWebhookEvent {
   processedAt DateTime?
 }
 
+/// Grupa docelowa oferty. Nie mylić z Difficulty — SALON_OWNER to rola biznesowa,
+/// nie poziom zaawansowania. Kurs może należeć do wielu person naraz.
+enum AcademyAudience {
+  STARTER // początkująca w branży beauty
+  PRACTITIONER // doświadczona kosmetolożka
+  SALON_OWNER // właścicielka salonu
+}
+
+/// Prowadzący kursy. Course.instructorName/instructorBio zostają jako fallback
+/// dla kursów bez przypisanej relacji — nie wymagają migracji danych.
+model AcademyInstructor {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  title        String
+  shortBio     String
+  fullBio      String
+  credentials  String[] @default([])
+  photoUrl     String?
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  courses      Course[]
+
+  @@index([isActive, displayOrder])
+}
+
 model AcademyBundle {
-  id             String   @id @default(cuid())
+  id             String            @id @default(cuid())
   title          String
-  slug           String   @unique
+  slug           String            @unique
   description    String
-  price          Decimal  @db.Decimal(10, 2)
-  compareAtPrice Decimal? @db.Decimal(10, 2)
+  price          Decimal           @db.Decimal(10, 2)
+  compareAtPrice Decimal?          @db.Decimal(10, 2)
   accessDays     Int?
-  isActive       Boolean  @default(true)
-  isFeatured     Boolean  @default(false)
-  displayOrder   Int      @default(0)
+  isActive       Boolean           @default(true)
+  isFeatured     Boolean           @default(false)
+  displayOrder   Int               @default(0)
+  audiences      AcademyAudience[] @default([])
   thumbnailUrl   String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
   courses         AcademyBundleCourse[]
   orders          AcademyOrder[]
@@ -1983,12 +2015,12 @@ model Lesson {
   order            Int            @default(0)
   isRequired       Boolean        @default(true)
 
-  progress UserLessonProgress[]
-  quiz     AcademyQuiz?
-  notes        LessonNote[]
-  attachments  LessonAttachment[]
-  caseStudies  LessonCaseStudy[]
-  comments     LessonComment[]
+  progress    UserLessonProgress[]
+  quiz        AcademyQuiz?
+  notes       LessonNote[]
+  attachments LessonAttachment[]
+  caseStudies LessonCaseStudy[]
+  comments    LessonComment[]
 
   @@unique([moduleId, slug])
   @@index([moduleId])
@@ -2148,15 +2180,15 @@ enum CaseStudyImageType {
 }
 
 model LessonCaseStudy {
-  id                   String             @id @default(cuid())
+  id                   String   @id @default(cuid())
   lessonId             String
-  lesson               Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson               Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   title                String
   problemDescription   String
   treatmentDescription String
   resultsDescription   String
-  order                Int                @default(0)
-  createdAt            DateTime           @default(now())
+  order                Int      @default(0)
+  createdAt            DateTime @default(now())
 
   images CaseStudyImage[]
 
@@ -2164,13 +2196,13 @@ model LessonCaseStudy {
 }
 
 model CaseStudyImage {
-  id          String              @id @default(cuid())
+  id          String             @id @default(cuid())
   caseStudyId String
-  caseStudy   LessonCaseStudy     @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  caseStudy   LessonCaseStudy    @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
   imageUrl    String
   caption     String?
   type        CaseStudyImageType
-  order       Int                 @default(0)
+  order       Int                @default(0)
 
   @@index([caseStudyId])
 }
@@ -2626,92 +2658,92 @@ model Voucher {
 // ── Skin Atlas ──────────────────────────────────────────────
 
 model SkinAtlasRegion {
-  id           String   @id @default(cuid())
+  id           String               @id @default(cuid())
   name         String
-  slug         String   @unique
+  slug         String               @unique
   thumbnailUrl String?
-  hotspotX     Float    @default(50)
-  hotspotY     Float    @default(50)
-  order        Int      @default(0)
-  published    Boolean  @default(false)
+  hotspotX     Float                @default(50)
+  hotspotY     Float                @default(50)
+  order        Int                  @default(0)
+  published    Boolean              @default(false)
   parentId     String?
-  parent       SkinAtlasRegion?  @relation("RegionHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  children     SkinAtlasRegion[] @relation("RegionHierarchy")
+  parent       SkinAtlasRegion?     @relation("RegionHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     SkinAtlasRegion[]    @relation("RegionHierarchy")
   conditions   SkinAtlasCondition[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
   @@index([parentId])
 }
 
 model SkinAtlasCondition {
-  id                   String   @id @default(cuid())
-  regionId             String
-  region               SkinAtlasRegion @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  name                 String
-  slug                 String   @unique
-  description          String   @db.Text
-  causes               String   @db.Text
-  treatments           String   @db.Text
-  contraindications    String   @db.Text
-  order                Int      @default(0)
-  published            Boolean  @default(false)
-  relatedCourseId      String?
-  relatedCourse        Course?  @relation(fields: [relatedCourseId], references: [id], onDelete: SetNull)
-  relatedCaseStudyId   String?
-  relatedCaseStudy     DiagnosticCaseStudy? @relation(fields: [relatedCaseStudyId], references: [id], onDelete: SetNull)
-  images               SkinAtlasImage[]
-  quizQuestions        SkinAtlasQuizQuestion[]
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                 String                  @id @default(cuid())
+  regionId           String
+  region             SkinAtlasRegion         @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  name               String
+  slug               String                  @unique
+  description        String                  @db.Text
+  causes             String                  @db.Text
+  treatments         String                  @db.Text
+  contraindications  String                  @db.Text
+  order              Int                     @default(0)
+  published          Boolean                 @default(false)
+  relatedCourseId    String?
+  relatedCourse      Course?                 @relation(fields: [relatedCourseId], references: [id], onDelete: SetNull)
+  relatedCaseStudyId String?
+  relatedCaseStudy   DiagnosticCaseStudy?    @relation(fields: [relatedCaseStudyId], references: [id], onDelete: SetNull)
+  images             SkinAtlasImage[]
+  quizQuestions      SkinAtlasQuizQuestion[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
 
   @@index([regionId])
 }
 
 model SkinAtlasImage {
-  id          String              @id @default(cuid())
+  id          String             @id @default(cuid())
   conditionId String
-  condition   SkinAtlasCondition  @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  condition   SkinAtlasCondition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
   url         String
-  alt         String              @default("")
+  alt         String             @default("")
   severity    SkinAtlasSeverity
-  order       Int                 @default(0)
+  order       Int                @default(0)
 
   @@index([conditionId])
 }
 
 model SkinAtlasQuizQuestion {
-  id               String              @id @default(cuid())
+  id               String                @id @default(cuid())
   conditionId      String
-  condition        SkinAtlasCondition  @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  condition        SkinAtlasCondition    @relation(fields: [conditionId], references: [id], onDelete: Cascade)
   questionText     String
   questionImageUrl String?
-  explanation      String              @db.Text
-  order            Int                 @default(0)
+  explanation      String                @db.Text
+  order            Int                   @default(0)
   answers          SkinAtlasQuizAnswer[]
 
   @@index([conditionId])
 }
 
 model SkinAtlasQuizAnswer {
-  id         String                  @id @default(cuid())
+  id         String                @id @default(cuid())
   questionId String
-  question   SkinAtlasQuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   SkinAtlasQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text       String
-  isCorrect  Boolean                 @default(false)
-  order      Int                     @default(0)
+  isCorrect  Boolean               @default(false)
+  order      Int                   @default(0)
 
   @@index([questionId])
 }
 
 model SkinAtlasQuizAttempt {
-  id         String       @id @default(cuid())
-  userId     String
-  user       AcademyUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  regionSlug String?
-  score      Int
-  maxScore   Int
-  answers    Json
+  id          String      @id @default(cuid())
+  userId      String
+  user        AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regionSlug  String?
+  score       Int
+  maxScore    Int
+  answers     Json
   completedAt DateTime    @default(now())
 
   @@index([userId])
@@ -2720,39 +2752,39 @@ model SkinAtlasQuizAttempt {
 // ── Diagnostic Case Studies ─────────────────────────────────
 
 model DiagnosticCaseStudy {
-  id                String   @id @default(cuid())
-  title             String
-  description       String   @db.Text
-  thumbnailUrl      String?
-  difficulty        DiagnosticDifficulty @default(MEDIUM)
-  regionSlug        String?
-  courseId           String?
-  course            Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
-  published         Boolean  @default(false)
-  order             Int      @default(0)
-  clientName        String
-  clientAge         Int
-  clientDescription String   @db.Text
-  steps             DiagnosticCaseStep[]
-  attempts          DiagnosticCaseAttempt[]
+  id                     String                  @id @default(cuid())
+  title                  String
+  description            String                  @db.Text
+  thumbnailUrl           String?
+  difficulty             DiagnosticDifficulty    @default(MEDIUM)
+  regionSlug             String?
+  courseId               String?
+  course                 Course?                 @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  published              Boolean                 @default(false)
+  order                  Int                     @default(0)
+  clientName             String
+  clientAge              Int
+  clientDescription      String                  @db.Text
+  steps                  DiagnosticCaseStep[]
+  attempts               DiagnosticCaseAttempt[]
   referencedByConditions SkinAtlasCondition[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 
   @@index([courseId])
 }
 
 model DiagnosticCaseStep {
-  id           String               @id @default(cuid())
-  caseStudyId  String
-  caseStudy    DiagnosticCaseStudy  @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
-  type         DiagnosticStepType
-  content      String               @db.Text
-  question     String?
-  multiSelect  Boolean              @default(false)
-  order        Int                  @default(0)
-  answers      DiagnosticCaseAnswer[]
-  images       DiagnosticCaseStepImage[]
+  id          String                    @id @default(cuid())
+  caseStudyId String
+  caseStudy   DiagnosticCaseStudy       @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  type        DiagnosticStepType
+  content     String                    @db.Text
+  question    String?
+  multiSelect Boolean                   @default(false)
+  order       Int                       @default(0)
+  answers     DiagnosticCaseAnswer[]
+  images      DiagnosticCaseStepImage[]
 
   @@index([caseStudyId])
 }
@@ -2770,26 +2802,26 @@ model DiagnosticCaseStepImage {
 }
 
 model DiagnosticCaseAnswer {
-  id          String              @id @default(cuid())
+  id          String             @id @default(cuid())
   stepId      String
-  step        DiagnosticCaseStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  step        DiagnosticCaseStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   text        String
-  isCorrect   Boolean             @default(false)
-  explanation String?             @db.Text
-  order       Int                 @default(0)
+  isCorrect   Boolean            @default(false)
+  explanation String?            @db.Text
+  order       Int                @default(0)
 
   @@index([stepId])
 }
 
 model DiagnosticCaseAttempt {
-  id          String               @id @default(cuid())
+  id          String              @id @default(cuid())
   caseStudyId String
-  caseStudy   DiagnosticCaseStudy  @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  caseStudy   DiagnosticCaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
   userId      String
-  user        AcademyUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        AcademyUser         @relation(fields: [userId], references: [id], onDelete: Cascade)
   score       Int
   maxScore    Int
-  startedAt   DateTime             @default(now())
+  startedAt   DateTime            @default(now())
   completedAt DateTime?
   answers     Json
 

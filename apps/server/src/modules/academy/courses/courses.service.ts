@@ -44,6 +44,7 @@ export const listPublic = async () => {
     include: {
       modules: { include: { lessons: { select: { id: true } } }, orderBy: { order: 'asc' } },
       priceHistory: { orderBy: { validFrom: 'asc' } },
+      instructor: { select: { id: true, slug: true, name: true, title: true, shortBio: true, credentials: true, photoUrl: true } },
       _count: { select: { diagnosticCaseStudies: { where: { published: true } } } },
     },
     orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
@@ -61,6 +62,7 @@ export const getPublicCourse = async (slug: string) => {
       modules: { include: { lessons: { select: { id: true, title: true, estimatedMinutes: true, type: true, videoId: true, contentHtml: true, transcriptHtml: true, thumbnailUrl: true } } }, orderBy: { order: 'asc' } },
       academyReviews: { where: { isApproved: true }, include: { user: { select: { name: true } } }, orderBy: { createdAt: 'desc' } },
       priceHistory: { orderBy: { validFrom: 'asc' } },
+      instructor: { select: { id: true, slug: true, name: true, title: true, shortBio: true, fullBio: true, credentials: true, photoUrl: true } },
     },
   });
   if (!course || course.status !== 'PUBLISHED' || !course.isActive) throw new AppError('Nie znaleziono kursu', 404);
@@ -268,9 +270,43 @@ export const submitReview = async (userId: string, courseId: string, rating: num
 export const adminListReviews = async () => prisma.academyCourseReview.findMany({ include: { user: { select: { name: true, email: true } }, course: { select: { title: true } } }, orderBy: { createdAt: 'desc' } });
 export const adminApproveReview = async (id: string, isApproved: boolean) => prisma.academyCourseReview.update({ where: { id }, data: { isApproved } });
 
+const instructorData = (data: Record<string, unknown>) => {
+  const text = (value: unknown, max: number) => String(value ?? '').trim().slice(0, max);
+  const slug = text(data.slug, 80).toLowerCase();
+  const name = text(data.name, 120);
+  const title = text(data.title, 160);
+  const shortBio = text(data.shortBio, 600);
+  if (!name || !title || !shortBio) throw new AppError('Podaj imię i nazwisko, tytuł oraz krótki opis prowadzącej', 400);
+  if (!/^[a-z0-9-]{3,80}$/.test(slug)) throw new AppError('Adres (slug) może zawierać wyłącznie małe litery, cyfry i myślniki', 400);
+  return {
+    slug, name, title, shortBio,
+    fullBio: text(data.fullBio, 4000) || shortBio,
+    credentials: Array.isArray(data.credentials) ? data.credentials.map((value) => String(value).trim().slice(0, 80)).filter(Boolean) : [],
+    photoUrl: text(data.photoUrl, 1000) || null,
+    isActive: data.isActive !== false,
+    displayOrder: Number(data.displayOrder) || 0,
+  };
+};
+
+export const adminListInstructors = async () => prisma.academyInstructor.findMany({
+  include: { _count: { select: { courses: true } } },
+  orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+});
+export const createInstructor = async (data: Record<string, unknown>) => prisma.academyInstructor.create({ data: instructorData(data) });
+export const updateInstructor = async (id: string, data: Record<string, unknown>) => prisma.academyInstructor.update({ where: { id }, data: instructorData(data) });
+
+export const deleteInstructor = async (id: string) => {
+  // Kursy przypisanej prowadzącej straciłyby autora (FK ma SetNull), więc zamiast
+  // usuwać, dezaktywujemy — bio zostaje i można je przywrócić.
+  const linked = await prisma.course.count({ where: { instructorId: id } });
+  if (linked) return prisma.academyInstructor.update({ where: { id }, data: { isActive: false } });
+  return prisma.academyInstructor.delete({ where: { id } });
+};
+
 export const adminListAll = async () => {
   return prisma.course.findMany({
     include: {
+      instructor: { select: { id: true, name: true } },
       _count: { select: { modules: true, progress: true } },
       modules: {
         include: {

@@ -36,10 +36,10 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('katalog jest dostępny klawiaturą, responsywny i pokazuje promocje', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('h1')).toBeVisible();
+  await page.goto('/kursy');
+  await expect(page.getByRole('heading', { name: 'Wszystkie kursy' })).toBeVisible();
   await expect(page.getByText('Tydzień Akademii')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Aktualne promocje' })).toBeVisible();
+  await expect(page.getByText('Kurs testowy')).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.locator('.academy-skip-link')).toBeFocused();
   const layout = await page.evaluate(() => ({
@@ -69,7 +69,7 @@ test('nagłówek i treść mieszczą się na krytycznych breakpointach', async (
 });
 
 test('koszyk zachowuje produkt po odświeżeniu i pozwala go usunąć', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kursy');
   await page.getByRole('button', { name: 'Dodaj do koszyka' }).first().click();
   await page.goto('/koszyk');
   await page.reload();
