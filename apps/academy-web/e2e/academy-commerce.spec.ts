@@ -37,9 +37,10 @@ test.beforeEach(async ({ page }) => {
 
 test('katalog jest dostępny klawiaturą, responsywny i pokazuje promocje', async ({ page }) => {
   await page.goto('/kursy');
-  await expect(page.getByRole('heading', { name: 'Wszystkie kursy' })).toBeVisible();
+  // Przy jednym kursie katalog prowadzi kartą wiodącą, nie siatką z filtrami.
+  await expect(page.getByRole('heading', { name: 'Kursy kosmetologii online' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Kurs testowy' })).toBeVisible();
   await expect(page.getByText('Tydzień Akademii')).toBeVisible();
-  await expect(page.getByText('Kurs testowy')).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.locator('.academy-skip-link')).toBeFocused();
   const layout = await page.evaluate(() => ({
@@ -47,6 +48,23 @@ test('katalog jest dostępny klawiaturą, responsywny i pokazuje promocje', asyn
     bodyWidth: document.body.scrollWidth,
   }));
   expect(layout.bodyWidth).toBeLessThanOrEqual(layout.viewport + 1);
+});
+
+test('narzędzia katalogu włączają się dopiero przy większej liczbie kursów', async ({ page }) => {
+  await page.goto('/kursy');
+  await expect(page.getByRole('heading', { name: 'Kurs testowy' })).toBeVisible();
+  await expect(page.getByLabel('Szukaj kursu')).toHaveCount(0);
+
+  const many = [1, 2, 3, 4].map((n) => ({ ...course, id: `course-${n}`, slug: `kurs-${n}`, title: `Kurs ${n}`, isFeatured: n === 1 }));
+  await page.route('**/api/academy/public/courses', (route) => route.fulfill({ json: { data: many } }));
+  await page.reload();
+
+  await expect(page.getByRole('heading', { name: 'Wszystkie kursy' })).toBeVisible();
+  await expect(page.getByLabel('Szukaj kursu')).toBeVisible();
+  // Kurs wiodący prowadzi sekcję u góry i nie może się dublować w siatce.
+  await expect(page.getByRole('heading', { name: 'Kurs 1' })).toBeVisible();
+  await expect(page.locator('.catalog-grid').getByRole('link', { name: /Kurs 1/ })).toHaveCount(0);
+  await expect(page.locator('.catalog-grid').getByRole('link', { name: /Kurs 2/ })).toHaveCount(1);
 });
 
 test('nagłówek i treść mieszczą się na krytycznych breakpointach', async ({ page }) => {

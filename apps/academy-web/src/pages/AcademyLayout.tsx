@@ -57,6 +57,9 @@ export function AcademyLayout() {
             ? <Link key={to} to="/logowanie" state={{ from: to }} onClick={() => setMenuOpen(false)} className="locked" aria-label={`${label} — zaloguj się, aby uzyskać dostęp`}><Icon className="w-4 h-4" />{label}<Lock className="w-3 h-3 academy-lock-icon" /></Link>
             : <Link onClick={() => setMenuOpen(false)} key={to} to={to} className={active(to, exact) ? 'active' : ''}><Icon className="w-4 h-4" />{label}</Link>
           )}
+          {/* Na wąskich ekranach pasek nie mieści logowania obok koszyka, CTA
+              i menu — link żyje tutaj, żeby nie zniknął z nawigacji. */}
+          {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/logowanie" className="academy-mobile-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
           {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/rejestracja" className="academy-mobile-register"><UserPlus className="w-4 h-4" />Załóż darmowe konto</Link>}
           {user?.role === 'ADMIN' && <Link onClick={() => setMenuOpen(false)} to="/admin" className="academy-mobile-admin"><Settings2 className="w-4 h-4" />Przejdź do panelu administratora</Link>}
         </nav>}
