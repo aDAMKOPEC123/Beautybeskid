@@ -999,3 +999,200 @@
   .hub-instructor-media::after{display:none}
   .funnel-cta{width:100%;justify-content:center}
 }
+
+/* ============================================================================
+   KATALOG `/kursy`
+   Strona robocza lejka: hub pozwala rozpoznać siebie, landing przekonuje,
+   a tutaj zapada decyzja o konkretnym kursie. Dlatego zero ciemnego hero —
+   papier, hairline'y i jeden element, któremu wolno krzyczeć: karta kursu
+   wiodącego z pełnym programem, czytana jak karta zabiegowa.
+   Namespace `.catalog-*`, tokeny wspólne z lejkiem (`--ac-*`).
+   ========================================================================== */
+:root{
+  /* Status „w przygotowaniu" — jedyny kolor spoza palety marki. Występuje
+     wyłącznie na oznaczeniu stanu kursu, nigdy dekoracyjnie. */
+  --catalog-upcoming:#B4623C;
+  --catalog-mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+.academy-catalog-page{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:clamp(56px,7vw,104px);color:var(--ac-ink)}
+.academy-catalog-page>*{min-width:0}
+.academy-catalog-page h1,.academy-catalog-page h2,.academy-catalog-page h3{color:var(--ac-ink)}
+
+.catalog-eyebrow{font-size:10px;font-weight:700;letter-spacing:.4em;text-transform:uppercase;color:var(--ac-gold)}
+
+/* Jeden przycisk główny na sekcję — hierarchia CTA musi być jednoznaczna. */
+.catalog-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 28px;border:0;border-radius:2px;background:var(--ac-gold);color:var(--ac-ink);font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap;cursor:pointer;transition:transform .25s,box-shadow .25s,background .25s}
+.catalog-cta:hover{transform:translateY(-2px);background:#d8b46f;box-shadow:0 14px 34px rgba(200,161,90,.28)}
+.catalog-cta:disabled{opacity:.55;transform:none;box-shadow:none;cursor:progress}
+.catalog-cta svg{width:16px;height:16px}
+.catalog-cta-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 24px;border:1px solid var(--ac-forest);border-radius:2px;background:transparent;color:var(--ac-forest);font-size:13.5px;font-weight:700;cursor:pointer;transition:background .25s,color .25s}
+.catalog-cta-ghost:hover{background:var(--ac-forest);color:#fff}
+
+/* --- Nagłówek strony --- */
+.catalog-masthead{padding-bottom:clamp(24px,3vw,34px);border-bottom:1px solid var(--ac-line)}
+.catalog-masthead h1{margin:16px 0 0;font:400 clamp(34px,5.4vw,62px)/1.02 'Playfair Display',Georgia,serif;letter-spacing:-.025em}
+.catalog-lede{margin-top:18px;max-width:52ch;font-size:clamp(15px,1.5vw,17px);line-height:1.75;color:var(--ac-mink)}
+
+/* Stan katalogu podany wprost — przy jednym kursie udawanie sklepu szkodzi. */
+.catalog-state{display:flex;flex-wrap:wrap;gap:0;margin:clamp(26px,3vw,38px) 0 0}
+.catalog-state>div{padding:0 clamp(18px,2.4vw,32px);border-left:1px solid var(--ac-line)}
+.catalog-state>div:first-child{padding-left:0;border-left:0}
+.catalog-state dt{font-family:var(--catalog-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ac-mink)}
+.catalog-state dd{margin:6px 0 0;font:400 clamp(22px,2.6vw,30px)/1 'Playfair Display',serif;color:var(--ac-forest)}
+.catalog-state .is-upcoming dd{color:var(--catalog-upcoming)}
+
+/* --- Karta kursu wiodącego: sygnatura strony --- */
+.catalog-flagship{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,4.5vw,68px);align-items:start;padding:clamp(24px,3.4vw,44px);border:1px solid var(--ac-line);background:#fff}
+.catalog-flagship-visual{position:relative}
+.catalog-flagship-visual img{position:relative;z-index:1;display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.catalog-flagship-placeholder{position:relative;z-index:1;aspect-ratio:4/5;background:linear-gradient(150deg,#e7efe9,#d6e3d9)}
+/* Przesunięta ramka — ten sam motyw co portret prowadzącej na hubie. */
+.catalog-flagship-visual::after{content:'';position:absolute;inset:14px -14px -14px 14px;border:1px solid var(--ac-gold);pointer-events:none}
+.catalog-status{position:absolute;z-index:2;top:0;left:0;padding:8px 13px;background:var(--ac-forest);color:#fff;font-family:var(--catalog-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.catalog-flagship.is-upcoming .catalog-status{background:var(--catalog-upcoming)}
+.catalog-flagship-save{position:absolute;z-index:2;top:0;right:0;display:grid;place-items:center;width:42px;height:42px;background:rgba(255,255,255,.92);color:var(--ac-forest);border:0;cursor:pointer;transition:color .2s,background .2s}
+.catalog-flagship-save:hover{background:#fff;color:var(--catalog-upcoming)}
+.catalog-flagship-save svg{width:18px;height:18px}
+.catalog-flagship-save[aria-pressed=true]{color:var(--catalog-upcoming)}
+
+.catalog-flagship-body h2{margin:14px 0 0;font:400 clamp(26px,3.4vw,42px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.02em}
+.catalog-flagship-byline{margin-top:12px;font-family:var(--catalog-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac-mink)}
+.catalog-flagship-lede{margin-top:16px;max-width:54ch;font-size:15px;line-height:1.75;color:var(--ac-mink)}
+
+/* Rząd danych — czytany jak etykieta preparatu, nie jak lista korzyści. */
+.catalog-specs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:clamp(24px,3vw,34px) 0 0;background:var(--ac-line);border:1px solid var(--ac-line)}
+.catalog-specs>div{padding:14px 16px;background:#fff}
+.catalog-specs dt{font-family:var(--catalog-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ac-mink)}
+.catalog-specs dd{display:flex;align-items:baseline;gap:8px;margin:8px 0 0;font-size:14px;font-weight:700;color:var(--ac-ink)}
+.catalog-specs dd em{padding:2px 6px;background:var(--catalog-upcoming);color:#fff;font-family:var(--catalog-mono);font-size:10px;font-style:normal;font-weight:700}
+
+/* Program — numeracja niesie informację, bo moduły są realną sekwencją. */
+.catalog-program{margin-top:clamp(24px,3vw,34px)}
+.catalog-program h3{font-family:var(--catalog-mono);font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--ac-mink)}
+.catalog-program ol{margin:12px 0 0;padding:0;list-style:none}
+.catalog-program li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;gap:14px;padding:13px 0;border-bottom:1px solid var(--ac-line)}
+.catalog-program li:first-child{border-top:1px solid var(--ac-line)}
+.catalog-program-index{font-family:var(--catalog-mono);font-size:11px;letter-spacing:.1em;color:var(--ac-gold)}
+.catalog-program-title{font-size:14.5px;font-weight:600;line-height:1.45}
+.catalog-program-meta{font-family:var(--catalog-mono);font-size:10.5px;letter-spacing:.06em;color:var(--ac-mink);white-space:nowrap}
+
+.catalog-flagship-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:clamp(26px,3vw,36px)}
+.catalog-flagship-more{display:inline-flex;align-items:center;gap:7px;padding-bottom:2px;border-bottom:1px solid currentColor;color:var(--ac-forest);font-size:13.5px;font-weight:600;opacity:.78;transition:opacity .25s}
+.catalog-flagship-more:hover{opacity:1}
+.catalog-flagship-more svg{width:14px;height:14px}
+.catalog-lowest{margin-top:14px;font-size:11.5px;color:var(--ac-mink)}
+
+/* Zapis na premierę — jedyne działanie możliwe przed startem sprzedaży. */
+.catalog-waitlist{flex:1 1 340px;display:grid;gap:9px}
+.catalog-waitlist label{font-family:var(--catalog-mono);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ac-mink)}
+.catalog-waitlist>div{display:flex;flex-wrap:wrap;gap:10px}
+.catalog-waitlist input{flex:1 1 200px;min-width:0;padding:14px 15px;border:1px solid var(--ac-line);border-radius:2px;background:var(--ac-ivory);color:var(--ac-ink);font-size:14px}
+.catalog-waitlist input:focus{outline:2px solid var(--ac-gold);outline-offset:-2px}
+.catalog-waitlist p{font-size:11.5px;line-height:1.55;color:var(--ac-mink)}
+.catalog-waitlist-error{color:var(--catalog-upcoming);font-weight:600}
+.catalog-waitlist-done{display:inline-flex;align-items:center;gap:9px;padding:15px 20px;background:var(--ac-ivory);border-left:2px solid var(--ac-gold);font-size:14px;font-weight:600;color:var(--ac-forest)}
+.catalog-waitlist-done svg{width:16px;height:16px;color:var(--ac-gold)}
+
+/* --- Lista katalogu --- */
+.catalog-listing{display:grid;gap:clamp(18px,2.4vw,28px)}
+.catalog-tools-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--ac-line)}
+.catalog-tools-head h2{font:400 clamp(22px,2.8vw,32px)/1.1 'Playfair Display',serif}
+.catalog-tools-head p{font-family:var(--catalog-mono);font-size:11px;letter-spacing:.1em;color:var(--ac-mink);white-space:nowrap}
+.catalog-tools{display:grid;grid-template-columns:minmax(220px,1fr) auto;align-items:center;gap:12px 18px}
+.catalog-search{display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid var(--ac-line);background:#fff;color:var(--ac-mink)}
+.catalog-search svg{width:16px;height:16px;flex:none}
+.catalog-search input{width:100%;padding:13px 0;border:0;background:transparent;color:var(--ac-ink);font-size:14px;outline:0}
+.catalog-levels{display:flex;flex-wrap:wrap;gap:6px}
+.catalog-levels button{padding:10px 14px;border:1px solid var(--ac-line);border-radius:2px;background:#fff;color:var(--ac-mink);font-size:12px;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.catalog-levels button:hover{border-color:var(--ac-gold);color:var(--ac-forest)}
+.catalog-levels button.selected{background:var(--ac-forest);border-color:var(--ac-forest);color:#fff}
+.catalog-refine{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.catalog-refine select,.catalog-refine button{display:flex;align-items:center;gap:7px;min-height:40px;padding:0 12px;border:1px solid var(--ac-line);border-radius:2px;background:#fff;color:var(--ac-mink);font-size:12px;font-weight:600;cursor:pointer}
+.catalog-refine button.selected{background:var(--ac-forest);border-color:var(--ac-forest);color:#fff}
+.catalog-refine svg{width:14px;height:14px}
+
+.catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--ac-line);border:1px solid var(--ac-line)}
+/* Karty w katalogu porzucają zaokrąglenia i cień — mają tworzyć jedną taflę. */
+.catalog-grid .academy-course-card{border:0;border-radius:0;background:#fff;box-shadow:none}
+.catalog-grid .academy-course-card:hover{transform:none;box-shadow:none;background:var(--ac-ivory)}
+.catalog-grid .academy-course-cover{border-radius:0}
+.catalog-grid .academy-skeleton{border-radius:0}
+
+.catalog-notice{padding:clamp(36px,6vw,64px) 24px;border:1px dashed var(--ac-line);text-align:center;color:var(--ac-mink)}
+.catalog-notice h3{font:400 clamp(20px,2.4vw,26px)/1.2 'Playfair Display',serif}
+.catalog-notice p{margin:10px auto 0;max-width:46ch;font-size:14px;line-height:1.7}
+.catalog-notice button{margin-top:22px;padding:13px 24px;border:1px solid var(--ac-forest);border-radius:2px;background:transparent;color:var(--ac-forest);font-size:13px;font-weight:700;cursor:pointer;transition:background .25s,color .25s}
+.catalog-notice button:hover{background:var(--ac-forest);color:#fff}
+
+/* --- Sekcje wspólne --- */
+.catalog-section-head{padding-bottom:20px;border-bottom:1px solid var(--ac-line)}
+.catalog-section-head h2{font:400 clamp(24px,3.2vw,38px)/1.08 'Playfair Display',serif;letter-spacing:-.02em}
+.catalog-section-head p{margin-top:14px;max-width:56ch;font-size:14.5px;line-height:1.7;color:var(--ac-mink)}
+
+.catalog-included-list{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(26px,4vw,60px);margin:clamp(32px,4vw,52px) 0 0;padding:0;list-style:none}
+.catalog-included-list li{display:flex;flex-direction:column;gap:12px;padding-top:24px;border-top:2px solid var(--ac-gold)}
+.catalog-included-list svg{width:22px;height:22px;color:var(--ac-forest)}
+.catalog-included-list h3{font:400 22px/1.2 'Playfair Display',serif}
+.catalog-included-list p{font-size:14px;line-height:1.7;color:var(--ac-mink)}
+
+.catalog-faq-list{margin-top:clamp(28px,3.4vw,44px)}
+.catalog-faq-list details{border-bottom:1px solid var(--ac-line)}
+.catalog-faq-list summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:19px 0;font-size:15px;font-weight:600;cursor:pointer;list-style:none}
+.catalog-faq-list summary::-webkit-details-marker{display:none}
+.catalog-faq-list summary::after{content:'+';font-family:var(--catalog-mono);font-size:17px;color:var(--ac-gold)}
+.catalog-faq-list details[open] summary::after{content:'\2212'}
+.catalog-faq-list p{margin:0 0 20px;max-width:64ch;font-size:14px;line-height:1.75;color:var(--ac-mink)}
+
+/* --- Zamknięcie lejka --- */
+.catalog-signup{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,4vw,64px);align-items:center;padding:clamp(32px,4.6vw,64px);background:var(--ac-ink);color:#fff}
+.catalog-signup h2{margin:16px 0 0;color:#fff;font:400 clamp(26px,3.4vw,42px)/1.08 'Playfair Display',serif;letter-spacing:-.02em}
+.catalog-signup-lede{margin-top:14px;font-size:15px;line-height:1.7;color:rgba(255,255,255,.68)}
+.catalog-signup ul{display:grid;gap:10px;margin:clamp(22px,2.6vw,30px) 0 0;padding:0;list-style:none}
+.catalog-signup li{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.85)}
+.catalog-signup li svg{width:15px;height:15px;flex:none;color:var(--ac-gold)}
+.catalog-signup-actions{display:grid;gap:16px;justify-items:start}
+.catalog-signup-actions .catalog-cta{width:100%}
+.catalog-signup-login{font-size:13px;color:rgba(255,255,255,.7)}
+.catalog-signup-login strong{color:#fff;text-decoration:underline;text-underline-offset:3px}
+
+.academy-catalog-page :focus-visible{outline:2px solid var(--ac-gold);outline-offset:3px}
+
+@media (max-width:1000px){
+  .catalog-flagship{grid-template-columns:1fr;gap:28px}
+  .catalog-flagship-visual{max-width:340px}
+  .catalog-flagship-visual::after{inset:12px -12px -12px 12px}
+  .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .catalog-included-list{grid-template-columns:1fr 1fr}
+  .catalog-signup{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+  .catalog-tools{grid-template-columns:1fr}
+  .catalog-refine{justify-content:flex-start}
+  .catalog-refine>*{flex:1 1 140px}
+  .catalog-levels{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  .catalog-levels button{flex:none}
+  .catalog-grid{grid-template-columns:1fr}
+  .catalog-specs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .catalog-included-list{grid-template-columns:1fr}
+  .catalog-state>div{padding:0 16px}
+  .catalog-flagship-actions>.catalog-cta,.catalog-flagship-actions>.catalog-cta-ghost{flex:1 1 100%}
+  .catalog-waitlist>div>.catalog-cta{flex:1 1 100%}
+  .catalog-signup-actions{justify-items:stretch}
+}
+@media (prefers-reduced-motion:reduce){
+  .catalog-cta,.catalog-cta:hover{transition:none;transform:none}
+}
+
+/* Newsletter — drugie, słabsze zapytanie w lejku, więc cichy pasek na papierze. */
+.catalog-newsletter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:center;padding:clamp(24px,3vw,36px) 0;border-top:1px solid var(--ac-line);border-bottom:1px solid var(--ac-line)}
+.catalog-newsletter-copy{display:flex;align-items:flex-start;gap:14px}
+.catalog-newsletter-copy>svg{width:20px;height:20px;flex:none;margin-top:3px;color:var(--ac-gold)}
+.catalog-newsletter h2{font:400 clamp(19px,2.2vw,26px)/1.2 'Playfair Display',serif}
+.catalog-newsletter-copy p{margin-top:8px;font-size:13.5px;line-height:1.6;color:var(--ac-mink)}
+.catalog-newsletter form>div{display:flex;flex-wrap:wrap;gap:10px}
+.catalog-newsletter input[type=email]{flex:1 1 200px;min-width:0;padding:14px 15px;border:1px solid var(--ac-line);border-radius:2px;background:#fff;color:var(--ac-ink);font-size:14px}
+.catalog-newsletter input[type=email]:focus{outline:2px solid var(--ac-gold);outline-offset:-2px}
+.catalog-newsletter label{display:flex;gap:9px;margin-top:11px;font-size:11.5px;line-height:1.55;color:var(--ac-mink)}
+.catalog-newsletter label input{margin-top:2px;flex:none}
+@media (max-width:1000px){.catalog-newsletter{grid-template-columns:1fr;gap:22px}}
