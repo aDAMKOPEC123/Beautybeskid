@@ -7,11 +7,14 @@ import { env } from '../config/env';
 export class AppError extends Error {
   public statusCode: number;
   public isOperational: boolean;
+  /** Opcjonalny kod dla klienta, gdy sama treść komunikatu nie wystarcza do reakcji UI. */
+  public code?: string;
 
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number, code?: string) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
+    this.code = code;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -60,11 +63,14 @@ export const errorMiddleware = (
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Wewnętrzny błąd serwera';
 
+  const code = typeof err.code === 'string' && err.isOperational ? { code: err.code } : {};
+
   if (env.NODE_ENV === 'development') {
     const devStatus = err.name === 'ZodError' ? 400 : statusCode;
     res.status(devStatus).json({
       status: 'error',
       message: err.name === 'ZodError' ? err.issues : message,
+      ...code,
       stack: err.stack,
       error: err
     });
@@ -73,7 +79,8 @@ export const errorMiddleware = (
     if (err.isOperational || err.name === 'ZodError') {
       res.status(err.name === 'ZodError' ? 400 : statusCode).json({
         status: 'error',
-        message: err.name === 'ZodError' ? 'Błąd walidacji danych' : message
+        message: err.name === 'ZodError' ? 'Błąd walidacji danych' : message,
+        ...code
       });
     } else {
       console.error('ERROR 💥', err);

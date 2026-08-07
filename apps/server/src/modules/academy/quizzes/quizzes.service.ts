@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { issueCertificate } from '../certificates/certificates.service';
@@ -79,30 +80,32 @@ export const getStandaloneQuiz = async (quizId: string) => {
 export const submitAttempt = async (
   userId: string,
   quizId: string,
-  answers: { questionId: string; selectedOptionIds: string[] }[]
+  rawAnswers: { questionId: string; selectedOptionIds: string[] }[],
+  isAdmin = false,
 ) => {
+  const answers = Array.isArray(rawAnswers) ? rawAnswers : [];
   const quiz = await prisma.academyQuiz.findUnique({
     where: { id: quizId },
     include: {
       questions: {
         include: { options: true },
       },
+      lesson: { select: { module: { select: { courseId: true, course: { select: { accessDays: true } } } } } },
     },
   });
 
   if (!quiz) throw new AppError('Nie znaleziono quizu', 404);
+  if (!quiz.isPublished) throw new AppError('Quiz nie jest opublikowany', 403);
 
-  // Check attempt limit
-  const recentAttempts = await prisma.academyQuizAttempt.count({
-    where: {
-      userId,
-      quizId,
-      startedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    },
-  });
-
-  if (recentAttempts >= quiz.maxAttempts) {
-    throw new AppError(`Przekroczono limit ${quiz.maxAttempts} prób w ciągu 24 godzin`, 429);
+  // Quiz przypięty do lekcji jest treścią konkretnego kursu — sam fakt posiadania
+  // dowolnego innego kursu nie uprawnia do jego rozwiązania ani do certyfikatu.
+  if (!isAdmin && quiz.lesson) {
+    const enrollment = await prisma.academyEnrollment.findUnique({
+      where: { userId_courseId: { userId, courseId: quiz.lesson.module.courseId } },
+    });
+    if (!hasActiveCourseAccess(enrollment, quiz.lesson.module.course.accessDays)) {
+      throw new AppError('Kup kurs, aby rozwiązać ten quiz', 403);
+    }
   }
 
   // Grade answers
@@ -126,17 +129,27 @@ export const submitAttempt = async (
   const score = total > 0 ? Math.round((correct / total) * 100) : 0;
   const passed = score >= quiz.passingScore;
 
-  const attempt = await prisma.academyQuizAttempt.create({
-    data: {
-      userId,
-      quizId,
-      score,
-      passed,
-      answers: answers as any,
-      startedAt: new Date(),
-      completedAt: new Date(),
-    },
-  });
+  // Limit prób i zapis muszą być atomowe — inaczej równoległe żądania
+  // przechodzą przez `count` zanim którekolwiek utworzy podejście.
+  const attempt = await prisma.$transaction(async (tx) => {
+    const recentAttempts = await tx.academyQuizAttempt.count({
+      where: { userId, quizId, startedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+    });
+    if (recentAttempts >= quiz.maxAttempts) {
+      throw new AppError(`Przekroczono limit ${quiz.maxAttempts} prób w ciągu 24 godzin`, 429);
+    }
+    return tx.academyQuizAttempt.create({
+      data: {
+        userId,
+        quizId,
+        score,
+        passed,
+        answers: answers as any,
+        startedAt: new Date(),
+        completedAt: new Date(),
+      },
+    });
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
   let certificate = null;
   if (passed) {

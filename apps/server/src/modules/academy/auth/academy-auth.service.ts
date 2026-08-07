@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { env } from '../../../config/env';
@@ -27,11 +28,51 @@ const issue = async (user: { id: string; email: string; name: string; role: stri
   return { accessToken, refreshToken: rawRefreshToken, user: toUser(user) };
 };
 
+/**
+ * Ciało żądania sprawdzamy schematem, bo trasy auth przyjmują surowe `req.body` —
+ * bez tego brak pola kończył się TypeError i odpowiedzią 500 zamiast czytelnego 400.
+ * Komunikat z Zoda przepisujemy na AppError, żeby przetrwał produkcyjny error handler.
+ */
+const parseBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
+  const result = schema.safeParse(body ?? {});
+  if (!result.success) throw new AppError(result.error.issues[0]?.message ?? 'Nieprawidłowe dane', 400);
+  return result.data;
+};
+
+const legalSchema = {
+  termsAccepted: z.boolean().optional(),
+  privacyAccepted: z.boolean().optional(),
+  termsVersion: z.string().optional(),
+  privacyVersion: z.string().optional(),
+};
+
+const emailField = z.string({ required_error: 'Podaj adres email' }).trim().min(1, 'Podaj adres email').email('Podaj poprawny adres email');
+const passwordField = z.string({ required_error: 'Podaj hasło' }).min(8, 'Hasło musi mieć co najmniej 8 znaków');
+
+const registerSchema = z.object({
+  email: emailField,
+  password: passwordField,
+  name: z.string({ required_error: 'Podaj imię i nazwisko' }).trim().min(1, 'Podaj imię i nazwisko').max(120, 'Imię i nazwisko jest za długie'),
+  ...legalSchema,
+});
+
+const loginSchema = z.object({
+  email: z.string({ required_error: 'Podaj adres email' }).trim().min(1, 'Podaj adres email'),
+  password: z.string({ required_error: 'Podaj hasło' }).min(1, 'Podaj hasło'),
+});
+
+const googleSchema = z.object({
+  credential: z.string({ required_error: 'Brak tokenu Google' }).min(1, 'Brak tokenu Google'),
+  ...legalSchema,
+});
+
 type LegalAcceptance = { termsAccepted?: boolean; privacyAccepted?: boolean; termsVersion?: string; privacyVersion?: string };
 const validateLegalAcceptance = async (input: LegalAcceptance) => {
   const versions = await getCurrentVersions();
   if (!input.termsAccepted || !input.privacyAccepted || input.termsVersion !== versions.termsVersion || input.privacyVersion !== versions.privacyVersion) {
-    throw new AppError('Zaakceptuj aktualny Regulamin i Politykę prywatności', 400);
+    // Kod pozwala ekranowi logowania rozpoznać, że użytkowniczka loguje się przez
+    // Google po raz pierwszy i trzeba jej pokazać zgody zamiast surowego błędu.
+    throw new AppError('Zaakceptuj aktualny Regulamin i Politykę prywatności', 400, 'LEGAL_ACCEPTANCE_REQUIRED');
   }
   return versions;
 };
@@ -43,16 +84,15 @@ const sendVerification = async (user: { id: string; email: string; name: string 
   await sendEmail(user.email, 'Potwierdź adres e-mail w Akademii', `<p>Dzień dobry ${escapeHtml(user.name)},</p><p>Potwierdź adres e-mail, klikając poniższy link:</p><p><a href="${url}">Potwierdź adres e-mail</a></p><p>Link jest ważny przez 24 godziny.</p>`);
 };
 
-export const register = async (input: { email: string; password: string; name: string } & LegalAcceptance) => {
-  const email = input.email.trim().toLowerCase();
-  if (!email || !input.password || !input.name.trim()) throw new AppError('Uzupełnij imię, email i hasło', 400);
-  if (input.password.length < 8) throw new AppError('Hasło musi mieć co najmniej 8 znaków', 400);
+export const register = async (body: unknown) => {
+  const input = parseBody(registerSchema, body);
+  const email = input.email.toLowerCase();
   if (await prisma.academyUser.findUnique({ where: { email } })) throw new AppError('Konto Akademii z tym adresem email już istnieje', 409);
   const versions = await validateLegalAcceptance(input);
   const now = new Date();
   const user = await prisma.academyUser.create({ data: {
     email,
-    name: input.name.trim(),
+    name: input.name,
     passwordHash: await bcrypt.hash(input.password, 12),
     termsAcceptedAt: now,
     termsVersion: versions.termsVersion,
@@ -63,14 +103,15 @@ export const register = async (input: { email: string; password: string; name: s
   return issue(user);
 };
 
-export const login = async (input: { email: string; password: string }) => {
-  const user = await prisma.academyUser.findUnique({ where: { email: input.email.trim().toLowerCase() } });
+export const login = async (body: unknown) => {
+  const input = parseBody(loginSchema, body);
+  const user = await prisma.academyUser.findUnique({ where: { email: input.email.toLowerCase() } });
   if (!user?.passwordHash || !(await bcrypt.compare(input.password, user.passwordHash))) throw new AppError('Nieprawidłowy email lub hasło', 401);
   return issue(user);
 };
 
-export const loginWithGoogle = async (input: { credential: string } & LegalAcceptance) => {
-  if (!input.credential) throw new AppError('Brak tokenu Google', 400);
+export const loginWithGoogle = async (body: unknown) => {
+  const input = parseBody(googleSchema, body);
   const profile = await verifyGoogleToken(input.credential);
   const email = profile.email.trim().toLowerCase();
   const [byGoogleId, byEmail, salonUser] = await Promise.all([
@@ -107,9 +148,13 @@ export const loginWithGoogle = async (input: { credential: string } & LegalAccep
 };
 
 export const verifyEmail = async (rawToken: string) => {
-  const user = await prisma.academyUser.findUnique({ where: { emailVerificationToken: hash(rawToken || '') } });
+  if (!rawToken) throw new AppError('Link potwierdzający jest nieprawidłowy lub wygasł', 400);
+  const user = await prisma.academyUser.findUnique({ where: { emailVerificationToken: hash(rawToken) } });
   if (!user || !user.emailVerificationExpiresAt || user.emailVerificationExpiresAt < new Date()) throw new AppError('Link potwierdzający jest nieprawidłowy lub wygasł', 400);
-  await prisma.academyUser.update({ where: { id: user.id }, data: { emailVerifiedAt: new Date(), emailVerificationToken: null, emailVerificationExpiresAt: null } });
+  const updated = await prisma.academyUser.update({ where: { id: user.id }, data: { emailVerifiedAt: new Date(), emailVerificationToken: null, emailVerificationExpiresAt: null } });
+  // Zwracamy konto, żeby karta, w której kliknięto link, mogła od razu odświeżyć
+  // status w store — inaczej checkout nadal blokuje zakup do czasu przeładowania.
+  return toUser(updated);
 };
 
 export const resendVerification = async (userId: string) => {
@@ -140,6 +185,9 @@ export const resetPassword = async (rawToken: string, password: string) => {
   ]);
 };
 
+/** Ile czasu zużyty token nadal działa — tyle, ile trwa wyścig dwóch kart. */
+const refreshGraceMs = 30_000;
+
 export const refresh = async (rawRefreshToken?: string) => {
   if (!rawRefreshToken) throw new AppError('Brak sesji Akademii', 401);
   const record = await prisma.academyRefreshToken.findUnique({ where: { tokenHash: hash(rawRefreshToken) }, include: { user: true } });
@@ -147,7 +195,27 @@ export const refresh = async (rawRefreshToken?: string) => {
     if (record) await prisma.academyRefreshToken.delete({ where: { id: record.id } });
     throw new AppError('Sesja Akademii wygasła', 401);
   }
-  await prisma.academyRefreshToken.delete({ where: { id: record.id } });
+
+  if (record.rotatedAt) {
+    // Token już zużyty. Tuż po rotacji to zwykły wyścig równoległych kart,
+    // ale później oznacza, że ktoś odtwarza przechwycony token — wtedy
+    // unieważniamy wszystkie sesje tego konta.
+    if (Date.now() - record.rotatedAt.getTime() > refreshGraceMs) {
+      await prisma.academyRefreshToken.deleteMany({ where: { userId: record.userId } });
+      throw new AppError('Sesja Akademii wygasła', 401);
+    }
+  } else {
+    const claimed = await prisma.academyRefreshToken.updateMany({ where: { id: record.id, rotatedAt: null }, data: { rotatedAt: new Date() } });
+    if (!claimed.count) {
+      const fresh = await prisma.academyRefreshToken.findUnique({ where: { id: record.id } });
+      if (fresh?.rotatedAt && Date.now() - fresh.rotatedAt.getTime() > refreshGraceMs) throw new AppError('Sesja Akademii wygasła', 401);
+    }
+  }
+
+  // Sprzątanie zużytych tokenów, którym minęło okno tolerancji.
+  void prisma.academyRefreshToken.deleteMany({ where: { userId: record.userId, rotatedAt: { lt: new Date(Date.now() - refreshGraceMs) } } })
+    .catch((error) => console.error('[academy-auth] refresh token cleanup failed', error));
+
   return issue(record.user);
 };
 

@@ -81,12 +81,21 @@ export const getPublicCourse = async (slug: string) => {
     },
   });
   const campaign = await resolvePublicPrice({ courseId: course.id, price: Number(course.price) });
+  // „Zweryfikowany zakup” musi wynikać z realnego zapisu na kurs, a nie być
+  // wpisany na sztywno — po zwrocie zapis znika i znacznik ma zniknąć razem z nim.
+  const reviewerEnrollments = course.academyReviews.length
+    ? await prisma.academyEnrollment.findMany({
+        where: { courseId: course.id, userId: { in: course.academyReviews.map((review) => review.userId) } },
+        select: { userId: true },
+      })
+    : [];
+  const verifiedReviewers = new Set(reviewerEnrollments.map((entry) => entry.userId));
   return {
     ...course,
     ...(campaign || {}),
     lowestPrice30Days: calculateLowestPriorPrice(course.priceHistory, Number(course.price), Boolean(course.compareAtPrice)),
     priceHistory: undefined,
-    academyReviews: course.academyReviews.map((review) => ({ ...review, verifiedPurchase: true })),
+    academyReviews: course.academyReviews.map((review) => ({ ...review, verifiedPurchase: verifiedReviewers.has(review.userId) })),
     recommendedCourses,
     bundles,
     previewLesson: course.previewLessonId ? course.modules.flatMap(module => module.lessons).find(lesson => lesson.id === course.previewLessonId) ?? null : null,

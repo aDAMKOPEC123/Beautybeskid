@@ -21,11 +21,13 @@ export function MyCourses() {
   });
   const { data: dashboard, refetch: refetchDashboard } = useQuery({ queryKey: ['academy', 'learning-dashboard'], queryFn: academyApi.getLearningDashboard, enabled: isAuthenticated });
 
-  if (!isAuthenticated) return <div className="academy-profile-empty"><BarChart2 /><h2>Tu pojawi się Twoja nauka</h2><p>Po zalogowaniu i zakupie kursu zobaczysz tutaj wszystkie materiały, postęp oraz ukończone lekcje.</p><Link to="/logowanie">Zaloguj się do Akademii</Link></div>;
-
+  // Wszystkie hooki muszą wykonać się przed jakimkolwiek wyjściem z komponentu,
+  // inaczej zmiana `isAuthenticated` zmienia ich liczbę między renderami.
   const myCourses = useMemo(() => (courses as any[])
     .filter((course) => filter === 'ALL' || (filter === 'COMPLETED' ? !!course.progress?.completedAt : !course.progress?.completedAt))
     .sort((a, b) => new Date(b.progress?.startedAt ?? 0).getTime() - new Date(a.progress?.startedAt ?? 0).getTime()), [courses, filter]);
+
+  if (!isAuthenticated) return <div className="academy-profile-empty"><BarChart2 /><h2>Tu pojawi się Twoja nauka</h2><p>Po zalogowaniu i zakupie kursu zobaczysz tutaj wszystkie materiały, postęp oraz ukończone lekcje.</p><Link to="/logowanie">Zaloguj się do Akademii</Link></div>;
 
   return (
     <div className="space-y-6">

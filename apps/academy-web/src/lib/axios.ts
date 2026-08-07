@@ -1,16 +1,24 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
 
+/** Zwykłe zapytania mają się poddać szybko, ale wysyłka pliku nie zmieści się w 10 s. */
+const DEFAULT_TIMEOUT = 10_000;
+const UPLOAD_TIMEOUT = 120_000;
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
-  timeout: 10000,
+  timeout: DEFAULT_TIMEOUT,
 });
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  // Uploady (FormData) dostają dłuższy limit, o ile wywołanie nie ustawiło własnego.
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData && config.timeout === DEFAULT_TIMEOUT) {
+    config.timeout = UPLOAD_TIMEOUT;
   }
   return config;
 });

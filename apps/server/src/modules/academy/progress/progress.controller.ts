@@ -34,14 +34,5 @@ export const getUserCourseProgress = async (req: Request, res: Response, next: N
   }
 };
 
-export const getMyCourses = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userId = req.academyUser!.id;
-    const courses = await progressService.getMyCourses(userId);
-    res.json({ data: courses });
-  } catch (error) {
-    next(error);
-  }
-};
 export const getLearningDashboard = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await progressService.getLearningDashboard(req.academyUser!.id) }); } catch (error) { next(error); } };
 export const updateLearningGoal = async (req: Request, res: Response, next: NextFunction) => { try { res.json({ data: await progressService.updateLearningGoal(req.academyUser!.id, Number(req.body.weeklyMinutesGoal)) }); } catch (error) { next(error); } };

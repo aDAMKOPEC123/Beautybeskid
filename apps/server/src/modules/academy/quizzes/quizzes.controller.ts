@@ -31,7 +31,7 @@ export const getStandaloneQuiz = async (req: Request, res: Response, next: NextF
 export const submitAttempt = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.academyUser!.id;
-    const result = await quizzesService.submitAttempt(userId, req.params.quizId, req.body.answers);
+    const result = await quizzesService.submitAttempt(userId, req.params.quizId, req.body?.answers, req.academyUser!.role === 'ADMIN');
     res.json({ data: result });
   } catch (error) {
     next(error);

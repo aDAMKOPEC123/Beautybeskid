@@ -46,12 +46,15 @@ type Props = {
 
 export const SkinScanComparison = ({ comparison, onClose }: Props) => {
   const { first, latest } = comparison;
-  if (!first || !latest) return null;
 
-  const angles = latest.images
+  // Hooki muszą wykonać się przed wyjściem z komponentu — inaczej pojawienie się
+  // drugiego skanu zmienia ich liczbę między renderami i React przerywa render.
+  const angles = (latest?.images ?? [])
     .map((img) => img.angle)
     .filter((a): a is SkinScanAngle => a in ANGLE_LABELS);
   const [activeAngle, setActiveAngle] = useState<SkinScanAngle>(angles.includes('FRONT') ? 'FRONT' : angles[0]);
+
+  if (!first || !latest) return null;
 
   const firstScore = first.analysis?.skinScore ?? null;
   const latestScore = latest.analysis?.skinScore ?? null;

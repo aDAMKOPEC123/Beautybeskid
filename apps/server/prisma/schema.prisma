@@ -1528,8 +1528,13 @@ model AcademyRefreshToken {
   user      AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime    @default(now())
+  // Zużyty token trzymamy jeszcze chwilę zamiast kasować: równoległe karty
+  // odświeżają sesję w tej samej sekundzie i inaczej jedna z nich zostaje wylogowana.
+  // Użycie po oknie tolerancji traktujemy jako kradzież i unieważniamy całą rodzinę.
+  rotatedAt DateTime?
 
   @@index([userId])
+  @@index([rotatedAt])
 }
 
 model AcademyEnrollment {

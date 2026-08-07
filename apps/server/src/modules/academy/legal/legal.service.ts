@@ -57,24 +57,34 @@ export const getDocumentVersion = async (type: AcademyLegalDocumentType, version
   return document;
 };
 
-export const getCurrentVersions = async () => {
-  await ensureLegalData();
-  const documents = await prisma.academyLegalDocument.findMany({
-    where: { type: { in: ['TERMS', 'PRIVACY'] }, isPublished: true },
+/**
+ * Jedyne miejsce, które rozstrzyga „która wersja dokumentu obowiązuje”.
+ * Rejestracja i checkout porównują wersję przysłaną przez klienta z tym wynikiem,
+ * więc gdyby publiczne API liczyło ją inaczej, obie ścieżki odrzucałyby komplet zgód.
+ */
+const currentVersionsByType = async () => {
+  const published = await prisma.academyLegalDocument.findMany({
+    where: { isPublished: true },
+    select: { type: true, version: true, publishedAt: true },
     orderBy: { publishedAt: 'desc' },
   });
-  const terms = documents.find((item) => item.type === 'TERMS');
-  const privacy = documents.find((item) => item.type === 'PRIVACY');
-  if (!terms || !privacy) throw new AppError('Dokumenty sprzedażowe nie są kompletne', 503);
-  return { termsVersion: terms.version, privacyVersion: privacy.version };
+  const versions = new Map<string, string>();
+  for (const document of published) if (!versions.has(document.type)) versions.set(document.type, document.version);
+  return versions;
+};
+
+export const getCurrentVersions = async () => {
+  await ensureLegalData();
+  const versions = await currentVersionsByType();
+  const termsVersion = versions.get('TERMS');
+  const privacyVersion = versions.get('PRIVACY');
+  if (!termsVersion || !privacyVersion) throw new AppError('Dokumenty sprzedażowe nie są kompletne', 503);
+  return { termsVersion, privacyVersion };
 };
 
 export const getPublicCommerceInfo = async () => {
   const seller = await ensureLegalData();
-  const published = await prisma.academyLegalDocument.findMany({
-    where: { isPublished: true },
-    select: { type: true, version: true },
-  });
+  const versions = await currentVersionsByType();
   const sellerComplete = Boolean(
     seller.legalName && seller.taxId && seller.street && seller.postalCode && seller.city && seller.email && seller.phone
   );
@@ -88,10 +98,10 @@ export const getPublicCommerceInfo = async () => {
       email: seller.email,
       phone: seller.phone,
     },
-    documentVersions: Object.fromEntries(published.map((item) => [item.type, item.version])),
+    documentVersions: Object.fromEntries(versions),
     readiness: {
       sellerComplete,
-      legalDocumentsComplete: new Set(published.map((item) => item.type)).size === 6,
+      legalDocumentsComplete: versions.size === 6,
       stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET),
     },
   };

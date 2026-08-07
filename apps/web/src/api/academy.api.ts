@@ -43,19 +43,6 @@ export const academyApi = {
   verifyCertificate: (code: string) =>
     api.get(`/academy/certificates/verify/${code}`).then((r) => r.data.data),
 
-  // === Admin: Access Management ===
-  searchUsers: (q: string) =>
-    api.get('/users/search', { params: { q } }).then((r) => r.data.data),
-
-  grantAccess: (userId: string, expiresAt?: string) =>
-    api.post('/academy/access/grant', { userId, expiresAt }).then((r) => r.data),
-
-  revokeAccess: (userId: string) =>
-    api.post('/academy/access/revoke', { userId }).then((r) => r.data),
-
-  getAccessLog: (userId: string) =>
-    api.get(`/academy/access/log/${userId}`).then((r) => r.data.data),
-
   // === Admin: Courses ===
   adminGetCourses: () =>
     api.get('/academy/admin/courses').then((r) => r.data.data),

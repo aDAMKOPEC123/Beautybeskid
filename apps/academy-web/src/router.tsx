@@ -58,6 +58,12 @@ const AdminSkinAtlas = lazy(() => import('./pages/admin/AdminSkinAtlas').then(m 
 const AdminCaseStudies = lazy(() => import('./pages/admin/AdminCaseStudies').then(m => ({ default: m.AdminCaseStudies })));
 const AdminInstructors = lazy(() => import('./pages/admin/AdminInstructors').then(m => ({ default: m.AdminInstructors })));
 const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes').then(m => ({ default: m.AdminQuizzes })));
+const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+
+// Strona prawna obsługuje zamknięty zestaw dokumentów. Trzymamy je jako jawne
+// ścieżki, bo wcześniejsze `:slug` łapało każdy literówkowy adres i pokazywało
+// regulamin zamiast informacji, że strona nie istnieje.
+const LEGAL_SLUGS = ['regulamin', 'polityka-prywatnosci', 'cookies', 'odstapienie', 'reklamacje', 'dostepnosc'];
 
 export const router = createBrowserRouter([
   {
@@ -100,8 +106,9 @@ export const router = createBrowserRouter([
           { path: 'atlas/:region/:condition', element: <S><RequireAuth><SkinAtlasCondition /></RequireAuth></S> },
           { path: 'kurs/:slug/przypadki', element: <S><RequireAuth><CaseStudyList /></RequireAuth></S> },
           { path: 'kurs/:slug/przypadek/:id', element: <S><RequireAuth><CaseStudyPlayer /></RequireAuth></S> },
-          { path: ':slug', element: <S><AcademyLegalPage /></S> },
+          ...LEGAL_SLUGS.map((slug) => ({ path: slug, element: <S><AcademyLegalPage /></S> })),
           { path: 'kurs/:slug/lekcja/:lessonSlug', element: <S><LessonPlayer /></S> },
+          { path: '*', element: <S><NotFound /></S> },
         ],
       },
       {

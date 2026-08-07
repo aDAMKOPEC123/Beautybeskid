@@ -26,7 +26,7 @@ export const markLessonComplete = async (userId: string, lessonId: string, isAdm
     include: { module: { select: { courseId: true } } },
   });
 
-  if (!lesson) return;
+  if (!lesson) throw new AppError('Nie znaleziono lekcji', 404);
   await requireEnrollment(userId, lesson.module.courseId, isAdmin);
 
   await prisma.userLessonProgress.upsert({
@@ -100,25 +100,6 @@ export const getUserCourseProgress = async (userId: string, courseId: string, is
   await requireEnrollment(userId, courseId, isAdmin);
   return prisma.userCourseProgress.findUnique({
     where: { userId_courseId: { userId, courseId } },
-  });
-};
-
-export const getMyCourses = async (userId: string) => {
-  return prisma.userCourseProgress.findMany({
-    where: { userId },
-    include: {
-      course: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          thumbnailUrl: true,
-          difficulty: true,
-          estimatedMinutes: true,
-        },
-      },
-    },
-    orderBy: { startedAt: 'desc' },
   });
 };
 

@@ -68,7 +68,7 @@ export const getLessonBySlug = async (courseSlug: string, lessonSlug: string, us
   ]);
 
   // Strip isCorrect from options for non-admin requests
-  if (lesson.quiz) {
+  if (lesson.quiz && !isAdmin) {
     const quizAny = lesson.quiz as any;
     quizAny.questions = lesson.quiz.questions.map((q: any) => ({
       ...q,
