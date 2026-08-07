@@ -7,14 +7,20 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
       manifest: {
         name: 'Akademia BeskidStudio',
         short_name: 'Akademia',
         description: 'Kursy kosmetologiczne online — Akademia BeskidStudio by Wiktoria Ćwik',
-        theme_color: '#1a1a2e',
-        background_color: '#ffffff',
+        theme_color: '#FBFAF8',
+        background_color: '#FBFAF8',
         display: 'standalone',
+        orientation: 'portrait-primary',
+        lang: 'pl',
+        categories: ['education'],
         start_url: '/',
         scope: '/',
         icons: [
@@ -22,6 +28,9 @@ export default defineConfig({
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],

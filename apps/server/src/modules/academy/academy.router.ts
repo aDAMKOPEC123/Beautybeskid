@@ -13,10 +13,12 @@ import marketingRouter from './marketing/marketing.router';
 import operationsRouter from './operations/operations.router';
 import skinAtlasRouter from './skin-atlas/skin-atlas.router';
 import diagnosticCasesRouter from './diagnostic-cases/diagnostic-cases.router';
+import academyPushRouter from './push/academy-push.router';
 
 const router = Router();
 
 router.use('/auth', academyAuthRouter);
+router.use('/', academyPushRouter);
 router.use('/', coursesRouter);
 router.use('/', lessonsRouter);
 router.use('/', progressRouter);

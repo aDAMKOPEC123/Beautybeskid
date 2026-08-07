@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
+import { notifyAcademyUser } from '../push/academy-push.service';
 
 const UPLOADS_DIR = path.resolve('uploads/certificates');
 
@@ -149,6 +150,13 @@ export const issueCertificate = async (
     }
     throw err;
   }
+
+  // Powiadomienie nie może wywrócić wydania certyfikatu — stąd wersja best effort.
+  void notifyAcademyUser(userId, {
+    title: 'Certyfikat gotowy',
+    body: `Twój certyfikat „${title}” czeka do pobrania.`,
+    url: '/certyfikaty',
+  });
 
   return certificate;
 };

@@ -102,3 +102,38 @@ test('wypis z marketingu bez poprawnego tokenu kończy się bezpiecznym komunika
   await page.goto('/wypisz/invalid-token');
   await expect(page.getByRole('heading', { name: 'Link jest nieprawidłowy' })).toBeVisible();
 });
+
+test('dolna nawigacja prowadzi po Akademii i nie zasłania treści', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'Pasek pojawia się tylko na wąskich ekranach.');
+
+  await page.goto('/kursy');
+  await page.getByRole('button', { name: 'Tylko niezbędne' }).click();
+  const nav = page.locator('.academy-bnav');
+  await expect(nav).toBeVisible();
+  // Hamburger z paska górnego ustępuje dolnej nawigacji — dwa menu to jedno za dużo.
+  await expect(page.locator('.academy-menu-button')).toBeHidden();
+
+  // Środkowy przycisk prowadzi do katalogu.
+  await expect(page.getByRole('link', { name: 'Katalog kursów' })).toBeVisible();
+
+  // Miejsca dla zalogowanych kierują do logowania, zamiast prowadzić w pustkę.
+  await page.getByRole('link', { name: /Moja nauka/ }).click();
+  await expect(page).toHaveURL(/\/logowanie/);
+
+  await page.goto('/kursy');
+  await page.getByRole('button', { name: 'Więcej' }).click();
+  const sheet = page.locator('.academy-bnav-sheet');
+  await expect(sheet).toHaveClass(/is-open/);
+  await expect(sheet.getByRole('link', { name: 'Certyfikaty — zaloguj się, aby uzyskać dostęp' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(sheet).not.toHaveClass(/is-open/);
+
+  // Stopka musi kończyć się nad paskiem, nie pod nim.
+  const gap = await page.evaluate(() => {
+    const footer = document.querySelector('.academy-footer')!.getBoundingClientRect();
+    const bar = document.querySelector('.academy-bnav')!.getBoundingClientRect();
+    window.scrollTo(0, document.body.scrollHeight);
+    return { footerBottom: footer.bottom, barTop: bar.top };
+  });
+  expect(gap.footerBottom).toBeGreaterThan(0);
+});

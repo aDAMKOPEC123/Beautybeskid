@@ -1502,8 +1502,23 @@ model AcademyUser {
   promotionUsages           AcademyPromotionUsage[]
   atlasQuizAttempts         SkinAtlasQuizAttempt[]
   diagnosticCaseAttempts    DiagnosticCaseAttempt[]
+  pushSubscriptions         AcademyPushSubscription[]
 
   @@index([role])
+}
+
+/// Subskrypcje push kursantek. Osobno od PushSubscription salonu, bo
+/// AcademyUser to odrębna tabela kont — jedno konto nie jest drugim.
+model AcademyPushSubscription {
+  id            String      @id @default(cuid())
+  academyUserId String
+  academyUser   AcademyUser @relation(fields: [academyUserId], references: [id], onDelete: Cascade)
+  endpoint      String      @unique
+  p256dh        String
+  auth          String
+  createdAt     DateTime    @default(now())
+
+  @@index([academyUserId])
 }
 
 model AcademyRefreshToken {

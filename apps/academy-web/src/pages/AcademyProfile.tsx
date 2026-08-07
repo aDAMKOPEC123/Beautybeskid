@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Award, BookOpen, GraduationCap, LogOut, ReceiptText } from 'lucide-react';
 import { academyApi } from '@/api/academy.api';
 import { useAuth } from '@/hooks/useAuth';
+import { AcademyPushSettings } from '@/components/AcademyPushSettings';
 
 export function AcademyProfile() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -14,6 +15,7 @@ export function AcademyProfile() {
   return <div className="academy-profile">
     <section className="academy-profile-head"><span>{user?.name?.[0] || user?.email?.[0]}</span><div><p className="academy-kicker">Twoje konto</p><h1>{user?.name || 'Kursantka Akademii'}</h1><p>{user?.email} · {user?.emailVerified ? 'adres potwierdzony' : 'adres wymaga potwierdzenia'}</p></div><button onClick={() => { academyApi.logout().finally(logout); }}><LogOut className="w-4 h-4" />Wyloguj</button></section>
     {(courses as any[]).length ? <><section className="academy-profile-stats"><div><BookOpen /><strong>{(courses as any[]).filter((course) => course.progress).length}</strong><span>kursów w nauce</span></div><div><GraduationCap /><strong>{completed.length}</strong><span>ukończonych kursów</span></div><div><Award /><strong>{(certificates as any[]).length}</strong><span>certyfikatów</span></div></section><section className="academy-profile-list"><div><p className="academy-kicker text-caramel">Osiągnięcia</p><h2>Ukończone kursy</h2></div>{completed.length ? completed.map((course: any) => <Link key={course.id} to={`/kurs/${course.slug}`}><BookOpen /><span>{course.title}</span><span>Ukończony</span></Link>) : <p>Ukończone kursy pojawią się tutaj wraz z certyfikatami.</p>}</section></> : <section className="academy-profile-empty"><GraduationCap /><h2>Twoja Akademia jest gotowa</h2><p>Wybierz kurs z katalogu. Po zakupie odblokujemy pełny materiał i dodamy go automatycznie do „Mojej nauki”.</p><Link to="/">Zobacz kursy</Link></section>}
+    <AcademyPushSettings />
     <section className="academy-profile-orders"><div><p className="academy-kicker text-caramel">Dokumenty sprzedaży</p><h2>Historia zamówień</h2></div>{(orders as any[]).length ? (orders as any[]).map((order) => <article key={order.id}><ReceiptText /><div><strong>{order.course?.title || order.bundle?.title || 'Zamówienie'}</strong><small>{order.id} · {new Date(order.createdAt).toLocaleDateString('pl-PL')}</small></div><div><strong>{Number(order.amount).toFixed(2)} {order.currency}</strong><small>{order.status === 'PAID' ? 'opłacone' : order.status === 'REFUNDED' ? 'zwrócone' : order.status === 'PENDING' ? 'oczekuje' : order.status.toLowerCase()}</small></div>{order.invoiceRequested && (order.invoiceUrl ? <a href={order.invoiceUrl} target="_blank" rel="noreferrer">Pobierz fakturę {order.invoiceNumber || ''}</a> : <span>{order.invoiceNumber ? `Faktura ${order.invoiceNumber}` : 'Faktura w przygotowaniu'}</span>)}</article>) : <p>Nie masz jeszcze zamówień.</p>}</section>
   </div>;
 }

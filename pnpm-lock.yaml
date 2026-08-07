@@ -141,6 +141,9 @@ importers:
       vitest:
         specifier: ^1.6.1
         version: 1.6.1(@types/node@20.19.37)(terser@5.46.1)
+      workbox-precaching:
+        specifier: ^7.4.0
+        version: 7.4.0
 
   apps/server:
     dependencies:

@@ -1213,3 +1213,160 @@
   .academy-register-cta{width:var(--nav-h);padding:0;justify-content:center}
   .academy-register-cta span{display:none}
 }
+
+/* ============================================================================
+   DOLNA NAWIGACJA KURSANTKI
+   Na telefonie hamburger kosztował dwa dotknięcia przy każdym przejściu, a
+   Akademia to aplikacja, w której krąży się między katalogiem, lekcją, Atlasem
+   i quizami. Pasek przejmuje nawigację poniżej 1000px; górny pasek zostaje przy
+   marce, koszyku i CTA.
+   ========================================================================== */
+.academy-bnav{display:none}
+.academy-bnav-backdrop{display:none}
+.academy-bnav-sheet{display:none}
+
+@media (max-width:999px){
+  .academy-bnav{
+    position:fixed;z-index:45;right:0;bottom:0;left:0;
+    display:grid;grid-template-columns:repeat(5,1fr);align-items:center;
+    padding-bottom:env(safe-area-inset-bottom);
+    box-sizing:border-box;
+    background:rgba(251,250,248,.94);
+    backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);
+    border-top:1px solid #e8e6de;
+  }
+  .academy-bnav::before{
+    position:absolute;top:-1px;right:0;left:0;height:1px;content:'';
+    background:linear-gradient(90deg,rgba(232,230,222,0),rgba(180,126,54,.34) 50%,rgba(232,230,222,0));
+  }
+
+  .academy-bnav-tab{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    height:100%;min-width:0;padding:0 2px;border:0;background:none;cursor:pointer;
+    color:#6b7a71;font-size:10.5px;font-weight:600;line-height:1;
+    transition:color .18s ease;
+  }
+  .academy-bnav-tab.is-active{color:#a4712f;font-weight:700}
+  .academy-bnav-icon{position:relative;display:grid;place-items:center;width:38px;height:28px;border-radius:999px;transition:background .18s ease}
+  .academy-bnav-tab.is-active .academy-bnav-icon{background:rgba(180,126,54,.13)}
+  .academy-bnav-icon>svg{width:21px;height:21px}
+  .academy-bnav-label{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .academy-bnav-icon>.academy-bnav-lock{position:absolute;right:-2px;bottom:-2px;box-sizing:content-box;width:9px;height:9px;padding:2px;border-radius:50%;background:#fbfaf8;color:#b08a48}
+  .academy-bnav-badge{
+    position:absolute;top:-3px;right:1px;display:grid;place-items:center;
+    min-width:16px;height:16px;padding:0 4px;border:2px solid #fbfaf8;border-radius:999px;
+    background:#b47e36;color:#fff;font:800 9px/1 ui-sans-serif,sans-serif;
+  }
+
+  /* Katalog na środku — jedyne wyróżnione działanie w pasku. */
+  .academy-bnav-fab{
+    display:grid;place-items:center;justify-self:center;
+    width:50px;height:50px;margin-top:-16px;border-radius:50%;
+    background:linear-gradient(150deg,#376f4f,#22503a);color:#fff;
+    box-shadow:0 6px 18px rgba(30,72,52,.32);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .academy-bnav-fab>svg{width:23px;height:23px}
+  .academy-bnav-fab:active{transform:scale(.94)}
+  .academy-bnav-fab.is-active{background:linear-gradient(150deg,#c08b3c,#a86f2c);box-shadow:0 6px 18px rgba(168,111,44,.34)}
+
+  .academy-bnav-backdrop{position:fixed;z-index:44;inset:0;display:block;background:rgba(15,42,27,.42);backdrop-filter:blur(2px)}
+
+  .academy-bnav-sheet{
+    position:fixed;z-index:46;right:0;left:0;display:block;
+    overflow-y:auto;overscroll-behavior:contain;
+    padding:14px 16px 20px;border-top:1px solid #e8e6de;
+    border-radius:18px 18px 0 0;background:#fbfaf8;
+    box-shadow:0 -14px 34px rgba(20,45,32,.16);
+    transform:translateY(102%);visibility:hidden;
+    transition:transform .28s cubic-bezier(.2,.8,.3,1),visibility .28s;
+  }
+  .academy-bnav-sheet.is-open{transform:translateY(0);visibility:visible}
+
+  .academy-bnav-sheet-head{display:grid;grid-template-columns:1fr auto;align-items:start;gap:12px;margin-bottom:16px}
+  .academy-bnav-grip{grid-column:1/-1;justify-self:center;width:40px;height:4px;margin-bottom:10px;border-radius:999px;background:rgba(26,56,40,.18)}
+  .academy-bnav-sheet-head h2{font:600 18px/1.2 'Playfair Display',Georgia,serif;color:#22352d}
+  .academy-bnav-sheet-head p{margin-top:3px;color:#79867e;font-size:11.5px}
+  .academy-bnav-sheet-head button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #e5eae3;border-radius:50%;background:#fff;color:#2e6346;cursor:pointer}
+  .academy-bnav-sheet-head button svg{width:17px;height:17px}
+
+  .academy-bnav-sheet section{margin-bottom:16px}
+  .academy-bnav-sheet h3{margin-bottom:8px;padding-left:2px;color:#98a29b;font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+  .academy-bnav-sheet section>div{display:grid;gap:7px}
+  .academy-bnav-sheet section a{
+    position:relative;display:flex;align-items:center;gap:11px;min-height:50px;
+    padding:0 13px;border:1px solid #eaeee7;border-radius:12px;background:#fff;
+    color:#42544b;font-size:13px;font-weight:600;
+  }
+  .academy-bnav-sheet section a>span:first-child{display:grid;place-items:center;width:32px;height:32px;flex:none;border-radius:9px;background:rgba(26,56,40,.06)}
+  .academy-bnav-sheet section a svg{width:16px;height:16px}
+  .academy-bnav-sheet section a.is-active{border-color:#dfcaa2;background:#fdf7ec;color:#8a6425}
+  .academy-bnav-sheet section a.is-active>span:first-child{background:rgba(180,126,54,.15)}
+  .academy-bnav-sheet .academy-bnav-lock{position:static;margin-left:auto;width:13px;height:13px}
+
+  .academy-bnav-salon{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;color:#6b7a71;font-size:12px;font-weight:600}
+  .academy-bnav-salon svg{width:15px;height:15px}
+
+  /* Treść nie może kończyć się pod paskiem. */
+  .academy-content{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+  .academy-footer{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+  /* Przycisk zakupu na stronie kursu siada nad paskiem, nie na nim. */
+  .academy-sticky-buy{bottom:calc(72px + env(safe-area-inset-bottom))}
+}
+
+/* Poniżej 1000px górny pasek nie potrzebuje już własnego menu ani nawigacji. */
+@media (max-width:999px){
+  .academy-menu-button,.academy-mobile-nav{display:none!important}
+  .academy-topbar-inner{--nav-h:42px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .academy-bnav-sheet{transition:visibility .01s}
+  .academy-bnav-fab,.academy-bnav-tab,.academy-bnav-icon{transition:none}
+}
+
+/* W trybie standalone strona sięga pod wcięcie i pasek gestu — bez tego
+   nagłówek chowa się pod zegarkiem, a stopka pod paskiem home. */
+@media (display-mode:standalone){
+  .academy-topbar{padding-top:env(safe-area-inset-top)}
+  .academy-shell{padding-right:env(safe-area-inset-right);padding-left:env(safe-area-inset-left)}
+}
+
+/* Zachęta do instalacji — siada nad dolnym paskiem, nie na nim. */
+.academy-install{
+  position:fixed;z-index:44;right:12px;left:12px;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;
+  padding:12px 14px;border:1px solid #e6e3d9;border-radius:14px;background:#fff;
+  box-shadow:0 12px 30px rgba(20,45,32,.16);
+}
+.academy-install-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:11px;background:linear-gradient(150deg,#376f4f,#22503a);color:#fff}
+.academy-install-mark svg{width:18px;height:18px}
+.academy-install strong{display:block;color:#22352d;font-size:13px}
+.academy-install p{margin-top:3px;color:#78857d;font-size:11.5px;line-height:1.45}
+.academy-install-inline{display:inline-block;width:13px;height:13px;vertical-align:-2px}
+.academy-install-cta{padding:10px 15px;border:0;border-radius:9px;background:linear-gradient(140deg,#c08b3c,#a86f2c);color:#fff;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer}
+.academy-install-close{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:50%;background:none;color:#98a29b;cursor:pointer}
+.academy-install-close svg{width:16px;height:16px}
+@media (min-width:1000px){.academy-install{display:none}}
+@media (max-width:420px){
+  .academy-install{grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:11px 12px}
+  .academy-install-cta{grid-column:2/-1;justify-self:start;margin-top:2px}
+}
+
+/* Ustawienia powiadomień w profilu kursantki. */
+.academy-push-settings{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-top:18px;padding:25px;border:1px solid #e7ebe7;border-radius:16px;background:#fff}
+.academy-push-settings h2{margin-top:5px;color:#2d4b3a;font:500 25px 'Playfair Display',serif}
+.academy-push-copy{max-width:52ch;margin-top:9px;color:#76847a;font-size:13px;line-height:1.65}
+.academy-push-settings button{display:inline-flex;align-items:center;gap:9px;min-height:46px;padding:0 18px;border:1px solid transparent;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer}
+.academy-push-settings button:disabled{opacity:.6;cursor:progress}
+.academy-push-settings button svg{width:16px;height:16px}
+.academy-push-on{background:#2e6346;color:#fff}
+.academy-push-off{border-color:#dce4dc!important;background:#fff;color:#5a7060}
+.academy-push-blocked{max-width:44ch;padding:13px 15px;border-left:2px solid #b47e36;background:#fdf7ec;color:#7d6132;font-size:12px;line-height:1.6}
+@media(max-width:620px){.academy-push-settings{align-items:stretch;flex-direction:column}.academy-push-settings button{justify-content:center}}
+
+/* Baner zgód siadał dokładnie na dolnej nawigacji i zasłaniał ją do czasu
+   wyboru. Na telefonie unosi się nad paskiem. */
+@media (max-width:999px){
+  .academy-cookie-banner{bottom:calc(70px + env(safe-area-inset-bottom))}
+}

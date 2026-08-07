@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
 import { useCartStore } from '@/store/cart.store';
+import { AcademyBottomNav } from '@/components/AcademyBottomNav';
+import { AcademyInstallCard } from '@/components/AcademyInstallCard';
 
 export function AcademyLayout() {
   const { user, isAuthenticated } = useAuth();
@@ -49,6 +51,8 @@ export function AcademyLayout() {
               <Link to="/logowanie" className="academy-login-text" aria-label="Zaloguj się"><LogIn className="w-4 h-4" /><span>Zaloguj się</span></Link>
               <Link to="/rejestracja" className="academy-register-cta" aria-label="Załóż darmowe konto"><UserPlus className="w-4 h-4" /><span>Załóż konto</span></Link>
             </>}
+            {/* Na telefonie nawigację przejmuje dolny pasek — hamburger zostaje
+                tylko dla szerokości, na których pasek desktopowy się nie mieści. */}
             <button onClick={() => setMenuOpen(!menuOpen)} className="academy-menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={menuOpen} aria-controls="academy-mobile-menu">{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
@@ -65,6 +69,8 @@ export function AcademyLayout() {
         </nav>}
       </header>
       <main id="academy-main" className="academy-content" tabIndex={-1}><Outlet /></main>
+      <AcademyInstallCard />
+      <AcademyBottomNav />
       <footer className="academy-footer"><div><strong>Akademia BeskidStudio</strong><p>BeskidStudio By Wiktoria Ćwik · Mordarka 505, 34-600 Mordarka</p><p><a href="mailto:kontakt@kosmetologwiktoriacwik.pl">kontakt@kosmetologwiktoriacwik.pl</a> · <a href="tel:+48532128227">+48 532 128 227</a></p></div><nav aria-label="Informacje prawne"><Link to="/regulamin">Regulamin</Link><Link to="/polityka-prywatnosci">Prywatność</Link><Link to="/cookies">Cookies</Link><Link to="/odstapienie">Odstąpienie</Link><Link to="/reklamacje">Reklamacje</Link><Link to="/dostepnosc">Dostępność</Link><button onClick={() => window.dispatchEvent(new Event('academy:cookie-settings'))}>Ustawienia cookies</button></nav></footer>
     </div>
   );

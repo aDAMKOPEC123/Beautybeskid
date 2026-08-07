@@ -1,6 +1,7 @@
 import { prisma } from '../../../config/prisma';
 import { AppError } from '../../../middleware/error.middleware';
 import { sendEmail } from '../../../utils/email';
+import { notifyAcademyUser } from '../push/academy-push.service';
 
 const messageInclude = { author: { select: { id: true, name: true, role: true } } } as const;
 
@@ -71,6 +72,11 @@ export const sendAdminMessage = async (adminId: string, threadId: string, conten
   await prisma.academySupportThread.update({ where: { id: threadId }, data: { adminId, lastMessageAt: new Date(), userUnread: { increment: 1 }, adminUnread: 0, status: 'WAITING_FOR_USER' } });
   const escaped = content.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]!);
   void sendEmail(thread.user.email, 'Nowa odpowiedź w Akademii BeskidStudio', `<p>Dzień dobry ${thread.user.name || ''},</p><p>Kosmetolog odpowiedział na Twoje pytanie:</p><blockquote>${escaped.replace(/\n/g, '<br>')}</blockquote><p>Zaloguj się do Akademii, aby kontynuować rozmowę.</p>`).catch((error) => console.error('[academy-support] notification email failed', error));
+  void notifyAcademyUser(thread.userId, {
+    title: 'Odpowiedź w Akademii',
+    body: content.length > 90 ? `${content.slice(0, 90)}…` : content,
+    url: '/zapytaj-kosmetologa',
+  });
   return message;
 };
 
