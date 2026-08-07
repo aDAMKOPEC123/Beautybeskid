@@ -19,7 +19,15 @@ export const academyAuthenticate = (req: Request, _res: Response, next: NextFunc
   try {
     const token = req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.split(' ')[1] : undefined;
     if (!token) throw new AppError('Zaloguj się do Akademii', 401);
-    const payload = verifyToken(token, academySecret) as { id: string; role: string; scope?: string };
+    // Błędy z jsonwebtoken (TokenExpiredError/JsonWebTokenError) nie są AppError,
+    // więc bez tego opakowania wychodziły jako 500. Klient odświeża sesję wyłącznie
+    // na 401, przez co wygaśnięcie access tokenu kończyło się serią błędów.
+    let payload: { id: string; role: string; scope?: string };
+    try {
+      payload = verifyToken(token, academySecret) as { id: string; role: string; scope?: string };
+    } catch {
+      throw new AppError('Sesja Akademii wygasła — zaloguj się ponownie', 401);
+    }
     if (payload.scope !== 'academy') throw new AppError('Nieprawidłowa sesja Akademii', 401);
     req.academyUser = { id: payload.id, role: payload.role };
     next();
