@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { academyApi } from '@/api/academy.api';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { AdminHelp } from '@/components/AdminHelp';
 
 const categoryLabels: Record<string, string> = { COURSE_CONTENT: 'Treść kursu', PROCEDURE: 'Zabieg', CONTRAINDICATIONS: 'Przeciwwskazania', TECHNICAL: 'Techniczne', CERTIFICATE: 'Certyfikat', PAYMENT: 'Płatność', INVOICE: 'Faktura', REFUND: 'Zwrot', COMPLAINT: 'Reklamacja', OTHER: 'Inne' };
 const statusLabels: Record<string, string> = { OPEN: 'Otwarta', WAITING_FOR_USER: 'Oczekuje na kursantkę', RESOLVED: 'Zakończona', ARCHIVED: 'Archiwum' };
@@ -44,6 +45,18 @@ export function AcademySupportInbox() {
 
   return <div className="academy-inbox">
     <section className="academy-inbox-intro"><div><p className="academy-kicker">Panel administratora</p><h1>Wiadomości Akademii</h1><p>Prywatna skrzynka pytań kursantek, oddzielona od czatu salonu.</p></div><ShieldCheck /></section>
+    <AdminHelp
+      title="Po co jest ta zakładka"
+      steps={[
+        'Wybierz rozmowę z listy po lewej. Pogrubione mają nieprzeczytane wiadomości.',
+        'Napisz odpowiedź na dole i wyślij — kursantka dostanie powiadomienie.',
+        'Gdy sprawa jest załatwiona, zmień status na „Zamknięta”. Rozmowa zejdzie na dół listy.',
+      ]}
+    >
+      Wiadomości od kursantek Akademii — pytania o kursy, dostęp i płatności. <strong>To osobna skrzynka
+      niż czat salonu kosmetycznego</strong>, więc wiadomości klientek salonu tu nie trafiają. Kursantka może
+      ocenić rozmowę po jej zamknięciu.
+    </AdminHelp>
     <section className="academy-inbox-card">
       <aside className="academy-thread-list">
         <header><strong>Rozmowy kursantek</strong><span>{(threads as any[]).reduce((sum, thread) => sum + thread.adminUnread, 0)} nowych</span></header>

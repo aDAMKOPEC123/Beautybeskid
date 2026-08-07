@@ -131,6 +131,27 @@ export const academyApi = {
   adminCreateQuiz: (data: Record<string, unknown>) => api.post('/academy/admin/quizzes', data).then((r) => r.data.data),
   adminCreateQuestion: (quizId: string, data: Record<string, unknown>) => api.post(`/academy/admin/quizzes/${quizId}/questions`, data).then((r) => r.data.data),
 
+  // Admin — kursy: usuwanie, kolejność, moduły
+  adminDeleteCourse: (id: string) => api.delete(`/academy/admin/courses/${id}`).then((r) => r.data),
+  adminReorderModules: (courseId: string, order: string[]) => api.put(`/academy/admin/courses/${courseId}/reorder-modules`, { order }).then((r) => r.data),
+  adminReorderLessons: (moduleId: string, order: string[]) => api.put(`/academy/admin/modules/${moduleId}/reorder-lessons`, { order }).then((r) => r.data),
+  adminUpdateModule: (moduleId: string, data: { title?: string; order?: number }) => api.patch(`/academy/admin/modules/${moduleId}`, data).then((r) => r.data.data),
+  adminDeleteModule: (moduleId: string) => api.delete(`/academy/admin/modules/${moduleId}`).then((r) => r.data),
+
+  // Admin — prowadzące
+  adminGetInstructors: () => api.get('/academy/admin/instructors').then((r) => r.data.data),
+  adminCreateInstructor: (data: Record<string, unknown>) => api.post('/academy/admin/instructors', data).then((r) => r.data.data),
+  adminUpdateInstructor: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/instructors/${id}`, data).then((r) => r.data.data),
+  adminDeleteInstructor: (id: string) => api.delete(`/academy/admin/instructors/${id}`).then((r) => r.data.data),
+
+  // Admin — quizy
+  adminGetQuizzes: () => api.get('/academy/admin/quizzes').then((r) => r.data.data),
+  adminGetQuiz: (id: string) => api.get(`/academy/admin/quizzes/${id}`).then((r) => r.data.data),
+  adminUpdateQuiz: (id: string, data: Record<string, unknown>) => api.patch(`/academy/admin/quizzes/${id}`, data).then((r) => r.data.data),
+  adminDeleteQuiz: (id: string) => api.delete(`/academy/admin/quizzes/${id}`).then((r) => r.data),
+  adminUpdateQuestion: (questionId: string, data: Record<string, unknown>) => api.patch(`/academy/admin/questions/${questionId}`, data).then((r) => r.data.data),
+  adminDeleteQuestion: (questionId: string) => api.delete(`/academy/admin/questions/${questionId}`).then((r) => r.data),
+
   // Admin attachments
   adminAddAttachment: (lessonId: string, file: File, description?: string) => {
     const fd = new FormData();

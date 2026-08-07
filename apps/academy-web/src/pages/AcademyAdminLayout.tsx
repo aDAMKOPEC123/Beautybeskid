@@ -1,9 +1,11 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, Map, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity, Stethoscope } from 'lucide-react';
+import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, ListChecks, Map, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity, Stethoscope, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { to: '/admin', label: 'Kursy i programy', icon: LayoutDashboard, exact: true },
+  { to: '/admin/prowadzace', label: 'Prowadzące', icon: Users },
+  { to: '/admin/quizy', label: 'Quizy', icon: ListChecks },
   { to: '/admin/statystyki', label: 'Sprzedaż i klienci', icon: BarChart3 },
   { to: '/admin/wiadomosci', label: 'Wiadomości Akademii', icon: MessageCircleHeart },
   { to: '/admin/certyfikaty', label: 'Certyfikaty', icon: Award },

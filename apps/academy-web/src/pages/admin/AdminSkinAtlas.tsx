@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { academyApi } from '@/api/academy.api';
+import { AdminHelp } from '@/components/AdminHelp';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -788,6 +789,20 @@ export function AdminSkinAtlas() {
         <h1>Zarządzanie atlasem skóry</h1>
         <p>Twórz i edytuj regiony ciała oraz powiązane problemy skórne z opisami, zdjęciami i pytaniami quizowymi.</p>
       </header>
+
+      <AdminHelp
+        title="Po co jest ta zakładka"
+        steps={[
+          'Zacznij od regionu — np. „Twarz”, „Dłonie”. Bez regionu nie da się dodać problemu skórnego.',
+          'Do regionu dodaj problemy skórne: nazwa, opis, objawy, zalecane postępowanie.',
+          'Wgraj zdjęcia poglądowe do każdego problemu — to najważniejsza część atlasu.',
+          'Na końcu dodaj pytania quizowe. Kursantka sprawdza nimi, czy rozpoznaje problem ze zdjęcia.',
+        ]}
+      >
+        Atlas to encyklopedia problemów skórnych dostępna dla każdej kursantki, która kupiła jakikolwiek kurs.
+        Jest zbudowany dwupoziomowo: <strong>region ciała</strong> zawiera <strong>problemy skórne</strong>,
+        a każdy problem ma opis, zdjęcia i opcjonalne pytania.
+      </AdminHelp>
 
       <nav style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         <button

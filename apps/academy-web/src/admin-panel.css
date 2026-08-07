@@ -1,0 +1,126 @@
+/* Panel administratora Akademii — bloki pomocy, formularze, listy rekordów,
+   edytor pytań oraz narzędzia modułów i lekcji w Studiu kursów.
+   Wydzielone z index.css, bo dotyczą wyłącznie ekranów pod /admin. */
+
+/* ── Blok „Po co jest ta zakładka" ───────────────────────────────────────── */
+
+.admin-help{border:1px solid #d9e5db;border-radius:14px;background:#f2f8f2;padding:16px 18px;color:#33503f}
+.admin-help-main{display:flex;align-items:flex-start;gap:12px}
+.admin-help-icon{display:grid;flex:none;place-items:center;width:30px;height:30px;border-radius:9px;background:#2e6346;color:#fff}
+.admin-help-icon svg{width:16px}
+.admin-help-main>div{flex:1}
+.admin-help-main strong{display:block;color:#234433;font-size:13px}
+.admin-help-main p{margin-top:4px;font-size:12px;line-height:1.6}
+.admin-help-main>button{display:flex;flex:none;align-items:center;gap:5px;align-self:flex-start;border:1px solid #cadfcd;border-radius:8px;background:#fff;padding:8px 11px;color:#2e6346;font-size:10px;font-weight:800}
+.admin-help-main>button svg{width:13px;transition:.2s}
+.admin-help-main>button svg.open{transform:rotate(180deg)}
+.admin-help-steps{display:grid;gap:7px;margin:14px 0 0 42px;padding-left:16px;color:#3d5a49;font-size:12px;line-height:1.55;list-style:decimal}
+
+/* ── Formularze ──────────────────────────────────────────────────────────── */
+
+.admin-field{display:grid;gap:6px}
+.admin-field>span{color:#506258;font-size:11px;font-weight:800}
+.admin-field>small{color:#8b968f;font-size:10px;line-height:1.5}
+.admin-field input:not([type=checkbox]):not([type=radio]),.admin-field textarea,.admin-field select{width:100%;border:1px solid #d4ded5;border-radius:9px;padding:10px 12px;background:#fff;color:#263e32;font-size:13px}
+.admin-field textarea{min-height:76px;resize:vertical}
+
+.admin-two-columns{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:start;gap:14px}
+.admin-form-grid{display:grid;gap:14px}
+.admin-form-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin-form-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.admin-form-actions .academy-button{min-height:44px;padding:0 18px}
+.admin-subsection{margin-top:24px;border-top:1px solid #e7ebe6;padding-top:20px}
+
+.admin-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border:1px solid #d5e0d6;border-radius:9px;background:#fff;padding:0 14px;color:#41604d;font-size:11px;font-weight:800}
+.admin-button-ghost:hover{background:#f2f7f2}
+.admin-button-ghost svg{width:14px}
+.admin-full{width:100%;margin-top:10px}
+
+/* ── Lista rekordów (prowadzące, quizy) ──────────────────────────────────── */
+
+.admin-record-list{display:grid;gap:7px;margin-top:10px}
+.admin-record-list article{display:flex;align-items:stretch;overflow:hidden;border:1px solid #e3e7e1;border-radius:12px;background:#fff}
+.admin-record-list article.selected{border-color:#2e6346;box-shadow:0 0 0 1px #2e6346}
+.admin-record-list article>button:first-child{display:flex;flex:1;align-items:center;gap:11px;min-width:0;padding:11px 13px;text-align:left}
+.admin-record-list article>button:first-child:hover{background:#f6faf6}
+.admin-record-list img,.admin-record-avatar{display:grid;flex:none;place-items:center;width:36px;height:36px;overflow:hidden;border-radius:10px;background:#e8f1e9;object-fit:cover;color:#34704d;font:600 15px Georgia,serif}
+.admin-record-avatar svg{width:17px}
+.admin-record-list article>button:first-child>span:last-child{min-width:0}
+.admin-record-list strong,.admin-record-list small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-record-list strong{color:#40584b;font-size:11px}
+.admin-record-list small{margin-top:2px;color:#98a19c;font-size:9px}
+.admin-record-delete{flex:none;border-left:1px solid #eef1ed;padding:0 12px;color:#b0837f}
+.admin-record-delete:hover{background:#fdf3f2;color:#a3453a}
+.admin-record-delete svg{width:15px}
+
+.admin-group+.admin-group{margin-top:20px}
+.admin-group h3{color:#33503f;font-size:12px;font-weight:800}
+.admin-group-description{margin-top:3px;color:#8b968f;font-size:10px;line-height:1.55}
+
+/* ── Edytor pytań ────────────────────────────────────────────────────────── */
+
+.question-editor{display:grid;gap:10px;margin-top:10px}
+.question-editor-hint{color:#7d8a83;font-size:11px;line-height:1.55}
+.question-editor-empty{padding:14px;border:1px dashed #d8e1d9;border-radius:10px;color:#939d97;font-size:11px;text-align:center}
+.question-list{display:grid;gap:8px;list-style:none}
+.question-row{display:grid;grid-template-columns:26px 1fr auto;gap:10px;border:1px solid #e3e7e1;border-radius:11px;background:#fff;padding:12px}
+.question-number{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#eef4ee;color:#4d735b;font-size:9px;font-weight:800}
+.question-row strong{color:#33503f;font-size:12px;line-height:1.5}
+.question-row ul{display:grid;gap:4px;margin-top:7px;list-style:none}
+.question-row ul li{display:flex;align-items:center;gap:6px;color:#8a948e;font-size:11px}
+.question-row ul li svg{width:13px;flex:none}
+.question-row ul li.correct{color:#2f6a48;font-weight:700}
+.question-explanation{margin-top:7px;color:#98857a;font-size:10px;font-style:italic}
+.question-actions{display:flex;flex:none;align-items:flex-start;gap:4px}
+.question-actions button{border-radius:7px;padding:6px;color:#7c8a82}
+.question-actions button:hover{background:#f1f5f0;color:#2e6346}
+.question-actions button:last-child:hover{background:#fdf3f2;color:#a3453a}
+.question-actions svg{width:14px}
+
+.question-form{display:grid;gap:13px;border:1px solid #cfe0d1;border-radius:12px;background:#f8fbf8;padding:15px}
+.question-options{display:grid;gap:7px}
+.question-options>div{display:flex;align-items:center;gap:9px;border:1px solid #dde5de;border-radius:9px;background:#fff;padding:7px 10px}
+.question-options>div.correct{border-color:#9dc6ab;background:#f4faf5}
+.question-options>div>input{flex:1;border:0;outline:0;background:transparent;color:#263e32;font-size:12px}
+.question-options input[type=checkbox],.question-options input[type=radio]{width:17px;height:17px;accent-color:#2e6346}
+.question-options>div>button{border-radius:6px;padding:4px;color:#b0837f}
+.question-options>div>button:hover{background:#fdf3f2;color:#a3453a}
+.question-options>div>button svg{width:13px}
+
+/* ── Studio kursów: narzędzia modułów i lekcji ───────────────────────────── */
+
+.studio-section-help{margin:0 14px 12px;color:#7d8a83;font-size:11px;line-height:1.6}
+.studio-section-help strong{color:#33503f}
+.studio-module-bar{display:flex;align-items:center;gap:4px;padding-right:8px}
+.studio-module-bar .studio-module-head{flex:1;min-width:0}
+.studio-module-tools,.studio-lesson-tools{display:flex;flex:none;gap:2px}
+.studio-module-tools button,.studio-lesson-tools button{border-radius:7px;padding:6px;color:#8b968f}
+.studio-module-tools button:hover:not(:disabled),.studio-lesson-tools button:hover:not(:disabled){background:#eef4ee;color:#2e6346}
+.studio-module-tools button:last-child:hover:not(:disabled),.studio-lesson-tools button:last-child:hover:not(:disabled){background:#fdf3f2;color:#a3453a}
+.studio-module-tools button:disabled,.studio-lesson-tools button:disabled{opacity:.3;cursor:not-allowed}
+.studio-module-tools svg,.studio-lesson-tools svg{width:14px}
+.studio-lesson>span:not(.studio-lesson-tools){flex:1;min-width:0}
+
+.studio-inline-edit{display:flex;flex:1;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px}
+.studio-inline-edit input{flex:1;min-width:160px;border:1px solid #b9d2c0;border-radius:8px;padding:8px 10px;font-size:12px}
+.studio-inline-edit button{border-radius:8px;background:#2e6346;padding:8px 12px;color:#fff;font-size:10px;font-weight:800}
+.studio-inline-edit button.ghost{border:1px solid #d5e0d6;background:#fff;color:#6d7c74}
+
+.studio-danger{border-color:#e6cfc9}
+.studio-danger .studio-card-head span{color:#a3453a}
+.studio-danger p{margin-bottom:9px;color:#75837b;font-size:12px;line-height:1.6}
+.studio-danger p strong{color:#5c6b62}
+.studio-delete-course{display:inline-flex;align-items:center;gap:7px;min-height:42px;border:1px solid #d9a79f;border-radius:9px;background:#fff;padding:0 16px;color:#a3453a;font-size:11px;font-weight:800}
+.studio-delete-course:hover{background:#a3453a;color:#fff}
+.studio-delete-course svg{width:15px}
+
+@media(max-width:1000px){
+  .admin-two-columns{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:620px){
+  .admin-help-main{flex-wrap:wrap}
+  .admin-help-steps{margin-left:0}
+  .admin-form-split{grid-template-columns:1fr}
+  .question-row{grid-template-columns:22px 1fr}
+  .question-actions{grid-column:1/-1;justify-content:flex-end}
+}

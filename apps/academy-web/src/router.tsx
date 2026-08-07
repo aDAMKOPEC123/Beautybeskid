@@ -56,6 +56,8 @@ const CaseStudyList = lazy(() => import('./pages/case-studies/CaseStudyList').th
 const CaseStudyPlayer = lazy(() => import('./pages/case-studies/CaseStudyPlayer').then(m => ({ default: m.CaseStudyPlayer })));
 const AdminSkinAtlas = lazy(() => import('./pages/admin/AdminSkinAtlas').then(m => ({ default: m.AdminSkinAtlas })));
 const AdminCaseStudies = lazy(() => import('./pages/admin/AdminCaseStudies').then(m => ({ default: m.AdminCaseStudies })));
+const AdminInstructors = lazy(() => import('./pages/admin/AdminInstructors').then(m => ({ default: m.AdminInstructors })));
+const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes').then(m => ({ default: m.AdminQuizzes })));
 
 export const router = createBrowserRouter([
   {
@@ -115,6 +117,8 @@ export const router = createBrowserRouter([
           { path: 'pakiety', element: <S><AcademyBundlesAdmin /></S> },
           { path: 'marketing', element: <S><AcademyMarketingAdmin /></S> },
           { path: 'media', element: <S><AcademyMediaAdmin /></S> },
+          { path: 'prowadzace', element: <S><AdminInstructors /></S> },
+          { path: 'quizy', element: <S><AdminQuizzes /></S> },
           { path: 'atlas', element: <S><AdminSkinAtlas /></S> },
           { path: 'przypadki', element: <S><AdminCaseStudies /></S> },
           { path: 'system', element: <S><AcademyOperationsAdmin /></S> },

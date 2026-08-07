@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { academyApi } from '@/api/academy.api';
+import { AdminHelp } from '@/components/AdminHelp';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -455,6 +456,21 @@ export function AdminCaseStudies() {
         <h1>Przypadki kliniczne</h1>
         <p>Interaktywne scenariusze diagnostyczne dla kursantek. Każdy przypadek prowadzi przez wywiad, diagnozę i leczenie.</p>
       </header>
+
+      <AdminHelp
+        title="Po co jest ta zakładka"
+        steps={[
+          'Opisz pacjentkę: wiek, typ cery, zgłaszany problem. To ekran startowy przypadku.',
+          'Dodaj kroki po kolei — każdy krok to jedno pytanie lub decyzja, np. „Co zrobisz najpierw?”.',
+          'W każdym kroku podaj możliwe odpowiedzi i zaznacz właściwą wraz z uzasadnieniem.',
+          'Wgraj zdjęcia do kroków, w których kursantka ma coś ocenić wzrokowo.',
+          'Przypisz przypadek do kursu i opublikuj — pojawi się w zakładce „Przypadki” tego kursu.',
+        ]}
+      >
+        Przypadek kliniczny to ćwiczenie „co byś zrobiła”. Kursantka przechodzi krok po kroku przez decyzje
+        realnego zabiegu i po każdej dostaje informację zwrotną. <strong>To najbardziej pracochłonna, ale
+        i najskuteczniejsza forma nauki</strong> — jeden dobry przypadek jest wart więcej niż pięć filmów.
+      </AdminHelp>
 
       {/* Toggle form button */}
       {!showForm && (

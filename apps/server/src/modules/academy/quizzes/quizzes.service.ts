@@ -206,9 +206,9 @@ export const createQuestion = async (
     data: {
       quizId,
       ...questionData as any,
-      options: { create: options },
+      options: { create: normalizeOptions(options) },
     },
-    include: { options: true },
+    include: { options: { orderBy: { order: 'asc' } } },
   });
 };
 
@@ -219,8 +219,41 @@ const pickQuestionFields = (data: Record<string, unknown>) => {
   return picked;
 };
 
+type OptionInput = { text: string; isCorrect: boolean; order?: number };
+
+const normalizeOptions = (raw: unknown): OptionInput[] => {
+  if (!Array.isArray(raw)) throw new AppError('Odpowiedzi muszą być listą', 400);
+  const options = raw
+    .map((option, index) => {
+      const value = option as Record<string, unknown>;
+      return {
+        text: String(value?.text ?? '').trim(),
+        isCorrect: Boolean(value?.isCorrect),
+        order: Number.isFinite(Number(value?.order)) ? Number(value?.order) : index,
+      };
+    })
+    .filter((option) => option.text.length > 0);
+  if (options.length < 2) throw new AppError('Pytanie musi mieć co najmniej dwie odpowiedzi', 400);
+  if (!options.some((option) => option.isCorrect)) throw new AppError('Zaznacz co najmniej jedną poprawną odpowiedź', 400);
+  return options;
+};
+
+// Odpowiedzi podmieniamy w całości — edycja pojedynczej opcji nie ma sensu,
+// bo administrator zawsze redaguje pytanie razem z zestawem odpowiedzi.
 export const updateQuestion = async (questionId: string, data: Record<string, unknown>) => {
-  return prisma.academyQuizQuestion.update({ where: { id: questionId }, data: pickQuestionFields(data) as any });
+  const fields = pickQuestionFields(data);
+  if (data.options === undefined) {
+    return prisma.academyQuizQuestion.update({ where: { id: questionId }, data: fields as any, include: { options: { orderBy: { order: 'asc' } } } });
+  }
+  const options = normalizeOptions(data.options);
+  return prisma.$transaction(async (tx) => {
+    await tx.academyQuizOption.deleteMany({ where: { questionId } });
+    return tx.academyQuizQuestion.update({
+      where: { id: questionId },
+      data: { ...(fields as any), options: { create: options } },
+      include: { options: { orderBy: { order: 'asc' } } },
+    });
+  });
 };
 
 export const deleteQuestion = async (questionId: string) => {

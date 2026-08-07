@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
-import { Bold, BookOpen, CheckCircle2, ChevronRight, CircleHelp, Download, FileText, Film, Heading1, Heading2, ImagePlus, Italic, Layers3, Lightbulb, Link2, List, ListOrdered, Paperclip, Play, Plus, Save, Sparkles, Trash2, Underline, Image as ImageIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, Bold, BookOpen, CheckCircle2, ChevronRight, CircleHelp, Download, FileText, Film, Heading1, Heading2, ImagePlus, Italic, Layers3, Lightbulb, Link2, List, ListOrdered, Paperclip, Pencil, Play, Plus, Save, Sparkles, Trash2, Underline, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { AdminHelp } from '@/components/AdminHelp';
+import { QuestionEditor } from '@/components/QuestionEditor';
 
 const slugify = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const embedHtml = (url: string) => `<iframe src="${url}" title="Materiał szkoleniowy" loading="lazy" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px"></iframe>`;
@@ -13,20 +15,21 @@ export function AcademyStudio() {
   const { user } = useAuth();
   const client = useQueryClient();
   const { data: courses = [], isLoading } = useQuery({ queryKey: ['studio', 'courses'], queryFn: academyApi.adminGetCourses });
+  const { data: instructors = [] } = useQuery({ queryKey: ['academy', 'instructors'], queryFn: academyApi.adminGetInstructors });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const emptyDraft = { title: '', description: '', difficulty: 'BEGINNER', estimatedMinutes: 60, price: 0, compareAtPrice: null as number | null, displayOrder: 0, isFree: false, accessDays: null as number | null, isFeatured: false, isBestseller: false, isComingSoon: false, previewLessonId: '', instructorName: 'Wiktoria Ćwik', instructorBio: '', bundleGroup: '', tagsText: '', thumbnailUrl: '', learningOutcomesText:'',targetAudience:'',notForAudience:'',prerequisitesText:'',trailerVideoId:'',samplePdfUrl:'',salesFaqsText:'', status: 'DRAFT' };
+  const emptyDraft = { title: '', description: '', difficulty: 'BEGINNER', estimatedMinutes: 60, price: 0, compareAtPrice: null as number | null, displayOrder: 0, isFree: false, accessDays: null as number | null, isFeatured: false, isBestseller: false, isComingSoon: false, previewLessonId: '', instructorId: '', instructorName: 'Wiktoria Ćwik', instructorBio: '', bundleGroup: '', tagsText: '', thumbnailUrl: '', learningOutcomesText:'',targetAudience:'',notForAudience:'',prerequisitesText:'',trailerVideoId:'',samplePdfUrl:'',salesFaqsText:'', status: 'DRAFT' };
   const [draft, setDraft] = useState(emptyDraft);
   const selected = useMemo(() => (courses as any[]).find(c => c.id === selectedId), [courses, selectedId]);
   const refresh = () => client.invalidateQueries({ queryKey: ['studio', 'courses'] });
-  const saveCourse = useMutation({ mutationFn: () => { const { tagsText,learningOutcomesText,prerequisitesText,salesFaqsText, ...data } = draft; const payload = { ...data, bundleGroup: data.bundleGroup || null, instructorBio: data.instructorBio || null, targetAudience:data.targetAudience||null,notForAudience:data.notForAudience||null,trailerVideoId:data.trailerVideoId||null,samplePdfUrl:data.samplePdfUrl||null, tags: tagsText.split(',').map(tag => tag.trim()).filter(Boolean),learningOutcomes:learningOutcomesText.split('\n').map(v=>v.trim()).filter(Boolean),prerequisites:prerequisitesText.split('\n').map(v=>v.trim()).filter(Boolean),salesFaqs:salesFaqsText.split('\n').map(line=>{const [question,...answer]=line.split('|');return{question:question?.trim(),answer:answer.join('|').trim()}}).filter(item=>item.question&&item.answer) }; return selected ? academyApi.adminUpdateCourse(selected.id, { ...payload, slug: selected.slug }) : academyApi.adminCreateCourse({ ...payload, slug: slugify(draft.title) }); }, onSuccess: (course: any) => { setSelectedId(course.id ?? selectedId); refresh(); toast.success(selected ? 'Kurs zapisany' : 'Kurs utworzony'); }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się zapisać kursu') });
+  const saveCourse = useMutation({ mutationFn: () => { const { tagsText,learningOutcomesText,prerequisitesText,salesFaqsText, ...data } = draft; const payload = { ...data, instructorId: data.instructorId || null, bundleGroup: data.bundleGroup || null, instructorBio: data.instructorBio || null, targetAudience:data.targetAudience||null,notForAudience:data.notForAudience||null,trailerVideoId:data.trailerVideoId||null,samplePdfUrl:data.samplePdfUrl||null, tags: tagsText.split(',').map(tag => tag.trim()).filter(Boolean),learningOutcomes:learningOutcomesText.split('\n').map(v=>v.trim()).filter(Boolean),prerequisites:prerequisitesText.split('\n').map(v=>v.trim()).filter(Boolean),salesFaqs:salesFaqsText.split('\n').map(line=>{const [question,...answer]=line.split('|');return{question:question?.trim(),answer:answer.join('|').trim()}}).filter(item=>item.question&&item.answer) }; return selected ? academyApi.adminUpdateCourse(selected.id, { ...payload, slug: selected.slug }) : academyApi.adminCreateCourse({ ...payload, slug: slugify(draft.title) }); }, onSuccess: (course: any) => { setSelectedId(course.id ?? selectedId); refresh(); toast.success(selected ? 'Kurs zapisany' : 'Kurs utworzony'); }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się zapisać kursu') });
   const addModule = useMutation({ mutationFn: (title: string) => academyApi.adminCreateModule(selected!.id, { title, order: selected?.modules?.length ?? 0 }), onSuccess: refresh });
   const addLesson = useMutation({ mutationFn: ({ moduleId, data }: any) => academyApi.adminCreateLesson(moduleId, data), onSuccess: refresh });
   const updateLesson = useMutation({ mutationFn: ({ lessonId, data }: any) => academyApi.adminUpdateLesson(lessonId, data), onSuccess: refresh });
   const addQuiz = useMutation({ mutationFn: (data: any) => academyApi.adminCreateCheckpoint(data.moduleId, data), onSuccess: refresh });
-  const addQuestion = useMutation({ mutationFn: ({ quizId, data }: any) => academyApi.adminCreateQuestion(quizId, data), onSuccess: refresh });
+  const deleteCourse = useMutation({ mutationFn: (id: string) => academyApi.adminDeleteCourse(id), onSuccess: () => { setSelectedId(null); setDraft(emptyDraft); refresh(); toast.success('Kurs usunięty'); }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Nie udało się usunąć kursu') });
 
-  const choose = (course: any) => { setSelectedId(course.id); setDraft({ ...emptyDraft, title: course.title, description: course.description, difficulty: course.difficulty, estimatedMinutes: course.estimatedMinutes, price: Number(course.price || 0), compareAtPrice: course.compareAtPrice ? Number(course.compareAtPrice) : null, displayOrder: course.displayOrder || 0, isFree: course.isFree, accessDays: course.accessDays, isFeatured: course.isFeatured, isBestseller: course.isBestseller, isComingSoon: course.isComingSoon, previewLessonId: course.previewLessonId || '', instructorName: course.instructorName || 'Wiktoria Ćwik', instructorBio: course.instructorBio || '', bundleGroup: course.bundleGroup || '', tagsText: (course.tags || []).join(', '), thumbnailUrl: course.thumbnailUrl ?? '',learningOutcomesText:(course.learningOutcomes||[]).join('\n'),targetAudience:course.targetAudience||'',notForAudience:course.notForAudience||'',prerequisitesText:(course.prerequisites||[]).join('\n'),trailerVideoId:course.trailerVideoId||'',samplePdfUrl:course.samplePdfUrl||'',salesFaqsText:Array.isArray(course.salesFaqs)?course.salesFaqs.map((faq:any)=>`${faq.question}|${faq.answer}`).join('\n'):'', status: course.status }); };
+  const choose = (course: any) => { setSelectedId(course.id); setDraft({ ...emptyDraft, title: course.title, description: course.description, difficulty: course.difficulty, estimatedMinutes: course.estimatedMinutes, price: Number(course.price || 0), compareAtPrice: course.compareAtPrice ? Number(course.compareAtPrice) : null, displayOrder: course.displayOrder || 0, isFree: course.isFree, accessDays: course.accessDays, isFeatured: course.isFeatured, isBestseller: course.isBestseller, isComingSoon: course.isComingSoon, previewLessonId: course.previewLessonId || '', instructorId: course.instructorId || '', instructorName: course.instructorName || 'Wiktoria Ćwik', instructorBio: course.instructorBio || '', bundleGroup: course.bundleGroup || '', tagsText: (course.tags || []).join(', '), thumbnailUrl: course.thumbnailUrl ?? '',learningOutcomesText:(course.learningOutcomes||[]).join('\n'),targetAudience:course.targetAudience||'',notForAudience:course.notForAudience||'',prerequisitesText:(course.prerequisites||[]).join('\n'),trailerVideoId:course.trailerVideoId||'',samplePdfUrl:course.samplePdfUrl||'',salesFaqsText:Array.isArray(course.salesFaqs)?course.salesFaqs.map((faq:any)=>`${faq.question}|${faq.answer}`).join('\n'):'', status: course.status }); };
   const newCourse = () => { setSelectedId(null); setDraft(emptyDraft); };
   if (user?.role !== 'ADMIN') return <Navigate to="/" replace />;
   if (isLoading) return <div className="academy-loading">Ładujemy studio Akademii…</div>;
@@ -34,34 +37,221 @@ export function AcademyStudio() {
   return <div className="studio-page">
     <aside className="studio-sidebar"><div><p className="academy-kicker">Studio Akademii</p><h1>Twórz z intencją</h1><p>Od szkicu po publikację — bez opuszczania Akademii.</p></div><button className="studio-new" onClick={newCourse}><Plus />Nowy kurs</button><div className="studio-course-list">{(courses as any[]).map(course => <button key={course.id} className={selectedId === course.id ? 'selected' : ''} onClick={() => choose(course)}><span className="studio-course-icon"><BookOpen /></span><span><strong>{course.title}</strong><small>{course.status === 'PUBLISHED' ? 'Opublikowany' : 'Szkic'} · {course.modules?.length ?? 0} modułów</small></span><ChevronRight /></button>)}</div></aside>
     <main className="studio-main"><div className="studio-top"><div><p className="academy-kicker text-caramel">{selected ? 'Edycja kursu' : 'Nowy kurs'}</p><h2>{selected ? selected.title : 'Zbuduj kurs, do którego chce się wracać'}</h2></div><button className="academy-button studio-save" onClick={() => saveCourse.mutate()} disabled={!draft.title || saveCourse.isPending}><Save />{saveCourse.isPending ? 'Zapisywanie…' : selected ? 'Zapisz zmiany' : 'Utwórz kurs'}</button></div>
+      <AdminHelp
+        title="Jak działa ta zakładka"
+        steps={[
+          'Kliknij „Nowy kurs” po lewej albo wybierz istniejący kurs z listy.',
+          'Wypełnij kartę kursu: tytuł, opis, cenę. Kliknij „Utwórz kurs” — dopiero wtedy pojawi się miejsce na lekcje.',
+          'W sekcji „Program kursu” dodaj moduł (rozdział), a w nim lekcje: filmy, teksty i punkty kontrolne.',
+          'Uzupełnij transkrypcje filmów oraz sekcję „Strona sprzedażowa” — bez nich kurs źle sprzedaje i nie przejdzie kontroli dostępności.',
+          'Na koniec ustaw status na „Opublikuj” i zapisz. Dopóki jest „Szkic”, kursu nikt poza Tobą nie widzi.',
+        ]}
+      >
+        To główne miejsce pracy nad kursami. Wszystko zapisuje się dopiero po kliknięciu przycisku —
+        zamknięcie strony bez zapisu skasuje zmiany w karcie kursu. Moduły, lekcje i pytania zapisują się
+        od razu, osobno.
+      </AdminHelp>
       <section className="studio-guide"><Lightbulb /><div><strong>Krótka recepta na dobry kurs</strong><p>Obiecaj konkretny efekt w tytule. W opisie powiedz dla kogo jest kurs, z czym kursantka wyjdzie i czego potrzebuje przed startem. Jedna lekcja = jedna praktyczna decyzja lub umiejętność.</p></div></section>
       {selected && selected.status === 'PUBLISHED' && !selected.isFree && !selected.isComingSoon && Number(selected.price) <= 0 && <section className="academy-readiness-warning" role="alert"><strong>Kurs nie jest gotowy do sprzedaży</strong><p>Uzupełnij cenę większą od zera albo oznacz kurs jako bezpłatny lub „w przygotowaniu”. Checkout pozostaje zablokowany.</p></section>}
       {selected && selected.modules?.flatMap((module:any) => module.lessons || []).some((lesson:any) => lesson.type === 'VIDEO' && !lesson.transcriptHtml) && <section className="academy-readiness-warning" role="alert"><strong>Brakuje transkrypcji filmów</strong><p>Uzupełnij transkrypcje w programie kursu. Są wymagane przed kolejną publikacją.</p></section>}
-      <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Karta kursu</span><small>To widzą kursantki przed zakupem</small></div><div className="studio-form-grid"><Field label="Tytuł kursu" hint="Konkretny rezultat"><input value={draft.title} onChange={e => setDraft({...draft, title:e.target.value})} /></Field><Field label="Poziom"><select value={draft.difficulty} onChange={e => setDraft({...draft, difficulty:e.target.value})}><option value="BEGINNER">Podstawowy</option><option value="INTERMEDIATE">Rozwój</option><option value="ADVANCED">Ekspercki</option></select></Field><Field label="Opis"><textarea value={draft.description} onChange={e => setDraft({...draft, description:e.target.value})} /></Field><div className="studio-split"><Field label="Czas (min)"><input type="number" min="0" value={draft.estimatedMinutes} onChange={e => setDraft({...draft, estimatedMinutes:Number(e.target.value)})} /></Field><Field label="Cena (PLN)" hint="Oddzielnie oznacz kurs bezpłatny"><input type="number" min="0" disabled={draft.isFree} value={draft.price} onChange={e => setDraft({...draft, price:Number(e.target.value)})} /></Field></div><div className="studio-split"><Field label="Dostęp (dni)" hint="Puste = bezterminowo"><input type="number" min="1" value={draft.accessDays ?? ''} onChange={e => setDraft({...draft, accessDays:e.target.value ? Number(e.target.value) : null})} /></Field><Field label="Status"><select value={draft.status} onChange={e => setDraft({...draft, status:e.target.value})}><option value="DRAFT">Szkic</option><option value="PUBLISHED">Opublikuj</option><option value="ARCHIVED">Archiwum</option></select></Field></div><div className="flex flex-wrap gap-4 text-sm"><label><input type="checkbox" checked={draft.isFree} onChange={e=>setDraft({...draft,isFree:e.target.checked})}/> Bezpłatny</label><label><input type="checkbox" checked={draft.isComingSoon} onChange={e=>setDraft({...draft,isComingSoon:e.target.checked})}/> W przygotowaniu</label><label><input type="checkbox" checked={draft.isFeatured} onChange={e=>setDraft({...draft,isFeatured:e.target.checked})}/> Wyróżniony</label><label><input type="checkbox" checked={draft.isBestseller} onChange={e=>setDraft({...draft,isBestseller:e.target.checked})}/> Bestseller</label></div><Field label="Tematy" hint="Po przecinku"><input value={draft.tagsText} onChange={e=>setDraft({...draft,tagsText:e.target.value})}/></Field><Field label="Pakiet / ścieżka"><input value={draft.bundleGroup} onChange={e=>setDraft({...draft,bundleGroup:e.target.value})}/></Field><Field label="Prowadząca"><input value={draft.instructorName} onChange={e=>setDraft({...draft,instructorName:e.target.value})}/></Field><Field label="Bio prowadzącej"><textarea value={draft.instructorBio} onChange={e=>setDraft({...draft,instructorBio:e.target.value})}/></Field><Field label="Okładka — adres obrazu"><input value={draft.thumbnailUrl} onChange={e => setDraft({...draft, thumbnailUrl:e.target.value})} /></Field></div></section>
+      <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Karta kursu</span><small>To widzą kursantki przed zakupem</small></div><div className="studio-form-grid"><Field label="Tytuł kursu" hint="Konkretny rezultat"><input value={draft.title} onChange={e => setDraft({...draft, title:e.target.value})} /></Field><Field label="Poziom"><select value={draft.difficulty} onChange={e => setDraft({...draft, difficulty:e.target.value})}><option value="BEGINNER">Podstawowy</option><option value="INTERMEDIATE">Rozwój</option><option value="ADVANCED">Ekspercki</option></select></Field><Field label="Opis"><textarea value={draft.description} onChange={e => setDraft({...draft, description:e.target.value})} /></Field><div className="studio-split"><Field label="Czas (min)"><input type="number" min="0" value={draft.estimatedMinutes} onChange={e => setDraft({...draft, estimatedMinutes:Number(e.target.value)})} /></Field><Field label="Cena (PLN)" hint="Oddzielnie oznacz kurs bezpłatny"><input type="number" min="0" disabled={draft.isFree} value={draft.price} onChange={e => setDraft({...draft, price:Number(e.target.value)})} /></Field></div><div className="studio-split"><Field label="Dostęp (dni)" hint="Puste = bezterminowo"><input type="number" min="1" value={draft.accessDays ?? ''} onChange={e => setDraft({...draft, accessDays:e.target.value ? Number(e.target.value) : null})} /></Field><Field label="Status"><select value={draft.status} onChange={e => setDraft({...draft, status:e.target.value})}><option value="DRAFT">Szkic</option><option value="PUBLISHED">Opublikuj</option><option value="ARCHIVED">Archiwum</option></select></Field></div><div className="flex flex-wrap gap-4 text-sm"><label><input type="checkbox" checked={draft.isFree} onChange={e=>setDraft({...draft,isFree:e.target.checked})}/> Bezpłatny</label><label><input type="checkbox" checked={draft.isComingSoon} onChange={e=>setDraft({...draft,isComingSoon:e.target.checked})}/> W przygotowaniu</label><label><input type="checkbox" checked={draft.isFeatured} onChange={e=>setDraft({...draft,isFeatured:e.target.checked})}/> Wyróżniony</label><label><input type="checkbox" checked={draft.isBestseller} onChange={e=>setDraft({...draft,isBestseller:e.target.checked})}/> Bestseller</label></div><Field label="Tematy" hint="Po przecinku"><input value={draft.tagsText} onChange={e=>setDraft({...draft,tagsText:e.target.value})}/></Field><Field label="Pakiet / ścieżka"><input value={draft.bundleGroup} onChange={e=>setDraft({...draft,bundleGroup:e.target.value})}/></Field><Field label="Prowadząca" hint="Wybierz osobę z listy. Wizytówki dodajesz w zakładce „Prowadzące”."><select value={draft.instructorId} onChange={e=>{const chosen=(instructors as any[]).find(person=>person.id===e.target.value);setDraft({...draft,instructorId:e.target.value,instructorName:chosen?chosen.name:draft.instructorName});}}><option value="">— podpis ręczny poniżej —</option>{(instructors as any[]).map(person=><option key={person.id} value={person.id}>{person.name}</option>)}</select></Field><Field label="Podpis ręczny" hint="Używany tylko wtedy, gdy nie wybrałaś prowadzącej z listy powyżej."><input value={draft.instructorName} onChange={e=>setDraft({...draft,instructorName:e.target.value})}/></Field><Field label="Bio prowadzącej"><textarea value={draft.instructorBio} onChange={e=>setDraft({...draft,instructorBio:e.target.value})}/></Field><Field label="Okładka — adres obrazu"><input value={draft.thumbnailUrl} onChange={e => setDraft({...draft, thumbnailUrl:e.target.value})} /></Field></div></section>
       <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Cena promocyjna</span><small>Wymagana do prawidłowego pokazania obniżki</small></div><div className="p-4"><Field label="Cena przed obniżką (PLN)" hint="Pozostaw puste, gdy kurs nie jest w promocji"><input type="number" min="0" step="0.01" value={draft.compareAtPrice ?? ''} onChange={e => setDraft({...draft, compareAtPrice:e.target.value ? Number(e.target.value) : null})} /></Field></div></section>
       <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Pozycja w sklepie</span><small>Niższy numer wyświetla kurs wcześniej</small></div><div className="p-4"><Field label="Kolejność polecanych"><input type="number" min="0" value={draft.displayOrder} onChange={e=>setDraft({...draft,displayOrder:Number(e.target.value)})}/></Field></div></section>
       <section className="studio-card"><div className="studio-card-head"><span><Sparkles />Strona sprzedażowa</span><small>Argumenty, materiały próbne i FAQ kursu</small></div><div className="studio-form-grid"><Field label="Rezultaty nauki" hint="Jeden rezultat w linii"><textarea value={draft.learningOutcomesText} onChange={e=>setDraft({...draft,learningOutcomesText:e.target.value})}/></Field><Field label="Dla kogo"><textarea value={draft.targetAudience} onChange={e=>setDraft({...draft,targetAudience:e.target.value})}/></Field><Field label="Dla kogo nie jest"><textarea value={draft.notForAudience} onChange={e=>setDraft({...draft,notForAudience:e.target.value})}/></Field><Field label="Wymagania wstępne" hint="Jedno w linii"><textarea value={draft.prerequisitesText} onChange={e=>setDraft({...draft,prerequisitesText:e.target.value})}/></Field><Field label="ID zwiastuna Vimeo/YouTube"><input value={draft.trailerVideoId} onChange={e=>setDraft({...draft,trailerVideoId:e.target.value})}/></Field><Field label="Adres próbki PDF"><input value={draft.samplePdfUrl} onChange={e=>setDraft({...draft,samplePdfUrl:e.target.value})}/></Field><Field label="FAQ" hint="Pytanie|Odpowiedź — jedno w linii"><textarea value={draft.salesFaqsText} onChange={e=>setDraft({...draft,salesFaqsText:e.target.value})}/></Field></div></section>
       {selected && <section className="studio-card"><div className="studio-card-head"><span><Play />Bezpłatny podgląd</span><small>Wybierz jedną istniejącą lekcję widoczną przed zakupem</small></div><div className="p-4"><Field label="Lekcja podglądowa" hint="Po zmianie kliknij Zapisz kurs"><select value={draft.previewLessonId} onChange={event => setDraft({ ...draft, previewLessonId: event.target.value })}><option value="">Bez podglądu</option>{selected.modules?.flatMap((module: any) => module.lessons?.map((lesson: any) => <option key={lesson.id} value={lesson.id}>{module.title} — {lesson.title}</option>) ?? [])}</select></Field></div></section>}
       <section className="studio-card"><div className="studio-card-head"><span><Play />Podgląd strony kursu</span><div className="academy-preview-switch"><button className={previewMode==='desktop'?'active':''} onClick={()=>setPreviewMode('desktop')}>Desktop</button><button className={previewMode==='mobile'?'active':''} onClick={()=>setPreviewMode('mobile')}>Telefon</button></div></div><div className={`academy-course-live-preview ${previewMode}`}><article><div className="academy-course-cover">{draft.thumbnailUrl?<img src={draft.thumbnailUrl} alt=""/>:<div className="academy-course-placeholder"><BookOpen/></div>}</div><div><p className="academy-kicker">{draft.difficulty}</p><h2>{draft.title||'Tytuł kursu'}</h2><p>{draft.description||'Opis i obietnica kursu pojawią się tutaj.'}</p><strong>{draft.isFree?'Bezpłatny':draft.isComingSoon?'Wkrótce':`${Number(draft.price).toLocaleString('pl-PL')} zł`}</strong>{draft.compareAtPrice&&Number(draft.compareAtPrice)>Number(draft.price)&&<del>{Number(draft.compareAtPrice).toLocaleString('pl-PL')} zł</del>}<ul>{draft.learningOutcomesText.split('\n').filter(Boolean).slice(0,4).map(item=><li key={item}><CheckCircle2/>{item}</li>)}</ul><button type="button">{draft.isComingSoon?'Dołącz do listy':'Kup kurs'}</button></div></article></div></section>
-      {selected && <Curriculum course={selected} addModule={addModule.mutate} addLesson={addLesson.mutate} updateLesson={updateLesson.mutate} addQuiz={addQuiz.mutate} addQuestion={addQuestion.mutate} refresh={refresh} />}
+      {selected && <Curriculum course={selected} addModule={addModule.mutate} addLesson={addLesson.mutate} updateLesson={updateLesson.mutate} addQuiz={addQuiz.mutate} refresh={refresh} />}
+      {selected && <section className="studio-card studio-danger">
+        <div className="studio-card-head"><span><Trash2 />Usuń kurs</span><small>Ostatnia rzecz na tej stronie — trudno to cofnąć</small></div>
+        <div className="p-4">
+          <p>Usunięcie kasuje kurs razem ze wszystkimi modułami, lekcjami, materiałami i postępami kursantek. Nie da się tego odwrócić.</p>
+          <p><strong>Zamiast usuwać rozważ status „Archiwum”</strong> w karcie kursu wyżej — kurs zniknie ze sklepu, ale kursantki, które go kupiły, zachowają dostęp.</p>
+          <button type="button" className="studio-delete-course" onClick={() => {
+            if (prompt(`Aby trwale usunąć kurs, przepisz jego tytuł:\n\n${selected.title}`)?.trim() === selected.title.trim()) deleteCourse.mutate(selected.id);
+            else toast.error('Tytuł się nie zgadza — kurs nie został usunięty');
+          }}><Trash2 />Usuń kurs na zawsze</button>
+        </div>
+      </section>}
       {!selected && <div className="studio-next"><CheckCircle2 /><div><strong>Najpierw zapisz kartę kursu</strong><p>Po utworzeniu kursu dodasz moduły, lekcje, osadzone materiały i punkty kontrolne.</p></div></div>}
     </main>
   </div>;
 }
 
-function Curriculum({ course, addModule, addLesson, updateLesson, addQuiz, addQuestion, refresh }: { course: any; addModule: (title: string) => void; addLesson: (input: any) => void; updateLesson: (input: any) => void; addQuiz: (input: any) => void; addQuestion: (input: any) => void; refresh: () => void }) {
-  const [moduleTitle, setModuleTitle] = useState(''); const [open, setOpen] = useState<string | null>(course.modules?.[0]?.id ?? null);
-  return <section className="studio-card"><div className="studio-card-head"><span><Layers3 />Program kursu</span><small>Buduj kolejność: wprowadzenie → demonstracja → praktyka → sprawdzenie.</small></div><div className="studio-modules">{course.modules?.map((mod: any, index: number) => <div className="studio-module" key={mod.id}><button className="studio-module-head" onClick={() => setOpen(open === mod.id ? null : mod.id)}><span>{String(index + 1).padStart(2, '0')}</span><strong>{mod.title}</strong><small>{mod.lessons?.length ?? 0} lekcji</small><ChevronRight className={open === mod.id ? 'open' : ''} /></button>{open === mod.id && <div className="studio-module-content">{mod.lessons?.map((lesson: any) => <div key={lesson.id}><div className="studio-lesson">{lesson.type === 'VIDEO' ? <Film /> : lesson.type === 'QUIZ' ? <CircleHelp /> : <FileText />}<span><strong>{lesson.title}</strong><small>{lesson.type === 'QUIZ' ? `${lesson.quiz?._count?.questions ?? 0} pytań kontrolnych` : lesson.type === 'TEXT' ? 'Tekst / materiał osadzony' : lesson.transcriptHtml ? 'Materiał wideo · transkrypcja gotowa' : 'Materiał wideo · brak transkrypcji'}</small></span></div>{lesson.type === 'VIDEO' && <TranscriptEditor lesson={lesson} updateLesson={updateLesson} />}{lesson.quiz && <QuestionComposer quiz={lesson.quiz} addQuestion={addQuestion} />}<AttachmentsManager lesson={lesson} onRefresh={refresh} /><CaseStudiesManager lesson={lesson} onRefresh={refresh} /></div>)}<LessonComposer module={mod} addLesson={addLesson} addQuiz={addQuiz} /></div>}</div>)}</div><div className="studio-add-module"><input value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} placeholder="np. Diagnostyka i przygotowanie" /><button onClick={() => { if(moduleTitle.trim()) { addModule(moduleTitle); setModuleTitle(''); } }}><Plus />Dodaj moduł</button></div></section>;
+function Curriculum({ course, addModule, addLesson, updateLesson, addQuiz, refresh }: { course: any; addModule: (title: string) => void; addLesson: (input: any) => void; updateLesson: (input: any) => void; addQuiz: (input: any) => void; refresh: () => void }) {
+  const [moduleTitle, setModuleTitle] = useState('');
+  const [open, setOpen] = useState<string | null>(course.modules?.[0]?.id ?? null);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const modules: any[] = course.modules ?? [];
+
+  const moveModule = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= modules.length) return;
+    const order = modules.map((mod) => mod.id);
+    [order[index], order[target]] = [order[target], order[index]];
+    try { await academyApi.adminReorderModules(course.id, order); refresh(); }
+    catch { toast.error('Nie udało się zmienić kolejności'); }
+  };
+
+  const saveRename = async (moduleId: string) => {
+    if (!renameValue.trim()) return setRenaming(null);
+    try { await academyApi.adminUpdateModule(moduleId, { title: renameValue.trim() }); setRenaming(null); refresh(); toast.success('Nazwa modułu zmieniona'); }
+    catch { toast.error('Nie udało się zmienić nazwy'); }
+  };
+
+  const removeModule = async (mod: any) => {
+    const count = mod.lessons?.length ?? 0;
+    const message = count
+      ? `Usunąć moduł „${mod.title}" razem z ${count} lekcjami i ich materiałami? Tej operacji nie da się cofnąć.`
+      : `Usunąć pusty moduł „${mod.title}"?`;
+    if (!confirm(message)) return;
+    try { await academyApi.adminDeleteModule(mod.id); refresh(); toast.success('Moduł usunięty'); }
+    catch { toast.error('Nie udało się usunąć modułu'); }
+  };
+
+  return <section className="studio-card">
+    <div className="studio-card-head"><span><Layers3 />Program kursu</span><small>Buduj kolejność: wprowadzenie → demonstracja → praktyka → sprawdzenie.</small></div>
+    <p className="studio-section-help">
+      <strong>Moduł</strong> to rozdział kursu, <strong>lekcja</strong> to pojedynczy film, tekst lub punkt
+      kontrolny wewnątrz rozdziału. Kliknij nazwę modułu, żeby go rozwinąć. Strzałkami zmieniasz kolejność —
+      dokładnie w takiej zobaczy je kursantka.
+    </p>
+    <div className="studio-modules">{modules.map((mod: any, index: number) => <div className="studio-module" key={mod.id}>
+      <div className="studio-module-bar">
+        <button className="studio-module-head" onClick={() => setOpen(open === mod.id ? null : mod.id)}>
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <strong>{mod.title}</strong>
+          <small>{mod.lessons?.length ?? 0} lekcji</small>
+          <ChevronRight className={open === mod.id ? 'open' : ''} />
+        </button>
+        <div className="studio-module-tools">
+          <button type="button" title="Przenieś moduł wyżej" aria-label="Przenieś moduł wyżej" disabled={index === 0} onClick={() => moveModule(index, -1)}><ArrowUp /></button>
+          <button type="button" title="Przenieś moduł niżej" aria-label="Przenieś moduł niżej" disabled={index === modules.length - 1} onClick={() => moveModule(index, 1)}><ArrowDown /></button>
+          <button type="button" title="Zmień nazwę modułu" aria-label="Zmień nazwę modułu" onClick={() => { setRenaming(mod.id); setRenameValue(mod.title); }}><Pencil /></button>
+          <button type="button" title="Usuń moduł" aria-label="Usuń moduł" onClick={() => removeModule(mod)}><Trash2 /></button>
+        </div>
+      </div>
+      {renaming === mod.id && <div className="studio-inline-edit">
+        <input value={renameValue} onChange={e => setRenameValue(e.target.value)} autoFocus onKeyDown={e => { if (e.key === 'Enter') saveRename(mod.id); if (e.key === 'Escape') setRenaming(null); }} />
+        <button type="button" onClick={() => saveRename(mod.id)}>Zapisz nazwę</button>
+        <button type="button" className="ghost" onClick={() => setRenaming(null)}>Anuluj</button>
+      </div>}
+      {open === mod.id && <div className="studio-module-content">
+        {(mod.lessons ?? []).map((lesson: any, lessonIndex: number) => (
+          <LessonRow
+            key={lesson.id}
+            lesson={lesson}
+            index={lessonIndex}
+            total={mod.lessons?.length ?? 0}
+            moduleId={mod.id}
+            lessonOrder={(mod.lessons ?? []).map((item: any) => item.id)}
+            updateLesson={updateLesson}
+            refresh={refresh}
+          />
+        ))}
+        <LessonComposer module={mod} addLesson={addLesson} addQuiz={addQuiz} />
+      </div>}
+    </div>)}</div>
+    <div className="studio-add-module">
+      <input value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} placeholder="np. Diagnostyka i przygotowanie" />
+      <button onClick={() => { if (moduleTitle.trim()) { addModule(moduleTitle); setModuleTitle(''); } }}><Plus />Dodaj moduł</button>
+    </div>
+  </section>;
 }
 
-function TranscriptEditor({ lesson, updateLesson }: { lesson: any; updateLesson: (input: any) => void }) {
+function LessonRow({ lesson, index, total, moduleId, lessonOrder, updateLesson, refresh }: { lesson: any; index: number; total: number; moduleId: string; lessonOrder: string[]; updateLesson: (input: any) => void; refresh: () => void }) {
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [title, setTitle] = useState(lesson.title);
+
+  const move = async (direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= total) return;
+    const order = [...lessonOrder];
+    [order[index], order[target]] = [order[target], order[index]];
+    try { await academyApi.adminReorderLessons(moduleId, order); refresh(); }
+    catch { toast.error('Nie udało się zmienić kolejności'); }
+  };
+
+  const saveTitle = async () => {
+    if (!title.trim()) return setEditingTitle(false);
+    try { await academyApi.adminUpdateLesson(lesson.id, { title: title.trim() }); setEditingTitle(false); refresh(); toast.success('Tytuł lekcji zmieniony'); }
+    catch { toast.error('Nie udało się zmienić tytułu'); }
+  };
+
+  const remove = async () => {
+    if (!confirm(`Usunąć lekcję „${lesson.title}" razem z materiałami, transkrypcją i postępami kursantek? Tej operacji nie da się cofnąć.`)) return;
+    try { await academyApi.adminDeleteLesson(lesson.id); refresh(); toast.success('Lekcja usunięta'); }
+    catch { toast.error('Nie udało się usunąć lekcji'); }
+  };
+
+  const subtitle = lesson.type === 'QUIZ'
+    ? `${lesson.quiz?._count?.questions ?? lesson.quiz?.questions?.length ?? 0} pytań kontrolnych`
+    : lesson.type === 'TEXT' ? 'Tekst / materiał osadzony'
+    : lesson.transcriptHtml ? 'Materiał wideo · transkrypcja gotowa' : 'Materiał wideo · brak transkrypcji';
+
+  return <div>
+    <div className="studio-lesson">
+      {lesson.type === 'VIDEO' ? <Film /> : lesson.type === 'QUIZ' ? <CircleHelp /> : <FileText />}
+      {editingTitle ? (
+        <span className="studio-inline-edit">
+          <input value={title} onChange={e => setTitle(e.target.value)} autoFocus onKeyDown={e => { if (e.key === 'Enter') saveTitle(); if (e.key === 'Escape') { setTitle(lesson.title); setEditingTitle(false); } }} />
+          <button type="button" onClick={saveTitle}>Zapisz</button>
+          <button type="button" className="ghost" onClick={() => { setTitle(lesson.title); setEditingTitle(false); }}>Anuluj</button>
+        </span>
+      ) : (
+        <span><strong>{lesson.title}</strong><small>{subtitle}</small></span>
+      )}
+      <span className="studio-lesson-tools">
+        <button type="button" title="Przenieś lekcję wyżej" aria-label="Przenieś lekcję wyżej" disabled={index === 0} onClick={() => move(-1)}><ArrowUp /></button>
+        <button type="button" title="Przenieś lekcję niżej" aria-label="Przenieś lekcję niżej" disabled={index === total - 1} onClick={() => move(1)}><ArrowDown /></button>
+        <button type="button" title="Zmień tytuł lekcji" aria-label="Zmień tytuł lekcji" onClick={() => setEditingTitle(true)}><Pencil /></button>
+        <button type="button" title="Usuń lekcję" aria-label="Usuń lekcję" onClick={remove}><Trash2 /></button>
+      </span>
+    </div>
+    {lesson.type === 'VIDEO' && <VideoLessonEditor lesson={lesson} updateLesson={updateLesson} />}
+    {lesson.type === 'TEXT' && <TextLessonEditor lesson={lesson} updateLesson={updateLesson} />}
+    {lesson.quiz && <CheckpointQuestions lesson={lesson} refresh={refresh} />}
+    <AttachmentsManager lesson={lesson} onRefresh={refresh} />
+    <CaseStudiesManager lesson={lesson} onRefresh={refresh} />
+  </div>;
+}
+
+function VideoLessonEditor({ lesson, updateLesson }: { lesson: any; updateLesson: (input: any) => void }) {
+  const [videoId, setVideoId] = useState(lesson.videoId || '');
   const [transcriptHtml, setTranscriptHtml] = useState(lesson.transcriptHtml || '');
-  return <details className="studio-transcript"><summary>Transkrypcja i dostępność</summary><textarea value={transcriptHtml} onChange={e => setTranscriptHtml(e.target.value)} placeholder="Wklej transkrypcję filmu. Możesz użyć prostego HTML: akapity, nagłówki i listy." /><button onClick={() => updateLesson({ lessonId: lesson.id, data: { transcriptHtml } })}>Zapisz transkrypcję</button></details>;
+  return <details className="studio-transcript">
+    <summary>Film i transkrypcja</summary>
+    <p className="studio-hint">Identyfikator filmu to fragment adresu po „v=” (YouTube) albo ostatnia liczba w adresie Vimeo. Możesz też wkleić cały link — wytniemy resztę sami.</p>
+    <input value={videoId} onChange={e => setVideoId(e.target.value)} placeholder="Identyfikator lub link do filmu" />
+    <p className="studio-hint">Transkrypcja jest wymagana przed publikacją — dzięki niej kurs jest dostępny dla osób niesłyszących i wyszukiwarki widzą jego treść.</p>
+    <textarea value={transcriptHtml} onChange={e => setTranscriptHtml(e.target.value)} placeholder="Wklej transkrypcję filmu. Możesz użyć prostego HTML: akapity, nagłówki i listy." />
+    <button onClick={() => updateLesson({ lessonId: lesson.id, data: { transcriptHtml, videoId: videoId.replace(/^.*(?:v=|youtu\.be\/|vimeo\.com\/)/, '').split(/[?&]/)[0] } })}>Zapisz film i transkrypcję</button>
+  </details>;
 }
 
-function QuestionComposer({ quiz, addQuestion }: { quiz: any; addQuestion: (input: any) => void }) {
-  const [question, setQuestion] = useState(''); const [correct, setCorrect] = useState(''); const [wrong, setWrong] = useState('');
-  return <div className="studio-question"><strong>Dodaj pytanie do punktu kontrolnego</strong><input value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Pytanie sprawdzające jedną kluczową rzecz" /><div><input value={correct} onChange={e=>setCorrect(e.target.value)} placeholder="Poprawna odpowiedź" /><input value={wrong} onChange={e=>setWrong(e.target.value)} placeholder="Wiarygodna odpowiedź błędna" /></div><button onClick={() => { if(question && correct && wrong) { addQuestion({quizId:quiz.id,data:{text:question,type:'SINGLE_CHOICE',order:quiz._count?.questions ?? 0,options:[{text:correct,isCorrect:true},{text:wrong,isCorrect:false}]}}); setQuestion('');setCorrect('');setWrong('');} }}>Zapisz pytanie</button></div>;
+function TextLessonEditor({ lesson, updateLesson }: { lesson: any; updateLesson: (input: any) => void }) {
+  const [contentHtml, setContentHtml] = useState(lesson.contentHtml || '');
+  return <details className="studio-transcript">
+    <summary>Treść lekcji</summary>
+    <p className="studio-hint">Edytuj tekst tak samo jak przy dodawaniu lekcji. Zmiany widać u kursantek zaraz po zapisaniu.</p>
+    <RichTextEditor value={contentHtml} onChange={setContentHtml} />
+    <button onClick={() => updateLesson({ lessonId: lesson.id, data: { contentHtml } })}>Zapisz treść lekcji</button>
+  </details>;
+}
+
+function CheckpointQuestions({ lesson, refresh }: { lesson: any; refresh: () => void }) {
+  const { data: quiz } = useQuery({
+    queryKey: ['studio', 'quiz', lesson.quiz.id],
+    queryFn: () => academyApi.adminGetQuiz(lesson.quiz.id),
+  });
+  const client = useQueryClient();
+  const onChanged = () => { client.invalidateQueries({ queryKey: ['studio', 'quiz', lesson.quiz.id] }); refresh(); };
+
+  return <details className="studio-transcript">
+    <summary><CircleHelp className="w-3.5 h-3.5 inline mr-1" />Pytania punktu kontrolnego ({quiz?.questions?.length ?? 0})</summary>
+    <p className="studio-hint">Kursantka musi zaliczyć ten test, żeby przejść dalej. Trzy–pięć pytań w zupełności wystarczy.</p>
+    {quiz ? <QuestionEditor quizId={quiz.id} questions={quiz.questions ?? []} onChanged={onChanged} /> : <p className="studio-hint">Ładujemy pytania…</p>}
+  </details>;
 }
 
 function LessonComposer({ module, addLesson, addQuiz }: { module: any; addLesson: (input: any) => void; addQuiz: (input: any) => void }) {

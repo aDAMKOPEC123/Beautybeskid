@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
 import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, BookOpen, CircleDollarSign, Download, Eye, Filter, Search, ShoppingCart, TrendingUp, UserRound, UsersRound, X } from 'lucide-react';
+import { AdminHelp } from '@/components/AdminHelp';
 
 const n=(value:number)=>new Intl.NumberFormat('pl-PL').format(value||0);
 const money=(value:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN',maximumFractionDigits:0}).format(value||0);
@@ -17,7 +18,7 @@ export function AcademyAnalytics(){
   const filtered=useMemo(()=>((customers.data||[]) as any[]).filter(c=>`${c.name} ${c.email}`.toLowerCase().includes(search.toLowerCase())).filter(c=>customerFilter==='BUYERS'?c.courses.length:customerFilter==='LEADS'?c.interestedCourses.length&&!c.courses.length:customerFilter==='EMPTY'?!c.courses.length&&!c.interestedCourses.length:true),[customers.data,search,customerFilter]);
   const data=dashboard.data; const s=data?.summary;
   return <div className="analytics-page">
-    <header className="analytics-head"><div><p className="academy-kicker text-caramel">Centrum dowodzenia</p><h1>Sprzedaż i klienci</h1><p>Pełny obraz drogi od pierwszej wizyty do ukończenia kursu.</p></div><div className="analytics-period"><Filter />{[7,30,90,365].map(value=><button key={value} className={days===value?'active':''} onClick={()=>setDays(value)}>{value===365?'Rok':`${value} dni`}</button>)}</div></header>
+    <header className="analytics-head"><div><p className="academy-kicker text-caramel">Centrum dowodzenia</p><h1>Sprzedaż i klienci</h1><p>Pełny obraz drogi od pierwszej wizyty do ukończenia kursu.</p></div><div className="analytics-period"><Filter />{[7,30,90,365].map(value=><button key={value} className={days===value?'active':''} onClick={()=>setDays(value)}>{value===365?'Rok':`${value} dni`}</button>)}</div></header><AdminHelp title="Po co jest ta zakładka" steps={['U góry wybierz okres, z którego liczymy dane: 7 dni, 30 dni, 90 dni albo rok.','Przełącz na widok „Klienci”, żeby znaleźć konkretną kursantkę po nazwisku lub e-mailu.','Kliknij kursantkę, żeby zobaczyć jej zakupy i postępy.','Przyciskiem przy kursie możesz nadać dostęp ręcznie (np. po płatności przelewem) albo go odebrać.']}>Tu sprawdzasz, co się sprzedaje i jak kursantki radzą sobie z materiałem. <strong>Jedyna zakładka, w której nadajesz komuś dostęp do kursu bez zakupu</strong> — służy do tego widok „Klienci”. Sam wykres i liczby są tylko do czytania, nic tu nie popsujesz.</AdminHelp>
     <nav className="analytics-tabs"><button className={tab==='overview'?'active':''} onClick={()=>setTab('overview')}><BarChart3 />Przegląd</button><button className={tab==='customers'?'active':''} onClick={()=>setTab('customers')}><UsersRound />Baza klientów</button></nav>
     {tab==='overview'?(dashboard.isLoading?<Loading/>:<>
       <section className="analytics-kpis">

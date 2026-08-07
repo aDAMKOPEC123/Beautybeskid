@@ -113,8 +113,10 @@ const AcademyRedirect = () => {
   window.location.href = `${ACADEMY_URL}${subPath}`;
   return null;
 };
-const AdminAcademyRedirect = () => {
-  window.location.href = `${ACADEMY_URL}/studio`;
+// Panel Akademii mieszka na subdomenie. Quizy mają tam własny ekran, więc kierujemy
+// tam bezpośrednio zamiast zrzucać wszystkich do listy kursów.
+const AdminAcademyRedirect = ({ target = '/admin' }: { target?: string }) => {
+  window.location.href = `${ACADEMY_URL}${target}`;
   return null;
 };
 
@@ -284,7 +286,7 @@ export const router = createBrowserRouter([
       { path: 'beauty-plans', element: <S><AdminBeautyPlans /></S> },
       { path: 'akademia', element: <AdminAcademyRedirect /> },
       { path: 'akademia/kurs/:id', element: <AdminAcademyRedirect /> },
-      { path: 'akademia/quiz/:id', element: <AdminAcademyRedirect /> },
+      { path: 'akademia/quiz/:id', element: <AdminAcademyRedirect target="/admin/quizy" /> },
       { path: 'marketing', element: <S><Marketing /></S> },
       { path: 'forum', element: <S><AdminForum /></S> },
       { path: 'finanse', element: <S><AdminFinances /></S> },

@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { academyApi } from '@/api/academy.api';
+import { AdminHelp } from '@/components/AdminHelp';
 import { toast } from 'sonner';
 
 const bannerEmpty:any={title:'',subtitle:'',badge:'Nowość',imageUrl:'',mobileImageUrl:'',buttonLabel:'Zobacz ofertę',buttonUrl:'/#kursy',startsAt:'',endsAt:'',sortOrder:0,isActive:true};
@@ -27,7 +28,7 @@ export function AcademyMarketingAdmin(){
   const rows=(marketing.data?.[tab]||[]) as any[];
   const targets=form.target==='COURSE'?(courses.data||[]):form.target==='BUNDLE'?(bundles.data||[]):[];
   const toggleTarget=(id:string)=>change({targetIds:form.targetIds?.includes(id)?form.targetIds.filter((x:string)=>x!==id):[...(form.targetIds||[]),id]});
-  return <div className="academy-admin-form-page"><header><p className="academy-kicker">Marketing Akademii</p><h1>Banery, promocje i leady</h1><p>Zaplanuj komunikację, automatyczne rabaty i pozyskiwanie klientów.</p></header>
+  return <div className="academy-admin-form-page"><header><p className="academy-kicker">Marketing Akademii</p><h1>Banery, promocje i leady</h1><p>Zaplanuj komunikację, automatyczne rabaty i pozyskiwanie klientów.</p></header><AdminHelp title="Po co jest ta zakładka" steps={['Wybierz zakładkę z rodzajem materiału, który chcesz dodać.', 'Przy promocjach i kodach zawsze ustaw datę końca — inaczej rabat będzie działał bez końca.', 'Przed wysłaniem kampanii kliknij „Wyślij test” i sprawdź wiadomość na własnej skrzynce.', 'Dopiero potem wyślij kampanię do listy. Wysłanej wiadomości nie da się cofnąć.', ]}>Cztery narzędzia w jednym miejscu. <strong>Banery</strong> to paski reklamowe na górze Akademii. <strong>Promocje</strong> obniżają ceny automatycznie w wybranym okresie. <strong>Kody rabatowe</strong> kursantka wpisuje sama przy zakupie. <strong>Leady</strong> to adresy e-mail zebrane z formularzy — do nich wysyłasz kampanie.</AdminHelp>
     <nav className="analytics-tabs">{[['banners','Banery'],['promotions','Promocje'],['codes','Kody rabatowe'],['leads','Leady']].map(([key,label])=><button className={tab===key?'active':''} onClick={()=>selectTab(key)} key={key}>{label}</button>)}</nav>
     {tab==='leads'&&<LeadCrm rows={rows}/>}
     {tab!=='leads'&&<MarketingPreview tab={tab} form={form}/>}
