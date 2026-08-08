@@ -103,7 +103,7 @@ export function PersonaLanding() {
 
       {/* 5. OFERTA albo WALIDACJA POPYTU */}
       {hasCourses ? (
-        <section className="funnel-section" id="oferta" style={{ background: '#fff' }} aria-labelledby="oferta-title">
+        <section className="funnel-section funnel-paper" id="oferta" aria-labelledby="oferta-title">
           <div>
             <p className="funnel-eyebrow" data-reveal>Kursy na tej ścieżce</p>
             <h2 className="funnel-h2" id="oferta-title" data-reveal style={{ transitionDelay: '60ms' }}>Od czego zacząć</h2>
@@ -116,7 +116,7 @@ export function PersonaLanding() {
           </div>
         </section>
       ) : (
-        <section className="funnel-section" id="lista" style={{ background: '#fff' }} aria-labelledby="lista-title">
+        <section className="funnel-section funnel-paper" id="lista" aria-labelledby="lista-title">
           <div>
             <p className="funnel-eyebrow" data-reveal>Program w przygotowaniu</p>
             <h2 className="funnel-h2" id="lista-title" data-reveal style={{ transitionDelay: '60ms' }}>Nie sprzedajemy tego, czego jeszcze nie ma</h2>

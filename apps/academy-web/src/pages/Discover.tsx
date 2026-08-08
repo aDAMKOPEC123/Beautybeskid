@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Building2, Sprout, Stethoscope } from 'lucide-react';
+import type { PersonaKey } from '@/lib/personas';
 import { academyApi } from '@/api/academy.api';
 import { DocumentTitle } from '@/components/DocumentTitle';
 import { PERSONA_LIST } from '@/lib/personas';
@@ -26,6 +27,16 @@ const PILLARS = [
     body: 'Uczymy obszarów, które większość gabinetów omija, bo wymagają rozumienia, a nie kolejnego urządzenia. Tam jest przewaga.',
   },
 ];
+
+/**
+ * Bramy nie są sekwencją — to trzy równoległe sytuacje zawodowe. Dlatego znacznik
+ * przy każdej z nich mówi, kim jest osoba, a nie który to krok po kolei.
+ */
+const GATE_ICON: Record<PersonaKey, typeof Sprout> = {
+  starter: Sprout,
+  practitioner: Stethoscope,
+  salon: Building2,
+};
 
 export function Discover() {
   const reveal = useReveal<HTMLDivElement>();
@@ -84,15 +95,18 @@ export function Discover() {
             a co byłoby stratą czasu i pieniędzy.
           </p>
           <nav className="hub-gates" aria-label="Ścieżki nauki">
-            {PERSONA_LIST.map((persona, index) => (
+            {PERSONA_LIST.map((persona, index) => {
+              const GateIcon = GATE_ICON[persona.key];
+              return (
               <Link key={persona.key} to={persona.path} className="hub-gate" data-reveal
                 style={{ transitionDelay: `${index * 90}ms` }}>
-                <span className="hub-gate-index">{String(index + 1).padStart(2, '0')}</span>
+                <span className="hub-gate-mark" aria-hidden="true"><GateIcon /></span>
                 <strong>{persona.gate.label}</strong>
                 <p>{persona.gate.sub}</p>
                 <span className="hub-gate-cta">{persona.gate.cta}<ArrowRight className="w-4 h-4" /></span>
               </Link>
-            ))}
+              );
+            })}
           </nav>
         </div>
       </section>
@@ -160,7 +174,7 @@ export function Discover() {
 
       {/* 5. PROWADZĄCA — sekcja znika, gdy nikt nie jest przypisany */}
       {instructor && (
-        <section className="funnel-section" style={{ background: '#fff' }} aria-labelledby="prowadzaca">
+        <section className="funnel-section funnel-paper" aria-labelledby="prowadzaca">
           <div>
             <p className="funnel-eyebrow" data-reveal>Kto uczy</p>
             <div className="hub-instructor">
