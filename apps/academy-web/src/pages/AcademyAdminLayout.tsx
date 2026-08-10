@@ -1,6 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, ListChecks, Map, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity, Stethoscope, Users } from 'lucide-react';
+import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, ListChecks, LogOut, Map, MessageCircleHeart, MessageSquareQuote, ExternalLink, ShieldCheck, ReceiptText, Package, Scale, Megaphone, Images, Activity, Stethoscope, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { academyApi } from '@/api/academy.api';
 
 const navigation = [
   { to: '/admin', label: 'Kursy i programy', icon: LayoutDashboard, exact: true },
@@ -21,8 +22,11 @@ const navigation = [
 ];
 
 export function AcademyAdminLayout() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const location = useLocation();
+  // Wylogowanie musi działać także wtedy, gdy żądanie do API padnie —
+  // sesja w przeglądarce i tak ma zostać wyczyszczona.
+  const handleLogout = () => { academyApi.logout().finally(logout); };
   if (isLoading) return <div className="academy-loading">Przygotowujemy panel administratora…</div>;
   if (user?.role !== 'ADMIN') return <Navigate to="/" replace />;
 
@@ -33,8 +37,9 @@ export function AcademyAdminLayout() {
       <nav aria-label="Panel administratora">{navigation.map(({ to, label, icon: Icon, exact }) => <Link key={to} to={to} className={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'active' : ''}><Icon />{label}</Link>)}</nav>
       <div className="academy-admin-user"><ShieldCheck /><div><strong>{user.name || user.email}</strong><span>Konto administratora</span></div></div>
       <Link className="academy-admin-back" to="/"><BookOpen />Wróć do Akademii</Link>
+      <button type="button" className="academy-admin-back academy-admin-logout" onClick={handleLogout}><LogOut />Wyloguj się</button>
     </aside>
-    <header className="academy-admin-mobilebar"><div><Link to="/admin"><GraduationCap />Administracja</Link><Link to="/"><ExternalLink />Akademia</Link></div><nav aria-label="Panel administratora na telefonie">{navigation.map(({ to, label, icon: Icon, exact }) => <Link key={to} to={to} className={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'active' : ''}><Icon />{label}</Link>)}</nav></header>
+    <header className="academy-admin-mobilebar"><div><Link to="/admin"><GraduationCap />Administracja</Link><Link to="/"><ExternalLink />Akademia</Link><button type="button" className="academy-admin-logout" onClick={handleLogout}><LogOut />Wyloguj</button></div><nav aria-label="Panel administratora na telefonie">{navigation.map(({ to, label, icon: Icon, exact }) => <Link key={to} to={to} className={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'active' : ''}><Icon />{label}</Link>)}</nav></header>
     <main className="academy-admin-content"><Outlet /></main>
   </div>;
 }

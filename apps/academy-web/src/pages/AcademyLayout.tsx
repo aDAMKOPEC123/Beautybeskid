@@ -1,14 +1,15 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, UserRound, ExternalLink, Settings2, ShoppingCart, Lock, UserPlus, MapPin } from 'lucide-react';
+import { GraduationCap, BookOpen, Award, LayoutGrid, Sparkles, Menu, X, MessageCircleHeart, LogIn, LogOut, UserRound, ExternalLink, Settings2, ShoppingCart, Lock, UserPlus, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { academyApi } from '@/api/academy.api';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
 import { useCartStore } from '@/store/cart.store';
 import { AcademyBottomNav } from '@/components/AcademyBottomNav';
 import { AcademyInstallCard } from '@/components/AcademyInstallCard';
 
 export function AcademyLayout() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const cartCount=useCartStore(state=>state.items.length);
@@ -66,6 +67,9 @@ export function AcademyLayout() {
           {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/logowanie" className="academy-mobile-login"><LogIn className="w-4 h-4" />Zaloguj się</Link>}
           {!isAuthenticated && <Link onClick={() => setMenuOpen(false)} to="/rejestracja" className="academy-mobile-register"><UserPlus className="w-4 h-4" />Załóż darmowe konto</Link>}
           {user?.role === 'ADMIN' && <Link onClick={() => setMenuOpen(false)} to="/admin" className="academy-mobile-admin"><Settings2 className="w-4 h-4" />Przejdź do panelu administratora</Link>}
+          {/* Admin nie ma zakładki profilu (avatar prowadzi do panelu),
+              więc wylogowanie musi być dostępne wprost z menu. */}
+          {user?.role === 'ADMIN' && <button onClick={() => { setMenuOpen(false); academyApi.logout().finally(logout); }} className="academy-mobile-logout"><LogOut className="w-4 h-4" />Wyloguj się</button>}
         </nav>}
       </header>
       <main id="academy-main" className="academy-content" tabIndex={-1}><Outlet /></main>
