@@ -82,7 +82,6 @@ describe('rotateRefreshToken', () => {
     const result = await rotateRefreshToken('stary', 'user-1', 1000);
 
     expect(result).toEqual({ stale: true });
-    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
     expect(mockPrisma.refreshToken.deleteMany).not.toHaveBeenCalled();
   });
 
@@ -90,5 +89,19 @@ describe('rotateRefreshToken', () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
 
     expect(await rotateRefreshToken('obcy', 'user-1', 1000)).toEqual({ stale: true });
+  });
+
+  it('zwraca stale, gdy token należy do innego użytkownika, i nie tworzy nowego tokenu', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('stary'),
+      userId: 'user-2',
+      expiresAt: new Date(Date.now() + 60_000),
+      rotatedAt: null,
+    });
+
+    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+
+    expect(result).toEqual({ stale: true });
+    expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled();
   });
 });

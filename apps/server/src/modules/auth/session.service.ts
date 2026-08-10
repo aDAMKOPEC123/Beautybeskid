@@ -37,6 +37,12 @@ export const rotateRefreshToken = async (
 
   if (!stored || stored.expiresAt <= new Date()) return { stale: true };
 
+  // Token istnieje, ale należy do innego konta niż przekazany userId — traktujemy
+  // go jak nieznany, bez ujawniania wołającemu, że doszło do rozjazdu właściciela.
+  // tokenHash jest unikalny globalnie (nie per-user), więc bez tego sprawdzenia
+  // rozjazd cicho wystawiłby ważny refresh token powiązany z cudzym kontem.
+  if (stored.userId !== userId) return { stale: true };
+
   const nextRaw = generateRawToken();
   const expiresAt = new Date(Date.now() + ttlMs);
   const graceExpiry = new Date(Date.now() + ROTATION_GRACE_MS);
