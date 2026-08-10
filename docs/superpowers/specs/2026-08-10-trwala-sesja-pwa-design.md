@@ -60,24 +60,30 @@ Stary refresh token przestaje być kasowany natychmiast. Zamiast tego zostaje
 oznaczony jako zrotowany i przez 60 sekund nadal jest akceptowany, zwracając
 **ten sam** token następcy zamiast tworzyć kolejny.
 
-Model `RefreshToken` zyskuje dwa pola:
+Model `RefreshToken` zyskuje jedno pole:
 
 ```prisma
-rotatedAt          DateTime?
-replacedByTokenHash String?
+rotatedAt DateTime?
 ```
 
 Logika w `refresh`:
 
-1. Token znaleziony i nie zrotowany → normalna rotacja (jak dziś, ale bez `delete`;
-   ustawiamy `rotatedAt` i `replacedByTokenHash`).
-2. Token znaleziony, zrotowany, `rotatedAt` młodsze niż 60 s → zwróć nowy access
-   token oraz token następcy wskazany przez `replacedByTokenHash`. Brak nowej rotacji.
-3. Token znaleziony, zrotowany, `rotatedAt` starsze niż 60 s → **wykryto ponowne
-   użycie**. Skasuj wszystkie refresh tokeny użytkownika **oraz wszystkie jego
-   tokeny urządzeń** i zwróć 401. To sygnał kradzieży tokenu i jedyny przypadek,
-   w którym celowo zrywamy sesję na wszystkich urządzeniach — bezpieczeństwo ma
-   tu pierwszeństwo przed wygodą. Użytkownik loguje się ponownie raz.
+1. Token nieznany lub wygasły → 401 bez żadnych skutków ubocznych. Wołający
+   przechodzi na ścieżkę tokenu urządzenia.
+2. Token ważny → wydaj **nowy** refresh token, a staremu skróć `expiresAt` do
+   `teraz + 60 s` i oznacz `rotatedAt`. Stary token pozostaje więc sprawny przez
+   okno karencji, obsługując drugi kontekst aplikacji, po czym wygasa sam.
+3. Zrotowane tokeny starsze niż 24 h są kasowane przy okazji tej samej transakcji.
+
+**Świadomie nie wykrywamy ponownego użycia tokenu.** Rozważaliśmy kasowanie
+wszystkich sesji użytkownika przy użyciu tokenu po upływie karencji, jako sygnał
+kradzieży. Odrzucone 2026-08-10: zainstalowana PWA potrafi leżeć w tle godzinami
+i wrócić ze starym tokenem, więc mechanizm masowo wylogowywałby uczciwych
+użytkowników — dokładnie odwrotnie do celu tego projektu. Token po karencji
+dostaje zwykłe 401, a token urządzenia odtwarza sesję bezszelestnie.
+
+Odcięcie dostępu pozostaje możliwe przez zmianę hasła, która kasuje tokeny
+urządzeń (patrz niżej).
 
 Zrotowane tokeny sprzątamy przy okazji: rekordy z `rotatedAt` starszym niż 24 h
 są usuwane w tym samym zapytaniu, które i tak wykonujemy.
@@ -133,7 +139,6 @@ wgląd w kartoteki medyczne wszystkich klientek.
 
 Ryzyko ograniczają:
 
-- unieważnienie całej rodziny tokenów przy wykryciu ponownego użycia,
 - `passwordChangedAt` jako awaryjne odcięcie wszystkich urządzeń — ścieżka
   wymagająca testu potwierdzającego, że unieważnia także tokeny urządzeń,
 - ograniczona ważność 400 dni z odnawianiem tylko przy faktycznym użyciu,
@@ -153,8 +158,8 @@ przestaną znikać — to jest właśnie oczekiwany efekt biznesowy.
 Backend (vitest):
 
 - rotacja: drugie żądanie odświeżenia z tym samym tokenem w oknie 60 s dostaje
-  ten sam token następcy i status 200,
-- wykrycie kradzieży: to samo żądanie po 60 s kasuje wszystkie tokeny i zwraca 401,
+  świeży token i status 200,
+- token użyty po upływie karencji dostaje 401 i **nie** kasuje innych sesji,
 - token urządzenia odtwarza sesję, gdy ciasteczko nie zostało przysłane,
 - zmiana hasła unieważnia zarówno refresh tokeny, jak i tokeny urządzeń,
 - token urządzenia po 400 dniach jest odrzucany.

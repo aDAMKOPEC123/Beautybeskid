@@ -17,7 +17,7 @@
 - Klucz w `localStorage`: **`cosmo-device-token`**.
 - Nagłówek HTTP tokenu urządzenia: **`X-Device-Token`**.
 - Token urządzenia to losowe 32 bajty w hex (**nie** JWT); w bazie trzymamy wyłącznie `sha256` — tak samo jak dla refresh tokenów (`auth.controller.ts:173`).
-- Wykrycie ponownego użycia zrotowanego tokenu po karencji kasuje **wszystkie** refresh tokeny **i** tokeny urządzeń użytkownika.
+- **Nie wykrywamy ponownego użycia tokenu.** Token po karencji dostaje zwykłe 401 i **nie** kasuje żadnych innych sesji — decyzja z 2026-08-10, uzasadniona w specu. Jedyne masowe odcięcie to zmiana hasła.
 - Komunikaty błędów po polsku, spójnie z resztą modułu auth.
 - Wszystkie ścieżki dotyczą wszystkich ról (USER, EMPLOYEE, ADMIN) — decyzja z 2026-08-10.
 
@@ -46,7 +46,7 @@
 
 **Interfaces:**
 - Consumes: nic (pierwsze zadanie)
-- Produces: model `DeviceToken` z polami `id, tokenHash, userId, label, expiresAt, lastUsedAt, createdAt`; pola `RefreshToken.rotatedAt: DateTime?` i `RefreshToken.replacedByTokenHash: String?`
+- Produces: model `DeviceToken` z polami `id, tokenHash, userId, label, expiresAt, lastUsedAt, createdAt`; pole `RefreshToken.rotatedAt: DateTime?`
 
 - [ ] **Step 1: Rozszerz model `RefreshToken`**
 
@@ -54,14 +54,13 @@ W `apps/server/prisma/schema.prisma` zamień model `RefreshToken` (linie 309-318
 
 ```prisma
 model RefreshToken {
-  id                  String    @id @default(cuid())
-  tokenHash           String    @unique
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt           DateTime
-  createdAt           DateTime  @default(now())
-  rotatedAt           DateTime?
-  replacedByTokenHash String?
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  rotatedAt  DateTime?
 
   @@index([userId])
   @@index([rotatedAt])
@@ -121,14 +120,13 @@ git commit -m "feat(auth): model tokenu urządzenia i pola rotacji refresh token
 - Test: `apps/server/src/modules/auth/session.service.test.ts`
 
 **Interfaces:**
-- Consumes: model `RefreshToken` z Task 1 (`rotatedAt`, `replacedByTokenHash`)
+- Consumes: model `RefreshToken` z Task 1 (`rotatedAt`)
 - Produces:
   - `hashToken(raw: string): string`
-  - `ROTATION_GRACE_MS: number`
-  - `rotateRefreshToken(rawToken: string, userId: string, ttlMs: number): Promise<{ reused: false; token: string; expiresAt: Date } | { reused: true }>` — zwraca surowy token następcy; `reused: true` oznacza wykrytą kradzież (wołający ma zwrócić 401)
-  - `revokeAllSessions(userId: string): Promise<void>`
   - `generateRawToken(): string`
+  - `ROTATION_GRACE_MS: number` (60_000)
   - `DEVICE_TOKEN_TTL_MS: number`
+  - `rotateRefreshToken(rawToken: string, userId: string, ttlMs: number): Promise<{ stale: false; token: string; expiresAt: Date } | { stale: true }>` — zwraca **świeży** token; `stale: true` oznacza token nieznany lub wygasły, na co wołający odpowiada 401 **bez** żadnych skutków ubocznych
 
 - [ ] **Step 1: Napisz test rotacji w oknie karencji**
 
@@ -142,6 +140,7 @@ const { mockPrisma } = vi.hoisted(() => ({
     refreshToken: {
       findUnique: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
       create: vi.fn(),
       deleteMany: vi.fn(),
     },
@@ -157,35 +156,25 @@ const { mockPrisma } = vi.hoisted(() => ({
 
 vi.mock('../../config/prisma', () => ({ default: mockPrisma }));
 
-import { rotateRefreshToken, hashToken, ROTATION_GRACE_MS } from './session.service';
+import { rotateRefreshToken, hashToken } from './session.service';
 
 describe('rotateRefreshToken', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('zwraca ten sam token następcy przy powtórnym użyciu w oknie karencji', async () => {
-    const successor = 'successor-raw-token';
+  it('wydaje świeży token przy pierwszym użyciu', async () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
       tokenHash: hashToken('stary'),
       userId: 'user-1',
-      expiresAt: new Date(Date.now() + 1000),
-      rotatedAt: new Date(Date.now() - 5_000),
-      replacedByTokenHash: hashToken(successor),
-      successorRaw: successor,
-    });
-    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
-      tokenHash: hashToken(successor),
-      userId: 'user-1',
-      expiresAt: new Date(Date.now() + 1000),
+      expiresAt: new Date(Date.now() + 60_000),
       rotatedAt: null,
-      replacedByTokenHash: null,
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1');
+    const result = await rotateRefreshToken('stary', 'user-1', 1000);
 
-    expect(result.reused).toBe(false);
-    expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled();
+    expect(result.stale).toBe(false);
+    if (!result.stale) expect(result.token).not.toBe('stary');
   });
 });
 ```
@@ -211,17 +200,6 @@ export const hashToken = (raw: string) =>
   crypto.createHash('sha256').update(raw).digest('hex');
 
 export const generateRawToken = () => crypto.randomBytes(32).toString('hex');
-
-/**
- * Unieważnia wszystkie sesje użytkownika. Wołane wyłącznie przy wykryciu
- * ponownego użycia zrotowanego tokenu — czyli przy podejrzeniu kradzieży.
- */
-export const revokeAllSessions = async (userId: string) => {
-  await prisma.$transaction([
-    prisma.refreshToken.deleteMany({ where: { userId } }),
-    prisma.deviceToken.deleteMany({ where: { userId } }),
-  ]);
-};
 ```
 
 - [ ] **Step 4: Uruchom test — nadal nie przechodzi z innego powodu**
@@ -235,15 +213,21 @@ Dopisz na końcu `session.service.ts`:
 
 ```typescript
 type RotationResult =
-  | { reused: false; token: string; expiresAt: Date }
-  | { reused: true };
+  | { stale: false; token: string; expiresAt: Date }
+  | { stale: true };
 
 /**
- * Rotuje refresh token, zachowując 60-sekundowe okno karencji.
+ * Rotuje refresh token, zostawiając staremu 60-sekundowe okno karencji.
  *
  * Bez karencji dwa konteksty aplikacji (zainstalowana PWA i karta przeglądarki)
  * potrafią odświeżyć sesję jednocześnie: pierwszy skasowałby token, drugi
- * dostałby 401 i wylogował użytkownika.
+ * dostałby 401 i wylogował użytkownika. Zamiast kasować, skracamy staremu
+ * termin ważności — przez minutę obsłuży drugi kontekst, po czym wygaśnie sam.
+ *
+ * Celowo nie wykrywamy tu ponownego użycia tokenu: PWA potrafi leżeć w tle
+ * godzinami i wrócić ze starym tokenem, więc kasowanie sesji przy takim
+ * zdarzeniu wylogowywałoby uczciwych użytkowników. Token po karencji dostaje
+ * zwykłe 401, a token urządzenia odtwarza sesję.
  */
 export const rotateRefreshToken = async (
   rawToken: string,
@@ -253,37 +237,28 @@ export const rotateRefreshToken = async (
   const tokenHash = hashToken(rawToken);
   const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
 
-  if (!stored) return { reused: true };
-
-  if (stored.rotatedAt) {
-    const age = Date.now() - stored.rotatedAt.getTime();
-    if (age > ROTATION_GRACE_MS) {
-      await revokeAllSessions(userId);
-      return { reused: true };
-    }
-    // W oknie karencji nie tworzymy kolejnego tokenu — wołający dostaje
-    // wcześniej wydanego następcę, którego surową postać trzyma po stronie klienta.
-    return { reused: false, token: rawToken, expiresAt: stored.expiresAt };
-  }
+  if (!stored || stored.expiresAt <= new Date()) return { stale: true };
 
   const nextRaw = generateRawToken();
-  const nextHash = hashToken(nextRaw);
   const expiresAt = new Date(Date.now() + ttlMs);
+  const graceExpiry = new Date(Date.now() + ROTATION_GRACE_MS);
 
   await prisma.$transaction([
-    prisma.refreshToken.update({
-      where: { tokenHash },
-      data: { rotatedAt: new Date(), replacedByTokenHash: nextHash },
+    // Skracamy ważność tylko przy pierwszej rotacji — powtórne użycie w oknie
+    // karencji nie przedłuża go w nieskończoność.
+    prisma.refreshToken.updateMany({
+      where: { tokenHash, rotatedAt: null },
+      data: { rotatedAt: new Date(), expiresAt: graceExpiry },
     }),
     prisma.refreshToken.create({
-      data: { tokenHash: nextHash, userId, expiresAt },
+      data: { tokenHash: hashToken(nextRaw), userId, expiresAt },
     }),
     prisma.refreshToken.deleteMany({
       where: { userId, rotatedAt: { lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
     }),
   ]);
 
-  return { reused: false, token: nextRaw, expiresAt };
+  return { stale: false, token: nextRaw, expiresAt };
 };
 ```
 
@@ -292,56 +267,61 @@ export const rotateRefreshToken = async (
 Zamień treść testu z kroku 1 na (zwróć uwagę na trzeci argument `ttlMs`):
 
 ```typescript
-  it('nie tworzy nowego tokenu przy powtórnym użyciu w oknie karencji', async () => {
+  it('wydaje świeży token także przy powtórnym użyciu w oknie karencji', async () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
       tokenHash: hashToken('stary'),
       userId: 'user-1',
-      expiresAt: new Date(Date.now() + 1000),
+      expiresAt: new Date(Date.now() + 30_000),
       rotatedAt: new Date(Date.now() - 5_000),
-      replacedByTokenHash: 'hash-nastepcy',
     });
 
     const result = await rotateRefreshToken('stary', 'user-1', 1000);
 
-    expect(result).toEqual({ reused: false, token: 'stary', expiresAt: expect.any(Date) });
-    expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled();
+    expect(result.stale).toBe(false);
+    if (!result.stale) expect(result.token).not.toBe('stary');
+    expect(mockPrisma.refreshToken.create).toHaveBeenCalled();
   });
 
-  it('rotuje token przy pierwszym użyciu', async () => {
+  it('skraca ważność starego tokenu tylko przy pierwszej rotacji', async () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
       tokenHash: hashToken('stary'),
       userId: 'user-1',
-      expiresAt: new Date(Date.now() + 1000),
+      expiresAt: new Date(Date.now() + 60_000),
       rotatedAt: null,
-      replacedByTokenHash: null,
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+    await rotateRefreshToken('stary', 'user-1', 1000);
 
-    expect(result.reused).toBe(false);
-    expect(mockPrisma.$transaction).toHaveBeenCalled();
+    const updateArgs = mockPrisma.refreshToken.updateMany.mock.calls[0][0];
+    expect(updateArgs.where).toEqual({ tokenHash: hashToken('stary'), rotatedAt: null });
   });
 
-  it('kasuje wszystkie sesje przy użyciu tokenu po oknie karencji', async () => {
+  it('zwraca stale dla tokenu wygasłego i nie kasuje innych sesji', async () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
       tokenHash: hashToken('stary'),
       userId: 'user-1',
-      expiresAt: new Date(Date.now() + 1000),
-      rotatedAt: new Date(Date.now() - ROTATION_GRACE_MS - 1000),
-      replacedByTokenHash: 'hash-nastepcy',
+      expiresAt: new Date(Date.now() - 1000),
+      rotatedAt: new Date(Date.now() - 120_000),
     });
 
     const result = await rotateRefreshToken('stary', 'user-1', 1000);
 
-    expect(result).toEqual({ reused: true });
-    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    expect(result).toEqual({ stale: true });
+    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
+    expect(mockPrisma.refreshToken.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('zwraca stale dla tokenu nieznanego', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
+
+    expect(await rotateRefreshToken('obcy', 'user-1', 1000)).toEqual({ stale: true });
   });
 ```
 
 - [ ] **Step 7: Uruchom testy — mają przejść**
 
 Run: `cd apps/server && pnpm vitest run src/modules/auth/session.service.test.ts`
-Expected: PASS, 3 testy.
+Expected: PASS, 5 testów.
 
 - [ ] **Step 8: Commit**
 
@@ -463,7 +443,7 @@ export const revokeDeviceTokens = (userId: string) =>
 - [ ] **Step 4: Uruchom testy — mają przejść**
 
 Run: `cd apps/server && pnpm vitest run src/modules/auth/session.service.test.ts`
-Expected: PASS, 7 testów.
+Expected: PASS, 9 testów.
 
 - [ ] **Step 5: Commit**
 
@@ -498,9 +478,9 @@ W funkcji `refresh` zamień blok od `const newRefreshToken = signToken(...)` do 
 ```typescript
     const rotation = await rotateRefreshToken(refreshToken, user.id, LONG_LIVED_REFRESH_TTL_MS);
 
-    if (rotation.reused) {
+    if (rotation.stale) {
       clearAllRefreshCookies(res);
-      throw new AppError('Sesja została unieważniona ze względów bezpieczeństwa. Zaloguj się ponownie.', 401);
+      throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
     }
 
     clearAllRefreshCookies(res);
