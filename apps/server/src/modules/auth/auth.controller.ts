@@ -20,6 +20,7 @@ import {
   isFacebookConfigured,
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
+import { rotateRefreshToken } from './session.service';
 import {
   WEBAUTHN_LOGIN_PURPOSE,
   WEBAUTHN_REGISTER_PURPOSE,
@@ -660,8 +661,6 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
     }
 
-    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
     if (!user) throw new AppError('Użytkownik nie istnieje', 401);
@@ -682,22 +681,18 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    // Sliding long-lived session: every successful refresh extends the device session.
-    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
-    const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-    await prisma.$transaction([
-      prisma.refreshToken.delete({ where: { tokenHash } }),
-      prisma.refreshToken.create({
-        data: {
-          tokenHash: newTokenHash,
-          userId: user.id,
-          expiresAt: new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS),
-        },
-      }),
-    ]);
+    // Sliding long-lived session: every successful refresh extends the device session,
+    // z oknem karencji obsługiwanym przez rotateRefreshToken (Task 2).
+    const rotation = await rotateRefreshToken(refreshToken, user.id, LONG_LIVED_REFRESH_TTL_MS);
+
+    if (rotation.stale) {
+      clearAllRefreshCookies(res);
+      throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
+    }
+
     // Clear all stale cookies (host-only + domain) before setting the new one
     clearAllRefreshCookies(res);
-    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
+    res.cookie('refreshToken', rotation.token, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
 
     res.status(200).json({
       status: 'success',
