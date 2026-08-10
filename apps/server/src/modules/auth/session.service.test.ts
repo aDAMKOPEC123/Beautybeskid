@@ -21,7 +21,7 @@ const { mockPrisma } = vi.hoisted(() => ({
 
 vi.mock('../../config/prisma', () => ({ prisma: mockPrisma }));
 
-import { rotateRefreshToken, hashToken } from './session.service';
+import { rotateRefreshToken, hashToken, issueDeviceToken, consumeDeviceToken } from './session.service';
 
 describe('rotateRefreshToken', () => {
   beforeEach(() => {
@@ -103,5 +103,51 @@ describe('rotateRefreshToken', () => {
 
     expect(result).toEqual({ stale: true });
     expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('tokeny urządzeń', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('zapisuje wyłącznie hash, zwraca surowy token', async () => {
+    mockPrisma.deviceToken.create.mockResolvedValueOnce({});
+
+    const raw = await issueDeviceToken('user-1', 'iPhone');
+
+    expect(raw).toHaveLength(64);
+    const args = mockPrisma.deviceToken.create.mock.calls[0][0];
+    expect(args.data.tokenHash).toBe(hashToken(raw));
+    expect(args.data.tokenHash).not.toBe(raw);
+    expect(args.data.userId).toBe('user-1');
+  });
+
+  it('zwraca userId i przedłuża ważność ważnego tokenu', async () => {
+    mockPrisma.deviceToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('raw'),
+      userId: 'user-7',
+      expiresAt: new Date(Date.now() + 10_000),
+    });
+    mockPrisma.deviceToken.update.mockResolvedValueOnce({});
+
+    const userId = await consumeDeviceToken('raw');
+
+    expect(userId).toBe('user-7');
+    expect(mockPrisma.deviceToken.update).toHaveBeenCalled();
+  });
+
+  it('odrzuca token wygasły', async () => {
+    mockPrisma.deviceToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('raw'),
+      userId: 'user-7',
+      expiresAt: new Date(Date.now() - 1000),
+    });
+
+    expect(await consumeDeviceToken('raw')).toBeNull();
+  });
+
+  it('odrzuca token nieznany', async () => {
+    mockPrisma.deviceToken.findUnique.mockResolvedValueOnce(null);
+
+    expect(await consumeDeviceToken('raw')).toBeNull();
   });
 });

@@ -64,3 +64,34 @@ export const rotateRefreshToken = async (
 
   return { stale: false, token: nextRaw, expiresAt };
 };
+
+export const issueDeviceToken = async (userId: string, label?: string) => {
+  const raw = generateRawToken();
+  await prisma.deviceToken.create({
+    data: {
+      tokenHash: hashToken(raw),
+      userId,
+      label: label ?? null,
+      expiresAt: new Date(Date.now() + DEVICE_TOKEN_TTL_MS),
+    },
+  });
+  return raw;
+};
+
+export const consumeDeviceToken = async (rawToken: string) => {
+  const tokenHash = hashToken(rawToken);
+  const stored = await prisma.deviceToken.findUnique({ where: { tokenHash } });
+
+  if (!stored || stored.expiresAt <= new Date()) return null;
+
+  // Sliding window: każde użycie przesuwa termin ważności.
+  await prisma.deviceToken.update({
+    where: { tokenHash },
+    data: { lastUsedAt: new Date(), expiresAt: new Date(Date.now() + DEVICE_TOKEN_TTL_MS) },
+  });
+
+  return stored.userId;
+};
+
+export const revokeDeviceTokens = (userId: string) =>
+  prisma.deviceToken.deleteMany({ where: { userId } });
