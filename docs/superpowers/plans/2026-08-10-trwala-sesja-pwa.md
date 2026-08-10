@@ -154,7 +154,8 @@ const { mockPrisma } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../../config/prisma', () => ({ default: mockPrisma }));
+// config/prisma.ts eksportuje `export const prisma` — mock musi to odwzorować.
+vi.mock('../../config/prisma', () => ({ prisma: mockPrisma }));
 
 import { rotateRefreshToken, hashToken } from './session.service';
 
@@ -190,7 +191,7 @@ Utwórz `apps/server/src/modules/auth/session.service.ts`:
 
 ```typescript
 import crypto from 'crypto';
-import prisma from '../../config/prisma';
+import { prisma } from '../../config/prisma';
 
 export const ROTATION_GRACE_MS = 60_000;
 const DEVICE_TOKEN_TTL_DAYS = 400;
