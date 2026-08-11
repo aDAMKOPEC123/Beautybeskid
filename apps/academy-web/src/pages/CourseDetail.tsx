@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackAcademyEvent } from '@/lib/academyAnalytics';
 import { toast } from 'sonner';
-import DOMPurify from 'dompurify';
+import { sanitizeLessonHtml } from '@/lib/sanitizeLessonHtml';
 import { Helmet } from 'react-helmet-async';
 import { DocumentTitle } from '@/components/DocumentTitle';
 
@@ -147,8 +147,8 @@ export function CourseDetail() {
       <div className="academy-preview-lesson-badge"><Play className="w-4 h-4" />Bezpłatny fragment kursu</div>
       <h2>{course.previewLesson.title}</h2>
       {course.previewLesson.type === 'VIDEO' && course.previewLesson.videoId
-        ? <><ExternalVideo videoId={course.previewLesson.videoId} title={course.previewLesson.title} />{course.previewLesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja filmu</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(course.previewLesson.transcriptHtml) }} /></details>}</>
-        : course.previewLesson.contentHtml && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(course.previewLesson.contentHtml) }} />}
+        ? <><ExternalVideo videoId={course.previewLesson.videoId} title={course.previewLesson.title} />{course.previewLesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja filmu</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(course.previewLesson.transcriptHtml) }} /></details>}</>
+        : course.previewLesson.contentHtml && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(course.previewLesson.contentHtml) }} />}
       {!isAuthenticated && <div className="academy-preview-lesson-cta">
         <p>Podoba Ci się? Cały kurs zawiera {totalLessons > 0 ? `${totalLessons} lekcji` : 'pełny program'}.</p>
         <Link to="/rejestracja" state={{ from: course.isFree ? `/kurs/${slug}` : `/zamowienie/kurs/${slug}` }}>Załóż konto i kontynuuj naukę <ArrowRight className="w-4 h-4" /></Link>
