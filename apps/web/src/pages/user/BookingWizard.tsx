@@ -32,6 +32,7 @@ import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
 import { PageSEO } from '@/components/shared/SEO';
+import { APPOINTMENTS_PATH, JUST_BOOKED_KEY, writeSession } from '@/lib/booking-confirmation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1466,6 +1467,27 @@ export const BookingWizard = () => {
     return true;
   };
 
+  // The client must always land on "Moje wizyty" once the appointment exists. The
+  // sessionStorage breadcrumb carries the confirmation panel across either route,
+  // and a full page load takes over if the SPA navigation does not commit.
+  const goToAppointments = (appointmentId: string) => {
+    writeSession(JUST_BOOKED_KEY, appointmentId);
+
+    try {
+      navigate(APPOINTMENTS_PATH, {
+        state: { pwaPromptReason: 'booking-success', justBookedAppointmentId: appointmentId },
+      });
+    } catch {
+      // Fall through to the hard navigation below.
+    }
+
+    window.setTimeout(() => {
+      if (window.location.pathname !== APPOINTMENTS_PATH) {
+        window.location.assign(APPOINTMENTS_PATH);
+      }
+    }, 350);
+  };
+
   const handleConfirm = async () => {
     if (!state.service || !state.date || !state.time) return;
 
@@ -1533,16 +1555,15 @@ export const BookingWizard = () => {
       });
     } catch {
       // Once the appointment exists, a failed side effect must not block the redirect.
-      if (!bookedAppointmentId) {
-        toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
-        return;
-      }
     }
 
+    if (!bookedAppointmentId) {
+      toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
+      return;
+    }
+
+    goToAppointments(bookedAppointmentId);
     toast.success('Wizyta zarezerwowana — czeka na potwierdzenie salonu.');
-    navigate('/user/wizyty', {
-      state: { pwaPromptReason: 'booking-success', justBookedAppointmentId: bookedAppointmentId },
-    });
   };
 
   return (

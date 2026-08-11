@@ -43,6 +43,12 @@ import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { AppointmentListSkeleton } from '@/components/skeletons';
 import { FollowUpReminderWidget } from '@/components/appointments/FollowUpReminderWidget';
 import { BookingConfirmationPanel } from '@/components/appointments/BookingConfirmationPanel';
+import {
+  JUST_BOOKED_DISMISSED_KEY,
+  JUST_BOOKED_KEY,
+  readSession,
+  writeSession,
+} from '@/lib/booking-confirmation';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -70,26 +76,6 @@ const HISTORY_FILTERS: Array<{ value: AppointmentHistoryStatus; label: string }>
 
 const ACTIVE_STATUSES = new Set(['PENDING', 'CONFIRMED']);
 
-// Freshly booked appointment highlighted with a confirmation panel until the client dismisses it.
-const JUST_BOOKED_KEY = 'booking-confirmation-id';
-const JUST_BOOKED_DISMISSED_KEY = 'booking-confirmation-dismissed';
-
-const readSession = (key: string) => {
-  try {
-    return sessionStorage.getItem(key);
-  } catch {
-    return null;
-  }
-};
-
-const writeSession = (key: string, value: string | null) => {
-  try {
-    if (value === null) sessionStorage.removeItem(key);
-    else sessionStorage.setItem(key, value);
-  } catch {
-    // sessionStorage may be unavailable in private browsing.
-  }
-};
 
 const getStatusExplanation = (appointment: Appointment) => {
   if (appointment.activeCancellationRequest) {
