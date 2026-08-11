@@ -57,8 +57,20 @@ Dwa niezależne mechanizmy, każdy adresujący jedną przyczynę.
 ### Mechanizm 1 — okno karencji przy rotacji
 
 Stary refresh token przestaje być kasowany natychmiast. Zamiast tego zostaje
-oznaczony jako zrotowany i przez 60 sekund nadal jest akceptowany, zwracając
-**ten sam** token następcy zamiast tworzyć kolejny.
+oznaczony jako zrotowany i przez 60 sekund nadal jest akceptowany.
+
+Każde takie użycie wydaje **nowy** token następcy — nie odtwarzamy poprzednio
+wydanego. Serwer trzyma wyłącznie hash tokenu, więc odtworzenie tej samej
+wartości i tak nie byłoby możliwe, a wydanie kolejnego jest bezpieczniejsze:
+każdy kontekst aplikacji (PWA i karta przeglądarki) dostaje własny token, a
+skrócenie ważności starego dotyczy tylko pierwszej rotacji, więc okno karencji
+nie przedłuża się w nieskończoność.
+
+Token następcy jest podpisanym JWT (`{ id, jti }` sekretem `JWT_REFRESH_SECRET`),
+a nie losowym ciągiem: handler `refresh` weryfikuje kandydatów z ciasteczka przez
+`verifyToken` i korzysta z `decoded.iat`, żeby odciąć sesje starsze niż
+`passwordChangedAt`. `jti` gwarantuje unikalność `tokenHash` przy dwóch rotacjach
+w tej samej sekundzie.
 
 Model `RefreshToken` zyskuje jedno pole:
 

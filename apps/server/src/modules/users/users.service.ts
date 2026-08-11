@@ -3,6 +3,7 @@ import { AppError } from '../../middleware/error.middleware';
 import { generateCode } from '../../utils/generateCode';
 import { sendEmail } from '../../utils/email';
 import bcrypt from 'bcryptjs';
+import { revokeDeviceTokens } from '../auth/session.service';
 
 const VISIT_POINTS_PREFIXES = ['Punkty za wizyte: ', 'Punkty za wizyte:', 'Punkty za wizytę: ', 'Punkty za wizytę:'];
 
@@ -566,7 +567,7 @@ export const changeUserPassword = async (userId: string, currentPassword: string
   });
 
   // Awaryjne odcięcie wszystkich urządzeń — jedyna droga odebrania dostępu zgubionemu telefonowi.
-  await prisma.deviceToken.deleteMany({ where: { userId } });
+  await revokeDeviceTokens(userId);
 
   return updated;
 };
