@@ -28,8 +28,21 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-10-5.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-11.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-pro-12-9.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/splash/iphone-16-pro.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/splash/iphone-16-pro-max.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-10th.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-mini-6.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-pro-11-m4.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/ipad-pro-13-m4.png" />
+    <!-- Zapasowy obrazek bez atrybutu media: iOS użyje go, gdy żaden powyższy
+         wpis nie pasuje do rozmiaru ekranu (nowe/nieznane modele) — bez tego
+         wracamy do oryginalnego bugu: biały ekran startowy. -->
+    <link rel="apple-touch-startup-image" href="/splash/iphone-14-pro.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
+    <!-- Preload LCP image for mobile -->
+    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-mobile.webp" media="(max-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-premium.webp" media="(min-width: 769px)" fetchpriority="high" />
     <!-- Ekran ładowania PWA. Wszystko inline: splash musi być gotowy zanim
          pobierze się jakikolwiek zewnętrzny zasób. -->
     <style>
@@ -48,14 +61,28 @@
         opacity: 1;
         transition: opacity 400ms ease-out;
       }
-      /* Widoczny wyłącznie w zainstalowanej aplikacji. */
-      @media (display-mode: standalone) {
+      /* Widoczny wyłącznie w zainstalowanej aplikacji. Trzy warianty trybu
+         wyświetlania, bo display_override w manifest.json dopuszcza fallback
+         na minimal-ui/fullscreen, gdy standalone jest niedostępny. */
+      @media (display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen) {
         #app-splash { display: flex; }
       }
       /* iOS starszy niż 16.4 nie zna media query display-mode. */
       html.is-standalone #app-splash { display: flex; }
 
       #app-splash.is-hidden { opacity: 0; pointer-events: none; }
+
+      /* Fallback tras Suspense (komponent Spinner w router.tsx). W trybie
+         standalone dostaje to samo tło co splash, żeby przejście splash →
+         pobieranie chunku trasy było zielone-w-zielone, a nie zielone-w-białe
+         (np. przekierowanie zalogowanego użytkownika z "/" na "/user", którego
+         layout jest lazy i celowo poza precache — patrz vite.config.ts). */
+      @media (display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen) {
+        .app-route-fallback { background: #1A3828; }
+        .app-route-fallback .animate-spin { border-bottom-color: #F4F9F5; }
+      }
+      html.is-standalone .app-route-fallback { background: #1A3828; }
+      html.is-standalone .app-route-fallback .animate-spin { border-bottom-color: #F4F9F5; }
 
       #app-splash .splash-mark {
         width: 88px;
@@ -139,13 +166,12 @@
           var el = document.getElementById('app-splash');
           if (!el) return;
           el.classList.add('is-hidden');
+          // 400 = FADE_MS w src/splash.ts oraz `transition: opacity` na #app-splash
+          // wyżej w tym pliku. Te trzy miejsca muszą być zmieniane razem.
           setTimeout(function () { el.remove(); }, 400);
         }, 6000);
       })();
     </script>
-    <!-- Preload LCP image for mobile -->
-    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-mobile.webp" media="(max-width: 768px)" fetchpriority="high" />
-    <link rel="preload" as="image" type="image/webp" href="/images/beautybeskid-hero-premium.webp" media="(min-width: 769px)" fetchpriority="high" />
     <title>Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio</title>
     <meta name="description" content="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Sprawdź wolny termin online i umów wizytę lub bezpłatną konsultację." data-rh="true" />
     <meta name="robots" content="index,follow,max-image-preview:large" data-rh="true" />

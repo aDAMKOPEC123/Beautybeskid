@@ -120,8 +120,11 @@ const AdminAcademyRedirect = ({ target = '/admin' }: { target?: string }) => {
   return null;
 };
 
+// `app-route-fallback` dostaje tło #1A3828 wyłącznie w trybie standalone (patrz
+// blok <style> splashu w index.html) — bez tego przejście z zielonego splashu
+// HTML do pobierania chunku trasy pokazywałoby białą stronę.
 const Spinner = (
-  <div className="flex min-h-[calc(100svh-72px)] items-center justify-center">
+  <div className="app-route-fallback flex min-h-[calc(100svh-72px)] items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
   </div>
 );

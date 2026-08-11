@@ -18,7 +18,11 @@ declare global {
 /** Minimalny czas widoczności — bez niego splash mignąłby na szybkim urządzeniu. */
 export const MIN_VISIBLE_MS = 700;
 
-/** Musi być zgodne z `transition: opacity` na #app-splash w index.html. */
+/**
+ * Musi być zgodne z `transition: opacity` na #app-splash w index.html oraz z
+ * zagnieżdżonym `setTimeout` bezpiecznika w tamtejszym inline'owym skrypcie —
+ * zmiana tej wartości wymaga zaktualizowania obu miejsc.
+ */
 export const FADE_MS = 400;
 
 const SPLASH_ID = 'app-splash';

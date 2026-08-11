@@ -3,27 +3,29 @@
 // Uruchamiany RĘCZNIE, wynik jest commitowany — nie chcemy natywnej binarki
 // sharp w zależnościach apps/web ani generowania przy każdym buildzie.
 //
-// Uruchomienie z katalogu cosmo-app/:
+// Działa z dowolnego cwd — sharp i katalog wyjściowy rozwiązywane są względem
+// lokalizacji tego pliku, nie process.cwd(). Można więc uruchomić zarówno:
+//   node apps/web/scripts/generate-splash-screens.mjs   (z korzenia repo)
+// jak i:
 //   pnpm --filter cosmo-server exec node ../web/scripts/generate-splash-screens.mjs
 import { mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-// `sharp` żyje wyłącznie w node_modules workspace'u cosmo-server (patrz nagłówek
-// pliku). Statyczny `import sharp from 'sharp'` rozwiązywałby się względem
-// lokalizacji TEGO pliku (apps/web/scripts), gdzie sharp nie istnieje —
-// niezależnie od tego, z jakiego katalogu uruchomiono `pnpm exec`. Dlatego
-// rozwiązujemy pakiet ręcznie względem cwd procesu (czyli apps/server).
-const require = createRequire(path.join(process.cwd(), 'package.json'));
-const sharpEntry = require.resolve('sharp');
-const { default: sharp } = await import(pathToFileURL(sharpEntry).href);
-
 // Ścieżka wyjściowa MUSI pochodzić z import.meta.url (lokalizacji tego pliku),
-// nie z process.cwd() — skrypt jest uruchamiany z innego katalogu (cosmo-app/),
-// więc cwd nie wskazuje na apps/web/public/splash.
+// nie z process.cwd() — skrypt bywa uruchamiany z innego katalogu (cosmo-app/),
+// więc cwd nie zawsze wskazuje na apps/web/public/splash.
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(SCRIPT_DIR, '..', 'public', 'splash');
+
+// `sharp` żyje wyłącznie w node_modules workspace'u cosmo-server. Rozwiązujemy
+// go po ścieżce względem lokalizacji tego pliku (SCRIPT_DIR), a nie
+// process.cwd() — dzięki temu skrypt działa niezależnie od katalogu, z którego
+// go uruchomiono.
+const require = createRequire(path.join(SCRIPT_DIR, '../../server/package.json'));
+const sharpEntry = require.resolve('sharp');
+const { default: sharp } = await import(pathToFileURL(sharpEntry).href);
 
 const BG = '#1A3828';
 const CREAM = '#F4F9F5';
@@ -51,13 +53,19 @@ const DEVICES = [
   { name: 'ipad-10-5', width: 1668, height: 2224 },
   { name: 'ipad-11', width: 1668, height: 2388 },
   { name: 'ipad-pro-12-9', width: 2048, height: 2732 },
+  { name: 'iphone-16-pro', width: 1206, height: 2622 },
+  { name: 'iphone-16-pro-max', width: 1320, height: 2868 },
+  { name: 'ipad-10th', width: 1640, height: 2360 },
+  { name: 'ipad-mini-6', width: 1488, height: 2266 },
+  { name: 'ipad-pro-11-m4', width: 1668, height: 2420 },
+  { name: 'ipad-pro-13-m4', width: 2064, height: 2752 },
 ];
 
 function buildSvg(width, height) {
   const short = Math.min(width, height);
   const mark = Math.round(short * 0.24);
   const nameSize = Math.round(short * 0.075);
-  const subSize = Math.round(short * 0.026);
+  const subSize = Math.round(short * 0.032);
   const cx = width / 2;
   const cy = height / 2;
   const markTop = cy - mark * 1.05;
