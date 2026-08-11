@@ -139,8 +139,12 @@ Trzy miejsca w `App.tsx` (start aplikacji, `visibilitychange`, interwał 10-minu
 oraz interceptor w `lib/axios.ts` pozostają nietknięte — nadal reagują na 401,
 tylko że 401 pojawia się wyłącznie, gdy naprawdę nie da się odtworzyć sesji.
 
-Token urządzenia jest unieważniany przez: świadome wylogowanie, zmianę hasła
-(`passwordChangedAt`), wykrycie ponownego użycia refresh tokenu, upływ 400 dni.
+Token urządzenia jest unieważniany przez: świadome wylogowanie (tylko tokenu
+urządzenia, z którego przyszło żądanie — pozostałe urządzenia użytkownika, np.
+zainstalowana PWA na telefonie, zachowują swoje tokeny i trwałą sesję push),
+zmianę hasła (`passwordChangedAt`, odcina tokeny **wszystkich** urządzeń naraz —
+to jest jedyna ścieżka globalnego, awaryjnego wylogowania), wykrycie ponownego
+użycia refresh tokenu, upływ 400 dni.
 
 ## Bezpieczeństwo
 
@@ -152,12 +156,17 @@ wgląd w kartoteki medyczne wszystkich klientek.
 Ryzyko ograniczają:
 
 - `passwordChangedAt` jako awaryjne odcięcie wszystkich urządzeń — ścieżka
-  wymagająca testu potwierdzającego, że unieważnia także tokeny urządzeń,
+  wymagająca testu potwierdzającego, że unieważnia także tokeny urządzeń.
+  Świadome wylogowanie tego nie robi: unieważnia wyłącznie token urządzenia,
+  z którego przyszło żądanie (`X-Device-Token`), więc kolejne urządzenia
+  użytkownika nie tracą trwałej sesji,
 - ograniczona ważność 400 dni z odnawianiem tylko przy faktycznym użyciu,
 - istniejąca polityka CSP, która blokuje skrypty spoza listy dozwolonych domen.
 
-Świadome wylogowanie zachowuje obecne zachowanie, w tym kasowanie subskrypcji push
-(`UserLayout.tsx:164`, `Navbar.tsx:165`).
+Świadome wylogowanie nadal kasuje subskrypcję push tego urządzenia
+(`UserLayout.tsx:164`, `Navbar.tsx:165`) — to nie zmienia się. Zmienia się zakres
+unieważniania tokenu urządzenia: dotyczy wyłącznie urządzenia, z którego przyszło
+żądanie wylogowania, a nie wszystkich urządzeń użytkownika.
 
 ## Powiadomienia push
 

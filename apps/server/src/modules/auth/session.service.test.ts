@@ -187,46 +187,49 @@ describe('sprzątanie i wylogowanie', () => {
     expect(args.where).not.toHaveProperty('rotatedAt');
   });
 
-  it('wylogowanie kasuje tokeny urządzeń właściciela znalezionego po ciasteczku', async () => {
-    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
-      tokenHash: hashToken('ciasteczko'),
-      userId: 'user-1',
-      expiresAt: new Date(Date.now() + 60_000),
-    });
-
+  it('wylogowanie z ciasteczkiem, bez nagłówka X-Device-Token, kasuje tylko RefreshToken', async () => {
     await revokeSessionOnLogout('ciasteczko', undefined);
 
     expect(mockPrisma.refreshToken.deleteMany).toHaveBeenCalledWith({
       where: { tokenHash: hashToken('ciasteczko') },
     });
-    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    // Bez nagłówka nie wiadomo, którego urządzenia dotyczy wylogowanie — zgadywanie
+    // "wszystkie" jest właśnie tym, co to zachowanie naprawia. Żaden DeviceToken
+    // nie może zostać skasowany.
+    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
   });
 
-  it('wylogowanie kasuje tokeny urządzeń właściciela znalezionego po nagłówku X-Device-Token', async () => {
-    mockPrisma.deviceToken.findUnique.mockResolvedValueOnce({
-      tokenHash: hashToken('dev-raw'),
-      userId: 'user-5',
-      expiresAt: new Date(Date.now() + 60_000),
-    });
-
+  it('wylogowanie z nagłówkiem X-Device-Token kasuje dokładnie jeden wiersz DeviceToken po hashu tego tokenu, nie wszystkie urządzenia użytkownika', async () => {
     await revokeSessionOnLogout(undefined, 'dev-raw');
 
-    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-5' } });
+    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({
+      where: { tokenHash: hashToken('dev-raw') },
+    });
+    // Krytyczne: filtr musi być po tokenHash tego jednego urządzenia, nigdy po userId —
+    // to właśnie kasowanie po userId zabijało trwałą sesję PWA na innych urządzeniach.
+    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalledWith({
+      where: { userId: expect.anything() },
+    });
   });
 
-  it('wylogowanie bez ciasteczka i bez nagłówka nie jest błędem', async () => {
+  it('wylogowanie z ciasteczkiem i nagłówkiem kasuje RefreshToken po hashu ciasteczka i DeviceToken po hashu nagłówka — oba niezależnie, żadne inne urządzenie nietknięte', async () => {
+    await revokeSessionOnLogout('ciasteczko', 'dev-raw');
+
+    expect(mockPrisma.refreshToken.deleteMany).toHaveBeenCalledWith({
+      where: { tokenHash: hashToken('ciasteczko') },
+    });
+    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({
+      where: { tokenHash: hashToken('dev-raw') },
+    });
+  });
+
+  it('wylogowanie bez ciasteczka i bez nagłówka kończy się bez błędu i bez żadnego kasowania', async () => {
     await expect(revokeSessionOnLogout(undefined, undefined)).resolves.toBeUndefined();
 
     expect(mockPrisma.refreshToken.deleteMany).not.toHaveBeenCalled();
     expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
-  });
-
-  it('wylogowanie nieznanym ciasteczkiem nie kasuje cudzych tokenów urządzeń', async () => {
-    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
-
-    await revokeSessionOnLogout('obce-ciasteczko', undefined);
-
-    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
+    expect(mockPrisma.refreshToken.findUnique).not.toHaveBeenCalled();
+    expect(mockPrisma.deviceToken.findUnique).not.toHaveBeenCalled();
   });
 });
 

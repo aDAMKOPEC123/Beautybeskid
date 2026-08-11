@@ -133,31 +133,30 @@ export const deleteExpiredRefreshTokens = (userId: string) =>
 
 /**
  * Unieważnia sesję przy świadomym wylogowaniu: kasuje refresh token z ciasteczka
- * oraz **wszystkie tokeny urządzeń** właściciela sesji.
+ * i, jeśli żądanie niesie `X-Device-Token`, token **tylko tego jednego urządzenia**.
  *
- * Żądanie `POST /auth/logout` bywa nieuwierzytelnione, więc właściciela ustalamy
- * z tego, co przyszło: z nagłówka `X-Device-Token` albo z wiersza znalezionego po
- * hashu ciasteczka. Brak obu nie jest błędem — nie ma czego kasować.
+ * Wylogowanie jest operacją lokalną dla urządzenia — nie kasujemy tokenów innych
+ * urządzeń tego samego użytkownika, bo wylogowanie na komputerze nie może przerywać
+ * trwałej sesji (i powiadomień push) w PWA na telefonie. Odcięcie wszystkich urządzeń
+ * naraz nadal jest możliwe przez zmianę hasła (`revokeDeviceTokens`), która pozostaje
+ * awaryjnym mechanizmem globalnego wylogowania.
+ *
+ * Brak nagłówka `X-Device-Token` nie jest błędem i nie kasuje żadnego wiersza
+ * `DeviceToken` — nie wiadomo, którego urządzenia dotyczy wylogowanie, a zgadywanie
+ * „wszystkie” jest właśnie tym, co ta funkcja ma przestać robić.
  */
 export const revokeSessionOnLogout = async (
   refreshCookie?: string | null,
   deviceTokenRaw?: string | null,
 ): Promise<void> => {
-  let userId: string | null = null;
-
   if (deviceTokenRaw) {
-    const stored = await prisma.deviceToken.findUnique({
+    await prisma.deviceToken.deleteMany({
       where: { tokenHash: hashToken(deviceTokenRaw) },
     });
-    if (stored) userId = stored.userId;
   }
 
   if (refreshCookie) {
     const tokenHash = hashToken(refreshCookie);
-    const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
-    if (!userId && stored) userId = stored.userId;
     await prisma.refreshToken.deleteMany({ where: { tokenHash } });
   }
-
-  if (userId) await revokeDeviceTokens(userId);
 };

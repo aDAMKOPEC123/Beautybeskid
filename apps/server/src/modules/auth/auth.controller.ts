@@ -625,9 +625,11 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     const rawDeviceToken = req.headers['x-device-token'];
     const deviceTokenHeader = Array.isArray(rawDeviceToken) ? rawDeviceToken[0] : rawDeviceToken;
 
-    // Świadome wylogowanie musi unieważnić także tokeny urządzeń — inaczej
-    // kolejna osoba przy tym samym urządzeniu odtworzyłaby cudzą sesję przez
-    // /auth/refresh-device.
+    // Świadome wylogowanie unieważnia token urządzenia, z którego przyszło żądanie
+    // (nagłówek X-Device-Token) — inaczej kolejna osoba przy tym samym urządzeniu
+    // odtworzyłaby cudzą sesję przez /auth/refresh-device. Pozostałe urządzenia
+    // użytkownika (np. zainstalowana PWA na telefonie) zachowują swoje tokeny —
+    // wylogowanie na jednym urządzeniu nie może przerywać trwałej sesji na innym.
     await revokeSessionOnLogout(refreshToken, deviceTokenHeader);
     clearAllRefreshCookies(res);
     res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
