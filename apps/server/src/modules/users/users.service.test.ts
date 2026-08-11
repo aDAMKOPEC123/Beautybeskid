@@ -7,6 +7,9 @@ vi.mock('../../config/prisma', () => ({
       findMany: vi.fn(),
       update: vi.fn(),
     },
+    deviceToken: {
+      deleteMany: vi.fn(),
+    },
   },
 }));
 vi.mock('../../utils/email', () => ({ sendEmail: vi.fn().mockResolvedValue(undefined) }));

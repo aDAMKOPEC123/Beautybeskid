@@ -564,6 +564,10 @@ export const changeUserPassword = async (userId: string, currentPassword: string
       accountStatus: true, mustChangePassword: true,
     },
   });
+
+  // Awaryjne odcięcie wszystkich urządzeń — jedyna droga odebrania dostępu zgubionemu telefonowi.
+  await prisma.deviceToken.deleteMany({ where: { userId } });
+
   return updated;
 };
 

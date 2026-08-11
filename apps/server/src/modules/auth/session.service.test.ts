@@ -21,7 +21,7 @@ const { mockPrisma } = vi.hoisted(() => ({
 
 vi.mock('../../config/prisma', () => ({ prisma: mockPrisma }));
 
-import { rotateRefreshToken, hashToken, issueDeviceToken, consumeDeviceToken } from './session.service';
+import { rotateRefreshToken, hashToken, issueDeviceToken, consumeDeviceToken, revokeDeviceTokens } from './session.service';
 
 describe('rotateRefreshToken', () => {
   beforeEach(() => {
@@ -151,5 +151,13 @@ describe('tokeny urządzeń', () => {
     mockPrisma.deviceToken.findUnique.mockResolvedValueOnce(null);
 
     expect(await consumeDeviceToken('raw')).toBeNull();
+  });
+
+  it('revokeDeviceTokens kasuje tokeny wskazanego użytkownika', async () => {
+    mockPrisma.deviceToken.deleteMany.mockResolvedValueOnce({ count: 2 });
+
+    await revokeDeviceTokens('user-9');
+
+    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-9' } });
   });
 });

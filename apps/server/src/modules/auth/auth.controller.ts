@@ -167,7 +167,7 @@ const clearGoogleRegistrationCookie = (res: Response) => {
 const persistAuthSession = async (
   res: Response,
   result: { refreshToken: string; user: { id: string } },
-) => {
+): Promise<string> => {
   const tokenTtlMs = LONG_LIVED_REFRESH_TTL_MS;
   clearAllRefreshCookies(res);
   res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
@@ -179,6 +179,7 @@ const persistAuthSession = async (
       expiresAt: new Date(Date.now() + tokenTtlMs),
     },
   });
+  return issueDeviceToken(result.user.id);
 };
 
 const assertUserCanLogin = (user: {
@@ -345,11 +346,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       },
     });
 
+    const deviceToken = await issueDeviceToken(result.user.id);
+
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
-        accessToken: result.accessToken
+        accessToken: result.accessToken,
+        deviceToken
       }
     });
   } catch (error) {
@@ -592,13 +596,14 @@ export const passkeyLoginVerify = async (req: Request, res: Response, next: Next
       }),
       prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } }),
     ]);
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
 
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -764,6 +769,10 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
       }
     });
 
+    // Reset hasła jest ścieżką odzyskiwania konta — kasujemy tokeny urządzeń,
+    // aby skradziony token nie odbudował sesji po zmianie hasła.
+    await prisma.deviceToken.deleteMany({ where: { userId: user.id } });
+
     res.status(200).json({ status: 'success', message: 'Hasło zostało zmienione. Możesz się zalogować.' });
   } catch (error) {
     next(error);
@@ -809,13 +818,14 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     }
 
     const result = await authService.loginWithGoogle(profile, context);
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
 
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -889,7 +899,7 @@ export const completeGoogleRegistration = async (
       name: form.name,
       phone: form.phone,
     });
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
     clearGoogleRegistrationCookie(res);
 
     res.status(201).json({
@@ -897,6 +907,7 @@ export const completeGoogleRegistration = async (
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -987,7 +998,7 @@ export const completeFacebookRegistration = async (
       name: form.name,
       phone: form.phone,
     });
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
     clearFacebookRegistrationCookie(res);
 
     res.status(201).json({
@@ -995,6 +1006,7 @@ export const completeFacebookRegistration = async (
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
