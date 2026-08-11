@@ -54,7 +54,6 @@ async function ensureDeviceToken() {
 async function requestRefresh(): Promise<{ accessToken: string; user?: User }> {
   try {
     const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
-    await ensureDeviceToken();
     return data.data;
   } catch (err) {
     // Ciasteczko zniknęło lub wygasło — spróbuj tokenu urządzenia.
@@ -95,6 +94,11 @@ export function refreshSession(): Promise<string> {
       }
       api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
+      // Dobierz token urządzenia dopiero teraz — świeży access token jest już
+      // w store, więc to żądanie nie dostanie 401 i nie zapętli się z powrotem
+      // w refreshSession() (patrz komentarz w response interceptorze).
+      await ensureDeviceToken();
+
       // Re-auth WebSocket with new token
       const { getSocket } = await import('./socket');
       const sock = getSocket();
@@ -122,7 +126,12 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const hasActiveSession = Boolean(useAuthStore.getState().accessToken);
 
-    if (hasActiveSession && error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && !originalRequest.url?.includes('/auth/login')) {
+    // /auth/device-token jest celowo wykluczony z ponawiania: to żądanie leci
+    // z refreshSession() (przez ensureDeviceToken) i ewentualny 401 nie może
+    // wywoływać kolejnego refreshSession() — doprowadziłoby to do zakleszczenia,
+    // bo isRefreshing jest już true, a nowe wywołanie czekałoby w kolejce na
+    // to samo, wciąż niezakończone odświeżenie.
+    if (hasActiveSession && error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && !originalRequest.url?.includes('/auth/login') && !originalRequest.url?.includes('/auth/device-token')) {
       originalRequest._retry = true;
 
       try {

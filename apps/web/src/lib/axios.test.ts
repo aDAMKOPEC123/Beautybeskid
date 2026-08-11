@@ -14,7 +14,7 @@ vi.stubGlobal('localStorage', {
   },
 });
 
-import { setDeviceToken } from './device-token';
+import { setDeviceToken, getDeviceToken } from './device-token';
 
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
 
@@ -54,5 +54,19 @@ describe('refreshSession', () => {
 
     await expect(refreshSession()).rejects.toMatchObject({ response: { status: 401 } });
     expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('po udanym odświeżeniu ciasteczkiem dobiera token urządzenia, gdy lokalnie go brak', async () => {
+    post.mockResolvedValueOnce({ data: { data: { accessToken: 'nowy-token' } } });
+    post.mockResolvedValueOnce({ data: { data: { deviceToken: 'dev-1' } } });
+
+    const { refreshSession } = await import('./axios');
+    const token = await refreshSession();
+
+    expect(token).toBe('nowy-token');
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(post.mock.calls[0][0]).toBe('/auth/refresh');
+    expect(post.mock.calls[1][0]).toBe('/auth/device-token');
+    expect(getDeviceToken()).toBe('dev-1');
   });
 });
