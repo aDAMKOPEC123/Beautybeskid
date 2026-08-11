@@ -191,8 +191,13 @@ export const UserAppointments = () => {
   const history = historyQuery.data;
   const hasAnyAppointment = Boolean(overview.nextAppointment || overview.otherUpcoming.length || history?.total);
 
+  // Nadchodzące wizyty zawsze od najbliższego terminu.
+  const otherUpcoming = [...overview.otherUpcoming].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
+
   const justBooked = justBookedId
-    ? [overview.nextAppointment, ...overview.otherUpcoming].find(
+    ? [overview.nextAppointment, ...otherUpcoming].find(
         (appointment) => appointment?.id === justBookedId && ACTIVE_STATUSES.has(appointment.status),
       )
     : undefined;
@@ -236,13 +241,13 @@ export const UserAppointments = () => {
         </section>
       )}
 
-      {overview.otherUpcoming.length > 0 && (
+      {otherUpcoming.length > 0 && (
         <section aria-labelledby="other-upcoming-heading">
           <h2 id="other-upcoming-heading" className="mb-3 font-heading text-lg font-bold" style={{ color: '#1A3828' }}>
             Kolejne wizyty
           </h2>
           <div className="grid gap-3">
-            {overview.otherUpcoming.map((appointment) => (
+            {otherUpcoming.map((appointment) => (
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}

@@ -32,6 +32,7 @@ import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
 import { PageSEO } from '@/components/shared/SEO';
+import { BookingSuccessJourney } from '@/components/appointments/BookingSuccessJourney';
 import { APPOINTMENTS_PATH, JUST_BOOKED_KEY, writeSession } from '@/lib/booking-confirmation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1291,6 +1292,14 @@ export const BookingWizard = () => {
   const isFullyPreselected = !!preselectedDate && !!preselectedTime;
 
   const [step, setStep] = useState(() => savedDraft ? 5 : 1);
+  // Set once the appointment exists — the journey screen renders in place, so the
+  // client sees the outcome even if the route change is swallowed.
+  const [booked, setBooked] = useState<{
+    id: string;
+    serviceName: string;
+    date: Date;
+    employeeName?: string | null;
+  } | null>(null);
   const [floatingVisible, setFloatingVisible] = useState(false);
   const [floatingBottomInset, setFloatingBottomInset] = useState(16);
   const navRef = useRef<HTMLDivElement>(null);
@@ -1534,6 +1543,13 @@ export const BookingWizard = () => {
         happyHourId: state.appliedHappyHour?.id ?? undefined,
       });
       bookedAppointmentId = appointment.id;
+      writeSession(JUST_BOOKED_KEY, appointment.id);
+      setBooked({
+        id: appointment.id,
+        serviceName: state.service.name,
+        date: dateTime,
+        employeeName: state.employee?.name ?? null,
+      });
 
       if (state.photo) {
         await uploadPhoto({ id: appointment.id, file: state.photo }).catch(() =>
@@ -1559,12 +1575,20 @@ export const BookingWizard = () => {
 
     if (!bookedAppointmentId) {
       toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
-      return;
     }
-
-    goToAppointments(bookedAppointmentId);
-    toast.success('Wizyta zarezerwowana — czeka na potwierdzenie salonu.');
+    // The journey screen is already on screen; it takes the client to the list when done.
   };
+
+  if (booked) {
+    return (
+      <BookingSuccessJourney
+        serviceName={booked.serviceName}
+        date={booked.date}
+        employeeName={booked.employeeName}
+        onFinish={() => goToAppointments(booked.id)}
+      />
+    );
+  }
 
   return (
     <>
