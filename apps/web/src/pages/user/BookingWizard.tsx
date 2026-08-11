@@ -1476,25 +1476,13 @@ export const BookingWizard = () => {
     return true;
   };
 
-  // The client must always land on "Moje wizyty" once the appointment exists. The
-  // sessionStorage breadcrumb carries the confirmation panel across either route,
-  // and a full page load takes over if the SPA navigation does not commit.
+  // Full page load on purpose. SPA navigation out of this route updates the URL
+  // without ever mounting the appointments page, so the client would sit on the
+  // booking screen with no idea the visit exists. The sessionStorage breadcrumb
+  // carries the confirmation panel across the reload.
   const goToAppointments = (appointmentId: string) => {
     writeSession(JUST_BOOKED_KEY, appointmentId);
-
-    try {
-      navigate(APPOINTMENTS_PATH, {
-        state: { pwaPromptReason: 'booking-success', justBookedAppointmentId: appointmentId },
-      });
-    } catch {
-      // Fall through to the hard navigation below.
-    }
-
-    window.setTimeout(() => {
-      if (window.location.pathname !== APPOINTMENTS_PATH) {
-        window.location.assign(APPOINTMENTS_PATH);
-      }
-    }, 350);
+    window.location.assign(APPOINTMENTS_PATH);
   };
 
   const handleConfirm = async () => {
