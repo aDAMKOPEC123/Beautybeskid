@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { hideSplash } from './splash';
 
 const PRELOAD_RECOVERY_KEY = 'cosmo:preload-recovery';
 
@@ -29,6 +30,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
+
+// Splash gaśnie po pierwszej klatce z zamontowanym Reactem. Świadomie nie czekamy
+// na dane z API: offline zawiesiłoby to do bezpiecznika, a stany ładowania
+// obsługują szkielety w widokach.
+requestAnimationFrame(() => hideSplash());
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
