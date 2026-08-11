@@ -16,6 +16,7 @@ router.post('/passkeys/login/options', authRateLimiter, authController.passkeyLo
 router.post('/passkeys/login/verify', authRateLimiter, authController.passkeyLoginVerify);
 router.post('/logout', authController.logout);
 router.post('/refresh', authRateLimiter, authController.refresh);
+router.post('/refresh-device', authRateLimiter, authController.refreshDevice);
 router.post('/forgot-password', authRateLimiter, authController.forgotPassword);
 router.post('/reset-password', authRateLimiter, authController.resetPassword);
 router.post('/google', authRateLimiter, authController.googleAuth);

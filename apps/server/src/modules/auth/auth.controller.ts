@@ -20,7 +20,7 @@ import {
   isFacebookConfigured,
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
-import { rotateRefreshToken } from './session.service';
+import { rotateRefreshToken, issueDeviceToken, consumeDeviceToken } from './session.service';
 import {
   WEBAUTHN_LOGIN_PURPOSE,
   WEBAUTHN_REGISTER_PURPOSE,
@@ -1014,5 +1014,50 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     return res.redirect(`${env.CLIENT_URL}/auth/login?verified=true`);
   } catch {
     return res.redirect(`${env.CLIENT_URL}/auth/login?error=invalid-token`);
+  }
+};
+
+/**
+ * Druga ścieżka odtworzenia sesji, gdy ciasteczko refreshToken zniknęło —
+ * typowo po wyczyszczeniu danych witryny przez iOS. Odbudowuje także ciasteczko.
+ */
+export const refreshDevice = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const raw = req.headers['x-device-token'];
+    const deviceToken = Array.isArray(raw) ? raw[0] : raw;
+
+    if (!deviceToken) throw new AppError('Brak tokenu urządzenia', 401);
+
+    const userId = await consumeDeviceToken(deviceToken);
+    if (!userId) throw new AppError('Token urządzenia wygasł lub został unieważniony', 401);
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Użytkownik nie istnieje', 401);
+
+    if (user.accountStatus === 'PENDING' || user.accountStatus === 'REJECTED') {
+      throw new AppError('Konto nie jest aktywne', 403);
+    }
+
+    const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
+
+    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: crypto.createHash('sha256').update(newRefreshToken).digest('hex'),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS),
+      },
+    });
+
+    clearAllRefreshCookies(res);
+    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
+
+    res.status(200).json({
+      status: 'success',
+      data: { accessToken, user: authService.toAuthUser(user) },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(new AppError('Nieprawidłowy token urządzenia', 401));
   }
 };
