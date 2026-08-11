@@ -3,6 +3,18 @@ import { processAndSaveImage } from '../../../utils/imageProcessor';
 import { AppError } from '../../../middleware/error.middleware';
 import * as lessonsService from './lessons.service';
 
+/** Nazwa katalogu przychodzi od klienta, więc nigdy nie trafia do ścieżki bez
+ *  sprawdzenia przynależności do tej listy — inaczej byłaby to droga do zapisu
+ *  poza katalogiem uploads. */
+const ALLOWED_UPLOAD_FOLDERS = ['academy-lessons', 'academy-courses', 'academy-instructors'] as const;
+
+export type AcademyUploadFolder = (typeof ALLOWED_UPLOAD_FOLDERS)[number];
+
+export const resolveUploadFolder = (input: unknown): AcademyUploadFolder =>
+  typeof input === 'string' && (ALLOWED_UPLOAD_FOLDERS as readonly string[]).includes(input)
+    ? (input as AcademyUploadFolder)
+    : 'academy-lessons';
+
 export const getLessonBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.academyUser!.id;
@@ -61,8 +73,9 @@ export const uploadInlineImage = async (req: Request, res: Response, next: NextF
   try {
     if (!req.file) throw new AppError('Wybierz obraz do wgrania', 400);
 
-    // Every image placed inside a lesson is optimized and saved as WebP.
-    const url = await processAndSaveImage(req.file.buffer, 'academy-lessons');
+    // Każdy obraz w Akademii jest optymalizowany i zapisywany jako WebP.
+    const folder = resolveUploadFolder(req.body?.folder);
+    const url = await processAndSaveImage(req.file.buffer, folder);
     res.status(201).json({ data: { url } });
   } catch (error) {
     next(error);
