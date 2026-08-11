@@ -70,3 +70,56 @@ describe('refreshSession', () => {
     expect(getDeviceToken()).toBe('dev-1');
   });
 });
+
+describe('isSessionTerminated', () => {
+  it('traktuje 403 z odświeżania sesji jak koniec sesji', async () => {
+    const { isSessionTerminated } = await import('./axios');
+
+    // Backend zwraca 403 dla konta PENDING/REJECTED — musi prowadzić do wylogowania,
+    // inaczej aplikacja zawiesza się w stanie „zalogowany" bez ścieżki wyjścia.
+    expect(isSessionTerminated({ response: { status: 403 } })).toBe(true);
+    expect(isSessionTerminated({ response: { status: 401 } })).toBe(true);
+    expect(isSessionTerminated({ response: { status: 500 } })).toBe(false);
+    expect(isSessionTerminated(new Error('brak sieci'))).toBe(false);
+  });
+});
+
+describe('wylogowanie', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+    localStorage.clear();
+  });
+
+  it('authApi.logout kasuje token urządzenia i wysyła go w nagłówku', async () => {
+    setDeviceToken('device-abc');
+    post.mockResolvedValueOnce({ data: { status: 'success' } });
+
+    const { authApi } = await import('../api/auth.api');
+    await authApi.logout();
+
+    expect(post.mock.calls[0][0]).toBe('/auth/logout');
+    expect(post.mock.calls[0][2]).toMatchObject({ headers: { 'X-Device-Token': 'device-abc' } });
+    expect(getDeviceToken()).toBeNull();
+  });
+
+  it('kasuje token urządzenia nawet gdy żądanie wylogowania padnie', async () => {
+    setDeviceToken('device-abc');
+    post.mockRejectedValueOnce(new Error('offline'));
+
+    const { authApi } = await import('../api/auth.api');
+    await expect(authApi.logout()).rejects.toThrow('offline');
+
+    expect(getDeviceToken()).toBeNull();
+  });
+
+  it('logout w store kasuje token urządzenia', async () => {
+    setDeviceToken('device-abc');
+
+    const { useAuthStore } = await import('../store/auth.store');
+    useAuthStore.getState().logout();
+
+    expect(getDeviceToken()).toBeNull();
+    expect(useAuthStore.getState().accessToken).toBeNull();
+  });
+});

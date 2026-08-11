@@ -11,7 +11,7 @@ import type {
   PasskeyAuthenticationOptions,
   PasskeyRegistrationOptions,
 } from '@/lib/passkeys';
-import { setDeviceToken } from '@/lib/device-token';
+import { setDeviceToken, getDeviceToken, clearDeviceToken } from '@/lib/device-token';
 
 type AuthResponseData = {
   user: User;
@@ -60,8 +60,22 @@ export const authApi = {
     return res.data;
   },
   logout: async () => {
-    const res = await api.post('/auth/logout');
-    return res.data;
+    // Token urządzenia leci w nagłówku, bo świadome wylogowanie musi go
+    // unieważnić po stronie serwera także wtedy, gdy ciasteczko refreshToken
+    // już nie istnieje (iOS potrafi je skasować). Lokalnie kasujemy go zawsze —
+    // również gdy żądanie się nie powiedzie — żeby kolejna osoba przy tym samym
+    // urządzeniu nie odtworzyła cudzej sesji przez /auth/refresh-device.
+    const deviceToken = getDeviceToken();
+    try {
+      const res = await api.post(
+        '/auth/logout',
+        {},
+        deviceToken ? { headers: { 'X-Device-Token': deviceToken } } : undefined,
+      );
+      return res.data;
+    } finally {
+      clearDeviceToken();
+    }
   },
   forgotPassword: async (data: ForgotPasswordInput) => {
     const res = await api.post('/auth/forgot-password', data);

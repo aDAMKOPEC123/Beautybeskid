@@ -7,7 +7,7 @@ import { router } from './router';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
-import { refreshSession } from './lib/axios';
+import { refreshSession, isSessionTerminated } from './lib/axios';
 import { trackPageView } from './lib/analytics';
 import {
   clearChunkReloadMarks,
@@ -131,7 +131,7 @@ function App() {
 
     refreshSession()
       .catch((err) => {
-        if (err?.response?.status === 401) {
+        if (isSessionTerminated(err)) {
           logout();
         }
       })
@@ -150,7 +150,7 @@ function App() {
       if (!accessToken) return;
 
       refreshSession().catch((err) => {
-        if (err?.response?.status === 401) {
+        if (isSessionTerminated(err)) {
           logout();
         }
       });
@@ -168,7 +168,7 @@ function App() {
       if (!accessToken) return;
 
       refreshSession().catch((err) => {
-        if (err?.response?.status === 401) {
+        if (isSessionTerminated(err)) {
           logout();
         }
       });

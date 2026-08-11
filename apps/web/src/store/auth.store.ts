@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@cosmo/shared';
+import { clearDeviceToken } from '../lib/device-token';
 
 interface AuthState {
   user: User | null;
@@ -21,7 +22,14 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
       setUser: (user) => set({ user }),
       setAccessToken: (accessToken) => set({ accessToken }),
-      logout: () => set({ user: null, accessToken: null }),
+      // Sieć bezpieczeństwa: każde zakończenie sesji — świadome wylogowanie,
+      // ale i porzucenie sesji po nieudanym odświeżeniu — kasuje token
+      // urządzenia. Bez tego pozostawiony token odtwarzałby sesję poprzedniego
+      // użytkownika na współdzielonym urządzeniu (tablet w gabinecie).
+      logout: () => {
+        clearDeviceToken();
+        set({ user: null, accessToken: null });
+      },
       hydrate: () => set({ isLoading: false }),
     }),
     {

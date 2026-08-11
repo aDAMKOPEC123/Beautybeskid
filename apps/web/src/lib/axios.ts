@@ -41,6 +41,20 @@ function isUnauthorizedRefreshFailure(err: unknown) {
   return axios.isAxiosError(err) && err.response?.status === 401;
 }
 
+/**
+ * Czy błąd odświeżania oznacza definitywny koniec sesji.
+ *
+ * Poza 401 obejmuje 403 — tak backend odpowiada na /auth/refresh i
+ * /auth/refresh-device dla konta PENDING/REJECTED. Bez tego takie konto
+ * zostawało w stanie „zalogowany" z błędem przy każdym żądaniu i bez ścieżki
+ * wyjścia, bo nic nie prowadziło do wylogowania.
+ */
+export function isSessionTerminated(err: unknown) {
+  if (!axios.isAxiosError(err)) return false;
+  const status = err.response?.status;
+  return status === 401 || status === 403;
+}
+
 async function ensureDeviceToken() {
   if (getDeviceToken()) return;
   try {
@@ -139,7 +153,7 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        if (isUnauthorizedRefreshFailure(refreshError)) {
+        if (isSessionTerminated(refreshError)) {
           useAuthStore.getState().logout();
           window.location.href = '/auth/login';
         }
