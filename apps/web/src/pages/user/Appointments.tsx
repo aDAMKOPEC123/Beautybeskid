@@ -17,7 +17,6 @@ import {
   AlertCircle,
   CalendarDays,
   CalendarPlus,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -39,10 +38,10 @@ import { reviewsApi } from '@/api/reviews.api';
 import { useSocket } from '@/hooks/useSocket';
 import { downloadAppointmentIcs } from '@/lib/appointment-calendar';
 import { Button } from '@/components/ui/button';
-import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { AppointmentListSkeleton } from '@/components/skeletons';
 import { FollowUpReminderWidget } from '@/components/appointments/FollowUpReminderWidget';
 import { BookingConfirmationPanel } from '@/components/appointments/BookingConfirmationPanel';
+import { VisitJourney } from '@/components/appointments/VisitJourney';
 import {
   JUST_BOOKED_DISMISSED_KEY,
   JUST_BOOKED_KEY,
@@ -92,6 +91,13 @@ const getStatusExplanation = (appointment: Appointment) => {
     case 'NO_SHOW': return 'Wizyta została oznaczona jako nieobecność.';
     default: return '';
   }
+};
+
+// Przebieg otwiera się na etapie, w którym wizyta faktycznie jest.
+const journeyActFor = (appointment: Appointment) => {
+  if (appointment.status === 'PENDING') return 0;
+  if (appointment.status === 'CONFIRMED') return 1;
+  return 2;
 };
 
 const routeUrlFor = (appointment: Appointment) => {
@@ -493,24 +499,13 @@ function AppointmentCard({
 
           <button
             type="button"
-            className="mt-4 flex min-h-11 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold sm:hidden"
+            className="mt-4 flex min-h-11 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold"
             style={{ borderColor: 'rgba(26,56,40,0.14)', color: '#1A3828' }}
-            aria-expanded={detailsOpen}
-            aria-controls={`appointment-details-${appointment.id}`}
-            onClick={() => setDetailsOpen((open) => !open)}
+            onClick={() => setDetailsOpen(true)}
           >
-            {detailsOpen ? 'Ukryj szczegóły' : 'Pokaż szczegóły'}
-            <ChevronDown size={17} className="transition-transform" style={{ transform: detailsOpen ? 'rotate(180deg)' : 'none' }} />
+            Pokaż szczegóły
+            <ChevronRight size={17} />
           </button>
-
-          <div className="hidden sm:block">
-            <AppointmentDetails appointment={appointment} />
-          </div>
-          <div id={`appointment-details-${appointment.id}`} className="sm:hidden">
-            <AnimatedCollapse open={detailsOpen}>
-              <AppointmentDetails appointment={appointment} />
-            </AnimatedCollapse>
-          </div>
 
           {appointment.rescheduleStatus === 'PENDING' && appointment.rescheduleDate && (
             <RequestNotice
@@ -578,6 +573,18 @@ function AppointmentCard({
         )}
       </article>
 
+      {detailsOpen && (
+        <VisitJourney
+          mode="details"
+          serviceName={appointment.service.name}
+          date={new Date(appointment.date)}
+          employeeName={appointment.employee?.name}
+          startAct={journeyActFor(appointment)}
+          onClose={() => setDetailsOpen(false)}
+        >
+          <AppointmentDetails appointment={appointment} />
+        </VisitJourney>
+      )}
       {rescheduleOpen && <RescheduleModal appointment={appointment} open={rescheduleOpen} onClose={() => setRescheduleOpen(false)} />}
       {contactOpen && <ContactSheet overview={overview} open={contactOpen} onClose={() => setContactOpen(false)} />}
       {cancellationOpen && (

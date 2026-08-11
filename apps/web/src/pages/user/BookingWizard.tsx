@@ -32,7 +32,7 @@ import type { ValidatedVoucher } from '@cosmo/shared';
 import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
 import { PageSEO } from '@/components/shared/SEO';
-import { BookingSuccessJourney } from '@/components/appointments/BookingSuccessJourney';
+import { VisitJourney } from '@/components/appointments/VisitJourney';
 import { APPOINTMENTS_PATH, JUST_BOOKED_KEY, writeSession } from '@/lib/booking-confirmation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1569,7 +1569,7 @@ export const BookingWizard = () => {
 
   if (booked) {
     return (
-      <BookingSuccessJourney
+      <VisitJourney
         serviceName={booked.serviceName}
         date={booked.date}
         employeeName={booked.employeeName}

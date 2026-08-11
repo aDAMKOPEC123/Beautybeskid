@@ -1,14 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 
 const SALON_ADDRESS = 'Mordarka 505, 34-600 Mordarka';
 
 const GOLD = '#C4965A';
 const IVORY = '#F6F2EA';
 const NIGHT = '#12291D';
+
+// Wszystko liczy się od długości aktu, żeby sceny, pasek i tekst kończyły
+// się w tym samym momencie.
+const ACT_MS = 6200;
+const ACT_S = ACT_MS / 1000;
+const OUTRO_MS = 3200;
+const SWAP_S = 0.5;
 
 const ACTS = [
   {
@@ -31,10 +38,7 @@ const ACTS = [
   },
 ] as const;
 
-const ACT_MS = 6200;
-const OUTRO_MS = 3200;
-
-// ─── Sceny — jedna na akt, każda pokazuje to, o czym mówi tekst ────────────────
+// ─── Sceny — każda zapętla się dokładnie w rytmie aktu ────────────────────────
 
 function WaitingScene() {
   return (
@@ -50,78 +54,67 @@ function WaitingScene() {
           strokeWidth="1"
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: [0.6, 2.1], opacity: [0.55, 0] }}
-          transition={{ duration: 3.4, repeat: Infinity, delay: ring * 1.1, ease: 'easeOut' }}
+          transition={{
+            duration: ACT_S / 2,
+            repeat: Infinity,
+            delay: (ring * ACT_S) / 6,
+            ease: 'easeOut',
+          }}
           style={{ transformOrigin: '60px 48px' }}
         />
       ))}
       <circle cx="60" cy="48" r="17" fill="none" stroke={GOLD} strokeWidth="1.5" opacity="0.9" />
       <motion.line
-        x1="60"
-        y1="48"
-        x2="60"
-        y2="38"
-        stroke={GOLD}
-        strokeWidth="2"
-        strokeLinecap="round"
+        x1="60" y1="48" x2="60" y2="38"
+        stroke={GOLD} strokeWidth="2" strokeLinecap="round"
         style={{ transformOrigin: '60px 48px' }}
         animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: ACT_S * 2, repeat: Infinity, ease: 'linear' }}
       />
       <motion.line
-        x1="60"
-        y1="48"
-        x2="60"
-        y2="41"
-        stroke={IVORY}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        opacity="0.75"
+        x1="60" y1="48" x2="60" y2="41"
+        stroke={IVORY} strokeWidth="1.5" strokeLinecap="round" opacity="0.75"
         style={{ transformOrigin: '60px 48px' }}
         animate={{ rotate: 360 }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: ACT_S / 2, repeat: Infinity, ease: 'linear' }}
       />
     </svg>
   );
 }
 
 function RouteScene() {
+  const path = 'M12 70 C 60 70, 70 34, 116 34 S 178 30, 200 30';
+  const loop = { duration: ACT_S, repeat: Infinity, ease: 'linear' as const };
   return (
     <svg viewBox="0 0 220 96" className="h-24 w-full" aria-hidden="true">
-      <path
-        d="M12 70 C 60 70, 70 34, 116 34 S 178 30, 200 30"
-        fill="none"
-        stroke="rgba(246,242,234,0.18)"
-        strokeWidth="2"
-        strokeDasharray="5 7"
-        strokeLinecap="round"
-      />
+      <path d={path} fill="none" stroke="rgba(246,242,234,0.18)" strokeWidth="2" strokeDasharray="5 7" strokeLinecap="round" />
       <motion.path
-        d="M12 70 C 60 70, 70 34, 116 34 S 178 30, 200 30"
+        d={path}
         fill="none"
         stroke={GOLD}
         strokeWidth="2"
         strokeLinecap="round"
         initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 3.2, ease: 'easeInOut' }}
+        animate={{ pathLength: [0, 1, 1, 0] }}
+        transition={{ ...loop, times: [0, 0.5, 0.92, 1] }}
       />
-      {/* Kropka jedzie po trasie — proste klatki kluczowe, bez offset-path. */}
       <motion.circle
         r="4"
         fill={IVORY}
-        initial={{ cx: 12, cy: 70 }}
-        animate={{ cx: [12, 52, 90, 132, 172, 200], cy: [70, 64, 40, 33, 31, 30] }}
-        transition={{ duration: 3.2, ease: 'easeInOut', times: [0, 0.22, 0.45, 0.68, 0.86, 1] }}
+        initial={{ cx: 12, cy: 70, opacity: 0 }}
+        animate={{
+          cx: [12, 52, 90, 132, 172, 200, 200],
+          cy: [70, 64, 40, 33, 31, 30, 30],
+          opacity: [1, 1, 1, 1, 1, 0, 0],
+        }}
+        transition={{ ...loop, times: [0, 0.11, 0.23, 0.34, 0.43, 0.5, 1] }}
       />
       <motion.g
-        initial={{ y: -18, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 2.9, type: 'spring', stiffness: 220, damping: 14 }}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: [-20, -20, 0, 0, -20], opacity: [0, 0, 1, 1, 0] }}
+        transition={{ ...loop, times: [0, 0.46, 0.56, 0.92, 1] }}
       >
-        <path
-          d="M200 12 c -7 0 -12 5.4 -12 12 0 8.6 12 20 12 20 s 12 -11.4 12 -20 c 0 -6.6 -5 -12 -12 -12 z"
-          fill={GOLD}
-        />
+        <path d="M200 12 c -7 0 -12 5.4 -12 12 0 8.6 12 20 12 20 s 12 -11.4 12 -20 c 0 -6.6 -5 -12 -12 -12 z" fill={GOLD} />
         <circle cx="200" cy="24" r="4.4" fill={NIGHT} />
       </motion.g>
     </svg>
@@ -131,33 +124,26 @@ function RouteScene() {
 function RewardScene() {
   const sparks = [
     { x: 44, delay: 0, size: 5 },
-    { x: 72, delay: 0.5, size: 3.5 },
-    { x: 100, delay: 0.2, size: 6 },
-    { x: 128, delay: 0.8, size: 4 },
-    { x: 156, delay: 0.35, size: 4.5 },
+    { x: 72, delay: ACT_S / 6, size: 3.5 },
+    { x: 100, delay: ACT_S / 12, size: 6 },
+    { x: 128, delay: ACT_S / 4, size: 4 },
+    { x: 156, delay: ACT_S / 8, size: 4.5 },
   ];
   return (
     <svg viewBox="0 0 200 96" className="h-24 w-full" aria-hidden="true">
       <motion.circle
-        cx="100"
-        cy="52"
-        r="24"
-        fill="none"
-        stroke={GOLD}
-        strokeWidth="1.5"
+        cx="100" cy="52" r="24"
+        fill="none" stroke={GOLD} strokeWidth="1.5"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 0.9 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         style={{ transformOrigin: '100px 52px' }}
       />
       <motion.text
-        x="100"
-        y="57"
-        textAnchor="middle"
-        fill={IVORY}
+        x="100" y="57" textAnchor="middle" fill={IVORY}
         style={{ fontSize: 13, fontWeight: 700 }}
-        initial={{ opacity: 0, y: 63 }}
-        animate={{ opacity: 1, y: 57 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.35, duration: 0.6 }}
       >
         pkt
@@ -165,14 +151,10 @@ function RewardScene() {
       {sparks.map((spark) => (
         <motion.rect
           key={spark.x}
-          x={spark.x}
-          y={78}
-          width={spark.size}
-          height={spark.size}
-          fill={GOLD}
+          x={spark.x} y={78} width={spark.size} height={spark.size} fill={GOLD}
           initial={{ opacity: 0, y: 78, rotate: 45 }}
           animate={{ opacity: [0, 1, 0], y: [78, 14], rotate: 405 }}
-          transition={{ duration: 3.6, repeat: Infinity, delay: spark.delay, ease: 'easeOut' }}
+          transition={{ duration: ACT_S / 2, repeat: Infinity, delay: spark.delay, ease: 'easeOut' }}
           style={{ transformOrigin: 'center' }}
         />
       ))}
@@ -182,22 +164,29 @@ function RewardScene() {
 
 const SCENES = { waiting: WaitingScene, route: RouteScene, reward: RewardScene };
 
-// ─── Ekran ────────────────────────────────────────────────────────────────────
-
-export function BookingSuccessJourney({
+export function VisitJourney({
   serviceName,
   date,
   employeeName,
+  startAct = 0,
+  mode = 'booking',
   onFinish,
+  onClose,
+  children,
 }: {
   serviceName: string;
   date: Date;
   employeeName?: string | null;
-  onFinish: () => void;
+  startAct?: number;
+  mode?: 'booking' | 'details';
+  onFinish?: () => void;
+  onClose?: () => void;
+  /** Szczegóły wizyty — na jasnej karcie, pod przebiegiem. */
+  children?: ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
-  const [act, setAct] = useState(0);
-  // Any manual step takes the wheel — the story stops advancing on its own.
+  const [act, setAct] = useState(startAct);
+  // Ręczny krok przejmuje sterowanie — przebieg przestaje sam się przewijać.
   const [manual, setManual] = useState(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
@@ -210,9 +199,19 @@ export function BookingSuccessJourney({
       const timer = window.setTimeout(() => setAct((current) => current + 1), ACT_MS);
       return () => window.clearTimeout(timer);
     }
-    const timer = window.setTimeout(() => onFinishRef.current(), ACT_MS + OUTRO_MS);
+    if (mode !== 'booking') return;
+    const timer = window.setTimeout(() => onFinishRef.current?.(), ACT_MS + OUTRO_MS);
     return () => window.clearTimeout(timer);
-  }, [act, isLast, manual, reduceMotion]);
+  }, [act, isLast, manual, mode, reduceMotion]);
+
+  useEffect(() => {
+    if (!onClose) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   const goTo = (next: number) => {
     setManual(true);
@@ -229,40 +228,52 @@ export function BookingSuccessJourney({
       style={{ background: NIGHT }}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="booking-journey-title"
+      aria-labelledby="visit-journey-title"
     >
-      {/* Ambient — jedna powolna poświata, zmienia pozycję razem z aktem. */}
       {!reduceMotion && (
         <motion.div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           animate={{
             background: [
-              `radial-gradient(60% 44% at 22% 24%, rgba(196,150,90,0.16), transparent 70%)`,
-              `radial-gradient(60% 44% at 78% 62%, rgba(196,150,90,0.16), transparent 70%)`,
-              `radial-gradient(60% 44% at 22% 24%, rgba(196,150,90,0.16), transparent 70%)`,
+              'radial-gradient(60% 44% at 22% 24%, rgba(196,150,90,0.16), transparent 70%)',
+              'radial-gradient(60% 44% at 78% 62%, rgba(196,150,90,0.16), transparent 70%)',
+              'radial-gradient(60% 44% at 22% 24%, rgba(196,150,90,0.16), transparent 70%)',
             ],
           }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: ACT_S * 3, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
 
       <div className="relative mx-auto flex min-h-full w-full max-w-lg flex-col px-6 py-10 sm:py-14">
-        <motion.p
-          initial={reduceMotion ? false : { opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-[10px] font-bold uppercase tracking-[0.22em]"
-          style={{ color: GOLD }}
-        >
-          Rezerwacja przyjęta
-        </motion.p>
+        <div className="flex items-start justify-between gap-4">
+          <motion.p
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: GOLD }}
+          >
+            {mode === 'booking' ? 'Rezerwacja przyjęta' : 'Przebieg wizyty'}
+          </motion.p>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Zamknij przebieg wizyty"
+              className="-mt-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+              style={{ color: 'rgba(246,242,234,0.72)' }}
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
 
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: 0.1, duration: 0.55, ease: 'easeOut' }}
           className="mt-4 rounded-2xl px-4 py-3.5"
-          style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid rgba(196,150,90,0.28)` }}
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(196,150,90,0.28)' }}
         >
           <p className="font-heading text-lg font-bold" style={{ color: IVORY }}>
             {serviceName}
@@ -274,14 +285,15 @@ export function BookingSuccessJourney({
         </motion.div>
 
         {!reduceMotion && (
-          <div className="mt-7 h-24">
-            <AnimatePresence mode="wait">
+          <div className="relative mt-7 h-24">
+            <AnimatePresence initial={false}>
               <motion.div
                 key={step.scene}
+                className="absolute inset-0"
                 initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.04 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
+                transition={{ duration: SWAP_S, ease: 'easeOut' }}
               >
                 <Scene />
               </motion.div>
@@ -302,7 +314,7 @@ export function BookingSuccessJourney({
             style={{ background: GOLD, bottom: 8 }}
             initial={reduceMotion ? false : { scaleY: 0 }}
             animate={{ scaleY: reduceMotion ? 1 : (act + 1) / ACTS.length }}
-            transition={{ duration: reduceMotion ? 0 : 0.9, ease: 'easeInOut' }}
+            transition={{ duration: reduceMotion ? 0 : SWAP_S, ease: 'easeInOut' }}
           />
 
           {ACTS.map((entry, index) => {
@@ -315,12 +327,14 @@ export function BookingSuccessJourney({
                   style={{
                     background: isActive || isPast ? GOLD : NIGHT,
                     border: `2px solid ${isActive || isPast ? GOLD : 'rgba(246,242,234,0.28)'}`,
-                    boxShadow: isActive && !isPast ? `0 0 0 6px rgba(196,150,90,0.14)` : 'none',
+                    boxShadow: isActive && !isPast ? '0 0 0 6px rgba(196,150,90,0.14)' : 'none',
                   }}
-                  animate={
-                    reduceMotion || !isActive || isPast ? { scale: 1 } : { scale: [1, 1.35, 1] }
-                  }
-                  transition={{ duration: 2.2, repeat: isActive && !isPast && !reduceMotion ? Infinity : 0 }}
+                  animate={reduceMotion || !isActive || isPast ? { scale: 1 } : { scale: [1, 1.3, 1] }}
+                  transition={{
+                    duration: ACT_S / 3,
+                    repeat: isActive && !isPast && !reduceMotion ? Infinity : 0,
+                    ease: 'easeInOut',
+                  }}
                 />
                 <div className="min-w-0 flex-1">
                   <p
@@ -333,32 +347,30 @@ export function BookingSuccessJourney({
                     {isActive ? (
                       <motion.div key="active" exit={reduceMotion ? undefined : { opacity: 0, y: -10 }}>
                         <h2
-                          id={index === act ? 'booking-journey-title' : undefined}
+                          id={index === act ? 'visit-journey-title' : undefined}
                           className="mt-1 font-heading text-[26px] font-bold leading-tight sm:text-3xl"
                           style={{ color: IVORY }}
                         >
-                          {reduceMotion
+                          {reduceMotion || index !== act
                             ? entry.title
-                            : words.length && index === act
-                              ? words.map((word, wordIndex) => (
-                                  <motion.span
-                                    key={`${word}-${wordIndex}`}
-                                    className="inline-block"
-                                    initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
-                                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                                    transition={{ delay: 0.06 * wordIndex, duration: 0.5, ease: 'easeOut' }}
-                                  >
-                                    {word}&nbsp;
-                                  </motion.span>
-                                ))
-                              : entry.title}
+                            : words.map((word, wordIndex) => (
+                                <motion.span
+                                  key={`${word}-${wordIndex}`}
+                                  className="inline-block"
+                                  initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
+                                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                  transition={{ delay: 0.05 * wordIndex, duration: 0.45, ease: 'easeOut' }}
+                                >
+                                  {word}&nbsp;
+                                </motion.span>
+                              ))}
                         </h2>
                         <motion.p
                           className="mt-2 text-sm leading-6"
                           style={{ color: 'rgba(246,242,234,0.74)' }}
                           initial={reduceMotion ? false : { opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.06 * words.length + 0.1, duration: 0.5 }}
+                          transition={{ delay: 0.05 * words.length + 0.1, duration: 0.45 }}
                         >
                           {entry.body}
                         </motion.p>
@@ -380,6 +392,17 @@ export function BookingSuccessJourney({
             );
           })}
         </ol>
+
+        {children && (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
+            className="rounded-2xl bg-white px-4 pb-4"
+          >
+            {children}
+          </motion.div>
+        )}
 
         {!reduceMotion && (
           <div className="mt-8 flex items-center gap-3">
@@ -413,7 +436,7 @@ export function BookingSuccessJourney({
                       initial={false}
                       animate={{ scaleX: index <= act ? 1 : 0 }}
                       transition={{
-                        duration: index === act && !manual ? ACT_MS / 1000 : 0.3,
+                        duration: index === act && !manual ? ACT_S : 0.3,
                         ease: 'linear',
                       }}
                     />
@@ -437,11 +460,11 @@ export function BookingSuccessJourney({
 
         <button
           type="button"
-          onClick={onFinish}
+          onClick={mode === 'booking' ? onFinish : onClose}
           className="mt-4 min-h-12 w-full rounded-full px-6 text-xs font-semibold transition-opacity hover:opacity-85"
           style={{ background: GOLD, color: NIGHT }}
         >
-          Przejdź do moich wizyt
+          {mode === 'booking' ? 'Przejdź do moich wizyt' : 'Zamknij'}
         </button>
       </div>
     </div>
