@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { trackEvent } from '@/lib/analytics';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -33,6 +34,7 @@ import { Button } from '@/components/ui/button';
 import { ServiceRating } from '@/components/reviews/ServiceRating';
 import { PageSEO } from '@/components/shared/SEO';
 import { VisitJourney } from '@/components/appointments/VisitJourney';
+import { BookingProgressRing } from '@/components/appointments/BookingProgressRing';
 import { APPOINTMENTS_PATH, JUST_BOOKED_KEY, writeSession } from '@/lib/booking-confirmation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1273,6 +1275,13 @@ function StepConfirm({
   );
 }
 
+// Kroki wsuwają się z prawej przy przejściu dalej i z lewej przy cofaniu.
+const stepVariants = {
+  enter: (direction: number) => ({ opacity: 0, x: direction * 56 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: direction * -56 }),
+};
+
 // ─── Main Wizard ──────────────────────────────────────────────────────────────
 
 export const BookingWizard = () => {
@@ -1300,6 +1309,22 @@ export const BookingWizard = () => {
     date: Date;
     employeeName?: string | null;
   } | null>(null);
+  // Zapis trwa → koło ładowania; po zapisie koło domyka się i oddaje scenę przebiegowi.
+  const [submitting, setSubmitting] = useState(false);
+  const [journeyReady, setJourneyReady] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const renderedStepRef = useRef(step);
+  const stepDirection = step >= renderedStepRef.current ? 1 : -1;
+
+  useEffect(() => {
+    renderedStepRef.current = step;
+  }, [step]);
+
+  useEffect(() => {
+    if (!booked) return;
+    const timer = window.setTimeout(() => setJourneyReady(true), prefersReducedMotion ? 0 : 1250);
+    return () => window.clearTimeout(timer);
+  }, [booked, prefersReducedMotion]);
   const [floatingVisible, setFloatingVisible] = useState(false);
   const [floatingBottomInset, setFloatingBottomInset] = useState(16);
   const navRef = useRef<HTMLDivElement>(null);
@@ -1500,6 +1525,7 @@ export const BookingWizard = () => {
     dateTime.setHours(hours, minutes, 0, 0);
 
     let bookedAppointmentId: string | null = null;
+    setSubmitting(true);
 
     try {
       let finalCouponId = state.couponId;
@@ -1562,19 +1588,27 @@ export const BookingWizard = () => {
     }
 
     if (!bookedAppointmentId) {
+      setSubmitting(false);
       toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
     }
     // The journey screen is already on screen; it takes the client to the list when done.
   };
 
-  if (booked) {
+  if (submitting || booked) {
     return (
-      <VisitJourney
-        serviceName={booked.serviceName}
-        date={booked.date}
-        employeeName={booked.employeeName}
-        onFinish={() => goToAppointments(booked.id)}
-      />
+      <AnimatePresence mode="wait">
+        {booked && journeyReady ? (
+          <VisitJourney
+            key="journey"
+            serviceName={booked.serviceName}
+            date={booked.date}
+            employeeName={booked.employeeName}
+            onFinish={() => goToAppointments(booked.id)}
+          />
+        ) : (
+          <BookingProgressRing key="ring" done={Boolean(booked)} />
+        )}
+      </AnimatePresence>
     );
   }
 
@@ -1680,8 +1714,18 @@ export const BookingWizard = () => {
         </div>
       )}
 
-      {/* Step content */}
-      <div className="min-h-[240px]">
+      {/* Step content — kroki wsuwają się w kierunku ruchu po kreatorze. */}
+      <div className="min-h-[240px] overflow-x-clip">
+        <AnimatePresence mode="wait" initial={false} custom={prefersReducedMotion ? 0 : stepDirection}>
+        <motion.div
+          key={step}
+          custom={prefersReducedMotion ? 0 : stepDirection}
+          variants={stepVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: prefersReducedMotion ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+        >
         {step === 1 && (
           <StepService
             selected={state.service}
@@ -1735,6 +1779,8 @@ export const BookingWizard = () => {
             preselectedCode={preselectedCode}
           />
         )}
+        </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Navigation buttons */}

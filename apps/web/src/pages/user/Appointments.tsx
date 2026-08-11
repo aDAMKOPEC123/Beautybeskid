@@ -41,7 +41,8 @@ import { Button } from '@/components/ui/button';
 import { AppointmentListSkeleton } from '@/components/skeletons';
 import { FollowUpReminderWidget } from '@/components/appointments/FollowUpReminderWidget';
 import { BookingConfirmationPanel } from '@/components/appointments/BookingConfirmationPanel';
-import { VisitJourney } from '@/components/appointments/VisitJourney';
+import { AnimatePresence } from 'framer-motion';
+import { VisitJourney, type VisitStatus } from '@/components/appointments/VisitJourney';
 import {
   JUST_BOOKED_DISMISSED_KEY,
   JUST_BOOKED_KEY,
@@ -91,13 +92,6 @@ const getStatusExplanation = (appointment: Appointment) => {
     case 'NO_SHOW': return 'Wizyta została oznaczona jako nieobecność.';
     default: return '';
   }
-};
-
-// Przebieg otwiera się na etapie, w którym wizyta faktycznie jest.
-const journeyActFor = (appointment: Appointment) => {
-  if (appointment.status === 'PENDING') return 0;
-  if (appointment.status === 'CONFIRMED') return 1;
-  return 2;
 };
 
 const routeUrlFor = (appointment: Appointment) => {
@@ -573,18 +567,22 @@ function AppointmentCard({
         )}
       </article>
 
-      {detailsOpen && (
-        <VisitJourney
-          mode="details"
-          serviceName={appointment.service.name}
-          date={new Date(appointment.date)}
-          employeeName={appointment.employee?.name}
-          startAct={journeyActFor(appointment)}
-          onClose={() => setDetailsOpen(false)}
-        >
-          <AppointmentDetails appointment={appointment} />
-        </VisitJourney>
-      )}
+      <AnimatePresence>
+        {detailsOpen && (
+          <VisitJourney
+            key="journey"
+            mode="details"
+            serviceName={appointment.service.name}
+            date={new Date(appointment.date)}
+            employeeName={appointment.employee?.name}
+            status={appointment.status as VisitStatus}
+            address={appointment.locationAddressAtBooking ?? undefined}
+            onClose={() => setDetailsOpen(false)}
+          >
+            <AppointmentDetails appointment={appointment} />
+          </VisitJourney>
+        )}
+      </AnimatePresence>
       {rescheduleOpen && <RescheduleModal appointment={appointment} open={rescheduleOpen} onClose={() => setRescheduleOpen(false)} />}
       {contactOpen && <ContactSheet overview={overview} open={contactOpen} onClose={() => setContactOpen(false)} />}
       {cancellationOpen && (
@@ -604,7 +602,7 @@ function AppointmentDetails({ appointment }: { appointment: Appointment }) {
   const finalPrice = Number(appointment.finalPrice);
   const discounts = Array.isArray(appointment.discountBreakdown) ? appointment.discountBreakdown : [];
   return (
-    <div className="mt-4 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2" style={{ borderColor: 'rgba(26,56,40,0.09)', color: 'rgba(20,40,28,0.76)' }}>
+    <div className="grid gap-3 pt-4 text-sm sm:grid-cols-2" style={{ color: 'rgba(20,40,28,0.76)' }}>
       <DetailRow icon={<Clock3 size={17} />} label="Czas trwania" value={`${appointment.durationMinutes} min`} />
       <DetailRow icon={<UserRound size={17} />} label="Pracownik" value={appointment.employee?.name ?? 'Zostanie przypisany'} />
       <DetailRow icon={<MapPin size={17} />} label="Adres" value={appointment.locationAddressAtBooking ?? 'Skontaktuj się z salonem'} />
