@@ -167,7 +167,8 @@ const clearGoogleRegistrationCookie = (res: Response) => {
 const persistAuthSession = async (
   res: Response,
   result: { refreshToken: string; user: { id: string } },
-): Promise<string> => {
+  issueDevice = true,
+): Promise<string | null> => {
   const tokenTtlMs = LONG_LIVED_REFRESH_TTL_MS;
   clearAllRefreshCookies(res);
   res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
@@ -179,7 +180,7 @@ const persistAuthSession = async (
       expiresAt: new Date(Date.now() + tokenTtlMs),
     },
   });
-  return issueDeviceToken(result.user.id);
+  return issueDevice ? issueDeviceToken(result.user.id) : null;
 };
 
 const assertUserCanLogin = (user: {
@@ -952,7 +953,7 @@ export const facebookCallback = async (req: Request, res: Response) => {
     }
 
     const result = await authService.loginWithFacebook(profile, context);
-    await persistAuthSession(res, result);
+    await persistAuthSession(res, result, false);
 
     return redirectFacebookResult(res, '/auth/facebook/callback', {
       next: context.returnTo,
@@ -1071,5 +1072,21 @@ export const refreshDevice = async (req: Request, res: Response, next: NextFunct
   } catch (error) {
     if (error instanceof AppError) return next(error);
     next(new AppError('Nieprawidłowy token urządzenia', 401));
+  }
+};
+
+/**
+ * Wydaje token urządzenia użytkownikowi, który ma już ważną sesję.
+ * Potrzebne w dwóch przypadkach: po logowaniu przez Facebooka (callback
+ * przekierowuje i nie ma jak zwrócić tokenu) oraz dla sesji istniejących
+ * w chwili wdrożenia tej funkcji — bez tego czekałyby na token do następnego
+ * logowania.
+ */
+export const deviceToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = await issueDeviceToken(req.user!.id);
+    res.status(200).json({ status: 'success', data: { deviceToken: token } });
+  } catch (error) {
+    next(new AppError('Nie udało się wydać tokenu urządzenia', 500));
   }
 };
