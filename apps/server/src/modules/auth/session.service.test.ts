@@ -107,7 +107,9 @@ describe('rotateRefreshToken', () => {
 });
 
 describe('tokeny urządzeń', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('zapisuje wyłącznie hash, zwraca surowy token', async () => {
     mockPrisma.deviceToken.create.mockResolvedValueOnce({});
