@@ -57,27 +57,45 @@ Dwa niezależne mechanizmy, każdy adresujący jedną przyczynę.
 ### Mechanizm 1 — okno karencji przy rotacji
 
 Stary refresh token przestaje być kasowany natychmiast. Zamiast tego zostaje
-oznaczony jako zrotowany i przez 60 sekund nadal jest akceptowany, zwracając
-**ten sam** token następcy zamiast tworzyć kolejny.
+oznaczony jako zrotowany i przez 60 sekund nadal jest akceptowany.
 
-Model `RefreshToken` zyskuje dwa pola:
+Każde takie użycie wydaje **nowy** token następcy — nie odtwarzamy poprzednio
+wydanego. Serwer trzyma wyłącznie hash tokenu, więc odtworzenie tej samej
+wartości i tak nie byłoby możliwe, a wydanie kolejnego jest bezpieczniejsze:
+każdy kontekst aplikacji (PWA i karta przeglądarki) dostaje własny token, a
+skrócenie ważności starego dotyczy tylko pierwszej rotacji, więc okno karencji
+nie przedłuża się w nieskończoność.
+
+Token następcy jest podpisanym JWT (`{ id, jti }` sekretem `JWT_REFRESH_SECRET`),
+a nie losowym ciągiem: handler `refresh` weryfikuje kandydatów z ciasteczka przez
+`verifyToken` i korzysta z `decoded.iat`, żeby odciąć sesje starsze niż
+`passwordChangedAt`. `jti` gwarantuje unikalność `tokenHash` przy dwóch rotacjach
+w tej samej sekundzie.
+
+Model `RefreshToken` zyskuje jedno pole:
 
 ```prisma
-rotatedAt          DateTime?
-replacedByTokenHash String?
+rotatedAt DateTime?
 ```
 
 Logika w `refresh`:
 
-1. Token znaleziony i nie zrotowany → normalna rotacja (jak dziś, ale bez `delete`;
-   ustawiamy `rotatedAt` i `replacedByTokenHash`).
-2. Token znaleziony, zrotowany, `rotatedAt` młodsze niż 60 s → zwróć nowy access
-   token oraz token następcy wskazany przez `replacedByTokenHash`. Brak nowej rotacji.
-3. Token znaleziony, zrotowany, `rotatedAt` starsze niż 60 s → **wykryto ponowne
-   użycie**. Skasuj wszystkie refresh tokeny użytkownika **oraz wszystkie jego
-   tokeny urządzeń** i zwróć 401. To sygnał kradzieży tokenu i jedyny przypadek,
-   w którym celowo zrywamy sesję na wszystkich urządzeniach — bezpieczeństwo ma
-   tu pierwszeństwo przed wygodą. Użytkownik loguje się ponownie raz.
+1. Token nieznany lub wygasły → 401 bez żadnych skutków ubocznych. Wołający
+   przechodzi na ścieżkę tokenu urządzenia.
+2. Token ważny → wydaj **nowy** refresh token, a staremu skróć `expiresAt` do
+   `teraz + 60 s` i oznacz `rotatedAt`. Stary token pozostaje więc sprawny przez
+   okno karencji, obsługując drugi kontekst aplikacji, po czym wygasa sam.
+3. Zrotowane tokeny starsze niż 24 h są kasowane przy okazji tej samej transakcji.
+
+**Świadomie nie wykrywamy ponownego użycia tokenu.** Rozważaliśmy kasowanie
+wszystkich sesji użytkownika przy użyciu tokenu po upływie karencji, jako sygnał
+kradzieży. Odrzucone 2026-08-10: zainstalowana PWA potrafi leżeć w tle godzinami
+i wrócić ze starym tokenem, więc mechanizm masowo wylogowywałby uczciwych
+użytkowników — dokładnie odwrotnie do celu tego projektu. Token po karencji
+dostaje zwykłe 401, a token urządzenia odtwarza sesję bezszelestnie.
+
+Odcięcie dostępu pozostaje możliwe przez zmianę hasła, która kasuje tokeny
+urządzeń (patrz niżej).
 
 Zrotowane tokeny sprzątamy przy okazji: rekordy z `rotatedAt` starszym niż 24 h
 są usuwane w tym samym zapytaniu, które i tak wykonujemy.
@@ -121,8 +139,12 @@ Trzy miejsca w `App.tsx` (start aplikacji, `visibilitychange`, interwał 10-minu
 oraz interceptor w `lib/axios.ts` pozostają nietknięte — nadal reagują na 401,
 tylko że 401 pojawia się wyłącznie, gdy naprawdę nie da się odtworzyć sesji.
 
-Token urządzenia jest unieważniany przez: świadome wylogowanie, zmianę hasła
-(`passwordChangedAt`), wykrycie ponownego użycia refresh tokenu, upływ 400 dni.
+Token urządzenia jest unieważniany przez: świadome wylogowanie (tylko tokenu
+urządzenia, z którego przyszło żądanie — pozostałe urządzenia użytkownika, np.
+zainstalowana PWA na telefonie, zachowują swoje tokeny i trwałą sesję push),
+zmianę hasła (`passwordChangedAt`, odcina tokeny **wszystkich** urządzeń naraz —
+to jest jedyna ścieżka globalnego, awaryjnego wylogowania), wykrycie ponownego
+użycia refresh tokenu, upływ 400 dni.
 
 ## Bezpieczeństwo
 
@@ -133,14 +155,18 @@ wgląd w kartoteki medyczne wszystkich klientek.
 
 Ryzyko ograniczają:
 
-- unieważnienie całej rodziny tokenów przy wykryciu ponownego użycia,
 - `passwordChangedAt` jako awaryjne odcięcie wszystkich urządzeń — ścieżka
-  wymagająca testu potwierdzającego, że unieważnia także tokeny urządzeń,
+  wymagająca testu potwierdzającego, że unieważnia także tokeny urządzeń.
+  Świadome wylogowanie tego nie robi: unieważnia wyłącznie token urządzenia,
+  z którego przyszło żądanie (`X-Device-Token`), więc kolejne urządzenia
+  użytkownika nie tracą trwałej sesji,
 - ograniczona ważność 400 dni z odnawianiem tylko przy faktycznym użyciu,
 - istniejąca polityka CSP, która blokuje skrypty spoza listy dozwolonych domen.
 
-Świadome wylogowanie zachowuje obecne zachowanie, w tym kasowanie subskrypcji push
-(`UserLayout.tsx:164`, `Navbar.tsx:165`).
+Świadome wylogowanie nadal kasuje subskrypcję push tego urządzenia
+(`UserLayout.tsx:164`, `Navbar.tsx:165`) — to nie zmienia się. Zmienia się zakres
+unieważniania tokenu urządzenia: dotyczy wyłącznie urządzenia, z którego przyszło
+żądanie wylogowania, a nie wszystkich urządzeń użytkownika.
 
 ## Powiadomienia push
 
@@ -153,8 +179,8 @@ przestaną znikać — to jest właśnie oczekiwany efekt biznesowy.
 Backend (vitest):
 
 - rotacja: drugie żądanie odświeżenia z tym samym tokenem w oknie 60 s dostaje
-  ten sam token następcy i status 200,
-- wykrycie kradzieży: to samo żądanie po 60 s kasuje wszystkie tokeny i zwraca 401,
+  świeży token i status 200,
+- token użyty po upływie karencji dostaje 401 i **nie** kasuje innych sesji,
 - token urządzenia odtwarza sesję, gdy ciasteczko nie zostało przysłane,
 - zmiana hasła unieważnia zarówno refresh tokeny, jak i tokeny urządzeń,
 - token urządzenia po 400 dniach jest odrzucany.

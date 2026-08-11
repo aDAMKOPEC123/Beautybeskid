@@ -21,6 +21,17 @@ import {
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
 import {
+  rotateRefreshToken,
+  issueDeviceToken,
+  consumeDeviceToken,
+  signRefreshToken,
+  revokeDeviceTokens,
+  revokeSessionOnLogout,
+  deleteExpiredRefreshTokens,
+  LONG_LIVED_REFRESH_TTL,
+  LONG_LIVED_REFRESH_TTL_MS,
+} from './session.service';
+import {
   WEBAUTHN_LOGIN_PURPOSE,
   WEBAUTHN_REGISTER_PURPOSE,
   base64UrlEncode,
@@ -31,9 +42,6 @@ import {
 } from './webauthn';
 
 const REFRESH_COOKIE_DOMAIN = env.NODE_ENV === 'production' ? '.kosmetologwiktoriacwik.pl' : undefined;
-const LONG_LIVED_REFRESH_TTL_DAYS = 400;
-const LONG_LIVED_REFRESH_TTL = `${LONG_LIVED_REFRESH_TTL_DAYS}d`;
-const LONG_LIVED_REFRESH_TTL_MS = LONG_LIVED_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000;
 
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
@@ -166,7 +174,8 @@ const clearGoogleRegistrationCookie = (res: Response) => {
 const persistAuthSession = async (
   res: Response,
   result: { refreshToken: string; user: { id: string } },
-) => {
+  issueDevice = true,
+): Promise<string | null> => {
   const tokenTtlMs = LONG_LIVED_REFRESH_TTL_MS;
   clearAllRefreshCookies(res);
   res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions(tokenTtlMs));
@@ -178,6 +187,7 @@ const persistAuthSession = async (
       expiresAt: new Date(Date.now() + tokenTtlMs),
     },
   });
+  return issueDevice ? issueDeviceToken(result.user.id) : null;
 };
 
 const assertUserCanLogin = (user: {
@@ -344,11 +354,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       },
     });
 
+    const deviceToken = await issueDeviceToken(result.user.id);
+
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
-        accessToken: result.accessToken
+        accessToken: result.accessToken,
+        deviceToken
       }
     });
   } catch (error) {
@@ -591,13 +604,14 @@ export const passkeyLoginVerify = async (req: Request, res: Response, next: Next
       }),
       prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } }),
     ]);
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
 
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -608,10 +622,15 @@ export const passkeyLoginVerify = async (req: Request, res: Response, next: Next
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
-    if (refreshToken) {
-      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-      await prisma.refreshToken.deleteMany({ where: { tokenHash } });
-    }
+    const rawDeviceToken = req.headers['x-device-token'];
+    const deviceTokenHeader = Array.isArray(rawDeviceToken) ? rawDeviceToken[0] : rawDeviceToken;
+
+    // Świadome wylogowanie unieważnia token urządzenia, z którego przyszło żądanie
+    // (nagłówek X-Device-Token) — inaczej kolejna osoba przy tym samym urządzeniu
+    // odtworzyłaby cudzą sesję przez /auth/refresh-device. Pozostałe urządzenia
+    // użytkownika (np. zainstalowana PWA na telefonie) zachowują swoje tokeny —
+    // wylogowanie na jednym urządzeniu nie może przerywać trwałej sesji na innym.
+    await revokeSessionOnLogout(refreshToken, deviceTokenHeader);
     clearAllRefreshCookies(res);
     res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
   } catch (error) {
@@ -660,8 +679,6 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
     }
 
-    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
     if (!user) throw new AppError('Użytkownik nie istnieje', 401);
@@ -682,22 +699,18 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    // Sliding long-lived session: every successful refresh extends the device session.
-    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
-    const newTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-    await prisma.$transaction([
-      prisma.refreshToken.delete({ where: { tokenHash } }),
-      prisma.refreshToken.create({
-        data: {
-          tokenHash: newTokenHash,
-          userId: user.id,
-          expiresAt: new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS),
-        },
-      }),
-    ]);
+    // Sliding long-lived session: every successful refresh extends the device session,
+    // z oknem karencji obsługiwanym przez rotateRefreshToken (Task 2).
+    const rotation = await rotateRefreshToken(refreshToken, user.id);
+
+    if (rotation.stale) {
+      clearAllRefreshCookies(res);
+      throw new AppError('Token odświeżania wygasł lub został unieważniony', 401);
+    }
+
     // Clear all stale cookies (host-only + domain) before setting the new one
     clearAllRefreshCookies(res);
-    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
+    res.cookie('refreshToken', rotation.token, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
 
     res.status(200).json({
       status: 'success',
@@ -769,6 +782,10 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
       }
     });
 
+    // Reset hasła jest ścieżką odzyskiwania konta — kasujemy tokeny urządzeń,
+    // aby skradziony token nie odbudował sesji po zmianie hasła.
+    await revokeDeviceTokens(user.id);
+
     res.status(200).json({ status: 'success', message: 'Hasło zostało zmienione. Możesz się zalogować.' });
   } catch (error) {
     next(error);
@@ -814,13 +831,14 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     }
 
     const result = await authService.loginWithGoogle(profile, context);
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
 
     res.status(200).json({
       status: 'success',
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -894,7 +912,7 @@ export const completeGoogleRegistration = async (
       name: form.name,
       phone: form.phone,
     });
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
     clearGoogleRegistrationCookie(res);
 
     res.status(201).json({
@@ -902,6 +920,7 @@ export const completeGoogleRegistration = async (
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -946,7 +965,7 @@ export const facebookCallback = async (req: Request, res: Response) => {
     }
 
     const result = await authService.loginWithFacebook(profile, context);
-    await persistAuthSession(res, result);
+    await persistAuthSession(res, result, false);
 
     return redirectFacebookResult(res, '/auth/facebook/callback', {
       next: context.returnTo,
@@ -992,7 +1011,7 @@ export const completeFacebookRegistration = async (
       name: form.name,
       phone: form.phone,
     });
-    await persistAuthSession(res, result);
+    const deviceToken = await persistAuthSession(res, result);
     clearFacebookRegistrationCookie(res);
 
     res.status(201).json({
@@ -1000,6 +1019,7 @@ export const completeFacebookRegistration = async (
       data: {
         user: result.user,
         accessToken: result.accessToken,
+        deviceToken,
       },
     });
   } catch (error) {
@@ -1019,5 +1039,71 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     return res.redirect(`${env.CLIENT_URL}/auth/login?verified=true`);
   } catch {
     return res.redirect(`${env.CLIENT_URL}/auth/login?error=invalid-token`);
+  }
+};
+
+/**
+ * Druga ścieżka odtworzenia sesji, gdy ciasteczko refreshToken zniknęło —
+ * typowo po wyczyszczeniu danych witryny przez iOS. Odbudowuje także ciasteczko.
+ */
+export const refreshDevice = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const raw = req.headers['x-device-token'];
+    const deviceToken = Array.isArray(raw) ? raw[0] : raw;
+
+    if (!deviceToken) throw new AppError('Brak tokenu urządzenia', 401);
+
+    const userId = await consumeDeviceToken(deviceToken);
+    if (!userId) throw new AppError('Token urządzenia wygasł lub został unieważniony', 401);
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Użytkownik nie istnieje', 401);
+
+    if (user.accountStatus === 'PENDING' || user.accountStatus === 'REJECTED') {
+      throw new AppError('Konto nie jest aktywne', 403);
+    }
+
+    const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
+
+    // Ta ścieżka zakłada wiersz z rotatedAt = NULL, którego sprzątanie w
+    // rotateRefreshToken nigdy nie obejmie (filtr po rotatedAt wyklucza NULL-e).
+    // Kasujemy więc wygasłe wiersze tego użytkownika przy każdym odtworzeniu sesji.
+    await deleteExpiredRefreshTokens(user.id);
+
+    const newRefreshToken = signRefreshToken(user.id);
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: crypto.createHash('sha256').update(newRefreshToken).digest('hex'),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS),
+      },
+    });
+
+    clearAllRefreshCookies(res);
+    res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions(LONG_LIVED_REFRESH_TTL_MS));
+
+    res.status(200).json({
+      status: 'success',
+      data: { accessToken, user: authService.toAuthUser(user) },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(new AppError('Nieprawidłowy token urządzenia', 401));
+  }
+};
+
+/**
+ * Wydaje token urządzenia użytkownikowi, który ma już ważną sesję.
+ * Potrzebne w dwóch przypadkach: po logowaniu przez Facebooka (callback
+ * przekierowuje i nie ma jak zwrócić tokenu) oraz dla sesji istniejących
+ * w chwili wdrożenia tej funkcji — bez tego czekałyby na token do następnego
+ * logowania.
+ */
+export const deviceToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = await issueDeviceToken(req.user!.id);
+    res.status(200).json({ status: 'success', data: { deviceToken: token } });
+  } catch (error) {
+    next(new AppError('Nie udało się wydać tokenu urządzenia', 500));
   }
 };

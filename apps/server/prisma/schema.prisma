@@ -283,6 +283,7 @@ model User {
   skinWeatherReports          SkinWeatherReport[]
   academyAccessLogs           AcademyAccessLog[]
   refreshTokens               RefreshToken[]
+  deviceTokens                 DeviceToken[]
   passkeys                    Passkey[]
   beautyPlans                 BeautyPlan[]                     @relation("UserBeautyPlans")
   createdBeautyPlans          BeautyPlan[]                     @relation("BeautyPlanCreatedBy")
@@ -307,12 +308,27 @@ enum AcademyOrderStatus {
 }
 
 model RefreshToken {
-  id        String   @id @default(cuid())
-  tokenHash String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  rotatedAt  DateTime?
+
+  @@index([userId])
+  @@index([rotatedAt])
+}
+
+model DeviceToken {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String?
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   @@index([userId])
 }
