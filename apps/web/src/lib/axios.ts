@@ -1,6 +1,8 @@
 // filepath: apps/web/src/lib/axios.ts
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
+import { getDeviceToken, setDeviceToken } from './device-token';
+import type { User } from '@cosmo/shared';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -39,6 +41,36 @@ function isUnauthorizedRefreshFailure(err: unknown) {
   return axios.isAxiosError(err) && err.response?.status === 401;
 }
 
+async function ensureDeviceToken() {
+  if (getDeviceToken()) return;
+  try {
+    const { data } = await api.post('/auth/device-token', {}, { withCredentials: true });
+    if (data?.data?.deviceToken) setDeviceToken(data.data.deviceToken);
+  } catch {
+    // Brak tokenu urządzenia nie jest błędem krytycznym — sesja działa na ciasteczku.
+  }
+}
+
+async function requestRefresh(): Promise<{ accessToken: string; user?: User }> {
+  try {
+    const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
+    await ensureDeviceToken();
+    return data.data;
+  } catch (err) {
+    // Ciasteczko zniknęło lub wygasło — spróbuj tokenu urządzenia.
+    const deviceToken = getDeviceToken();
+    if (!isUnauthorizedRefreshFailure(err) || !deviceToken) throw err;
+
+    const { data } = await api.post(
+      '/auth/refresh-device',
+      {},
+      { withCredentials: true, headers: { 'X-Device-Token': deviceToken } },
+    );
+    if (data.data.deviceToken) setDeviceToken(data.data.deviceToken);
+    return data.data;
+  }
+}
+
 /**
  * Coordinated token refresh — single entry point used by both the
  * response interceptor (on 401) and the visibilitychange handler.
@@ -54,13 +86,12 @@ export function refreshSession(): Promise<string> {
 
   isRefreshing = true;
 
-  return api
-    .post('/auth/refresh', {}, { withCredentials: true })
-    .then(async ({ data }) => {
-      const newToken: string = data.data.accessToken;
+  return requestRefresh()
+    .then(async (payload) => {
+      const newToken: string = payload.accessToken;
       useAuthStore.getState().setAccessToken(newToken);
-      if (data.data.user) {
-        useAuthStore.getState().setUser(data.data.user);
+      if (payload.user) {
+        useAuthStore.getState().setUser(payload.user);
       }
       api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 

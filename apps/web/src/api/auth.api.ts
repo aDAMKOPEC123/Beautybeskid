@@ -11,10 +11,12 @@ import type {
   PasskeyAuthenticationOptions,
   PasskeyRegistrationOptions,
 } from '@/lib/passkeys';
+import { setDeviceToken } from '@/lib/device-token';
 
 type AuthResponseData = {
   user: User;
   accessToken: string;
+  deviceToken?: string | null;
 };
 
 type AuthResponseEnvelope = {
@@ -32,6 +34,7 @@ type GoogleAuthResponseEnvelope = {
 export const authApi = {
   login: async (data: LoginInput) => {
     const res = await api.post<AuthResponseEnvelope>('/auth/login', data);
+    if (res.data.data.deviceToken) setDeviceToken(res.data.data.deviceToken);
     return res.data.data;
   },
   register: async (
