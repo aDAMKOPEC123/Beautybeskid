@@ -247,6 +247,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
       // sessionStorage may be unavailable in private browsing.
     }
 
+    // After booking, the client reads the confirmation panel first — prompt to install later.
     const timer = window.setTimeout(() => {
       if (!canPromptForPwaInstall()) return;
       window.dispatchEvent(
@@ -254,7 +255,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
           detail: { reason },
         }),
       );
-    }, reason === 'booking-success' ? 600 : 1000);
+    }, reason === 'booking-success' ? 6000 : 1000);
 
     return () => window.clearTimeout(timer);
   }, [isAuthenticated, location.pathname, location.state]);

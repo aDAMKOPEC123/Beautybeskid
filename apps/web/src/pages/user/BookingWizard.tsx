@@ -1480,6 +1480,8 @@ export const BookingWizard = () => {
     const dateTime = new Date(state.date);
     dateTime.setHours(hours, minutes, 0, 0);
 
+    let bookedAppointmentId: string | null = null;
+
     try {
       let finalCouponId = state.couponId;
       if (state.otherRewardId) {
@@ -1509,6 +1511,7 @@ export const BookingWizard = () => {
         voucherUsedAmount,
         happyHourId: state.appliedHappyHour?.id ?? undefined,
       });
+      bookedAppointmentId = appointment.id;
 
       if (state.photo) {
         await uploadPhoto({ id: appointment.id, file: state.photo }).catch(() =>
@@ -1522,17 +1525,24 @@ export const BookingWizard = () => {
       queryClient.invalidateQueries({ queryKey: ['discount-codes', 'welcome'] });
       queryClient.invalidateQueries({ queryKey: ['reminders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
-      toast.success('Wizyta została zarezerwowana!');
       sessionStorage.removeItem(BOOKING_DRAFT_KEY);
       trackEvent('booking_completed', {
         service_name: state.service?.name,
         value: Number(state.service?.price) || undefined,
         currency: 'PLN',
       });
-      navigate('/user/wizyty', { state: { pwaPromptReason: 'booking-success' } });
     } catch {
-      toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
+      // Once the appointment exists, a failed side effect must not block the redirect.
+      if (!bookedAppointmentId) {
+        toast.error('Nie udało się zarezerwować wizyty. Spróbuj ponownie.');
+        return;
+      }
     }
+
+    toast.success('Wizyta zarezerwowana — czeka na potwierdzenie salonu.');
+    navigate('/user/wizyty', {
+      state: { pwaPromptReason: 'booking-success', justBookedAppointmentId: bookedAppointmentId },
+    });
   };
 
   return (

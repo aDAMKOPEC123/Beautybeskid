@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   addDays,
   addMonths,
@@ -42,6 +42,7 @@ import { Button } from '@/components/ui/button';
 import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import { AppointmentListSkeleton } from '@/components/skeletons';
 import { FollowUpReminderWidget } from '@/components/appointments/FollowUpReminderWidget';
+import { BookingConfirmationPanel } from '@/components/appointments/BookingConfirmationPanel';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -68,6 +69,27 @@ const HISTORY_FILTERS: Array<{ value: AppointmentHistoryStatus; label: string }>
 ];
 
 const ACTIVE_STATUSES = new Set(['PENDING', 'CONFIRMED']);
+
+// Freshly booked appointment highlighted with a confirmation panel until the client dismisses it.
+const JUST_BOOKED_KEY = 'booking-confirmation-id';
+const JUST_BOOKED_DISMISSED_KEY = 'booking-confirmation-dismissed';
+
+const readSession = (key: string) => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const writeSession = (key: string, value: string | null) => {
+  try {
+    if (value === null) sessionStorage.removeItem(key);
+    else sessionStorage.setItem(key, value);
+  } catch {
+    // sessionStorage may be unavailable in private browsing.
+  }
+};
 
 const getStatusExplanation = (appointment: Appointment) => {
   if (appointment.activeCancellationRequest) {
@@ -105,6 +127,22 @@ export const UserAppointments = () => {
     : 'ALL';
   const rawPage = Number(searchParams.get('page') ?? 1);
   const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+
+  const location = useLocation();
+  const [justBookedId, setJustBookedId] = useState<string | null>(() => readSession(JUST_BOOKED_KEY));
+
+  useEffect(() => {
+    const bookedId = (location.state as { justBookedAppointmentId?: string } | null)?.justBookedAppointmentId;
+    if (!bookedId || readSession(JUST_BOOKED_DISMISSED_KEY) === bookedId) return;
+    writeSession(JUST_BOOKED_KEY, bookedId);
+    setJustBookedId(bookedId);
+  }, [location.state]);
+
+  const dismissConfirmation = () => {
+    if (justBookedId) writeSession(JUST_BOOKED_DISMISSED_KEY, justBookedId);
+    writeSession(JUST_BOOKED_KEY, null);
+    setJustBookedId(null);
+  };
 
   const overviewQuery = useQuery({
     queryKey: ['appointments', 'overview'],
@@ -167,6 +205,12 @@ export const UserAppointments = () => {
   const history = historyQuery.data;
   const hasAnyAppointment = Boolean(overview.nextAppointment || overview.otherUpcoming.length || history?.total);
 
+  const justBooked = justBookedId
+    ? [overview.nextAppointment, ...overview.otherUpcoming].find(
+        (appointment) => appointment?.id === justBookedId && ACTIVE_STATUSES.has(appointment.status),
+      )
+    : undefined;
+
   return (
     <div className="space-y-8 animate-enter">
       <div className="flex items-center justify-between gap-4">
@@ -183,6 +227,10 @@ export const UserAppointments = () => {
           </Link>
         )}
       </div>
+
+      {justBooked && (
+        <BookingConfirmationPanel appointment={justBooked} onDismiss={dismissConfirmation} />
+      )}
 
       <FollowUpReminderWidget />
 
