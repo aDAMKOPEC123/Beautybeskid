@@ -1,14 +1,34 @@
 import crypto from 'crypto';
 import { prisma } from '../../config/prisma';
+import { env } from '../../config/env';
+import { signToken } from '../../utils/jwt';
 
 export const ROTATION_GRACE_MS = 60_000;
 const DEVICE_TOKEN_TTL_DAYS = 400;
 export const DEVICE_TOKEN_TTL_MS = DEVICE_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000;
 
+/**
+ * Jedyne źródło prawdy o długości życia refresh tokenu — kontroler importuje
+ * te same stałe, żeby ciasteczko, wpis w bazie i `exp` w JWT nie rozjechały się.
+ */
+export const LONG_LIVED_REFRESH_TTL_DAYS = 400;
+export const LONG_LIVED_REFRESH_TTL = `${LONG_LIVED_REFRESH_TTL_DAYS}d`;
+export const LONG_LIVED_REFRESH_TTL_MS = LONG_LIVED_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000;
+
 export const hashToken = (raw: string) =>
   crypto.createHash('sha256').update(raw).digest('hex');
 
 export const generateRawToken = () => crypto.randomBytes(32).toString('hex');
+
+/**
+ * Podpisuje refresh token. `jti` gwarantuje unikalność: bez niego dwa podpisy
+ * złożone w tej samej sekundzie dla tego samego użytkownika są bajt w bajt
+ * identyczne, co kończy się kolizją na unikalnym `RefreshToken.tokenHash` —
+ * a równoległe odświeżenie z PWA i z karty przeglądarki to przebieg, który
+ * okno karencji ma właśnie obsługiwać.
+ */
+export const signRefreshToken = (userId: string) =>
+  signToken({ id: userId, jti: crypto.randomUUID() }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
 
 type RotationResult =
   | { stale: false; token: string; expiresAt: Date }
@@ -26,11 +46,16 @@ type RotationResult =
  * godzinami i wrócić ze starym tokenem, więc kasowanie sesji przy takim
  * zdarzeniu wylogowywałoby uczciwych użytkowników. Token po karencji dostaje
  * zwykłe 401, a token urządzenia odtwarza sesję.
+ *
+ * Następca musi być **podpisanym JWT**, a nie losowym ciągiem: handler `refresh`
+ * weryfikuje ciasteczko przez `verifyToken` i korzysta z `decoded.iat`, żeby odciąć
+ * sesje starsze niż `passwordChangedAt`. Losowy token przechodziłby przez tę pętlę
+ * jako nieprawidłowy (401 przy każdej drugiej rotacji) i pozbawiałby nas jedynego
+ * mechanizmu unieważniania sesji po zmianie hasła.
  */
 export const rotateRefreshToken = async (
   rawToken: string,
   userId: string,
-  ttlMs: number,
 ): Promise<RotationResult> => {
   const tokenHash = hashToken(rawToken);
   const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
@@ -43,8 +68,8 @@ export const rotateRefreshToken = async (
   // rozjazd cicho wystawiłby ważny refresh token powiązany z cudzym kontem.
   if (stored.userId !== userId) return { stale: true };
 
-  const nextRaw = generateRawToken();
-  const expiresAt = new Date(Date.now() + ttlMs);
+  const nextRaw = signRefreshToken(userId);
+  const expiresAt = new Date(Date.now() + LONG_LIVED_REFRESH_TTL_MS);
   const graceExpiry = new Date(Date.now() + ROTATION_GRACE_MS);
 
   await prisma.$transaction([
@@ -95,3 +120,44 @@ export const consumeDeviceToken = async (rawToken: string) => {
 
 export const revokeDeviceTokens = (userId: string) =>
   prisma.deviceToken.deleteMany({ where: { userId } });
+
+/**
+ * Sprząta wygasłe refresh tokeny użytkownika.
+ *
+ * Sprzątanie wewnątrz `rotateRefreshToken` filtruje po `rotatedAt`, a Prisma na
+ * polu nullowalnym wyklucza NULL-e — wiersze zakładane przez `refresh-device`
+ * (nigdy nierotowane) nie trafiłyby tam nigdy. Ten helper łapie je po `expiresAt`.
+ */
+export const deleteExpiredRefreshTokens = (userId: string) =>
+  prisma.refreshToken.deleteMany({ where: { userId, expiresAt: { lt: new Date() } } });
+
+/**
+ * Unieważnia sesję przy świadomym wylogowaniu: kasuje refresh token z ciasteczka
+ * oraz **wszystkie tokeny urządzeń** właściciela sesji.
+ *
+ * Żądanie `POST /auth/logout` bywa nieuwierzytelnione, więc właściciela ustalamy
+ * z tego, co przyszło: z nagłówka `X-Device-Token` albo z wiersza znalezionego po
+ * hashu ciasteczka. Brak obu nie jest błędem — nie ma czego kasować.
+ */
+export const revokeSessionOnLogout = async (
+  refreshCookie?: string | null,
+  deviceTokenRaw?: string | null,
+): Promise<void> => {
+  let userId: string | null = null;
+
+  if (deviceTokenRaw) {
+    const stored = await prisma.deviceToken.findUnique({
+      where: { tokenHash: hashToken(deviceTokenRaw) },
+    });
+    if (stored) userId = stored.userId;
+  }
+
+  if (refreshCookie) {
+    const tokenHash = hashToken(refreshCookie);
+    const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+    if (!userId && stored) userId = stored.userId;
+    await prisma.refreshToken.deleteMany({ where: { tokenHash } });
+  }
+
+  if (userId) await revokeDeviceTokens(userId);
+};

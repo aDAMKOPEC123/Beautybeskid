@@ -20,7 +20,17 @@ import {
   isFacebookConfigured,
 } from './facebook.strategy';
 import { GooglePayload, verifyGoogleToken } from './google.strategy';
-import { rotateRefreshToken, issueDeviceToken, consumeDeviceToken } from './session.service';
+import {
+  rotateRefreshToken,
+  issueDeviceToken,
+  consumeDeviceToken,
+  signRefreshToken,
+  revokeDeviceTokens,
+  revokeSessionOnLogout,
+  deleteExpiredRefreshTokens,
+  LONG_LIVED_REFRESH_TTL,
+  LONG_LIVED_REFRESH_TTL_MS,
+} from './session.service';
 import {
   WEBAUTHN_LOGIN_PURPOSE,
   WEBAUTHN_REGISTER_PURPOSE,
@@ -32,9 +42,6 @@ import {
 } from './webauthn';
 
 const REFRESH_COOKIE_DOMAIN = env.NODE_ENV === 'production' ? '.kosmetologwiktoriacwik.pl' : undefined;
-const LONG_LIVED_REFRESH_TTL_DAYS = 400;
-const LONG_LIVED_REFRESH_TTL = `${LONG_LIVED_REFRESH_TTL_DAYS}d`;
-const LONG_LIVED_REFRESH_TTL_MS = LONG_LIVED_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000;
 
 const buildRefreshCookieOptions = (maxAge: number) => ({
   httpOnly: true,
@@ -615,10 +622,13 @@ export const passkeyLoginVerify = async (req: Request, res: Response, next: Next
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
-    if (refreshToken) {
-      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-      await prisma.refreshToken.deleteMany({ where: { tokenHash } });
-    }
+    const rawDeviceToken = req.headers['x-device-token'];
+    const deviceTokenHeader = Array.isArray(rawDeviceToken) ? rawDeviceToken[0] : rawDeviceToken;
+
+    // Świadome wylogowanie musi unieważnić także tokeny urządzeń — inaczej
+    // kolejna osoba przy tym samym urządzeniu odtworzyłaby cudzą sesję przez
+    // /auth/refresh-device.
+    await revokeSessionOnLogout(refreshToken, deviceTokenHeader);
     clearAllRefreshCookies(res);
     res.status(200).json({ status: 'success', message: 'Wylogowano pomyślnie' });
   } catch (error) {
@@ -689,7 +699,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
     // Sliding long-lived session: every successful refresh extends the device session,
     // z oknem karencji obsługiwanym przez rotateRefreshToken (Task 2).
-    const rotation = await rotateRefreshToken(refreshToken, user.id, LONG_LIVED_REFRESH_TTL_MS);
+    const rotation = await rotateRefreshToken(refreshToken, user.id);
 
     if (rotation.stale) {
       clearAllRefreshCookies(res);
@@ -772,7 +782,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
     // Reset hasła jest ścieżką odzyskiwania konta — kasujemy tokeny urządzeń,
     // aby skradziony token nie odbudował sesji po zmianie hasła.
-    await prisma.deviceToken.deleteMany({ where: { userId: user.id } });
+    await revokeDeviceTokens(user.id);
 
     res.status(200).json({ status: 'success', message: 'Hasło zostało zmienione. Możesz się zalogować.' });
   } catch (error) {
@@ -1053,7 +1063,12 @@ export const refreshDevice = async (req: Request, res: Response, next: NextFunct
 
     const accessToken = signToken({ id: user.id, role: user.role }, env.JWT_SECRET, env.JWT_EXPIRES_IN);
 
-    const newRefreshToken = signToken({ id: user.id }, env.JWT_REFRESH_SECRET, LONG_LIVED_REFRESH_TTL);
+    // Ta ścieżka zakłada wiersz z rotatedAt = NULL, którego sprzątanie w
+    // rotateRefreshToken nigdy nie obejmie (filtr po rotatedAt wyklucza NULL-e).
+    // Kasujemy więc wygasłe wiersze tego użytkownika przy każdym odtworzeniu sesji.
+    await deleteExpiredRefreshTokens(user.id);
+
+    const newRefreshToken = signRefreshToken(user.id);
     await prisma.refreshToken.create({
       data: {
         tokenHash: crypto.createHash('sha256').update(newRefreshToken).digest('hex'),

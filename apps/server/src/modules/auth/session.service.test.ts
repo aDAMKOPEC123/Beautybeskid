@@ -20,8 +20,20 @@ const { mockPrisma } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../config/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('../../config/env', () => ({
+  env: { JWT_REFRESH_SECRET: 'test-refresh-secret' },
+}));
 
-import { rotateRefreshToken, hashToken, issueDeviceToken, consumeDeviceToken, revokeDeviceTokens } from './session.service';
+import {
+  rotateRefreshToken,
+  hashToken,
+  issueDeviceToken,
+  consumeDeviceToken,
+  revokeDeviceTokens,
+  revokeSessionOnLogout,
+  deleteExpiredRefreshTokens,
+} from './session.service';
+import { verifyToken } from '../../utils/jwt';
 
 describe('rotateRefreshToken', () => {
   beforeEach(() => {
@@ -36,7 +48,7 @@ describe('rotateRefreshToken', () => {
       rotatedAt: null,
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+    const result = await rotateRefreshToken('stary', 'user-1');
 
     expect(result.stale).toBe(false);
     if (!result.stale) expect(result.token).not.toBe('stary');
@@ -50,7 +62,7 @@ describe('rotateRefreshToken', () => {
       rotatedAt: new Date(Date.now() - 5_000),
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+    const result = await rotateRefreshToken('stary', 'user-1');
 
     expect(result.stale).toBe(false);
     if (!result.stale) expect(result.token).not.toBe('stary');
@@ -65,7 +77,7 @@ describe('rotateRefreshToken', () => {
       rotatedAt: null,
     });
 
-    await rotateRefreshToken('stary', 'user-1', 1000);
+    await rotateRefreshToken('stary', 'user-1');
 
     const updateArgs = mockPrisma.refreshToken.updateMany.mock.calls[0][0];
     expect(updateArgs.where).toEqual({ tokenHash: hashToken('stary'), rotatedAt: null });
@@ -79,7 +91,7 @@ describe('rotateRefreshToken', () => {
       rotatedAt: new Date(Date.now() - 120_000),
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+    const result = await rotateRefreshToken('stary', 'user-1');
 
     expect(result).toEqual({ stale: true });
     expect(mockPrisma.refreshToken.deleteMany).not.toHaveBeenCalled();
@@ -88,7 +100,7 @@ describe('rotateRefreshToken', () => {
   it('zwraca stale dla tokenu nieznanego', async () => {
     mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
 
-    expect(await rotateRefreshToken('obcy', 'user-1', 1000)).toEqual({ stale: true });
+    expect(await rotateRefreshToken('obcy', 'user-1')).toEqual({ stale: true });
   });
 
   it('zwraca stale, gdy token należy do innego użytkownika, i nie tworzy nowego tokenu', async () => {
@@ -99,10 +111,122 @@ describe('rotateRefreshToken', () => {
       rotatedAt: null,
     });
 
-    const result = await rotateRefreshToken('stary', 'user-1', 1000);
+    const result = await rotateRefreshToken('stary', 'user-1');
 
     expect(result).toEqual({ stale: true });
     expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled();
+  });
+
+  it('wydaje następcę jako podpisany JWT, akceptowalny przez pętlę kandydatów w handlerze refresh', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('stary'),
+      userId: 'user-1',
+      expiresAt: new Date(Date.now() + 60_000),
+      rotatedAt: null,
+    });
+
+    const result = await rotateRefreshToken('stary', 'user-1');
+
+    expect(result.stale).toBe(false);
+    if (result.stale) return;
+
+    // Handler refresh robi verifyToken(candidate, JWT_REFRESH_SECRET) i korzysta
+    // z decoded.iat do kontroli passwordChangedAt — losowy hex tego nie przejdzie.
+    expect(result.token.split('.')).toHaveLength(3);
+    const decoded = verifyToken(result.token, 'test-refresh-secret') as { id: string; iat?: number };
+    expect(decoded.id).toBe('user-1');
+    expect(typeof decoded.iat).toBe('number');
+  });
+
+  it('token zwrócony przez pierwszą rotację jest akceptowany przez drugą', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('stary'),
+      userId: 'user-1',
+      expiresAt: new Date(Date.now() + 60_000),
+      rotatedAt: null,
+    });
+
+    const first = await rotateRefreshToken('stary', 'user-1');
+    expect(first.stale).toBe(false);
+    if (first.stale) return;
+
+    // Baza zna następcę pod jego hashem — dokładnie tak, jak zapisała go rotacja.
+    const createArgs = mockPrisma.refreshToken.create.mock.calls[0][0];
+    expect(createArgs.data.tokenHash).toBe(hashToken(first.token));
+
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken(first.token),
+      userId: 'user-1',
+      expiresAt: createArgs.data.expiresAt,
+      rotatedAt: null,
+    });
+
+    // Druga rotacja tym samym tokenem — to jest przebieg, który przy losowym
+    // tokenie kończył się 401 przy każdym drugim odświeżeniu.
+    expect(() => verifyToken(first.token, 'test-refresh-secret')).not.toThrow();
+    const second = await rotateRefreshToken(first.token, 'user-1');
+
+    expect(second.stale).toBe(false);
+    if (!second.stale) expect(second.token).not.toBe(first.token);
+  });
+});
+
+describe('sprzątanie i wylogowanie', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('deleteExpiredRefreshTokens kasuje wygasłe wiersze, także te nigdy nierotowane', async () => {
+    mockPrisma.refreshToken.deleteMany.mockResolvedValueOnce({ count: 3 });
+
+    await deleteExpiredRefreshTokens('user-1');
+
+    const args = mockPrisma.refreshToken.deleteMany.mock.calls[0][0];
+    expect(args.where.userId).toBe('user-1');
+    expect(args.where.expiresAt.lt).toBeInstanceOf(Date);
+    expect(args.where).not.toHaveProperty('rotatedAt');
+  });
+
+  it('wylogowanie kasuje tokeny urządzeń właściciela znalezionego po ciasteczku', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('ciasteczko'),
+      userId: 'user-1',
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    await revokeSessionOnLogout('ciasteczko', undefined);
+
+    expect(mockPrisma.refreshToken.deleteMany).toHaveBeenCalledWith({
+      where: { tokenHash: hashToken('ciasteczko') },
+    });
+    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+  });
+
+  it('wylogowanie kasuje tokeny urządzeń właściciela znalezionego po nagłówku X-Device-Token', async () => {
+    mockPrisma.deviceToken.findUnique.mockResolvedValueOnce({
+      tokenHash: hashToken('dev-raw'),
+      userId: 'user-5',
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    await revokeSessionOnLogout(undefined, 'dev-raw');
+
+    expect(mockPrisma.deviceToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-5' } });
+  });
+
+  it('wylogowanie bez ciasteczka i bez nagłówka nie jest błędem', async () => {
+    await expect(revokeSessionOnLogout(undefined, undefined)).resolves.toBeUndefined();
+
+    expect(mockPrisma.refreshToken.deleteMany).not.toHaveBeenCalled();
+    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('wylogowanie nieznanym ciasteczkiem nie kasuje cudzych tokenów urządzeń', async () => {
+    mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
+
+    await revokeSessionOnLogout('obce-ciasteczko', undefined);
+
+    expect(mockPrisma.deviceToken.deleteMany).not.toHaveBeenCalled();
   });
 });
 
