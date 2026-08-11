@@ -120,9 +120,12 @@ export const academyApi = {
   adminDeleteMarketing: (kind: string, id: string) => api.delete(`/academy/admin/marketing/${kind}/${id}`).then(r => r.data.data),
   adminCreateModule: (courseId: string, data: { title: string; order?: number }) => api.post(`/academy/admin/courses/${courseId}/modules`, data).then((r) => r.data.data),
   adminCreateLesson: (moduleId: string, data: Record<string, unknown>) => api.post(`/academy/admin/modules/${moduleId}/lessons`, data).then((r) => r.data.data),
-  adminUploadLessonImage: (image: File) => {
+  adminUploadLessonImage: (image: File | Blob, folder?: string) => {
     const formData = new FormData();
-    formData.append('image', image);
+    // Blob z kadrowania nie ma nazwy — serwer i tak nadaje własną, ale multer
+    // wymaga nazwy pliku, żeby rozpoznać pole jako plik.
+    formData.append('image', image, image instanceof File ? image.name : 'kadr.webp');
+    if (folder) formData.append('folder', folder);
     return api.post('/academy/admin/lesson-images', formData).then((r) => r.data.data);
   },
   adminCreateCheckpoint: (moduleId: string, data: { title: string; order?: number; passingScore?: number }) => api.post(`/academy/admin/modules/${moduleId}/checkpoints`, data).then((r) => r.data.data),
