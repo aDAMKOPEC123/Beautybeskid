@@ -741,12 +741,34 @@ git commit -m "feat(auth): wydawaj token urządzenia przy logowaniu, kasuj przy 
 
 Utwórz `apps/web/src/lib/device-token.test.ts`:
 
+Uwaga: `apps/web/vitest.config.ts` ustawia `environment: 'node'`, a w projekcie nie ma
+zainstalowanego `jsdom` ani `happy-dom`. `localStorage` trzeba więc podstawić samodzielnie —
+to lżejsze niż dokładanie zależności dla dwóch plików testowych.
+
 ```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// Vitest działa tu w środowisku 'node', które nie zna localStorage.
+const store = new Map<string, string>();
+vi.stubGlobal('localStorage', {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => {
+    store.set(k, v);
+  },
+  removeItem: (k: string) => {
+    store.delete(k);
+  },
+  clear: () => {
+    store.clear();
+  },
+});
+
 import { getDeviceToken, setDeviceToken, clearDeviceToken } from './device-token';
 
 describe('device-token', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+  });
 
   it('zwraca null, gdy nic nie zapisano', () => {
     expect(getDeviceToken()).toBeNull();
@@ -923,8 +945,25 @@ przed zwróceniem danych.
 
 Utwórz `apps/web/src/lib/axios.test.ts`:
 
+Tu również potrzebny jest stub `localStorage` — z tego samego powodu co w Task 7.
+
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const store = new Map<string, string>();
+vi.stubGlobal('localStorage', {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => {
+    store.set(k, v);
+  },
+  removeItem: (k: string) => {
+    store.delete(k);
+  },
+  clear: () => {
+    store.clear();
+  },
+});
+
 import { setDeviceToken } from './device-token';
 
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
