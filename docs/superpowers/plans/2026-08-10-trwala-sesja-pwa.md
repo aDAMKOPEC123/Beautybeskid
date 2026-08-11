@@ -353,7 +353,11 @@ Dopisz w `session.service.test.ts` nowy blok:
 import { issueDeviceToken, consumeDeviceToken } from './session.service';
 
 describe('tokeny urządzeń', () => {
-  beforeEach(() => vi.clearAllMocks());
+  // Klamry są konieczne: bez nich arrow function zwraca VitestUtils,
+  // a beforeEach oczekuje void — tsc --noEmit odrzuci taki zapis.
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('zapisuje wyłącznie hash, zwraca surowy token', async () => {
     mockPrisma.deviceToken.create.mockResolvedValueOnce({});
@@ -675,6 +679,23 @@ W `apps/server/src/modules/users/users.service.ts` po `prisma.user.update({ ... 
 ```
 
 To awaryjne odcięcie wszystkich urządzeń — jedyna droga odebrania dostępu zgubionemu telefonowi.
+
+- [ ] **Step 3b: Reset hasła przez e-mail też kasuje tokeny urządzeń**
+
+Krytyczne dla bezpieczeństwa: `resetPassword` w `apps/server/src/modules/auth/auth.controller.ts`
+(okolice linii 741-767) to **druga, niezależna** ścieżka zmiany hasła — używa jej osoba, która
+straciła dostęp do konta. Bez tego kroku skradziony token urządzenia przetrwałby reset hasła
+ofiary i dalej odbudowywał sesję przez `/auth/refresh-device`, omijając ochronę, którą
+`refresh` realizuje przez `passwordChangedAt`. Token urządzenia nie jest JWT i nie ma `iat`,
+więc tej kontroli nie da się tam odtworzyć — odcięcie musi nastąpić przez skasowanie tokenów.
+
+Po zapisaniu nowego hasła w `resetPassword` dopisz:
+
+```typescript
+    await prisma.deviceToken.deleteMany({ where: { userId: user.id } });
+```
+
+Użyj nazwy zmiennej użytkownika zgodnej z tym, co jest w tym handlerze.
 
 - [ ] **Step 4: Napisz test odcięcia**
 
