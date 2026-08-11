@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { hideSplash } from './splash';
 
 const PRELOAD_RECOVERY_KEY = 'cosmo:preload-recovery';
 
@@ -29,6 +30,20 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
+
+// Splash gaśnie po pierwszej klatce z zamontowanym Reactem. Świadomie nie czekamy
+// na dane z API: offline zawiesiłoby to do bezpiecznika, a stany ładowania
+// obsługują szkielety w widokach.
+//
+// createRoot().render() jest asynchroniczne, więc pojedynczy requestAnimationFrame
+// nie gwarantuje, że commit Reacta już się odbył — poleganie na nieudokumentowanej
+// kolejności zadań byłoby kruche przy wolnym zimnym starcie. Zagnieżdżony,
+// podwójny rAF odpala drugą klatkę dopiero PO commicie: pierwszy rAF planuje
+// callback na kolejną klatkę (w której React commituje), a drugi, wywołany
+// z jej wnętrza, czeka na klatkę PO tym commicie.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => hideSplash());
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
