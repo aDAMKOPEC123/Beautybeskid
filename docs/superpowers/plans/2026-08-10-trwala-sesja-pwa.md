@@ -894,6 +894,31 @@ W `refreshSession()` zamień `api.post('/auth/refresh', ...)` na `requestRefresh
       // ...reszta bez zmian
 ```
 
+- [ ] **Step 3b: Dobierz token urządzenia, gdy sesja go nie ma**
+
+Bez tego kroku token urządzenia dostaną wyłącznie osoby, które zalogują się po wdrożeniu.
+Użytkownicy z już aktywną sesją — oraz logujący się przez Facebooka, gdzie callback
+przekierowuje bez JSON-a — zostaliby bez drugiej ścieżki i nadal by się wylogowywali.
+
+W `requestRefresh()`, po udanym odświeżeniu ciasteczkiem, dobierz token, jeśli go brakuje.
+Wywołanie jest świadomie „ciche": jego niepowodzenie nie może zepsuć odświeżenia sesji,
+bo to funkcja pomocnicza, a nie warunek działania aplikacji.
+
+```typescript
+async function ensureDeviceToken() {
+  if (getDeviceToken()) return;
+  try {
+    const { data } = await api.post('/auth/device-token', {}, { withCredentials: true });
+    if (data?.data?.deviceToken) setDeviceToken(data.data.deviceToken);
+  } catch {
+    // Brak tokenu urządzenia nie jest błędem krytycznym — sesja działa na ciasteczku.
+  }
+}
+```
+
+W `requestRefresh()` w gałęzi sukcesu ścieżki ciasteczkowej wywołaj `await ensureDeviceToken();`
+przed zwróceniem danych.
+
 - [ ] **Step 4: Napisz test fallbacku**
 
 Utwórz `apps/web/src/lib/axios.test.ts`:
@@ -1018,6 +1043,97 @@ cd cosmo-app && ./deploy.sh frontend
 
 ```bash
 git add -A && git commit -m "chore: poprawki po weryfikacji trwałej sesji"
+```
+
+---
+
+### Task 10: Endpoint wydania tokenu urządzenia dla istniejącej sesji
+
+Wykonywany **przed** Taskiem 8, mimo numeru — Task 8 z niego korzysta.
+
+Dodany po recenzji Task 6, która ujawniła dwie luki w pierwotnym planie:
+1. `facebookCallback` przekierowuje zamiast zwracać JSON, więc token urządzenia jest tam
+   wydawany i zapisywany w bazie, ale nigdy nie dociera do przeglądarki — martwy wpis.
+2. Użytkownicy **już zalogowani** w chwili wdrożenia nigdy nie dostaliby tokenu, bo ten
+   powstaje wyłącznie przy logowaniu. Problem, który naprawiamy, trwałby u nich do
+   następnego zalogowania — czyli potencjalnie miesiącami.
+
+**Files:**
+- Modify: `apps/server/src/modules/auth/auth.controller.ts` (`persistAuthSession`, nowy handler `deviceToken`)
+- Modify: `apps/server/src/modules/auth/auth.router.ts`
+
+**Interfaces:**
+- Consumes: `issueDeviceToken` z Task 3
+- Produces: `POST /auth/device-token` chroniony `authenticate`, zwracający `{ status: 'success', data: { deviceToken } }`
+
+- [ ] **Step 1: Przestań marnować token w ścieżce Facebooka**
+
+`persistAuthSession` zawsze wydaje token urządzenia, także tam, gdzie nie da się go
+zwrócić. Dodaj parametr sterujący, domyślnie zachowujący obecne zachowanie:
+
+```typescript
+const persistAuthSession = async (
+  res: Response,
+  result: { refreshToken: string; user: { id: string } },
+  issueDevice = true,
+): Promise<string | null> => {
+```
+
+Na końcu funkcji zamiast bezwarunkowego `return issueDeviceToken(result.user.id);`:
+
+```typescript
+  return issueDevice ? issueDeviceToken(result.user.id) : null;
+```
+
+W `facebookCallback` (okolice linii 955) zmień wywołanie na `await persistAuthSession(res, result, false);`
+— ten handler przekierowuje, więc token i tak nie dotarłby do klienta. Front pobierze go
+przez endpoint z kroku 2. Pozostałe cztery wywołania zostaw bez zmian; ich typ zwracany
+to teraz `string | null`, więc dostosuj miejsca, które dopisują `deviceToken` do odpowiedzi,
+tak by kompilacja przechodziła (pole może być `null` — to dopuszczalne, front to obsłuży).
+
+- [ ] **Step 2: Endpoint wydający token zalogowanemu użytkownikowi**
+
+W `auth.controller.ts`:
+
+```typescript
+/**
+ * Wydaje token urządzenia użytkownikowi, który ma już ważną sesję.
+ * Potrzebne w dwóch przypadkach: po logowaniu przez Facebooka (callback
+ * przekierowuje i nie ma jak zwrócić tokenu) oraz dla sesji istniejących
+ * w chwili wdrożenia tej funkcji — bez tego czekałyby na token do następnego
+ * logowania.
+ */
+export const deviceToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = await issueDeviceToken(req.user!.id);
+    res.status(200).json({ status: 'success', data: { deviceToken: token } });
+  } catch (error) {
+    next(new AppError('Nie udało się wydać tokenu urządzenia', 500));
+  }
+};
+```
+
+- [ ] **Step 3: Trasa**
+
+W `auth.router.ts`, obok pozostałych tras chronionych:
+
+```typescript
+router.post('/device-token', authenticate, authController.deviceToken);
+```
+
+- [ ] **Step 4: Weryfikacja**
+
+Run: `cd apps/server && pnpm exec tsc --noEmit`
+Expected: brak błędów.
+
+Run: `cd apps/server && pnpm test`
+Expected: wszystkie testy przechodzą.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add apps/server/src/modules/auth/auth.controller.ts apps/server/src/modules/auth/auth.router.ts
+git commit -m "feat(auth): endpoint wydania tokenu urządzenia dla istniejącej sesji"
 ```
 
 ---
