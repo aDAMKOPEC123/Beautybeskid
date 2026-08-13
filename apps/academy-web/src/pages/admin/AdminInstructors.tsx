@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { GraduationCap, Plus, Trash2, UserRound } from 'lucide-react';
 import { academyApi } from '@/api/academy.api';
 import { AdminHelp, HelpField } from '@/components/AdminHelp';
+import { ImageUploadField } from '@/components/ImageUploadField';
 
 const slugify = (value: string) =>
   value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -127,9 +128,15 @@ export function AdminInstructors() {
               <textarea value={draft.credentialsText} onChange={(e) => setDraft({ ...draft, credentialsText: e.target.value })} />
             </HelpField>
 
-            <HelpField label="Adres zdjęcia" hint="Wklej link do zdjęcia. Pliki wgrywasz w zakładce „Biblioteka mediów” i kopiujesz stamtąd adres.">
-              <input value={draft.photoUrl} onChange={(e) => setDraft({ ...draft, photoUrl: e.target.value })} placeholder="https://…" />
-            </HelpField>
+            <ImageUploadField
+              label="Zdjęcie prowadzącej"
+              hint="Zdjęcie wyświetla się jako koło — wykadruj tak, żeby twarz była na środku."
+              value={draft.photoUrl}
+              onChange={(url) => setDraft({ ...draft, photoUrl: url })}
+              folder="academy-instructors"
+              aspect={1}
+              previewShape="circle"
+            />
 
             <div className="admin-form-split">
               <HelpField label="Adres na stronie (slug)" hint="Zostaw puste — utworzymy go z imienia i nazwiska. Tylko małe litery, cyfry i myślniki.">
