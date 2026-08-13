@@ -67,7 +67,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     sync();
   }, [sync]);
 
-  const { pick, dialog, uploading, error } = useImageUpload({
+  const { pick, dialog, uploading, error, notice } = useImageUpload({
     folder: 'academy-lessons', aspect: 'free', onUploaded: insertFigure,
   });
 
@@ -221,8 +221,11 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       )}
 
       {selected && layout !== 'full' && (
-        <div className="figure-resize-hint" aria-hidden="true">
+        // Uchwyt jest skrótem dla myszy; klawiaturą szerokość ustawia się
+        // suwakiem i przyciskami − / +, dlatego zostaje poza kolejnością tabulacji.
+        <div className="figure-resize-hint">
           <button type="button" className="figure-resize-handle" onPointerDown={startResize}
+            tabIndex={-1} aria-label="Zmień szerokość zdjęcia"
             title="Ciągnij, aby zmienić szerokość" />
         </div>
       )}
@@ -242,6 +245,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       <p className="rich-editor-hint">
         Kliknij w zdjęcie, żeby ustawić jego rozmiar i położenie. Wstawione obrazy są automatycznie optymalizowane i zapisywane jako WebP.
       </p>
+      {notice && <p className="rich-editor-hint" role="status">{notice}</p>}
       {error && <p className="rich-editor-error" role="alert">{error}</p>}
       {dialog}
       {recrop.dialog}
