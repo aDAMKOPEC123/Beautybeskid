@@ -5,7 +5,6 @@ import { CheckCircle, ChevronLeft, Download, FileText, ImageIcon, MessageCircle,
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import { useAuth } from '@/hooks/useAuth';
-import DOMPurify from 'dompurify';
 import { toast } from 'sonner';
 import { sanitizeLessonHtml } from '@/lib/sanitizeLessonHtml';
 
@@ -169,7 +168,7 @@ export function LessonPlayer() {
           </button>
         </div>
       )}
-      {lesson.type === 'VIDEO' && lesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja lekcji</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lesson.transcriptHtml) }} /></details>}
+      {lesson.type === 'VIDEO' && lesson.transcriptHtml && <details className="academy-transcript"><summary>Transkrypcja lekcji</summary><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(lesson.transcriptHtml) }} /></details>}
       <section className="rounded-xl border bg-card p-5 space-y-3" aria-labelledby="lesson-note-title">
         <div className="flex items-center gap-2"><NotebookPen className="w-5 h-5 text-primary" /><h2 id="lesson-note-title" className="font-semibold">Moja notatka</h2></div>
         <textarea className="w-full min-h-32 rounded-lg border bg-background p-3 text-sm" value={note} onChange={(event) => setNote(event.target.value)} maxLength={5000} placeholder="Zapisz najważniejsze wnioski z tej lekcji…" />
@@ -202,9 +201,9 @@ export function LessonPlayer() {
             <div key={cs.id} className="rounded-xl border bg-card overflow-hidden">
               <div className="p-5 space-y-3">
                 <h3 className="font-semibold text-lg">{cs.title}</h3>
-                {cs.problemDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Problem</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.problemDescription) }} /></div>}
-                {cs.treatmentDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Zastosowany zabieg</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.treatmentDescription) }} /></div>}
-                {cs.resultsDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Efekty</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cs.resultsDescription) }} /></div>}
+                {cs.problemDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Problem</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(cs.problemDescription) }} /></div>}
+                {cs.treatmentDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Zastosowany zabieg</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(cs.treatmentDescription) }} /></div>}
+                {cs.resultsDescription && <div><p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Efekty</p><div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeLessonHtml(cs.resultsDescription) }} /></div>}
               </div>
               {cs.images?.length > 0 && (
                 <div className="border-t p-4">
