@@ -15,7 +15,7 @@ interface ImageUploadFieldProps {
 
 export function ImageUploadField({ label, hint, value, onChange, folder, aspect, previewShape }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { pick, dialog, uploading, error } = useImageUpload({
+  const { pick, dialog, uploading, error, notice } = useImageUpload({
     folder, aspect, lockAspect: true, onUploaded: onChange,
   });
 
@@ -42,6 +42,7 @@ export function ImageUploadField({ label, hint, value, onChange, folder, aspect,
 
       <input ref={inputRef} type="file" accept="image/*" onChange={pick} hidden />
       {hint && <small className="image-upload-hint">{hint}</small>}
+      {notice && <small className="image-upload-hint" role="status">{notice}</small>}
       {error && <small className="image-upload-error" role="alert">{error}</small>}
       {dialog}
     </div>

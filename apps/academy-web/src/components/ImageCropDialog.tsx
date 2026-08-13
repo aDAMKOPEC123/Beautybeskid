@@ -9,7 +9,8 @@ const ASPECT_CHOICES: { label: string; value: CropAspect }[] = [
   { label: '16:9', value: 16 / 9 },
   { label: '4:3', value: 4 / 3 },
   { label: '1:1', value: 1 },
-  { label: 'Dowolne', value: 'free' },
+  // Kadr w proporcjach wczytanego obrazu — ramka obejmuje wtedy całe zdjęcie.
+  { label: 'Jak oryginał', value: 'free' },
 ];
 
 interface ImageCropDialogProps {
@@ -17,11 +18,14 @@ interface ImageCropDialogProps {
   aspect: CropAspect;
   lockAspect?: boolean;
   onCancel: () => void;
-  onConfirm: (cropped: Blob) => void | Promise<void>;
+  /** Zwraca komunikat błędu, jeśli zapis się nie udał, albo `null` przy
+   *  powodzeniu — okno musi wiedzieć, czy ma odblokować przyciski. */
+  onConfirm: (cropped: Blob) => Promise<string | null>;
 }
 
 export function ImageCropDialog({ file, aspect, lockAspect, onCancel, onConfirm }: ImageCropDialogProps) {
   const [src, setSrc] = useState('');
+  const [naturalRatio, setNaturalRatio] = useState(1);
   const [ratio, setRatio] = useState<CropAspect>(aspect);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -31,7 +35,18 @@ export function ImageCropDialog({ file, aspect, lockAspect, onCancel, onConfirm 
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
-    setSrc(url);
+    // Proporcje wczytanego obrazu są potrzebne dla kadru „Dowolne": Cropper ma
+    // w defaultProps `aspect: 4/3`, więc podanie `undefined` po cichu zamieniło
+    // by wolny kadr na 4:3.
+    const probe = new Image();
+    probe.onload = () => {
+      if (probe.naturalWidth > 0 && probe.naturalHeight > 0) {
+        setNaturalRatio(probe.naturalWidth / probe.naturalHeight);
+      }
+      setSrc(url);
+    };
+    probe.onerror = () => setSrc(url);
+    probe.src = url;
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
@@ -49,7 +64,13 @@ export function ImageCropDialog({ file, aspect, lockAspect, onCancel, onConfirm 
     setError('');
     try {
       const blob = await cropFileToBlob(file, area);
-      await onConfirm(blob);
+      const failure = await onConfirm(blob);
+      // Po udanym zapisie okno znika razem z plikiem; przy niepowodzeniu
+      // zostaje otwarte z zachowanym kadrem i odblokowanym przyciskiem.
+      if (failure) {
+        setError(failure);
+        setBusy(false);
+      }
     } catch {
       setError('Nie udało się przyciąć tego pliku. Sprawdź, czy obraz nie jest uszkodzony.');
       setBusy(false);
@@ -74,11 +95,10 @@ export function ImageCropDialog({ file, aspect, lockAspect, onCancel, onConfirm 
               image={src}
               crop={crop}
               zoom={zoom}
-              aspect={ratio === 'free' ? undefined : ratio}
+              aspect={ratio === 'free' ? naturalRatio : ratio}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
-              restrictPosition={ratio !== 'free'}
             />
           )}
         </div>
