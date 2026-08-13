@@ -47,10 +47,24 @@ export function useImageUpload({ folder, aspect, lockAspect, onUploaded }: UseIm
     await send(file);
   }, [send]);
 
+  /** Otwiera kadrowanie dla obrazu, który jest już na serwerze. */
+  const pickFor = useCallback(async (url: string) => {
+    if (!url) return;
+    setError('');
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('FETCH_FAILED');
+      const blob = await response.blob();
+      setPending(new File([blob], 'kadr.webp', { type: blob.type || 'image/webp' }));
+    } catch {
+      setError('Nie udało się wczytać tego zdjęcia do ponownego kadrowania.');
+    }
+  }, []);
+
   const dialog = pending
     ? <ImageCropDialog file={pending} aspect={aspect} lockAspect={lockAspect}
         onCancel={() => setPending(null)} onConfirm={send} />
     : null;
 
-  return { pick, dialog, uploading, error };
+  return { pick, pickFor, dialog, uploading, error };
 }
