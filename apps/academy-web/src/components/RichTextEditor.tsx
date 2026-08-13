@@ -15,6 +15,22 @@ const LAYOUT_BUTTONS: { layout: FigureLayout; label: string; icon: React.ReactNo
   { layout: 'full', label: 'Cała szerokość', icon: <Maximize2 /> },
 ];
 
+/** Wylicza docelową szerokość (%) na podstawie przesunięcia kursora względem
+ *  punktu startu gestu. Czysta funkcja — układ podajemy z zewnątrz (odczytany
+ *  na bieżąco z DOM), żeby przełączenie układu w trakcie gestu nie cofało się
+ *  do wartości zamrożonej w domknięciu z chwili `pointerdown`. */
+export function computeResizedWidth(params: {
+  startWidth: number;
+  startX: number;
+  editorWidth: number;
+  layout: FigureLayout;
+  clientX: number;
+}): number {
+  const direction = params.layout === 'right' ? -1 : 1;
+  const deltaPercent = ((params.clientX - params.startX) / params.editorWidth) * 100 * direction;
+  return clampWidth(params.startWidth + deltaPercent);
+}
+
 export function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -126,12 +142,15 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     const editorWidth = editorRef.current.clientWidth;
     const startX = event.clientX;
     const startWidth = width;
-    const direction = layout === 'right' ? -1 : 1;
 
     const onMove = (move: PointerEvent) => {
-      const deltaPercent = ((move.clientX - startX) / editorWidth) * 100 * direction;
-      const next = clampWidth(startWidth + deltaPercent);
-      applyFigureLayout(selected, layout, next);
+      // Układ czytamy na bieżąco z DOM zamiast z domknięcia — gdyby ktoś
+      // przełączył figurę na „cała szerokość" w trakcie ciągnięcia uchwytu,
+      // gest ma to uszanować, a nie przywracać poprzednią klasę i szerokość.
+      const current = readFigureLayout(selected);
+      if (current.layout === 'full') return;
+      const next = computeResizedWidth({ startWidth, startX, editorWidth, layout: current.layout, clientX: move.clientX });
+      applyFigureLayout(selected, current.layout, next);
       setWidth(next);
     };
     const onUp = () => {
