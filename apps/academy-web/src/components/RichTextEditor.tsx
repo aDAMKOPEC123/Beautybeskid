@@ -21,10 +21,14 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
   const [selected, setSelected] = useState<HTMLElement | null>(null);
   const [layout, setLayout] = useState<FigureLayout>('center');
   const [width, setWidth] = useState(100);
+  const stopResizeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) editorRef.current.innerHTML = value;
   }, [value]);
+
+  // Odpina nasłuchy zmiany rozmiaru, gdyby edytor odmontował się w trakcie gestu.
+  useEffect(() => () => stopResizeRef.current?.(), []);
 
   const sync = useCallback(() => onChange(editorRef.current?.innerHTML ?? ''), [onChange]);
 
@@ -113,6 +117,37 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       onMouseDown={(event) => event.preventDefault()} onClick={action}>{icon}</button>
   );
 
+  /** Ciągnięcie uchwytu w rogu. Szerokość liczymy względem szerokości edytora,
+   *  bo tak samo zachowa się u kursantki — figura ma szerokość w procentach. */
+  const startResize = (event: React.PointerEvent) => {
+    if (!selected || !editorRef.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const editorWidth = editorRef.current.clientWidth;
+    const startX = event.clientX;
+    const startWidth = width;
+    const direction = layout === 'right' ? -1 : 1;
+
+    const onMove = (move: PointerEvent) => {
+      const deltaPercent = ((move.clientX - startX) / editorWidth) * 100 * direction;
+      const next = clampWidth(startWidth + deltaPercent);
+      applyFigureLayout(selected, layout, next);
+      setWidth(next);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      stopResizeRef.current = null;
+      sync();
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    stopResizeRef.current = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  };
+
   return (
     <div className="rich-editor">
       <div className="rich-editor-toolbar">
@@ -148,6 +183,12 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
                 disabled={layout === 'full'}
                 onChange={(event) => setFigureWidth(Number(event.target.value))} />
             </label>
+            <span className="figure-toolbar-steps">
+              <button type="button" aria-label="Węziej" disabled={layout === 'full'}
+                onClick={() => setFigureWidth(width - 5)}>−</button>
+              <button type="button" aria-label="Szerzej" disabled={layout === 'full'}
+                onClick={() => setFigureWidth(width + 5)}>+</button>
+            </span>
           </div>
           <div className="figure-toolbar-row">
             <button type="button" onClick={() => recrop.pickFor(selected.querySelector('img')?.getAttribute('src') ?? '')}>
@@ -160,10 +201,19 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         </div>
       )}
 
+      {selected && layout !== 'full' && (
+        <div className="figure-resize-hint" aria-hidden="true">
+          <button type="button" className="figure-resize-handle" onPointerDown={startResize}
+            title="Ciągnij, aby zmienić szerokość" />
+        </div>
+      )}
+
       <div ref={editorRef} className="rich-editor-body" contentEditable suppressContentEditableWarning
         data-placeholder="Napisz instrukcję. Zaznacz tekst, aby użyć formatowania."
         onInput={sync}
         onClick={selectFigure}
+        onDragStart={() => setSelected(null)}
+        onDrop={() => { window.setTimeout(sync, 0); }}
         onPaste={(event) => {
           event.preventDefault();
           document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
