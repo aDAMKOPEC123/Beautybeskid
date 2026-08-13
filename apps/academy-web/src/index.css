@@ -1478,3 +1478,25 @@
 .crop-dialog-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
 .crop-dialog .spin { animation: crop-spin 1s linear infinite; }
 @keyframes crop-spin { to { transform: rotate(360deg); } }
+
+/* --- Kafelek wgrywania zdjęcia --- */
+.image-upload-field { display: flex; flex-direction: column; gap: 0.5rem; }
+.image-upload-label { font-size: 0.8125rem; font-weight: 600; }
+.image-upload-preview {
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  background: rgb(0 0 0 / 0.04); border: 1px dashed rgb(0 0 0 / 0.15);
+}
+.image-upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+.image-upload-preview.wide { width: 100%; aspect-ratio: 16 / 9; border-radius: 0.75rem; }
+.image-upload-preview.circle { width: 8rem; height: 8rem; border-radius: 50%; }
+.image-upload-empty { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; opacity: 0.5; }
+.image-upload-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.image-upload-actions button {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600;
+  border: 1px solid currentColor;
+}
+.image-upload-actions button.ghost { opacity: 0.7; }
+.image-upload-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.image-upload-hint { font-size: 0.75rem; opacity: 0.7; }
+.image-upload-error { font-size: 0.75rem; color: #b91c1c; }
