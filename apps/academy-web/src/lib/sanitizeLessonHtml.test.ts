@@ -78,6 +78,16 @@ describe('sanitizeLessonHtml', () => {
       expect(sanitizeLessonHtml('<video poster="https://obcy.example.com/p.jpg"></video>'))
         .not.toContain('obcy.example.com');
     });
+
+    it('usuwa href osadzenia SVG spoza białej listy', () => {
+      expect(sanitizeLessonHtml('<svg><image href="https://obcy.example.com/leak.png"></svg>'))
+        .not.toContain('obcy.example.com');
+    });
+
+    it('usuwa xlink:href osadzenia SVG spoza białej listy', () => {
+      expect(sanitizeLessonHtml('<svg><image xlink:href="https://obcy.example.com/leak.png"></svg>'))
+        .not.toContain('obcy.example.com');
+    });
   });
 
   describe('atrybut style', () => {

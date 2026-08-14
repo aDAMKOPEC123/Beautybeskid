@@ -10,7 +10,11 @@ const EMBED_URL_ALLOWED =
   /^(?:https?:\/\/(?:www\.youtube\.com|player\.vimeo\.com)\/|\/uploads\/(?:academy-lessons|academy-courses|academy-instructors)\/)/i;
 
 /** Atrybuty powodujące pobranie zasobu — dla nich obowiązuje lista powyżej. */
-const EMBED_ATTRS = new Set(['src', 'srcset', 'poster', 'data', 'background']);
+const EMBED_ATTRS = new Set(['src', 'srcset', 'poster', 'data', 'background', 'xlink:href']);
+
+/** Przestrzeń nazw SVG — w niej `href` (np. `<image href="...">`) też pobiera
+ *  zasób, więc traktujemy go jak atrybut osadzenia, a nie jak link. */
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
 /** Jedyna deklaracja stylu, jakiej potrzebuje treść lekcji: szerokość figury
  *  w procentach (zapisuje ją `lessonFigure`). */
@@ -21,10 +25,12 @@ const WIDTH_DECLARATION = /(?:^|;)\s*width\s*:\s*(\d{1,3}(?:\.\d+)?)\s*%/i;
  *  wygląda w dwóch miejscach inaczej.
  *
  *  Polityka adresów jest rozdzielona:
- *  - `href` (linki z paska narzędzi edytora) — http, https, mailto oraz adresy
- *    względne; bez tego linki zapisane przez administratorkę docierały do
- *    kursantki martwe, bez atrybutu `href`;
- *  - `src` i pokrewne — tylko `EMBED_URL_ALLOWED`, pilnowane hakiem niżej.
+ *  - `href` w zwykłym HTML (linki z paska narzędzi edytora) — http, https,
+ *    mailto oraz adresy względne; bez tego linki zapisane przez
+ *    administratorkę docierały do kursantki martwe, bez atrybutu `href`;
+ *  - `src`, `xlink:href` i pokrewne, a także `href` w elementach z
+ *    przestrzeni nazw SVG (np. `<image href="...">`) — tylko
+ *    `EMBED_URL_ALLOWED`, pilnowane hakiem niżej.
  *
  *  Uwaga: adresy względne (np. `/kurs/cos`) przechodzą w `href` bez ograniczeń
  *  — to ten sam origin, więc nie ma czego blokować. */
@@ -37,8 +43,13 @@ const LESSON_HTML_CONFIG = {
   ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
 };
 
-purifier.addHook('uponSanitizeAttribute', (_node, data) => {
-  if (EMBED_ATTRS.has(data.attrName)) {
+purifier.addHook('uponSanitizeAttribute', (node, data) => {
+  // `href` w elemencie z przestrzeni nazw SVG (np. `<image href="...">`) pobiera
+  // zasób tak samo jak `src` — bez tego wyjątku obca grafika przechodziłaby przez
+  // liberalną politykę linków `<a>`.
+  const isSvgHref = data.attrName === 'href' && node.namespaceURI === SVG_NAMESPACE;
+
+  if (EMBED_ATTRS.has(data.attrName) || isSvgHref) {
     // DOMPurify sam nie rozróżnia `href` od `src`, więc zamkniętą listę źródeł
     // egzekwujemy tutaj.
     if (!EMBED_URL_ALLOWED.test(data.attrValue.trim())) data.keepAttr = false;
