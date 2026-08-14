@@ -5,7 +5,8 @@ import {
 } from 'lucide-react';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import {
-  applyFigureLayout, buildFigureHtml, clampWidth, readFigureLayout, type FigureLayout,
+  applyFigureLayout, buildFigureHtml, clampWidth, readFigureLayout, upgradeLegacyFigure,
+  type FigureLayout,
 } from '@/lib/lessonFigure';
 
 const LAYOUT_BUTTONS: { layout: FigureLayout; label: string; icon: React.ReactNode }[] = [
@@ -81,12 +82,17 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
   });
 
   const selectFigure = (event: React.MouseEvent) => {
-    const figure = (event.target as HTMLElement).closest('figure.academy-figure') as HTMLElement | null;
+    const target = event.target as HTMLElement;
+    // Obrazy ze starszych lekcji nie mają jeszcze klasy figury — podnosimy je
+    // przy pierwszym kliknięciu, żeby dało się nimi sterować tak samo jak nowymi.
+    const known = target.closest('figure.academy-figure') as HTMLElement | null;
+    const figure = known ?? upgradeLegacyFigure(target);
     setSelected(figure);
     if (figure) {
       const current = readFigureLayout(figure);
       setLayout(current.layout);
       setWidth(current.widthPercent);
+      if (!known) sync();
     }
   };
 

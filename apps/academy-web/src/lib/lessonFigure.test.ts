@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyFigureLayout, buildFigureHtml, clampWidth, layoutWidth, readFigureLayout,
+  upgradeLegacyFigure,
   type FigureLayout,
 } from './lessonFigure';
 
@@ -87,5 +88,56 @@ describe('applyFigureLayout', () => {
       applyFigureLayout(figure, layout, 40);
       expect(readFigureLayout(figure)).toEqual({ layout, widthPercent: layout === 'full' ? 100 : 40 });
     }
+  });
+});
+
+describe('upgradeLegacyFigure', () => {
+  const bodyFromHtml = (html: string): HTMLElement => {
+    const host = document.createElement('div');
+    host.innerHTML = html;
+    return host;
+  };
+
+  it('opakowuje goły obraz ze starej lekcji w figurę z układem', () => {
+    const body = bodyFromHtml('<p>tekst</p><img src="/uploads/academy-lessons/a.webp" alt="opis">');
+    const image = body.querySelector('img') as HTMLElement;
+
+    const figure = upgradeLegacyFigure(image);
+
+    expect(figure).not.toBeNull();
+    expect(figure?.tagName).toBe('FIGURE');
+    expect(figure?.classList.contains('academy-figure')).toBe(true);
+    expect(figure?.classList.contains('academy-figure--center')).toBe(true);
+    expect(figure?.style.width).toBe('100%');
+    // Obraz zostaje ten sam i trafia do środka figury, a figura na jego miejsce.
+    expect(figure?.querySelector('img')).toBe(image);
+    expect(body.querySelector('figure')?.previousElementSibling?.tagName).toBe('P');
+  });
+
+  it('dodaje klasy istniejącej figurze bez klasy zamiast tworzyć drugą', () => {
+    const body = bodyFromHtml('<figure><img src="/uploads/academy-lessons/a.webp" alt=""><figcaption>podpis</figcaption></figure>');
+    const image = body.querySelector('img') as HTMLElement;
+
+    const figure = upgradeLegacyFigure(image);
+
+    expect(body.querySelectorAll('figure')).toHaveLength(1);
+    expect(figure).toBe(body.querySelector('figure'));
+    expect(figure?.classList.contains('academy-figure--center')).toBe(true);
+    expect(figure?.querySelector('figcaption')?.textContent).toBe('podpis');
+  });
+
+  it('nie rusza figury, która ma już układ', () => {
+    const body = bodyFromHtml('<figure class="academy-figure academy-figure--right" style="width:40%"><img src="/uploads/academy-lessons/a.webp" alt=""></figure>');
+    const image = body.querySelector('img') as HTMLElement;
+
+    const figure = upgradeLegacyFigure(image);
+
+    expect(figure).toBe(body.querySelector('figure'));
+    expect(readFigureLayout(figure as HTMLElement)).toEqual({ layout: 'right', widthPercent: 40 });
+  });
+
+  it('zwraca null dla kliknięcia poza obrazem', () => {
+    const body = bodyFromHtml('<p>sam tekst</p>');
+    expect(upgradeLegacyFigure(body.querySelector('p') as HTMLElement)).toBeNull();
   });
 });

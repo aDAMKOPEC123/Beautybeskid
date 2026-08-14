@@ -1563,3 +1563,32 @@
 
 .rich-editor-body::after,
 .prose::after { content: ''; display: block; clear: both; }
+
+/* --- Listy w edytorze treści lekcji ---
+   Reset Tailwinda (`@tailwind base`) zeruje `list-style` dla `ul`/`ol`, a
+   reguła edytora ustawiała samo wcięcie — dlatego punktory i numery znikały
+   w polu edycji. U kursantki listy stylizuje wtyczka typografii przez `.prose`,
+   więc tu wystarczy przywrócić znaczniki w samym edytorze. */
+.rich-editor-body ul { list-style: disc; }
+.rich-editor-body ol { list-style: decimal; }
+.rich-editor-body li { margin: 0.15rem 0; }
+
+/* --- Odporność pasków edytora na style kontenera ---
+   `.studio-transcript button` (przycisk „Zapisz treść lekcji") ma tę samą wagę
+   selektora co reguły paska, a leży w pliku niżej, więc wygrywał: przyciski
+   paska dostawały zielone tło i białą czcionkę, a „Dodaj obraz" zielony tekst
+   na zielonym tle — czyli znikał. Pasek narzędzi zdjęcia dziedziczył samo
+   `color:#fff`, przez co „Kadruj", „Podpis" i „Usuń" były białe na białym.
+   Dopisujemy tu własności, na których te komponenty milcząco polegały. */
+.rich-editor-toolbar button {
+  margin-top: 0; padding: 0; background: transparent; color: #52665a;
+  font-size: inherit; font-weight: inherit;
+}
+.rich-editor-toolbar button:hover { background: #e0ece1; color: #245a3e; }
+.rich-editor-toolbar .rich-editor-image {
+  padding: 0 8px; background: transparent; color: #2e6346; font-size: 10px; font-weight: 800;
+}
+.figure-toolbar button { margin-top: 0; color: #334a3c; font-weight: 500; }
+.figure-toolbar button.danger { color: #b91c1c; }
+.crop-dialog-head button,
+.crop-dialog-aspects button { margin-top: 0; background: transparent; color: inherit; }

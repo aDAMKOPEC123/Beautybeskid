@@ -37,6 +37,31 @@ export function readFigureLayout(figure: HTMLElement): { layout: FigureLayout; w
   return { layout, widthPercent: layoutWidth(layout, Number.isNaN(raw) ? 100 : raw) };
 }
 
+/** Lekcje sprzed wprowadzenia układu obrazów mają zdjęcia bez klasy
+ *  `academy-figure` — czasem w gołym `<figure>`, czasem jako samo `<img>`.
+ *  Pasek narzędzi szuka figury po tej klasie, więc takich obrazów nie dało się
+ *  zaznaczyć, a więc ani przesunąć, ani skadrować, ani usunąć. Podnosi klikniętą
+ *  treść do pełnoprawnej figury i ją zwraca; `null`, gdy kliknięto poza obrazem.
+ *  Figurę z gotowym układem zostawia bez zmian. */
+export function upgradeLegacyFigure(target: HTMLElement): HTMLElement | null {
+  const image = target.tagName === 'IMG'
+    ? (target as HTMLImageElement)
+    : target.querySelector?.('img') ?? null;
+  if (!image) return null;
+
+  const existing = image.closest('figure');
+  if (existing) {
+    if (!existing.classList.contains('academy-figure')) applyFigureLayout(existing, 'center', 100);
+    return existing;
+  }
+
+  const figure = image.ownerDocument.createElement('figure');
+  image.replaceWith(figure);
+  figure.appendChild(image);
+  applyFigureLayout(figure, 'center', 100);
+  return figure;
+}
+
 export function applyFigureLayout(figure: HTMLElement, layout: FigureLayout, widthPercent: number): void {
   LAYOUTS.forEach((name) => figure.classList.remove(`academy-figure--${name}`));
   figure.classList.add('academy-figure', `academy-figure--${layout}`);
