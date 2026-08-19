@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { academyApi } from '@/api/academy.api';
 import { CheckCircle, XCircle, Clock, Award } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { saveBlob } from '@/lib/downloadBlob';
 
 interface QuizQuestion {
   id: string;
@@ -26,6 +28,19 @@ interface LessonQuizPlayerProps {
 export function LessonQuizPlayer({ quiz, isStandalone: _isStandalone, onPassed }: LessonQuizPlayerProps) {
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [result, setResult] = useState<any>(null);
+  const [downloadingCert, setDownloadingCert] = useState(false);
+
+  const downloadCertificate = async (code: string) => {
+    setDownloadingCert(true);
+    try {
+      saveBlob(await academyApi.downloadCertificate(code), `certyfikat-${code}.pdf`);
+    } catch {
+      toast.error('Nie udało się pobrać certyfikatu');
+    } finally {
+      setDownloadingCert(false);
+    }
+  };
+
   const [timeLeft, setTimeLeft] = useState<number | null>(
     quiz.timeLimitMinutes ? quiz.timeLimitMinutes * 60 : null
   );
@@ -102,14 +117,15 @@ export function LessonQuizPlayer({ quiz, isStandalone: _isStandalone, onPassed }
             (prog zdania: {quiz.passingScore}%)
           </p>
           {result.passed && result.certificate && (
-            <a
-              href={academyApi.getCertificateDownloadUrl(result.certificate.verificationCode)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-              download
+            <button
+              type="button"
+              onClick={() => downloadCertificate(result.certificate.verificationCode)}
+              disabled={downloadingCert}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-60"
             >
               <Award className="w-4 h-4" />
-              Pobierz certyfikat
-            </a>
+              {downloadingCert ? 'Pobieranie…' : 'Pobierz certyfikat'}
+            </button>
           )}
         </div>
 

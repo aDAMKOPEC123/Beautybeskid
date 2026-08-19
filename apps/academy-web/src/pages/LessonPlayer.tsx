@@ -7,6 +7,7 @@ import { LessonQuizPlayer } from '@/components/LessonQuizPlayer';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { sanitizeLessonHtml } from '@/lib/sanitizeLessonHtml';
+import { saveBlob } from '@/lib/downloadBlob';
 
 declare global { interface Window { YT?: any; onYouTubeIframeAPIReady?: () => void } }
 let youtubeApiPromise: Promise<any> | null = null;
@@ -54,6 +55,7 @@ export function LessonPlayer() {
   const progressRef = useRef(0);
   const [note, setNote] = useState('');
   const [videoStarted, setVideoStarted] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const { data: lesson, isLoading } = useQuery({
     queryKey: ['academy', 'lesson', slug, lessonSlug],
@@ -70,6 +72,16 @@ export function LessonPlayer() {
     },
     onError: () => toast.error('Nie udało się oznaczyć lekcji jako ukończonej'),
   });
+  const downloadAttachment = async (att: { id: string; originalName: string }) => {
+    setDownloadingId(att.id);
+    try {
+      saveBlob(await academyApi.downloadAttachment(lesson!.id, att.id), att.originalName);
+    } catch {
+      toast.error('Nie udało się pobrać materiału');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
   useEffect(() => { setNote(lesson?.notes?.[0]?.content ?? ''); }, [lesson?.id, lesson?.notes]);
   useEffect(() => { setVideoStarted(false); }, [lesson?.id]);
   const noteMutation = useMutation({
@@ -180,14 +192,14 @@ export function LessonPlayer() {
           <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-primary" /><h2 id="attachments-title" className="font-semibold">Materiały do pobrania</h2></div>
           <div className="divide-y">
             {lesson.attachments.map((att: any) => (
-              <a key={att.id} href={academyApi.downloadAttachmentUrl(lesson.id, att.id)} className="flex items-center gap-3 py-3 text-sm hover:bg-accent/50 rounded-md px-2 transition-colors" download>
+              <button key={att.id} type="button" onClick={() => downloadAttachment(att)} disabled={downloadingId === att.id} className="flex w-full items-center gap-3 py-3 text-left text-sm hover:bg-accent/50 rounded-md px-2 transition-colors disabled:opacity-60">
                 <Download className="w-4 h-4 text-muted-foreground shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{att.originalName}</p>
                   {att.description && <p className="text-xs text-muted-foreground">{att.description}</p>}
                 </div>
-                <span className="text-xs text-muted-foreground shrink-0">{(att.fileSize / 1024 / 1024).toFixed(1)} MB</span>
-              </a>
+                <span className="text-xs text-muted-foreground shrink-0">{downloadingId === att.id ? 'Pobieranie…' : `${(att.fileSize / 1024 / 1024).toFixed(1)} MB`}</span>
+              </button>
             ))}
           </div>
         </section>

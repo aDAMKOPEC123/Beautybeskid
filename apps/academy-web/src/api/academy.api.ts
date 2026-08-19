@@ -40,7 +40,8 @@ export const academyApi = {
   deleteLessonNote: (lessonId: string) => api.delete(`/academy/lessons/${lessonId}/note`),
 
   // Attachments
-  downloadAttachmentUrl: (lessonId: string, attachmentId: string) => `/api/academy/lessons/${lessonId}/attachments/${attachmentId}/download`,
+  downloadAttachment: (lessonId: string, attachmentId: string) =>
+    api.get(`/academy/lessons/${lessonId}/attachments/${attachmentId}/download`, { responseType: 'blob' }).then((r) => r.data as Blob),
 
   // Comments
   getLessonComments: (lessonId: string) => api.get(`/academy/lessons/${lessonId}/comments`).then((r) => r.data.data),
@@ -77,7 +78,6 @@ export const academyApi = {
   getCertificates: () =>
     api.get('/academy/certificates').then((r) => r.data.data),
 
-  getCertificateDownloadUrl: (code: string) => `/api/academy/certificates/download/${code}`,
   downloadCertificate: (code: string) => api.get(`/academy/certificates/download/${code}`, { responseType: 'blob' }).then(r => r.data as Blob),
   adminAnalyticsDashboard: (days = 30) => api.get(`/academy/admin/analytics/dashboard?days=${days}`).then((r) => r.data.data),
   adminAnalyticsCustomers: (search = '') => api.get(`/academy/admin/analytics/customers?search=${encodeURIComponent(search)}`).then((r) => r.data.data),
