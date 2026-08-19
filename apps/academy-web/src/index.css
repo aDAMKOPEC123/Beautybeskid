@@ -1592,3 +1592,10 @@
 .figure-toolbar button.danger { color: #b91c1c; }
 .crop-dialog-head button,
 .crop-dialog-aspects button { margin-top: 0; background: transparent; color: inherit; }
+
+/* Ścieżki person w karcie kursu. Osobna klasa zamiast .studio-field, bo tamta
+   nadaje width:100% każdemu inputowi — checkboxy rozciągnęłyby się na całą szerokość. */
+.studio-personas { grid-column: 1 / -1; }
+.studio-personas > span { display: block; margin-bottom: 6px; color: #56675d; font-size: 11px; font-weight: 800; }
+.studio-personas-options { display: flex; flex-wrap: wrap; gap: 14px; }
+.studio-personas-options label { display: inline-flex; align-items: center; gap: 6px; color: #4c6255; font-size: 12px; }

@@ -346,6 +346,7 @@ export const createCourse = async (data: {
   compareAtPrice?: number | null;
   isFree?: boolean;
   tags?: string[];
+  audiences?: string[];
   thumbnailUrl?: string;
   status?: string;
 }) => {
@@ -357,6 +358,14 @@ export const createCourse = async (data: {
     return course;
   });
 };
+
+/**
+ * Persony kursu przy zapisie. Aktualizacja częściowa (payload bez `audiences`)
+ * bierze stan z bazy — inaczej zmiana samej ceny blokowałaby opublikowany kurs.
+ * Jawnie wyczyszczona lista zostaje pusta i blokuje publikację.
+ */
+export const resolvePublishAudiences = (incoming: unknown, current: string[]): string[] =>
+  incoming === undefined ? current : Array.isArray(incoming) ? incoming : [];
 
 export const updateCourse = async (id: string, data: Record<string, unknown>) => {
   return prisma.$transaction(async (tx) => {
@@ -371,6 +380,7 @@ export const updateCourse = async (id: string, data: Record<string, unknown>) =>
       const nextIsFree = Boolean(data.isFree ?? before.isFree);
       const nextComingSoon = Boolean(data.isComingSoon ?? before.isComingSoon);
       if (!nextIsFree && !nextComingSoon && nextPrice <= 0) throw new AppError('Opublikowany płatny kurs musi mieć cenę większą od zera albo status „w przygotowaniu”', 400);
+      if (!resolvePublishAudiences(data.audiences, before.audiences).length) throw new AppError('Przed publikacją przypisz kurs do co najmniej jednej persony — inaczej nie pojawi się na żadnym landingu', 400);
       if (!nextComingSoon) {
         const lessons = before.modules.flatMap((module) => module.lessons);
         if (!hasCompleteInstructionalLesson(lessons)) throw new AppError('Przed sprzedażą dodaj co najmniej jedną kompletną lekcję wideo lub tekstową z czasem nauki', 400);

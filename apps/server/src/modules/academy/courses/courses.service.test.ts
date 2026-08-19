@@ -7,7 +7,7 @@ vi.mock('../../../config/prisma', () => ({ prisma: {
   userCourseProgress: { findMany: mocks.progressFindMany },
 } }));
 
-import { calculateLowestPriorPrice, hasCompleteInstructionalLesson, listPublished } from './courses.service';
+import { calculateLowestPriorPrice, hasCompleteInstructionalLesson, listPublished, resolvePublishAudiences } from './courses.service';
 
 describe('Academy course list', () => {
   beforeEach(() => Object.values(mocks).forEach(mock => mock.mockReset()));
@@ -50,5 +50,24 @@ describe('Academy publication readiness', () => {
 
   it('accepts a substantive text lesson with a declared duration', () => {
     expect(hasCompleteInstructionalLesson([{ type: 'TEXT', contentHtml: `<p>${'Wiedza praktyczna '.repeat(5)}</p>`, estimatedMinutes: 8 }])).toBe(true);
+  });
+});
+
+describe('Academy course personas', () => {
+  it('keeps the stored personas when the payload omits the field', () => {
+    // Aktualizacja częściowa (np. sama zmiana ceny) nie może blokować publikacji.
+    expect(resolvePublishAudiences(undefined, ['STARTER'])).toEqual(['STARTER']);
+  });
+
+  it('treats an explicitly emptied list as no personas', () => {
+    expect(resolvePublishAudiences([], ['STARTER'])).toEqual([]);
+  });
+
+  it('takes the incoming list over the stored one', () => {
+    expect(resolvePublishAudiences(['PRACTITIONER', 'SALON_OWNER'], ['STARTER'])).toEqual(['PRACTITIONER', 'SALON_OWNER']);
+  });
+
+  it('falls back to no personas for a malformed value', () => {
+    expect(resolvePublishAudiences('STARTER', ['STARTER'])).toEqual([]);
   });
 });
