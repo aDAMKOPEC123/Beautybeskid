@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import { loadAnalytics } from '@/lib/analytics';
-
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
+import { grantAnalyticsConsent } from '@/lib/analytics';
 
 const COOKIE_KEY = 'cookie_consent_choice';
 const LEGACY_COOKIE_KEY = 'cookie_consent_accepted';
@@ -25,15 +19,7 @@ export const CookieBanner = () => {
   useEffect(() => {
     const consent = readConsent();
     if (consent === 'accepted') {
-      if (typeof window.gtag === 'function') {
-        window.gtag('consent', 'update', {
-          ad_storage: 'granted',
-          ad_user_data: 'granted',
-          ad_personalization: 'granted',
-          analytics_storage: 'granted',
-        });
-      }
-      void loadAnalytics();
+      grantAnalyticsConsent();
       return;
     }
 
@@ -47,15 +33,7 @@ export const CookieBanner = () => {
     localStorage.setItem(COOKIE_KEY, 'accepted');
     localStorage.removeItem(LEGACY_COOKIE_KEY);
     setVisible(false);
-    if (typeof window.gtag === 'function') {
-      window.gtag('consent', 'update', {
-        ad_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
-        analytics_storage: 'granted',
-      });
-    }
-    void loadAnalytics();
+    grantAnalyticsConsent();
   };
 
   const keepEssentialOnly = () => {

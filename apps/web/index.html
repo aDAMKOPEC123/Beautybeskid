@@ -172,6 +172,34 @@
         }, 6000);
       })();
     </script>
+    <!-- Google Consent Mode v2 + GA4/GTM.
+         Tag ładuje się na każdej stronie od razu — inaczej weryfikator Google
+         (Setup Assistant) nigdy go nie zobaczy, bo robot nie klika banera cookies.
+         Zgoda startuje jako 'denied': do czasu akceptacji GA nie zapisuje cookies,
+         wysyła wyłącznie bezcookie'owe pingi. CookieBanner → loadAnalytics()
+         (src/lib/analytics.ts) podnosi zgodę do 'granted'. -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        // Daje banerowi/localStorage chwilę na podniesienie zgody, zanim
+        // poleci pierwszy pomiar — bez tego wizyta stałej zgody liczy się
+        // jako bezcookie'owa.
+        wait_for_update: 500
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-Q6NNTHPCJ7');
+      dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+    </script>
+    <script async id="ga4-script" src="https://www.googletagmanager.com/gtag/js?id=G-Q6NNTHPCJ7"></script>
+    <script async id="gtm-script" src="https://www.googletagmanager.com/gtm.js?id=GTM-MT2NHRBC"></script>
     <title>Kosmetolog Limanowa | Wiktoria Ćwik – BeskidStudio</title>
     <meta name="description" content="BeskidStudio By Wiktoria Ćwik — gabinet kosmetologiczny 5 min od Limanowej. Sprawdź wolny termin online i umów wizytę lub bezpłatną konsultację." data-rh="true" />
     <meta name="robots" content="index,follow,max-image-preview:large" data-rh="true" />
