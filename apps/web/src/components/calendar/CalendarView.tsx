@@ -61,7 +61,7 @@ function buildWorkingHourEvents(
           end: `${dateStr}T${block.end}:00`,
           display: 'background',
           color: 'rgba(34,197,94,0.18)',
-          extendedProps: { isWorkingHours: true },
+          extendedProps: { isWorkingHours: true, rangeLabel: `${block.start}–${block.end}` },
         });
       }
     }
@@ -444,7 +444,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                       resources={isResourceView ? resources : undefined}
                       events={allEvents}
                       eventContent={(arg) => {
-                        if (arg.event.extendedProps.isWorkingHours) return null;
+                        if (arg.event.extendedProps.isWorkingHours) {
+                          return (
+                            <div className="px-1 pt-0.5 text-[10px] font-medium leading-tight text-green-700/70 truncate">
+                              Dostępne godziny {arg.event.extendedProps.rangeLabel}
+                            </div>
+                          );
+                        }
                         if (arg.event.extendedProps.appleEventId) {
                           return (
                             <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
