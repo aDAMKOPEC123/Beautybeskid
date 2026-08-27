@@ -8,7 +8,7 @@ export const handleListBlocks = async (req: Request, res: Response, next: NextFu
       res.status(400).json({ message: 'Wymagane parametry from i to' });
       return;
     }
-    res.json(await listBlocks(from, to));
+    res.json(await listBlocks(from, to, req.user ? { id: req.user.id, role: req.user.role } : undefined));
   } catch (err) {
     next(err);
   }

@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
+import { getEmployeeByUserId } from '../employees/employees.service';
 
 export interface CreateBlockInput {
   startsAt: string;
@@ -9,21 +10,50 @@ export interface CreateBlockInput {
   employeeIds?: string[];
 }
 
+export interface Requester {
+  id: string;
+  role: string;
+}
+
 const blockInclude = {
   employees: { select: { id: true, name: true } },
 } as const;
 
-export const listBlocks = async (from: string, to: string) => {
+export const listBlocks = async (from: string, to: string, requester?: Requester) => {
   const fromDate = new Date(from);
   const toDate = new Date(to);
   if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
     throw new AppError('Nieprawidłowy zakres dat', 400);
   }
-  return await prisma.calendarBlock.findMany({
+  const blocks = await prisma.calendarBlock.findMany({
     where: { startsAt: { lt: toDate }, endsAt: { gt: fromDate } },
     include: blockInclude,
     orderBy: { startsAt: 'asc' },
   });
+
+  // W3: admin widzi wszystko; pracownik dostaje tylko blokady, które go dotyczą, a
+  // powód blokady (pole prywatne, np. "wizyta u lekarza") jest widoczny wyłącznie
+  // dla blokad appliesToAll (dotyczą całego salonu) albo jego własnych.
+  if (requester && requester.role === 'EMPLOYEE') {
+    let employeeId: string | null = null;
+    try {
+      const employee = await getEmployeeByUserId(requester.id);
+      employeeId = employee.id;
+    } catch {
+      // Brak powiązanego rekordu pracownika — traktuj jak nikogo, zobaczy tylko
+      // blokady dotyczące całego salonu.
+      employeeId = null;
+    }
+
+    return blocks
+      .filter((b) => b.appliesToAll || (employeeId !== null && b.employees.some((e) => e.id === employeeId)))
+      .map((b) => {
+        const isOwn = b.appliesToAll || b.employees.some((e) => e.id === employeeId);
+        return isOwn ? b : { ...b, reason: null };
+      });
+  }
+
+  return blocks;
 };
 
 export const createBlock = async (input: CreateBlockInput, createdById?: string) => {
