@@ -261,31 +261,27 @@ export const upsertWorkDay = async (
   });
 };
 
-// Zwraca godziny obowiązujące danego dnia: wyjątek dnia, a gdy go nie ma — grafik tygodniowy.
-// Uwaga: dzień pracujący bez zapisanych przedziałów oznacza domyślne godziny (patrz resolveEmployeeBlocks),
-// więc musimy je tu odtworzyć — inaczej pierwsze dodanie godzin skasowałoby cały dzień pracy.
-const resolveCurrentBlocks = async (employeeId: string, normalized: Date): Promise<TimeBlock[]> => {
-  const workDay = await prisma.employeeWorkDay.findUnique({
+// Zwraca godziny realnie dostępne dla klientek danego dnia. Podstawą jest wyłącznie wyjątek dnia
+// (EmployeeWorkDay) — to on decyduje o dostępności w silniku rezerwacji (getAvailabilityForDuration),
+// który NIE zagląda do grafiku tygodniowego. Grafik tygodniowy to tylko szablon używany w edytorze
+// tygodnia; dzień bez wyjątku jest dla klientki całkowicie niedostępny, niezależnie od tego, co mówi
+// grafik. Delegujemy do resolveEmployeeBlocks, żeby obie funkcje nie mogły się w przyszłości rozjechać.
+// Przyjmuje klienta Prisma (top-level lub `tx` z $transaction), żeby wywołujący mógł odczyt i zapis
+// zamknąć w jednej transakcji.
+const resolveCurrentBlocks = async (
+  db: Pick<typeof prisma, 'employeeWorkDay'>,
+  employeeId: string,
+  normalized: Date
+): Promise<TimeBlock[]> => {
+  const workDay = await db.employeeWorkDay.findUnique({
     where: { employeeId_date: { employeeId, date: normalized } },
   });
-
-  if (workDay) {
-    if (!workDay.isWorking) return [];
-    const blocks = (workDay.timeBlocks as TimeBlock[] | null) ?? [];
-    return blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
-  }
-
-  const dayOfWeek = (normalized.getUTCDay() + 6) % 7; // JS niedziela=0 → API poniedziałek=0
-  const weekly = await prisma.employeeWeeklySchedule.findUnique({
-    where: { employeeId_dayOfWeek: { employeeId, dayOfWeek } },
-  });
-  if (!weekly?.isWorking) return [];
-  const blocks = (weekly.timeBlocks as TimeBlock[] | null) ?? [];
-  return blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
+  return resolveEmployeeBlocks(workDay as WorkDayLike | null) ?? [];
 };
 
 const validateRange = (start: string, end: string): void => {
-  if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) {
+  const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  if (!timePattern.test(start) || !timePattern.test(end)) {
     throw new AppError('Nieprawidłowy format godziny', 400);
   }
   if (timeToMinutes(end) <= timeToMinutes(start)) {
@@ -299,13 +295,16 @@ export const addWorkHours = async (
 ) => {
   validateRange(data.start, data.end);
   const normalized = normalizeDate(data.date);
-  const current = await resolveCurrentBlocks(employeeId, normalized);
-  const timeBlocks = mergeTimeBlocks(current, { start: data.start, end: data.end });
 
-  return await prisma.employeeWorkDay.upsert({
-    where: { employeeId_date: { employeeId, date: normalized } },
-    create: { employeeId, date: normalized, isWorking: true, timeBlocks: timeBlocks as any, note: null },
-    update: { isWorking: true, timeBlocks: timeBlocks as any },
+  return await prisma.$transaction(async (tx) => {
+    const current = await resolveCurrentBlocks(tx, employeeId, normalized);
+    const timeBlocks = mergeTimeBlocks(current, { start: data.start, end: data.end });
+
+    return await tx.employeeWorkDay.upsert({
+      where: { employeeId_date: { employeeId, date: normalized } },
+      create: { employeeId, date: normalized, isWorking: true, timeBlocks: timeBlocks as any, note: null },
+      update: { isWorking: true, timeBlocks: timeBlocks as any },
+    });
   });
 };
 
@@ -315,26 +314,29 @@ export const removeWorkHours = async (
 ) => {
   validateRange(data.start, data.end);
   const normalized = normalizeDate(data.date);
-  const current = await resolveCurrentBlocks(employeeId, normalized);
-  const timeBlocks = subtractTimeBlock(current, { start: data.start, end: data.end });
 
-  // Pusta lista przy isWorking=true oznaczałaby domyślne 09:00-18:00 (resolveEmployeeBlocks),
-  // czyli godziny wróciłyby same. Dlatego dzień bez godzin zapisujemy jako wolny.
-  const isWorking = timeBlocks.length > 0;
+  return await prisma.$transaction(async (tx) => {
+    const current = await resolveCurrentBlocks(tx, employeeId, normalized);
+    const timeBlocks = subtractTimeBlock(current, { start: data.start, end: data.end });
 
-  return await prisma.employeeWorkDay.upsert({
-    where: { employeeId_date: { employeeId, date: normalized } },
-    create: {
-      employeeId,
-      date: normalized,
-      isWorking,
-      timeBlocks: (isWorking ? timeBlocks : null) as any,
-      note: null,
-    },
-    update: {
-      isWorking,
-      timeBlocks: (isWorking ? timeBlocks : null) as any,
-    },
+    // Pusta lista przy isWorking=true oznaczałaby domyślne 09:00-18:00 (resolveEmployeeBlocks),
+    // czyli godziny wróciłyby same. Dlatego dzień bez godzin zapisujemy jako wolny.
+    const isWorking = timeBlocks.length > 0;
+
+    return await tx.employeeWorkDay.upsert({
+      where: { employeeId_date: { employeeId, date: normalized } },
+      create: {
+        employeeId,
+        date: normalized,
+        isWorking,
+        timeBlocks: (isWorking ? timeBlocks : null) as any,
+        note: null,
+      },
+      update: {
+        isWorking,
+        timeBlocks: (isWorking ? timeBlocks : null) as any,
+      },
+    });
   });
 };
 
