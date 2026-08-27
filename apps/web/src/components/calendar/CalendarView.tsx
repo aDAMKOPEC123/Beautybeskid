@@ -10,7 +10,8 @@ import { DateClickArg } from '@fullcalendar/interaction';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
-import { Calendar, UserPlus, Zap } from 'lucide-react';
+import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
+import { Calendar, UserPlus, Zap, Lock } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
@@ -63,6 +64,36 @@ function buildWorkingHourEvents(
     d = addDays(d, 1);
   }
   return events;
+}
+
+// Blokady godzin. W widoku zasobów każdy event musi mieć resourceId, więc blokadę
+// „cały salon" powielamy na wszystkie kolumny; w widoku tygodnia wystarczy jeden event.
+function buildBlockEvents(
+  blocks: CalendarBlock[],
+  employees: any[],
+  isResourceView: boolean,
+): EventInput[] {
+  return blocks.flatMap((b) => {
+    const base = {
+      start: b.startsAt,
+      end: b.endsAt,
+      display: 'auto' as const,
+      backgroundColor: '#374151',
+      borderColor: '#1f2937',
+      classNames: ['cosmo-calendar-block'],
+      extendedProps: { calendarBlockId: b.id, block: b },
+    };
+    if (!isResourceView) return [{ ...base, id: `blk-${b.id}` }];
+
+    const targetIds = b.appliesToAll
+      ? employees.map((e: any) => e.id)
+      : b.employees.map((e) => e.id);
+    return targetIds.map((empId: string) => ({
+      ...base,
+      id: `blk-${b.id}-${empId}`,
+      resourceId: empId,
+    }));
+  });
 }
 
 type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'listWeek';
@@ -154,6 +185,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd],
   );
 
+  const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
+
+  const { data: calendarBlocks = [] } = useQuery({
+    queryKey: ['calendar-blocks', rangeStart.toISOString(), rangeEnd.toISOString()],
+    queryFn: () => calendarBlocksApi.list(rangeStart.toISOString(), rangeEnd.toISOString()),
+    staleTime: 60 * 1000,
+  });
+
+  const blockEvents = useMemo(
+    () => buildBlockEvents(calendarBlocks, employees, isResourceView),
+    [calendarBlocks, employees, isResourceView],
+  );
+
   // Compute resources (columns) for day view
   const resources = employees.map((emp: any, idx: number) => ({
     id: emp.id,
@@ -236,8 +280,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
-  const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
-
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
@@ -317,6 +359,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
               const allEvents: EventInput[] = [
                 ...workingHourEvents,
+                ...blockEvents,
                 ...appointmentEvents,
                 ...(showHappyHours ? bgEvents : []),
               ];
@@ -331,6 +374,17 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   events={allEvents}
                   eventContent={(arg) => {
                     if (arg.event.extendedProps.isWorkingHours) return null;
+                    if (arg.event.extendedProps.calendarBlockId) {
+                      const blk = arg.event.extendedProps.block as CalendarBlock;
+                      return (
+                        <div className="flex h-full items-start gap-1 px-1 py-0.5 text-white">
+                          <Lock size={11} className="mt-0.5 shrink-0" />
+                          <span className="truncate text-[10px] font-semibold leading-tight">
+                            {blk.reason ?? 'Zablokowane'}
+                          </span>
+                        </div>
+                      );
+                    }
                     if (arg.event.extendedProps.happyHourId) {
                       const { startTime, endTime, discountType, discountValue } = arg.event.extendedProps;
                       const discountLabel = discountType === 'PERCENTAGE'
@@ -355,6 +409,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                     return <AppointmentCard {...arg} />;
                   }}
                   eventClick={(arg) => {
+                    if (arg.event.extendedProps.calendarBlockId) return;
                     if (arg.event.extendedProps.happyHourId) return;
                     handleEventClick(arg);
                   }}
