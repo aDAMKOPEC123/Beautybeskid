@@ -7,11 +7,11 @@ import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventInput } from '@fullcalendar/core';
 import { DateClickArg } from '@fullcalendar/interaction';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2 } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
@@ -129,6 +129,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
   const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
+  const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
@@ -295,6 +296,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
+  const qc = useQueryClient();
+  const { mutate: removeBlock, isPending: isRemovingBlock } = useMutation({
+    mutationFn: (id: string) => calendarBlocksApi.remove(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['calendar-blocks'] });
+      setBlockPopover(null);
+    },
+  });
+
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
@@ -424,7 +434,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                     return <AppointmentCard {...arg} />;
                   }}
                   eventClick={(arg) => {
-                    if (arg.event.extendedProps.calendarBlockId) return;
+                    if (arg.event.extendedProps.calendarBlockId) {
+                      const rect = (arg.el as HTMLElement).getBoundingClientRect();
+                      setBlockPopover({
+                        block: arg.event.extendedProps.block as CalendarBlock,
+                        x: rect.left,
+                        y: rect.bottom,
+                      });
+                      return;
+                    }
                     if (arg.event.extendedProps.happyHourId) return;
                     handleEventClick(arg);
                   }}
@@ -547,6 +565,48 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             >
               <Lock size={15} className="text-gray-600" />
               Zablokuj godziny
+            </button>
+          </div>
+        </div>
+      )}
+
+      {blockPopover && (
+        <div className="fixed inset-0 z-40" onClick={() => setBlockPopover(null)}>
+          <div
+            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
+            style={{
+              left: Math.min(blockPopover.x, window.innerWidth - 280),
+              top: Math.min(blockPopover.y + 6, window.innerHeight - 190),
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+              <Lock size={14} /> Zablokowane
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+              })}
+              {' – '}
+              {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
+                hour: '2-digit', minute: '2-digit',
+              })}
+            </p>
+            <p className="mt-1 text-xs">
+              {blockPopover.block.appliesToAll
+                ? 'Cały salon'
+                : blockPopover.block.employees.map((e) => e.name).join(', ')}
+            </p>
+            {blockPopover.block.reason && (
+              <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
+            )}
+            <button
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              disabled={isRemovingBlock}
+              onClick={() => removeBlock(blockPopover.block.id)}
+            >
+              <Trash2 size={13} />
+              {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
             </button>
           </div>
         </div>
