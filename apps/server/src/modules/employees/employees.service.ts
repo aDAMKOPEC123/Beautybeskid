@@ -1,6 +1,7 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import bcrypt from 'bcryptjs';
+import { isSlotBlocked, type BlockLike } from '../calendar-blocks/calendar-blocks.rules';
 
 const addMinutes = (date: Date, minutes: number): Date =>
   new Date(date.getTime() + minutes * 60_000);
@@ -390,6 +391,19 @@ const getAvailabilityForDuration = async (
     include: { service: true },
   });
 
+  // Blokady godzin — dotyczą całego salonu albo wskazanych pracowników.
+  const calendarBlocks = (await prisma.calendarBlock.findMany({
+    where: {
+      startsAt: { lt: dayEnd },
+      endsAt: { gt: normalized },
+      OR: [
+        { appliesToAll: true },
+        { employees: { some: { id: employeeId } } },
+      ],
+    },
+    include: { employees: { select: { id: true } } },
+  })) as unknown as BlockLike[];
+
   const now = new Date();
   const slots: { time: string; available: boolean }[] = [];
 
@@ -410,9 +424,10 @@ const getAvailabilityForDuration = async (
         const aptEnd = addMinutes(aptStart, aptDuration);
         return slotStart < aptEnd && slotEnd > aptStart;
       });
+      const isBlocked = !isPast && isSlotBlocked(slotStart, slotEnd, employeeId, calendarBlocks);
       const hh = Math.floor(currentMinutes / 60).toString().padStart(2, '0');
       const mm = (currentMinutes % 60).toString().padStart(2, '0');
-      slots.push({ time: `${hh}:${mm}`, available: !isPast && !isOccupied });
+      slots.push({ time: `${hh}:${mm}`, available: !isPast && !isOccupied && !isBlocked });
       currentMinutes += SLOT_INTERVAL_MINUTES;
     }
   }
