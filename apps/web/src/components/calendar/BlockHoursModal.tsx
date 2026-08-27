@@ -11,11 +11,14 @@ interface Props {
   appointments: any[];
 }
 
-// "13:30" + 60 → "14:30"
+// "13:30" + 60 → "14:30". Wynik jest ograniczony do tej samej doby (max "23:59") —
+// modal nie obsługuje blokad przechodzących przez północ, więc np. "23:30" + 60 min
+// nie może "zawinąć" do "00:30", bo to dałoby domyślnie `to` wcześniejsze niż `from`.
 function addMinutesToTime(time: string, minutes: number): string {
   const [h, m] = time.split(':').map(Number);
   const total = h * 60 + m + minutes;
-  const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
+  if (total >= 24 * 60) return '23:59';
+  const hh = String(Math.floor(total / 60)).padStart(2, '0');
   const mm = String(total % 60).padStart(2, '0');
   return `${hh}:${mm}`;
 }
