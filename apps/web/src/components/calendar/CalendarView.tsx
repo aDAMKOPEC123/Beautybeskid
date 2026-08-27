@@ -18,6 +18,7 @@ import { HappyHourOverlay } from './HappyHourOverlay';
 import { AddAppointmentModal } from './AddAppointmentModal';
 import { ExternalClientModal } from './ExternalClientModal';
 import { HappyHourPanel } from './HappyHourPanel';
+import { BlockHoursModal } from './BlockHoursModal';
 
 // Deterministic color per employee index
 const EMPLOYEE_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
@@ -127,6 +128,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [hhPanelOpen, setHhPanelOpen] = useState(false);
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
+  const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
@@ -536,6 +538,16 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               <Zap size={15} className="text-amber-500" />
               Happy Hours
             </button>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => {
+                setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+                setSlotMenu(null);
+              }}
+            >
+              <Lock size={15} className="text-gray-600" />
+              Zablokuj godziny
+            </button>
           </div>
         </div>
       )}
@@ -548,6 +560,16 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         employees={employees}
         services={services}
       />
+
+      {blockModal && (
+        <BlockHoursModal
+          open
+          onClose={() => setBlockModal(null)}
+          prefill={blockModal}
+          employees={employees}
+          appointments={appointments}
+        />
+      )}
     </div>
   );
 }
