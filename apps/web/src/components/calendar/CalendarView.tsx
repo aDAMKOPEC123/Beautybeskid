@@ -72,6 +72,7 @@ function buildBlockEvents(
   blocks: CalendarBlock[],
   employees: any[],
   isResourceView: boolean,
+  zoomedEmployeeId: string | null,
 ): EventInput[] {
   return blocks.flatMap((b) => {
     const base = {
@@ -83,7 +84,19 @@ function buildBlockEvents(
       classNames: ['cosmo-calendar-block'],
       extendedProps: { calendarBlockId: b.id, block: b },
     };
-    if (!isResourceView) return [{ ...base, id: `blk-${b.id}` }];
+    if (!isResourceView) {
+      // Widok pojedynczego (zoomowanego) pracownika — pomiń blokady, które nie dotyczą
+      // ani całego salonu, ani akurat tego pracownika (analogicznie do appointmentEvents
+      // wyżej w pliku).
+      if (
+        zoomedEmployeeId &&
+        !b.appliesToAll &&
+        !b.employees.some((e) => e.id === zoomedEmployeeId)
+      ) {
+        return [];
+      }
+      return [{ ...base, id: `blk-${b.id}` }];
+    }
 
     const targetIds = b.appliesToAll
       ? employees.map((e: any) => e.id)
@@ -194,8 +207,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   });
 
   const blockEvents = useMemo(
-    () => buildBlockEvents(calendarBlocks, employees, isResourceView),
-    [calendarBlocks, employees, isResourceView],
+    () => buildBlockEvents(calendarBlocks, employees, isResourceView, zoomedEmployeeId),
+    [calendarBlocks, employees, isResourceView, zoomedEmployeeId],
   );
 
   // Compute resources (columns) for day view
