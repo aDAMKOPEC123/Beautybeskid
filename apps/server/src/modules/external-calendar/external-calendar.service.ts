@@ -2,6 +2,7 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { getIO } from '../../socket';
 import { parseIcs } from './external-calendar.parser';
+import { shouldDeleteStale } from './external-calendar.sync-rules';
 
 const WINDOW_DAYS_BACK = 30;
 const WINDOW_DAYS_FORWARD = 120;
@@ -110,19 +111,32 @@ export const syncNow = async (): Promise<{ imported: number }> => {
       keptIds.push(saved.id);
     }
 
-    // Skasuj z okna wystąpienia, których nie ma już w pliku.
-    await prisma.externalCalendarEvent.deleteMany({
-      where: {
-        sourceId: source.id,
-        startsAt: { gte: start, lt: end },
-        id: { notIn: keptIds.length > 0 ? keptIds : ['__none__'] },
-      },
-    });
+    if (shouldDeleteStale(events.length)) {
+      // Skasuj z okna wystąpienia, których nie ma już w pliku.
+      await prisma.externalCalendarEvent.deleteMany({
+        where: {
+          sourceId: source.id,
+          startsAt: { gte: start, lt: end },
+          id: { notIn: keptIds },
+        },
+      });
 
-    await prisma.externalCalendarSource.update({
-      where: { id: source.id },
-      data: { lastSyncedAt: new Date(), lastSyncError: null },
-    });
+      await prisma.externalCalendarSource.update({
+        where: { id: source.id },
+        data: { lastSyncedAt: new Date(), lastSyncError: null },
+      });
+    } else {
+      // Zero wydarzeń jest niejednoznaczne (może to być uszkodzona odpowiedź) —
+      // nie kasujemy poprzednich danych, tylko zostawiamy o tym informację.
+      await prisma.externalCalendarSource.update({
+        where: { id: source.id },
+        data: {
+          lastSyncedAt: new Date(),
+          lastSyncError: 'Kalendarz zwrócił zero wydarzeń — zachowano poprzednie dane',
+        },
+      });
+      return { imported: 0 };
+    }
 
     try {
       getIO().to('admin:global').emit('external-calendar:updated');

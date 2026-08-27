@@ -80,6 +80,14 @@ const NOT_A_CALENDAR = '<html><body>Błąd 503 — spróbuj później</body></ht
 
 const EMPTY_BUT_VALID = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Test//PL\nEND:VCALENDAR';
 
+const TRUNCATED_MID_FILE = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//PL
+BEGIN:VEVENT
+UID:cut-1
+SUMMARY:Urwane w połowie
+DTSTART:20260910T090000Z`;
+
 describe('parseIcs', () => {
   it('parsuje pojedyncze wydarzenie', () => {
     const events = parseIcs(SINGLE, WINDOW_START, WINDOW_END);
@@ -118,6 +126,12 @@ describe('parseIcs', () => {
   it('rzuca błąd dla tekstu, który nie jest kalendarzem .ics, ale nie dla legalnego pustego kalendarza', () => {
     expect(() => parseIcs(NOT_A_CALENDAR, WINDOW_START, WINDOW_END)).toThrow();
     expect(() => parseIcs(EMPTY_BUT_VALID, WINDOW_START, WINDOW_END)).not.toThrow();
+  });
+
+  it('rzuca błąd dla pliku urwanego w połowie (brak END:VCALENDAR)', () => {
+    expect(() => parseIcs(TRUNCATED_MID_FILE, WINDOW_START, WINDOW_END)).toThrow(
+      /END:VCALENDAR/,
+    );
   });
 
   it('odpakowuje SUMMARY/LOCATION z parametrami (np. LANGUAGE) do zwykłego stringa', () => {

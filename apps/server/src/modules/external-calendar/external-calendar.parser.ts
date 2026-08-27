@@ -28,6 +28,9 @@ export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): P
   if (!icsText.includes('BEGIN:VCALENDAR')) {
     throw new Error('Nieprawidłowy plik .ics: brak nagłówka BEGIN:VCALENDAR');
   }
+  if (!icsText.includes('END:VCALENDAR')) {
+    throw new Error('Nieprawidłowy plik .ics: plik wygląda na urwany w połowie (brak END:VCALENDAR)');
+  }
 
   const parsed = ical.sync.parseICS(icsText);
   const out: ParsedEvent[] = [];
