@@ -41,7 +41,14 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
   const { mutate: disconnect, isPending: isDisconnecting } = useMutation({
     mutationFn: () => externalCalendarApi.deleteSource(),
     onSuccess: () => { setUrl(''); setMessage('Odłączono kalendarz'); invalidate(); },
+    onError: (e: any) => setMessage(e?.response?.data?.message ?? 'Nie udało się odłączyć kalendarza'),
   });
+
+  const handleDisconnect = () => {
+    if (window.confirm('Odłączyć kalendarz? Wszystkie zaimportowane wydarzenia zostaną trwale usunięte.')) {
+      disconnect();
+    }
+  };
 
   if (!open) return null;
 
@@ -89,7 +96,7 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
         <div className="flex flex-wrap justify-end gap-2">
           {source && (
             <button className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 disabled:opacity-50"
-              disabled={isDisconnecting} onClick={() => disconnect()}>
+              disabled={isDisconnecting} onClick={handleDisconnect}>
               Odłącz
             </button>
           )}

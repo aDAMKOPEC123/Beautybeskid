@@ -36,10 +36,16 @@ export function AppleCalendarOverlay({
   const events: EventInput[] = enabled
     ? raw.flatMap((ev) => {
         const base = {
+          // FullCalendar v6 nie renderuje własnej treści z eventContent dla zdarzeń
+          // 'background' — bez tytułu wydarzenia Apple byłyby tylko szarymi prostokątami.
+          // Wzorem Happy Hours używamy 'auto' z przezroczystym tłem i blado-szarym
+          // stylem w eventContent, żeby zachować stonowany wygląd.
+          title: ev.title,
           start: ev.startsAt,
           end: ev.endsAt,
-          display: 'background' as const,
-          color: 'rgba(107,114,128,0.20)',
+          display: 'auto' as const,
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
           extendedProps: { appleEventId: ev.id, title: ev.title },
         };
         // W widoku zasobów event bez resourceId nie zostanie wyrysowany —

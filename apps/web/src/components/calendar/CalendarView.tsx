@@ -301,11 +301,16 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   };
 
   const qc = useQueryClient();
+  const [removeBlockError, setRemoveBlockError] = useState<string | null>(null);
   const { mutate: removeBlock, isPending: isRemovingBlock } = useMutation({
     mutationFn: (id: string) => calendarBlocksApi.remove(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['calendar-blocks'] });
       setBlockPopover(null);
+      setRemoveBlockError(null);
+    },
+    onError: (err: any) => {
+      setRemoveBlockError(err?.response?.data?.message ?? 'Nie udało się usunąć blokady');
     },
   });
 
@@ -427,7 +432,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                         if (arg.event.extendedProps.isWorkingHours) return null;
                         if (arg.event.extendedProps.appleEventId) {
                           return (
-                            <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
+                            <div
+                              style={{
+                                pointerEvents: 'none',
+                                background: 'rgba(107,114,128,0.20)',
+                                height: '100%',
+                                borderRadius: '2px',
+                              }}
+                              className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate"
+                            >
                               {arg.event.extendedProps.title}
                             </div>
                           );
@@ -607,7 +620,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       )}
 
       {blockPopover && (
-        <div className="fixed inset-0 z-40" onClick={() => setBlockPopover(null)}>
+        <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
           <div
             className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
             style={{
@@ -636,10 +649,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             {blockPopover.block.reason && (
               <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
             )}
+            {removeBlockError && (
+              <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
+            )}
             <button
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
               disabled={isRemovingBlock}
-              onClick={() => removeBlock(blockPopover.block.id)}
+              onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
             >
               <Trash2 size={13} />
               {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
