@@ -34,6 +34,8 @@ router.delete('/:id/account', authenticate, requireAdmin, ctrl.revokeAccount);
 
 router.get('/:id/schedule', authenticate, requireAdmin, ctrl.getSchedule);
 router.post('/:id/schedule', authenticate, requireAdmin, ctrl.upsertWorkDay);
+router.post('/:id/schedule/add-hours', authenticate, requireAdmin, ctrl.addWorkHours);
+router.post('/:id/schedule/remove-hours', authenticate, requireAdmin, ctrl.removeWorkHours);
 router.delete('/:id/schedule/:dayId', authenticate, requireAdmin, ctrl.removeWorkDay);
 router.post('/:id/schedule/week', authenticate, requireAdmin, ctrl.upsertWeekForEmployee);
 router.post('/:id/schedule/block-month', authenticate, requireAdmin, ctrl.blockMonthForEmployee);
