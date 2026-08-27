@@ -190,6 +190,8 @@ export const removeWorkHours = async (req: Request, res: Response, next: NextFun
       res.status(400).json({ message: 'Wymagane pola: date, start, end' });
       return;
     }
+    // `workDay` bywa `null`, gdy dla tej pracownicy i daty nie istniał żaden wyjątek —
+    // to prawdziwy brak operacji (nic nie było do usunięcia), nie błąd.
     const workDay = await employeesService.removeWorkHours(req.params.id, { date, start, end });
     res.json({ data: { workDay } });
   } catch (err) {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { employeesApi } from '@/api/employees.api';
+import { employeesApi, type WorkDay } from '@/api/employees.api';
 import { Clock, X } from 'lucide-react';
 
 interface Props {
@@ -10,6 +10,9 @@ interface Props {
   prefill: { date: string; time?: string; employeeId?: string };
   employees: any[];
   appointments: any[];
+  // Mapa employeeId -> wyjątki dni (EmployeeWorkDay) w widocznym zakresie kalendarza — budowana
+  // już w CalendarView, przekazywana propsem, żeby nie pobierać tych samych danych po raz drugi.
+  workDayOverrides?: Map<string, WorkDay[]>;
 }
 
 // "13:30" + 60 → "14:30"; nie przekracza doby (23:59 to maksimum).
@@ -22,7 +25,7 @@ function addMinutesToTime(time: string, minutes: number): string {
   return `${hh}:${mm}`;
 }
 
-export function WorkHoursModal({ open, mode, onClose, prefill, employees, appointments }: Props) {
+export function WorkHoursModal({ open, mode, onClose, prefill, employees, appointments, workDayOverrides }: Props) {
   const qc = useQueryClient();
   const startTimeDefault = prefill.time ?? '09:00';
 
@@ -51,6 +54,27 @@ export function WorkHoursModal({ open, mode, onClose, prefill, employees, appoin
       return aptStart < e && aptEnd > s;
     }).length;
   }, [mode, appointments, date, from, to, targetIds]);
+
+  // Przy dodawaniu ostrzegamy o dwóch różnych sytuacjach dla wybranego dnia:
+  // — dzień jest oznaczony jako wolny (zapis go otworzy, co bywa niezamierzone przy "cały salon"),
+  // — dzień nie ma jeszcze żadnego wyjątku, więc zielone tło pochodzi z szablonu tygodniowego,
+  //   a po zapisie zastąpi je wyłącznie wybrany zakres (mimo że wygląda to na skurczenie dostępności).
+  const { dayOffNames, noExceptionNames } = useMemo(() => {
+    if (mode !== 'add' || !workDayOverrides) return { dayOffNames: [], noExceptionNames: [] };
+    const dayOff: string[] = [];
+    const noException: string[] = [];
+    for (const id of targetIds) {
+      const emp = employees.find((e: any) => e.id === id);
+      if (!emp) continue;
+      const override = (workDayOverrides.get(id) ?? []).find((w) => w.date.startsWith(date));
+      if (override === undefined) {
+        noException.push(emp.name);
+      } else if (!override.isWorking) {
+        dayOff.push(emp.name);
+      }
+    }
+    return { dayOffNames: dayOff, noExceptionNames: noException };
+  }, [mode, targetIds, employees, workDayOverrides, date]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -152,6 +176,22 @@ export function WorkHoursModal({ open, mode, onClose, prefill, employees, appoin
             </div>
           )}
         </fieldset>
+
+        {mode === 'add' && (dayOffNames.length > 0 || noExceptionNames.length > 0) && (
+          <div className="mb-3 space-y-1 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            {dayOffNames.length > 0 && (
+              <p>
+                Dla tych osób ten dzień jest oznaczony jako wolny: {dayOffNames.join(', ')}. Zapis otworzy im ten dzień.
+              </p>
+            )}
+            {noExceptionNames.length > 0 && (
+              <p>
+                Ten dzień nie ma jeszcze ustawionych godzin dla: {noExceptionNames.join(', ')}. Po zapisie dostępny będzie
+                wyłącznie wybrany zakres.
+              </p>
+            )}
+          </div>
+        )}
 
         {collidingCount > 0 && (
           <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">

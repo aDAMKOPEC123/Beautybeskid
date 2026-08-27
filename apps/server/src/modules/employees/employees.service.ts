@@ -316,7 +316,18 @@ export const removeWorkHours = async (
   const normalized = normalizeDate(data.date);
 
   return await prisma.$transaction(async (tx) => {
-    const current = await resolveCurrentBlocks(tx, employeeId, normalized);
+    const workDay = await tx.employeeWorkDay.findUnique({
+      where: { employeeId_date: { employeeId, date: normalized } },
+    });
+
+    // Brak wyjątku na ten dzień = pracownica korzysta z szablonu tygodniowego (jeśli w ogóle
+    // pracuje), a nie z żadnego zapisanego EmployeeWorkDay. Usuwanie godzin, których nie ma
+    // jako wyjątku, musi być prawdziwym brakiem operacji — inaczej "cały salon" tworzyłby
+    // sztuczny wyjątek isWorking:false na cały dzień osobom, których nikt nie ruszał, gasząc
+    // im zielone tło pochodzące z szablonu, mimo że nikt nic im nie odjął.
+    if (!workDay) return null;
+
+    const current = resolveEmployeeBlocks(workDay as WorkDayLike | null) ?? [];
     const timeBlocks = subtractTimeBlock(current, { start: data.start, end: data.end });
 
     // Pusta lista przy isWorking=true oznaczałaby domyślne 09:00-18:00 (resolveEmployeeBlocks),

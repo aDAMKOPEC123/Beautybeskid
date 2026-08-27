@@ -726,6 +726,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           prefill={{ date: workHoursModal.date, time: workHoursModal.time, employeeId: workHoursModal.employeeId }}
           employees={employees}
           appointments={appointments}
+          workDayOverrides={workDayOverrides}
         />
       )}
 
