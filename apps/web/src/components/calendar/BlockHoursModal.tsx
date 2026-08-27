@@ -31,7 +31,10 @@ export function BlockHoursModal({ open, onClose, prefill, employees, appointment
   const [from, setFrom] = useState(startTimeDefault);
   const [to, setTo] = useState(addMinutesToTime(startTimeDefault, 60));
   const [reason, setReason] = useState('');
-  const [appliesToAll, setAppliesToAll] = useState(true);
+  // Jeśli admin kliknął w kolumnę konkretnej pracownicy, modal ma się otworzyć na
+  // wariancie "Wybrani pracownicy" z nią zaznaczoną — inaczej blokada wycięłaby
+  // terminy całemu salonowi bez wiedzy admina (K3).
+  const [appliesToAll, setAppliesToAll] = useState(!prefill.employeeId);
   const [employeeIds, setEmployeeIds] = useState<string[]>(
     prefill.employeeId ? [prefill.employeeId] : [],
   );
