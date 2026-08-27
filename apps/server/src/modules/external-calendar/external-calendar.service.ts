@@ -125,7 +125,7 @@ export const syncNow = async (): Promise<{ imported: number }> => {
     });
 
     try {
-      (getIO().to('admin:global') as any).emit('external-calendar:updated');
+      getIO().to('admin:global').emit('external-calendar:updated');
     } catch {
       // Socket.IO może nie być zainicjalizowany (np. w skryptach) — synchronizacja i tak się powiodła.
     }
