@@ -432,15 +432,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                         if (arg.event.extendedProps.isWorkingHours) return null;
                         if (arg.event.extendedProps.appleEventId) {
                           return (
-                            <div
-                              style={{
-                                pointerEvents: 'none',
-                                background: 'rgba(107,114,128,0.20)',
-                                height: '100%',
-                                borderRadius: '2px',
-                              }}
-                              className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate"
-                            >
+                            <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
                               {arg.event.extendedProps.title}
                             </div>
                           );
