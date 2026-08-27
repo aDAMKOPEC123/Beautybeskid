@@ -12,6 +12,7 @@ import { initializeStorePromotionReminderScheduler } from './modules/store-promo
 import { initializeAcademyMarketingScheduler } from './modules/academy/marketing/marketing.service';
 import { initializeAcademyAutomationScheduler } from './modules/academy/automations/automations.service';
 import { initializeSkinScanCleanup } from './modules/skin-scans/skin-scans.cleanup';
+import { initializeExternalCalendarSync } from './modules/external-calendar/external-calendar.service';
 
 const server = createServer(app);
 
@@ -32,6 +33,7 @@ const startServer = async () => {
     initializeAcademyMarketingScheduler();
     initializeAcademyAutomationScheduler();
     initializeSkinScanCleanup();
+    initializeExternalCalendarSync();
 
     // Daily cleanup of expired refresh tokens
     const purgeExpiredTokens = async () => {
