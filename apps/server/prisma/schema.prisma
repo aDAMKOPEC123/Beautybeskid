@@ -295,6 +295,7 @@ model User {
   financeRevenueEntries       FinanceRevenue[]                 @relation("FinanceRevenueUser")
   cancellationRequests        AppointmentCancellationRequest[] @relation("CancellationRequestUser")
   decidedCancellationRequests AppointmentCancellationRequest[] @relation("CancellationRequestDecider")
+  calendarBlocks              CalendarBlock[]                  @relation("CalendarBlockCreatedBy")
 
   @@index([role])
 }
@@ -575,6 +576,7 @@ model Employee {
   weeklySchedule EmployeeWeeklySchedule[]
   services       Service[]                @relation("ServiceEmployees")
   happyHours     HappyHour[]              @relation("HappyHourEmployees")
+  calendarBlocks CalendarBlock[]          @relation("CalendarBlockEmployees")
 }
 
 model EmployeeWorkDay {
@@ -2863,4 +2865,46 @@ model DiagnosticCaseAttempt {
 
   @@index([userId])
   @@index([caseStudyId])
+}
+
+model CalendarBlock {
+  id           String     @id @default(cuid())
+  startsAt     DateTime
+  endsAt       DateTime
+  reason       String?
+  appliesToAll Boolean    @default(true)
+  employees    Employee[] @relation("CalendarBlockEmployees")
+  createdById  String?
+  createdBy    User?      @relation("CalendarBlockCreatedBy", fields: [createdById], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@index([startsAt, endsAt])
+}
+
+model ExternalCalendarSource {
+  id                  String                  @id @default(cuid())
+  name                String                  @default("Kalendarz Apple")
+  url                 String
+  isEnabled           Boolean                 @default(true)
+  syncIntervalMinutes Int                     @default(15)
+  lastSyncedAt        DateTime?
+  lastSyncError       String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  events              ExternalCalendarEvent[]
+}
+
+model ExternalCalendarEvent {
+  id       String                 @id @default(cuid())
+  sourceId String
+  source   ExternalCalendarSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  uid      String
+  title    String
+  startsAt DateTime
+  endsAt   DateTime
+  isAllDay Boolean                @default(false)
+  location String?
+
+  @@unique([sourceId, uid, startsAt])
+  @@index([startsAt, endsAt])
 }
