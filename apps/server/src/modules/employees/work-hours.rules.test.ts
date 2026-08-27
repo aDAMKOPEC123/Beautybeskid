@@ -70,4 +70,14 @@ describe('subtractTimeBlock', () => {
     expect(subtractTimeBlock(blocks, { start: '11:00', end: '15:00' }))
       .toEqual([{ start: '09:00', end: '11:00' }, { start: '15:00', end: '18:00' }]);
   });
+
+  it('odwrócony zakres (koniec przed początkiem) nie zmienia listy', () => {
+    expect(subtractTimeBlock([{ start: '09:00', end: '17:00' }], { start: '15:00', end: '10:00' }))
+      .toEqual([{ start: '09:00', end: '17:00' }]);
+  });
+
+  it('zakres o zerowej długości nie zmienia listy', () => {
+    expect(subtractTimeBlock([{ start: '09:00', end: '17:00' }], { start: '12:00', end: '12:00' }))
+      .toEqual([{ start: '09:00', end: '17:00' }]);
+  });
 });

@@ -35,6 +35,14 @@ export function mergeTimeBlocks(blocks: TimeBlock[], added: TimeBlock): TimeBloc
 
 export function subtractTimeBlock(blocks: TimeBlock[], removed: TimeBlock): TimeBlock[] {
   const cut = { start: toMinutes(removed.start), end: toMinutes(removed.end) };
+
+  // Odrzuć zakresy o ujemnej lub zerowej długości, jak robi to mergeTimeBlocks.
+  // Chronuje przed nachodzącymi blokami wynikowymi (odwrócony zakres: end < start)
+  // i niepotrzebnym dzieleniem bloków (zakres zerowy: end === start).
+  if (cut.end <= cut.start) {
+    return blocks;
+  }
+
   const out: TimeBlock[] = [];
 
   for (const block of blocks) {
