@@ -158,15 +158,6 @@ export const EmployeeSchedule = () => {
     staleTime: 60 * 1000,
   });
 
-  const blocksByDay = useMemo(() => {
-    const map = new Map<string, CalendarBlock[]>();
-    for (const b of weekBlocks) {
-      const key = format(new Date(b.startsAt), 'yyyy-MM-dd');
-      map.set(key, [...(map.get(key) ?? []), b]);
-    }
-    return map;
-  }, [weekBlocks]);
-
   // Always call exactly 2 schedule useQuery hooks below — avoids Rules of Hooks violation
   const month1 = format(weekStart, 'yyyy-MM');
   const month2 = format(weekEnd, 'yyyy-MM');
@@ -184,6 +175,23 @@ export const EmployeeSchedule = () => {
 
   const isLoading = q1.isLoading || (month1 !== month2 && q2.isLoading);
   const employee = q1.data?.employee;
+
+  // GET /api/calendar-blocks returns ALL blocks in the date range, including ones scoped to
+  // other employees. Keep only blocks that apply to everyone or explicitly list this employee,
+  // otherwise a block set for a colleague would show up as "my" restriction. While `employee.id`
+  // isn't loaded yet, hide per-employee blocks entirely (only appliesToAll ones are safe to show).
+  const blocksByDay = useMemo(() => {
+    const employeeId = employee?.id;
+    const relevantBlocks = weekBlocks.filter(
+      (b) => b.appliesToAll || (!!employeeId && b.employees.some((e) => e.id === employeeId))
+    );
+    const map = new Map<string, CalendarBlock[]>();
+    for (const b of relevantBlocks) {
+      const key = format(new Date(b.startsAt), 'yyyy-MM-dd');
+      map.set(key, [...(map.get(key) ?? []), b]);
+    }
+    return map;
+  }, [weekBlocks, employee?.id]);
 
   // Merge workDays from both months (deduplicated by id)
   const allWorkDays: WorkDay[] = useMemo(() => {
