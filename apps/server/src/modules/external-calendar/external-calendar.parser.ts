@@ -9,23 +9,43 @@ export interface ParsedEvent {
   location: string | null;
 }
 
+const DEFAULT_DURATION_MS = 60 * 60 * 1000;
+
+// node-ical zwraca dla właściwości z parametrami (np. `SUMMARY;LANGUAGE=pl:Tekst`)
+// obiekt `{ val, params }` zamiast zwykłego stringa. Ta funkcja wyciąga samą wartość
+// tekstową niezależnie od tego, w jakiej postaci przyszła z parsera.
+function textValue(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && typeof (value as any).val === 'string') {
+    return (value as any).val;
+  }
+  return undefined;
+}
+
 // Czysta funkcja: tekst .ics → lista wystąpień w oknie [windowStart, windowEnd).
 // Wydarzenia cykliczne rozwijamy na pojedyncze wystąpienia, z pominięciem EXDATE.
 export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): ParsedEvent[] {
+  if (!icsText.includes('BEGIN:VCALENDAR')) {
+    throw new Error('Nieprawidłowy plik .ics: brak nagłówka BEGIN:VCALENDAR');
+  }
+
   const parsed = ical.sync.parseICS(icsText);
   const out: ParsedEvent[] = [];
 
   for (const entry of Object.values(parsed) as any[]) {
     if (!entry || entry.type !== 'VEVENT' || !entry.start) continue;
 
-    const uid: string = entry.uid ?? '';
-    const title: string = entry.summary ?? '(bez tytułu)';
-    const location: string | null = entry.location ?? null;
+    const title: string = textValue(entry.summary) ?? '(bez tytułu)';
+    const location: string | null = textValue(entry.location) ?? null;
     const isAllDay = entry.start?.dateOnly === true;
-    const durationMs =
+    const rawDurationMs =
       entry.end && entry.start
         ? new Date(entry.end).getTime() - new Date(entry.start).getTime()
-        : 60 * 60 * 1000;
+        : 0;
+    const durationMs = rawDurationMs > 0 ? rawDurationMs : DEFAULT_DURATION_MS;
+
+    const buildUid = (startsAt: Date): string =>
+      entry.uid ? entry.uid : `bez-uid-${title}-${startsAt.toISOString()}`;
 
     if (entry.rrule) {
       const excluded = new Set<number>(
@@ -35,7 +55,7 @@ export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): P
         const startsAt = new Date(occurrence);
         if (excluded.has(startsAt.getTime())) continue;
         out.push({
-          uid,
+          uid: buildUid(startsAt),
           title,
           startsAt,
           endsAt: new Date(startsAt.getTime() + durationMs),
@@ -49,7 +69,7 @@ export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): P
     const startsAt = new Date(entry.start);
     if (startsAt < windowStart || startsAt >= windowEnd) continue;
     out.push({
-      uid,
+      uid: buildUid(startsAt),
       title,
       startsAt,
       endsAt: new Date(startsAt.getTime() + durationMs),

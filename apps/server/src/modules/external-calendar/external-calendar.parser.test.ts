@@ -39,6 +39,47 @@ DTEND:20250101T100000Z
 END:VEVENT
 END:VCALENDAR`;
 
+const SUMMARY_WITH_PARAMS = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//PL
+BEGIN:VEVENT
+UID:params-1
+SUMMARY;LANGUAGE=pl:Spotkanie
+LOCATION;LANGUAGE=pl:Warszawa
+DTSTART:20260910T090000Z
+DTEND:20260910T100000Z
+END:VEVENT
+END:VCALENDAR`;
+
+const NO_DTEND = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//PL
+BEGIN:VEVENT
+UID:no-dtend-1
+SUMMARY:Bez końca
+DTSTART:20260910T090000Z
+END:VEVENT
+END:VCALENDAR`;
+
+const NO_UID_TWICE = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//PL
+BEGIN:VEVENT
+SUMMARY:Bez UID rano
+DTSTART:20260910T080000Z
+DTEND:20260910T083000Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Bez UID wieczorem
+DTSTART:20260910T180000Z
+DTEND:20260910T183000Z
+END:VEVENT
+END:VCALENDAR`;
+
+const NOT_A_CALENDAR = '<html><body>Błąd 503 — spróbuj później</body></html>';
+
+const EMPTY_BUT_VALID = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Test//PL\nEND:VCALENDAR';
+
 describe('parseIcs', () => {
   it('parsuje pojedyncze wydarzenie', () => {
     const events = parseIcs(SINGLE, WINDOW_START, WINDOW_END);
@@ -71,7 +112,36 @@ describe('parseIcs', () => {
   });
 
   it('zwraca pustą listę dla pustego kalendarza', () => {
-    const empty = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Test//PL\nEND:VCALENDAR';
-    expect(parseIcs(empty, WINDOW_START, WINDOW_END)).toHaveLength(0);
+    expect(parseIcs(EMPTY_BUT_VALID, WINDOW_START, WINDOW_END)).toHaveLength(0);
+  });
+
+  it('rzuca błąd dla tekstu, który nie jest kalendarzem .ics, ale nie dla legalnego pustego kalendarza', () => {
+    expect(() => parseIcs(NOT_A_CALENDAR, WINDOW_START, WINDOW_END)).toThrow();
+    expect(() => parseIcs(EMPTY_BUT_VALID, WINDOW_START, WINDOW_END)).not.toThrow();
+  });
+
+  it('odpakowuje SUMMARY/LOCATION z parametrami (np. LANGUAGE) do zwykłego stringa', () => {
+    const events = parseIcs(SUMMARY_WITH_PARAMS, WINDOW_START, WINDOW_END);
+    expect(events).toHaveLength(1);
+    expect(events[0].title).toBe('Spotkanie');
+    expect(events[0].location).toBe('Warszawa');
+  });
+
+  it('wydarzenie bez DTEND dostaje domyślną długość 60 minut zamiast zera', () => {
+    const events = parseIcs(NO_DTEND, WINDOW_START, WINDOW_END);
+    expect(events).toHaveLength(1);
+    expect(events[0].endsAt.getTime() - events[0].startsAt.getTime()).toBe(60 * 60 * 1000);
+  });
+
+  it('dwa wydarzenia bez UID o różnych godzinach dostają różne, stabilne uid', () => {
+    const events = parseIcs(NO_UID_TWICE, WINDOW_START, WINDOW_END);
+    expect(events).toHaveLength(2);
+    expect(events[0].uid).not.toBe(events[1].uid);
+    for (const e of events) {
+      expect(e.uid).toContain('bez-uid-');
+    }
+    // stabilność między synchronizacjami tego samego pliku
+    const again = parseIcs(NO_UID_TWICE, WINDOW_START, WINDOW_END);
+    expect(again.map((e) => e.uid).sort()).toEqual(events.map((e) => e.uid).sort());
   });
 });
