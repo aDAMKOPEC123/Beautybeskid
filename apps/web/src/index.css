@@ -400,3 +400,15 @@
     line-height: 1.25rem;
   }
 }
+
+/* Blokady godzin w kalendarzu admina */
+.cosmo-calendar-block {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.12) 0px,
+    rgba(255, 255, 255, 0.12) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  cursor: pointer;
+}

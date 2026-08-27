@@ -7,16 +7,20 @@ import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventInput } from '@fullcalendar/core';
 import { DateClickArg } from '@fullcalendar/interaction';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
-import { Calendar, UserPlus, Zap } from 'lucide-react';
+import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
 import { AddAppointmentModal } from './AddAppointmentModal';
 import { ExternalClientModal } from './ExternalClientModal';
 import { HappyHourPanel } from './HappyHourPanel';
+import { BlockHoursModal } from './BlockHoursModal';
+import { AppleCalendarOverlay } from './AppleCalendarOverlay';
+import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
 
 // Deterministic color per employee index
 const EMPLOYEE_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
@@ -65,6 +69,49 @@ function buildWorkingHourEvents(
   return events;
 }
 
+// Blokady godzin. W widoku zasobów każdy event musi mieć resourceId, więc blokadę
+// „cały salon" powielamy na wszystkie kolumny; w widoku tygodnia wystarczy jeden event.
+function buildBlockEvents(
+  blocks: CalendarBlock[],
+  employees: any[],
+  isResourceView: boolean,
+  zoomedEmployeeId: string | null,
+): EventInput[] {
+  return blocks.flatMap((b) => {
+    const base = {
+      start: b.startsAt,
+      end: b.endsAt,
+      display: 'auto' as const,
+      backgroundColor: '#374151',
+      borderColor: '#1f2937',
+      classNames: ['cosmo-calendar-block'],
+      extendedProps: { calendarBlockId: b.id, block: b },
+    };
+    if (!isResourceView) {
+      // Widok pojedynczego (zoomowanego) pracownika — pomiń blokady, które nie dotyczą
+      // ani całego salonu, ani akurat tego pracownika (analogicznie do appointmentEvents
+      // wyżej w pliku).
+      if (
+        zoomedEmployeeId &&
+        !b.appliesToAll &&
+        !b.employees.some((e) => e.id === zoomedEmployeeId)
+      ) {
+        return [];
+      }
+      return [{ ...base, id: `blk-${b.id}` }];
+    }
+
+    const targetIds = b.appliesToAll
+      ? employees.map((e: any) => e.id)
+      : b.employees.map((e) => e.id);
+    return targetIds.map((empId: string) => ({
+      ...base,
+      id: `blk-${b.id}-${empId}`,
+      resourceId: empId,
+    }));
+  });
+}
+
 type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'listWeek';
 
 interface Props {
@@ -83,9 +130,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [hhPanelOpen, setHhPanelOpen] = useState(false);
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
+  const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
+  const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
+  const [showApple, setShowApple] = useState(true);
+  const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedAppt) {
@@ -152,6 +203,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const workingHourEvents = useMemo(
     () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd),
     [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd],
+  );
+
+  const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
+
+  const { data: calendarBlocks = [] } = useQuery({
+    queryKey: ['calendar-blocks', rangeStart.toISOString(), rangeEnd.toISOString()],
+    queryFn: () => calendarBlocksApi.list(rangeStart.toISOString(), rangeEnd.toISOString()),
+    staleTime: 60 * 1000,
+  });
+
+  const blockEvents = useMemo(
+    () => buildBlockEvents(calendarBlocks, employees, isResourceView, zoomedEmployeeId),
+    [calendarBlocks, employees, isResourceView, zoomedEmployeeId],
   );
 
   // Compute resources (columns) for day view
@@ -236,7 +300,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
-  const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
+  const qc = useQueryClient();
+  const [removeBlockError, setRemoveBlockError] = useState<string | null>(null);
+  const { mutate: removeBlock, isPending: isRemovingBlock } = useMutation({
+    mutationFn: (id: string) => calendarBlocksApi.remove(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['calendar-blocks'] });
+      setBlockPopover(null);
+      setRemoveBlockError(null);
+    },
+    onError: (err: any) => {
+      setRemoveBlockError(err?.response?.data?.message ?? 'Nie udało się usunąć blokady');
+    },
+  });
 
   return (
     <div className="flex h-full overflow-hidden relative">
@@ -308,29 +384,70 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           >
             {showHappyHours ? 'Ukryj HH' : 'Pokaż HH'}
           </button>
+          <button
+            onClick={() => setShowApple((v) => !v)}
+            className={`px-3 py-1.5 text-sm rounded ${showApple ? 'bg-gray-200 text-gray-800' : 'bg-gray-100'}`}
+          >
+            {showApple ? 'Ukryj Apple' : 'Pokaż Apple'}
+          </button>
+          <button
+            onClick={() => setAppleSettingsOpen(true)}
+            className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
+            title="Ustawienia kalendarza Apple"
+          >
+            <Settings size={15} />
+          </button>
         </div>
 
         {/* FullCalendar */}
         <div className="flex-1 overflow-auto p-2" style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}>
-          <HappyHourOverlay rangeStart={rangeStart} rangeEnd={rangeEnd}>
-            {(bgEvents) => {
-              // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
-              const allEvents: EventInput[] = [
-                ...workingHourEvents,
-                ...appointmentEvents,
-                ...(showHappyHours ? bgEvents : []),
-              ];
+          <AppleCalendarOverlay
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            employees={employees}
+            isResourceView={isResourceView}
+            enabled={showApple}
+          >
+            {(appleEvents) => (
+              <HappyHourOverlay rangeStart={rangeStart} rangeEnd={rangeEnd}>
+                {(bgEvents) => {
+                  // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
+                  const allEvents: EventInput[] = [
+                    ...workingHourEvents,
+                    ...appleEvents,
+                    ...blockEvents,
+                    ...appointmentEvents,
+                    ...(showHappyHours ? bgEvents : []),
+                  ];
 
-              return (
-                <FullCalendar
-                  ref={calRef}
-                  plugins={[resourceTimeGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-                  schedulerLicenseKey={import.meta.env.VITE_FULLCALENDAR_LICENSE_KEY ?? 'CC-Attribution-NonCommercial-NoDerivatives'}
-                  initialView={view}
-                  resources={isResourceView ? resources : undefined}
-                  events={allEvents}
-                  eventContent={(arg) => {
-                    if (arg.event.extendedProps.isWorkingHours) return null;
+                  return (
+                    <FullCalendar
+                      ref={calRef}
+                      plugins={[resourceTimeGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+                      schedulerLicenseKey={import.meta.env.VITE_FULLCALENDAR_LICENSE_KEY ?? 'CC-Attribution-NonCommercial-NoDerivatives'}
+                      initialView={view}
+                      resources={isResourceView ? resources : undefined}
+                      events={allEvents}
+                      eventContent={(arg) => {
+                        if (arg.event.extendedProps.isWorkingHours) return null;
+                        if (arg.event.extendedProps.appleEventId) {
+                          return (
+                            <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
+                              {arg.event.extendedProps.title}
+                            </div>
+                          );
+                        }
+                        if (arg.event.extendedProps.calendarBlockId) {
+                      const blk = arg.event.extendedProps.block as CalendarBlock;
+                      return (
+                        <div className="flex h-full items-start gap-1 px-1 py-0.5 text-white">
+                          <Lock size={11} className="mt-0.5 shrink-0" />
+                          <span className="truncate text-[10px] font-semibold leading-tight">
+                            {blk.reason ?? 'Zablokowane'}
+                          </span>
+                        </div>
+                      );
+                    }
                     if (arg.event.extendedProps.happyHourId) {
                       const { startTime, endTime, discountType, discountValue } = arg.event.extendedProps;
                       const discountLabel = discountType === 'PERCENTAGE'
@@ -355,7 +472,17 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                     return <AppointmentCard {...arg} />;
                   }}
                   eventClick={(arg) => {
+                    if (arg.event.extendedProps.calendarBlockId) {
+                      const rect = (arg.el as HTMLElement).getBoundingClientRect();
+                      setBlockPopover({
+                        block: arg.event.extendedProps.block as CalendarBlock,
+                        x: rect.left,
+                        y: rect.bottom,
+                      });
+                      return;
+                    }
                     if (arg.event.extendedProps.happyHourId) return;
+                    if (arg.event.extendedProps.appleEventId) return;
                     handleEventClick(arg);
                   }}
                   dateClick={handleDateClick}
@@ -386,9 +513,11 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                     </div>
                   )}
                 />
-              );
-            }}
-          </HappyHourOverlay>
+                  );
+                }}
+              </HappyHourOverlay>
+            )}
+          </AppleCalendarOverlay>
         </div>
       </div>
 
@@ -468,6 +597,61 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               <Zap size={15} className="text-amber-500" />
               Happy Hours
             </button>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => {
+                setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+                setSlotMenu(null);
+              }}
+            >
+              <Lock size={15} className="text-gray-600" />
+              Zablokuj godziny
+            </button>
+          </div>
+        </div>
+      )}
+
+      {blockPopover && (
+        <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
+          <div
+            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
+            style={{
+              left: Math.min(blockPopover.x, window.innerWidth - 280),
+              top: Math.min(blockPopover.y + 6, window.innerHeight - 190),
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+              <Lock size={14} /> Zablokowane
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+              })}
+              {' – '}
+              {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
+                hour: '2-digit', minute: '2-digit',
+              })}
+            </p>
+            <p className="mt-1 text-xs">
+              {blockPopover.block.appliesToAll
+                ? 'Cały salon'
+                : blockPopover.block.employees.map((e) => e.name).join(', ')}
+            </p>
+            {blockPopover.block.reason && (
+              <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
+            )}
+            {removeBlockError && (
+              <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
+            )}
+            <button
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              disabled={isRemovingBlock}
+              onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
+            >
+              <Trash2 size={13} />
+              {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
+            </button>
           </div>
         </div>
       )}
@@ -480,6 +664,18 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         employees={employees}
         services={services}
       />
+
+      {blockModal && (
+        <BlockHoursModal
+          open
+          onClose={() => setBlockModal(null)}
+          prefill={blockModal}
+          employees={employees}
+          appointments={appointments}
+        />
+      )}
+
+      <AppleCalendarSettingsModal open={appleSettingsOpen} onClose={() => setAppleSettingsOpen(false)} />
     </div>
   );
 }

@@ -45,6 +45,7 @@ export interface ServerToClientEvents {
   'appointment:created': (appointment: Record<string, unknown>) => void;
   'appointment:updated': (appointment: Record<string, unknown>) => void;
   'appointment:deleted': (id: string) => void;
+  'external-calendar:updated': () => void;
 }
 
 export interface ClientToServerEvents {

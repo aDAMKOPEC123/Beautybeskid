@@ -18,6 +18,7 @@ import { ChevronLeft, ChevronRight, Lock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { employeesApi, TimeBlock, WorkDay, WeekDayInput } from '@/api/employees.api';
+import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
 import { TimeBlocksEditor } from '@/components/schedule/TimeBlocksEditor';
 import { Button } from '@/components/ui/button';
 
@@ -151,7 +152,13 @@ export const EmployeeSchedule = () => {
   const today = startOfToday();
   const isPastWeek = isBefore(weekEnd, today);
 
-  // Always call exactly 2 useQuery hooks — avoids Rules of Hooks violation
+  const { data: weekBlocks = [] } = useQuery({
+    queryKey: ['calendar-blocks', weekStart.toISOString(), weekEnd.toISOString()],
+    queryFn: () => calendarBlocksApi.list(weekStart.toISOString(), weekEnd.toISOString()),
+    staleTime: 60 * 1000,
+  });
+
+  // Always call exactly 2 schedule useQuery hooks below — avoids Rules of Hooks violation
   const month1 = format(weekStart, 'yyyy-MM');
   const month2 = format(weekEnd, 'yyyy-MM');
 
@@ -168,6 +175,23 @@ export const EmployeeSchedule = () => {
 
   const isLoading = q1.isLoading || (month1 !== month2 && q2.isLoading);
   const employee = q1.data?.employee;
+
+  // GET /api/calendar-blocks returns ALL blocks in the date range, including ones scoped to
+  // other employees. Keep only blocks that apply to everyone or explicitly list this employee,
+  // otherwise a block set for a colleague would show up as "my" restriction. While `employee.id`
+  // isn't loaded yet, hide per-employee blocks entirely (only appliesToAll ones are safe to show).
+  const blocksByDay = useMemo(() => {
+    const employeeId = employee?.id;
+    const relevantBlocks = weekBlocks.filter(
+      (b) => b.appliesToAll || (!!employeeId && b.employees.some((e) => e.id === employeeId))
+    );
+    const map = new Map<string, CalendarBlock[]>();
+    for (const b of relevantBlocks) {
+      const key = format(new Date(b.startsAt), 'yyyy-MM-dd');
+      map.set(key, [...(map.get(key) ?? []), b]);
+    }
+    return map;
+  }, [weekBlocks, employee?.id]);
 
   // Merge workDays from both months (deduplicated by id)
   const allWorkDays: WorkDay[] = useMemo(() => {
@@ -320,13 +344,24 @@ export const EmployeeSchedule = () => {
             {weekDays.map((day) => {
               const key = format(day, 'yyyy-MM-dd');
               return (
-                <DayRow
-                  key={key}
-                  date={day}
-                  state={dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS }}
-                  readonly={isPastWeek}
-                  onChange={(patch) => updateDay(key, patch)}
-                />
+                <div key={key}>
+                  <DayRow
+                    date={day}
+                    state={dayStates[key] ?? { isWorking: false, timeBlocks: DEFAULT_BLOCKS }}
+                    readonly={isPastWeek}
+                    onChange={(patch) => updateDay(key, patch)}
+                  />
+                  {(blocksByDay.get(key) ?? []).map((b) => (
+                    <div key={b.id} className="mt-1 flex items-center gap-1 rounded bg-gray-700 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <Lock size={9} className="shrink-0" />
+                      <span className="truncate">
+                        {new Date(b.startsAt).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+                        –
+                        {new Date(b.endsAt).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               );
             })}
           </div>

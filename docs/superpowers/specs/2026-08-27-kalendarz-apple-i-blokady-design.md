@@ -109,10 +109,10 @@ Zależność do dodania: `node-ical` w `apps/server`.
 
 ### Frontend
 
-**Konfiguracja** — nowa karta „Kalendarz Apple” w `apps/web/src/pages/admin/Work.tsx`:
-pole na URL, przełącznik włączenia, status („Ostatnia synchronizacja: 12 min temu”
-lub czerwony komunikat błędu), przycisk „Synchronizuj teraz”, zwijana instrukcja
-skąd wziąć link.
+**Konfiguracja** — link wkleja się w modalu `AppleCalendarSettingsModal`, otwieranym
+ikoną koła zębatego w toolbarze kalendarza (`/admin/wizyty` → widok kalendarza):
+pole na URL, status ostatniej synchronizacji, przycisk „Synchronizuj teraz”,
+przycisk „Odłącz”, zwijana instrukcja skąd wziąć link.
 
 **Wyświetlanie** — w `apps/web/src/components/calendar/CalendarView.tsx` dochodzi
 trzecie źródło zdarzeń obok `workingHourEvents` i `appointmentEvents`. Wydarzenia

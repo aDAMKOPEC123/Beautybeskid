@@ -47,6 +47,8 @@ import googleReviewsRouter from './modules/google-reviews/google-reviews.router'
 import storePromotionsRouter from './modules/store-promotions/store-promotions.router';
 import financesRouter from './modules/finances/finances.router';
 import skinScansRouter from './modules/skin-scans/skin-scans.router';
+import calendarBlocksRouter from './modules/calendar-blocks/calendar-blocks.router';
+import externalCalendarRouter from './modules/external-calendar/external-calendar.router';
 import { webhook as academyStripeWebhook } from './modules/academy/payments/payments.controller';
 
 import sitemapRouter from './modules/sitemap/sitemap.router';
@@ -111,6 +113,8 @@ app.use('/api/google-reviews', googleReviewsRouter);
 app.use('/api/store-promotions', storePromotionsRouter);
 app.use('/api/finances', financesRouter);
 app.use('/api/skin-scans', skinScansRouter);
+app.use('/api/calendar-blocks', calendarBlocksRouter);
+app.use('/api/external-calendar', externalCalendarRouter);
 
 // Sitemap (must be before 404 handler)
 app.use('/sitemap.xml', sitemapRouter);
