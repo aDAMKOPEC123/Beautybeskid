@@ -13,6 +13,7 @@ import {
 } from '../treatment-series/treatment-series.service';
 import { createAndEmitNotification } from '../notifications/notifications.service';
 import { sendPushToUser, sendPushToAdmins } from '../push/push.service';
+import { isSlotBlocked, type BlockLike } from '../calendar-blocks/calendar-blocks.rules';
 
 const appointmentInclude = {
   service: {
@@ -433,7 +434,7 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
 
   // BUG-01: Check slot availability before creating (best-effort — not serializable,
   // but catches the common case of same-slot double-booking)
-  if (rest.employeeId) {
+  {
     const service = await prisma.service.findUnique({
       where: { id: rest.serviceId },
       select: { durationMinutes: true },
@@ -442,18 +443,39 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
     const durationMs = (service?.durationMinutes ?? 60) * 60_000;
     const apptEnd = new Date(apptStart.getTime() + durationMs);
 
-    const conflict = await prisma.appointment.findFirst({
-      where: {
-        employeeId: rest.employeeId,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-        date: {
-          gte: new Date(apptStart.getTime() - durationMs),
-          lt: apptEnd,
+    if (rest.employeeId) {
+      const conflict = await prisma.appointment.findFirst({
+        where: {
+          employeeId: rest.employeeId,
+          status: { in: ['PENDING', 'CONFIRMED'] },
+          date: {
+            gte: new Date(apptStart.getTime() - durationMs),
+            lt: apptEnd,
+          },
         },
+        select: { id: true },
+      });
+      if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+    }
+
+    // K2: Sprawdź blokady godzin — bez tego klientka mogła zapisać się w zablokowanym
+    // czasie, bo to sprawdzenie kolizji (wyżej) w ogóle nie dotykało blokad. Gdy wizyta
+    // nie ma przypisanego pracownika, sprawdzamy przynajmniej blokady całego salonu.
+    const calendarBlocks = (await prisma.calendarBlock.findMany({
+      where: {
+        startsAt: { lt: apptEnd },
+        endsAt: { gt: apptStart },
+        OR: [
+          { appliesToAll: true },
+          ...(rest.employeeId ? [{ employees: { some: { id: rest.employeeId } } }] : []),
+        ],
       },
-      select: { id: true },
-    });
-    if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+      include: { employees: { select: { id: true } } },
+    })) as unknown as BlockLike[];
+
+    if (isSlotBlocked(apptStart, apptEnd, rest.employeeId || '__none__', calendarBlocks)) {
+      throw new AppError('Wybrany termin jest zablokowany', 409);
+    }
   }
 
   const appointment = await prisma.$transaction(async (tx) => {
