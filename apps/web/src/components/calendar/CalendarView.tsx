@@ -11,7 +11,7 @@ import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/rea
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock, Trash2 } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
@@ -19,6 +19,8 @@ import { AddAppointmentModal } from './AddAppointmentModal';
 import { ExternalClientModal } from './ExternalClientModal';
 import { HappyHourPanel } from './HappyHourPanel';
 import { BlockHoursModal } from './BlockHoursModal';
+import { AppleCalendarOverlay } from './AppleCalendarOverlay';
+import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
 
 // Deterministic color per employee index
 const EMPLOYEE_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
@@ -133,6 +135,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
+  const [showApple, setShowApple] = useState(true);
+  const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedAppt) {
@@ -375,31 +379,60 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           >
             {showHappyHours ? 'Ukryj HH' : 'Pokaż HH'}
           </button>
+          <button
+            onClick={() => setShowApple((v) => !v)}
+            className={`px-3 py-1.5 text-sm rounded ${showApple ? 'bg-gray-200 text-gray-800' : 'bg-gray-100'}`}
+          >
+            {showApple ? 'Ukryj Apple' : 'Pokaż Apple'}
+          </button>
+          <button
+            onClick={() => setAppleSettingsOpen(true)}
+            className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
+            title="Ustawienia kalendarza Apple"
+          >
+            <Settings size={15} />
+          </button>
         </div>
 
         {/* FullCalendar */}
         <div className="flex-1 overflow-auto p-2" style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}>
-          <HappyHourOverlay rangeStart={rangeStart} rangeEnd={rangeEnd}>
-            {(bgEvents) => {
-              // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
-              const allEvents: EventInput[] = [
-                ...workingHourEvents,
-                ...blockEvents,
-                ...appointmentEvents,
-                ...(showHappyHours ? bgEvents : []),
-              ];
+          <AppleCalendarOverlay
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            employees={employees}
+            isResourceView={isResourceView}
+            enabled={showApple}
+          >
+            {(appleEvents) => (
+              <HappyHourOverlay rangeStart={rangeStart} rangeEnd={rangeEnd}>
+                {(bgEvents) => {
+                  // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
+                  const allEvents: EventInput[] = [
+                    ...workingHourEvents,
+                    ...appleEvents,
+                    ...blockEvents,
+                    ...appointmentEvents,
+                    ...(showHappyHours ? bgEvents : []),
+                  ];
 
-              return (
-                <FullCalendar
-                  ref={calRef}
-                  plugins={[resourceTimeGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-                  schedulerLicenseKey={import.meta.env.VITE_FULLCALENDAR_LICENSE_KEY ?? 'CC-Attribution-NonCommercial-NoDerivatives'}
-                  initialView={view}
-                  resources={isResourceView ? resources : undefined}
-                  events={allEvents}
-                  eventContent={(arg) => {
-                    if (arg.event.extendedProps.isWorkingHours) return null;
-                    if (arg.event.extendedProps.calendarBlockId) {
+                  return (
+                    <FullCalendar
+                      ref={calRef}
+                      plugins={[resourceTimeGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+                      schedulerLicenseKey={import.meta.env.VITE_FULLCALENDAR_LICENSE_KEY ?? 'CC-Attribution-NonCommercial-NoDerivatives'}
+                      initialView={view}
+                      resources={isResourceView ? resources : undefined}
+                      events={allEvents}
+                      eventContent={(arg) => {
+                        if (arg.event.extendedProps.isWorkingHours) return null;
+                        if (arg.event.extendedProps.appleEventId) {
+                          return (
+                            <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
+                              {arg.event.extendedProps.title}
+                            </div>
+                          );
+                        }
+                        if (arg.event.extendedProps.calendarBlockId) {
                       const blk = arg.event.extendedProps.block as CalendarBlock;
                       return (
                         <div className="flex h-full items-start gap-1 px-1 py-0.5 text-white">
@@ -444,6 +477,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                       return;
                     }
                     if (arg.event.extendedProps.happyHourId) return;
+                    if (arg.event.extendedProps.appleEventId) return;
                     handleEventClick(arg);
                   }}
                   dateClick={handleDateClick}
@@ -474,9 +508,11 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                     </div>
                   )}
                 />
-              );
-            }}
-          </HappyHourOverlay>
+                  );
+                }}
+              </HappyHourOverlay>
+            )}
+          </AppleCalendarOverlay>
         </div>
       </div>
 
@@ -630,6 +666,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           appointments={appointments}
         />
       )}
+
+      <AppleCalendarSettingsModal open={appleSettingsOpen} onClose={() => setAppleSettingsOpen(false)} />
     </div>
   );
 }
