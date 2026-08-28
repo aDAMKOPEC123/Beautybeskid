@@ -4,7 +4,7 @@
 
 **Goal:** Admin klika godzinę w kalendarzu wizyt i dodaje albo usuwa godziny pracy — dla wybranych pracownic lub całego salonu — a zielone tło godzin pracy dostaje etykietę „Dostępne godziny" z zakresem.
 
-**Architecture:** Scalanie i odejmowanie przedziałów żyje po stronie serwera jako czyste funkcje (`work-hours.rules.ts`) objęte testami. Dwa nowe endpointy admina czytają aktualne godziny dnia (wyjątek `EmployeeWorkDay`, a gdy go nie ma — `EmployeeWeeklySchedule`), przeliczają listę przedziałów i zapisują wyjątek na tę datę. Frontend tylko woła endpoint raz na pracownicę — żadnej logiki przedziałów w przeglądarce.
+**Architecture:** Scalanie i odejmowanie przedziałów żyje po stronie serwera jako czyste funkcje (`work-hours.rules.ts`) objęte testami. Dwa nowe endpointy admina czytają aktualne godziny dnia wyłącznie z wyjątku `EmployeeWorkDay` (brak wyjątku = brak godzin, grafik tygodniowy nie jest odczytywany), przeliczają listę przedziałów i zapisują wyjątek na tę datę. Frontend tylko woła endpoint raz na pracownicę — żadnej logiki przedziałów w przeglądarce.
 
 **Tech Stack:** Node/Express 5 + Prisma + PostgreSQL po stronie serwera; React 19 + FullCalendar v6 + TanStack Query + Tailwind po stronie web. Testy: vitest.
 
@@ -13,7 +13,7 @@ Spec: `docs/superpowers/specs/2026-08-27-godziny-pracy-z-kalendarza-design.md`
 ## Global Constraints
 
 - Wszystkie polecenia uruchamiaj z katalogu `cosmo-app/`, chyba że krok mówi inaczej.
-- Zmiana dotyka WYŁĄCZNIE wyjątków na konkretny dzień (`EmployeeWorkDay`). Stały grafik tygodniowy (`EmployeeWeeklySchedule`) nie może być nigdzie zapisywany — tylko odczytywany jako punkt wyjścia.
+- Zmiana dotyka WYŁĄCZNIE wyjątków na konkretny dzień (`EmployeeWorkDay`). Stały grafik tygodniowy (`EmployeeWeeklySchedule`) nie może być nigdzie zapisywany ani odczytywany jako punkt wyjścia do scalania — o dostępności terminów dla klientek decyduje wyłącznie `EmployeeWorkDay`; brak wyjątku na dany dzień oznacza brak dostępnych godzin, niezależnie od grafiku tygodniowego.
 - Godziny pracy nigdy nie kasują, nie odwołują ani nie przekładają istniejących wizyt. Kolizja z wizytą to wyłącznie ostrzeżenie w interfejsie.
 - Blokady godzin mają pierwszeństwo nad godzinami pracy i ta zależność już działa w `getAvailabilityForDuration` — nie zmieniaj tam niczego.
 - Zielone godziny pracy pozostają zdarzeniami tłowymi (`display: 'background'`). Nie zmieniaj ich na zwykłe zdarzenia — w tym repo próba takiej zmiany przy warstwie Apple odebrała klikalność godzin w całym kalendarzu i została wycofana.
@@ -241,7 +241,10 @@ import { mergeTimeBlocks, subtractTimeBlock } from './work-hours.rules';
 ```
 
 ```ts
-// Zwraca godziny obowiązujące danego dnia: wyjątek dnia, a gdy go nie ma — grafik tygodniowy.
+// Zwraca godziny obowiązujące danego dnia na podstawie WYŁĄCZNIE wyjątku EmployeeWorkDay —
+// to jedyne źródło, z którego getAvailabilityForDuration() liczy dostępność dla klientek;
+// grafik tygodniowy do niej nie wchodzi, więc scalanie musi trzymać się tego samego źródła.
+// Brak wyjątku albo dzień oznaczony jako wolny = brak godzin, punktem wyjścia jest lista pusta.
 // Uwaga: dzień pracujący bez zapisanych przedziałów oznacza domyślne godziny (patrz resolveEmployeeBlocks),
 // więc musimy je tu odtworzyć — inaczej pierwsze dodanie godzin skasowałoby cały dzień pracy.
 const resolveCurrentBlocks = async (employeeId: string, normalized: Date): Promise<TimeBlock[]> => {
@@ -249,18 +252,9 @@ const resolveCurrentBlocks = async (employeeId: string, normalized: Date): Promi
     where: { employeeId_date: { employeeId, date: normalized } },
   });
 
-  if (workDay) {
-    if (!workDay.isWorking) return [];
-    const blocks = (workDay.timeBlocks as TimeBlock[] | null) ?? [];
-    return blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
-  }
-
-  const dayOfWeek = (normalized.getUTCDay() + 6) % 7; // JS niedziela=0 → API poniedziałek=0
-  const weekly = await prisma.employeeWeeklySchedule.findUnique({
-    where: { employeeId_dayOfWeek: { employeeId, dayOfWeek } },
-  });
-  if (!weekly?.isWorking) return [];
-  const blocks = (weekly.timeBlocks as TimeBlock[] | null) ?? [];
+  if (!workDay) return [];
+  if (!workDay.isWorking) return [];
+  const blocks = (workDay.timeBlocks as TimeBlock[] | null) ?? [];
   return blocks.length > 0 ? blocks : DEFAULT_TIME_BLOCKS;
 };
 
@@ -783,6 +777,6 @@ Wdrożenie na produkcję wykonuje właściciel projektu — NIE uruchamiaj `depl
 
 ## Notatki dla wykonawcy
 
-- Zmiany dotykają wyłącznie wyjątków na konkretny dzień. Jeśli w trakcie pracy zobaczysz zapis do `EmployeeWeeklySchedule`, to błąd — grafik tygodniowy tylko czytamy.
+- Zmiany dotykają wyłącznie wyjątków na konkretny dzień. Jeśli w trakcie pracy zobaczysz jakikolwiek zapis ALBO odczyt `EmployeeWeeklySchedule` w ścieżce dodawania/usuwania godzin, to błąd — grafik tygodniowy nie jest punktem wyjścia do scalania, bo `getAvailabilityForDuration()` go nie czyta; podstawą jest wyłącznie `EmployeeWorkDay`.
 - `resolveEmployeeBlocks` w `employees.service.ts:332` podstawia domyślne 09:00–18:00 dla dnia pracującego bez zapisanych przedziałów. To jedyny powód, dla którego `removeWorkHours` zapisuje dzień bez godzin jako wolny — nie „upraszczaj" tego z powrotem.
 - Klucze unieważniane po zapisie (`['employee-schedule']`, `['employee-weekly-schedule']`) muszą pasować do kluczy, którymi `CalendarView.tsx` pobiera grafiki — sprawdź je w pliku przed zmianą.

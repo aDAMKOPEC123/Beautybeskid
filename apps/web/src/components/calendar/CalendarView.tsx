@@ -11,7 +11,7 @@ import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/rea
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock, Trash2, Settings } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
@@ -19,6 +19,7 @@ import { AddAppointmentModal } from './AddAppointmentModal';
 import { ExternalClientModal } from './ExternalClientModal';
 import { HappyHourPanel } from './HappyHourPanel';
 import { BlockHoursModal } from './BlockHoursModal';
+import { WorkHoursModal } from './WorkHoursModal';
 import { AppleCalendarOverlay } from './AppleCalendarOverlay';
 import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
 
@@ -60,7 +61,7 @@ function buildWorkingHourEvents(
           end: `${dateStr}T${block.end}:00`,
           display: 'background',
           color: 'rgba(34,197,94,0.18)',
-          extendedProps: { isWorkingHours: true },
+          extendedProps: { isWorkingHours: true, rangeLabel: `${block.start}–${block.end}` },
         });
       }
     }
@@ -131,6 +132,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
   const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
+  const [workHoursModal, setWorkHoursModal] = useState<{ mode: 'add' | 'remove'; date: string; time?: string; employeeId?: string } | null>(null);
   const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
@@ -314,6 +316,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     },
   });
 
+  // Czy kliknięty slot leży w godzinach pracy? Sprawdzamy na tych samych danych,
+  // z których rysujemy zielone tło, żeby menu nie kłamało.
+  const slotHasWorkingHours = (date: string, time?: string, employeeId?: string): boolean => {
+    if (!time) return false;
+    const clicked = new Date(`${date}T${time}:00`).getTime();
+    return workingHourEvents.some((ev) => {
+      if (employeeId && ev.resourceId !== employeeId) return false;
+      const start = new Date(ev.start as string).getTime();
+      const end = new Date(ev.end as string).getTime();
+      return clicked >= start && clicked < end;
+    });
+  };
+
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
@@ -429,7 +444,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                       resources={isResourceView ? resources : undefined}
                       events={allEvents}
                       eventContent={(arg) => {
-                        if (arg.event.extendedProps.isWorkingHours) return null;
+                        if (arg.event.extendedProps.isWorkingHours) {
+                          return (
+                            <div className="px-1 pt-0.5 text-[10px] font-medium leading-tight text-green-700/70 truncate">
+                              Dostępne godziny {arg.event.extendedProps.rangeLabel}
+                            </div>
+                          );
+                        }
                         if (arg.event.extendedProps.appleEventId) {
                           return (
                             <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
@@ -607,6 +628,28 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               <Lock size={15} className="text-gray-600" />
               Zablokuj godziny
             </button>
+            <button
+              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+              onClick={() => {
+                setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+                setSlotMenu(null);
+              }}
+            >
+              <Clock size={15} className="text-green-600" />
+              Dodaj godziny pracy
+            </button>
+            {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
+              <button
+                className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
+                onClick={() => {
+                  setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+                  setSlotMenu(null);
+                }}
+              >
+                <Clock size={15} className="text-red-500" />
+                Usuń godziny pracy
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -672,6 +715,18 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           prefill={blockModal}
           employees={employees}
           appointments={appointments}
+        />
+      )}
+
+      {workHoursModal && (
+        <WorkHoursModal
+          open
+          mode={workHoursModal.mode}
+          onClose={() => setWorkHoursModal(null)}
+          prefill={{ date: workHoursModal.date, time: workHoursModal.time, employeeId: workHoursModal.employeeId }}
+          employees={employees}
+          appointments={appointments}
+          workDayOverrides={workDayOverrides}
         />
       )}
 

@@ -169,6 +169,36 @@ export const removeWorkDay = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const addWorkHours = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { date, start, end } = req.body as { date?: string; start?: string; end?: string };
+    if (!date || !start || !end) {
+      res.status(400).json({ message: 'Wymagane pola: date, start, end' });
+      return;
+    }
+    const workDay = await employeesService.addWorkHours(req.params.id, { date, start, end });
+    res.json({ data: { workDay } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const removeWorkHours = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { date, start, end } = req.body as { date?: string; start?: string; end?: string };
+    if (!date || !start || !end) {
+      res.status(400).json({ message: 'Wymagane pola: date, start, end' });
+      return;
+    }
+    // `workDay` bywa `null`, gdy dla tej pracownicy i daty nie istniał żaden wyjątek —
+    // to prawdziwy brak operacji (nic nie było do usunięcia), nie błąd.
+    const workDay = await employeesService.removeWorkHours(req.params.id, { date, start, end });
+    res.json({ data: { workDay } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const upsertWeekForEmployee = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { days } = req.body;

@@ -114,6 +114,15 @@ export const employeesApi = {
   deleteWorkDay: async (employeeId: string, dayId: string) => {
     await api.delete(`/employees/${employeeId}/schedule/${dayId}`);
   },
+  addWorkHours: async (employeeId: string, data: { date: string; start: string; end: string }) => {
+    const res = await api.post(`/employees/${employeeId}/schedule/add-hours`, data);
+    return res.data.data.workDay as WorkDay;
+  },
+  removeWorkHours: async (employeeId: string, data: { date: string; start: string; end: string }) => {
+    const res = await api.post(`/employees/${employeeId}/schedule/remove-hours`, data);
+    // `workDay` bywa `null` — brak wyjątku na ten dzień oznacza, że nie było czego usuwać.
+    return res.data.data.workDay as WorkDay | null;
+  },
 
   upsertEmployeeWeeklyDay: async (employeeId: string, data: { dayOfWeek: number; isWorking: boolean; timeBlocks: TimeBlock[] }) => {
     const res = await api.put(`/employees/${employeeId}/weekly-schedule`, data);

@@ -2,6 +2,7 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import bcrypt from 'bcryptjs';
 import { isSlotBlocked, type BlockLike } from '../calendar-blocks/calendar-blocks.rules';
+import { mergeTimeBlocks, subtractTimeBlock } from './work-hours.rules';
 
 const addMinutes = (date: Date, minutes: number): Date =>
   new Date(date.getTime() + minutes * 60_000);
@@ -257,6 +258,96 @@ export const upsertWorkDay = async (
       timeBlocks: (data.timeBlocks ?? null) as any,
       note: data.note ?? null,
     },
+  });
+};
+
+// Zwraca godziny realnie dostępne dla klientek danego dnia. Podstawą jest wyłącznie wyjątek dnia
+// (EmployeeWorkDay) — to on decyduje o dostępności w silniku rezerwacji (getAvailabilityForDuration),
+// który NIE zagląda do grafiku tygodniowego. Grafik tygodniowy to tylko szablon używany w edytorze
+// tygodnia; dzień bez wyjątku jest dla klientki całkowicie niedostępny, niezależnie od tego, co mówi
+// grafik. Delegujemy do resolveEmployeeBlocks, żeby obie funkcje nie mogły się w przyszłości rozjechać.
+// Przyjmuje klienta Prisma (top-level lub `tx` z $transaction), żeby wywołujący mógł odczyt i zapis
+// zamknąć w jednej transakcji.
+const resolveCurrentBlocks = async (
+  db: Pick<typeof prisma, 'employeeWorkDay'>,
+  employeeId: string,
+  normalized: Date
+): Promise<TimeBlock[]> => {
+  const workDay = await db.employeeWorkDay.findUnique({
+    where: { employeeId_date: { employeeId, date: normalized } },
+  });
+  return resolveEmployeeBlocks(workDay as WorkDayLike | null) ?? [];
+};
+
+const validateRange = (start: string, end: string): void => {
+  const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  if (!timePattern.test(start) || !timePattern.test(end)) {
+    throw new AppError('Nieprawidłowy format godziny', 400);
+  }
+  if (timeToMinutes(end) <= timeToMinutes(start)) {
+    throw new AppError('Godzina zakończenia musi być późniejsza niż rozpoczęcia', 400);
+  }
+};
+
+export const addWorkHours = async (
+  employeeId: string,
+  data: { date: string; start: string; end: string }
+) => {
+  validateRange(data.start, data.end);
+  const normalized = normalizeDate(data.date);
+
+  return await prisma.$transaction(async (tx) => {
+    const current = await resolveCurrentBlocks(tx, employeeId, normalized);
+    const timeBlocks = mergeTimeBlocks(current, { start: data.start, end: data.end });
+
+    return await tx.employeeWorkDay.upsert({
+      where: { employeeId_date: { employeeId, date: normalized } },
+      create: { employeeId, date: normalized, isWorking: true, timeBlocks: timeBlocks as any, note: null },
+      update: { isWorking: true, timeBlocks: timeBlocks as any },
+    });
+  });
+};
+
+export const removeWorkHours = async (
+  employeeId: string,
+  data: { date: string; start: string; end: string }
+) => {
+  validateRange(data.start, data.end);
+  const normalized = normalizeDate(data.date);
+
+  return await prisma.$transaction(async (tx) => {
+    const workDay = await tx.employeeWorkDay.findUnique({
+      where: { employeeId_date: { employeeId, date: normalized } },
+    });
+
+    // Brak wyjątku na ten dzień = pracownica korzysta z szablonu tygodniowego (jeśli w ogóle
+    // pracuje), a nie z żadnego zapisanego EmployeeWorkDay. Usuwanie godzin, których nie ma
+    // jako wyjątku, musi być prawdziwym brakiem operacji — inaczej "cały salon" tworzyłby
+    // sztuczny wyjątek isWorking:false na cały dzień osobom, których nikt nie ruszał, gasząc
+    // im zielone tło pochodzące z szablonu, mimo że nikt nic im nie odjął.
+    if (!workDay) return null;
+
+    const current = resolveEmployeeBlocks(workDay as WorkDayLike | null) ?? [];
+    const timeBlocks = subtractTimeBlock(current, { start: data.start, end: data.end });
+
+    // Pusta lista przy isWorking=true oznaczałaby domyślne 09:00-18:00 (resolveEmployeeBlocks),
+    // czyli godziny wróciłyby same. Dlatego dzień bez godzin zapisujemy jako wolny.
+    const isWorking = timeBlocks.length > 0;
+
+    return await tx.employeeWorkDay.upsert({
+      where: { employeeId_date: { employeeId, date: normalized } },
+      create: {
+        employeeId,
+        date: normalized,
+        isWorking,
+        timeBlocks: (isWorking ? timeBlocks : null) as any,
+        note: null,
+      },
+      update: {
+        isWorking,
+        timeBlocks: (isWorking ? timeBlocks : null) as any,
+      },
+    });
   });
 };
 

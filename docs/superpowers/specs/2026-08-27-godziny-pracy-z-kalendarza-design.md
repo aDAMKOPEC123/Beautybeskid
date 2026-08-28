@@ -24,9 +24,12 @@ Godziny pracy istnieją już w dwóch warstwach:
   nadpisujący grafik dla tego dnia.
 
 `buildWorkingHourEvents()` w `CalendarView.tsx` rysuje z tego zielone tło:
-dla każdego dnia bierze wyjątek, a gdy go nie ma — grafik tygodniowy.
-Etykiety nie ma: `eventContent` zwraca `null` dla `isWorkingHours`
-(`CalendarView.tsx:432`).
+dla każdego dnia bierze wyjątek, a gdy go nie ma — grafik tygodniowy. To
+rysowanie w kalendarzu jest jedynym miejscem, gdzie grafik tygodniowy wpływa
+na widok — o faktycznej dostępności terminu dla klientki decyduje wyłącznie
+`EmployeeWorkDay` (patrz sekcja „Semantyka scalania" i „Wpływ na
+rezerwacje" niżej). Etykiety nie ma: `eventContent` zwraca `null` dla
+`isWorkingHours` (`CalendarView.tsx:432`).
 
 Zapis idzie przez istniejący `POST /api/employees/:id/schedule`
 (`employeesApi.upsertWorkDay`), który **zastępuje** całą listę `timeBlocks`
@@ -48,16 +51,20 @@ nadpisać grafik na stałe, a korzyść jest marginalna wobec istniejącego pane
 
 Naiwny zapis skasowałby istniejące godziny: `upsertWorkDay` zastępuje całą
 listę, więc dodanie 14:00–16:00 zostawiłoby pracownicy dwie godziny pracy
-zamiast dziewięciu, bez żadnego ostrzeżenia. Dodatkowo, gdy dzień nie ma
-jeszcze wyjątku, jego faktyczne godziny pochodzą z grafiku tygodniowego —
-pierwszy zapis musi ten grafik przepisać do dnia, zanim cokolwiek doda.
+zamiast dziewięciu, bez żadnego ostrzeżenia. Punktem wyjścia do scalania jest
+wyłącznie wyjątek `EmployeeWorkDay` — grafik tygodniowy nigdy nie jest
+odczytywany przy tym zapisie. `getAvailabilityForDuration()`, czyli silnik
+dostępności terminów dla klientek, sam nie zagląda do grafiku tygodniowego,
+więc scalanie musi trzymać się tego samego źródła; w przeciwnym razie
+zapisany wyjątek nie odzwierciedlałby tego, co pracownica faktycznie miała
+„wcześniej" z perspektywy rezerwacji.
 
 Kolejność operacji przy dodawaniu zakresu dla jednej pracownicy:
 
-1. Ustal aktualne godziny dnia: wyjątek `EmployeeWorkDay`, jeśli istnieje;
-   w przeciwnym razie wpis `EmployeeWeeklySchedule` dla tego dnia tygodnia.
-   Gdy nie ma żadnego z nich albo dzień jest oznaczony jako wolny — punktem
-   wyjścia jest lista pusta.
+1. Ustal aktualne godziny dnia z wyjątku `EmployeeWorkDay`, jeśli istnieje.
+   Gdy wyjątku nie ma albo dzień jest oznaczony jako wolny — punktem
+   wyjścia jest lista pusta (dzień bez wyjątku nie ma żadnych godzin
+   dostępnych dla klientek, niezależnie od grafiku tygodniowego).
 2. Dołóż nowy zakres do listy.
 3. Scal: posortuj po godzinie startu i połącz przedziały nachodzące **oraz
    stykające się krańcami** (9:00–13:00 + 13:00–15:00 = 9:00–15:00).
