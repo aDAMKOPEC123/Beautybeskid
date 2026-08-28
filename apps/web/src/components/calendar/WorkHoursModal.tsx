@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { pl } from 'date-fns/locale';
 import { employeesApi, type WorkDay } from '@/api/employees.api';
 import { Clock, X } from 'lucide-react';
 
@@ -29,7 +31,7 @@ export function WorkHoursModal({ open, mode, onClose, prefill, employees, appoin
   const qc = useQueryClient();
   const startTimeDefault = prefill.time ?? '09:00';
 
-  const [date, setDate] = useState(prefill.date);
+  const date = prefill.date;
   const [from, setFrom] = useState(startTimeDefault);
   const [to, setTo] = useState(addMinutesToTime(startTimeDefault, 60));
   const [appliesToAll, setAppliesToAll] = useState(!prefill.employeeId);
@@ -136,11 +138,12 @@ export function WorkHoursModal({ open, mode, onClose, prefill, employees, appoin
           </button>
         </div>
 
-        <label className="mb-3 block text-sm">
+        <div className="mb-3 text-sm">
           Data
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
-        </label>
+          <div className="mt-1 w-full rounded-lg border border-border bg-accent/50 px-3 py-2 font-medium">
+            {format(new Date(`${date}T00:00:00`), 'EEEE, d MMMM yyyy', { locale: pl })}
+          </div>
+        </div>
 
         <div className="mb-3 flex gap-3">
           <label className="flex-1 text-sm">
