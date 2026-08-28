@@ -1,6 +1,7 @@
 // apps/web/src/components/calendar/CalendarView.tsx
-import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
+import { useRef, useState, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -11,8 +12,9 @@ import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/rea
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock, MoreHorizontal } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
+import { MobileSheet } from './MobileSheet';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
 import { AddAppointmentModal } from './AddAppointmentModal';
@@ -34,6 +36,7 @@ function buildWorkingHourEvents(
   workDayOverrides: Map<string, WorkDay[]>,
   rangeStart: Date,
   rangeEnd: Date,
+  zoomedEmployeeId: string | null,
 ): EventInput[] {
   const events: EventInput[] = [];
   let d = new Date(rangeStart);
@@ -41,6 +44,8 @@ function buildWorkingHourEvents(
     const dateStr = format(d, 'yyyy-MM-dd');
     const apiDow = (d.getDay() + 6) % 7; // convert JS Sun=0 → Mon=0
     for (const emp of employees) {
+      // W widoku pojedynczej pracownicy pasy pozostałych osób nałożyłyby się na siebie.
+      if (zoomedEmployeeId && emp.id !== zoomedEmployeeId) continue;
       const override = (workDayOverrides.get(emp.id) ?? [])
         .find((w) => w.date.startsWith(dateStr));
       let blocks: TimeBlock[];
@@ -113,7 +118,34 @@ function buildBlockEvents(
   });
 }
 
-type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'listWeek';
+type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'timeGridDay' | 'listWeek';
+
+// Minimalne wysokości „awaryjne" — używane tylko wtedy, gdy nad i pod punktem
+// kliknięcia nie ma nawet tyle miejsca; dalsze pozycje są wtedy dostępne przez
+// własne przewijanie kontenera. Chronią przed maxHeight bliskim zeru.
+const MIN_SLOT_MENU_HEIGHT = 180; // ok. 4 pozycje + nagłówek z datą
+const MIN_BLOCK_POPOVER_HEIGHT = 140; // treść blokady + przycisk usuwania
+
+// Pozycjonuje menu/popover jak systemowe menu kontekstowe: domyślnie pod punktem
+// kliknięcia, a gdy pod nim nie ma miejsca na zmierzoną wysokość — odbija w górę,
+// tak żeby dolna krawędź elementu znalazła się nad punktem kliknięcia (z marginesem
+// od krawędzi okna). maxHeight nigdy nie spada poniżej minHeight.
+function computeVerticalFlip(
+  anchorY: number,
+  naturalHeight: number,
+  gapY: number,
+  minHeight: number,
+): { top: number; maxHeight: number } {
+  const MARGIN = 16;
+  const spaceBelow = window.innerHeight - anchorY - gapY - MARGIN;
+  const spaceAbove = anchorY - gapY - MARGIN;
+  if (naturalHeight <= spaceBelow || spaceBelow >= spaceAbove) {
+    return { top: anchorY + gapY, maxHeight: Math.max(minHeight, spaceBelow) };
+  }
+  const maxHeight = Math.max(minHeight, spaceAbove);
+  const height = Math.min(naturalHeight, maxHeight);
+  return { top: Math.max(MARGIN, anchorY - gapY - height), maxHeight };
+}
 
 interface Props {
   appointments: any[];
@@ -123,7 +155,9 @@ interface Props {
 
 export function CalendarView({ appointments, services, onRefetch }: Props) {
   const calRef = useRef<FullCalendar>(null);
-  const [view, setView] = useState<CalView>('resourceTimeGridDay');
+  const isMobile = useIsMobile();
+  // Na telefonie kolumny pracownic są nietrafialne palcem — startujemy od listy.
+  const [view, setView] = useState<CalView>(isMobile ? 'listWeek' : 'resourceTimeGridDay');
   const [zoomedEmployeeId, setZoomedEmployeeId] = useState<string | null>(null);
   const [selectedAppt, setSelectedAppt] = useState<any>(null);
   const [addModal, setAddModal] = useState<{ date?: string; time?: string; employeeId?: string } | null>(null);
@@ -134,11 +168,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
   const [workHoursModal, setWorkHoursModal] = useState<{ mode: 'add' | 'remove'; date: string; time?: string; employeeId?: string } | null>(null);
   const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
+  // Pozycja menu godziny / popovera blokady na komputerze liczona z rzeczywistej,
+  // zmierzonej wysokości elementu (patrz computeVerticalFlip) — dzięki temu odbicie
+  // w górę działa niezależnie od liczby pozycji menu (np. warunkowe „Usuń godziny pracy").
+  const slotMenuRef = useRef<HTMLDivElement>(null);
+  const [slotMenuLayout, setSlotMenuLayout] = useState<{ top: number; maxHeight: number } | null>(null);
+  const blockPopoverRef = useRef<HTMLDivElement>(null);
+  const [blockPopoverLayout, setBlockPopoverLayout] = useState<{ top: number; maxHeight: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
   const [showApple, setShowApple] = useState(true);
   const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedAppt) {
@@ -146,6 +188,24 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       return () => clearTimeout(timer);
     }
   }, [selectedAppt]);
+
+  // Mierzy realną wysokość menu godziny (renderowanego bez ograniczenia maxHeight,
+  // niewidocznie do czasu pomiaru) i wylicza finalną pozycję przed pierwszym
+  // malowaniem klatki — bez tego nie byłoby widać przeskoku, ale i tak liczymy
+  // to synchronicznie (useLayoutEffect), żeby mieć pewność.
+  useLayoutEffect(() => {
+    if (!slotMenu || isMobile) { setSlotMenuLayout(null); return; }
+    const el = slotMenuRef.current;
+    if (!el) return;
+    setSlotMenuLayout(computeVerticalFlip(slotMenu.y, el.scrollHeight, 8, MIN_SLOT_MENU_HEIGHT));
+  }, [slotMenu, isMobile]);
+
+  useLayoutEffect(() => {
+    if (!blockPopover || isMobile) { setBlockPopoverLayout(null); return; }
+    const el = blockPopoverRef.current;
+    if (!el) return;
+    setBlockPopoverLayout(computeVerticalFlip(blockPopover.y, el.scrollHeight, 6, MIN_BLOCK_POPOVER_HEIGHT));
+  }, [blockPopover, isMobile]);
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -203,8 +263,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
   // Green background events for working hours
   const workingHourEvents = useMemo(
-    () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd),
-    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd],
+    () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId),
+    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId],
   );
 
   const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
@@ -274,21 +334,24 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     const date = info.dateStr.includes('T') ? info.dateStr.split('T')[0] : info.dateStr;
     const h = String(info.date.getHours()).padStart(2, '0');
     const m = String(info.date.getMinutes()).padStart(2, '0');
-    const resourceId = (info as any).resource?.id;
+    // Siatka mobilna (timeGridDay bez kolumn zasobów) nie podaje resource — bierzemy
+    // wtedy zoomowaną pracownicę, żeby blokady/godziny pracy nie leciały na cały salon.
+    const resourceId = (info as any).resource?.id ?? zoomedEmployeeId ?? undefined;
     const x = info.jsEvent?.clientX ?? window.innerWidth / 2;
     const y = info.jsEvent?.clientY ?? window.innerHeight / 2;
     setSlotMenu({ date, time: `${h}:${m}`, employeeId: resourceId, x, y });
-  }, [hhPanelOpen]);
+  }, [hhPanelOpen, zoomedEmployeeId]);
 
   const handleDateSelect = useCallback((arg: DateSelectArg) => {
     if (hhPanelOpen) return;
     const date = arg.startStr.split('T')[0];
     const time = arg.startStr.split('T')[1]?.substring(0, 5);
-    const resourceId = (arg as any).resource?.id;
+    // Jak wyżej: brak resource w widoku mobilnym → domyślnie zoomowana pracownica.
+    const resourceId = (arg as any).resource?.id ?? zoomedEmployeeId ?? undefined;
     const x = (arg as any).jsEvent?.clientX ?? window.innerWidth / 2;
     const y = (arg as any).jsEvent?.clientY ?? window.innerHeight / 2;
     setSlotMenu({ date, time, employeeId: resourceId, x, y });
-  }, [hhPanelOpen]);
+  }, [hhPanelOpen, zoomedEmployeeId]);
 
   const switchView = (v: CalView) => {
     setView(v);
@@ -296,9 +359,17 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     calRef.current?.getApi().changeView(v);
   };
 
+  // Na telefonie siatka zawsze pokazuje jedną pracownicę — kolumny są za wąskie na dotyk.
+  const switchToMobileGrid = () => {
+    const targetId = zoomedEmployeeId ?? employees[0]?.id ?? null;
+    setZoomedEmployeeId(targetId);
+    setView('timeGridDay');
+    calRef.current?.getApi().changeView('timeGridDay');
+  };
+
   const zoomToEmployee = (empId: string) => {
     setZoomedEmployeeId(empId);
-    setView('timeGridWeek');
+    setView('timeGridDay');
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
@@ -329,16 +400,163 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     });
   };
 
+  const slotMenuItems = slotMenu && (
+    <>
+      <button
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+      >
+        <Calendar size={15} className="text-primary" />
+        Dodaj wizytę
+      </button>
+      <button
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+      >
+        <UserPlus size={15} className="text-violet-500" />
+        Klientka z zewnątrz
+      </button>
+      <button
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          const d = slotMenu.time
+            ? new Date(`${slotMenu.date}T${slotMenu.time}`)
+            : new Date(slotMenu.date);
+          setHhPanelOpen(true);
+          setHhPrefill({ date: d, hour: d.getHours(), minute: d.getMinutes() });
+          setSlotMenu(null);
+        }}
+      >
+        <Zap size={15} className="text-amber-500" />
+        Happy Hours
+      </button>
+      <button
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+          setSlotMenu(null);
+        }}
+      >
+        <Lock size={15} className="text-gray-600" />
+        Zablokuj godziny
+      </button>
+      <button
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+          setSlotMenu(null);
+        }}
+      >
+        <Clock size={15} className="text-green-600" />
+        Dodaj godziny pracy
+      </button>
+      {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
+        <button
+          className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+          onClick={() => {
+            setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+            setSlotMenu(null);
+          }}
+        >
+          <Clock size={15} className="text-red-500" />
+          Usuń godziny pracy
+        </button>
+      )}
+    </>
+  );
+
+  const blockPopoverContent = blockPopover && (
+    <>
+      <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+        <Lock size={14} /> Zablokowane
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+        })}
+        {' – '}
+        {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
+          hour: '2-digit', minute: '2-digit',
+        })}
+      </p>
+      <p className="mt-1 text-xs">
+        {blockPopover.block.appliesToAll
+          ? 'Cały salon'
+          : blockPopover.block.employees.map((e) => e.name).join(', ')}
+      </p>
+      {blockPopover.block.reason && (
+        <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
+      )}
+      {removeBlockError && (
+        <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
+      )}
+      <button
+        className="mt-3 flex min-h-11 md:min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+        disabled={isRemovingBlock}
+        onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
+      >
+        <Trash2 size={13} />
+        {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
+      </button>
+    </>
+  );
+
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
       <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${
-        selectedAppt && hhPanelOpen ? 'mr-[640px]' :
+        selectedAppt && hhPanelOpen ? 'md:mr-[640px]' :
         selectedAppt ? 'md:mr-80' :
-        hhPanelOpen ? 'mr-80' : ''
+        hhPanelOpen ? 'md:mr-80' : ''
       }`}>
+        {/* Pasek mobilny — cztery cele dotykowe, reszta akcji w arkuszu */}
+        <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">
+          <button
+            onClick={() => calRef.current?.getApi().prev()}
+            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            aria-label="Poprzedni"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => calRef.current?.getApi().today()}
+            className="min-h-11 rounded-lg bg-indigo-600 px-3 text-sm font-medium text-white"
+          >
+            Dziś
+          </button>
+          <button
+            onClick={() => calRef.current?.getApi().next()}
+            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            aria-label="Następny"
+          >
+            →
+          </button>
+
+          <div className="ml-auto flex gap-1.5">
+            <button
+              onClick={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+            >
+              Lista
+            </button>
+            <button
+              onClick={switchToMobileGrid}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view !== 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+            >
+              Siatka
+            </button>
+            <button
+              onClick={() => setMobileActionsOpen(true)}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-gray-100"
+              aria-label="Więcej akcji"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+          </div>
+        </div>
+
         {/* Toolbar */}
-        <div className="flex items-center gap-2 p-3 border-b bg-white flex-wrap">
+        <div className="hidden md:flex items-center gap-2 p-3 border-b bg-white flex-wrap">
           <button onClick={() => calRef.current?.getApi().prev()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">←</button>
           <button onClick={() => calRef.current?.getApi().today()} className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Dziś</button>
           <button onClick={() => calRef.current?.getApi().next()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">→</button>
@@ -413,6 +631,25 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             <Settings size={15} />
           </button>
         </div>
+
+        {isMobile && zoomedEmployeeId && employees.length > 1 && (
+          <div className="flex gap-1.5 overflow-x-auto border-b bg-white px-3 py-2">
+            {employees.map((emp: any) => (
+              <button
+                key={emp.id}
+                onClick={() => {
+                  setZoomedEmployeeId(emp.id);
+                  calRef.current?.getApi().changeView('timeGridDay');
+                }}
+                className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-medium ${
+                  emp.id === zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {emp.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* FullCalendar */}
         <div className="flex-1 overflow-auto p-2" style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}>
@@ -577,127 +814,56 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       )}
 
       {/* Slot action menu */}
-      {slotMenu && (
+      {slotMenu && (isMobile ? (
+        <MobileSheet
+          open
+          onClose={() => setSlotMenu(null)}
+          title={`${slotMenu.date}${slotMenu.time ? ` · ${slotMenu.time}` : ''}`}
+        >
+          {slotMenuItems}
+        </MobileSheet>
+      ) : (
         <div className="fixed inset-0 z-40" onClick={() => setSlotMenu(null)}>
           <div
-            className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50"
+            ref={slotMenuRef}
+            className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50 overflow-y-auto"
             style={{
               left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
-              top: Math.min(slotMenu.y + 8, window.innerHeight - 160),
+              top: slotMenuLayout?.top ?? slotMenu.y,
+              maxHeight: slotMenuLayout?.maxHeight,
+              visibility: slotMenuLayout ? 'visible' : 'hidden',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
               {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
             </p>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
-            >
-              <Calendar size={15} className="text-primary" />
-              Dodaj wizytę
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
-            >
-              <UserPlus size={15} className="text-violet-500" />
-              Klientka z zewnątrz
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                const d = slotMenu.time
-                  ? new Date(`${slotMenu.date}T${slotMenu.time}`)
-                  : new Date(slotMenu.date);
-                setHhPanelOpen(true);
-                setHhPrefill({ date: d, hour: d.getHours(), minute: d.getMinutes() });
-                setSlotMenu(null);
-              }}
-            >
-              <Zap size={15} className="text-amber-500" />
-              Happy Hours
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                setSlotMenu(null);
-              }}
-            >
-              <Lock size={15} className="text-gray-600" />
-              Zablokuj godziny
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                setSlotMenu(null);
-              }}
-            >
-              <Clock size={15} className="text-green-600" />
-              Dodaj godziny pracy
-            </button>
-            {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
-              <button
-                className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-                onClick={() => {
-                  setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                  setSlotMenu(null);
-                }}
-              >
-                <Clock size={15} className="text-red-500" />
-                Usuń godziny pracy
-              </button>
-            )}
+            {slotMenuItems}
           </div>
         </div>
-      )}
+      ))}
 
-      {blockPopover && (
+      {blockPopover && (isMobile ? (
+        <MobileSheet open onClose={() => { setBlockPopover(null); setRemoveBlockError(null); }} title="Zablokowane">
+          {blockPopoverContent}
+        </MobileSheet>
+      ) : (
         <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
           <div
-            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
+            ref={blockPopoverRef}
+            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50 overflow-y-auto"
             style={{
               left: Math.min(blockPopover.x, window.innerWidth - 280),
-              top: Math.min(blockPopover.y + 6, window.innerHeight - 190),
+              top: blockPopoverLayout?.top ?? blockPopover.y,
+              maxHeight: blockPopoverLayout?.maxHeight,
+              visibility: blockPopoverLayout ? 'visible' : 'hidden',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
-              <Lock size={14} /> Zablokowane
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
-                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-              })}
-              {' – '}
-              {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
-                hour: '2-digit', minute: '2-digit',
-              })}
-            </p>
-            <p className="mt-1 text-xs">
-              {blockPopover.block.appliesToAll
-                ? 'Cały salon'
-                : blockPopover.block.employees.map((e) => e.name).join(', ')}
-            </p>
-            {blockPopover.block.reason && (
-              <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
-            )}
-            {removeBlockError && (
-              <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
-            )}
-            <button
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-              disabled={isRemovingBlock}
-              onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
-            >
-              <Trash2 size={13} />
-              {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
-            </button>
+            {blockPopoverContent}
           </div>
         </div>
-      )}
+      ))}
 
       {/* Happy Hour Panel */}
       <HappyHourPanel
@@ -731,6 +897,50 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       )}
 
       <AppleCalendarSettingsModal open={appleSettingsOpen} onClose={() => setAppleSettingsOpen(false)} />
+
+      <MobileSheet open={mobileActionsOpen} onClose={() => setMobileActionsOpen(false)} title="Akcje kalendarza">
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setAddModal({}); setMobileActionsOpen(false); }}
+        >
+          <Calendar size={16} className="text-green-600" /> Dodaj wizytę
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setExternalModal({}); setMobileActionsOpen(false); }}
+        >
+          <UserPlus size={16} className="text-violet-500" /> Klientka z zewnątrz
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => {
+            // Przełącznik, nie tylko otwieranie — to drugie wyjście awaryjne z panelu.
+            setHhPanelOpen((v) => !v);
+            if (hhPanelOpen) setHhPrefill(null);
+            setMobileActionsOpen(false);
+          }}
+        >
+          <Zap size={16} className="text-amber-500" /> {hhPanelOpen ? 'Zamknij Happy Hours' : 'Happy Hours'}
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setShowHappyHours((v) => !v); setMobileActionsOpen(false); }}
+        >
+          <Zap size={16} className="text-yellow-500" /> {showHappyHours ? 'Ukryj Happy Hours' : 'Pokaż Happy Hours'}
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setShowApple((v) => !v); setMobileActionsOpen(false); }}
+        >
+          <Calendar size={16} className="text-gray-500" /> {showApple ? 'Ukryj kalendarz Apple' : 'Pokaż kalendarz Apple'}
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setAppleSettingsOpen(true); setMobileActionsOpen(false); }}
+        >
+          <Settings size={16} className="text-gray-500" /> Ustawienia kalendarza Apple
+        </button>
+      </MobileSheet>
     </div>
   );
 }

@@ -99,8 +99,15 @@ export function HappyHourPanel({ open, onClose, prefill, employees, services }: 
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[51] flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+      className={`fixed top-0 right-0 h-full w-full md:w-80 bg-white shadow-2xl z-[51] flex flex-col transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] md:pt-0 ${open ? 'translate-x-0' : 'translate-x-full'}`}
     >
+      <button
+        className="flex min-h-11 w-full items-center justify-center gap-2 border-b text-sm font-medium md:hidden"
+        onClick={onClose}
+      >
+        Zamknij
+      </button>
+
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: '#fffbeb' }}>
         <h2 className="font-heading font-bold text-base" style={{ color: '#92400e' }}>✦ Nowy Happy Hour</h2>

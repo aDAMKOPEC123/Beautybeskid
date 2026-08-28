@@ -27,17 +27,24 @@ export function ClientDrawer({ appointment, onClose }: Props) {
     <>
       {/* Backdrop (mobile only) */}
       <div
-        className="fixed inset-0 top-[72px] bg-black/20 z-30 md:hidden"
+        className="fixed inset-0 top-[calc(72px+env(safe-area-inset-top))] bg-black/20 z-30 md:hidden"
         onClick={onClose}
       />
 
       {/* Drawer */}
       <div className="
-        fixed right-0 top-[72px] h-[calc(100vh-72px)] w-full md:w-80 bg-white z-40
+        fixed right-0 top-[calc(72px+env(safe-area-inset-top))] h-[calc(100dvh-72px-env(safe-area-inset-top))] w-full md:w-80 bg-white z-40
         shadow-xl border-l-2 border-indigo-600
         flex flex-col overflow-hidden
         animate-in slide-in-from-right duration-200
       ">
+        <button
+          className="flex min-h-11 w-full items-center justify-center border-b text-sm font-medium md:hidden"
+          onClick={onClose}
+        >
+          Zamknij
+        </button>
+
         {/* Header */}
         <div className="p-3 border-b border-gray-100 flex items-start justify-between gap-2">
           <div className="min-w-0">
