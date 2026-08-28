@@ -262,7 +262,7 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 flex-wrap justify-end md:flex-nowrap md:shrink-0">
           {editingTime ? (
             <div className="text-right space-y-1">
               <input
@@ -324,7 +324,7 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
                 {['PENDING', 'CONFIRMED'].includes(a.status) && (
                   <button
                     onClick={() => setEditingTime(true)}
-                    className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="text-gray-400 hover:text-gray-600 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     title="Edytuj czas"
                   >
                     <Pencil size={11} />
