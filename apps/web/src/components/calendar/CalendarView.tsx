@@ -282,21 +282,24 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     const date = info.dateStr.includes('T') ? info.dateStr.split('T')[0] : info.dateStr;
     const h = String(info.date.getHours()).padStart(2, '0');
     const m = String(info.date.getMinutes()).padStart(2, '0');
-    const resourceId = (info as any).resource?.id;
+    // Siatka mobilna (timeGridDay bez kolumn zasobów) nie podaje resource — bierzemy
+    // wtedy zoomowaną pracownicę, żeby blokady/godziny pracy nie leciały na cały salon.
+    const resourceId = (info as any).resource?.id ?? zoomedEmployeeId ?? undefined;
     const x = info.jsEvent?.clientX ?? window.innerWidth / 2;
     const y = info.jsEvent?.clientY ?? window.innerHeight / 2;
     setSlotMenu({ date, time: `${h}:${m}`, employeeId: resourceId, x, y });
-  }, [hhPanelOpen]);
+  }, [hhPanelOpen, zoomedEmployeeId]);
 
   const handleDateSelect = useCallback((arg: DateSelectArg) => {
     if (hhPanelOpen) return;
     const date = arg.startStr.split('T')[0];
     const time = arg.startStr.split('T')[1]?.substring(0, 5);
-    const resourceId = (arg as any).resource?.id;
+    // Jak wyżej: brak resource w widoku mobilnym → domyślnie zoomowana pracownica.
+    const resourceId = (arg as any).resource?.id ?? zoomedEmployeeId ?? undefined;
     const x = (arg as any).jsEvent?.clientX ?? window.innerWidth / 2;
     const y = (arg as any).jsEvent?.clientY ?? window.innerHeight / 2;
     setSlotMenu({ date, time, employeeId: resourceId, x, y });
-  }, [hhPanelOpen]);
+  }, [hhPanelOpen, zoomedEmployeeId]);
 
   const switchView = (v: CalView) => {
     setView(v);
@@ -348,21 +351,21 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const slotMenuItems = slotMenu && (
     <>
       <button
-        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
         onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
       >
         <Calendar size={15} className="text-primary" />
         Dodaj wizytę
       </button>
       <button
-        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
         onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
       >
         <UserPlus size={15} className="text-violet-500" />
         Klientka z zewnątrz
       </button>
       <button
-        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
         onClick={() => {
           const d = slotMenu.time
             ? new Date(`${slotMenu.date}T${slotMenu.time}`)
@@ -376,7 +379,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         Happy Hours
       </button>
       <button
-        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
         onClick={() => {
           setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
           setSlotMenu(null);
@@ -386,7 +389,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         Zablokuj godziny
       </button>
       <button
-        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
         onClick={() => {
           setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
           setSlotMenu(null);
@@ -397,7 +400,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       </button>
       {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
         <button
-          className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+          className="flex min-h-11 md:min-h-9 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
           onClick={() => {
             setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
             setSlotMenu(null);
@@ -436,7 +439,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
       )}
       <button
-        className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+        className="mt-3 flex min-h-11 md:min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
         disabled={isRemovingBlock}
         onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
       >
@@ -769,19 +772,28 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         </MobileSheet>
       ) : (
         <div className="fixed inset-0 z-40" onClick={() => setSlotMenu(null)}>
-          <div
-            className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50"
-            style={{
-              left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
-              top: Math.min(slotMenu.y + 8, window.innerHeight - 160),
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
-              {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
-            </p>
-            {slotMenuItems}
-          </div>
+          {(() => {
+            // Klamra nie zakłada stałej wysokości menu — rezerwujemy tylko margines
+            // od dołu ekranu i pozwalamy kontenerowi przewijać się samodzielnie,
+            // żeby menu z siedmioma pozycjami nie wypychało ostatnich poza ekran.
+            const menuTop = Math.min(slotMenu.y + 8, window.innerHeight - 16);
+            return (
+              <div
+                className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50 overflow-y-auto"
+                style={{
+                  left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
+                  top: menuTop,
+                  maxHeight: `calc(100vh - ${menuTop}px - 16px)`,
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
+                  {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
+                </p>
+                {slotMenuItems}
+              </div>
+            );
+          })()}
         </div>
       ))}
 
@@ -791,16 +803,23 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         </MobileSheet>
       ) : (
         <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
-          <div
-            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
-            style={{
-              left: Math.min(blockPopover.x, window.innerWidth - 280),
-              top: Math.min(blockPopover.y + 6, window.innerHeight - 190),
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {blockPopoverContent}
-          </div>
+          {(() => {
+            // Jak w menu godziny: klamra nie rezerwuje stałej wysokości popovera.
+            const popoverTop = Math.min(blockPopover.y + 6, window.innerHeight - 16);
+            return (
+              <div
+                className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50 overflow-y-auto"
+                style={{
+                  left: Math.min(blockPopover.x, window.innerWidth - 280),
+                  top: popoverTop,
+                  maxHeight: `calc(100vh - ${popoverTop}px - 16px)`,
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {blockPopoverContent}
+              </div>
+            );
+          })()}
         </div>
       ))}
 
@@ -852,9 +871,14 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         </button>
         <button
           className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
-          onClick={() => { setHhPanelOpen(true); setMobileActionsOpen(false); }}
+          onClick={() => {
+            // Przełącznik, nie tylko otwieranie — to drugie wyjście awaryjne z panelu.
+            setHhPanelOpen((v) => !v);
+            if (hhPanelOpen) setHhPrefill(null);
+            setMobileActionsOpen(false);
+          }}
         >
-          <Zap size={16} className="text-amber-500" /> Happy Hours
+          <Zap size={16} className="text-amber-500" /> {hhPanelOpen ? 'Zamknij Happy Hours' : 'Happy Hours'}
         </button>
         <button
           className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"

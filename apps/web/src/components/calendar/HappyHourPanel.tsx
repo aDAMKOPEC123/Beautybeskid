@@ -99,7 +99,7 @@ export function HappyHourPanel({ open, onClose, prefill, employees, services }: 
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full md:w-80 bg-white shadow-2xl z-[51] flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+      className={`fixed top-0 right-0 h-full w-full md:w-80 bg-white shadow-2xl z-[51] flex flex-col transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] md:pt-0 ${open ? 'translate-x-0' : 'translate-x-full'}`}
     >
       <button
         className="flex min-h-11 w-full items-center justify-center gap-2 border-b text-sm font-medium md:hidden"
