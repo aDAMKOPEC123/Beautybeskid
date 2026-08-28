@@ -12,8 +12,9 @@ import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/rea
 import { format, addDays } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock, MoreHorizontal } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
+import { MobileSheet } from './MobileSheet';
 import { ClientDrawer } from './ClientDrawer';
 import { HappyHourOverlay } from './HappyHourOverlay';
 import { AddAppointmentModal } from './AddAppointmentModal';
@@ -117,7 +118,7 @@ function buildBlockEvents(
   });
 }
 
-type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'listWeek';
+type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'timeGridDay' | 'listWeek';
 
 interface Props {
   appointments: any[];
@@ -145,6 +146,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [showHappyHours, setShowHappyHours] = useState(true);
   const [showApple, setShowApple] = useState(true);
   const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedAppt) {
@@ -306,13 +308,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const switchToMobileGrid = () => {
     const targetId = zoomedEmployeeId ?? employees[0]?.id ?? null;
     setZoomedEmployeeId(targetId);
-    setView('timeGridWeek');
+    setView('timeGridDay');
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
   const zoomToEmployee = (empId: string) => {
     setZoomedEmployeeId(empId);
-    setView('timeGridWeek');
+    setView('timeGridDay');
     calRef.current?.getApi().changeView('timeGridDay');
   };
 
@@ -351,8 +353,54 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         selectedAppt ? 'md:mr-80' :
         hhPanelOpen ? 'mr-80' : ''
       }`}>
+        {/* Pasek mobilny — cztery cele dotykowe, reszta akcji w arkuszu */}
+        <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">
+          <button
+            onClick={() => calRef.current?.getApi().prev()}
+            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            aria-label="Poprzedni"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => calRef.current?.getApi().today()}
+            className="min-h-11 rounded-lg bg-indigo-600 px-3 text-sm font-medium text-white"
+          >
+            Dziś
+          </button>
+          <button
+            onClick={() => calRef.current?.getApi().next()}
+            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            aria-label="Następny"
+          >
+            →
+          </button>
+
+          <div className="ml-auto flex gap-1.5">
+            <button
+              onClick={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+            >
+              Lista
+            </button>
+            <button
+              onClick={switchToMobileGrid}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view !== 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+            >
+              Siatka
+            </button>
+            <button
+              onClick={() => setMobileActionsOpen(true)}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-gray-100"
+              aria-label="Więcej akcji"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+          </div>
+        </div>
+
         {/* Toolbar */}
-        <div className="flex items-center gap-2 p-3 border-b bg-white flex-wrap">
+        <div className="hidden md:flex items-center gap-2 p-3 border-b bg-white flex-wrap">
           <button onClick={() => calRef.current?.getApi().prev()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">←</button>
           <button onClick={() => calRef.current?.getApi().today()} className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Dziś</button>
           <button onClick={() => calRef.current?.getApi().next()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">→</button>
@@ -367,7 +415,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               </button>
             )}
             <button
-              onClick={() => (isMobile ? switchToMobileGrid() : switchView('resourceTimeGridDay'))}
+              onClick={() => switchView('resourceTimeGridDay')}
               className={`px-3 py-1.5 text-sm rounded ${view === 'resourceTimeGridDay' && !zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
             >
               Dzień
@@ -764,6 +812,45 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       )}
 
       <AppleCalendarSettingsModal open={appleSettingsOpen} onClose={() => setAppleSettingsOpen(false)} />
+
+      <MobileSheet open={mobileActionsOpen} onClose={() => setMobileActionsOpen(false)} title="Akcje kalendarza">
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setAddModal({}); setMobileActionsOpen(false); }}
+        >
+          <Calendar size={16} className="text-green-600" /> Dodaj wizytę
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setExternalModal({}); setMobileActionsOpen(false); }}
+        >
+          <UserPlus size={16} className="text-violet-500" /> Klientka z zewnątrz
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setHhPanelOpen(true); setMobileActionsOpen(false); }}
+        >
+          <Zap size={16} className="text-amber-500" /> Happy Hours
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setShowHappyHours((v) => !v); setMobileActionsOpen(false); }}
+        >
+          <Zap size={16} className="text-yellow-500" /> {showHappyHours ? 'Ukryj Happy Hours' : 'Pokaż Happy Hours'}
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setShowApple((v) => !v); setMobileActionsOpen(false); }}
+        >
+          <Calendar size={16} className="text-gray-500" /> {showApple ? 'Ukryj kalendarz Apple' : 'Pokaż kalendarz Apple'}
+        </button>
+        <button
+          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
+          onClick={() => { setAppleSettingsOpen(true); setMobileActionsOpen(false); }}
+        >
+          <Settings size={16} className="text-gray-500" /> Ustawienia kalendarza Apple
+        </button>
+      </MobileSheet>
     </div>
   );
 }
