@@ -1,5 +1,5 @@
 // apps/web/src/components/calendar/CalendarView.tsx
-import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
+import { useRef, useState, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
@@ -120,6 +120,33 @@ function buildBlockEvents(
 
 type CalView = 'resourceTimeGridDay' | 'timeGridWeek' | 'timeGridDay' | 'listWeek';
 
+// Minimalne wysokości „awaryjne" — używane tylko wtedy, gdy nad i pod punktem
+// kliknięcia nie ma nawet tyle miejsca; dalsze pozycje są wtedy dostępne przez
+// własne przewijanie kontenera. Chronią przed maxHeight bliskim zeru.
+const MIN_SLOT_MENU_HEIGHT = 180; // ok. 4 pozycje + nagłówek z datą
+const MIN_BLOCK_POPOVER_HEIGHT = 140; // treść blokady + przycisk usuwania
+
+// Pozycjonuje menu/popover jak systemowe menu kontekstowe: domyślnie pod punktem
+// kliknięcia, a gdy pod nim nie ma miejsca na zmierzoną wysokość — odbija w górę,
+// tak żeby dolna krawędź elementu znalazła się nad punktem kliknięcia (z marginesem
+// od krawędzi okna). maxHeight nigdy nie spada poniżej minHeight.
+function computeVerticalFlip(
+  anchorY: number,
+  naturalHeight: number,
+  gapY: number,
+  minHeight: number,
+): { top: number; maxHeight: number } {
+  const MARGIN = 16;
+  const spaceBelow = window.innerHeight - anchorY - gapY - MARGIN;
+  const spaceAbove = anchorY - gapY - MARGIN;
+  if (naturalHeight <= spaceBelow || spaceBelow >= spaceAbove) {
+    return { top: anchorY + gapY, maxHeight: Math.max(minHeight, spaceBelow) };
+  }
+  const maxHeight = Math.max(minHeight, spaceAbove);
+  const height = Math.min(naturalHeight, maxHeight);
+  return { top: Math.max(MARGIN, anchorY - gapY - height), maxHeight };
+}
+
 interface Props {
   appointments: any[];
   services: any[];
@@ -141,6 +168,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
   const [workHoursModal, setWorkHoursModal] = useState<{ mode: 'add' | 'remove'; date: string; time?: string; employeeId?: string } | null>(null);
   const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
+  // Pozycja menu godziny / popovera blokady na komputerze liczona z rzeczywistej,
+  // zmierzonej wysokości elementu (patrz computeVerticalFlip) — dzięki temu odbicie
+  // w górę działa niezależnie od liczby pozycji menu (np. warunkowe „Usuń godziny pracy").
+  const slotMenuRef = useRef<HTMLDivElement>(null);
+  const [slotMenuLayout, setSlotMenuLayout] = useState<{ top: number; maxHeight: number } | null>(null);
+  const blockPopoverRef = useRef<HTMLDivElement>(null);
+  const [blockPopoverLayout, setBlockPopoverLayout] = useState<{ top: number; maxHeight: number } | null>(null);
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
@@ -154,6 +188,24 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       return () => clearTimeout(timer);
     }
   }, [selectedAppt]);
+
+  // Mierzy realną wysokość menu godziny (renderowanego bez ograniczenia maxHeight,
+  // niewidocznie do czasu pomiaru) i wylicza finalną pozycję przed pierwszym
+  // malowaniem klatki — bez tego nie byłoby widać przeskoku, ale i tak liczymy
+  // to synchronicznie (useLayoutEffect), żeby mieć pewność.
+  useLayoutEffect(() => {
+    if (!slotMenu || isMobile) { setSlotMenuLayout(null); return; }
+    const el = slotMenuRef.current;
+    if (!el) return;
+    setSlotMenuLayout(computeVerticalFlip(slotMenu.y, el.scrollHeight, 8, MIN_SLOT_MENU_HEIGHT));
+  }, [slotMenu, isMobile]);
+
+  useLayoutEffect(() => {
+    if (!blockPopover || isMobile) { setBlockPopoverLayout(null); return; }
+    const el = blockPopoverRef.current;
+    if (!el) return;
+    setBlockPopoverLayout(computeVerticalFlip(blockPopover.y, el.scrollHeight, 6, MIN_BLOCK_POPOVER_HEIGHT));
+  }, [blockPopover, isMobile]);
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -772,28 +824,22 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         </MobileSheet>
       ) : (
         <div className="fixed inset-0 z-40" onClick={() => setSlotMenu(null)}>
-          {(() => {
-            // Klamra nie zakłada stałej wysokości menu — rezerwujemy tylko margines
-            // od dołu ekranu i pozwalamy kontenerowi przewijać się samodzielnie,
-            // żeby menu z siedmioma pozycjami nie wypychało ostatnich poza ekran.
-            const menuTop = Math.min(slotMenu.y + 8, window.innerHeight - 16);
-            return (
-              <div
-                className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50 overflow-y-auto"
-                style={{
-                  left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
-                  top: menuTop,
-                  maxHeight: `calc(100vh - ${menuTop}px - 16px)`,
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
-                  {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
-                </p>
-                {slotMenuItems}
-              </div>
-            );
-          })()}
+          <div
+            ref={slotMenuRef}
+            className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50 overflow-y-auto"
+            style={{
+              left: Math.min(slotMenu.x + 8, window.innerWidth - 240),
+              top: slotMenuLayout?.top ?? slotMenu.y,
+              maxHeight: slotMenuLayout?.maxHeight,
+              visibility: slotMenuLayout ? 'visible' : 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
+              {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
+            </p>
+            {slotMenuItems}
+          </div>
         </div>
       ))}
 
@@ -803,23 +849,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         </MobileSheet>
       ) : (
         <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
-          {(() => {
-            // Jak w menu godziny: klamra nie rezerwuje stałej wysokości popovera.
-            const popoverTop = Math.min(blockPopover.y + 6, window.innerHeight - 16);
-            return (
-              <div
-                className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50 overflow-y-auto"
-                style={{
-                  left: Math.min(blockPopover.x, window.innerWidth - 280),
-                  top: popoverTop,
-                  maxHeight: `calc(100vh - ${popoverTop}px - 16px)`,
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {blockPopoverContent}
-              </div>
-            );
-          })()}
+          <div
+            ref={blockPopoverRef}
+            className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50 overflow-y-auto"
+            style={{
+              left: Math.min(blockPopover.x, window.innerWidth - 280),
+              top: blockPopoverLayout?.top ?? blockPopover.y,
+              maxHeight: blockPopoverLayout?.maxHeight,
+              visibility: blockPopoverLayout ? 'visible' : 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {blockPopoverContent}
+          </div>
         </div>
       ))}
 
