@@ -345,6 +345,107 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     });
   };
 
+  const slotMenuItems = slotMenu && (
+    <>
+      <button
+        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+      >
+        <Calendar size={15} className="text-primary" />
+        Dodaj wizytę
+      </button>
+      <button
+        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
+      >
+        <UserPlus size={15} className="text-violet-500" />
+        Klientka z zewnątrz
+      </button>
+      <button
+        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          const d = slotMenu.time
+            ? new Date(`${slotMenu.date}T${slotMenu.time}`)
+            : new Date(slotMenu.date);
+          setHhPanelOpen(true);
+          setHhPrefill({ date: d, hour: d.getHours(), minute: d.getMinutes() });
+          setSlotMenu(null);
+        }}
+      >
+        <Zap size={15} className="text-amber-500" />
+        Happy Hours
+      </button>
+      <button
+        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+          setSlotMenu(null);
+        }}
+      >
+        <Lock size={15} className="text-gray-600" />
+        Zablokuj godziny
+      </button>
+      <button
+        className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+        onClick={() => {
+          setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+          setSlotMenu(null);
+        }}
+      >
+        <Clock size={15} className="text-green-600" />
+        Dodaj godziny pracy
+      </button>
+      {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
+        <button
+          className="flex min-h-11 items-center gap-2.5 w-full text-sm px-2 rounded-lg hover:bg-accent text-left"
+          onClick={() => {
+            setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
+            setSlotMenu(null);
+          }}
+        >
+          <Clock size={15} className="text-red-500" />
+          Usuń godziny pracy
+        </button>
+      )}
+    </>
+  );
+
+  const blockPopoverContent = blockPopover && (
+    <>
+      <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+        <Lock size={14} /> Zablokowane
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+        })}
+        {' – '}
+        {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
+          hour: '2-digit', minute: '2-digit',
+        })}
+      </p>
+      <p className="mt-1 text-xs">
+        {blockPopover.block.appliesToAll
+          ? 'Cały salon'
+          : blockPopover.block.employees.map((e) => e.name).join(', ')}
+      </p>
+      {blockPopover.block.reason && (
+        <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
+      )}
+      {removeBlockError && (
+        <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
+      )}
+      <button
+        className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+        disabled={isRemovingBlock}
+        onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
+      >
+        <Trash2 size={13} />
+        {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
+      </button>
+    </>
+  );
+
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
@@ -658,7 +759,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       )}
 
       {/* Slot action menu */}
-      {slotMenu && (
+      {slotMenu && (isMobile ? (
+        <MobileSheet
+          open
+          onClose={() => setSlotMenu(null)}
+          title={`${slotMenu.date}${slotMenu.time ? ` · ${slotMenu.time}` : ''}`}
+        >
+          {slotMenuItems}
+        </MobileSheet>
+      ) : (
         <div className="fixed inset-0 z-40" onClick={() => setSlotMenu(null)}>
           <div
             className="absolute bg-background border border-border rounded-xl shadow-2xl p-2 w-56 z-50"
@@ -671,71 +780,16 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             <p className="text-xs text-muted-foreground px-2 py-1 font-mono border-b mb-1">
               {slotMenu.date}{slotMenu.time ? ` · ${slotMenu.time}` : ''}
             </p>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => { setAddModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
-            >
-              <Calendar size={15} className="text-primary" />
-              Dodaj wizytę
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => { setExternalModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId }); setSlotMenu(null); }}
-            >
-              <UserPlus size={15} className="text-violet-500" />
-              Klientka z zewnątrz
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                const d = slotMenu.time
-                  ? new Date(`${slotMenu.date}T${slotMenu.time}`)
-                  : new Date(slotMenu.date);
-                setHhPanelOpen(true);
-                setHhPrefill({ date: d, hour: d.getHours(), minute: d.getMinutes() });
-                setSlotMenu(null);
-              }}
-            >
-              <Zap size={15} className="text-amber-500" />
-              Happy Hours
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                setBlockModal({ date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                setSlotMenu(null);
-              }}
-            >
-              <Lock size={15} className="text-gray-600" />
-              Zablokuj godziny
-            </button>
-            <button
-              className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-              onClick={() => {
-                setWorkHoursModal({ mode: 'add', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                setSlotMenu(null);
-              }}
-            >
-              <Clock size={15} className="text-green-600" />
-              Dodaj godziny pracy
-            </button>
-            {slotHasWorkingHours(slotMenu.date, slotMenu.time, slotMenu.employeeId) && (
-              <button
-                className="flex items-center gap-2.5 w-full text-sm px-2 py-2 rounded-lg hover:bg-accent text-left"
-                onClick={() => {
-                  setWorkHoursModal({ mode: 'remove', date: slotMenu.date, time: slotMenu.time, employeeId: slotMenu.employeeId });
-                  setSlotMenu(null);
-                }}
-              >
-                <Clock size={15} className="text-red-500" />
-                Usuń godziny pracy
-              </button>
-            )}
+            {slotMenuItems}
           </div>
         </div>
-      )}
+      ))}
 
-      {blockPopover && (
+      {blockPopover && (isMobile ? (
+        <MobileSheet open onClose={() => { setBlockPopover(null); setRemoveBlockError(null); }} title="Zablokowane">
+          {blockPopoverContent}
+        </MobileSheet>
+      ) : (
         <div className="fixed inset-0 z-40" onClick={() => { setBlockPopover(null); setRemoveBlockError(null); }}>
           <div
             className="absolute w-64 rounded-xl border border-border bg-background p-3 shadow-2xl z-50"
@@ -745,40 +799,10 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
-              <Lock size={14} /> Zablokowane
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(blockPopover.block.startsAt).toLocaleString('pl-PL', {
-                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-              })}
-              {' – '}
-              {new Date(blockPopover.block.endsAt).toLocaleTimeString('pl-PL', {
-                hour: '2-digit', minute: '2-digit',
-              })}
-            </p>
-            <p className="mt-1 text-xs">
-              {blockPopover.block.appliesToAll
-                ? 'Cały salon'
-                : blockPopover.block.employees.map((e) => e.name).join(', ')}
-            </p>
-            {blockPopover.block.reason && (
-              <p className="mt-1 text-xs italic text-muted-foreground">{blockPopover.block.reason}</p>
-            )}
-            {removeBlockError && (
-              <p className="mt-1 text-xs font-medium text-red-600">{removeBlockError}</p>
-            )}
-            <button
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-              disabled={isRemovingBlock}
-              onClick={() => { setRemoveBlockError(null); removeBlock(blockPopover.block.id); }}
-            >
-              <Trash2 size={13} />
-              {isRemovingBlock ? 'Usuwanie…' : 'Usuń blokadę'}
-            </button>
+            {blockPopoverContent}
           </div>
         </div>
-      )}
+      ))}
 
       {/* Happy Hour Panel */}
       <HappyHourPanel
