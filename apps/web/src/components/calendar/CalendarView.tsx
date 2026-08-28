@@ -35,6 +35,7 @@ function buildWorkingHourEvents(
   workDayOverrides: Map<string, WorkDay[]>,
   rangeStart: Date,
   rangeEnd: Date,
+  zoomedEmployeeId: string | null,
 ): EventInput[] {
   const events: EventInput[] = [];
   let d = new Date(rangeStart);
@@ -42,6 +43,8 @@ function buildWorkingHourEvents(
     const dateStr = format(d, 'yyyy-MM-dd');
     const apiDow = (d.getDay() + 6) % 7; // convert JS Sun=0 → Mon=0
     for (const emp of employees) {
+      // W widoku pojedynczej pracownicy pasy pozostałych osób nałożyłyby się na siebie.
+      if (zoomedEmployeeId && emp.id !== zoomedEmployeeId) continue;
       const override = (workDayOverrides.get(emp.id) ?? [])
         .find((w) => w.date.startsWith(dateStr));
       let blocks: TimeBlock[];
@@ -206,8 +209,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
   // Green background events for working hours
   const workingHourEvents = useMemo(
-    () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd),
-    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd],
+    () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId),
+    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId],
   );
 
   const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
@@ -299,6 +302,14 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     calRef.current?.getApi().changeView(v);
   };
 
+  // Na telefonie siatka zawsze pokazuje jedną pracownicę — kolumny są za wąskie na dotyk.
+  const switchToMobileGrid = () => {
+    const targetId = zoomedEmployeeId ?? employees[0]?.id ?? null;
+    setZoomedEmployeeId(targetId);
+    setView('timeGridWeek');
+    calRef.current?.getApi().changeView('timeGridDay');
+  };
+
   const zoomToEmployee = (empId: string) => {
     setZoomedEmployeeId(empId);
     setView('timeGridWeek');
@@ -356,7 +367,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
               </button>
             )}
             <button
-              onClick={() => switchView('resourceTimeGridDay')}
+              onClick={() => (isMobile ? switchToMobileGrid() : switchView('resourceTimeGridDay'))}
               className={`px-3 py-1.5 text-sm rounded ${view === 'resourceTimeGridDay' && !zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
             >
               Dzień
@@ -416,6 +427,25 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             <Settings size={15} />
           </button>
         </div>
+
+        {isMobile && zoomedEmployeeId && employees.length > 1 && (
+          <div className="flex gap-1.5 overflow-x-auto border-b bg-white px-3 py-2">
+            {employees.map((emp: any) => (
+              <button
+                key={emp.id}
+                onClick={() => {
+                  setZoomedEmployeeId(emp.id);
+                  calRef.current?.getApi().changeView('timeGridDay');
+                }}
+                className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-medium ${
+                  emp.id === zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {emp.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* FullCalendar */}
         <div className="flex-1 overflow-auto p-2" style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}>
