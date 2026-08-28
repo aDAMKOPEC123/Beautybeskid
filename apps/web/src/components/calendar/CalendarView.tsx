@@ -1,6 +1,7 @@
 // apps/web/src/components/calendar/CalendarView.tsx
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -123,7 +124,9 @@ interface Props {
 
 export function CalendarView({ appointments, services, onRefetch }: Props) {
   const calRef = useRef<FullCalendar>(null);
-  const [view, setView] = useState<CalView>('resourceTimeGridDay');
+  const isMobile = useIsMobile();
+  // Na telefonie kolumny pracownic są nietrafialne palcem — startujemy od listy.
+  const [view, setView] = useState<CalView>(isMobile ? 'listWeek' : 'resourceTimeGridDay');
   const [zoomedEmployeeId, setZoomedEmployeeId] = useState<string | null>(null);
   const [selectedAppt, setSelectedAppt] = useState<any>(null);
   const [addModal, setAddModal] = useState<{ date?: string; time?: string; employeeId?: string } | null>(null);
