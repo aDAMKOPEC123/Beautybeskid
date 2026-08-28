@@ -450,9 +450,9 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
       <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${
-        selectedAppt && hhPanelOpen ? 'mr-[640px]' :
+        selectedAppt && hhPanelOpen ? 'md:mr-[640px]' :
         selectedAppt ? 'md:mr-80' :
-        hhPanelOpen ? 'mr-80' : ''
+        hhPanelOpen ? 'md:mr-80' : ''
       }`}>
         {/* Pasek mobilny — cztery cele dotykowe, reszta akcji w arkuszu */}
         <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">

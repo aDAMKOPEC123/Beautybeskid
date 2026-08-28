@@ -38,6 +38,13 @@ export function ClientDrawer({ appointment, onClose }: Props) {
         flex flex-col overflow-hidden
         animate-in slide-in-from-right duration-200
       ">
+        <button
+          className="flex min-h-11 w-full items-center justify-center border-b text-sm font-medium md:hidden"
+          onClick={onClose}
+        >
+          Zamknij
+        </button>
+
         {/* Header */}
         <div className="p-3 border-b border-gray-100 flex items-start justify-between gap-2">
           <div className="min-w-0">
