@@ -221,15 +221,23 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
   const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
 
+  // Surowa warstwa liczona bezwarunkowo — `slotHasWorkingHours` (menu slotu) musi
+  // znać realny grafik niezależnie od tego, czy admin akurat ukrył warstwę wizualną
+  // w legendzie. Przełącznik `showWorkingHours` gaci wyłącznie to, co trafia do
+  // propa `events` FullCalendara (patrz `visibleWorkingHourEvents` niżej).
   const workingHourEvents = useMemo(
-    () => (showWorkingHours
-      ? buildWorkingHourLayer(
-          employees, weeklySchedules, workDayOverrides,
-          rangeStart, rangeEnd, zoomedEmployeeId, isResourceView,
-          (empId) => employeeColor(employees.findIndex((e: any) => e.id === empId)),
-        )
-      : []),
-    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId, isResourceView, showWorkingHours],
+    () => buildWorkingHourLayer(
+      employees, weeklySchedules, workDayOverrides,
+      rangeStart, rangeEnd, zoomedEmployeeId, isResourceView,
+      (empId) => employeeColor(employees.findIndex((e: any) => e.id === empId)),
+    ),
+    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId, isResourceView],
+  );
+
+  // To, co faktycznie trafia na siatkę — tu, i tylko tu, obowiązuje przełącznik z legendy.
+  const visibleWorkingHourEvents = useMemo(
+    () => (showWorkingHours ? workingHourEvents : []),
+    [workingHourEvents, showWorkingHours],
   );
 
   const { data: calendarBlocks = [] } = useQuery({
@@ -350,15 +358,18 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     },
   });
 
-  // Czy kliknięty slot leży w godzinach pracy? Sprawdzamy na tych samych danych,
-  // z których rysujemy zielone tło, żeby menu nie kłamało.
+  // Czy kliknięty slot leży w godzinach pracy? Sprawdzamy na surowej, bezwarunkowej
+  // warstwie `workingHourEvents` (nie na `visibleWorkingHourEvents`!) — ta odpowiedź
+  // steruje widocznością akcji „Usuń godziny pracy" w menu slotu i musi odzwierciedlać
+  // realny grafik niezależnie od tego, czy admin akurat schował warstwę wizualną
+  // przełącznikiem w legendzie. `workingHourEvents` zawiera obie warstwy (praca +
+  // przygaszenie poza pracą), które razem pokrywają całe okno doby — bez filtra po
+  // `isWorkingHours` każdy klik trafiłby w jakiś event (praca albo jej brak) i przycisk
+  // pokazywałby się zawsze, niezależnie od tego, czy slot faktycznie ma godziny do usunięcia.
   const slotHasWorkingHours = (date: string, time?: string, employeeId?: string): boolean => {
     if (!time) return false;
     const clicked = new Date(`${date}T${time}:00`).getTime();
     return workingHourEvents.some((ev) => {
-      // Warstwa teraz zawiera też przygaszenie poza godzinami — bez tego filtra
-      // każdy klik trafiłby w jakiś event (praca albo jej brak) i przycisk
-      // „Usuń godziny pracy" pokazywałby się zawsze.
       if (!ev.extendedProps?.isWorkingHours) return false;
       if (employeeId && ev.resourceId !== employeeId) return false;
       const start = new Date(ev.start as string).getTime();
@@ -645,7 +656,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                 {(bgEvents) => {
                   // FullCalendar v6 has no backgroundEvents prop — merge all events into one array
                   const allEvents: EventInput[] = [
-                    ...workingHourEvents,
+                    ...visibleWorkingHourEvents,
                     ...appleEvents,
                     ...blockEvents,
                     ...appointmentEvents,
