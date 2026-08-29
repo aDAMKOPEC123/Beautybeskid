@@ -1,0 +1,103 @@
+/* Skórka kalendarza admina. Wszystko pod .cosmo-calendar, żeby nadpisania
+   FullCalendara nie wyciekły na inne instancje w aplikacji. Kolory statusów
+   są custom properties — czerpią z nich AppointmentCard i legenda, więc
+   zmiana odcienia w jednym miejscu przechodzi przez cały kalendarz. */
+.cosmo-calendar {
+  --cal-status-pending: hsl(35 70% 38%);
+  --cal-status-confirmed: hsl(142 33% 36%);
+  --cal-status-completed: hsl(135 15% 42%);
+  --cal-status-cancelled-bg: hsl(0 25% 93%);
+  --cal-status-cancelled-text: hsl(0 30% 38%);
+  --cal-offhours: hsl(150 37% 16% / 0.07);
+}
+
+/* --- Siatka --- */
+
+.cosmo-calendar .fc {
+  --fc-border-color: hsl(var(--border));
+  --fc-page-bg-color: transparent;
+  --fc-now-indicator-color: hsl(var(--primary));
+}
+
+.cosmo-calendar .fc-theme-standard td,
+.cosmo-calendar .fc-theme-standard th {
+  border-color: hsl(var(--border));
+}
+
+.cosmo-calendar .fc-scrollgrid {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Pełna godzina musi być wyraźniejsza niż półgodzina — inaczej nie da się
+   policzyć godzin wzrokiem, bo obie linie wyglądają identycznie. */
+.cosmo-calendar .fc-timegrid-slot-minor {
+  border-top-style: dotted;
+  border-top-color: hsl(var(--border));
+}
+
+.cosmo-calendar .fc-timegrid-slot-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+
+.cosmo-calendar .fc-col-header-cell {
+  background: hsl(var(--secondary));
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  padding: 2px 0;
+}
+
+.cosmo-calendar .fc-day-today {
+  background: hsl(var(--secondary) / 0.55) !important;
+}
+
+/* --- Warstwa godzin pracy --- */
+
+/* Bez wypełnienia: kolory wizyt i Happy Hours nie mają z czym konkurować.
+   Widoczność daje wyłącznie akcent przy lewej krawędzi. */
+/* Kolor krawędzi przychodzi z borderColor eventu (kolor pracownicy), więc tutaj
+   ustawiamy wyłącznie grubość i styl — inaczej nadpisalibyśmy kolor. */
+.cosmo-calendar .fc-bg-event.cosmo-work-hours {
+  background: transparent;
+  opacity: 1;
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+
+.cosmo-calendar .fc-bg-event.cosmo-off-hours {
+  background: var(--cal-offhours);
+  opacity: 1;
+}
+
+.cosmo-calendar .cosmo-work-hours-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  padding: 2px 4px;
+}
+
+/* --- Kafle wizyt --- */
+
+.cosmo-calendar .fc-timegrid-event {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.cosmo-calendar .fc-timegrid-event .fc-event-main {
+  padding: 0;
+}
+
+/* --- Blokady --- */
+
+.cosmo-calendar .cosmo-calendar-block {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgb(255 255 255 / 0.12) 4px,
+    rgb(255 255 255 / 0.12) 8px
+  );
+}

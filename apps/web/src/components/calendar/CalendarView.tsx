@@ -24,6 +24,8 @@ import { BlockHoursModal } from './BlockHoursModal';
 import { WorkHoursModal } from './WorkHoursModal';
 import { AppleCalendarOverlay } from './AppleCalendarOverlay';
 import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
+import { DAY_WINDOW_START, DAY_WINDOW_END } from './calendarLayers';
+import './calendar.css';
 
 // Deterministic color per employee index
 const EMPLOYEE_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
@@ -652,7 +654,10 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         )}
 
         {/* FullCalendar */}
-        <div className="flex-1 overflow-auto p-2" style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}>
+        <div
+          className="cosmo-calendar flex-1 overflow-auto p-2"
+          style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}
+        >
           <AppleCalendarOverlay
             rangeStart={rangeStart}
             rangeEnd={rangeEnd}
@@ -785,8 +790,8 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   dateClick={handleDateClick}
                   selectable
                   select={handleDateSelect}
-                  slotMinTime="07:00:00"
-                  slotMaxTime="21:00:00"
+                  slotMinTime={`${DAY_WINDOW_START}:00`}
+                  slotMaxTime={`${DAY_WINDOW_END}:00`}
                   allDaySlot={false}
                   headerToolbar={false}
                   locale="pl"
