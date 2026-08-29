@@ -491,20 +491,20 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">
           <button
             onClick={() => calRef.current?.getApi().prev()}
-            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            className="min-h-11 min-w-11 rounded-lg bg-secondary text-secondary-foreground text-base"
             aria-label="Poprzedni"
           >
             ←
           </button>
           <button
             onClick={() => calRef.current?.getApi().today()}
-            className="min-h-11 rounded-lg bg-indigo-600 px-3 text-sm font-medium text-white"
+            className="min-h-11 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
           >
             Dziś
           </button>
           <button
             onClick={() => calRef.current?.getApi().next()}
-            className="min-h-11 min-w-11 rounded-lg bg-gray-100 text-base"
+            className="min-h-11 min-w-11 rounded-lg bg-secondary text-secondary-foreground text-base"
             aria-label="Następny"
           >
             →
@@ -513,19 +513,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           <div className="ml-auto flex gap-1.5">
             <button
               onClick={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
-              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
             >
               Lista
             </button>
             <button
               onClick={switchToMobileGrid}
-              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view !== 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view !== 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
             >
               Siatka
             </button>
             <button
               onClick={() => setMobileActionsOpen(true)}
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-gray-100"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-secondary text-secondary-foreground"
               aria-label="Więcej akcji"
             >
               <MoreHorizontal size={18} />
@@ -535,79 +535,90 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
         {/* Toolbar */}
         <div className="hidden md:flex items-center gap-2 p-3 border-b bg-white flex-wrap">
-          <button onClick={() => calRef.current?.getApi().prev()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">←</button>
-          <button onClick={() => calRef.current?.getApi().today()} className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Dziś</button>
-          <button onClick={() => calRef.current?.getApi().next()} className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200">→</button>
+          {/* Nawigacja */}
+          <div className="flex items-center gap-1">
+            <button onClick={() => calRef.current?.getApi().prev()} className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent">←</button>
+            <button onClick={() => calRef.current?.getApi().today()} className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Dziś</button>
+            <button onClick={() => calRef.current?.getApi().next()} className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent">→</button>
+          </div>
 
-          <div className="ml-auto flex gap-1 flex-wrap">
+          <span className="h-6 w-px bg-border" aria-hidden />
+
+          {/* Widoki */}
+          <div className="flex items-center gap-1">
             {zoomedEmployeeId && (
               <button
                 onClick={() => { setZoomedEmployeeId(null); switchView('resourceTimeGridDay'); }}
-                className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent"
               >
                 ← Wszyscy
               </button>
             )}
             <button
               onClick={() => switchView('resourceTimeGridDay')}
-              className={`px-3 py-1.5 text-sm rounded ${view === 'resourceTimeGridDay' && !zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+              className={`rounded-lg px-3 py-1.5 text-sm ${view === 'resourceTimeGridDay' && !zoomedEmployeeId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent'}`}
             >
               Dzień
             </button>
             <button
               onClick={() => switchView('timeGridWeek')}
-              className={`px-3 py-1.5 text-sm rounded ${view === 'timeGridWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+              className={`rounded-lg px-3 py-1.5 text-sm ${view === 'timeGridWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent'}`}
             >
               Tydzień
             </button>
             <button
               onClick={() => switchView('listWeek')}
-              className={`px-3 py-1.5 text-sm rounded ${view === 'listWeek' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+              className={`rounded-lg px-3 py-1.5 text-sm ${view === 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent'}`}
             >
               Lista
             </button>
           </div>
 
-          <button
-            onClick={() => setAddModal({})}
-            className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            + Wizyta
-          </button>
-          <button
-            onClick={() => setExternalModal({})}
-            className="px-3 py-1.5 text-sm bg-violet-600 text-white rounded hover:bg-violet-700"
-          >
-            + Klientka z zewnątrz
-          </button>
-          <button
-            onClick={() => {
-              setHhPanelOpen((v) => !v);
-              if (hhPanelOpen) setHhPrefill(null);
-            }}
-            className={`px-3 py-1.5 text-sm rounded ${hhPanelOpen ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-amber-500 text-white hover:bg-amber-600'}`}
-          >
-            ⭐ Happy Hour
-          </button>
-          <button
-            onClick={() => setShowHappyHours(v => !v)}
-            className={`px-3 py-1.5 text-sm rounded ${showHappyHours ? 'bg-yellow-400 text-yellow-900' : 'bg-gray-100'}`}
-          >
-            {showHappyHours ? 'Ukryj HH' : 'Pokaż HH'}
-          </button>
-          <button
-            onClick={() => setShowApple((v) => !v)}
-            className={`px-3 py-1.5 text-sm rounded ${showApple ? 'bg-gray-200 text-gray-800' : 'bg-gray-100'}`}
-          >
-            {showApple ? 'Ukryj Apple' : 'Pokaż Apple'}
-          </button>
-          <button
-            onClick={() => setAppleSettingsOpen(true)}
-            className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
-            title="Ustawienia kalendarza Apple"
-          >
-            <Settings size={15} />
-          </button>
+          <span className="h-6 w-px bg-border" aria-hidden />
+
+          {/* Akcje */}
+          <div className="flex flex-wrap items-center gap-1">
+            <button
+              onClick={() => setAddModal({})}
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              + Wizyta
+            </button>
+            <button
+              onClick={() => setExternalModal({})}
+              className="rounded-lg border border-primary/40 bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-secondary"
+            >
+              + Klientka z zewnątrz
+            </button>
+            <button
+              onClick={() => {
+                setHhPanelOpen((v) => !v);
+                if (hhPanelOpen) setHhPrefill(null);
+              }}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${hhPanelOpen ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'}`}
+            >
+              ⭐ Happy Hour
+            </button>
+            <button
+              onClick={() => setShowHappyHours(v => !v)}
+              className={`rounded-lg px-3 py-1.5 text-sm ${showHappyHours ? 'bg-secondary text-secondary-foreground' : 'bg-white text-muted-foreground opacity-60'} hover:bg-accent`}
+            >
+              {showHappyHours ? 'Ukryj HH' : 'Pokaż HH'}
+            </button>
+            <button
+              onClick={() => setShowApple((v) => !v)}
+              className={`rounded-lg px-3 py-1.5 text-sm ${showApple ? 'bg-secondary text-secondary-foreground' : 'bg-white text-muted-foreground opacity-60'} hover:bg-accent`}
+            >
+              {showApple ? 'Ukryj Apple' : 'Pokaż Apple'}
+            </button>
+            <button
+              onClick={() => setAppleSettingsOpen(true)}
+              className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent"
+              title="Ustawienia kalendarza Apple"
+            >
+              <Settings size={15} />
+            </button>
+          </div>
         </div>
 
         {isMobile && zoomedEmployeeId && employees.length > 1 && (
@@ -620,7 +631,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   calRef.current?.getApi().changeView('timeGridDay');
                 }}
                 className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-medium ${
-                  emp.id === zoomedEmployeeId ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700'
+                  emp.id === zoomedEmployeeId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                 }`}
               >
                 {emp.name}
