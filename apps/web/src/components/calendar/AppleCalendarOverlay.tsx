@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { EventInput } from '@fullcalendar/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import externalCalendarApi from '@/api/external-calendar.api';
 import { useSocket } from '@/hooks/useSocket';
+import type { CalendarBlock } from '@/api/calendar-blocks.api';
+import { splitByDay, isCoveredByBlock } from './appleCoverage';
 
 interface Props {
   rangeStart: Date;
@@ -10,11 +12,12 @@ interface Props {
   employees: any[];
   isResourceView: boolean;
   enabled: boolean;
+  blocks: CalendarBlock[];
   children: (events: EventInput[]) => React.ReactNode;
 }
 
 export function AppleCalendarOverlay({
-  rangeStart, rangeEnd, employees, isResourceView, enabled, children,
+  rangeStart, rangeEnd, employees, isResourceView, enabled, blocks, children,
 }: Props) {
   const qc = useQueryClient();
   const { socket } = useSocket();
@@ -33,31 +36,46 @@ export function AppleCalendarOverlay({
     return () => { socket.off('external-calendar:updated', onUpdated); };
   }, [socket, qc]);
 
-  const events: EventInput[] = enabled
-    ? raw.flatMap((ev) => {
+  const events: EventInput[] = useMemo(() => {
+    if (!enabled) return [];
+    return raw.flatMap((ev) => {
+      // Wydarzenie wielodniowe rozpada się na kawałki dobowe: każdy dzień dostaje
+      // własny kafel i własny badge, a kafel zna przycięte do doby godziny —
+      // dzięki temu modal blokady nie musi zgadywać, w który dzień kliknięto.
+      const chunks = splitByDay(new Date(ev.startsAt), new Date(ev.endsAt));
+      return chunks.flatMap((chunk, dayIndex) => {
         const base = {
           // display:'background' renderuje event jako tło, niezaznaczalne i nieblokujące
           // kliknięć/układu kolumny (w przeciwieństwie do 'auto', które współdzieli
           // szerokość kolumny z wizytami/blokadami i łapie dateClick/select). FullCalendar v6
           // mimo to stosuje eventContent do zdarzeń tła (BgEvent renderuje przez
-          // EventContainer z customGenerator: options.eventContent), więc tytuł się pokaże.
+          // EventContainer z customGenerator: options.eventContent), więc tytuł i badge
+          // się pokażą.
           title: ev.title,
-          start: ev.startsAt,
-          end: ev.endsAt,
+          start: chunk.start,
+          end: chunk.end,
           display: 'background' as const,
           color: 'rgba(107,114,128,0.20)',
-          extendedProps: { appleEventId: ev.id, title: ev.title },
+          extendedProps: {
+            appleEventId: ev.id,
+            title: ev.title,
+            appleStart: chunk.start,
+            appleEnd: chunk.end,
+            appleTitle: ev.title,
+            appleCovered: isCoveredByBlock(chunk, blocks),
+          },
         };
         // W widoku zasobów event bez resourceId nie zostanie wyrysowany —
         // powielamy go na wszystkie kolumny pracowników.
-        if (!isResourceView) return [{ ...base, id: `apple-${ev.id}` }];
+        if (!isResourceView) return [{ ...base, id: `apple-${ev.id}-${dayIndex}` }];
         return employees.map((emp: any) => ({
           ...base,
-          id: `apple-${ev.id}-${emp.id}`,
+          id: `apple-${ev.id}-${dayIndex}-${emp.id}`,
           resourceId: emp.id,
         }));
-      })
-    : [];
+      });
+    });
+  }, [enabled, raw, blocks, isResourceView, employees]);
 
   return <>{children(events)}</>;
 }
