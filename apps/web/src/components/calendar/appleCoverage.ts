@@ -10,6 +10,20 @@ export interface DayChunk {
 const MAX_CHUNKS = 400;
 
 /**
+ * Zaokrągla datę w górę do pełnej minuty. Data już wyrównana do pełnej
+ * minuty wraca bez zmian (backend potrafi wyliczyć endsAt z niezerowymi
+ * sekundami, dodając surowy durationMs do startsAt — bez tego zaokrąglenia
+ * badge prefillowałby "HH:mm" niezgodne z rzeczywistym końcem kawałka,
+ * a warunek pokrycia w isCoveredByBlock nigdy by się nie domknął).
+ */
+function ceilToMinute(date: Date): Date {
+  const ms = date.getTime();
+  const remainder = ms % 60000;
+  if (remainder === 0) return new Date(ms);
+  return new Date(ms - remainder + 60000);
+}
+
+/**
  * Tnie wydarzenie na kawałki nieprzechodzące przez północ.
  *
  * Kawałek kończy się o 23:59, bo BlockHoursModal operuje na jednej dacie
@@ -27,12 +41,18 @@ export function splitByDay(start: Date, end: Date): DayChunk[] {
     const nextMidnight = new Date(cursor);
     nextMidnight.setHours(24, 0, 0, 0);
 
+    const dayCap = new Date(cursor);
+    dayCap.setHours(23, 59, 0, 0);
+
     let chunkEnd: Date;
     if (end.getTime() < nextMidnight.getTime()) {
-      chunkEnd = new Date(end);
+      // Koniec kawałka mieści się w tej dobie — zaokrąglij w górę do pełnej
+      // minuty, ale nie przekraczaj 23:59 tej doby (zaokrąglenie 23:59:45
+      // nie może "przelać się" na dobę następną).
+      const rounded = ceilToMinute(end);
+      chunkEnd = rounded.getTime() > dayCap.getTime() ? dayCap : rounded;
     } else {
-      chunkEnd = new Date(cursor);
-      chunkEnd.setHours(23, 59, 0, 0);
+      chunkEnd = dayCap;
     }
 
     if (chunkEnd.getTime() > cursor.getTime()) {

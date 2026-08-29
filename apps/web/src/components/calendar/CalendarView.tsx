@@ -704,8 +704,10 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                               {covered ? (
                                 <span
                                   className="mt-px shrink-0 text-gray-400"
+                                  role="img"
                                   title="Godziny są już zablokowane"
                                   aria-label="Godziny są już zablokowane"
+                                  style={{ pointerEvents: 'auto' }}
                                 >
                                   <Lock size={11} />
                                 </span>
