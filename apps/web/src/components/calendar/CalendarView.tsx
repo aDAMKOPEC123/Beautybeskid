@@ -9,8 +9,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventInput } from '@fullcalendar/core';
 import { DateClickArg } from '@fullcalendar/interaction';
 import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, addDays } from 'date-fns';
-import { employeesApi, type WeeklyScheduleEntry, type WorkDay, type TimeBlock } from '@/api/employees.api';
+import { format } from 'date-fns';
+import { employeesApi, type WeeklyScheduleEntry, type WorkDay } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
 import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock, MoreHorizontal } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
@@ -24,58 +24,13 @@ import { BlockHoursModal } from './BlockHoursModal';
 import { WorkHoursModal } from './WorkHoursModal';
 import { AppleCalendarOverlay } from './AppleCalendarOverlay';
 import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
-import { DAY_WINDOW_START, DAY_WINDOW_END } from './calendarLayers';
+import { DAY_WINDOW_START, DAY_WINDOW_END, buildWorkingHourLayer } from './calendarLayers';
+import { CalendarLegend } from './CalendarLegend';
 import './calendar.css';
 
 // Deterministic color per employee index
 const EMPLOYEE_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
 function employeeColor(idx: number) { return EMPLOYEE_COLORS[idx % EMPLOYEE_COLORS.length]; }
-
-// Build green background events for each employee's working hours in the visible range
-function buildWorkingHourEvents(
-  employees: any[],
-  weeklySchedules: Map<string, WeeklyScheduleEntry[]>,
-  workDayOverrides: Map<string, WorkDay[]>,
-  rangeStart: Date,
-  rangeEnd: Date,
-  zoomedEmployeeId: string | null,
-): EventInput[] {
-  const events: EventInput[] = [];
-  let d = new Date(rangeStart);
-  while (d < rangeEnd) {
-    const dateStr = format(d, 'yyyy-MM-dd');
-    const apiDow = (d.getDay() + 6) % 7; // convert JS Sun=0 → Mon=0
-    for (const emp of employees) {
-      // W widoku pojedynczej pracownicy pasy pozostałych osób nałożyłyby się na siebie.
-      if (zoomedEmployeeId && emp.id !== zoomedEmployeeId) continue;
-      const override = (workDayOverrides.get(emp.id) ?? [])
-        .find((w) => w.date.startsWith(dateStr));
-      let blocks: TimeBlock[];
-      if (override !== undefined) {
-        if (!override.isWorking) continue;
-        blocks = override.timeBlocks ?? [];
-      } else {
-        const weekly = (weeklySchedules.get(emp.id) ?? [])
-          .find((e) => e.dayOfWeek === apiDow);
-        if (!weekly?.isWorking) continue;
-        blocks = weekly.timeBlocks ?? [];
-      }
-      for (const block of blocks) {
-        events.push({
-          id: `work-${emp.id}-${dateStr}-${block.start}`,
-          resourceId: emp.id,
-          start: `${dateStr}T${block.start}:00`,
-          end: `${dateStr}T${block.end}:00`,
-          display: 'background',
-          color: 'rgba(34,197,94,0.18)',
-          extendedProps: { isWorkingHours: true, rangeLabel: `${block.start}–${block.end}` },
-        });
-      }
-    }
-    d = addDays(d, 1);
-  }
-  return events;
-}
 
 // Blokady godzin. W widoku zasobów każdy event musi mieć resourceId, więc blokadę
 // „cały salon" powielamy na wszystkie kolumny; w widoku tygodnia wystarczy jeden event.
@@ -181,6 +136,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [rangeEnd, setRangeEnd] = useState(new Date());
   const [showHappyHours, setShowHappyHours] = useState(true);
   const [showApple, setShowApple] = useState(true);
+  const [showWorkingHours, setShowWorkingHours] = useState(true);
   const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
@@ -263,13 +219,18 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     return map;
   }, [employees, workDayResults, rangeStartMonth, rangeEndMonth]);
 
-  // Green background events for working hours
-  const workingHourEvents = useMemo(
-    () => buildWorkingHourEvents(employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId),
-    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId],
-  );
-
   const isResourceView = view === 'resourceTimeGridDay' && !zoomedEmployeeId;
+
+  const workingHourEvents = useMemo(
+    () => (showWorkingHours
+      ? buildWorkingHourLayer(
+          employees, weeklySchedules, workDayOverrides,
+          rangeStart, rangeEnd, zoomedEmployeeId, isResourceView,
+          (empId) => employeeColor(employees.findIndex((e: any) => e.id === empId)),
+        )
+      : []),
+    [employees, weeklySchedules, workDayOverrides, rangeStart, rangeEnd, zoomedEmployeeId, isResourceView, showWorkingHours],
+  );
 
   const { data: calendarBlocks = [] } = useQuery({
     queryKey: ['calendar-blocks', rangeStart.toISOString(), rangeEnd.toISOString()],
@@ -395,6 +356,10 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     if (!time) return false;
     const clicked = new Date(`${date}T${time}:00`).getTime();
     return workingHourEvents.some((ev) => {
+      // Warstwa teraz zawiera też przygaszenie poza godzinami — bez tego filtra
+      // każdy klik trafiłby w jakiś event (praca albo jej brak) i przycisk
+      // „Usuń godziny pracy" pokazywałby się zawsze.
+      if (!ev.extendedProps?.isWorkingHours) return false;
       if (employeeId && ev.resourceId !== employeeId) return false;
       const start = new Date(ev.start as string).getTime();
       const end = new Date(ev.end as string).getTime();
@@ -653,6 +618,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           </div>
         )}
 
+        <CalendarLegend
+          showWorkingHours={showWorkingHours}
+          onToggleWorkingHours={() => setShowWorkingHours((v) => !v)}
+          showApple={showApple}
+          onToggleApple={() => setShowApple((v) => !v)}
+          showHappyHours={showHappyHours}
+          onToggleHappyHours={() => setShowHappyHours((v) => !v)}
+        />
+
         {/* FullCalendar */}
         <div
           className="cosmo-calendar flex-1 overflow-auto p-2"
@@ -687,10 +661,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                       resources={isResourceView ? resources : undefined}
                       events={allEvents}
                       eventContent={(arg) => {
+                        if (arg.event.extendedProps.isOffHours) {
+                          return <div />;
+                        }
                         if (arg.event.extendedProps.isWorkingHours) {
                           return (
-                            <div className="px-1 pt-0.5 text-[10px] font-medium leading-tight text-green-700/70 truncate">
-                              Dostępne godziny {arg.event.extendedProps.rangeLabel}
+                            <div className="cosmo-work-hours-label">
+                              Godziny pracy {arg.event.extendedProps.rangeLabel}
                             </div>
                           );
                         }
