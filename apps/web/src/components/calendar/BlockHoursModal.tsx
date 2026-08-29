@@ -8,7 +8,7 @@ import { Lock, X } from 'lucide-react';
 interface Props {
   open: boolean;
   onClose: () => void;
-  prefill: { date: string; time?: string; employeeId?: string };
+  prefill: { date: string; time?: string; endTime?: string; employeeId?: string; reason?: string };
   employees: any[];
   appointments: any[];
 }
@@ -31,8 +31,10 @@ export function BlockHoursModal({ open, onClose, prefill, employees, appointment
 
   const date = prefill.date;
   const [from, setFrom] = useState(startTimeDefault);
-  const [to, setTo] = useState(addMinutesToTime(startTimeDefault, 60));
-  const [reason, setReason] = useState('');
+  // Modal jest odmontowywany, gdy blockModal === null (CalendarView renderuje go
+  // warunkowo), więc useState przy każdym otwarciu startuje od świeżego prefillu.
+  const [to, setTo] = useState(prefill.endTime ?? addMinutesToTime(startTimeDefault, 60));
+  const [reason, setReason] = useState(prefill.reason ?? '');
   // Jeśli admin kliknął w kolumnę konkretnej pracownicy, modal ma się otworzyć na
   // wariancie "Wybrani pracownicy" z nią zaznaczoną — inaczej blokada wycięłaby
   // terminy całemu salonowi bez wiedzy admina (K3).
