@@ -5,7 +5,6 @@ import {
   buildWorkingHourLayer,
   DAY_WINDOW_START,
   DAY_WINDOW_END,
-  type TimeRange,
 } from './calendarLayers';
 
 const W = [DAY_WINDOW_START, DAY_WINDOW_END] as const;
