@@ -165,7 +165,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [hhPanelOpen, setHhPanelOpen] = useState(false);
   const [hhPrefill, setHhPrefill] = useState<{ date: Date; hour: number; minute: number } | null>(null);
   const [slotMenu, setSlotMenu] = useState<{ date: string; time?: string; employeeId?: string; x: number; y: number } | null>(null);
-  const [blockModal, setBlockModal] = useState<{ date: string; time?: string; employeeId?: string } | null>(null);
+  const [blockModal, setBlockModal] = useState<{ date: string; time?: string; endTime?: string; employeeId?: string; reason?: string } | null>(null);
   const [workHoursModal, setWorkHoursModal] = useState<{ mode: 'add' | 'remove'; date: string; time?: string; employeeId?: string } | null>(null);
   const [blockPopover, setBlockPopover] = useState<{ block: CalendarBlock; x: number; y: number } | null>(null);
   // Pozycja menu godziny / popovera blokady na komputerze liczona z rzeczywistej,
@@ -659,6 +659,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             employees={employees}
             isResourceView={isResourceView}
             enabled={showApple}
+            blocks={calendarBlocks}
           >
             {(appleEvents) => (
               <HappyHourOverlay rangeStart={rangeStart} rangeEnd={rangeEnd}>
@@ -689,9 +690,45 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                           );
                         }
                         if (arg.event.extendedProps.appleEventId) {
+                          const covered = arg.event.extendedProps.appleCovered as boolean;
+                          const appleStart = arg.event.extendedProps.appleStart as Date;
+                          const appleEnd = arg.event.extendedProps.appleEnd as Date;
                           return (
-                            <div className="px-1 pt-0.5 text-[10px] font-medium text-gray-500 truncate">
-                              {arg.event.extendedProps.title}
+                            // Warstwa Apple ma zostać przezroczysta dla kliknięć, żeby admin
+                            // mógł zaznaczyć godziny pod wydarzeniem — dlatego wrapper gasi
+                            // pointer-events, a przywraca je wyłącznie sam badge.
+                            <div className="flex items-start gap-1 px-1 pt-0.5" style={{ pointerEvents: 'none' }}>
+                              <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-gray-500">
+                                {arg.event.extendedProps.title}
+                              </span>
+                              {covered ? (
+                                <span
+                                  className="mt-px shrink-0 text-gray-400"
+                                  title="Godziny są już zablokowane"
+                                  aria-label="Godziny są już zablokowane"
+                                >
+                                  <Lock size={11} />
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  title="Zablokuj te godziny"
+                                  aria-label="Zablokuj te godziny"
+                                  style={{ pointerEvents: 'auto' }}
+                                  className="mt-px shrink-0 rounded px-1 text-[11px] font-bold leading-none text-amber-600 hover:bg-amber-100"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setBlockModal({
+                                      date: format(appleStart, 'yyyy-MM-dd'),
+                                      time: format(appleStart, 'HH:mm'),
+                                      endTime: format(appleEnd, 'HH:mm'),
+                                      reason: arg.event.extendedProps.appleTitle as string,
+                                    });
+                                  }}
+                                >
+                                  ❗
+                                </button>
+                              )}
                             </div>
                           );
                         }
