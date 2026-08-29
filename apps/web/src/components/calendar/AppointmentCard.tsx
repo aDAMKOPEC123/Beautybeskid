@@ -50,7 +50,7 @@ export function AppointmentCard({ event }: EventContentArg) {
     : 0;
   const density = cardDensity(durationMinutes);
 
-  const style = STATUS_STYLE[props.status] ?? { background: 'var(--cal-status-completed)', color: '#fff' };
+  const style = STATUS_STYLE[props.status] ?? { background: 'var(--cal-status-unknown)', color: '#fff' };
   const isUpcoming = props.status === 'CONFIRMED' || props.status === 'PENDING';
   const isCancelled = props.status === 'CANCELLED';
 

@@ -8,6 +8,8 @@
   --cal-status-completed: hsl(135 15% 42%);
   --cal-status-cancelled-bg: hsl(0 25% 93%);
   --cal-status-cancelled-text: hsl(0 30% 38%);
+  /* Fallback neutralny dla nieznanego statusu — aby nie mylić z żadnym rzeczywistym statusem */
+  --cal-status-unknown: hsl(0 0% 40%);
   --cal-offhours: hsl(150 37% 16% / 0.07);
 }
 
