@@ -55,7 +55,7 @@ export function AppleCalendarOverlay({
           start: chunk.start,
           end: chunk.end,
           display: 'background' as const,
-          color: 'rgba(107,114,128,0.20)',
+          classNames: ['cosmo-apple-event'],
           extendedProps: {
             appleEventId: ev.id,
             title: ev.title,

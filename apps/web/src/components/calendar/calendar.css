@@ -11,6 +11,13 @@
   /* Fallback neutralny dla nieznanego statusu — aby nie mylić z żadnym rzeczywistym statusem */
   --cal-status-unknown: hsl(0 0% 40%);
   --cal-offhours: hsl(150 37% 16% / 0.07);
+  /* Warstwa kalendarza Apple — stłumiony fiolet, nieużywany przez żadną inną
+     warstwę kalendarza. Wyraźnie mniej nasycony niż fiolet z palety pracownic
+     (#8b5cf6), żeby nie sugerował przynależności do konkretnej osoby. */
+  --cal-apple-bg: hsl(265 35% 94%);
+  --cal-apple-stripe: hsl(265 30% 86%);
+  --cal-apple-border: hsl(265 30% 55%);
+  --cal-apple-text: hsl(265 35% 38%);
 }
 
 /* --- Siatka --- */
@@ -116,4 +123,43 @@
     rgb(255 255 255 / 0.12) 4px,
     rgb(255 255 255 / 0.12) 8px
   );
+}
+
+/* --- Weekend --- */
+
+/* Odcień celowo delikatniejszy niż --cal-offhours: w weekend poza godzinami
+   pracy obie warstwy się nakładają, a mocne tło zrobiłoby z takiego obszaru
+   najciemniejsze miejsce w kalendarzu, sugerując znaczenie, którego nie ma. */
+.cosmo-calendar .fc-day-sat,
+.cosmo-calendar .fc-day-sun {
+  background-color: hsl(35 60% 96%);
+}
+
+.cosmo-calendar .fc-col-header-cell.fc-day-sat,
+.cosmo-calendar .fc-col-header-cell.fc-day-sun {
+  background-color: hsl(35 55% 92%);
+  color: hsl(35 45% 30%);
+}
+
+/* --- Warstwa kalendarza Apple --- */
+
+/* Prążki pod 135°, czyli przeciwnie niż szrafura blokad (45°) — dzięki temu
+   obie warstwy nie mylą się wzrokowo mimo podobnej faktury. */
+.cosmo-calendar .fc-bg-event.cosmo-apple-event {
+  background-color: var(--cal-apple-bg);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 5px,
+    var(--cal-apple-stripe) 5px,
+    var(--cal-apple-stripe) 10px
+  );
+  opacity: 1;
+  border-left: 3px solid var(--cal-apple-border);
+}
+
+.cosmo-calendar .cosmo-apple-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cal-apple-text);
 }

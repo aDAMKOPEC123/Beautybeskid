@@ -687,7 +687,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                             // mógł zaznaczyć godziny pod wydarzeniem — dlatego wrapper gasi
                             // pointer-events, a przywraca je wyłącznie sam badge.
                             <div className="flex items-start gap-1 px-1 pt-0.5" style={{ pointerEvents: 'none' }}>
-                              <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-gray-500">
+                              <span className="cosmo-apple-label min-w-0 flex-1 truncate">
                                 {arg.event.extendedProps.title}
                               </span>
                               {covered ? (
