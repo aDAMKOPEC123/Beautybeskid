@@ -494,7 +494,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
-      <div className={`cosmo-calendar-scope flex flex-col flex-1 min-w-0 transition-all duration-300 ${
+      <div className={`cosmo-calendar-scope flex flex-col flex-1 min-h-0 min-w-0 transition-all duration-300 ${
         selectedAppt && hhPanelOpen ? 'md:mr-[640px]' :
         selectedAppt ? 'md:mr-80' :
         hhPanelOpen ? 'md:mr-80' : ''
@@ -642,7 +642,12 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
         {/* FullCalendar */}
         <div
-          className="cosmo-calendar flex-1 overflow-auto p-2"
+          // min-h-0 pozwala temu dziecku skurczyć się poniżej własnej treści (bez tego
+          // flex-1 ma min-height:auto i rozpycha kalendarz poza wysokość strony).
+          // overflow-hidden zamiast auto: przy height="100%" FullCalendar robi własny
+          // wewnętrzny scroller i trzyma nagłówki kolumn w miejscu — przewijanie naszego
+          // diva zabierałoby ze sobą także nazwiska pracownic.
+          className="cosmo-calendar min-h-0 flex-1 overflow-hidden px-1 pb-1"
           style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}
         >
           <AppleCalendarOverlay
