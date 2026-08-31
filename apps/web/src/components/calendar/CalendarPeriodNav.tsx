@@ -38,7 +38,11 @@ export function CalendarPeriodNav({
 
   return (
     <div className="border-b bg-white px-2 py-1">
-      <div className="flex items-center gap-1.5">
+      {/* Na desktopie miesiąc i zakładki tygodni mieszczą się w jednym rzędzie —
+          obok zakładek zostaje mnóstwo wolnego miejsca, a każdy rząd mniej to
+          kilkadziesiąt pikseli więcej dla siatki. Na telefonie zostają jeden pod drugim. */}
+      <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
+      <div className="flex shrink-0 items-center gap-1.5">
         <button
           type="button"
           onClick={onPrevWeek}
@@ -68,7 +72,7 @@ export function CalendarPeriodNav({
       </div>
 
       {/* Zakładki tygodni — na wąskim ekranie przewijalne w poziomie. */}
-      <div className="mt-1 flex gap-1 overflow-x-auto">
+      <div className="flex gap-1 overflow-x-auto md:flex-1">
         {weeks.map((w) => {
           const active = anchorDay.getTime() >= w.start.getTime() && anchorDay.getTime() <= w.end.getTime();
           return (
@@ -85,6 +89,7 @@ export function CalendarPeriodNav({
             </button>
           );
         })}
+      </div>
       </div>
 
       {showDayRow && (

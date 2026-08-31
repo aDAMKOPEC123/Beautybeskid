@@ -73,20 +73,22 @@ export function CalendarLegend({
     });
   };
 
+  // Przełącznik i pozycje w jednym rzędzie — legenda zajmowała dwa rzędy, choć
+  // mieści się w jednym, a każdy odzyskany rząd to więcej wysokości dla siatki.
   return (
-    <div className="border-b bg-white px-3 py-1.5">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b bg-white px-3 py-1">
       <button
         type="button"
         onClick={toggleOpen}
         aria-expanded={open}
-        className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
+        className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
       >
         Legenda
         {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
       </button>
 
       {open && (
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <ToggleItem
             label="Godziny pracy"
             active={showWorkingHours}

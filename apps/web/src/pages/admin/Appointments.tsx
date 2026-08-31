@@ -562,8 +562,12 @@ export const AdminAppointments = () => {
   ).length;
 
   return (
-    <div className="space-y-6 animate-enter">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    // W trybie terminarza strona jest kolumną flex wypełniającą <main>, a kalendarz
+    // bierze całą resztę wysokości. Wcześniej pudełko kalendarza miało wysokość liczoną
+    // z calc(100vh - …), co nie uwzględniało paska 72 px ani paddingu <main> i rozpychało
+    // stronę, zmuszając do przewijania. Widok listy zostaje przy zwykłym przepływie.
+    <div className={`animate-enter ${view === 'calendar' ? 'flex h-full flex-col gap-4' : 'space-y-6'}`}>
+      <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Wizyty</h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -598,10 +602,7 @@ export const AdminAppointments = () => {
       ) : view === 'list' ? (
         <ListView appointments={appointments} />
       ) : (
-        <div className="h-[calc(100dvh-150px)] min-h-[420px] md:h-[calc(100vh-96px)]">
-          {/* Odjęte piksele to nagłówek strony i przełącznik widoku nad kalendarzem.
-              Na telefonie zostawiamy mniej zapasu, bo pasek okresu i legenda zjadają
-              wysokość już wewnątrz kalendarza. */}
+        <div className="min-h-[420px] flex-1 md:min-h-0">
           <CalendarView
             appointments={appointments}
             services={services}
