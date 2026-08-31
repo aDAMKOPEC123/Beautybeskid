@@ -598,7 +598,10 @@ export const AdminAppointments = () => {
       ) : view === 'list' ? (
         <ListView appointments={appointments} />
       ) : (
-        <div className="h-[calc(100dvh-210px)] min-h-[420px] md:h-[calc(100vh-120px)]">
+        <div className="h-[calc(100dvh-170px)] min-h-[420px] md:h-[calc(100vh-120px)]">
+          {/* Odjęte piksele to nagłówek strony i przełącznik widoku nad kalendarzem.
+              Na telefonie zostawiamy mniej zapasu, bo pasek okresu i legenda zjadają
+              wysokość już wewnątrz kalendarza. */}
           <CalendarView
             appointments={appointments}
             services={services}

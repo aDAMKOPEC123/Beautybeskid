@@ -7,6 +7,12 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventInput } from '@fullcalendar/core';
+// Locale trzeba podać obiektem, nie stringiem. FullCalendar szuka kodu w mapie
+// zbudowanej z zaimportowanych bundli (queryRawLocale w @fullcalendar/core);
+// dla niezarejestrowanego kodu cicho spada na angielski, a ten ma firstDay = 0,
+// czyli tydzień od niedzieli — co rozjeżdżało siatkę z paskiem okresu liczącym
+// tygodnie od poniedziałku.
+import plLocale from '@fullcalendar/core/locales/pl';
 import { DateClickArg } from '@fullcalendar/interaction';
 import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -785,8 +791,16 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   ]}
                   allDaySlot={false}
                   headerToolbar={false}
-                  locale="pl"
-                  height="auto"
+                  locale={plLocale}
+                  // Poniedziałek jako pierwszy dzień jest też zaszyty w calendarWeeks.ts,
+                  // więc podajemy go wprost — obie strony muszą się zgadzać niezależnie
+                  // od tego, czy bundle locale kiedyś zniknie z importów.
+                  firstDay={1}
+                  // height="100%" + expandRows sprawia, że siatka wypełnia kontener
+                  // zamiast rysować się na stałą wysokość wynikającą z liczby slotów
+                  // i zostawiać puste miejsce pod spodem.
+                  height="100%"
+                  expandRows
                   datesSet={(info) => {
                     setRangeStart(info.start);
                     setRangeEnd(info.end);

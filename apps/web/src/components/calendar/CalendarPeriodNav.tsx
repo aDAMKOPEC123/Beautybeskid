@@ -16,6 +16,12 @@ const sameDay = (a: Date, b: Date) =>
 
 const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
 
+// Jedna wysokość dla wszystkich kontrolek paska: 44 px pod palec na telefonie,
+// 32 px na desktopie. Wcześniej każdy rząd miał własny sposób na wysokość
+// (min-h-11 tu, py-1 tam, text-base obok text-sm), przez co przyciski w jednym
+// rzędzie wychodziły różnej wielkości i pasek wyglądał na poprzesuwany.
+const CONTROL = 'h-11 shrink-0 rounded-lg font-medium md:h-8';
+
 export function CalendarPeriodNav({
   anchor, showDayRow, onPrevWeek, onNextWeek, onToday, onPickDate,
 }: Props) {
@@ -31,38 +37,38 @@ export function CalendarPeriodNav({
   const today = new Date();
 
   return (
-    <div className="border-b bg-white px-2 py-1.5">
+    <div className="border-b bg-white px-2 py-1">
       <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={onPrevWeek}
           aria-label="Poprzedni tydzień"
-          className="min-h-11 min-w-11 rounded-lg bg-secondary text-base text-secondary-foreground hover:bg-accent md:min-h-0 md:min-w-0 md:px-3 md:py-1.5"
+          className={`${CONTROL} w-11 bg-secondary text-base text-secondary-foreground hover:bg-accent md:w-8`}
         >
           ←
         </button>
-        <span className="min-w-[9rem] text-center text-sm font-semibold capitalize text-foreground">
+        <span className="min-w-[8rem] text-center text-sm font-semibold capitalize text-foreground">
           {monthLabel}
         </span>
         <button
           type="button"
           onClick={onNextWeek}
           aria-label="Następny tydzień"
-          className="min-h-11 min-w-11 rounded-lg bg-secondary text-base text-secondary-foreground hover:bg-accent md:min-h-0 md:min-w-0 md:px-3 md:py-1.5"
+          className={`${CONTROL} w-11 bg-secondary text-base text-secondary-foreground hover:bg-accent md:w-8`}
         >
           →
         </button>
         <button
           type="button"
           onClick={onToday}
-          className="ml-auto min-h-11 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90 md:min-h-0 md:py-1.5"
+          className={`${CONTROL} ml-auto bg-primary px-4 text-sm text-primary-foreground hover:opacity-90`}
         >
           Dziś
         </button>
       </div>
 
       {/* Zakładki tygodni — na wąskim ekranie przewijalne w poziomie. */}
-      <div className="mt-1.5 flex gap-1 overflow-x-auto">
+      <div className="mt-1 flex gap-1 overflow-x-auto">
         {weeks.map((w) => {
           const active = anchorDay.getTime() >= w.start.getTime() && anchorDay.getTime() <= w.end.getTime();
           return (
@@ -71,7 +77,7 @@ export function CalendarPeriodNav({
               type="button"
               onClick={() => onPickDate(w.start)}
               aria-pressed={active}
-              className={`shrink-0 rounded-lg px-3 py-1 text-xs font-medium ${
+              className={`${CONTROL} px-3 text-xs ${
                 active ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent'
               }`}
             >
@@ -82,7 +88,7 @@ export function CalendarPeriodNav({
       </div>
 
       {showDayRow && (
-        <div className="mt-1.5 flex gap-1 overflow-x-auto">
+        <div className="mt-1 flex gap-1 overflow-x-auto">
           {days.map((day) => {
             const active = sameDay(day, anchorDay);
             const weekend = isWeekend(day);
@@ -92,7 +98,7 @@ export function CalendarPeriodNav({
                 type="button"
                 onClick={() => onPickDate(day)}
                 aria-pressed={active}
-                className={`flex min-h-11 shrink-0 flex-col items-center rounded-lg px-3 py-1 leading-tight md:min-h-0 ${
+                className={`${CONTROL} flex flex-col items-center justify-center px-3 leading-tight ${
                   active
                     ? 'bg-primary text-primary-foreground'
                     : weekend
