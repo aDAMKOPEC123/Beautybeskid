@@ -107,7 +107,16 @@ export function CalendarLegend({
             active={showApple}
             onClick={onToggleApple}
             hint="Pokaż lub ukryj wydarzenia z kalendarza Apple"
-            swatch={<span className="h-full w-full" style={{ background: 'rgba(107,114,128,0.35)' }} />}
+            swatch={
+              <span
+                className="h-full w-full"
+                style={{
+                  backgroundColor: 'var(--cal-apple-bg)',
+                  backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 3px, var(--cal-apple-stripe) 3px, var(--cal-apple-stripe) 6px)`,
+                  borderLeft: '3px solid var(--cal-apple-border)',
+                }}
+              />
+            }
           />
           <ToggleItem
             label="Happy Hour"

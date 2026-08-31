@@ -1,8 +1,14 @@
-/* Skórka kalendarza admina. Wszystko pod .cosmo-calendar, żeby nadpisania
-   FullCalendara nie wyciekły na inne instancje w aplikacji. Kolory statusów
+/* Skórka kalendarza admina. Reguły siatki są pod .cosmo-calendar, żeby
+   nadpisania FullCalendara nie wyciekły na inne instancje w aplikacji.
+   Same custom properties kolorów siedzą jednak wyżej, na .cosmo-calendar-scope
+   (wspólny przodek legendy i siatki) — legenda renderuje się PRZED elementem
+   .cosmo-calendar (jest jego rodzeństwem, nie potomkiem), więc gdyby zmienne
+   żyły tylko na .cosmo-calendar, próbki w legendzie nie miałyby się skąd
+   rozwiązać. .cosmo-calendar jest zagnieżdżony wewnątrz .cosmo-calendar-scope,
+   więc reguły siatki nadal je widzą przez dziedziczenie. Kolory statusów
    są custom properties — czerpią z nich AppointmentCard i legenda, więc
    zmiana odcienia w jednym miejscu przechodzi przez cały kalendarz. */
-.cosmo-calendar {
+.cosmo-calendar-scope {
   --cal-status-pending: hsl(35 70% 38%);
   --cal-status-confirmed: hsl(142 33% 36%);
   --cal-status-completed: hsl(135 15% 42%);

@@ -161,6 +161,8 @@ export const syncNow = async (): Promise<{ imported: number }> => {
 const MIN_SYNC_MINUTES = 2;
 const MAX_SYNC_MINUTES = 60;
 const TICK_MS = 60_000;
+// Górny pułap odstępu przy narastającym backoffie po nieudanych synchronizacjach.
+const MAX_BACKOFF_MINUTES = 30;
 
 export const initializeExternalCalendarSync = (): void => {
   // Chroni przed nakładającymi się synchronizacjami: syncNow() (pobranie ICS +
@@ -172,6 +174,16 @@ export const initializeExternalCalendarSync = (): void => {
   // każda z inną migawką keptIds, co kasowałoby świeżo zapisane wydarzenia
   // drugiej synchronizacji (efekt: znikanie i wracanie wydarzeń w kalendarzu).
   let syncInProgress = false;
+
+  // Licznik kolejnych nieudanych synchronizacji — zerowany po sukcesie,
+  // zwiększany w catch. Chroni iCloud (i log) przed zalewem prób, gdy link
+  // wygasł, Apple odpowiada 502 albo requesty timeoutują: bez tego dueAt
+  // liczone tylko z lastSyncedAt w ogóle by się nie przesuwało (błąd nie
+  // rusza lastSyncedAt — patrz komentarz w syncNow), więc przy minutowym
+  // ticku każdy kolejny tick uznawałby zadanie za spóźnione i próbowałby
+  // ponownie — 1440 prób/dobę zamiast rozsądnych ~96 dla stanu, w którym
+  // najbardziej opłaca się wycofać.
+  let consecutiveFailures = 0;
 
   // Tick co minutę sprawdza, czy minął interwał zapisany przy źródle. Dzięki
   // temu zmiana interwału w bazie działa bez restartu serwera — inaczej niż
@@ -186,15 +198,31 @@ export const initializeExternalCalendarSync = (): void => {
         MAX_SYNC_MINUTES,
         Math.max(MIN_SYNC_MINUTES, source.syncIntervalMinutes),
       );
+      // Wykładniczy backoff po nieudanych próbach: odstęp = interwał + licznik
+      // × interwał, czyli rośnie od normalnego interwału do maksymalnie ok.
+      // pół godziny (MAX_BACKOFF_MINUTES), a potem się zatrzymuje —
+      // Math.min ogranicza go od góry (chyba że sam skonfigurowany interwał
+      // jest już większy niż pół godziny, wtedy pułapem jest ten interwał).
+      // lastSyncedAt pozostaje "ostatnią udaną synchronizacją" — backoff to
+      // dodatkowy narzut na normalny interwał, a nie zmiana znaczenia kolumny.
+      const backoffCeilingMinutes = Math.max(intervalMinutes, MAX_BACKOFF_MINUTES);
+      const effectiveIntervalMinutes = Math.min(
+        intervalMinutes * (1 + consecutiveFailures),
+        backoffCeilingMinutes,
+      );
       const dueAt = source.lastSyncedAt
-        ? source.lastSyncedAt.getTime() + intervalMinutes * 60_000
+        ? source.lastSyncedAt.getTime() + effectiveIntervalMinutes * 60_000
         : 0;
       if (Date.now() < dueAt) return;
 
       syncInProgress = true;
       try {
         const { imported } = await syncNow();
+        consecutiveFailures = 0;
         console.log(`[external-calendar] zsynchronizowano ${imported} wydarzeń`);
+      } catch (err) {
+        consecutiveFailures += 1;
+        throw err;
       } finally {
         // finally gwarantuje zdjęcie flagi także przy wyjątku — inaczej jeden
         // błąd synchronizacji zablokowałby wszystkie kolejne na zawsze.

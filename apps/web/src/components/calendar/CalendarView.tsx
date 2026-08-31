@@ -488,7 +488,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   return (
     <div className="flex h-full overflow-hidden relative">
       {/* Main calendar area */}
-      <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${
+      <div className={`cosmo-calendar-scope flex flex-col flex-1 min-w-0 transition-all duration-300 ${
         selectedAppt && hhPanelOpen ? 'md:mr-[640px]' :
         selectedAppt ? 'md:mr-80' :
         hhPanelOpen ? 'md:mr-80' : ''
