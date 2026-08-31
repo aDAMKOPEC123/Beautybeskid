@@ -2886,7 +2886,7 @@ model ExternalCalendarSource {
   name                String                  @default("Kalendarz Apple")
   url                 String
   isEnabled           Boolean                 @default(true)
-  syncIntervalMinutes Int                     @default(15)
+  syncIntervalMinutes Int                     @default(5)
   lastSyncedAt        DateTime?
   lastSyncError       String?
   createdAt           DateTime                @default(now())

@@ -25,7 +25,12 @@ export function AppleCalendarOverlay({
   const { data: raw = [] } = useQuery({
     queryKey: ['external-calendar-events', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: () => externalCalendarApi.listEvents(rangeStart.toISOString(), rangeEnd.toISOString()),
-    staleTime: 5 * 60 * 1000,
+    // Serwer synchronizuje co ~5 minut i po każdej synchronizacji wysyła
+    // external-calendar:updated, więc otwarty kalendarz odświeża się sam.
+    // Te opcje pokrywają drugi przypadek: wejście na stronę i powrót do zakładki.
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     enabled,
   });
 

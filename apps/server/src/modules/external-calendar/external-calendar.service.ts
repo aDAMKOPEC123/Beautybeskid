@@ -155,11 +155,31 @@ export const syncNow = async (): Promise<{ imported: number }> => {
   }
 };
 
+// Dolna granica chroni iCloud przed odpytywaniem częstszym, niż ma sens dla
+// kalendarza aktualizowanego ręcznie przez człowieka; górna zabezpiecza przed
+// wartością, która praktycznie wyłączyłaby synchronizację.
+const MIN_SYNC_MINUTES = 2;
+const MAX_SYNC_MINUTES = 60;
+const TICK_MS = 60_000;
+
 export const initializeExternalCalendarSync = (): void => {
+  // Tick co minutę sprawdza, czy minął interwał zapisany przy źródle. Dzięki
+  // temu zmiana interwału w bazie działa bez restartu serwera — inaczej niż
+  // przy interwale zaszytym w setInterval.
   const tick = async () => {
     try {
       const source = await getSource();
       if (!source || !source.isEnabled) return;
+
+      const intervalMinutes = Math.min(
+        MAX_SYNC_MINUTES,
+        Math.max(MIN_SYNC_MINUTES, source.syncIntervalMinutes),
+      );
+      const dueAt = source.lastSyncedAt
+        ? source.lastSyncedAt.getTime() + intervalMinutes * 60_000
+        : 0;
+      if (Date.now() < dueAt) return;
+
       const { imported } = await syncNow();
       console.log(`[external-calendar] zsynchronizowano ${imported} wydarzeń`);
     } catch (err: any) {
@@ -168,5 +188,5 @@ export const initializeExternalCalendarSync = (): void => {
   };
 
   void tick();
-  setInterval(tick, 15 * 60 * 1000);
+  setInterval(tick, TICK_MS);
 };
