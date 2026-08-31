@@ -163,10 +163,21 @@ const MAX_SYNC_MINUTES = 60;
 const TICK_MS = 60_000;
 
 export const initializeExternalCalendarSync = (): void => {
+  // Chroni przed nakładającymi się synchronizacjami: syncNow() (pobranie ICS +
+  // sekwencyjne upserty) może trwać dłużej niż jeden tick (60 s), a przy
+  // minutowym ticku lastSyncedAt z poprzedniej, wciąż trwającej synchronizacji
+  // jeszcze nie jest zapisane — bez tej flagi kolejny tick uznałby zadanie za
+  // "spóźnione" i uruchomiłby drugie syncNow() równolegle. Dwie równoległe
+  // synchronizacje ścigałyby się na deleteMany({ id: { notIn: keptIds } }),
+  // każda z inną migawką keptIds, co kasowałoby świeżo zapisane wydarzenia
+  // drugiej synchronizacji (efekt: znikanie i wracanie wydarzeń w kalendarzu).
+  let syncInProgress = false;
+
   // Tick co minutę sprawdza, czy minął interwał zapisany przy źródle. Dzięki
   // temu zmiana interwału w bazie działa bez restartu serwera — inaczej niż
   // przy interwale zaszytym w setInterval.
   const tick = async () => {
+    if (syncInProgress) return;
     try {
       const source = await getSource();
       if (!source || !source.isEnabled) return;
@@ -180,8 +191,15 @@ export const initializeExternalCalendarSync = (): void => {
         : 0;
       if (Date.now() < dueAt) return;
 
-      const { imported } = await syncNow();
-      console.log(`[external-calendar] zsynchronizowano ${imported} wydarzeń`);
+      syncInProgress = true;
+      try {
+        const { imported } = await syncNow();
+        console.log(`[external-calendar] zsynchronizowano ${imported} wydarzeń`);
+      } finally {
+        // finally gwarantuje zdjęcie flagi także przy wyjątku — inaczej jeden
+        // błąd synchronizacji zablokowałby wszystkie kolejne na zawsze.
+        syncInProgress = false;
+      }
     } catch (err: any) {
       console.error('[external-calendar] błąd synchronizacji:', err?.message ?? err);
     }
