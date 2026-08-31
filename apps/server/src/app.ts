@@ -9,6 +9,7 @@ import { env } from './config/env';
 import { errorMiddleware } from './middleware/error.middleware';
 import { apiRateLimiter } from './middleware/rateLimit.middleware';
 import { privateUploadMiddleware } from './middleware/privateUpload.middleware';
+import { maskCalendarFeedToken } from './lib/logSerializers';
 
 // Routes
 import authRouter from './modules/auth/auth.router';
@@ -60,7 +61,15 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(compression());
-app.use(pinoHttp());
+app.use(pinoHttp({
+  // pino-http zawsze owija podany serializer swoim domyślnym
+  // (wrapRequestSerializer z pino-std-serializers, patrz
+  // node_modules/pino-http/logger.js), więc maskCalendarFeedToken dostaje `req`
+  // już w standardowym kształcie (id, method, url, headers, remoteAddress,
+  // remotePort, params, query) i tylko podmienia w nim pola niosące token —
+  // patrz src/lib/logSerializers.ts po uzasadnienie.
+  serializers: { req: maskCalendarFeedToken },
+}));
 app.use(cors({
   origin: [env.CLIENT_URL, ...(env.ACADEMY_URL ? [env.ACADEMY_URL] : [])],
   credentials: true

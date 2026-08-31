@@ -60,18 +60,31 @@ export function appointmentToIcsEvent(a: FeedAppointment): IcsEvent {
 
 const newToken = () => randomBytes(32).toString('base64url');
 
+// Stały identyfikator wymusza jednowierszowość tabeli: dwa równoczesne pierwsze
+// wejścia (dwie karty, React StrictMode w dev) trafiają w ten sam `upsert` zamiast
+// wstawiać dwa wiersze z różnymi tokenami. Bez tego `regenerateToken` rotowałby
+// tylko najstarszy wiersz, a drugi token nigdy nie zostałby unieważniony — link
+// wyciekłby na stałe, mimo że UI oznajmiłby sukces. Pole `id` w modelu ma
+// `@default(cuid())`, ale skoro zawsze podajemy `id` jawnie, ten default po
+// prostu nie jest używany — migracja nie wymaga zmian.
+const FEED_ID = 'default';
+
 export const getOrCreateFeed = async () => {
-  const existing = await prisma.calendarFeed.findFirst({ orderBy: { createdAt: 'asc' } });
-  if (existing) return existing;
-  return await prisma.calendarFeed.create({ data: { token: newToken() } });
+  return await prisma.calendarFeed.upsert({
+    where: { id: FEED_ID },
+    update: {},
+    create: { id: FEED_ID, token: newToken() },
+  });
 };
 
 export const regenerateToken = async () => {
-  const feed = await getOrCreateFeed();
+  // Upewnij się, że wiersz istnieje (na wypadek pierwszego wywołania), a potem
+  // nadpisz jego token — zawsze pod tym samym stałym id, nigdy „najstarszy z...".
+  await getOrCreateFeed();
   // Nadpisanie tokenu unieważnia stary adres natychmiast; historia dostępu
   // zeruje się razem z nim, bo dotyczyła poprzedniego linku.
   return await prisma.calendarFeed.update({
-    where: { id: feed.id },
+    where: { id: FEED_ID },
     data: { token: newToken(), lastAccessedAt: null, accessCount: 0 },
   });
 };

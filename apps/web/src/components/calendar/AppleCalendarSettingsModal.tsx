@@ -50,7 +50,7 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
     }
   };
 
-  const { data: feed, refetch: refetchFeed } = useQuery<CalendarFeedConfig>({
+  const { data: feed, isLoading: isFeedLoading, isError: isFeedError, refetch: refetchFeed } = useQuery<CalendarFeedConfig>({
     queryKey: ['calendar-feed-config'],
     queryFn: () => externalCalendarApi.getFeedConfig(),
     enabled: open,
@@ -58,7 +58,10 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
 
   const { mutate: regenerate, isPending: isRegenerating } = useMutation({
     mutationFn: () => externalCalendarApi.regenerateFeedToken(),
-    onSuccess: () => { void refetchFeed(); },
+    onSuccess: () => { setMessage('Wygenerowano nowy link. Stary przestał działać.'); void refetchFeed(); },
+    onError: (e: any) => setMessage(
+      e?.response?.data?.message ?? 'Nie udało się wygenerować nowego linku — stary nadal działa.'
+    ),
   });
 
   // Adres składamy z origin przeglądarki — frontend i API dzielą domenę (nginx
@@ -142,6 +145,23 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
             klientek. Nie wysyłaj go nikomu i nie publikuj.
           </div>
 
+          {isFeedLoading && (
+            <p className="mt-3 text-xs text-muted-foreground">Wczytywanie adresu subskrypcji…</p>
+          )}
+
+          {isFeedError && (
+            <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-red-300 bg-red-50 p-2 text-xs text-red-700">
+              <span>Nie udało się wczytać adresu subskrypcji.</span>
+              <button
+                type="button"
+                onClick={() => void refetchFeed()}
+                className="shrink-0 rounded-lg border border-red-300 px-2 py-1 font-medium hover:bg-red-100"
+              >
+                Spróbuj ponownie
+              </button>
+            </div>
+          )}
+
           {feed && (
             <>
               <label className="mt-3 block text-xs font-medium">
@@ -157,7 +177,18 @@ export function AppleCalendarSettingsModal({ open, onClose }: Props) {
               <div className="mt-2 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => void navigator.clipboard.writeText(feedHttps)}
+                  onClick={async () => {
+                    if (!navigator.clipboard) {
+                      setMessage('Kopiowanie niedostępne w tej przeglądarce — zaznacz adres ręcznie.');
+                      return;
+                    }
+                    try {
+                      await navigator.clipboard.writeText(feedHttps);
+                      setMessage('Skopiowano adres do schowka.');
+                    } catch {
+                      setMessage('Nie udało się skopiować adresu — zaznacz go ręcznie.');
+                    }
+                  }}
                   className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-accent"
                 >
                   Kopiuj adres
