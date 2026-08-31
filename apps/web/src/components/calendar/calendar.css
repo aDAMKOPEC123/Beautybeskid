@@ -31,16 +31,30 @@
   overflow: hidden;
 }
 
-/* Pełna godzina musi być wyraźniejsza niż półgodzina — inaczej nie da się
-   policzyć godzin wzrokiem, bo obie linie wyglądają identycznie. */
-.cosmo-calendar .fc-timegrid-slot-minor {
+/* Hierarchia osi czasu: pełna godzina jest cięższa i ciemniejsza od półgodziny,
+   i to zarówno w podpisie, jak i w grubości linii. Sam styl linii (ciągła vs
+   kropkowana) okazał się za słabym sygnałem, żeby policzyć godziny wzrokiem. */
+.cosmo-calendar .fc-timegrid-slot.cosmo-slot-full {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: hsl(var(--border));
+}
+
+.cosmo-calendar .fc-timegrid-slot.cosmo-slot-half {
+  border-top-width: 1px;
   border-top-style: dotted;
   border-top-color: hsl(var(--border));
 }
 
-.cosmo-calendar .fc-timegrid-slot-label {
+.cosmo-calendar .fc-timegrid-slot-label.cosmo-slot-full {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.cosmo-calendar .fc-timegrid-slot-label.cosmo-slot-half {
+  font-size: 9px;
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
 }
 

@@ -776,6 +776,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   select={handleDateSelect}
                   slotMinTime={`${DAY_WINDOW_START}:00`}
                   slotMaxTime={`${DAY_WINDOW_END}:00`}
+                  slotLabelInterval="00:30:00"
+                  slotLaneClassNames={(arg) => [
+                    arg.date!.getMinutes() === 0 ? 'cosmo-slot-full' : 'cosmo-slot-half',
+                  ]}
+                  slotLabelClassNames={(arg) => [
+                    arg.date!.getMinutes() === 0 ? 'cosmo-slot-full' : 'cosmo-slot-half',
+                  ]}
                   allDaySlot={false}
                   headerToolbar={false}
                   locale="pl"
