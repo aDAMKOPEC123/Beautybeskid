@@ -2908,3 +2908,11 @@ model ExternalCalendarEvent {
   @@unique([sourceId, uid, startsAt])
   @@index([startsAt, endsAt])
 }
+
+model CalendarFeed {
+  id             String    @id @default(cuid())
+  token          String    @unique
+  createdAt      DateTime  @default(now())
+  lastAccessedAt DateTime?
+  accessCount    Int       @default(0)
+}
