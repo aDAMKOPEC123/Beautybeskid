@@ -19,9 +19,15 @@ const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
 export function CalendarPeriodNav({
   anchor, showDayRow, onPrevWeek, onNextWeek, onToday, onPickDate,
 }: Props) {
-  const weeks = weeksOfMonth(anchor);
-  const days = weekDays(anchor);
-  const monthLabel = format(anchor, 'LLLL yyyy', { locale: pl });
+  // `anchor` bywa realnym „teraz" z niezerową godziną (np. świeży `useState(new Date())`
+  // w CalendarView, zanim pierwszy `datesSet` FullCalendara go ujednolici), a `w.end`
+  // z `weeksOfMonth` to północ ostatniego dnia tygodnia — porównanie surowych `getTime()`
+  // gubiłoby niedzielę z godziną spoza północy. Normalizujemy raz, na wejściu, żeby
+  // porównanie tygodni i `sameDay` w rzędzie dni korzystały z tej samej, spójnej wartości.
+  const anchorDay = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
+  const weeks = weeksOfMonth(anchorDay);
+  const days = weekDays(anchorDay);
+  const monthLabel = format(anchorDay, 'LLLL yyyy', { locale: pl });
   const today = new Date();
 
   return (
@@ -58,7 +64,7 @@ export function CalendarPeriodNav({
       {/* Zakładki tygodni — na wąskim ekranie przewijalne w poziomie. */}
       <div className="mt-1.5 flex gap-1 overflow-x-auto">
         {weeks.map((w) => {
-          const active = anchor.getTime() >= w.start.getTime() && anchor.getTime() <= w.end.getTime();
+          const active = anchorDay.getTime() >= w.start.getTime() && anchorDay.getTime() <= w.end.getTime();
           return (
             <button
               key={w.start.toISOString()}
@@ -78,7 +84,7 @@ export function CalendarPeriodNav({
       {showDayRow && (
         <div className="mt-1.5 flex gap-1 overflow-x-auto">
           {days.map((day) => {
-            const active = sameDay(day, anchor);
+            const active = sameDay(day, anchorDay);
             const weekend = isWeekend(day);
             return (
               <button
