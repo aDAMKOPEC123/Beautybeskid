@@ -18,6 +18,12 @@ export interface ExternalCalendarEvent {
   location: string | null;
 }
 
+export interface CalendarFeedConfig {
+  token: string;
+  lastAccessedAt: string | null;
+  accessCount: number;
+}
+
 const externalCalendarApi = {
   getSource: (): Promise<ExternalCalendarSource | null> =>
     api.get('/external-calendar/source').then((r: any) => r.data),
@@ -28,6 +34,10 @@ const externalCalendarApi = {
     api.post('/external-calendar/sync').then((r: any) => r.data),
   listEvents: (from: string, to: string): Promise<ExternalCalendarEvent[]> =>
     api.get('/external-calendar/events', { params: { from, to } }).then((r: any) => r.data),
+  getFeedConfig: (): Promise<CalendarFeedConfig> =>
+    api.get('/calendar-feed/config').then((r: any) => r.data),
+  regenerateFeedToken: (): Promise<CalendarFeedConfig> =>
+    api.post('/calendar-feed/regenerate').then((r: any) => r.data),
 };
 
 export default externalCalendarApi;
