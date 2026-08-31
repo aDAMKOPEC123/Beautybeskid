@@ -30,6 +30,11 @@ describe('buildIcs', () => {
     expect(out).toContain('DESCRIPTION:linia1\\nlinia2');
   });
 
+  it('escapuje średnik i przecinek w polu UID', () => {
+    const out = buildIcs([ev({ uid: 'appointment-a;b,c@kosmetolog.pl' })], 'COSMO');
+    expect(out).toContain('UID:appointment-a\\;b\\,c@kosmetolog.pl');
+  });
+
   it('zawija linię dłuższą niż 75 bajtów, kontynuacja zaczyna się spacją', () => {
     const out = buildIcs([ev({ summary: 'a'.repeat(200) })], 'COSMO');
     const summaryIdx = lines(out).findIndex((l) => l.startsWith('SUMMARY:'));

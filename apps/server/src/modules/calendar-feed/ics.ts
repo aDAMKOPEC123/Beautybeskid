@@ -72,7 +72,7 @@ export function buildIcs(events: IcsEvent[], calendarName: string): string {
 
   for (const e of events) {
     out.push('BEGIN:VEVENT');
-    out.push(`UID:${e.uid}`);
+    out.push(`UID:${escapeText(e.uid)}`);
     out.push(`DTSTAMP:${now}`);
     out.push(`DTSTART:${formatUtc(e.start)}`);
     out.push(`DTEND:${formatUtc(e.end)}`);
