@@ -26,6 +26,7 @@ import { AppleCalendarOverlay } from './AppleCalendarOverlay';
 import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
 import { DAY_WINDOW_START, DAY_WINDOW_END, buildWorkingHourLayer } from './calendarLayers';
 import { CalendarLegend } from './CalendarLegend';
+import { CalendarPeriodNav } from './CalendarPeriodNav';
 import './calendar.css';
 
 // Deterministic color per employee index
@@ -324,6 +325,11 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     setSlotMenu({ date, time, employeeId: resourceId, x, y });
   }, [hhPanelOpen, zoomedEmployeeId]);
 
+  // Strzałki przesuwają o tydzień także w widoku dnia — prev()/next() skakałyby
+  // tam o dobę, a pasek okresu jest zbudowany wokół tygodnia jako jednostki.
+  const stepWeek = (weeks: number) => calRef.current?.getApi().incrementDate({ weeks });
+  const goToDate = (date: Date) => calRef.current?.getApi().gotoDate(date);
+
   const switchView = (v: CalView) => {
     setView(v);
     setZoomedEmployeeId(null);
@@ -489,28 +495,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       }`}>
         {/* Pasek mobilny — cztery cele dotykowe, reszta akcji w arkuszu */}
         <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">
-          <button
-            onClick={() => calRef.current?.getApi().prev()}
-            className="min-h-11 min-w-11 rounded-lg bg-secondary text-secondary-foreground text-base"
-            aria-label="Poprzedni"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => calRef.current?.getApi().today()}
-            className="min-h-11 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
-          >
-            Dziś
-          </button>
-          <button
-            onClick={() => calRef.current?.getApi().next()}
-            className="min-h-11 min-w-11 rounded-lg bg-secondary text-secondary-foreground text-base"
-            aria-label="Następny"
-          >
-            →
-          </button>
-
-          <div className="ml-auto flex gap-1.5">
+          <div className="flex gap-1.5">
             <button
               onClick={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
               className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
@@ -535,15 +520,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
 
         {/* Toolbar */}
         <div className="hidden md:flex items-center gap-2 p-3 border-b bg-white flex-wrap">
-          {/* Nawigacja */}
-          <div className="flex items-center gap-1">
-            <button onClick={() => calRef.current?.getApi().prev()} className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent">←</button>
-            <button onClick={() => calRef.current?.getApi().today()} className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Dziś</button>
-            <button onClick={() => calRef.current?.getApi().next()} className="rounded-lg bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent">→</button>
-          </div>
-
-          <span className="h-6 w-px bg-border" aria-hidden />
-
           {/* Widoki */}
           <div className="flex items-center gap-1">
             {zoomedEmployeeId && (
@@ -639,6 +615,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
             ))}
           </div>
         )}
+
+        <CalendarPeriodNav
+          anchor={rangeStart}
+          showDayRow={view === 'resourceTimeGridDay' || view === 'timeGridDay'}
+          onPrevWeek={() => stepWeek(-1)}
+          onNextWeek={() => stepWeek(1)}
+          onToday={() => calRef.current?.getApi().today()}
+          onPickDate={goToDate}
+        />
 
         <CalendarLegend
           showWorkingHours={showWorkingHours}
