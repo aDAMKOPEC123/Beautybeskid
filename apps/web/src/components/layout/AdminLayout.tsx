@@ -398,7 +398,14 @@ export const AdminLayout = () => {
   if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="admin-shell min-h-screen flex flex-col bg-muted/20" style={{ paddingTop: 'calc(72px + env(safe-area-inset-top))' }}>
+    // h-[100dvh], nie min-h-screen: min-height nie ustanawia okreslonej wysokosci, wiec
+    // procenty i flex w dzieciach nie mialy sie do czego odniesc — <main> rosl z trescia,
+    // a kalendarz z height="100%" nie potrafil wyliczyc dostepnego miejsca i rozciagal
+    // siatke poza ekran. Sasiednie klasy (overflow-hidden na wierszu, overflow-y-auto na
+    // <main>) pokazuja, ze to <main> mial byc tym, co sie przewija, a to dziala tylko przy
+    // okreslonej wysokosci. dvh zamiast vh, bo na telefonie vh potrafi obejmowac pasek
+    // adresu, ktorego w trybie PWA i tak nie ma.
+    <div className="admin-shell h-[100dvh] flex flex-col bg-muted/20" style={{ paddingTop: 'calc(72px + env(safe-area-inset-top))' }}>
       <ScrollToTop />
       <Navbar />
       <div className="md:hidden shrink-0 border-b bg-card/95 px-3 py-2 shadow-sm backdrop-blur">

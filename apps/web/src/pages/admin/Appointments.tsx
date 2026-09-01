@@ -602,7 +602,10 @@ export const AdminAppointments = () => {
       ) : view === 'list' ? (
         <ListView appointments={appointments} />
       ) : (
-        <div className="min-h-[420px] flex-1 md:min-h-0">
+        <div className="min-h-0 flex-1">
+          {/* Bez min-h: łańcuch wysokości jest już określony od powłoki admina w dół,
+              więc kalendarz dostaje realne miejsce. Wymuszanie 420 px odbierałoby mu
+              zdolność skurczenia się i znów rozpychałoby stronę na niskich ekranach. */}
           <CalendarView
             appointments={appointments}
             services={services}
