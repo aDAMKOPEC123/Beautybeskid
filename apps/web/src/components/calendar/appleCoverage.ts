@@ -65,6 +65,39 @@ export function splitByDay(start: Date, end: Date): DayChunk[] {
 }
 
 /**
+ * Kawałki dobowe wydarzenia całodniowego.
+ *
+ * Backend zapisuje takie wydarzenia jako północ UTC dnia kalendarzowego, więc dzień
+ * odczytujemy przez `getUTC*`, a kafel budujemy w czasie lokalnym przeglądarki.
+ * Dzięki temu „cały 3 września" jest całym 3 września niezależnie od tego, w jakiej
+ * strefie pracuje serwer i w jakiej użytkowniczka — a nie pasem 02:00–02:00
+ * rozłażącym się na dwa dni, jak przy potraktowaniu tej daty jak zwykłej godziny.
+ */
+export function splitAllDayByDay(start: Date, end: Date): DayChunk[] {
+  const chunks: DayChunk[] = [];
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return chunks;
+  if (end.getTime() <= start.getTime()) return chunks;
+
+  let cursor = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+
+  while (cursor < end.getTime() && chunks.length < MAX_CHUNKS) {
+    const day = new Date(cursor);
+    const y = day.getUTCFullYear();
+    const m = day.getUTCMonth();
+    const d = day.getUTCDate();
+
+    chunks.push({
+      start: new Date(y, m, d, 0, 0, 0, 0),
+      end: new Date(y, m, d, 23, 59, 0, 0),
+    });
+
+    cursor = Date.UTC(y, m, d + 1);
+  }
+
+  return chunks;
+}
+
+/**
  * Czy kawałek jest w pełni pokryty blokadą obejmującą cały salon.
  *
  * Pokrycie częściowe i blokady dotyczące wybranych pracownic nie liczą się —

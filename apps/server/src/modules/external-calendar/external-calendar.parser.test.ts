@@ -158,4 +158,52 @@ describe('parseIcs', () => {
     const again = parseIcs(NO_UID_TWICE, WINDOW_START, WINDOW_END);
     expect(again.map((e) => e.uid).sort()).toEqual(events.map((e) => e.uid).sort());
   });
+
+  it('wydarzenie całodniowe zapisuje się jako północ UTC dnia kalendarzowego', () => {
+    const ALL_DAY = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      'UID:urlop-1',
+      'SUMMARY:Urlop',
+      'DTSTART;VALUE=DATE:20260903',
+      'DTEND;VALUE=DATE:20260904',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const events = parseIcs(ALL_DAY, WINDOW_START, WINDOW_END);
+    expect(events).toHaveLength(1);
+    const e = events[0];
+
+    expect(e.isAllDay).toBe(true);
+    // Data przestaje zależeć od strefy serwera: dzień kalendarzowy odczytany w UTC
+    // musi być dokładnie tym, co stoi w DTSTART.
+    expect(e.startsAt.getUTCFullYear()).toBe(2026);
+    expect(e.startsAt.getUTCMonth()).toBe(8); // wrzesień, miesiące liczone od zera
+    expect(e.startsAt.getUTCDate()).toBe(3);
+    expect(e.startsAt.getUTCHours()).toBe(0);
+    expect(e.startsAt.getUTCMinutes()).toBe(0);
+
+    // Jednodniowy urlop trwa dokładnie dobę, niezależnie od zmian czasu.
+    expect(e.endsAt.getTime() - e.startsAt.getTime()).toBe(24 * 60 * 60 * 1000);
+  });
+
+  it('wielodniowe wydarzenie całodniowe zachowuje pełną liczbę dób', () => {
+    const ALL_DAY_RANGE = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      'UID:urlop-3',
+      'SUMMARY:Urlop',
+      'DTSTART;VALUE=DATE:20260903',
+      'DTEND;VALUE=DATE:20260906',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const events = parseIcs(ALL_DAY_RANGE, WINDOW_START, WINDOW_END);
+    expect(events).toHaveLength(1);
+    expect(events[0].endsAt.getTime() - events[0].startsAt.getTime()).toBe(3 * 24 * 60 * 60 * 1000);
+  });
 });

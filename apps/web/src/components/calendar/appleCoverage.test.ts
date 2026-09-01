@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitByDay, isCoveredByBlock, type DayChunk } from './appleCoverage';
+import { splitByDay, splitAllDayByDay, isCoveredByBlock, type DayChunk } from './appleCoverage';
 import type { CalendarBlock } from '@/api/calendar-blocks.api';
 
 const d = (iso: string) => new Date(iso);
@@ -125,5 +125,46 @@ describe('isCoveredByBlock', () => {
       block({ startsAt: '2026-09-03T13:00:00', endsAt: '2026-09-03T15:00:00' }),
       block({ startsAt: '2026-09-03T15:00:00', endsAt: '2026-09-03T18:00:00' }),
     ])).toBe(false);
+  });
+});
+
+describe('splitAllDayByDay', () => {
+  // Backend zapisuje wydarzenia całodniowe jako północ UTC dnia kalendarzowego.
+  const utcMidnight = (y: number, m: number, day: number) => new Date(Date.UTC(y, m, day));
+
+  it('jednodniowy urlop daje jeden kafel od lokalnej północy do 23:59', () => {
+    const chunks = splitAllDayByDay(utcMidnight(2026, 8, 3), utcMidnight(2026, 8, 4));
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].start.getDate()).toBe(3);
+    expect(chunks[0].start.getHours()).toBe(0);
+    expect(chunks[0].start.getMinutes()).toBe(0);
+    expect(chunks[0].end.getDate()).toBe(3);
+    expect(chunks[0].end.getHours()).toBe(23);
+    expect(chunks[0].end.getMinutes()).toBe(59);
+  });
+
+  it('trzydniowy urlop daje trzy kafle, po jednym na kolejny dzień', () => {
+    const chunks = splitAllDayByDay(utcMidnight(2026, 8, 3), utcMidnight(2026, 8, 6));
+    expect(chunks).toHaveLength(3);
+    expect(chunks.map((c) => c.start.getDate())).toEqual([3, 4, 5]);
+    for (const c of chunks) {
+      expect(c.start.getHours()).toBe(0);
+      expect(c.end.getHours()).toBe(23);
+      // Kafel nie przechodzi przez północ — modal blokad operuje na jednej dacie.
+      expect(c.start.getDate()).toBe(c.end.getDate());
+    }
+  });
+
+  it('urlop na przełomie miesiąca przechodzi na kolejny miesiąc', () => {
+    // Koniec jest wyłączny, jak w formacie ICS: DTEND 2 października znaczy, że
+    // ostatnim dniem urlopu jest 1 października.
+    const chunks = splitAllDayByDay(utcMidnight(2026, 8, 30), utcMidnight(2026, 9, 2));
+    expect(chunks).toHaveLength(2);
+    expect(chunks.map((c) => c.start.getDate())).toEqual([30, 1]);
+    expect(chunks.map((c) => c.start.getMonth())).toEqual([8, 9]);
+  });
+
+  it('koniec nie późniejszy niż początek daje pustą listę', () => {
+    expect(splitAllDayByDay(utcMidnight(2026, 8, 3), utcMidnight(2026, 8, 3))).toEqual([]);
   });
 });

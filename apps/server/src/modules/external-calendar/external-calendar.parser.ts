@@ -50,18 +50,34 @@ export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): P
     const buildUid = (startsAt: Date): string =>
       entry.uid ? entry.uid : `bez-uid-${title}-${startsAt.toISOString()}`;
 
+    // Wydarzenie całodniowe (VALUE=DATE) node-ical zwraca jako północ w strefie
+    // procesu. Zapisujemy je jako północ UTC tego samego dnia kalendarzowego, żeby
+    // zapisana data przestała zależeć od strefy serwera — inaczej ta sama subskrypcja
+    // po zmianie strefy maszyny dawałaby inny dzień. Frontend odczytuje z tego dzień
+    // przez getUTC* i buduje kafel w czasie lokalnym przeglądarki.
+    const normalizeStart = (d: Date): Date =>
+      isAllDay ? new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())) : d;
+
+    // Dla całodniowych długość liczymy w pełnych dobach. Różnica dwóch lokalnych
+    // północy potrafi wynieść 23 albo 25 godzin przy zmianie czasu, co ucięłoby
+    // albo wydłużyło ostatni dzień.
+    const endFor = (start: Date): Date =>
+      isAllDay
+        ? new Date(start.getTime() + Math.max(1, Math.round(durationMs / 86_400_000)) * 86_400_000)
+        : new Date(start.getTime() + durationMs);
+
     if (entry.rrule) {
       const excluded = new Set<number>(
         Object.values(entry.exdate ?? {}).map((d: any) => new Date(d).getTime()),
       );
       for (const occurrence of entry.rrule.between(windowStart, windowEnd, true)) {
-        const startsAt = new Date(occurrence);
+        const startsAt = normalizeStart(new Date(occurrence));
         if (excluded.has(startsAt.getTime())) continue;
         out.push({
           uid: buildUid(startsAt),
           title,
           startsAt,
-          endsAt: new Date(startsAt.getTime() + durationMs),
+          endsAt: endFor(startsAt),
           isAllDay,
           location,
         });
@@ -69,13 +85,13 @@ export function parseIcs(icsText: string, windowStart: Date, windowEnd: Date): P
       continue;
     }
 
-    const startsAt = new Date(entry.start);
+    const startsAt = normalizeStart(new Date(entry.start));
     if (startsAt < windowStart || startsAt >= windowEnd) continue;
     out.push({
       uid: buildUid(startsAt),
       title,
       startsAt,
-      endsAt: new Date(startsAt.getTime() + durationMs),
+      endsAt: endFor(startsAt),
       isAllDay,
       location,
     });

@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import externalCalendarApi from '@/api/external-calendar.api';
 import { useSocket } from '@/hooks/useSocket';
 import type { CalendarBlock } from '@/api/calendar-blocks.api';
-import { splitByDay, isCoveredByBlock } from './appleCoverage';
+import { splitByDay, splitAllDayByDay, isCoveredByBlock } from './appleCoverage';
 
 interface Props {
   rangeStart: Date;
@@ -47,7 +47,12 @@ export function AppleCalendarOverlay({
       // Wydarzenie wielodniowe rozpada się na kawałki dobowe: każdy dzień dostaje
       // własny kafel i własny badge, a kafel zna przycięte do doby godziny —
       // dzięki temu modal blokady nie musi zgadywać, w który dzień kliknięto.
-      const chunks = splitByDay(new Date(ev.startsAt), new Date(ev.endsAt));
+      // Wydarzenie całodniowe ma zapisaną datę kalendarzową, a nie moment w czasie —
+      // liczymy je osobno, żeby „cały 3 września" pokrywał całą lokalną dobę zamiast
+      // rozłazić się na dwa dni o przesunięcie strefy serwera wobec strefy przeglądarki.
+      const chunks = ev.isAllDay
+        ? splitAllDayByDay(new Date(ev.startsAt), new Date(ev.endsAt))
+        : splitByDay(new Date(ev.startsAt), new Date(ev.endsAt));
       return chunks.flatMap((chunk, dayIndex) => {
         const base = {
           // display:'background' renderuje event jako tło, niezaznaczalne i nieblokujące
