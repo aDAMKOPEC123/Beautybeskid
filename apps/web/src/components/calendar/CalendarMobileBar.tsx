@@ -8,6 +8,9 @@ interface Props {
   anchor: Date;
   employees: any[];
   zoomedEmployeeId: string | null;
+  /** Widok listy: `anchor` to poniedziałek tygodnia, nie oglądany dzień — rząd dni,
+      przycisk „Dziś" i wybór pracownicy nie mają tu sensu (patrz komentarz niżej). */
+  isListView: boolean;
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onToday: () => void;
@@ -33,13 +36,17 @@ const CONTROL = 'h-11 shrink-0 rounded-lg font-medium';
  * otwieranego tą datą, a tożsamość pracownicy stoi tutaj zamiast nad siatką.
  */
 export function CalendarMobileBar({
-  anchor, employees, zoomedEmployeeId,
+  anchor, employees, zoomedEmployeeId, isListView,
   onPrevWeek, onNextWeek, onToday, onPickDate, onOpenWeekPicker, onToggleLegend, onPickEmployee,
 }: Props) {
   const anchorDay = toDay(anchor);
   const days = weekDays(anchorDay);
   const today = new Date();
-  const showToday = shouldShowTodayButton(anchorDay, today);
+  // W widoku listy `anchor` to `rangeStart` czyli poniedziałek tygodnia, a nie
+  // oglądany dzień — rząd dni podświetlałby zawsze poniedziałek, a „Dziś" pojawiałby
+  // się przez cztery dni w tygodniu mimo bycia „na dzisiaj". Nawigację w tym widoku
+  // zapewniają strzałki i arkusz tygodni, więc oba elementy chowamy całkowicie.
+  const showToday = !isListView && shouldShowTodayButton(anchorDay, today);
 
   return (
     <div className="border-b bg-white px-2 py-1 md:hidden">
@@ -93,15 +100,20 @@ export function CalendarMobileBar({
         </button>
       </div>
 
-      {/* Wybór pracownicy. Przy jednej osobie sama nazwa — lista rozwijana
-          udawałaby wybór, którego nie ma. Przy wielu natywny <select>, bo na
-          telefonie otwiera systemowy wybierak i działa lepiej niż własne menu. */}
-      {employees.length === 1 && (
+      {/* Wybór pracownicy — tylko w widokach siatki. W widoku listy `switchView`
+          zeruje `zoomedEmployeeId`, więc `<select>` renderowałby się bez opcji
+          o wartości '' i przeglądarka zostawiałaby pole puste (selectedIndex = -1).
+          Wcześniejszy rząd zakładek wymagał zoomu i tak samo nie pokazywał się
+          w widoku listy — to odtwarza tamto zachowanie. Przy jednej osobie sama
+          nazwa — lista rozwijana udawałaby wybór, którego nie ma. Przy wielu
+          natywny <select>, bo na telefonie otwiera systemowy wybierak i działa
+          lepiej niż własne menu. */}
+      {!isListView && employees.length === 1 && (
         <p className="mt-1 truncate px-1 text-xs font-medium text-muted-foreground">
           {employees[0].name}
         </p>
       )}
-      {employees.length > 1 && (
+      {!isListView && employees.length > 1 && (
         <select
           value={zoomedEmployeeId ?? ''}
           onChange={(e) => onPickEmployee(e.target.value)}
@@ -114,34 +126,36 @@ export function CalendarMobileBar({
         </select>
       )}
 
-      <div className="mt-1 flex gap-1">
-        {days.map((day) => {
-          const active = sameDay(day, anchorDay);
-          const weekend = isWeekend(day);
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              onClick={() => onPickDate(day)}
-              aria-pressed={active}
-              className={`flex h-11 flex-1 flex-col items-center justify-center rounded-lg leading-tight ${
-                active
-                  ? 'bg-primary text-primary-foreground'
-                  : weekend
-                    ? 'bg-amber-50 text-amber-900'
-                    : 'bg-secondary text-secondary-foreground'
-              }`}
-            >
-              <span className="text-[10px] uppercase opacity-80">
-                {format(day, 'EEEEEE', { locale: pl })}
-              </span>
-              <span className={`text-sm ${sameDay(day, today) ? 'font-bold underline' : 'font-medium'}`}>
-                {day.getDate()}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      {!isListView && (
+        <div className="mt-1 flex gap-1">
+          {days.map((day) => {
+            const active = sameDay(day, anchorDay);
+            const weekend = isWeekend(day);
+            return (
+              <button
+                key={day.toISOString()}
+                type="button"
+                onClick={() => onPickDate(day)}
+                aria-pressed={active}
+                className={`flex h-11 flex-1 flex-col items-center justify-center rounded-lg leading-tight ${
+                  active
+                    ? 'bg-primary text-primary-foreground'
+                    : weekend
+                      ? 'bg-amber-50 text-amber-900'
+                      : 'bg-secondary text-secondary-foreground'
+                }`}
+              >
+                <span className="text-[10px] uppercase opacity-80">
+                  {format(day, 'EEEEEE', { locale: pl })}
+                </span>
+                <span className={`text-sm ${sameDay(day, today) ? 'font-bold underline' : 'font-medium'}`}>
+                  {day.getDate()}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -611,6 +611,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           anchor={rangeStart}
           employees={employees}
           zoomedEmployeeId={zoomedEmployeeId}
+          isListView={view === 'listWeek'}
           onPrevWeek={() => stepWeek(-1)}
           onNextWeek={() => stepWeek(1)}
           onToday={() => calRef.current?.getApi().today()}
@@ -1005,13 +1006,20 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         onPickDate={goToDate}
       />
 
-      <CalendarMobileActions
-        isListView={view === 'listWeek'}
-        onGrid={switchToMobileGrid}
-        onList={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
-        onAdd={() => setAddModal({})}
-        onMore={() => setMobileActionsOpen(true)}
-      />
+      {/* Pasek steruje kalendarzem, nie panelem klientki — gdy szuflada (pełnoekranowa
+          na telefonie) przykrywa ekran, pasek nie ma czym sterować, a przy równym
+          z-40 i późniejszej pozycji w drzewie zasłaniałby dolną krawędź jej treści.
+          Happy Hour Panel ma wyższy z-[51], więc zawsze jest nad paskiem — nie
+          wymaga tego samego traktowania. */}
+      {!selectedAppt && (
+        <CalendarMobileActions
+          isListView={view === 'listWeek'}
+          onGrid={switchToMobileGrid}
+          onList={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
+          onAdd={() => setAddModal({})}
+          onMore={() => setMobileActionsOpen(true)}
+        />
+      )}
     </div>
   );
 }

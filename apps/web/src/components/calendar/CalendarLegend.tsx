@@ -79,10 +79,18 @@ export function CalendarLegend({
     });
   };
 
-  // Sygnał z górnej belki telefonu: przełącz rozwinięcie, ale nie przy montowaniu.
-  const firstSignal = useRef(true);
+  // Sygnał z górnej belki telefonu: przełącz rozwinięcie, ale tylko gdy sygnał
+  // faktycznie się zmienił. Efekt ma w zależnościach `storageKey`, a ten zależy
+  // od `isMobile` (useIsMobile, próg 767px) — obrót telefonu do poziomu daje
+  // ≥768px, więc `isMobile` i `storageKey` zmieniają się bez żadnego tapnięcia.
+  // Strażnik oparty na „czy to montowanie" chroniłby tylko pierwsze wywołanie;
+  // porównanie wartości sygnału chroni przy każdym takim przeliczeniu, nie tylko
+  // przy pierwszym — inaczej obrót telefonu sam odwracałby stan i nadpisywał
+  // zapamiętany wybór pod nowym kluczem.
+  const lastSignal = useRef(toggleSignal);
   useEffect(() => {
-    if (firstSignal.current) { firstSignal.current = false; return; }
+    if (toggleSignal === lastSignal.current) return;
+    lastSignal.current = toggleSignal;
     setOpen((prev) => {
       localStorage.setItem(storageKey, prev ? '0' : '1');
       return !prev;
