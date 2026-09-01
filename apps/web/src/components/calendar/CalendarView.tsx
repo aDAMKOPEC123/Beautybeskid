@@ -18,7 +18,7 @@ import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/rea
 import { format } from 'date-fns';
 import { employeesApi, type WeeklyScheduleEntry, type WorkDay } from '@/api/employees.api';
 import calendarBlocksApi, { type CalendarBlock } from '@/api/calendar-blocks.api';
-import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock, MoreHorizontal } from 'lucide-react';
+import { Calendar, UserPlus, Zap, Lock, Trash2, Settings, Clock } from 'lucide-react';
 import { AppointmentCard } from './AppointmentCard';
 import { MobileSheet } from './MobileSheet';
 import { ClientDrawer } from './ClientDrawer';
@@ -35,6 +35,7 @@ import { CalendarLegend } from './CalendarLegend';
 import { CalendarPeriodNav } from './CalendarPeriodNav';
 import { CalendarMobileBar } from './CalendarMobileBar';
 import { CalendarWeekPickerSheet } from './CalendarWeekPickerSheet';
+import { CalendarMobileActions } from './CalendarMobileActions';
 import './calendar.css';
 
 // Deterministic color per employee index
@@ -178,6 +179,15 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
     if (!el) return;
     setBlockPopoverLayout(computeVerticalFlip(blockPopover.y, el.scrollHeight, 6, MIN_BLOCK_POPOVER_HEIGHT));
   }, [blockPopover, isMobile]);
+
+  // Kolumny pracownic na szerokości telefonu są nieczytelne, a przy jednej osobie
+  // nagłówek kolumny zajmuje 85 px, żeby powtórzyć niezmienną informację. Na
+  // telefonie trzymamy się widoku jednego dnia jednej pracownicy niezależnie od
+  // tego, w jakim stanie zastaliśmy widok.
+  useEffect(() => {
+    if (!isMobile || view !== 'resourceTimeGridDay') return;
+    switchToMobileGrid();
+  }, [isMobile, view]);
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -506,30 +516,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         selectedAppt ? 'md:mr-80' :
         hhPanelOpen ? 'md:mr-80' : ''
       }`}>
-        {/* Pasek mobilny — cztery cele dotykowe, reszta akcji w arkuszu */}
-        <div className="flex items-center gap-1.5 border-b bg-white p-2 md:hidden">
-          <div className="flex gap-1.5">
-            <button
-              onClick={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
-              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view === 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
-            >
-              Lista
-            </button>
-            <button
-              onClick={switchToMobileGrid}
-              className={`min-h-11 rounded-lg px-3 text-sm font-medium ${view !== 'listWeek' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
-            >
-              Siatka
-            </button>
-            <button
-              onClick={() => setMobileActionsOpen(true)}
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-secondary text-secondary-foreground"
-              aria-label="Więcej akcji"
-            >
-              <MoreHorizontal size={18} />
-            </button>
-          </div>
-        </div>
 
         {/* Toolbar */}
         <div className="hidden md:flex items-center gap-2 p-3 border-b bg-white flex-wrap">
@@ -654,7 +640,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           // Na telefonie kontener nie przycina i nie ogranicza wysokosci: siatka rysuje sie
           // w calosci, a przewija sie cala tresc strony. Na desktopie zostaje wypelnianie
           // ekranu z wewnetrznym scrollerem FullCalendara, ktory trzyma naglowki kolumn.
-          className="cosmo-calendar px-1 pb-1 md:min-h-0 md:flex-1 md:overflow-hidden"
+          className="cosmo-calendar px-1 pb-24 md:min-h-0 md:flex-1 md:overflow-hidden md:pb-1"
           style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}
         >
           <AppleCalendarOverlay
@@ -977,12 +963,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       <MobileSheet open={mobileActionsOpen} onClose={() => setMobileActionsOpen(false)} title="Akcje kalendarza">
         <button
           className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
-          onClick={() => { setAddModal({}); setMobileActionsOpen(false); }}
-        >
-          <Calendar size={16} className="text-green-600" /> Dodaj wizytę
-        </button>
-        <button
-          className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-accent"
           onClick={() => { setExternalModal({}); setMobileActionsOpen(false); }}
         >
           <UserPlus size={16} className="text-violet-500" /> Klientka z zewnątrz
@@ -1023,6 +1003,14 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
         anchor={rangeStart}
         onClose={() => setWeekPickerOpen(false)}
         onPickDate={goToDate}
+      />
+
+      <CalendarMobileActions
+        isListView={view === 'listWeek'}
+        onGrid={switchToMobileGrid}
+        onList={() => { setZoomedEmployeeId(null); switchView('listWeek'); }}
+        onAdd={() => setAddModal({})}
+        onMore={() => setMobileActionsOpen(true)}
       />
     </div>
   );
