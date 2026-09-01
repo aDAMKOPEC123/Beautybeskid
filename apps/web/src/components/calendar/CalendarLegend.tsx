@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { storageKeyFor } from './calendarMobile';
@@ -10,6 +10,8 @@ interface Props {
   onToggleApple: () => void;
   showHappyHours: boolean;
   onToggleHappyHours: () => void;
+  /** Zmiana wartości przełącza rozwinięcie — sygnał z górnej belki telefonu. */
+  toggleSignal?: number;
 }
 
 function Swatch({ children }: { children: React.ReactNode }) {
@@ -55,6 +57,7 @@ export function CalendarLegend({
   showWorkingHours, onToggleWorkingHours,
   showApple, onToggleApple,
   showHappyHours, onToggleHappyHours,
+  toggleSignal,
 }: Props) {
   const isMobile = useIsMobile();
   // Na telefonie domyślnie zwinięta — tam każdy piksel wysokości siatki jest cenny.
@@ -75,6 +78,16 @@ export function CalendarLegend({
       return !prev;
     });
   };
+
+  // Sygnał z górnej belki telefonu: przełącz rozwinięcie, ale nie przy montowaniu.
+  const firstSignal = useRef(true);
+  useEffect(() => {
+    if (firstSignal.current) { firstSignal.current = false; return; }
+    setOpen((prev) => {
+      localStorage.setItem(storageKey, prev ? '0' : '1');
+      return !prev;
+    });
+  }, [toggleSignal, storageKey]);
 
   // Przełącznik i pozycje w jednym rzędzie — legenda zajmowała dwa rzędy, choć
   // mieści się w jednym, a każdy odzyskany rząd to więcej wysokości dla siatki.

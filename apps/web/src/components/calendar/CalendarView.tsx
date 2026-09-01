@@ -33,6 +33,8 @@ import { AppleCalendarSettingsModal } from './AppleCalendarSettingsModal';
 import { DAY_WINDOW_START, DAY_WINDOW_END, buildWorkingHourLayer } from './calendarLayers';
 import { CalendarLegend } from './CalendarLegend';
 import { CalendarPeriodNav } from './CalendarPeriodNav';
+import { CalendarMobileBar } from './CalendarMobileBar';
+import { CalendarWeekPickerSheet } from './CalendarWeekPickerSheet';
 import './calendar.css';
 
 // Deterministic color per employee index
@@ -146,6 +148,11 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
   const [showWorkingHours, setShowWorkingHours] = useState(true);
   const [appleSettingsOpen, setAppleSettingsOpen] = useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const [weekPickerOpen, setWeekPickerOpen] = useState(false);
+  // Belka telefonu przełącza legendę, której stan mieszka w CalendarLegend.
+  // Zwiększany licznik jest sygnałem „przełącz się" — prostszym niż podnoszenie
+  // całego stanu w górę tylko po to, żeby jeden przycisk mógł go dotknąć.
+  const [legendOpenSignal, setLegendOpenSignal] = useState(0);
 
   useEffect(() => {
     if (!selectedAppt) {
@@ -622,16 +629,32 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           </div>
         )}
 
-        <CalendarPeriodNav
+        <div className="hidden md:block">
+          <CalendarPeriodNav
+            anchor={rangeStart}
+            showDayRow={view === 'resourceTimeGridDay' || view === 'timeGridDay'}
+            onPrevWeek={() => stepWeek(-1)}
+            onNextWeek={() => stepWeek(1)}
+            onToday={() => calRef.current?.getApi().today()}
+            onPickDate={goToDate}
+          />
+        </div>
+
+        <CalendarMobileBar
           anchor={rangeStart}
-          showDayRow={view === 'resourceTimeGridDay' || view === 'timeGridDay'}
+          employees={employees}
+          zoomedEmployeeId={zoomedEmployeeId}
           onPrevWeek={() => stepWeek(-1)}
           onNextWeek={() => stepWeek(1)}
           onToday={() => calRef.current?.getApi().today()}
           onPickDate={goToDate}
+          onOpenWeekPicker={() => setWeekPickerOpen(true)}
+          onToggleLegend={() => setLegendOpenSignal((n) => n + 1)}
+          onPickEmployee={(id) => zoomToEmployee(id)}
         />
 
         <CalendarLegend
+          toggleSignal={legendOpenSignal}
           showWorkingHours={showWorkingHours}
           onToggleWorkingHours={() => setShowWorkingHours((v) => !v)}
           showApple={showApple}
@@ -1013,6 +1036,13 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           <Settings size={16} className="text-gray-500" /> Ustawienia kalendarza Apple
         </button>
       </MobileSheet>
+
+      <CalendarWeekPickerSheet
+        open={weekPickerOpen}
+        anchor={rangeStart}
+        onClose={() => setWeekPickerOpen(false)}
+        onPickDate={goToDate}
+      />
     </div>
   );
 }
