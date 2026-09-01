@@ -55,10 +55,30 @@ export function appointmentToIcsEvent(a: FeedAppointment): IcsEvent {
     description: descriptionParts.join('\n'),
     location: a.locationAddressAtBooking ?? undefined,
     lastModified: a.updatedAt,
+    sequence: sequenceFrom(a.updatedAt),
   };
 }
 
 const newToken = () => randomBytes(32).toString('base64url');
+
+/**
+ * Numer wersji wydarzenia dla pola SEQUENCE, wyprowadzony z chwili ostatniej
+ * zmiany wizyty.
+ *
+ * Wymóg formatu jest taki, że wartość musi rosnąć przy każdej istotnej zmianie
+ * tego samego wydarzenia. `updatedAt` spełnia to z definicji — Prisma przesuwa je
+ * tylko w przód — więc nie potrzeba osobnego licznika w bazie.
+ *
+ * Liczymy sekundy od 2020 roku, a nie od epoki uniksowej, żeby zmieścić się
+ * w zakresie 32-bitowym, na który liczy część klientów kalendarza. Zapas przy tym
+ * punkcie odniesienia sięga roku 2088. Data sprzed punktu odniesienia dawałaby
+ * wartość ujemną, czyli niepoprawną, więc jest przycinana do zera.
+ */
+const SEQUENCE_EPOCH_MS = Date.UTC(2020, 0, 1);
+
+export function sequenceFrom(updatedAt: Date): number {
+  return Math.max(0, Math.floor((updatedAt.getTime() - SEQUENCE_EPOCH_MS) / 1000));
+}
 
 // Stały identyfikator wymusza jednowierszowość tabeli: dwa równoczesne pierwsze
 // wejścia (dwie karty, React StrictMode w dev) trafiają w ten sam `upsert` zamiast

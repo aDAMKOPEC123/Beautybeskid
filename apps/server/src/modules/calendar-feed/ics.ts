@@ -6,6 +6,12 @@ export interface IcsEvent {
   description?: string;
   location?: string;
   lastModified?: Date;
+  /**
+   * Numer wersji wydarzenia. Musi rosnąć monotonicznie dla danego UID przy każdej
+   * istotnej zmianie — klient kalendarza porównuje go z wersją, którą już ma, i po
+   * tym poznaje, że ma zaktualizować wydarzenie zamiast dołożyć drugie obok.
+   */
+  sequence?: number;
 }
 
 const CRLF = '\r\n';
@@ -76,6 +82,9 @@ export function buildIcs(events: IcsEvent[], calendarName: string): string {
     out.push(`DTSTAMP:${now}`);
     out.push(`DTSTART:${formatUtc(e.start)}`);
     out.push(`DTEND:${formatUtc(e.end)}`);
+    // Porównanie z undefined, nie zwykła prawdziwość — SEQUENCE:0 jest poprawną
+    // wartością początkową, a `if (e.sequence)` cicho by ją pominęło.
+    if (e.sequence !== undefined) out.push(`SEQUENCE:${e.sequence}`);
     out.push(`SUMMARY:${escapeText(e.summary)}`);
     if (e.description) out.push(`DESCRIPTION:${escapeText(e.description)}`);
     if (e.location) out.push(`LOCATION:${escapeText(e.location)}`);

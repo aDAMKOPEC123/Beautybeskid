@@ -91,4 +91,26 @@ describe('appointmentToIcsEvent', () => {
   it('adres bierze się z lokalizacji zapisanej przy rezerwacji', () => {
     expect(appointmentToIcsEvent(appt()).location).toBe('ul. Testowa 1, Żywiec');
   });
+
+  it('SEQUENCE jest nieujemną liczbą całkowitą', () => {
+    const seq = appointmentToIcsEvent(appt()).sequence!;
+    expect(Number.isInteger(seq)).toBe(true);
+    expect(seq).toBeGreaterThanOrEqual(0);
+  });
+
+  it('późniejsza zmiana wizyty daje większe SEQUENCE — inaczej klient zignorowałby aktualizację', () => {
+    const wczesniej = appointmentToIcsEvent(appt({ updatedAt: new Date(Date.UTC(2026, 8, 1, 8, 0, 0)) })).sequence!;
+    const pozniej = appointmentToIcsEvent(appt({ updatedAt: new Date(Date.UTC(2026, 8, 1, 8, 0, 30)) })).sequence!;
+    expect(pozniej).toBeGreaterThan(wczesniej);
+  });
+
+  it('SEQUENCE mieści się w zakresie 32-bitowym, którego oczekują klienty kalendarza', () => {
+    const seq = appointmentToIcsEvent(appt({ updatedAt: new Date(Date.UTC(2030, 0, 1)) })).sequence!;
+    expect(seq).toBeLessThan(2_147_483_647);
+  });
+
+  it('data sprzed epoki odniesienia nie daje ujemnego SEQUENCE', () => {
+    const seq = appointmentToIcsEvent(appt({ updatedAt: new Date(Date.UTC(2019, 0, 1)) })).sequence!;
+    expect(seq).toBe(0);
+  });
 });

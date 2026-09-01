@@ -69,4 +69,16 @@ describe('buildIcs', () => {
     expect(out).toContain('END:VCALENDAR');
     expect(out).not.toContain('BEGIN:VEVENT');
   });
+
+  it('wypisuje SEQUENCE, gdy podany', () => {
+    expect(buildIcs([ev({ sequence: 7 })], 'COSMO')).toContain('SEQUENCE:7');
+  });
+
+  it('wypisuje SEQUENCE równe zeru — zero jest poprawną wartością, nie brakiem wartości', () => {
+    expect(buildIcs([ev({ sequence: 0 })], 'COSMO')).toContain('SEQUENCE:0');
+  });
+
+  it('pomija SEQUENCE, gdy nie podano', () => {
+    expect(buildIcs([ev()], 'COSMO')).not.toContain('SEQUENCE:');
+  });
 });
