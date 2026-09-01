@@ -610,25 +610,6 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           </div>
         </div>
 
-        {isMobile && zoomedEmployeeId && employees.length > 1 && (
-          <div className="flex gap-1.5 overflow-x-auto border-b bg-white px-3 py-2">
-            {employees.map((emp: any) => (
-              <button
-                key={emp.id}
-                onClick={() => {
-                  setZoomedEmployeeId(emp.id);
-                  calRef.current?.getApi().changeView('timeGridDay');
-                }}
-                className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-medium ${
-                  emp.id === zoomedEmployeeId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                }`}
-              >
-                {emp.name}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="hidden md:block">
           <CalendarPeriodNav
             anchor={rangeStart}
