@@ -787,7 +787,19 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   select={handleDateSelect}
                   slotMinTime={`${DAY_WINDOW_START}:00`}
                   slotMaxTime={`${DAY_WINDOW_END}:00`}
-                  slotLabelInterval="00:30:00"
+                  // Na telefonie czternaście godzin po pół godziny to 28 wierszy, których
+                  // FullCalendar nie ściśnie poniżej minimalnej wysokości — pokazywał więc
+                  // trzy godziny i przewijał resztę. Godzinne sloty dają 14 wierszy zamiast
+                  // 28, czyli dwukrotnie więcej wysokości na wiersz, i cały dzień mieści się
+                  // bez przewijania. Żadna wizyta nie znika: długość slotu wyznacza wyłącznie
+                  // linie siatki, a wizyty i tak są rysowane co do minuty.
+                  slotDuration={isMobile ? '01:00:00' : '00:30:00'}
+                  slotLabelInterval={isMobile ? '01:00:00' : '00:30:00'}
+                  // Bez tego kliknięcie w godzinny slot trafiałoby w pełną godzinę i nie dałoby
+                  // się na telefonie umówić wizyty na 9:30. Ustawiamy wyłącznie na telefonie —
+                  // na desktopie brak tego propa zachowuje dotychczasowe zaokrąglanie do
+                  // trzydziestu minut, czyli do długości slotu.
+                  snapDuration={isMobile ? '00:15:00' : undefined}
                   slotLaneClassNames={(arg) => [
                     arg.date!.getMinutes() === 0 ? 'cosmo-slot-full' : 'cosmo-slot-half',
                   ]}
