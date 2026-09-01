@@ -4,11 +4,12 @@ export interface MonthWeek {
   label: string;
 }
 
-const atMidnight = (date: Date): Date => {
+/** Ta sama data o północy. Zwraca nowy obiekt — nie modyfikuje argumentu. */
+export function toDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
-};
+}
 
 const addDays = (date: Date, days: number): Date => {
   const d = new Date(date);
@@ -18,7 +19,7 @@ const addDays = (date: Date, days: number): Date => {
 
 /** Poniedziałek tygodnia zawierającego podaną datę. */
 export function startOfWeek(date: Date): Date {
-  const d = atMidnight(date);
+  const d = toDay(date);
   const dow = (d.getDay() + 6) % 7; // JS nd=0 → pn=0
   return addDays(d, -dow);
 }

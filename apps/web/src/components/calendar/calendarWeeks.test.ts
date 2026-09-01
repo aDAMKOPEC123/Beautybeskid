@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { startOfWeek, weekDays, weeksOfMonth } from './calendarWeeks';
+import { startOfWeek, weekDays, weeksOfMonth, toDay } from './calendarWeeks';
 
 const d = (iso: string) => new Date(`${iso}T00:00:00`);
 const iso = (x: Date) =>
@@ -80,5 +80,25 @@ describe('weeksOfMonth', () => {
     expect(iso(ostatniWrzesnia.start)).toBe(iso(pierwszyPazdziernika.start));
     expect(ostatniWrzesnia.label).toBe('28–30');
     expect(pierwszyPazdziernika.label).toBe('1–4');
+  });
+});
+
+describe('toDay', () => {
+  it('zeruje godzine, zostawiajac date kalendarzowa', () => {
+    const out = toDay(new Date(2026, 8, 3, 14, 37, 12, 500));
+    expect(out.getFullYear()).toBe(2026);
+    expect(out.getMonth()).toBe(8);
+    expect(out.getDate()).toBe(3);
+    expect(out.getHours()).toBe(0);
+    expect(out.getMinutes()).toBe(0);
+    expect(out.getSeconds()).toBe(0);
+    expect(out.getMilliseconds()).toBe(0);
+  });
+
+  it('nie modyfikuje daty podanej przez wywolujacego', () => {
+    const input = new Date(2026, 8, 3, 14, 0, 0);
+    const before = input.getTime();
+    toDay(input);
+    expect(input.getTime()).toBe(before);
   });
 });

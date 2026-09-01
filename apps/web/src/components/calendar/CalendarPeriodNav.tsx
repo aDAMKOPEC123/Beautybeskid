@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { weeksOfMonth, weekDays } from './calendarWeeks';
+import { weeksOfMonth, weekDays, toDay } from './calendarWeeks';
 
 interface Props {
   anchor: Date;
@@ -30,7 +30,7 @@ export function CalendarPeriodNav({
   // z `weeksOfMonth` to północ ostatniego dnia tygodnia — porównanie surowych `getTime()`
   // gubiłoby niedzielę z godziną spoza północy. Normalizujemy raz, na wejściu, żeby
   // porównanie tygodni i `sameDay` w rzędzie dni korzystały z tej samej, spójnej wartości.
-  const anchorDay = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
+  const anchorDay = toDay(anchor);
   const weeks = weeksOfMonth(anchorDay);
   const days = weekDays(anchorDay);
   const monthLabel = format(anchorDay, 'LLLL yyyy', { locale: pl });

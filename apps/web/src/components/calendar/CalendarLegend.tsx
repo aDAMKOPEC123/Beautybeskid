@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useIsMobile';
-
-const STORAGE_KEY = 'cosmo-calendar-legend-open';
+import { storageKeyFor } from './calendarMobile';
 
 interface Props {
   showWorkingHours: boolean;
@@ -61,14 +60,18 @@ export function CalendarLegend({
   // Na telefonie domyślnie zwinięta — tam każdy piksel wysokości siatki jest cenny.
   const [open, setOpen] = useState(!isMobile);
 
+  // Osobny klucz dla telefonu: legenda rozwinięta na komputerze zabierała tam
+  // 90 px z około 200 px, które w ogóle zostawały na siatkę.
+  const storageKey = storageKeyFor(isMobile);
+
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey);
     if (saved !== null) setOpen(saved === '1');
-  }, []);
+  }, [storageKey]);
 
   const toggleOpen = () => {
     setOpen((prev) => {
-      localStorage.setItem(STORAGE_KEY, prev ? '0' : '1');
+      localStorage.setItem(storageKey, prev ? '0' : '1');
       return !prev;
     });
   };
