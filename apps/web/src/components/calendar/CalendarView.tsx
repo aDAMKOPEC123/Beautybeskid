@@ -647,7 +647,10 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
           // overflow-hidden zamiast auto: przy height="100%" FullCalendar robi własny
           // wewnętrzny scroller i trzyma nagłówki kolumn w miejscu — przewijanie naszego
           // diva zabierałoby ze sobą także nazwiska pracownic.
-          className="cosmo-calendar min-h-0 flex-1 overflow-hidden px-1 pb-1"
+          // Na telefonie kontener nie przycina i nie ogranicza wysokosci: siatka rysuje sie
+          // w calosci, a przewija sie cala tresc strony. Na desktopie zostaje wypelnianie
+          // ekranu z wewnetrznym scrollerem FullCalendara, ktory trzyma naglowki kolumn.
+          className="cosmo-calendar px-1 pb-1 md:min-h-0 md:flex-1 md:overflow-hidden"
           style={hhPanelOpen ? { cursor: 'crosshair' } : undefined}
         >
           <AppleCalendarOverlay
@@ -816,8 +819,11 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
                   // height="100%" + expandRows sprawia, że siatka wypełnia kontener
                   // zamiast rysować się na stałą wysokość wynikającą z liczby slotów
                   // i zostawiać puste miejsce pod spodem.
-                  height="100%"
-                  expandRows
+                  // "auto" na telefonie: FullCalendar rysuje wszystkie godziny w naturalnej
+                  // wysokosci wiersza i nie tworzy wlasnego obszaru przewijania — dzien
+                  // oglada sie przewijajac strone, a nie osobne okienko w srodku.
+                  height={isMobile ? 'auto' : '100%'}
+                  expandRows={!isMobile}
                   datesSet={(info) => {
                     setRangeStart(info.start);
                     setRangeEnd(info.end);

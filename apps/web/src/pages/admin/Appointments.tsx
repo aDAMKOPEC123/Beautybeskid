@@ -566,7 +566,10 @@ export const AdminAppointments = () => {
     // bierze całą resztę wysokości. Wcześniej pudełko kalendarza miało wysokość liczoną
     // z calc(100vh - …), co nie uwzględniało paska 72 px ani paddingu <main> i rozpychało
     // stronę, zmuszając do przewijania. Widok listy zostaje przy zwykłym przepływie.
-    <div className={`animate-enter ${view === 'calendar' ? 'flex h-full flex-col gap-4' : 'space-y-6'}`}>
+    // Na telefonie w trybie terminarza strona plynie normalnie i przewija sie w calosci.
+    // Dopiero od md staje sie kolumna flex wypelniajaca obszar tresci, bo tam kalendarz
+    // ma dosc wysokosci, zeby zmiescic caly dzien bez przewijania.
+    <div className={`animate-enter ${view === 'calendar' ? 'space-y-4 md:flex md:h-full md:flex-col md:gap-4 md:space-y-0' : 'space-y-6'}`}>
       <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Wizyty</h1>
@@ -602,10 +605,10 @@ export const AdminAppointments = () => {
       ) : view === 'list' ? (
         <ListView appointments={appointments} />
       ) : (
-        <div className="min-h-0 flex-1">
-          {/* Bez min-h: łańcuch wysokości jest już określony od powłoki admina w dół,
-              więc kalendarz dostaje realne miejsce. Wymuszanie 420 px odbierałoby mu
-              zdolność skurczenia się i znów rozpychałoby stronę na niskich ekranach. */}
+        <div className="md:min-h-0 md:flex-1">
+          {/* Na telefonie bez ograniczenia wysokości — kalendarz rośnie do swojej
+              naturalnej wielkości i przewija się razem ze stroną. Od md wypełnia
+              obszar treści, bo tam łańcuch wysokości jest określony aż od powłoki. */}
           <CalendarView
             appointments={appointments}
             services={services}
