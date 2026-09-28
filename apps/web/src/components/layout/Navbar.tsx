@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/auth.api';
 import { unsubscribeCurrentPushSubscription } from '@/hooks/usePushSubscription';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, LayoutDashboard } from 'lucide-react';
+import { UserRound } from 'lucide-react';
 import { useClientPanelEntry } from '@/hooks/useClientPanelEntry';
 
 const NAV_LINKS = [
@@ -19,50 +19,24 @@ const NAV_LINKS = [
 
 const PanelLink = ({
   dest,
-  line1,
-  line2,
+  label,
   mobile = false,
   onClick,
 }: {
   dest: string;
-  line1: string;
-  line2: string;
+  label: string;
   mobile?: boolean;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) => (
   <Link
     to={dest}
     onClick={onClick}
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: mobile ? 'flex-start' : 'flex-end',
-      gap: '2px',
-      textDecoration: 'none',
-    }}
+    className={`inline-flex min-h-11 items-center gap-2 rounded-full border border-oak/45 text-oak transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oak ${
+      mobile ? 'w-full justify-start px-4 text-[15px]' : 'px-4 text-[13px]'
+    }`}
   >
-    <span
-      style={{
-        color: '#C8956C',
-        fontSize: '12px',
-        letterSpacing: '0.2em',
-        textTransform: 'uppercase',
-        borderBottom: '1px solid #C8956C',
-        paddingBottom: '1px',
-      }}
-    >
-      {line1}
-    </span>
-    <span
-      style={{
-        color: mobile ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.45)',
-        fontSize: '12px',
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-      }}
-    >
-      {line2}
-    </span>
+    <UserRound className="h-[18px] w-[18px] shrink-0" strokeWidth={1.9} />
+    <span className="whitespace-nowrap font-semibold">{label}</span>
   </Link>
 );
 
@@ -174,17 +148,17 @@ export const Navbar = () => {
 
   // isAdmin checked before isEmployee because useAuth sets isEmployee=true for ADMIN role too
   const appLink = isAdmin ? '/admin' : isEmployee ? '/employee' : '/user';
-  const appLine1 = isAdmin ? 'Panel admina →' : isEmployee ? 'Panel pracownika →' : 'Panel klienta →';
-  const appLine2 = isAdmin ? 'panel administracyjny' : isEmployee ? 'panel pracownika' : (isAuthenticated ? 'moje konto' : 'zaloguj lub zarejestruj się');
   const appDest = isAuthenticated ? appLink : '/auth/login';
-  const mobilePanelTitle = isAdmin ? 'Panel admina' : isEmployee ? 'Panel pracownika' : 'Panel klienta';
-  const mobilePanelHint = isAdmin
-    ? 'ustawienia i grafik'
+
+  // Jedna etykieta zamiast dwóch konkurujących linii. Dla niezalogowanego
+  // "Panel klienta" było żargonem — nie ma jeszcze żadnego panelu.
+  const accountLabel = isAdmin
+    ? 'Panel admina'
     : isEmployee
-      ? 'grafik i wizyty'
+      ? 'Panel pracownika'
       : isAuthenticated
-        ? 'moje konto'
-        : 'otwórz konto';
+        ? 'Moje konto'
+        : 'Zaloguj się';
 
   const handlePanelEntry = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, closeMenu?: () => void) => {
     event.preventDefault();
@@ -212,27 +186,15 @@ export const Navbar = () => {
             <span className="hidden font-display text-[13px] uppercase tracking-[0.08em] md:inline" style={{ color: '#F8F5F0', fontStyle: 'normal', fontWeight: 300 }}>BeskidStudio</span>
           </Link>
 
-          {/* Mobile center: Panel klienta */}
+          {/* Mobile center: konto */}
           <div className="flex min-w-0 flex-1 justify-center px-2 md:hidden">
             <button
               type="button"
               onClick={(event) => handlePanelEntry(event)}
-              className="group flex w-full min-w-0 max-w-[176px] items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 shadow-[0_10px_24px_rgba(14,32,24,0.16)] backdrop-blur min-[390px]:max-w-[184px]"
+              className="flex h-11 max-w-full items-center gap-2 rounded-full border border-oak/45 bg-white/10 px-4 text-oak backdrop-blur transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oak"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-oak/20 text-oak">
-                <LayoutDashboard className="h-4 w-4" />
-              </span>
-              <span className="min-w-0 text-left leading-none">
-                <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.02em] text-oak">
-                  {mobilePanelTitle}
-                </span>
-                <span className="mt-1 block truncate text-[9px] text-[rgba(244,249,245,0.76)]">
-                  {mobilePanelHint}
-                </span>
-              </span>
-              <span aria-hidden="true" className="ml-auto shrink-0 text-oak">
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </span>
+              <UserRound className="h-[18px] w-[18px] shrink-0" strokeWidth={1.9} />
+              <span className="whitespace-nowrap text-[13px] font-semibold">{accountLabel}</span>
             </button>
           </div>
 
@@ -259,7 +221,7 @@ export const Navbar = () => {
                 <Button variant="ghost-underline" size="sm" asChild data-tour="navbar-booking-btn">
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
-                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} onClick={(event) => handlePanelEntry(event)} />
+                <PanelLink dest={appDest} label={accountLabel} onClick={(event) => handlePanelEntry(event)} />
                 <button
                   onClick={handleLogout}
                   className="text-[10px] tracking-[0.2em] uppercase transition-colors hover:text-caramel"
@@ -270,7 +232,7 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <PanelLink dest={appDest} line1={appLine1} line2={appLine2} onClick={(event) => handlePanelEntry(event)} />
+                <PanelLink dest={appDest} label={accountLabel} onClick={(event) => handlePanelEntry(event)} />
                 <Button variant="ghost-underline" size="sm" asChild>
                   <Link to="/rezerwacja">Rezerwacja</Link>
                 </Button>
@@ -351,8 +313,7 @@ export const Navbar = () => {
                 <>
                   <PanelLink
                     dest={appDest}
-                    line1={appLine1}
-                    line2={appLine2}
+                    label={accountLabel}
                     mobile
                     onClick={(event) => handlePanelEntry(event, () => setMobileOpen(false))}
                   />
@@ -366,8 +327,7 @@ export const Navbar = () => {
               ) : (
                 <PanelLink
                   dest={appDest}
-                  line1={appLine1}
-                  line2={appLine2}
+                  label={accountLabel}
                   mobile
                   onClick={(event) => handlePanelEntry(event, () => setMobileOpen(false))}
                 />
