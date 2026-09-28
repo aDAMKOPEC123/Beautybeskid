@@ -11,9 +11,9 @@ const heroImage = '/images/beautybeskid-hero-premium.webp';
  */
 export const HeroSection = ({ onConsultationClick }: { onConsultationClick: () => void }) => (
   <section className="premium-home-bg relative overflow-hidden">
-    <div className="container relative z-10 max-w-7xl px-5 pb-8 pt-4 md:py-16">
+    <div className="container relative z-10 max-w-7xl px-5 pb-0 pt-6 md:py-16">
       <div className="grid items-center gap-7 lg:grid-cols-[1fr_1fr] lg:gap-12">
-        <div className="order-2 min-w-0 lg:order-1">
+        <div className="min-w-0">
           <h1 className="font-heading text-[30px] font-bold leading-[1.1] text-espresso sm:text-5xl lg:text-[56px]">
             Zadbaj o siebie. Termin wybierzesz w minutę.
           </h1>
@@ -44,10 +44,16 @@ export const HeroSection = ({ onConsultationClick }: { onConsultationClick: () =
           </button>
         </div>
 
-        <div className="order-1 lg:order-2">
-          <div className="relative overflow-hidden rounded-lg border border-white/70 bg-white shadow-[0_24px_90px_rgba(26,56,40,0.18)]">
+        {/*
+          Baner z panelu admina. Na mobile schodzi pod CTA i idzie pełną
+          szerokością, wpadając wprost w pasek z oceną poniżej; na desktopie
+          zostaje kartą w prawej kolumnie.
+        */}
+        <div className="-mx-5 sm:mx-0">
+          <div className="relative overflow-hidden bg-white sm:rounded-lg sm:border sm:border-white/70 sm:shadow-[0_24px_90px_rgba(26,56,40,0.18)]">
             <HeroSlider
               variant="hero-card"
+              className="h-[260px] sm:h-[380px] lg:h-[500px]"
               fallback={
                 <>
                   <picture>
@@ -55,7 +61,7 @@ export const HeroSection = ({ onConsultationClick }: { onConsultationClick: () =
                     <img
                       src={heroImage}
                       alt="Elegancki gabinet BeskidStudio By Wiktoria Ćwik w Limanowej"
-                      className="h-[220px] w-full object-cover sm:h-[360px] lg:h-[500px]"
+                      className="h-[260px] w-full object-cover sm:h-[380px] lg:h-[500px]"
                       loading="eager"
                       decoding="sync"
                       fetchPriority="high"
