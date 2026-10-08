@@ -36,6 +36,7 @@ import { CalendarPeriodNav } from './CalendarPeriodNav';
 import { CalendarMobileBar } from './CalendarMobileBar';
 import { CalendarWeekPickerSheet } from './CalendarWeekPickerSheet';
 import { CalendarMobileActions } from './CalendarMobileActions';
+import { appointmentPrice } from '@/lib/appointmentPrice';
 import './calendar.css';
 
 // Deterministic color per employee index
@@ -304,7 +305,7 @@ export function CalendarView({ appointments, services, onRefetch }: Props) {
       extendedProps: {
         clientName: appt.user?.name ?? appt.clientName ?? '—',
         serviceName: appt.service?.name ?? '—',
-        price: appt.service?.price ?? 0,
+        price: appointmentPrice(appt)?.final ?? 0,
         status: appt.status,
         employeeInitials: appt.employee?.name?.substring(0, 1).toUpperCase() ?? '?',
         employeeColor: color,

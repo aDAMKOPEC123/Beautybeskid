@@ -10,6 +10,7 @@ import { usersApi } from '@/api/users.api';
 import { authApi } from '@/api/auth.api';
 import { toast } from 'sonner';
 import { Phone, Mail, BookOpen, ChevronDown, ChevronUp, UserPlus, Check, X, Star, Trash2, ShieldCheck } from 'lucide-react';
+import { appointmentPrice } from '@/lib/appointmentPrice';
 import { UserJournal } from './UserJournal';
 
 const TIER_LABELS: Record<string, string> = { BRONZE: 'Brąz', SILVER: 'Srebro', GOLD: 'Złoto' };
@@ -342,11 +343,11 @@ const UserDetailsModal = ({ userId, onClose }: { userId: string; onClose: () => 
                           </span>
                         </div>
                         {/* Detail sub-row — COMPLETED visits only, when at least one value is present */}
-                        {a.status === 'COMPLETED' && (a.service?.price != null || a.pointsEarned != null) && (
+                        {a.status === 'COMPLETED' && (appointmentPrice(a) != null || a.pointsEarned != null) && (
                           <div className="flex items-center gap-4 px-3 py-2 bg-muted/5 border-t border-border/30">
-                            {a.service?.price != null && (
+                            {appointmentPrice(a) != null && (
                               <span className="text-xs font-bold text-green-600">
-                                Cena: {Number(a.service.price).toFixed(2)} zł
+                                Cena: {appointmentPrice(a)!.final.toFixed(2)} zł
                               </span>
                             )}
                             {a.pointsEarned != null && (

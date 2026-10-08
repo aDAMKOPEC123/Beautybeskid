@@ -13,6 +13,7 @@ import { appointmentsApi } from '@/api/appointments.api';
 import { servicesApi } from '@/api/services.api';
 import { HomecareRoutinePanel } from '@/components/homecare/HomecareRoutinePanel';
 import { CalendarView } from '@/components/calendar/CalendarView';
+import { appointmentPrice } from '@/lib/appointmentPrice';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -37,49 +38,27 @@ const ARCHIVED_STATUSES = ['CANCELLED', 'COMPLETED', 'NO_SHOW'];
 
 // ─── Price helpers ─────────────────────────────────────────────────────────────
 
-function calcDiscountedPrice(price: number, reward: any): number {
-  if (!reward) return price;
-  const discountValue = Number(reward.discountValue ?? 0);
-  if (!Number.isFinite(discountValue) || discountValue <= 0) return price;
-  if (reward.discountType === 'PERCENTAGE') {
-    return Math.max(0, price * (1 - discountValue / 100));
-  }
-  if (reward.discountType === 'AMOUNT') {
-    return Math.max(0, price - discountValue);
-  }
-  return price;
-}
+function PriceDisplay({ appointment }: { appointment: any }) {
+  const price = appointmentPrice(appointment);
+  if (!price) return null;
 
-function PriceDisplay({ service, coupon, discountCodeUsage }: { service: any; coupon?: any; discountCodeUsage?: any }) {
-  if (!service?.price) return null;
-  const base = Number(service.price);
-
-  // Determine active discount: loyalty coupon takes priority, then discount code
-  const couponReward = coupon?.reward;
-  const discountCode = discountCodeUsage?.discountCode;
-  const activeDiscount = couponReward ?? discountCode ?? null;
-
-  const discounted = activeDiscount ? calcDiscountedPrice(base, activeDiscount) : base;
-  const hasDiscount = activeDiscount && discounted < base;
-
-  const label = couponReward
-    ? `Kupon: ${couponReward.name}`
-    : discountCode
-      ? `Kod: ${discountCode.code}`
-      : '';
+  const breakdown = Array.isArray(appointment.discountBreakdown) ? appointment.discountBreakdown : [];
+  const label = breakdown.map((item: any) => item?.label).filter(Boolean).join(' + ');
 
   return (
     <span className="flex items-center gap-1.5 flex-wrap">
-      {hasDiscount ? (
+      {price.hasDiscount ? (
         <>
-          <span className="line-through text-muted-foreground text-xs">{base.toFixed(2)} zł</span>
-          <span className="font-bold text-green-600 text-xs">{discounted.toFixed(2)} zł</span>
-          <span className="text-[10px] bg-green-100 text-green-700 border border-green-300 px-1.5 py-0.5 rounded-full font-medium">
-            {label}
-          </span>
+          <span className="line-through text-muted-foreground text-xs">{price.base.toFixed(2)} zł</span>
+          <span className="font-bold text-green-600 text-xs">{price.final.toFixed(2)} zł</span>
+          {label && (
+            <span className="text-[10px] bg-green-100 text-green-700 border border-green-300 px-1.5 py-0.5 rounded-full font-medium">
+              {label}
+            </span>
+          )}
         </>
       ) : (
-        <span className="font-bold text-primary text-xs">{base.toFixed(2)} zł</span>
+        <span className="font-bold text-primary text-xs">{price.final.toFixed(2)} zł</span>
       )}
     </span>
   );
@@ -225,7 +204,7 @@ function AppointmentRow({ a, highlighted = false }: { a: any; highlighted?: bool
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold text-sm">{a.service?.name}</p>
-            <PriceDisplay service={a.service} coupon={a.coupon} discountCodeUsage={a.discountCodeUsage} />
+            <PriceDisplay appointment={a} />
             {a.rescheduleStatus === 'PENDING' && (
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-400">
                 🔄 Prośba o zmianę terminu

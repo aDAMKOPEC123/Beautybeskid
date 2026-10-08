@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Pencil, Check, X } from 'lucide-react';
 import { usersApi } from '@/api/users.api';
 import { appointmentsApi } from '@/api/appointments.api';
+import { appointmentPrice, formatPrice } from '@/lib/appointmentPrice';
 
 const Skeleton = ({ className = '' }: { className?: string }) => (
   <div className={`bg-gray-100 animate-pulse rounded ${className}`} />
@@ -79,6 +80,7 @@ export function DrawerVisitTab({ appointment }: Props) {
     </div>
   );
 
+  const price = appointmentPrice(appointment);
   const hasAllergies = !!(user as any)?.cardAllergies || !!(user as any)?.cardConditions;
 
   const fmt = (d: Date) => d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -95,7 +97,8 @@ export function DrawerVisitTab({ appointment }: Props) {
           <div className="flex items-center gap-2 text-gray-500">
             <span>
               {timeRange}
-              {appointment.service?.price != null ? ` · ${appointment.service.price} zł` : ''}
+              {price ? ` · ${formatPrice(price.final)} zł` : ''}
+              {price?.hasDiscount && ` (zamiast ${formatPrice(price.base)} zł)`}
               {apptDurationMin > 0 && ` · ${apptDurationMin} min`}
             </span>
             {['PENDING', 'CONFIRMED'].includes(appointment.status) && (

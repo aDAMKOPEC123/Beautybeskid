@@ -1,6 +1,7 @@
 import { EventContentArg } from '@fullcalendar/core';
 import { cn } from '@/lib/utils';
 import { cardDensity } from './cardDensity';
+import { formatPrice } from '@/lib/appointmentPrice';
 
 // Kolory statusów pochodzą z custom properties zdefiniowanych w calendar.css —
 // jedno źródło wspólne z legendą, więc próbka w legendzie nigdy nie rozjedzie
@@ -23,7 +24,6 @@ interface AppointmentEventProps {
   clientName: string;
   serviceName: string;
   price: number;
-  discountPercent?: number;
   status: string;
   employeeInitials?: string;
   employeeColor?: string;
@@ -35,9 +35,7 @@ interface AppointmentEventProps {
 export function AppointmentCard({ event }: EventContentArg) {
   const props = event.extendedProps as AppointmentEventProps;
 
-  const priceLabel = props.discountPercent
-    ? `${props.price} zł (–${props.discountPercent}%)`
-    : `${props.price} zł`;
+  const priceLabel = `${formatPrice(props.price)} zł`;
 
   const fmt = (d: Date) => d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   const startLabel = event.start ? fmt(event.start) : '';
