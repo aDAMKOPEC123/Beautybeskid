@@ -14,6 +14,7 @@ import {
 import { createAndEmitNotification } from '../notifications/notifications.service';
 import { sendPushToUser, sendPushToAdmins } from '../push/push.service';
 import { isSlotBlocked, type BlockLike } from '../calendar-blocks/calendar-blocks.rules';
+import { hasAppointmentConflict, MAX_APPOINTMENT_LOOKBACK_MS } from './appointments.rules';
 
 const appointmentInclude = {
   service: {
@@ -112,6 +113,33 @@ const todayInclude = {
 } as const;
 
 type DiscountType = 'PERCENTAGE' | 'AMOUNT';
+
+// Kolizja liczona po faktycznym czasie trwania zajętych wizyt — tak samo jak w
+// getAvailability, żeby termin pokazany jako wolny dało się też zarezerwować.
+const hasEmployeeConflict = async (
+  employeeId: string,
+  start: Date,
+  end: Date,
+  excludeAppointmentId?: string,
+) => {
+  const booked = await prisma.appointment.findMany({
+    where: {
+      ...(excludeAppointmentId ? { id: { not: excludeAppointmentId } } : {}),
+      employeeId,
+      status: { in: ['PENDING', 'CONFIRMED'] },
+      date: {
+        gte: new Date(start.getTime() - MAX_APPOINTMENT_LOOKBACK_MS),
+        lt: end,
+      },
+    },
+    select: {
+      date: true,
+      customDurationMinutes: true,
+      service: { select: { durationMinutes: true } },
+    },
+  });
+  return hasAppointmentConflict(start, end, booked);
+};
 
 const roundMoney = (value: number) => Math.round(Math.max(0, value) * 100) / 100;
 
@@ -388,20 +416,9 @@ export const updateAppointmentTime = async (
   // Conflict check (skip for same appointment)
   if (appointment.employeeId) {
     const newEnd = new Date(newDate.getTime() + newDuration * 60_000);
-    const conflictBuffer = newDuration * 60_000;
-    const conflict = await prisma.appointment.findFirst({
-      where: {
-        id: { not: id },
-        employeeId: appointment.employeeId,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-        date: {
-          gte: new Date(newDate.getTime() - conflictBuffer),
-          lt: newEnd,
-        },
-      },
-      select: { id: true, date: true },
-    });
-    if (conflict) throw new AppError('Wybrany termin koliduje z inną wizytą', 409);
+    if (await hasEmployeeConflict(appointment.employeeId, newDate, newEnd, id)) {
+      throw new AppError('Wybrany termin koliduje z inną wizytą', 409);
+    }
   }
 
   return prisma.appointment.update({
@@ -443,19 +460,8 @@ export const createAppointment = async (userId: string, data: CreateAppointmentD
     const durationMs = (service?.durationMinutes ?? 60) * 60_000;
     const apptEnd = new Date(apptStart.getTime() + durationMs);
 
-    if (rest.employeeId) {
-      const conflict = await prisma.appointment.findFirst({
-        where: {
-          employeeId: rest.employeeId,
-          status: { in: ['PENDING', 'CONFIRMED'] },
-          date: {
-            gte: new Date(apptStart.getTime() - durationMs),
-            lt: apptEnd,
-          },
-        },
-        select: { id: true },
-      });
-      if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+    if (rest.employeeId && await hasEmployeeConflict(rest.employeeId, apptStart, apptEnd)) {
+      throw new AppError('Wybrany termin jest niedostępny', 409);
     }
 
     // K2: Sprawdź blokady godzin — bez tego klientka mogła zapisać się w zablokowanym
@@ -914,15 +920,9 @@ export const createExternalClientAppointment = async (data: {
     const apptStart = new Date(data.date);
     const durationMs = (data.customDurationMinutes ?? service?.durationMinutes ?? 60) * 60_000;
     const apptEnd = new Date(apptStart.getTime() + durationMs);
-    const conflict = await prisma.appointment.findFirst({
-      where: {
-        employeeId: data.employeeId,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-        date: { gte: new Date(apptStart.getTime() - durationMs), lt: apptEnd },
-      },
-      select: { id: true },
-    });
-    if (conflict) throw new AppError('Wybrany termin jest niedostępny', 409);
+    if (await hasEmployeeConflict(data.employeeId, apptStart, apptEnd)) {
+      throw new AppError('Wybrany termin jest niedostępny', 409);
+    }
   }
 
   const result = await prisma.$transaction(async (tx) => {
