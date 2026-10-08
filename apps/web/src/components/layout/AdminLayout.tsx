@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthRequired } from '@/components/auth/AuthRequired';
 import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { useSocket } from '@/hooks/useSocket';
@@ -395,7 +396,8 @@ export const AdminLayout = () => {
   const sprzedazActive = isCurrentSection(location.pathname, ['/admin/finanse', '/admin/kody-rabatowe', '/admin/promocje-sklepowe', '/admin/lojalnosc', '/admin/asortyment', '/admin/vouchery']);
 
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
-  if (!isAuthenticated || !isAdmin) return <Navigate to="/" replace />;
+  if (!isAuthenticated) return <AuthRequired from={location.pathname + location.search} to="/" />;
+  if (!isAdmin) return <Navigate to="/" replace />;
 
   return (
     // h-[100dvh], nie min-h-screen: min-height nie ustanawia okreslonej wysokosci, wiec

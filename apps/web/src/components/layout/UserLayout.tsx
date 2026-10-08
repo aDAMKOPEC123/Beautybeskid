@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthRequired } from '@/components/auth/AuthRequired';
 import { api } from '@/lib/axios';
 import { discountCodesApi } from '@/api/discount-codes.api';
 import { authApi } from '@/api/auth.api';
@@ -317,7 +318,7 @@ const UserLayoutInner = ({ children }: { children?: ReactNode }) => {
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname + location.search }} replace />;
+  if (!isAuthenticated) return <AuthRequired from={location.pathname + location.search} />;
 
   // Force password change for admin-created accounts
   if (storeUser?.mustChangePassword && location.pathname !== '/user/zmien-haslo') {

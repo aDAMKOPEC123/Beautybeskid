@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthRequired } from '@/components/auth/AuthRequired';
 import { Navbar } from './Navbar';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { Footer } from './Footer';
@@ -21,7 +22,7 @@ export const EmployeeLayout = () => {
   }, [isConnected, socket, setStaffUnreadTotal]);
 
   if (isLoading) return <div className="p-8 text-center">Ładowanie...</div>;
-  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
+  if (!isAuthenticated) return <AuthRequired from={location.pathname + location.search} />;
   if (!isEmployee) return <Navigate to="/" replace />;
 
   return (

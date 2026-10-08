@@ -9,6 +9,9 @@ import { useAuthStore } from './store/auth.store';
 import { useClientPanelTransitionStore } from './store/clientPanelTransition.store';
 import { refreshSession, isSessionTerminated } from './lib/axios';
 import { trackPageView } from './lib/analytics';
+import { appHandoffApi } from './api/appHandoff.api';
+import { isPwaAlreadyInstalled } from './hooks/usePwaInstall';
+import { currentDeviceKey, safeHandoffPath } from './lib/appHandoff';
 import {
   clearChunkReloadMarks,
   getErrorMessage,
@@ -159,6 +162,34 @@ function App() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [logout]);
+
+  // PWA: odbierz link zapamiętany w przeglądarce (np. Messengera) i otwórz tę stronę.
+  useEffect(() => {
+    if (!isPwaAlreadyInstalled()) return;
+
+    let lastClaimAt = 0;
+    const claimHandoff = () => {
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastClaimAt < 5000) return;
+      lastClaimAt = now;
+
+      appHandoffApi
+        .claim(currentDeviceKey())
+        .then((claimed) => {
+          const path = safeHandoffPath(claimed);
+          const { pathname, search } = router.state.location;
+          if (path && path !== `${pathname}${search}`) router.navigate(path);
+        })
+        .catch(() => {
+          // Brak sieci lub linku — aplikacja zostaje tam, gdzie była.
+        });
+    };
+
+    claimHandoff();
+    document.addEventListener('visibilitychange', claimHandoff);
+    return () => document.removeEventListener('visibilitychange', claimHandoff);
+  }, []);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {

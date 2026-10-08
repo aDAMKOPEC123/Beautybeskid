@@ -2916,3 +2916,13 @@ model CalendarFeed {
   lastAccessedAt DateTime?
   accessCount    Int       @default(0)
 }
+
+model AppHandoff {
+  id        String   @id @default(cuid())
+  matchKey  String
+  path      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([matchKey, expiresAt])
+}
